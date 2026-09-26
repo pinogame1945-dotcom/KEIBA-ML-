@@ -3,7 +3,8 @@
   "created_date": "2026-09-27",
   "implementation_snapshot": {
     "repository": "pinogame1945-dotcom/KEIBA-ML-",
-    "main_commit": "cdac12283f080492f5824f59074dc573d4b57775"
+    "main_commit": "cdac12283f080492f5824f59074dc573d4b57775",
+    "feature_schema_version": 6
   },
   "principles": {
     "ability_uses_odds": false,
@@ -34,10 +35,10 @@
   ],
   "counts": {
     "total": 138,
-    "available": 92,
+    "available": 89,
     "derivable": 16,
     "backfill_required": 19,
-    "prohibited_l1": 8,
+    "prohibited_l1": 11,
     "l2_only": 3
   },
   "features": [
@@ -237,18 +238,18 @@
       "domain": "RACE",
       "source_field": "race.actual_start_time",
       "kind": "RAW",
-      "available_at": "ENTRY_PUBLISHED",
+      "available_at": "POST_RACE",
       "history_boundary": "CURRENT_RACE_KNOWN_FACT",
       "scope": "RACE",
       "calculation": "identity",
       "missing_rule": "null",
-      "l1_allowed": true,
-      "l2_allowed": true,
-      "android_mode": "TODAY",
-      "status": "AVAILABLE",
-      "leakage_risk": "LOW",
+      "l1_allowed": false,
+      "l2_allowed": false,
+      "android_mode": "NONE",
+      "status": "PROHIBITED_L1",
+      "leakage_risk": "HIGH",
       "discovery_group": "race",
-      "notes": ""
+      "notes": "BACKFILLの結果ページ由来の実発走時刻。レース前に確定している保証がないため学習入力から除外。将来scheduled_start_timeを別項目で用意する。"
     },
     {
       "feature_id": "entry.gate",
@@ -356,13 +357,13 @@
       "scope": "HORSE",
       "calculation": "identity",
       "missing_rule": "null",
-      "l1_allowed": true,
-      "l2_allowed": true,
-      "android_mode": "TODAY",
-      "status": "AVAILABLE",
+      "l1_allowed": false,
+      "l2_allowed": false,
+      "android_mode": "NONE",
+      "status": "PROHIBITED_L1",
       "leakage_risk": "MEDIUM",
       "discovery_group": "identity",
-      "notes": "ID直入れは暗記の危険あり。将来は過去時点統計を主役にする。"
+      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。"
     },
     {
       "feature_id": "entry.trainer_id",
@@ -375,13 +376,13 @@
       "scope": "HORSE",
       "calculation": "identity",
       "missing_rule": "null",
-      "l1_allowed": true,
-      "l2_allowed": true,
-      "android_mode": "TODAY",
-      "status": "AVAILABLE",
+      "l1_allowed": false,
+      "l2_allowed": false,
+      "android_mode": "NONE",
+      "status": "PROHIBITED_L1",
       "leakage_risk": "MEDIUM",
       "discovery_group": "identity",
-      "notes": "ID直入れは暗記の危険あり。将来は過去時点統計を主役にする。"
+      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。"
     },
     {
       "feature_id": "entry.body_weight",
