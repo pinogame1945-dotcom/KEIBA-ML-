@@ -13,7 +13,7 @@ import pandas as pd
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 EXPECTED_DATASET_VERSION = 3
-EXPECTED_FEATURE_SCHEMA_VERSION = 6
+EXPECTED_FEATURE_SCHEMA_VERSION = 7
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 STAGES = {
