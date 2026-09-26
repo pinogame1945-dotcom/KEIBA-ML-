@@ -316,6 +316,15 @@ export function summarizeReadiness(overallBucket, yearBuckets, {
     }
   }
 
+  const lapsStats = overall.fields.course_laps;
+  gates.push({
+    type: "INVALID_RATE",
+    field: "course_laps",
+    pass: lapsStats.invalid_rate != null && lapsStats.invalid_rate <= maxInvalidRate,
+    actual: lapsStats.invalid_rate,
+    required_max: maxInvalidRate,
+  });
+
   const margin = overall.margin;
   gates.push({
     type: "MARGIN_TYPE_COVERAGE",
