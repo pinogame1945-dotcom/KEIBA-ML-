@@ -70,6 +70,9 @@ function race({ id, date, finish, last3f, time, horse = "H1", jockey = "J1", dis
 
 const jan = race({ id: "202405010101", date: "2024-01-01", finish: 3, last3f: 34.5, time: 94500 });
 jan.entries[0].body_weight_diff = null;
+jan.results[0].margin_raw = "1/2";
+jan.results[0].margin_type = "LENGTHS";
+jan.results[0].margin_lengths = 0.5;
 const janBuilt = buildRichDataset([jan], { startDate: "2024-01-01", endDate: "2024-01-01" });
 assert.equal(janBuilt[0].features.body_weight_diff, null);
 const feb = race({ id: "202405010201", date: "2024-02-01", finish: 1, last3f: 33.9, time: 93000, distance: 1800 });
@@ -82,10 +85,12 @@ assert.equal(febOnly[0].features.previous_finish_position, 3);
 assert.equal(febOnly[0].features.distance_change_m, 200);
 assert.equal(febOnly[0].features.jockey_continues, true);
 assert.equal(febOnly[0].target.finish_position, 1);
+assert.equal(febOnly[0].target.margin_type, null);
+assert.equal(febOnly[0].target.margin_lengths, null);
 assert.equal(febOnly[0].market_outcome.final_win_odds, 99.9);
 assert.equal(febOnly[0].market_outcome.final_popularity, 18);
 assert.equal(ML_DATASET_VERSION, 3);
-assert.equal(ML_FEATURE_SCHEMA_VERSION, 6);
+assert.equal(ML_FEATURE_SCHEMA_VERSION, 7);
 assert.equal(febOnly[0].ml_dataset_version, ML_DATASET_VERSION);
 assert.equal(febOnly[0].feature_schema_version, ML_FEATURE_SCHEMA_VERSION);
 assert.equal(febOnly[0].leakage_policy, ML_LEAKAGE_POLICY);
@@ -94,6 +99,10 @@ assert.equal(febOnly[0].features.auto_history_distance_m_mean, 1600);
 assert.equal(febOnly[0].features.auto_pair_distance_vs_recent_mean_diff, 200);
 assert.equal(febOnly[0].features.auto_history_body_weight_mean, 480);
 assert.equal(febOnly[0].features.auto_pair_body_weight_vs_recent_mean_diff, 0);
+assert.equal(febOnly[0].features.auto_history_margin_lengths_observation_count, 1);
+assert.equal(febOnly[0].features.auto_history_margin_lengths_mean, 0.5);
+assert.equal(febOnly[0].features.auto_history_margin_small_gap_rate, 1);
+assert.equal(febOnly[0].features.auto_history_margin_tight_categorical_rate, 0);
 assert.equal(Object.hasOwn(febOnly[0].features, "actual_start_time"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "jockey_id"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "trainer_id"), false);
@@ -303,3 +312,44 @@ assert.equal(layoutBuilt[0].features.auto_finish_same_course_layout_starts, 1);
 assert.equal(layoutBuilt[0].features.auto_finish_same_course_layout_success_rate, 1);
 assert.equal(layoutBuilt[0].features.auto_finish_same_class_starts, 1);
 assert.equal(layoutBuilt[0].features.auto_finish_same_weight_rule_starts, 1);
+
+
+const marginHistory = race({
+  id: "202505011401",
+  date: "2025-02-01",
+  finish: 2,
+  last3f: 33.8,
+  time: 93500,
+  horse: "MG",
+});
+marginHistory.results[0].margin_raw = "クビ";
+marginHistory.results[0].margin_type = "NECK";
+marginHistory.results[0].margin_lengths = null;
+marginHistory.race.course_layout = "OUTER";
+marginHistory.race.race_class_normalized = "OPEN";
+marginHistory.race.age_condition_raw = "3歳以上";
+marginHistory.race.weight_rule = "SPECIAL_WEIGHT";
+
+const marginTarget = race({
+  id: "202505011501",
+  date: "2025-03-01",
+  finish: 1,
+  last3f: 33.0,
+  time: 92000,
+  horse: "MG",
+});
+marginTarget.race.course_layout = "OUTER";
+marginTarget.race.race_class_normalized = "OPEN";
+marginTarget.race.age_condition_raw = "3歳以上";
+marginTarget.race.weight_rule = "SPECIAL_WEIGHT";
+
+const marginBuilt = buildRichDataset(
+  [marginHistory, marginTarget],
+  { startDate: "2025-03-01", endDate: "2025-03-01" },
+);
+assert.equal(marginBuilt[0].features.auto_history_margin_type_observation_count, 1);
+assert.equal(marginBuilt[0].features.auto_history_margin_tight_categorical_rate, 1);
+assert.equal(marginBuilt[0].features.auto_history_margin_small_gap_rate, 1);
+assert.equal(marginBuilt[0].features.auto_history_margin_lengths_observation_count, 0);
+assert.equal(marginBuilt[0].features.auto_margin_gap_same_course_layout_starts, 1);
+assert.equal(marginBuilt[0].features.auto_margin_gap_same_course_layout_success_rate, 1);
