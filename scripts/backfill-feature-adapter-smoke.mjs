@@ -6,7 +6,7 @@ import {
   readBackfillMarginContext,
 } from "../src/backfill-feature-adapter.mjs";
 
-assert.equal(BACKFILL_FEATURE_ADAPTER_VERSION, 1);
+assert.equal(BACKFILL_FEATURE_ADAPTER_VERSION, 2);
 
 const entries = [
   { horse_id: "A", entry_status: "STARTED" },
@@ -78,17 +78,19 @@ assert.ok(raw.race_condition_raw.includes("オープン"));
 
 const margin = readBackfillMarginContext({
   margin_raw: "1/2",
-  normalized_margin: 0.5,
-  margin_seconds: 0.1,
-  margin_length_equivalent: 0.5,
-  margin_kind: "LENGTH",
-  margin_normalization_version: "v1",
+  margin_type: "LENGTHS",
+  margin_lengths: 0.5,
 });
 assert.equal(margin.margin_raw, "1/2");
-assert.equal(margin.normalized_margin, 0.5);
-assert.equal(margin.margin_seconds, 0.1);
-assert.equal(margin.margin_length_equivalent, 0.5);
-assert.equal(margin.margin_kind, "LENGTH");
-assert.equal(margin.margin_normalization_version, "v1");
+assert.equal(margin.margin_type, "LENGTHS");
+assert.equal(margin.margin_lengths, 0.5);
+
+const categoricalMargin = readBackfillMarginContext({
+  margin_raw: "ハナ",
+  margin_type: "NOSE",
+  margin_lengths: null,
+});
+assert.equal(categoricalMargin.margin_type, "NOSE");
+assert.equal(categoricalMargin.margin_lengths, null);
 
 console.log("BACKFILL_FEATURE_ADAPTER_SMOKE_OK");
