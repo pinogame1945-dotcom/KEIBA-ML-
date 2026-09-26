@@ -1,0 +1,34 @@
+{
+  "contract": "L1_PORTABLE_FOUNDATION_V1",
+  "ml_dataset_version": 2,
+  "feature_schema_version": 3,
+  "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
+  "target": "target.is_win",
+  "ability_uses_odds": false,
+  "forbidden_predictors": [
+    "target race finish/result",
+    "target race finish time",
+    "target race last_3f",
+    "final odds",
+    "final popularity",
+    "payout",
+    "prize money"
+  ],
+  "feature_families": [
+    "base",
+    "opponent",
+    "network",
+    "lap",
+    "style",
+    "pedigree",
+    "distance"
+  ],
+  "portable_outputs": [
+    "LightGBM text model",
+    "model metadata",
+    "exact ordered feature schema",
+    "categorical levels",
+    "out-of-fold horse predictions"
+  ],
+  "note": "Exact feature order and categorical levels are generated per trained model and must be treated as part of that model."
+}
