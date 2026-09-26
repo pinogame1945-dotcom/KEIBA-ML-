@@ -30,3 +30,13 @@ assert.ok(workflow.includes("--max-invalid-rate 0"));
 assert.ok(workflow.includes("--max-year-gap 0.10"));
 
 console.log("L1_READINESS_GATE_SMOKE_OK");
+
+
+assert.equal(workflow.includes("actions/upload-artifact"), false);
+assert.equal(workflow.includes("- pedigree"), false);
+assert.equal(workflow.includes("- distance\n"), false);
+assert.ok(workflow.includes("- distance_v1"));
+assert.ok(workflow.includes("--readiness-report out/backfill-readiness.json"));
+assert.ok(workflow.includes("--source-sha \"$BACKFILL_SHA\""));
+assert.ok(walk.includes("validate_readiness_report"));
+assert.ok(walk.includes("BACKFILL SHA mismatch"));
