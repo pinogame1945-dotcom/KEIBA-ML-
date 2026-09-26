@@ -60,6 +60,7 @@ assert.equal(good.ready_for_l1_research, true);
 assert.equal(good.failed_gate_count, 0);
 assert.equal(good.overall.races, 2);
 assert.equal(good.overall.fields.course_layout.known_coverage, 1);
+assert.equal(good.overall.fields.course_laps.known_coverage, 1);
 assert.equal(good.overall.fields.grade.known_coverage, 1);
 assert.equal(good.overall.margin.raw_coverage, 1);
 assert.equal(good.overall.margin.margin_seconds_coverage, 1);
@@ -119,3 +120,32 @@ assert.equal(partialMargin.overall.margin.normalized_margin_coverage, 0);
 assert.equal(partialMargin.overall.margin.margin_seconds_coverage, 0);
 
 console.log("BACKFILL_READINESS_SMOKE_OK");
+
+
+const missingLaps = auditBackfillRows([
+  row("2025-02-01", { course_laps: null }),
+], {
+  minCoreKnownCoverage: 0.98,
+  maxInvalidRate: 0,
+  maxYearGap: 1,
+});
+assert.equal(missingLaps.ready_for_l1_research, false);
+assert.ok(missingLaps.failed_gates.some(g =>
+  g.type === "CORE_KNOWN_COVERAGE" && g.field === "course_laps"
+));
+
+const legacyMismatch = auditBackfillRows([
+  row("2025-03-01", {
+    race_class_raw: "3歳以上1000万下",
+    race_class_normalized: "ONE_WIN",
+  }),
+], {
+  minCoreKnownCoverage: 0,
+  maxInvalidRate: 0,
+  maxYearGap: 1,
+});
+assert.equal(legacyMismatch.ready_for_l1_research, false);
+assert.equal(legacyMismatch.overall.fields.race_class_normalized.invalid, 1);
+assert.ok(Object.keys(legacyMismatch.overall.warnings).some(key =>
+  key.startsWith("race_class_semantic:expected_TWO_WIN")
+));
