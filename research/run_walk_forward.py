@@ -18,7 +18,7 @@ def parse_args():
     p.add_argument("--warmup-years", type=int, default=1)
     p.add_argument("--history-limit", type=int, default=5)
     p.add_argument("--stage", default="style",
-                   choices=["base","opponent_v1","opponent_both","lap","style","auto_v1","pedigree","distance"])
+                   choices=["base","opponent_v1","opponent_both","lap","style","backfill_v1","auto_v1","auto_backfill_v1","pedigree","distance"])
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
     p.add_argument("--source-ref", default="main")
     p.add_argument("--source-sha")
