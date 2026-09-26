@@ -3,9 +3,12 @@
   "version": "0.1.0",
   "private": true,
   "type": "module",
-  "engines": { "node": ">=20" },
+  "engines": {
+    "node": ">=20"
+  },
   "scripts": {
     "smoke:l1-dataset": "node scripts/l1-dataset-smoke.mjs",
-    "build:l1-dataset": "node research/build-staged-dataset.mjs"
+    "build:l1-dataset": "node research/build-staged-dataset.mjs",
+    "check:feature-catalog": "node scripts/validate-feature-catalog.mjs"
   }
 }
