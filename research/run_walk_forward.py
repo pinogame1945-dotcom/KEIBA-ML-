@@ -24,6 +24,9 @@ def parse_args():
     p.add_argument("--source-sha")
     p.add_argument("--keep-datasets", action="store_true")
     p.add_argument("--plan-only", action="store_true")
+    p.add_argument("--min-core-known-coverage", type=float, default=0.98)
+    p.add_argument("--max-invalid-rate", type=float, default=0.0)
+    p.add_argument("--max-year-gap", type=float, default=0.10)
     return p.parse_args()
 
 
@@ -47,12 +50,33 @@ def run(cmd):
     subprocess.run([str(x) for x in cmd], check=True)
 
 
+def readiness_command(a, folds, report_path):
+    source_start = min(fold["source_start"] for fold in folds)
+    source_end = max(fold["source_end"] for fold in folds)
+    return [
+        "node", "scripts/audit-backfill-readiness.mjs",
+        "--source-root", a.source_root,
+        "--start", source_start,
+        "--end", source_end,
+        "--report-out", report_path,
+        "--min-core-known-coverage", a.min_core_known_coverage,
+        "--max-invalid-rate", a.max_invalid_rate,
+        "--max-year-gap", a.max_year_gap,
+    ]
+
+
 def main():
     a = parse_args()
     if a.first_holdout > a.last_holdout:
         raise ValueError("first-holdout must be <= last-holdout")
     if a.train_years < 1 or a.warmup_years < 0:
         raise ValueError("invalid train/warmup years")
+    if not (0 <= a.min_core_known_coverage <= 1):
+        raise ValueError("min-core-known-coverage must be from 0 to 1")
+    if not (0 <= a.max_invalid_rate <= 1):
+        raise ValueError("max-invalid-rate must be from 0 to 1")
+    if not (0 <= a.max_year_gap <= 1):
+        raise ValueError("max-year-gap must be from 0 to 1")
 
     folds = [
         fold_spec(y, a.train_years, a.warmup_years)
@@ -69,6 +93,23 @@ def main():
         return
 
     root = Path(a.out_dir)
+    root.mkdir(parents=True, exist_ok=True)
+    readiness_report = root / "backfill-readiness.json"
+
+    print("L1_BACKFILL_READINESS_GATE", flush=True)
+    try:
+        run(readiness_command(a, folds, readiness_report))
+    except subprocess.CalledProcessError as error:
+        print(
+            "L1_BACKFILL_READINESS_BLOCKED: BACKFILL is not ready. "
+            f"See {readiness_report}. Training was not started.",
+            file=sys.stderr,
+            flush=True,
+        )
+        raise SystemExit(error.returncode) from error
+
+    print("L1_BACKFILL_READINESS_PASS", flush=True)
+
     datasets = root / "tmp-datasets"
     models = root / "models"
     oof_dir = root / "oof"
@@ -148,6 +189,12 @@ def main():
         "train_years": a.train_years,
         "warmup_years": a.warmup_years,
         "history_limit": a.history_limit,
+        "readiness_gate": {
+            "report": str(readiness_report),
+            "min_core_known_coverage": a.min_core_known_coverage,
+            "max_invalid_rate": a.max_invalid_rate,
+            "max_year_gap": a.max_year_gap,
+        },
         "folds": summaries,
         "combined_oof": str(combined),
     }
