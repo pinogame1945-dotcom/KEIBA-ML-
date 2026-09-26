@@ -60,7 +60,7 @@ After the L1 foundation is stable:
 
 ## AUTO FEATURE FACTORY V1
 
-Dataset version 3 / feature schema 4 contains AUTO FEATURE FACTORY V1 outputs.
+Dataset version 3 / feature schema 5 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
 
 The first connected sources are limited to prior-race:
 
@@ -85,3 +85,15 @@ Training does **not** consume these automatically. The existing `style` stage re
 Use `auto_v1` only when intentionally comparing the AUTO feature family in walk-forward research.
 
 Final odds, popularity and payout remain forbidden AUTO inputs.
+
+
+## BACKFILL receiver
+
+The ML dataset can now receive the new normalized race conditions without changing the existing `style` baseline.
+
+- `backfill_v1`: style + normalized BACKFILL race conditions
+- `auto_backfill_v1`: style + AUTO + normalized BACKFILL race conditions
+
+Missing BACKFILL fields remain null. ML does not re-parse raw race-condition text.
+
+Margin normalization fields are readable by the adapter but are not yet model inputs. They remain blocked until their exact semantics and coverage are confirmed.
