@@ -1,5 +1,11 @@
 import assert from "node:assert/strict";
-import { buildMlDataset, buildRaceOutcomes, ML_DATASET_VERSION, ML_LEAKAGE_POLICY } from "../src/ml-dataset.mjs";
+import {
+  buildMlDataset,
+  buildRaceOutcomes,
+  ML_DATASET_VERSION,
+  ML_FEATURE_SCHEMA_VERSION,
+  ML_LEAKAGE_POLICY,
+} from "../src/ml-dataset.mjs";
 
 function race({ id, date, finish, last3f, time, horse = "H1", jockey = "J1", distance = 1600 }) {
   return {
@@ -70,8 +76,16 @@ assert.equal(febOnly[0].features.jockey_continues, true);
 assert.equal(febOnly[0].target.finish_position, 1);
 assert.equal(febOnly[0].market_outcome.final_win_odds, 99.9);
 assert.equal(febOnly[0].market_outcome.final_popularity, 18);
+assert.equal(ML_DATASET_VERSION, 3);
+assert.equal(ML_FEATURE_SCHEMA_VERSION, 4);
 assert.equal(febOnly[0].ml_dataset_version, ML_DATASET_VERSION);
+assert.equal(febOnly[0].feature_schema_version, ML_FEATURE_SCHEMA_VERSION);
 assert.equal(febOnly[0].leakage_policy, ML_LEAKAGE_POLICY);
+assert.equal(febOnly[0].features.auto_history_finish_position_mean, 3);
+assert.equal(febOnly[0].features.auto_history_distance_m_mean, 1600);
+assert.equal(febOnly[0].features.auto_pair_distance_vs_recent_mean_diff, 200);
+assert.equal(febOnly[0].features.auto_history_body_weight_mean, 480);
+assert.equal(febOnly[0].features.auto_pair_body_weight_vs_recent_mean_diff, 0);
 assert.equal(Object.hasOwn(febOnly[0].features, "win_odds"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "official_finish_position"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "last_3f"), false);
@@ -102,6 +116,8 @@ const sameDay = buildMlDataset([sameDayFirst, sameDaySecond], { startDate: "2024
 assert.equal(sameDay.length, 2);
 assert.equal(sameDay[0].features.prior_starts, 0);
 assert.equal(sameDay[1].features.prior_starts, 0);
+assert.equal(sameDay[0].features.auto_history_finish_position_observation_count, 0);
+assert.equal(sameDay[1].features.auto_history_finish_position_observation_count, 0);
 
 console.log("ml dataset smoke: ok");
 
@@ -169,3 +185,14 @@ assert.ok(networkLoser.features.network_elo_rating < 1500);
 assert.equal(networkWinner.features.network_elo_starts, 1);
 assert.ok(networkWinner.features.network_elo_vs_field_avg > 0);
 assert.ok(networkWinner.features.network_expected_pairwise_score > 0.5);
+
+
+assert.equal(networkWinner.features.auto_field_network_elo_rating_rank, 1);
+assert.equal(networkLoser.features.auto_field_network_elo_rating_rank, 2);
+assert.ok(networkWinner.features.auto_field_network_elo_rating_diff_mean > 0);
+assert.ok(networkLoser.features.auto_field_network_elo_rating_diff_mean < 0);
+
+for (const row of [...febOnly, ...networkBuilt]) {
+  const names = Object.keys(row.features);
+  assert.equal(names.some(name => /odds|popularity|payout/i.test(name)), false);
+}
