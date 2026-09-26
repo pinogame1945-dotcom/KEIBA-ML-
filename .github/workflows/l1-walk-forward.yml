@@ -114,12 +114,35 @@ jobs:
 
       - name: Print walk-forward plan
         run: |
-          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"             --ml-source-sha "$GITHUB_SHA"             --readiness-report out/backfill-readiness.json             --ml-source-sha "$GITHUB_SHA"             --plan-only
+          python research/run_walk_forward.py \
+            --source-root backfill \
+            --out-dir out/walk-forward \
+            --first-holdout "${{ inputs.first_holdout }}" \
+            --last-holdout "${{ inputs.last_holdout }}" \
+            --train-years "${{ inputs.train_years }}" \
+            --warmup-years "${{ inputs.warmup_years }}" \
+            --history-limit "${{ inputs.history_limit }}" \
+            --stage "${{ inputs.stage }}" \
+            --source-ref "${{ inputs.backfill_ref }}" \
+            --ml-source-sha "$GITHUB_SHA" \
+            --plan-only
 
       - name: Run L1 walk-forward
         if: ${{ inputs.mode == 'run' }}
         run: |
-          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"
+          python research/run_walk_forward.py \
+            --source-root backfill \
+            --out-dir out/walk-forward \
+            --first-holdout "${{ inputs.first_holdout }}" \
+            --last-holdout "${{ inputs.last_holdout }}" \
+            --train-years "${{ inputs.train_years }}" \
+            --warmup-years "${{ inputs.warmup_years }}" \
+            --history-limit "${{ inputs.history_limit }}" \
+            --stage "${{ inputs.stage }}" \
+            --source-ref "${{ inputs.backfill_ref }}" \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA" \
+            --readiness-report out/backfill-readiness.json
 
       - name: Show output sizes
         if: ${{ inputs.mode == 'run' }}
