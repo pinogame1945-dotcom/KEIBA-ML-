@@ -1,12 +1,13 @@
 import {
   addFieldRelativeFeatures,
+  buildConditionFeatureFamily,
   buildRollingFeatureFamily,
   buildSafePairFeatures,
 } from "./auto-feature-factory.mjs";
 import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
 
 export const ML_DATASET_VERSION = 3;
-export const ML_FEATURE_SCHEMA_VERSION = 5;
+export const ML_FEATURE_SCHEMA_VERSION = 6;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
@@ -272,7 +273,7 @@ const AUTO_FIELD_RELATIVE_SPECS = [
   { key: "recent_avg_speed_mps", prefix: "recent_avg_speed_mps", direction: "HIGHER_BETTER" },
 ];
 
-function autoHistorySnapshot(history, limit) {
+function autoHistorySnapshot(history, currentRace, limit) {
   const recent = history.slice(-limit);
 
   const finish = recent.map(item => {
@@ -298,6 +299,17 @@ function autoHistorySnapshot(history, limit) {
     ...buildRollingFeatureFamily("history_distance_m", distance),
     ...buildRollingFeatureFamily("history_body_weight", bodyWeight),
     ...buildRollingFeatureFamily("history_carried_weight", carriedWeight),
+    ...buildConditionFeatureFamily({
+      prefix: "finish",
+      history: recent,
+      currentRace,
+      valueOf: item => finite(item?.result?.official_finish_position),
+      successOf: item => {
+        const finish = finite(item?.result?.official_finish_position);
+        return finish == null ? null : finish <= 3;
+      },
+      higherIsBetter: false,
+    }),
   };
 }
 
@@ -327,9 +339,13 @@ function addAutoPairFeatures(features) {
   };
 }
 
-function currentFeatures(row, entry, historyFeatures, networkFeatures) {
+function currentFeatures(row, entry, historyFeatures, networkFeatures, {
+  includeBackfillFeatures = false,
+} = {}) {
   const race = row.race ?? {};
-  const backfill = readBackfillRaceFeatures(race, row?.entries ?? []).features;
+  const backfill = includeBackfillFeatures
+    ? readBackfillRaceFeatures(race, row?.entries ?? []).features
+    : {};
   return {
     race_date: stableRaceDate(row),
     venue_code: race.venue_code ?? null,
@@ -342,14 +358,11 @@ function currentFeatures(row, entry, historyFeatures, networkFeatures) {
     direction: race.direction ?? null,
     weather: race.weather ?? null,
     track_condition: race.track_condition ?? null,
-    actual_start_time: race.actual_start_time ?? null,
     gate: finite(entry?.gate),
     horse_number: finite(entry?.horse_number),
     sex: entry?.sex ?? null,
     age: finite(entry?.age),
     carried_weight: finite(entry?.carried_weight),
-    jockey_id: entry?.jockey_id ?? null,
-    trainer_id: entry?.trainer_id ?? null,
     body_weight: finite(entry?.body_weight),
     body_weight_diff: finite(entry?.body_weight_diff),
     ...backfill,
@@ -406,6 +419,8 @@ export function buildMlDataset(raceRows, {
   startDate = null,
   endDate = null,
   historyLimit = 5,
+  includeAutoFeatures = false,
+  includeBackfillFeatures = false,
 } = {}) {
   if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
     throw new Error("historyLimit must be an integer from 1 to 100");
@@ -446,11 +461,19 @@ export function buildMlDataset(raceRows, {
         const current = { date, race: row.race ?? {}, entry };
         const historyFeatures = historySnapshot(history, current, historyLimit, horseStatsById);
         const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
-        const autoHistoryFeatures = autoHistorySnapshot(history, historyLimit);
-        const features = addAutoPairFeatures({
-          ...currentFeatures(row, entry, historyFeatures, networkFeatures),
-          ...autoHistoryFeatures,
-        });
+        const baseFeatures = currentFeatures(
+          row,
+          entry,
+          historyFeatures,
+          networkFeatures,
+          { includeBackfillFeatures },
+        );
+        const features = includeAutoFeatures
+          ? addAutoPairFeatures({
+              ...baseFeatures,
+              ...autoHistorySnapshot(history, row.race ?? {}, historyLimit),
+            })
+          : baseFeatures;
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
         if (inRange) {
           raceOutput.push({
@@ -465,7 +488,11 @@ export function buildMlDataset(raceRows, {
           });
         }
       }
-      out.push(...addFieldRelativeFeatures(raceOutput, AUTO_FIELD_RELATIVE_SPECS));
+      out.push(...(
+        includeAutoFeatures
+          ? addFieldRelativeFeatures(raceOutput, AUTO_FIELD_RELATIVE_SPECS)
+          : raceOutput
+      ));
     }
 
     for (const row of day) {
