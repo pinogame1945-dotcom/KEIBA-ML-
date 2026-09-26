@@ -12,7 +12,7 @@ function arg(name) {
 
 function dateArg(name, fallback) {
   const value = arg(name) ?? fallback;
-  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) throw new Error(`invalid ${name}: ${value}`);
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(value)) throw new Error(`invalid ${name}: ${value}`);
   return value;
 }
 
