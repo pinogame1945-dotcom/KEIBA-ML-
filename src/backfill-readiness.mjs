@@ -43,6 +43,7 @@ const BOOLEAN_FIELDS = [
 
 const CORE_FIELDS = [
   "course_layout",
+  "course_laps",
   "race_class_normalized",
   "grade",
   "sex_condition",
@@ -111,8 +112,21 @@ function rawFieldState(race, field) {
 function warningField(warning) {
   const text = String(warning ?? "");
   if (text.startsWith("age_condition:")) return ["age_min", "age_max"];
+  if (text.startsWith("race_class_semantic:")) return ["race_class_normalized"];
   const field = text.split(":", 1)[0];
   return RACE_FIELDS.includes(field) ? [field] : [];
+}
+
+function expectedLegacyClass(raw) {
+  const text = String(raw ?? "").replace(/\s+/g, "");
+  if (!text) return null;
+  if (text.includes("新馬")) return "NEWCOMER";
+  if (text.includes("未勝利")) return "MAIDEN";
+  if (text.includes("500万下")) return "ONE_WIN";
+  if (text.includes("900万下") || text.includes("1000万下")) return "TWO_WIN";
+  if (text.includes("1600万下")) return "THREE_WIN";
+  if (text.includes("オープン")) return "OPEN";
+  return null;
 }
 
 function markRace(bucket, row) {
@@ -125,7 +139,19 @@ function markRace(bucket, row) {
   }
 
   const adapted = readBackfillRaceFeatures(race, row?.entries ?? []);
-  for (const warning of adapted.warnings) {
+  const warnings = [...adapted.warnings];
+  const expectedClass = expectedLegacyClass(race?.race_class_raw ?? race?.race_condition_raw);
+  if (
+    expectedClass != null &&
+    race?.race_class_normalized != null &&
+    String(race.race_class_normalized) !== expectedClass
+  ) {
+    warnings.push(
+      `race_class_semantic:expected_${expectedClass}:actual_${race.race_class_normalized}`,
+    );
+  }
+
+  for (const warning of warnings) {
     increment(bucket.warnings, warning);
     for (const field of warningField(warning)) {
       bucket.fields[field].invalid += 1;
