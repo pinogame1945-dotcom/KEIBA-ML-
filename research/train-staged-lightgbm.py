@@ -44,6 +44,12 @@ def args():
     p.add_argument("--valid-end", required=True)
     p.add_argument("--meta-out", required=True)
     p.add_argument("--model-out", required=True)
+    p.add_argument("--predictions-out")
+    p.add_argument("--schema-out")
+    p.add_argument("--model-version", default="L1_LIGHTGBM_EXPERIMENTAL")
+    p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
+    p.add_argument("--source-ref")
+    p.add_argument("--source-sha")
     return p.parse_args()
 
 def load(path):
@@ -184,6 +190,10 @@ def metrics(pred, y, raw):
 
 def main():
     a = args()
+    if pd.to_datetime(a.train_end) >= pd.to_datetime(a.valid_start):
+        raise ValueError("train_end must be before valid_start")
+    if pd.to_datetime(a.valid_start) > pd.to_datetime(a.valid_end):
+        raise ValueError("valid_start must be <= valid_end")
     df = flatten(load(a.dataset), a.stage)
     train, valid = split(df, a)
     xtr, xva, categorical, category_levels = frames(train, valid)
@@ -216,9 +226,6 @@ def main():
     raw = np.clip(model.predict_proba(xva, num_iteration=model.best_iteration_)[:, 1], 1e-15, 1 - 1e-15)
     pred = predictions(valid, raw)
     result_metrics = metrics(pred, yva, raw)
-
-    if pd.to_datetime(a.train_end) >= pd.to_datetime(a.valid_start):
-        raise ValueError("train_end must be before valid_start")
 
     Path(a.model_out).parent.mkdir(parents=True, exist_ok=True)
     model.booster_.save_model(a.model_out)
