@@ -83,6 +83,18 @@ jobs:
         with:
           node-version: "20"
 
+      - name: BACKFILL readiness gate
+        if: ${{ inputs.mode == 'run' }}
+        run: |
+          node scripts/audit-backfill-readiness.mjs \
+            --source-root backfill \
+            --start "$(( ${{ inputs.first_holdout }} - ${{ inputs.train_years }} - ${{ inputs.warmup_years }} ))-01-01" \
+            --end "${{ inputs.last_holdout }}-12-31" \
+            --report-out out/backfill-readiness.json \
+            --min-core-known-coverage 0.98 \
+            --max-invalid-rate 0 \
+            --max-year-gap 0.10
+
       - name: Setup Python
         uses: actions/setup-python@v5
         with:
