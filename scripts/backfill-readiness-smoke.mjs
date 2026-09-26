@@ -8,7 +8,7 @@ function row(date, overrides = {}, resultOverrides = {}) {
       actual_date: date,
       field_size: 2,
       course_layout: "OUTER",
-      course_laps: 1,
+      course_laps: null,
       race_class_raw: "オープン",
       race_class_normalized: "OPEN",
       grade: "NONE",
@@ -36,11 +36,8 @@ function row(date, overrides = {}, resultOverrides = {}) {
         result_status: "FINISHED",
         official_finish_position: 2,
         margin_raw: "1/2",
-        normalized_margin: 0.5,
-        margin_seconds: 0.1,
-        margin_length_equivalent: 0.5,
-        margin_kind: "LENGTH",
-        margin_normalization_version: "v1",
+        margin_type: "LENGTHS",
+        margin_lengths: 0.5,
         ...resultOverrides,
       },
     ],
@@ -60,10 +57,12 @@ assert.equal(good.ready_for_l1_research, true);
 assert.equal(good.failed_gate_count, 0);
 assert.equal(good.overall.races, 2);
 assert.equal(good.overall.fields.course_layout.known_coverage, 1);
-assert.equal(good.overall.fields.course_laps.known_coverage, 1);
+assert.equal(good.overall.fields.course_laps.known_coverage, 0);
 assert.equal(good.overall.fields.grade.known_coverage, 1);
 assert.equal(good.overall.margin.raw_coverage, 1);
-assert.equal(good.overall.margin.margin_seconds_coverage, 1);
+assert.equal(good.overall.margin.type_coverage, 1);
+assert.equal(good.overall.margin.lengths_coverage_when_applicable, 1);
+assert.equal(good.overall.margin.invalid_rate, 0);
 assert.equal(good.by_year["2024"].races, 1);
 assert.equal(good.by_year["2025"].races, 1);
 
@@ -110,28 +109,45 @@ assert.equal(invalid.ready_for_l1_research, false);
 
 const partialMargin = auditBackfillRows([
   row("2025-01-01", {}, {
-    normalized_margin: null,
-    margin_seconds: null,
-    margin_length_equivalent: null,
+    margin_type: null,
+    margin_lengths: null,
   }),
 ]);
 assert.equal(partialMargin.overall.margin.raw_coverage, 1);
-assert.equal(partialMargin.overall.margin.normalized_margin_coverage, 0);
-assert.equal(partialMargin.overall.margin.margin_seconds_coverage, 0);
+assert.equal(partialMargin.overall.margin.type_coverage, 0);
+assert.equal(partialMargin.ready_for_l1_research, false);
+assert.ok(partialMargin.failed_gates.some(g =>
+  g.type === "MARGIN_TYPE_COVERAGE"
+));
 
 console.log("BACKFILL_READINESS_SMOKE_OK");
 
 
-const missingLaps = auditBackfillRows([
-  row("2025-02-01", { course_laps: null }),
+const notApplicableLaps = auditBackfillRows([
+  row("2025-02-01", {
+    course_meta_raw: "芝右 外1600m",
+    course_laps: null,
+  }),
 ], {
   minCoreKnownCoverage: 0.98,
   maxInvalidRate: 0,
   maxYearGap: 1,
 });
-assert.equal(missingLaps.ready_for_l1_research, false);
-assert.ok(missingLaps.failed_gates.some(g =>
-  g.type === "CORE_KNOWN_COVERAGE" && g.field === "course_laps"
+assert.equal(notApplicableLaps.ready_for_l1_research, true);
+
+const missingApplicableLaps = auditBackfillRows([
+  row("2025-02-02", {
+    course_meta_raw: "芝右 内2周3600m",
+    course_laps: null,
+  }),
+], {
+  minCoreKnownCoverage: 0.98,
+  maxInvalidRate: 0,
+  maxYearGap: 1,
+});
+assert.equal(missingApplicableLaps.ready_for_l1_research, false);
+assert.ok(missingApplicableLaps.failed_gates.some(g =>
+  g.type === "INVALID_RATE" && g.field === "course_laps"
 ));
 
 const legacyMismatch = auditBackfillRows([
@@ -149,3 +165,20 @@ assert.equal(legacyMismatch.overall.fields.race_class_normalized.invalid, 1);
 assert.ok(Object.keys(legacyMismatch.overall.warnings).some(key =>
   key.startsWith("race_class_semantic:expected_TWO_WIN")
 ));
+
+
+const categoricalMargin = auditBackfillRows([
+  row("2025-04-01", {}, {
+    margin_raw: "ハナ",
+    margin_type: "NOSE",
+    margin_lengths: null,
+  }),
+], {
+  minCoreKnownCoverage: 0.98,
+  maxInvalidRate: 0,
+  maxYearGap: 1,
+});
+assert.equal(categoricalMargin.ready_for_l1_research, true);
+assert.equal(categoricalMargin.overall.margin.type_coverage, 1);
+assert.equal(categoricalMargin.overall.margin.categorical_type_rows, 1);
+assert.equal(categoricalMargin.overall.margin.invalid_rate, 0);
