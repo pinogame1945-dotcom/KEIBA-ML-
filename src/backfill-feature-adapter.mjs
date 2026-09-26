@@ -1,4 +1,4 @@
-export const BACKFILL_FEATURE_ADAPTER_VERSION = 1;
+export const BACKFILL_FEATURE_ADAPTER_VERSION = 2;
 
 const ENUMS = {
   course_layout: new Set(["INNER", "OUTER", "NORMAL", "UNKNOWN"]),
@@ -113,10 +113,7 @@ export function readBackfillRaceRawContext(race) {
 export function readBackfillMarginContext(result) {
   return {
     margin_raw: text(result?.margin_raw),
-    normalized_margin: finite(result?.normalized_margin),
-    margin_seconds: finite(result?.margin_seconds),
-    margin_length_equivalent: finite(result?.margin_length_equivalent),
-    margin_kind: text(result?.margin_kind),
-    margin_normalization_version: text(result?.margin_normalization_version),
+    margin_type: text(result?.margin_type),
+    margin_lengths: finite(result?.margin_lengths),
   };
 }
