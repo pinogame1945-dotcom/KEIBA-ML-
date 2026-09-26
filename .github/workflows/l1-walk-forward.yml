@@ -1,0 +1,100 @@
+name: L1 walk-forward research
+
+on:
+  workflow_dispatch:
+    inputs:
+      first_holdout:
+        description: First holdout year
+        required: true
+        default: "2025"
+      last_holdout:
+        description: Last holdout year
+        required: true
+        default: "2025"
+      train_years:
+        description: Training window in years
+        required: true
+        default: "3"
+      warmup_years:
+        description: History warm-up years before train window
+        required: true
+        default: "1"
+      history_limit:
+        description: Recent-race history limit
+        required: true
+        default: "5"
+      stage:
+        description: Cumulative feature stage
+        required: true
+        default: style
+        type: choice
+        options:
+          - base
+          - opponent_v1
+          - opponent_both
+          - lap
+          - style
+          - pedigree
+          - distance
+      backfill_ref:
+        description: KEIBA-BACKFILL branch/tag/sha
+        required: true
+        default: main
+
+permissions:
+  contents: read
+
+jobs:
+  walk-forward:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout BACKFILL data source
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: ${{ inputs.backfill_ref }}
+          path: backfill
+
+      - name: Record BACKFILL source commit
+        shell: bash
+        run: |
+          echo "BACKFILL_SHA=$(git -C backfill rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: L1 leakage smoke
+        run: npm run smoke:l1-dataset
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Print walk-forward plan
+        run: |
+          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"             --plan-only
+
+      - name: Run L1 walk-forward
+        run: |
+          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"
+
+      - name: Show output sizes
+        run: du -ah out/walk-forward | sort -h | tail -50
+
+      - name: Upload short-retention research bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: l1-walk-forward-${{ inputs.first_holdout }}-${{ inputs.last_holdout }}-${{ inputs.stage }}
+          path: out/walk-forward
+          retention-days: 3
+          compression-level: 9
