@@ -100,9 +100,13 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: L1 leakage smoke
+      - name: L1 safety smoke suite
         if: ${{ inputs.mode == 'run' }}
-        run: npm run smoke:l1-dataset
+        run: npm run smoke:all
+
+      - name: Python syntax check
+        if: ${{ inputs.mode == 'run' }}
+        run: python -m py_compile research/run_walk_forward.py research/train-staged-lightgbm.py
 
       - name: Install ML dependencies
         if: ${{ inputs.mode == 'run' }}
