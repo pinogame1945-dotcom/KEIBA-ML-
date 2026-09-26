@@ -42,11 +42,10 @@ on:
           - opponent_both
           - lap
           - style
+          - distance_v1
           - backfill_v1
           - auto_v1
           - auto_backfill_v1
-          - pedigree
-          - distance
       backfill_ref:
         description: KEIBA-BACKFILL branch/tag/sha
         required: true
@@ -91,6 +90,7 @@ jobs:
             --start "$(( ${{ inputs.first_holdout }} - ${{ inputs.train_years }} - ${{ inputs.warmup_years }} ))-01-01" \
             --end "${{ inputs.last_holdout }}-12-31" \
             --report-out out/backfill-readiness.json \
+            --source-sha "$BACKFILL_SHA" \
             --min-core-known-coverage 0.98 \
             --max-invalid-rate 0 \
             --max-year-gap 0.10
@@ -110,7 +110,7 @@ jobs:
 
       - name: Print walk-forward plan
         run: |
-          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"             --plan-only
+          python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"             --ml-source-sha "$GITHUB_SHA"             --readiness-report out/backfill-readiness.json             --ml-source-sha "$GITHUB_SHA"             --plan-only
 
       - name: Run L1 walk-forward
         if: ${{ inputs.mode == 'run' }}
@@ -121,11 +121,6 @@ jobs:
         if: ${{ inputs.mode == 'run' }}
         run: du -ah out/walk-forward | sort -h | tail -50
 
-      - name: Upload short-retention research bundle
-        if: ${{ inputs.mode == 'run' }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: l1-walk-forward-${{ inputs.first_holdout }}-${{ inputs.last_holdout }}-${{ inputs.stage }}
-          path: out/walk-forward
-          retention-days: 3
-          compression-level: 9
+      # Persistent artifact upload is intentionally disabled.
+      # Cost policy: results stay on the ephemeral standard runner unless the user
+      # explicitly approves chargeable/persistent storage in a separate change.
