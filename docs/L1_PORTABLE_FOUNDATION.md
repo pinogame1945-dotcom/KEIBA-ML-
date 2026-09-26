@@ -56,3 +56,32 @@ After the L1 foundation is stable:
 - production model promotion;
 - Android parity test;
 - L2 betting ML trained from L1 OOF + historical odds/payouts.
+
+
+## AUTO FEATURE FACTORY V1
+
+Dataset version 3 / feature schema 4 contains AUTO FEATURE FACTORY V1 outputs.
+
+The first connected sources are limited to prior-race:
+
+- finish position
+- last 3F
+- speed
+- distance
+- body weight
+- carried weight
+
+Current-field relative features are limited to:
+
+- point-in-time Elo
+- recent win rate
+- recent top-3 rate
+- recent average finish
+- recent average last 3F
+- recent average speed
+
+Training does **not** consume these automatically. The existing `style` stage remains the default and filters every `auto_` feature out.
+
+Use `auto_v1` only when intentionally comparing the AUTO feature family in walk-forward research.
+
+Final odds, popularity and payout remain forbidden AUTO inputs.
