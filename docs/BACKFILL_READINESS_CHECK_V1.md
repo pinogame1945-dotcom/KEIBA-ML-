@@ -81,3 +81,23 @@ GPU不要。
 
 GitHub Actionsで実行する場合も標準CPU runnerで足りる設計だが、
 このスクリプト追加時点ではActionsは実行しない。
+
+
+## 学習前の門番
+
+walk-forwardの実行モードでは、この検査を**データ作成・LightGBM学習より前**に必ず通す。
+
+失敗時:
+
+- `out/walk-forward/backfill-readiness.json` に理由を保存
+- 学習データを作らない
+- LightGBMを起動しない
+- モデルを保存しない
+- OOFを作らない
+
+plan-onlyは日付計画を表示するだけなので、この門番を走らせない。
+
+GitHub Actions側でも同じ検査をPython環境やML依存の準備より先に行う。
+これによりBACKFILL未完成時の無駄な計算を早い段階で止める。
+
+門番を無視するオプションはV1では用意しない。
