@@ -11,7 +11,7 @@ import pandas as pd
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 EXPECTED_DATASET_VERSION = 3
-EXPECTED_FEATURE_SCHEMA_VERSION = 4
+EXPECTED_FEATURE_SCHEMA_VERSION = 5
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 STAGES = {
@@ -20,15 +20,19 @@ STAGES = {
     "opponent_both": ["opponent_", "network_"],
     "lap": ["opponent_", "network_", "lap_"],
     "style": ["opponent_", "network_", "lap_", "style_"],
+    "backfill_v1": ["opponent_", "network_", "lap_", "style_", "backfill_"],
     "auto_v1": ["opponent_", "network_", "lap_", "style_", "auto_"],
+    "auto_backfill_v1": ["opponent_", "network_", "lap_", "style_", "auto_", "backfill_"],
     "pedigree": ["opponent_", "network_", "lap_", "style_", "pedigree_"],
     "distance": ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_"],
 }
-EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_", "auto_"]
+EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_", "auto_", "backfill_"]
 
 BASE_CATEGORICAL = [
     "venue_code", "discipline", "surface", "direction", "weather",
     "track_condition", "sex", "jockey_id", "trainer_id",
+    "backfill_course_layout", "backfill_race_class_normalized", "backfill_grade",
+    "backfill_sex_condition", "backfill_weight_rule",
 ]
 PEDIGREE_CATEGORICAL = [
     "pedigree_sire_id", "pedigree_dam_id",
