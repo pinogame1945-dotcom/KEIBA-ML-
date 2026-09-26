@@ -7,6 +7,14 @@ import {
   ML_LEAKAGE_POLICY,
 } from "../src/ml-dataset.mjs";
 
+function buildRichDataset(rows, options = {}) {
+  return buildMlDataset(rows, {
+    ...options,
+    includeAutoFeatures: true,
+    includeBackfillFeatures: true,
+  });
+}
+
 function race({ id, date, finish, last3f, time, horse = "H1", jockey = "J1", distance = 1600 }) {
   return {
     race: {
@@ -62,12 +70,12 @@ function race({ id, date, finish, last3f, time, horse = "H1", jockey = "J1", dis
 
 const jan = race({ id: "202405010101", date: "2024-01-01", finish: 3, last3f: 34.5, time: 94500 });
 jan.entries[0].body_weight_diff = null;
-const janBuilt = buildMlDataset([jan], { startDate: "2024-01-01", endDate: "2024-01-01" });
+const janBuilt = buildRichDataset([jan], { startDate: "2024-01-01", endDate: "2024-01-01" });
 assert.equal(janBuilt[0].features.body_weight_diff, null);
 const feb = race({ id: "202405010201", date: "2024-02-01", finish: 1, last3f: 33.9, time: 93000, distance: 1800 });
 const mar = race({ id: "202405010301", date: "2024-03-01", finish: 12, last3f: 38.0, time: 99000 });
 
-const febOnly = buildMlDataset([jan, feb, mar], { startDate: "2024-02-01", endDate: "2024-02-01" });
+const febOnly = buildRichDataset([jan, feb, mar], { startDate: "2024-02-01", endDate: "2024-02-01" });
 assert.equal(febOnly.length, 1);
 assert.equal(febOnly[0].features.prior_starts, 1);
 assert.equal(febOnly[0].features.previous_finish_position, 3);
@@ -77,7 +85,7 @@ assert.equal(febOnly[0].target.finish_position, 1);
 assert.equal(febOnly[0].market_outcome.final_win_odds, 99.9);
 assert.equal(febOnly[0].market_outcome.final_popularity, 18);
 assert.equal(ML_DATASET_VERSION, 3);
-assert.equal(ML_FEATURE_SCHEMA_VERSION, 5);
+assert.equal(ML_FEATURE_SCHEMA_VERSION, 6);
 assert.equal(febOnly[0].ml_dataset_version, ML_DATASET_VERSION);
 assert.equal(febOnly[0].feature_schema_version, ML_FEATURE_SCHEMA_VERSION);
 assert.equal(febOnly[0].leakage_policy, ML_LEAKAGE_POLICY);
@@ -86,6 +94,9 @@ assert.equal(febOnly[0].features.auto_history_distance_m_mean, 1600);
 assert.equal(febOnly[0].features.auto_pair_distance_vs_recent_mean_diff, 200);
 assert.equal(febOnly[0].features.auto_history_body_weight_mean, 480);
 assert.equal(febOnly[0].features.auto_pair_body_weight_vs_recent_mean_diff, 0);
+assert.equal(Object.hasOwn(febOnly[0].features, "actual_start_time"), false);
+assert.equal(Object.hasOwn(febOnly[0].features, "jockey_id"), false);
+assert.equal(Object.hasOwn(febOnly[0].features, "trainer_id"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "win_odds"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "official_finish_position"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "last_3f"), false);
@@ -101,18 +112,18 @@ assert.equal(raceOutcomes[0].payouts[0].payout_yen, 9990);
 const mutatedFuture = structuredClone(mar);
 mutatedFuture.results[0].official_finish_position = 1;
 mutatedFuture.results[0].last_3f = 20.0;
-const febAfterFutureMutation = buildMlDataset([jan, feb, mutatedFuture], { startDate: "2024-02-01", endDate: "2024-02-01" });
+const febAfterFutureMutation = buildRichDataset([jan, feb, mutatedFuture], { startDate: "2024-02-01", endDate: "2024-02-01" });
 assert.deepEqual(febAfterFutureMutation[0].features, febOnly[0].features);
 
 const scratched = race({ id: "202405010399", date: "2024-03-31", finish: null, last3f: null, time: null, horse: "HS" });
 scratched.entries[0].entry_status = "SCRATCHED";
 scratched.results[0].result_status = "SCRATCHED";
-const scratchedRows = buildMlDataset([scratched], { startDate: "2024-03-31", endDate: "2024-03-31" });
+const scratchedRows = buildRichDataset([scratched], { startDate: "2024-03-31", endDate: "2024-03-31" });
 assert.equal(scratchedRows.length, 0);
 
 const sameDayFirst = race({ id: "202405010401", date: "2024-04-01", finish: 1, last3f: 32.0, time: 90000, horse: "H2" });
 const sameDaySecond = race({ id: "202405010402", date: "2024-04-01", finish: 2, last3f: 33.0, time: 91000, horse: "H2" });
-const sameDay = buildMlDataset([sameDayFirst, sameDaySecond], { startDate: "2024-04-01", endDate: "2024-04-01" });
+const sameDay = buildRichDataset([sameDayFirst, sameDaySecond], { startDate: "2024-04-01", endDate: "2024-04-01" });
 assert.equal(sameDay.length, 2);
 assert.equal(sameDay[0].features.prior_starts, 0);
 assert.equal(sameDay[1].features.prior_starts, 0);
@@ -138,7 +149,7 @@ opponentRace.results.push({
 });
 const opponentFollowup = race({ id: "202405010601", date: "2024-06-01", finish: 1, last3f: 33.5, time: 93000, horse: "HO" });
 const subjectTarget = race({ id: "202405010701", date: "2024-07-01", finish: 1, last3f: 33.0, time: 92000, horse: "HX" });
-const opponentBuilt = buildMlDataset(
+const opponentBuilt = buildRichDataset(
   [opponentRace, opponentFollowup, subjectTarget],
   { startDate: "2024-07-01", endDate: "2024-07-01" },
 );
@@ -173,7 +184,7 @@ networkTarget.results.push({
   horse_id: "NL",
   official_finish_position: 2,
 });
-const networkBuilt = buildMlDataset(
+const networkBuilt = buildRichDataset(
   [networkRace, networkTarget],
   { startDate: "2024-09-01", endDate: "2024-09-01" },
 );
@@ -228,7 +239,7 @@ Object.assign(backfillReady.race, {
 backfillReady.results[0].margin_seconds = 0.2;
 backfillReady.results[0].margin_length_equivalent = 1.0;
 
-const backfillBuilt = buildMlDataset(
+const backfillBuilt = buildRichDataset(
   [backfillReady],
   { startDate: "2024-10-01", endDate: "2024-10-01" },
 );
@@ -252,10 +263,43 @@ const backfillMissing = race({
   time: 92000,
   horse: "BF2",
 });
-const backfillMissingBuilt = buildMlDataset(
+const backfillMissingBuilt = buildRichDataset(
   [backfillMissing],
   { startDate: "2024-11-01", endDate: "2024-11-01" },
 );
 assert.equal(backfillMissingBuilt[0].features.backfill_course_layout, null);
 assert.equal(backfillMissingBuilt[0].features.backfill_grade, null);
 assert.equal(backfillMissingBuilt[0].features.backfill_field_size, 1);
+
+
+const isolatedStyle = buildMlDataset(
+  [jan, feb],
+  { startDate: "2024-02-01", endDate: "2024-02-01" },
+);
+assert.equal(
+  Object.keys(isolatedStyle[0].features).some(name => name.startsWith("auto_")),
+  false,
+);
+assert.equal(
+  Object.keys(isolatedStyle[0].features).some(name => name.startsWith("backfill_")),
+  false,
+);
+
+const layoutJan = race({ id: "202405011201", date: "2024-12-01", finish: 2, last3f: 34.0, time: 94000, horse: "LAY" });
+layoutJan.race.course_layout = "OUTER";
+layoutJan.race.race_class_normalized = "OPEN";
+layoutJan.race.age_condition_raw = "3歳以上";
+layoutJan.race.weight_rule = "SPECIAL_WEIGHT";
+const layoutFeb = race({ id: "202505011301", date: "2025-01-01", finish: 1, last3f: 33.0, time: 92000, horse: "LAY" });
+layoutFeb.race.course_layout = "OUTER";
+layoutFeb.race.race_class_normalized = "OPEN";
+layoutFeb.race.age_condition_raw = "3歳以上";
+layoutFeb.race.weight_rule = "SPECIAL_WEIGHT";
+const layoutBuilt = buildRichDataset(
+  [layoutJan, layoutFeb],
+  { startDate: "2025-01-01", endDate: "2025-01-01" },
+);
+assert.equal(layoutBuilt[0].features.auto_finish_same_course_layout_starts, 1);
+assert.equal(layoutBuilt[0].features.auto_finish_same_course_layout_success_rate, 1);
+assert.equal(layoutBuilt[0].features.auto_finish_same_class_starts, 1);
+assert.equal(layoutBuilt[0].features.auto_finish_same_weight_rule_starts, 1);
