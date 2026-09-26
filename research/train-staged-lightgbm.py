@@ -10,8 +10,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
-EXPECTED_DATASET_VERSION = 2
-EXPECTED_FEATURE_SCHEMA_VERSION = 3
+EXPECTED_DATASET_VERSION = 3
+EXPECTED_FEATURE_SCHEMA_VERSION = 4
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 STAGES = {
@@ -20,10 +20,11 @@ STAGES = {
     "opponent_both": ["opponent_", "network_"],
     "lap": ["opponent_", "network_", "lap_"],
     "style": ["opponent_", "network_", "lap_", "style_"],
+    "auto_v1": ["opponent_", "network_", "lap_", "style_", "auto_"],
     "pedigree": ["opponent_", "network_", "lap_", "style_", "pedigree_"],
     "distance": ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_"],
 }
-EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_"]
+EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_", "auto_"]
 
 BASE_CATEGORICAL = [
     "venue_code", "discipline", "surface", "direction", "weather",
