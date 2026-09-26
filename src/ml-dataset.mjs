@@ -3,9 +3,10 @@ import {
   buildRollingFeatureFamily,
   buildSafePairFeatures,
 } from "./auto-feature-factory.mjs";
+import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
 
 export const ML_DATASET_VERSION = 3;
-export const ML_FEATURE_SCHEMA_VERSION = 4;
+export const ML_FEATURE_SCHEMA_VERSION = 5;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
@@ -328,6 +329,7 @@ function addAutoPairFeatures(features) {
 
 function currentFeatures(row, entry, historyFeatures, networkFeatures) {
   const race = row.race ?? {};
+  const backfill = readBackfillRaceFeatures(race, row?.entries ?? []).features;
   return {
     race_date: stableRaceDate(row),
     venue_code: race.venue_code ?? null,
@@ -350,6 +352,7 @@ function currentFeatures(row, entry, historyFeatures, networkFeatures) {
     trainer_id: entry?.trainer_id ?? null,
     body_weight: finite(entry?.body_weight),
     body_weight_diff: finite(entry?.body_weight_diff),
+    ...backfill,
     ...historyFeatures,
     ...networkFeatures,
   };
