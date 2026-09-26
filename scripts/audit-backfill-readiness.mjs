@@ -51,6 +51,7 @@ const sourceRoot = path.resolve(arg("--source-root") ?? "../KEIBA-BACKFILL");
 const start = dateArg("--start", null);
 const end = dateArg("--end", null);
 const reportOut = path.resolve(arg("--report-out") ?? "out/backfill-readiness.json");
+const sourceSha = arg("--source-sha");
 const minCoreKnownCoverage = numberArg("--min-core-known-coverage", 0.98);
 const maxInvalidRate = numberArg("--max-invalid-rate", 0);
 const maxYearGap = numberArg("--max-year-gap", 0.10);
@@ -94,6 +95,7 @@ report.source = {
   end,
   daily_files: files.length,
   race_rows: rows,
+  sha: sourceSha,
 };
 
 await mkdir(path.dirname(reportOut), { recursive: true });
