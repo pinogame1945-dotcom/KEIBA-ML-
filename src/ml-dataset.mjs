@@ -1,5 +1,13 @@
-export const ML_DATASET_VERSION = 2;
-export const ML_FEATURE_SCHEMA_VERSION = 3;
+import {
+  addFieldRelativeFeatures,
+  buildConditionFeatureFamily,
+  buildRollingFeatureFamily,
+  buildSafePairFeatures,
+} from "./auto-feature-factory.mjs";
+import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
+
+export const ML_DATASET_VERSION = 3;
+export const ML_FEATURE_SCHEMA_VERSION = 7;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
@@ -256,8 +264,143 @@ function historySnapshot(history, current, limit, horseStatsById) {
   };
 }
 
-function currentFeatures(row, entry, historyFeatures, networkFeatures) {
+const AUTO_FIELD_RELATIVE_SPECS = [
+  { key: "network_elo_rating", prefix: "network_elo_rating", direction: "HIGHER_BETTER" },
+  { key: "recent_win_rate", prefix: "recent_win_rate", direction: "HIGHER_BETTER" },
+  { key: "recent_top3_rate", prefix: "recent_top3_rate", direction: "HIGHER_BETTER" },
+  { key: "recent_avg_finish", prefix: "recent_avg_finish", direction: "LOWER_BETTER" },
+  { key: "recent_avg_last_3f", prefix: "recent_avg_last_3f", direction: "LOWER_BETTER" },
+  { key: "recent_avg_speed_mps", prefix: "recent_avg_speed_mps", direction: "HIGHER_BETTER" },
+];
+
+function normalizedMarginType(result) {
+  const raw = String(result?.margin_type ?? "").trim().toUpperCase();
+  return raw || null;
+}
+
+function marginLengths(result) {
+  return normalizedMarginType(result) === "LENGTHS"
+    ? finite(result?.margin_lengths)
+    : null;
+}
+
+function smallMarginGap(result) {
+  const type = normalizedMarginType(result);
+  if (type == null || type === "OTHER") return null;
+  if (type === "DEAD_HEAT" || type === "NOSE" || type === "HEAD" || type === "NECK") return true;
+  if (type === "LARGE") return false;
+  const lengths = marginLengths(result);
+  return lengths == null ? null : lengths <= 0.5;
+}
+
+function marginTypeRate(items, acceptedTypes) {
+  const observed = (items ?? [])
+    .map(item => normalizedMarginType(item?.result))
+    .filter(type => type != null);
+  if (!observed.length) return null;
+  const accepted = new Set(acceptedTypes);
+  return observed.filter(type => accepted.has(type)).length / observed.length;
+}
+
+function autoHistorySnapshot(history, currentRace, limit) {
+  const recent = history.slice(-limit);
+
+  const finish = recent.map(item => {
+    if (String(item?.result?.result_status ?? "").toUpperCase() !== "FINISHED") return null;
+    return finite(item?.result?.official_finish_position);
+  });
+  const last3f = recent.map(item => finite(item?.result?.last_3f));
+  const speed = recent.map(item => {
+    const distance = finite(item?.race?.distance_m);
+    const timeMs = finite(item?.result?.finish_time_ms);
+    return distance != null && timeMs != null && timeMs > 0
+      ? distance / (timeMs / 1000)
+      : null;
+  });
+  const distance = recent.map(item => finite(item?.race?.distance_m));
+  const bodyWeight = recent.map(item => finite(item?.entry?.body_weight));
+  const carriedWeight = recent.map(item => finite(item?.entry?.carried_weight));
+  const marginGapLengths = recent.map(item => marginLengths(item?.result));
+  const observedMarginTypes = recent
+    .map(item => normalizedMarginType(item?.result))
+    .filter(type => type != null);
+
+  return {
+    ...buildRollingFeatureFamily("history_finish_position", finish, { higherIsBetter: false }),
+    ...buildRollingFeatureFamily("history_last_3f", last3f, { higherIsBetter: false }),
+    ...buildRollingFeatureFamily("history_speed_mps", speed, { higherIsBetter: true }),
+    ...buildRollingFeatureFamily("history_distance_m", distance),
+    ...buildRollingFeatureFamily("history_body_weight", bodyWeight),
+    ...buildRollingFeatureFamily("history_carried_weight", carriedWeight),
+    ...buildRollingFeatureFamily("history_margin_lengths", marginGapLengths, { higherIsBetter: false }),
+    auto_history_margin_type_observation_count: observedMarginTypes.length,
+    auto_history_margin_lengths_rate: observedMarginTypes.length
+      ? observedMarginTypes.filter(type => type === "LENGTHS").length / observedMarginTypes.length
+      : null,
+    auto_history_margin_small_gap_rate: (() => {
+      const measured = recent.map(item => smallMarginGap(item?.result)).filter(v => v === true || v === false);
+      return measured.length ? measured.filter(Boolean).length / measured.length : null;
+    })(),
+    auto_history_margin_tight_categorical_rate: marginTypeRate(
+      recent,
+      ["DEAD_HEAT", "NOSE", "HEAD", "NECK"],
+    ),
+    auto_history_margin_large_rate: marginTypeRate(recent, ["LARGE"]),
+    ...buildConditionFeatureFamily({
+      prefix: "margin_gap",
+      history: recent,
+      currentRace,
+      valueOf: item => marginLengths(item?.result),
+      successOf: item => smallMarginGap(item?.result),
+      higherIsBetter: false,
+    }),
+    ...buildConditionFeatureFamily({
+      prefix: "finish",
+      history: recent,
+      currentRace,
+      valueOf: item => finite(item?.result?.official_finish_position),
+      successOf: item => {
+        const finish = finite(item?.result?.official_finish_position);
+        return finish == null ? null : finish <= 3;
+      },
+      higherIsBetter: false,
+    }),
+  };
+}
+
+function addAutoPairFeatures(features) {
+  return {
+    ...features,
+    ...buildSafePairFeatures(features, [
+      {
+        a: "distance_m",
+        b: "auto_history_distance_m_mean",
+        prefix: "distance_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+      {
+        a: "body_weight",
+        b: "auto_history_body_weight_mean",
+        prefix: "body_weight_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+      {
+        a: "carried_weight",
+        b: "auto_history_carried_weight_mean",
+        prefix: "carried_weight_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+    ]),
+  };
+}
+
+function currentFeatures(row, entry, historyFeatures, networkFeatures, {
+  includeBackfillFeatures = false,
+} = {}) {
   const race = row.race ?? {};
+  const backfill = includeBackfillFeatures
+    ? readBackfillRaceFeatures(race, row?.entries ?? []).features
+    : {};
   return {
     race_date: stableRaceDate(row),
     venue_code: race.venue_code ?? null,
@@ -270,16 +413,14 @@ function currentFeatures(row, entry, historyFeatures, networkFeatures) {
     direction: race.direction ?? null,
     weather: race.weather ?? null,
     track_condition: race.track_condition ?? null,
-    actual_start_time: race.actual_start_time ?? null,
     gate: finite(entry?.gate),
     horse_number: finite(entry?.horse_number),
     sex: entry?.sex ?? null,
     age: finite(entry?.age),
     carried_weight: finite(entry?.carried_weight),
-    jockey_id: entry?.jockey_id ?? null,
-    trainer_id: entry?.trainer_id ?? null,
     body_weight: finite(entry?.body_weight),
     body_weight_diff: finite(entry?.body_weight_diff),
+    ...backfill,
     ...historyFeatures,
     ...networkFeatures,
   };
@@ -294,6 +435,8 @@ function targetFrom(result) {
     is_top3: finish != null ? finish <= 3 : null,
     finish_time_ms: finite(result?.finish_time_ms),
     margin_raw: result?.margin_raw ?? null,
+    margin_type: normalizedMarginType(result),
+    margin_lengths: marginLengths(result),
     last_3f: finite(result?.last_3f),
     prize_money: finite(result?.prize_money),
   };
@@ -333,6 +476,8 @@ export function buildMlDataset(raceRows, {
   startDate = null,
   endDate = null,
   historyLimit = 5,
+  includeAutoFeatures = false,
+  includeBackfillFeatures = false,
 } = {}) {
   if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
     throw new Error("historyLimit must be an integer from 1 to 100");
@@ -363,6 +508,7 @@ export function buildMlDataset(raceRows, {
     for (const row of day) {
       const raceId = String(row?.race?.race_id ?? "");
       const results = resultMap(row);
+      const raceOutput = [];
       for (const entry of row?.entries ?? []) {
         const horseId = String(entry?.horse_id ?? "");
         if (!raceId || !horseId) continue;
@@ -370,15 +516,24 @@ export function buildMlDataset(raceRows, {
         if (!result || !isEligibleStarter(entry, result)) continue;
         const history = historyByHorse.get(horseId) ?? [];
         const current = { date, race: row.race ?? {}, entry };
-        const features = currentFeatures(
+        const historyFeatures = historySnapshot(history, current, historyLimit, horseStatsById);
+        const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
+        const baseFeatures = currentFeatures(
           row,
           entry,
-          historySnapshot(history, current, historyLimit, horseStatsById),
-          networkSnapshot(row, horseId, eloByHorse),
+          historyFeatures,
+          networkFeatures,
+          { includeBackfillFeatures },
         );
+        const features = includeAutoFeatures
+          ? addAutoPairFeatures({
+              ...baseFeatures,
+              ...autoHistorySnapshot(history, row.race ?? {}, historyLimit),
+            })
+          : baseFeatures;
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
         if (inRange) {
-          out.push({
+          raceOutput.push({
             ml_dataset_version: ML_DATASET_VERSION,
             feature_schema_version: ML_FEATURE_SCHEMA_VERSION,
             leakage_policy: ML_LEAKAGE_POLICY,
@@ -390,6 +545,11 @@ export function buildMlDataset(raceRows, {
           });
         }
       }
+      out.push(...(
+        includeAutoFeatures
+          ? addFieldRelativeFeatures(raceOutput, AUTO_FIELD_RELATIVE_SPECS)
+          : raceOutput
+      ));
     }
 
     for (const row of day) {

@@ -40,12 +40,12 @@ OOF records are the only L1 predictions allowed as future L2 training input.
 Do not commit every experimental dataset/model to Git history.
 
 - temporary dataset: deleted after fold
-- experiment model/OOF: short-retention Actions artifact
+- experiment model/OOF: runner-local only by default; persistent Actions artifact upload is disabled unless the user explicitly approves storage
 - promoted model: store only after validation/promotion policy is defined
 
 ## Current stage caution
 
-The latest BACKFILL ladder showed that adding pedigree IDs degraded the 2025 holdout while `pedigree_dam_id` received abnormally large gain importance. Therefore the workflow defaults to `style`, not the full `distance` stage. Pedigree must be redesigned/audited before promotion.
+Direct pedigree IDs are now blocked from L1 entirely. Direct jockey/trainer IDs are also blocked until point-in-time performance features replace them. The result-page `actual_start_time` is not used because it is not guaranteed to be known before the race.
 
 ## Future phases
 
@@ -56,3 +56,69 @@ After the L1 foundation is stable:
 - production model promotion;
 - Android parity test;
 - L2 betting ML trained from L1 OOF + historical odds/payouts.
+
+
+## AUTO FEATURE FACTORY V1
+
+Dataset version 3 / feature schema 7 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
+
+The first connected sources are limited to prior-race:
+
+- finish position
+- last 3F
+- speed
+- distance
+- body weight
+- carried weight
+
+Current-field relative features are limited to:
+
+- point-in-time Elo
+- recent win rate
+- recent top-3 rate
+- recent average finish
+- recent average last 3F
+- recent average speed
+
+Training does **not** consume these automatically. The existing `style` stage remains the default and filters every `auto_` feature out.
+
+Use `auto_v1` only when intentionally comparing the AUTO feature family in walk-forward research.
+
+Final odds, popularity and payout remain forbidden AUTO inputs.
+
+
+## BACKFILL receiver
+
+The ML dataset can now receive the new normalized race conditions without changing the existing `style` baseline.
+
+- `backfill_v1`: style + normalized BACKFILL race conditions
+- `auto_backfill_v1`: style + AUTO + normalized BACKFILL race conditions
+
+Missing BACKFILL fields remain null. ML does not re-parse raw race-condition text.
+
+Margin normalization fields are readable by the adapter but are not yet model inputs. They remain blocked until their exact semantics and coverage are confirmed.
+
+
+## Safe stage set
+
+Current trainable stages:
+
+- `base`
+- `opponent_v1`
+- `opponent_both`
+- `lap`
+- `style`
+- `distance_v1`
+- `backfill_v1`
+- `auto_v1`
+- `auto_backfill_v1`
+
+The old direct-ID `pedigree` stage is removed. `distance_v1` contains distance features without pedigree IDs.
+
+AUTO features are only built for AUTO stages. BACKFILL race-condition features are only copied into the dataset for BACKFILL stages.
+
+
+## Margin AUTO
+
+Feature schema 7 adds past-only AUTO features from BACKFILL `margin_type` and `margin_lengths`.
+Current-race margin remains a target/output value and is never used as a predictor for that race.

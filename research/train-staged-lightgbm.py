@@ -2,7 +2,9 @@
 import argparse
 import gzip
 import json
+import platform
 from datetime import datetime, timezone
+from importlib.metadata import version as package_version
 from pathlib import Path
 
 import lightgbm as lgb
@@ -10,8 +12,8 @@ import numpy as np
 import pandas as pd
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
-EXPECTED_DATASET_VERSION = 2
-EXPECTED_FEATURE_SCHEMA_VERSION = 3
+EXPECTED_DATASET_VERSION = 3
+EXPECTED_FEATURE_SCHEMA_VERSION = 7
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 STAGES = {
@@ -20,18 +22,18 @@ STAGES = {
     "opponent_both": ["opponent_", "network_"],
     "lap": ["opponent_", "network_", "lap_"],
     "style": ["opponent_", "network_", "lap_", "style_"],
-    "pedigree": ["opponent_", "network_", "lap_", "style_", "pedigree_"],
-    "distance": ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_"],
+    "distance_v1": ["opponent_", "network_", "lap_", "style_", "distx_"],
+    "backfill_v1": ["opponent_", "network_", "lap_", "style_", "backfill_"],
+    "auto_v1": ["opponent_", "network_", "lap_", "style_", "auto_"],
+    "auto_backfill_v1": ["opponent_", "network_", "lap_", "style_", "auto_", "backfill_"],
 }
-EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "pedigree_", "distx_"]
+EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "distx_", "auto_", "backfill_"]
 
 BASE_CATEGORICAL = [
     "venue_code", "discipline", "surface", "direction", "weather",
-    "track_condition", "sex", "jockey_id", "trainer_id",
-]
-PEDIGREE_CATEGORICAL = [
-    "pedigree_sire_id", "pedigree_dam_id",
-    "pedigree_siresire_id", "pedigree_damsire_id",
+    "track_condition", "sex",
+    "backfill_course_layout", "backfill_race_class_normalized", "backfill_grade",
+    "backfill_sex_condition", "backfill_weight_rule",
 ]
 
 def args():
@@ -50,6 +52,7 @@ def args():
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
     p.add_argument("--source-ref")
     p.add_argument("--source-sha")
+    p.add_argument("--ml-source-sha")
     return p.parse_args()
 
 def load(path):
@@ -70,18 +73,6 @@ def load(path):
         raise ValueError("empty dataset")
     return rows
 
-def hhmm(value):
-    if value is None:
-        return np.nan
-    text = str(value).strip()
-    if ":" not in text:
-        return np.nan
-    try:
-        h, m = map(int, text.split(":", 1))
-    except ValueError:
-        return np.nan
-    return h * 60 + m if 0 <= h <= 23 and 0 <= m <= 59 else np.nan
-
 def stage_features(features, stage):
     allowed = STAGES[stage]
     out = {}
@@ -96,11 +87,12 @@ def flatten(rows, stage):
     for row in rows:
         f = stage_features(dict(row["features"]), stage)
         date = f.pop("race_date", None)
-        start = f.pop("actual_start_time", None)
+        f.pop("actual_start_time", None)
+        f.pop("jockey_id", None)
+        f.pop("trainer_id", None)
         dt = pd.to_datetime(date, errors="coerce")
         f["race_month"] = int(dt.month) if not pd.isna(dt) else np.nan
         f["race_day_of_year"] = int(dt.dayofyear) if not pd.isna(dt) else np.nan
-        f["start_minutes"] = hhmm(start)
         target = row.get("target") or {}
         is_win = target.get("is_win")
         if is_win is None:
@@ -139,7 +131,7 @@ def split(df, a):
 def frames(train, valid):
     cols = [c for c in train.columns if not c.startswith("_")]
     xtr, xva = train[cols].copy(), valid[cols].copy()
-    categorical = [c for c in BASE_CATEGORICAL + PEDIGREE_CATEGORICAL if c in cols]
+    categorical = [c for c in BASE_CATEGORICAL if c in cols]
     for c in categorical:
         tv = xtr[c].astype("string").fillna("__MISSING__")
         cats = sorted(set(tv.tolist()))
@@ -250,6 +242,14 @@ def main():
             "repository": a.source_repo,
             "ref": a.source_ref,
             "sha": a.source_sha,
+            "ml_source_sha": a.ml_source_sha,
+        },
+        "runtime": {
+            "python": platform.python_version(),
+            "lightgbm": package_version("lightgbm"),
+            "pandas": package_version("pandas"),
+            "scikit_learn": package_version("scikit-learn"),
+            "numpy": package_version("numpy"),
         },
         "split": {
             "train_start": a.train_start, "train_end": a.train_end,

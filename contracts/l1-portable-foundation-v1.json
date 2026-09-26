@@ -1,7 +1,7 @@
 {
   "contract": "L1_PORTABLE_FOUNDATION_V1",
-  "ml_dataset_version": 2,
-  "feature_schema_version": 3,
+  "ml_dataset_version": 3,
+  "feature_schema_version": 7,
   "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
   "target": "target.is_win",
   "ability_uses_odds": false,
@@ -12,7 +12,11 @@
     "final odds",
     "final popularity",
     "payout",
-    "prize money"
+    "prize money",
+    "result-page actual_start_time",
+    "direct jockey_id",
+    "direct trainer_id",
+    "direct pedigree ancestor IDs"
   ],
   "feature_families": [
     "base",
@@ -20,8 +24,10 @@
     "network",
     "lap",
     "style",
-    "pedigree",
-    "distance"
+    "distance_v1",
+    "auto_v1",
+    "backfill_v1",
+    "auto_backfill_v1"
   ],
   "portable_outputs": [
     "LightGBM text model",
@@ -30,5 +36,5 @@
     "categorical levels",
     "out-of-fold horse predictions"
   ],
-  "note": "Exact feature order and categorical levels are generated per trained model and must be treated as part of that model."
+  "note": "Direct pedigree/jockey/trainer IDs and result-page actual_start_time are blocked from L1. AUTO/BACKFILL families are opt-in; style remains isolated. AUTO margin features use only prior-race margin_type/margin_lengths. Persistent Actions artifact upload is disabled by cost policy."
 }

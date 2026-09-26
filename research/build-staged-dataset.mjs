@@ -23,6 +23,17 @@ const sourceEnd = dateArg("--source-end", "2025-12-31");
 const emitStart = dateArg("--emit-start", "2022-01-01");
 const emitEnd = dateArg("--emit-end", "2025-12-31");
 const historyLimit = Number(arg("--history-limit") ?? 5);
+const stage = arg("--stage") ?? "style";
+const allowedStages = new Set([
+  "base", "opponent_v1", "opponent_both", "lap", "style",
+  "distance_v1", "backfill_v1", "auto_v1", "auto_backfill_v1",
+]);
+if (!allowedStages.has(stage)) throw new Error(`invalid --stage: ${stage}`);
+const includeAutoFeatures = stage === "auto_v1" || stage === "auto_backfill_v1";
+const includeBackfillFeatures = stage === "backfill_v1" || stage === "auto_backfill_v1";
+const includeLap = ["lap","style","distance_v1","backfill_v1","auto_v1","auto_backfill_v1"].includes(stage);
+const includeStyle = ["style","distance_v1","backfill_v1","auto_v1","auto_backfill_v1"].includes(stage);
+const includeDistance = stage === "distance_v1";
 
 if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
   throw new Error("--history-limit must be an integer from 1 to 100");
@@ -225,40 +236,6 @@ function buildHistoricalExtraMap(rows) {
   return extras;
 }
 
-async function loadPedigreeFacts(targetHorseIds) {
-  const files = (await readdir(path.join(sourceRoot, "data", "horses")))
-    .filter(name => name.endsWith(".jsonl.gz"))
-    .sort();
-  const facts = new Map();
-  let parsedRecords = 0;
-  for (const name of files) {
-    const zipped = await readFile(path.join(sourceRoot, "data", "horses", name));
-    const text = gunzipSync(zipped).toString("utf8").trim();
-    if (!text) continue;
-    for (const line of text.split("\n")) {
-      const row = JSON.parse(line);
-      const horseId = String(row?.horse_id ?? "");
-      if (!targetHorseIds.has(horseId)) continue;
-      parsedRecords += 1;
-      const nodes = row?.pedigree ?? [];
-      const at = (generation, slot) =>
-        nodes.find(x => Number(x?.generation) === generation && Number(x?.slot) === slot) ?? null;
-      const sire = at(1, 0);
-      const dam = at(1, 1);
-      const sireSire = at(2, 0);
-      const damSire = at(2, 2);
-      facts.set(horseId, {
-        pedigree_sire_id: sire?.ancestor_id ?? null,
-        pedigree_dam_id: dam?.ancestor_id ?? null,
-        pedigree_siresire_id: sireSire?.ancestor_id ?? null,
-        pedigree_damsire_id: damSire?.ancestor_id ?? null,
-        pedigree_known_nodes: nodes.filter(x => x?.ancestor_id || x?.ancestor_name).length,
-      });
-    }
-  }
-  return { facts, files: files.length, matchedRecords: parsedRecords };
-}
-
 const dailyNames = (await readdir(path.join(sourceRoot, "data", "daily")))
   .filter(name => /^\d{4}-\d{2}-\d{2}\.jsonl\.gz$/.test(name))
   .sort()
@@ -278,35 +255,37 @@ const base = buildMlDataset(raceRows, {
   startDate: emitStart,
   endDate: emitEnd,
   historyLimit,
+  includeAutoFeatures,
+  includeBackfillFeatures,
 });
-const extras = buildHistoricalExtraMap(raceRows);
-const targetHorseIds = new Set(base.map(row => String(row.horse_id)));
-const pedigree = await loadPedigreeFacts(targetHorseIds);
+const needsExtras = includeLap || includeStyle || includeDistance;
+const extras = needsExtras ? buildHistoricalExtraMap(raceRows) : new Map();
+
+function selectExtra(extra) {
+  const selected = {};
+  for (const [key, value] of Object.entries(extra ?? {})) {
+    if (includeLap && key.startsWith("lap_")) selected[key] = value;
+    if (includeStyle && key.startsWith("style_")) selected[key] = value;
+    if (includeDistance && key.startsWith("distx_")) selected[key] = value;
+  }
+  return selected;
+}
 
 let lapRows = 0;
 let styleRows = 0;
-let pedigreeRows = 0;
 const staged = base.map(row => {
-  const extra = extras.get(String(row.race_id) + "|" + String(row.horse_id)) ?? {};
-  const ped = pedigree.facts.get(String(row.horse_id)) ?? {
-    pedigree_sire_id: null,
-    pedigree_dam_id: null,
-    pedigree_siresire_id: null,
-    pedigree_damsire_id: null,
-    pedigree_known_nodes: 0,
-  };
+  const extra = selectExtra(extras.get(String(row.race_id) + "|" + String(row.horse_id)) ?? {});
   if ((extra.lap_recent_races_measured ?? 0) > 0) lapRows += 1;
   if ((extra.style_recent_races_measured ?? 0) > 0) styleRows += 1;
-  if ((ped.pedigree_known_nodes ?? 0) > 0) pedigreeRows += 1;
   return {
     ...row,
     features: {
       ...row.features,
       ...extra,
-      ...ped,
     },
   };
 });
+const targetHorseIds = new Set(staged.map(row => String(row.horse_id)));
 
 await mkdir(path.dirname(output), { recursive: true });
 const gzip = createGzip({ level: 6 });
@@ -329,6 +308,9 @@ console.log(JSON.stringify({
   emit_start: emitStart,
   emit_end: emitEnd,
   history_limit: historyLimit,
+  stage,
+  include_auto_features: includeAutoFeatures,
+  include_backfill_features: includeBackfillFeatures,
   source_files: dailyNames.length,
   source_races: raceRows.length,
   rows: staged.length,
@@ -338,9 +320,4 @@ console.log(JSON.stringify({
   lap_coverage: staged.length ? lapRows / staged.length : 0,
   style_rows: styleRows,
   style_coverage: staged.length ? styleRows / staged.length : 0,
-  horse_pack_files: pedigree.files,
-  pedigree_rows: pedigreeRows,
-  pedigree_coverage: staged.length ? pedigreeRows / staged.length : 0,
-  pedigree_horses: pedigree.facts.size,
-  pedigree_matched_records: pedigree.matchedRecords,
 }, null, 2));
