@@ -35,9 +35,32 @@ for (const row of catalog.features ?? []) {
   }
 }
 
-for (const forbidden of ["market.final_win_odds","market.final_popularity","market.payout"]) {
+for (const forbidden of [
+  "market.final_win_odds",
+  "market.final_popularity",
+  "market.payout",
+  "race.actual_start_time",
+  "entry.jockey_id",
+  "entry.trainer_id",
+  "pedigree.sire_id",
+  "pedigree.dam_id",
+  "pedigree.siresire_id",
+  "pedigree.damsire_id",
+]) {
   const row = (catalog.features ?? []).find(x => x.feature_id === forbidden);
   if (!row || row.l1_allowed !== false) throw new Error(`${forbidden}: must be forbidden in L1`);
+}
+
+const expectedCounts = {
+  total: (catalog.features ?? []).length,
+  available: (catalog.features ?? []).filter(x => x.status === "AVAILABLE").length,
+  derivable: (catalog.features ?? []).filter(x => x.status === "DERIVABLE").length,
+  backfill_required: (catalog.features ?? []).filter(x => x.status === "BACKFILL_REQUIRED").length,
+  prohibited_l1: (catalog.features ?? []).filter(x => x.status === "PROHIBITED_L1").length,
+  l2_only: (catalog.features ?? []).filter(x => x.status === "L2_ONLY").length,
+};
+if (JSON.stringify(catalog.counts) !== JSON.stringify(expectedCounts)) {
+  throw new Error("catalog counts are stale");
 }
 
 console.log("L1_FEATURE_CATALOG_OK");
