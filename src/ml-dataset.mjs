@@ -7,7 +7,7 @@ import {
 import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
 
 export const ML_DATASET_VERSION = 3;
-export const ML_FEATURE_SCHEMA_VERSION = 6;
+export const ML_FEATURE_SCHEMA_VERSION = 7;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
@@ -273,6 +273,35 @@ const AUTO_FIELD_RELATIVE_SPECS = [
   { key: "recent_avg_speed_mps", prefix: "recent_avg_speed_mps", direction: "HIGHER_BETTER" },
 ];
 
+function normalizedMarginType(result) {
+  const raw = String(result?.margin_type ?? "").trim().toUpperCase();
+  return raw || null;
+}
+
+function marginLengths(result) {
+  return normalizedMarginType(result) === "LENGTHS"
+    ? finite(result?.margin_lengths)
+    : null;
+}
+
+function smallMarginGap(result) {
+  const type = normalizedMarginType(result);
+  if (type == null || type === "OTHER") return null;
+  if (type === "DEAD_HEAT" || type === "NOSE" || type === "HEAD" || type === "NECK") return true;
+  if (type === "LARGE") return false;
+  const lengths = marginLengths(result);
+  return lengths == null ? null : lengths <= 0.5;
+}
+
+function marginTypeRate(items, acceptedTypes) {
+  const observed = (items ?? [])
+    .map(item => normalizedMarginType(item?.result))
+    .filter(type => type != null);
+  if (!observed.length) return null;
+  const accepted = new Set(acceptedTypes);
+  return observed.filter(type => accepted.has(type)).length / observed.length;
+}
+
 function autoHistorySnapshot(history, currentRace, limit) {
   const recent = history.slice(-limit);
 
@@ -291,6 +320,10 @@ function autoHistorySnapshot(history, currentRace, limit) {
   const distance = recent.map(item => finite(item?.race?.distance_m));
   const bodyWeight = recent.map(item => finite(item?.entry?.body_weight));
   const carriedWeight = recent.map(item => finite(item?.entry?.carried_weight));
+  const marginGapLengths = recent.map(item => marginLengths(item?.result));
+  const observedMarginTypes = recent
+    .map(item => normalizedMarginType(item?.result))
+    .filter(type => type != null);
 
   return {
     ...buildRollingFeatureFamily("history_finish_position", finish, { higherIsBetter: false }),
@@ -299,6 +332,28 @@ function autoHistorySnapshot(history, currentRace, limit) {
     ...buildRollingFeatureFamily("history_distance_m", distance),
     ...buildRollingFeatureFamily("history_body_weight", bodyWeight),
     ...buildRollingFeatureFamily("history_carried_weight", carriedWeight),
+    ...buildRollingFeatureFamily("history_margin_lengths", marginGapLengths, { higherIsBetter: false }),
+    auto_history_margin_type_observation_count: observedMarginTypes.length,
+    auto_history_margin_lengths_rate: observedMarginTypes.length
+      ? observedMarginTypes.filter(type => type === "LENGTHS").length / observedMarginTypes.length
+      : null,
+    auto_history_margin_small_gap_rate: (() => {
+      const measured = recent.map(item => smallMarginGap(item?.result)).filter(v => v === true || v === false);
+      return measured.length ? measured.filter(Boolean).length / measured.length : null;
+    })(),
+    auto_history_margin_tight_categorical_rate: marginTypeRate(
+      recent,
+      ["DEAD_HEAT", "NOSE", "HEAD", "NECK"],
+    ),
+    auto_history_margin_large_rate: marginTypeRate(recent, ["LARGE"]),
+    ...buildConditionFeatureFamily({
+      prefix: "margin_gap",
+      history: recent,
+      currentRace,
+      valueOf: item => marginLengths(item?.result),
+      successOf: item => smallMarginGap(item?.result),
+      higherIsBetter: false,
+    }),
     ...buildConditionFeatureFamily({
       prefix: "finish",
       history: recent,
@@ -380,6 +435,8 @@ function targetFrom(result) {
     is_top3: finish != null ? finish <= 3 : null,
     finish_time_ms: finite(result?.finish_time_ms),
     margin_raw: result?.margin_raw ?? null,
+    margin_type: normalizedMarginType(result),
+    margin_lengths: marginLengths(result),
     last_3f: finite(result?.last_3f),
     prize_money: finite(result?.prize_money),
   };
