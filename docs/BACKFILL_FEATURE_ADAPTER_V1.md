@@ -44,16 +44,16 @@ ML側で文字列から推測して埋め直さない。
 以下を受け取れる。
 
 - margin_raw
-- normalized_margin
-- margin_seconds
-- margin_length_equivalent
-- margin_kind
-- margin_normalization_version
+- margin_type
+- margin_lengths
 
-ただしV1では**学習特徴にしない**。
+BACKFILLの正規化契約は以下。
 
-理由は、BACKFILL側の正規化仕様と「どの馬との差を表す値か」が確定してから使うため。
-値が来たからといって意味を推測して勝手に学習へ流さない。
+- 数値着差 → `margin_type=LENGTHS` + `margin_lengths`
+- ハナ / アタマ / クビ / 大差 / 同着など → `margin_type`のみ
+- カテゴリ着差へ勝手な馬身換算はしない
+
+現時点では受け口と完成検査まで。L1特徴への投入は別工程で行う。
 
 ## 不正値
 
