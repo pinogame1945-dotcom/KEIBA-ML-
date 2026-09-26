@@ -1,5 +1,11 @@
-export const ML_DATASET_VERSION = 2;
-export const ML_FEATURE_SCHEMA_VERSION = 3;
+import {
+  addFieldRelativeFeatures,
+  buildRollingFeatureFamily,
+  buildSafePairFeatures,
+} from "./auto-feature-factory.mjs";
+
+export const ML_DATASET_VERSION = 3;
+export const ML_FEATURE_SCHEMA_VERSION = 4;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
@@ -256,6 +262,70 @@ function historySnapshot(history, current, limit, horseStatsById) {
   };
 }
 
+const AUTO_FIELD_RELATIVE_SPECS = [
+  { key: "network_elo_rating", prefix: "network_elo_rating", direction: "HIGHER_BETTER" },
+  { key: "recent_win_rate", prefix: "recent_win_rate", direction: "HIGHER_BETTER" },
+  { key: "recent_top3_rate", prefix: "recent_top3_rate", direction: "HIGHER_BETTER" },
+  { key: "recent_avg_finish", prefix: "recent_avg_finish", direction: "LOWER_BETTER" },
+  { key: "recent_avg_last_3f", prefix: "recent_avg_last_3f", direction: "LOWER_BETTER" },
+  { key: "recent_avg_speed_mps", prefix: "recent_avg_speed_mps", direction: "HIGHER_BETTER" },
+];
+
+function autoHistorySnapshot(history, limit) {
+  const recent = history.slice(-limit);
+
+  const finish = recent.map(item => {
+    if (String(item?.result?.result_status ?? "").toUpperCase() !== "FINISHED") return null;
+    return finite(item?.result?.official_finish_position);
+  });
+  const last3f = recent.map(item => finite(item?.result?.last_3f));
+  const speed = recent.map(item => {
+    const distance = finite(item?.race?.distance_m);
+    const timeMs = finite(item?.result?.finish_time_ms);
+    return distance != null && timeMs != null && timeMs > 0
+      ? distance / (timeMs / 1000)
+      : null;
+  });
+  const distance = recent.map(item => finite(item?.race?.distance_m));
+  const bodyWeight = recent.map(item => finite(item?.entry?.body_weight));
+  const carriedWeight = recent.map(item => finite(item?.entry?.carried_weight));
+
+  return {
+    ...buildRollingFeatureFamily("history_finish_position", finish, { higherIsBetter: false }),
+    ...buildRollingFeatureFamily("history_last_3f", last3f, { higherIsBetter: false }),
+    ...buildRollingFeatureFamily("history_speed_mps", speed, { higherIsBetter: true }),
+    ...buildRollingFeatureFamily("history_distance_m", distance),
+    ...buildRollingFeatureFamily("history_body_weight", bodyWeight),
+    ...buildRollingFeatureFamily("history_carried_weight", carriedWeight),
+  };
+}
+
+function addAutoPairFeatures(features) {
+  return {
+    ...features,
+    ...buildSafePairFeatures(features, [
+      {
+        a: "distance_m",
+        b: "auto_history_distance_m_mean",
+        prefix: "distance_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+      {
+        a: "body_weight",
+        b: "auto_history_body_weight_mean",
+        prefix: "body_weight_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+      {
+        a: "carried_weight",
+        b: "auto_history_carried_weight_mean",
+        prefix: "carried_weight_vs_recent_mean",
+        ops: ["diff", "ratio", "normalized_diff"],
+      },
+    ]),
+  };
+}
+
 function currentFeatures(row, entry, historyFeatures, networkFeatures) {
   const race = row.race ?? {};
   return {
@@ -363,6 +433,7 @@ export function buildMlDataset(raceRows, {
     for (const row of day) {
       const raceId = String(row?.race?.race_id ?? "");
       const results = resultMap(row);
+      const raceOutput = [];
       for (const entry of row?.entries ?? []) {
         const horseId = String(entry?.horse_id ?? "");
         if (!raceId || !horseId) continue;
@@ -370,15 +441,16 @@ export function buildMlDataset(raceRows, {
         if (!result || !isEligibleStarter(entry, result)) continue;
         const history = historyByHorse.get(horseId) ?? [];
         const current = { date, race: row.race ?? {}, entry };
-        const features = currentFeatures(
-          row,
-          entry,
-          historySnapshot(history, current, historyLimit, horseStatsById),
-          networkSnapshot(row, horseId, eloByHorse),
-        );
+        const historyFeatures = historySnapshot(history, current, historyLimit, horseStatsById);
+        const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
+        const autoHistoryFeatures = autoHistorySnapshot(history, historyLimit);
+        const features = addAutoPairFeatures({
+          ...currentFeatures(row, entry, historyFeatures, networkFeatures),
+          ...autoHistoryFeatures,
+        });
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
         if (inRange) {
-          out.push({
+          raceOutput.push({
             ml_dataset_version: ML_DATASET_VERSION,
             feature_schema_version: ML_FEATURE_SCHEMA_VERSION,
             leakage_policy: ML_LEAKAGE_POLICY,
@@ -390,6 +462,7 @@ export function buildMlDataset(raceRows, {
           });
         }
       }
+      out.push(...addFieldRelativeFeatures(raceOutput, AUTO_FIELD_RELATIVE_SPECS));
     }
 
     for (const row of day) {
