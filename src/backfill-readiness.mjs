@@ -168,10 +168,12 @@ export function createBackfillReadinessAccumulator() {
 }
 
 function fieldSummary(stats, races) {
+  const validPresent = Math.max(0, stats.present - stats.invalid);
   return {
     ...stats,
+    valid_present: validPresent,
     coverage: ratio(stats.present + stats.unknown, races),
-    known_coverage: ratio(stats.present, races),
+    known_coverage: ratio(validPresent, races),
     missing_rate: ratio(stats.missing, races),
     unknown_rate: ratio(stats.unknown, races),
     invalid_rate: ratio(stats.invalid, races),
