@@ -53,13 +53,14 @@ BACKFILLのレース条件拡張が「本当に研究へ使える状態か」を
 勝ち馬以外のFINISHED結果を母数として、
 
 - margin_raw
-- normalized_margin
-- margin_seconds
-- margin_length_equivalent
-- margin_kind
-- margin_normalization_version
+- margin_type
+- margin_lengths
 
-のcoverageを出す。
+を検査する。
+
+`margin_type` は98%以上を要求する。
+`margin_type=LENGTHS` の行だけ `margin_lengths` を必須にする。
+ハナ・アタマ・クビなどのカテゴリ着差で `margin_lengths=null` は正常。
 
 ただし着差は現時点ではL1学習へ入れない。
 この検査は「材料が揃ったか」を見るだけ。
@@ -107,7 +108,7 @@ GitHub Actions側でも同じ検査をPython環境やML依存の準備より先�
 
 単に値が埋まっているだけでは合格にしない。
 
-- `course_laps` も必須項目として確認する。
+- `course_laps` は全レース必須ではない。元のコース表記に「N周」がある場合だけ、その数値との一致を必須にする。
 - `新馬` → `NEWCOMER`
 - `未勝利` → `MAIDEN`
 - `500万下` → `ONE_WIN`
