@@ -60,7 +60,7 @@ After the L1 foundation is stable:
 
 ## AUTO FEATURE FACTORY V1
 
-Dataset version 3 / feature schema 6 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
+Dataset version 3 / feature schema 7 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
 
 The first connected sources are limited to prior-race:
 
@@ -116,3 +116,9 @@ Current trainable stages:
 The old direct-ID `pedigree` stage is removed. `distance_v1` contains distance features without pedigree IDs.
 
 AUTO features are only built for AUTO stages. BACKFILL race-condition features are only copied into the dataset for BACKFILL stages.
+
+
+## Margin AUTO
+
+Feature schema 7 adds past-only AUTO features from BACKFILL `margin_type` and `margin_lengths`.
+Current-race margin remains a target/output value and is never used as a predictor for that race.
