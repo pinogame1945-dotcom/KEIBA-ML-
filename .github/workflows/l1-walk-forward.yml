@@ -3,6 +3,14 @@ name: L1 walk-forward research
 on:
   workflow_dispatch:
     inputs:
+      mode:
+        description: Plan only or execute training
+        required: true
+        default: plan
+        type: choice
+        options:
+          - plan
+          - run
       first_holdout:
         description: First holdout year
         required: true
@@ -53,6 +61,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Checkout BACKFILL data source
+        if: ${{ inputs.mode == 'run' }}
         uses: actions/checkout@v4
         with:
           repository: pinogame1945-dotcom/KEIBA-BACKFILL
@@ -60,11 +69,13 @@ jobs:
           path: backfill
 
       - name: Record BACKFILL source commit
+        if: ${{ inputs.mode == 'run' }}
         shell: bash
         run: |
           echo "BACKFILL_SHA=$(git -C backfill rev-parse HEAD)" >> "$GITHUB_ENV"
 
       - name: Setup Node
+        if: ${{ inputs.mode == 'run' }}
         uses: actions/setup-node@v4
         with:
           node-version: "20"
@@ -75,9 +86,11 @@ jobs:
           python-version: "3.12"
 
       - name: L1 leakage smoke
+        if: ${{ inputs.mode == 'run' }}
         run: npm run smoke:l1-dataset
 
       - name: Install ML dependencies
+        if: ${{ inputs.mode == 'run' }}
         run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
 
       - name: Print walk-forward plan
@@ -85,13 +98,16 @@ jobs:
           python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"             --plan-only
 
       - name: Run L1 walk-forward
+        if: ${{ inputs.mode == 'run' }}
         run: |
           python research/run_walk_forward.py             --source-root backfill             --out-dir out/walk-forward             --first-holdout "${{ inputs.first_holdout }}"             --last-holdout "${{ inputs.last_holdout }}"             --train-years "${{ inputs.train_years }}"             --warmup-years "${{ inputs.warmup_years }}"             --history-limit "${{ inputs.history_limit }}"             --stage "${{ inputs.stage }}"             --source-ref "${{ inputs.backfill_ref }}"             --source-sha "$BACKFILL_SHA"
 
       - name: Show output sizes
+        if: ${{ inputs.mode == 'run' }}
         run: du -ah out/walk-forward | sort -h | tail -50
 
       - name: Upload short-retention research bundle
+        if: ${{ inputs.mode == 'run' }}
         uses: actions/upload-artifact@v4
         with:
           name: l1-walk-forward-${{ inputs.first_holdout }}-${{ inputs.last_holdout }}-${{ inputs.stage }}
