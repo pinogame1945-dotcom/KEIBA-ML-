@@ -1,7 +1,7 @@
 {
   "contract": "L1_PORTABLE_FOUNDATION_V1",
   "ml_dataset_version": 3,
-  "feature_schema_version": 6,
+  "feature_schema_version": 7,
   "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
   "target": "target.is_win",
   "ability_uses_odds": false,
@@ -36,5 +36,5 @@
     "categorical levels",
     "out-of-fold horse predictions"
   ],
-  "note": "Direct pedigree/jockey/trainer IDs and result-page actual_start_time are blocked from L1. AUTO/BACKFILL families are opt-in; style remains isolated. Persistent Actions artifact upload is disabled by cost policy."
+  "note": "Direct pedigree/jockey/trainer IDs and result-page actual_start_time are blocked from L1. AUTO/BACKFILL families are opt-in; style remains isolated. AUTO margin features use only prior-race margin_type/margin_lengths. Persistent Actions artifact upload is disabled by cost policy."
 }
