@@ -77,7 +77,7 @@ assert.equal(febOnly[0].target.finish_position, 1);
 assert.equal(febOnly[0].market_outcome.final_win_odds, 99.9);
 assert.equal(febOnly[0].market_outcome.final_popularity, 18);
 assert.equal(ML_DATASET_VERSION, 3);
-assert.equal(ML_FEATURE_SCHEMA_VERSION, 4);
+assert.equal(ML_FEATURE_SCHEMA_VERSION, 5);
 assert.equal(febOnly[0].ml_dataset_version, ML_DATASET_VERSION);
 assert.equal(febOnly[0].feature_schema_version, ML_FEATURE_SCHEMA_VERSION);
 assert.equal(febOnly[0].leakage_policy, ML_LEAKAGE_POLICY);
@@ -196,3 +196,66 @@ for (const row of [...febOnly, ...networkBuilt]) {
   const names = Object.keys(row.features);
   assert.equal(names.some(name => /odds|popularity|payout/i.test(name)), false);
 }
+
+
+const backfillReady = race({
+  id: "202405011001",
+  date: "2024-10-01",
+  finish: 1,
+  last3f: 33.2,
+  time: 92500,
+  horse: "BF1",
+});
+Object.assign(backfillReady.race, {
+  field_size: 12,
+  course_layout: "OUTER",
+  course_laps: 1,
+  race_class_normalized: "OPEN",
+  grade: "G3",
+  age_min: 3,
+  age_max: null,
+  sex_condition: "ANY",
+  weight_rule: "SPECIAL_WEIGHT",
+  mixed: true,
+  international: false,
+  special_designated: true,
+  designated: false,
+  race_class_raw: "オープン",
+  age_condition_raw: "3歳以上",
+  course_meta_raw: "芝左 外1600m",
+  race_condition_raw: "3歳以上 オープン 別定",
+});
+backfillReady.results[0].margin_seconds = 0.2;
+backfillReady.results[0].margin_length_equivalent = 1.0;
+
+const backfillBuilt = buildMlDataset(
+  [backfillReady],
+  { startDate: "2024-10-01", endDate: "2024-10-01" },
+);
+assert.equal(backfillBuilt.length, 1);
+assert.equal(backfillBuilt[0].features.backfill_field_size, 12);
+assert.equal(backfillBuilt[0].features.backfill_course_layout, "OUTER");
+assert.equal(backfillBuilt[0].features.backfill_course_laps, 1);
+assert.equal(backfillBuilt[0].features.backfill_race_class_normalized, "OPEN");
+assert.equal(backfillBuilt[0].features.backfill_grade, "G3");
+assert.equal(backfillBuilt[0].features.backfill_age_min, 3);
+assert.equal(backfillBuilt[0].features.backfill_weight_rule, "SPECIAL_WEIGHT");
+assert.equal(backfillBuilt[0].features.backfill_mixed, true);
+assert.equal(Object.hasOwn(backfillBuilt[0].features, "race_condition_raw"), false);
+assert.equal(Object.hasOwn(backfillBuilt[0].features, "margin_seconds"), false);
+
+const backfillMissing = race({
+  id: "202405011101",
+  date: "2024-11-01",
+  finish: 1,
+  last3f: 33.0,
+  time: 92000,
+  horse: "BF2",
+});
+const backfillMissingBuilt = buildMlDataset(
+  [backfillMissing],
+  { startDate: "2024-11-01", endDate: "2024-11-01" },
+);
+assert.equal(backfillMissingBuilt[0].features.backfill_course_layout, null);
+assert.equal(backfillMissingBuilt[0].features.backfill_grade, null);
+assert.equal(backfillMissingBuilt[0].features.backfill_field_size, 1);
