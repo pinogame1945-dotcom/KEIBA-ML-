@@ -4,7 +4,7 @@ import {
   readBackfillMarginContext,
 } from "./backfill-feature-adapter.mjs";
 
-export const BACKFILL_READINESS_VERSION = 1;
+export const BACKFILL_READINESS_VERSION = 2;
 
 export const RACE_FIELDS = [
   "field_size",
@@ -43,7 +43,6 @@ const BOOLEAN_FIELDS = [
 
 const CORE_FIELDS = [
   "course_layout",
-  "course_laps",
   "race_class_normalized",
   "grade",
   "sex_condition",
@@ -87,11 +86,11 @@ function makeBucket() {
     margin: {
       finished_non_winner_rows: 0,
       raw_present: 0,
-      normalized_margin_present: 0,
-      margin_seconds_present: 0,
-      margin_length_equivalent_present: 0,
-      kind_present: 0,
-      normalization_version_present: 0,
+      type_present: 0,
+      lengths_type_rows: 0,
+      lengths_present: 0,
+      categorical_type_rows: 0,
+      invalid: 0,
     },
   };
 }
@@ -117,6 +116,12 @@ function warningField(warning) {
   return RACE_FIELDS.includes(field) ? [field] : [];
 }
 
+function expectedCourseLaps(courseMetaRaw) {
+  const text = String(courseMetaRaw ?? "").normalize("NFKC");
+  const match = text.match(/(\d+)\s*周/u);
+  return match ? Number(match[1]) : null;
+}
+
 function expectedLegacyClass(raw) {
   const text = String(raw ?? "").replace(/\s+/g, "");
   if (!text) return null;
@@ -140,6 +145,14 @@ function markRace(bucket, row) {
 
   const adapted = readBackfillRaceFeatures(race, row?.entries ?? []);
   const warnings = [...adapted.warnings];
+
+  const expectedLaps = expectedCourseLaps(race?.course_meta_raw);
+  if (expectedLaps != null && Number(race?.course_laps) !== expectedLaps) {
+    warnings.push(
+      `course_laps:semantic:expected_${expectedLaps}:actual_${race?.course_laps ?? "null"}`,
+    );
+  }
+
   const expectedClass = expectedLegacyClass(race?.race_class_raw ?? race?.race_condition_raw);
   if (
     expectedClass != null &&
@@ -166,12 +179,17 @@ function markRace(bucket, row) {
     const margin = readBackfillMarginContext(result);
     bucket.margin.finished_non_winner_rows += 1;
     if (present(margin.margin_raw)) bucket.margin.raw_present += 1;
-    if (margin.normalized_margin != null) bucket.margin.normalized_margin_present += 1;
-    if (margin.margin_seconds != null) bucket.margin.margin_seconds_present += 1;
-    if (margin.margin_length_equivalent != null) bucket.margin.margin_length_equivalent_present += 1;
-    if (present(margin.margin_kind)) bucket.margin.kind_present += 1;
-    if (present(margin.margin_normalization_version)) {
-      bucket.margin.normalization_version_present += 1;
+    if (present(margin.margin_type)) bucket.margin.type_present += 1;
+
+    if (margin.margin_type === "LENGTHS") {
+      bucket.margin.lengths_type_rows += 1;
+      if (margin.margin_lengths != null) bucket.margin.lengths_present += 1;
+      else bucket.margin.invalid += 1;
+    } else if (present(margin.margin_type)) {
+      bucket.margin.categorical_type_rows += 1;
+      if (margin.margin_lengths != null) bucket.margin.invalid += 1;
+    } else if (present(margin.margin_raw)) {
+      bucket.margin.invalid += 1;
     }
   }
 }
@@ -211,11 +229,9 @@ function marginSummary(margin) {
   return {
     ...margin,
     raw_coverage: ratio(margin.raw_present, d),
-    normalized_margin_coverage: ratio(margin.normalized_margin_present, d),
-    margin_seconds_coverage: ratio(margin.margin_seconds_present, d),
-    margin_length_equivalent_coverage: ratio(margin.margin_length_equivalent_present, d),
-    kind_coverage: ratio(margin.kind_present, d),
-    normalization_version_coverage: ratio(margin.normalization_version_present, d),
+    type_coverage: ratio(margin.type_present, d),
+    lengths_coverage_when_applicable: ratio(margin.lengths_present, margin.lengths_type_rows),
+    invalid_rate: ratio(margin.invalid, d),
   };
 }
 
@@ -300,9 +316,25 @@ export function summarizeReadiness(overallBucket, yearBuckets, {
     }
   }
 
+  const margin = overall.margin;
+  gates.push({
+    type: "MARGIN_TYPE_COVERAGE",
+    field: "margin_type",
+    pass: margin.type_coverage != null && margin.type_coverage >= minCoreKnownCoverage,
+    actual: margin.type_coverage,
+    required: minCoreKnownCoverage,
+  });
+  gates.push({
+    type: "MARGIN_INVALID_RATE",
+    field: "margin",
+    pass: margin.invalid_rate != null && margin.invalid_rate <= maxInvalidRate,
+    actual: margin.invalid_rate,
+    required_max: maxInvalidRate,
+  });
+
   const failed = gates.filter(gate => !gate.pass);
   return {
-    report_version: "BACKFILL_READINESS_V1",
+    report_version: "BACKFILL_READINESS_V2",
     readiness_version: BACKFILL_READINESS_VERSION,
     thresholds: {
       min_core_known_coverage: minCoreKnownCoverage,
