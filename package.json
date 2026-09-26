@@ -11,6 +11,8 @@
     "build:l1-dataset": "node research/build-staged-dataset.mjs",
     "check:feature-catalog": "node scripts/validate-feature-catalog.mjs",
     "smoke:auto-feature-factory": "node scripts/auto-feature-factory-smoke.mjs",
-    "smoke:backfill-adapter": "node scripts/backfill-feature-adapter-smoke.mjs"
+    "smoke:backfill-adapter": "node scripts/backfill-feature-adapter-smoke.mjs",
+    "smoke:backfill-readiness": "node scripts/backfill-readiness-smoke.mjs",
+    "audit:backfill-readiness": "node scripts/audit-backfill-readiness.mjs"
   }
 }
