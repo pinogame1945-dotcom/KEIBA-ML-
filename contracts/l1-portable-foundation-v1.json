@@ -1,7 +1,7 @@
 {
   "contract": "L1_PORTABLE_FOUNDATION_V1",
-  "ml_dataset_version": 2,
-  "feature_schema_version": 3,
+  "ml_dataset_version": 3,
+  "feature_schema_version": 4,
   "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
   "target": "target.is_win",
   "ability_uses_odds": false,
@@ -21,7 +21,8 @@
     "lap",
     "style",
     "pedigree",
-    "distance"
+    "distance",
+    "auto_v1"
   ],
   "portable_outputs": [
     "LightGBM text model",
@@ -30,5 +31,5 @@
     "categorical levels",
     "out-of-fold horse predictions"
   ],
-  "note": "Exact feature order and categorical levels are generated per trained model and must be treated as part of that model."
+  "note": "Exact feature order and categorical levels are generated per trained model and must be treated as part of that model. AUTO features exist in the dataset but are excluded unless the auto_v1 stage is selected."
 }
