@@ -110,6 +110,7 @@ def flatten(rows, stage):
             "_horse_id": str(row.get("horse_id") or ""),
             "_race_date": str(date or ""),
             "_target": 1 if bool(is_win) else 0,
+            "_finish_position": target.get("finish_position"),
             **f,
         })
     df = pd.DataFrame.from_records(records)
@@ -157,7 +158,7 @@ def frames(train, valid):
     return xtr, xva, categorical, category_levels
 
 def predictions(frame, raw):
-    out = frame[["_race_id", "_horse_id", "_target"]].copy()
+    out = frame[["_race_id", "_horse_id", "_target", "_finish_position"]].copy()
     out["p"] = np.asarray(raw, dtype=float)
     sums = out.groupby("_race_id")["p"].transform("sum")
     sizes = out.groupby("_race_id")["p"].transform("size")
@@ -271,8 +272,25 @@ def main():
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out = pred.copy()
         out["_race_date"] = valid["_race_date"].values
+        out["model_version"] = a.model_version
+        out["stage"] = a.stage
+        out = out.rename(columns={
+            "_race_date": "race_date",
+            "_race_id": "race_id",
+            "_horse_id": "horse_id",
+            "_target": "actual_is_win",
+            "_finish_position": "actual_finish_position",
+            "p": "raw_win_probability",
+            "pn": "race_normalized_win_probability",
+            "rank": "predicted_rank",
+        })
+        cols = [
+            "race_date", "race_id", "horse_id", "model_version", "stage",
+            "raw_win_probability", "race_normalized_win_probability", "predicted_rank",
+            "actual_is_win", "actual_finish_position",
+        ]
         with gzip.open(out_path, "wt", encoding="utf-8") as fh:
-            for record in out.sort_values(["_race_date", "_race_id", "rank"]).to_dict(orient="records"):
+            for record in out.sort_values(["race_date", "race_id", "predicted_rank"])[cols].to_dict(orient="records"):
                 fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     if a.schema_out:
