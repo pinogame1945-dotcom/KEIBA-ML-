@@ -40,12 +40,12 @@ OOF records are the only L1 predictions allowed as future L2 training input.
 Do not commit every experimental dataset/model to Git history.
 
 - temporary dataset: deleted after fold
-- experiment model/OOF: short-retention Actions artifact
+- experiment model/OOF: runner-local only by default; persistent Actions artifact upload is disabled unless the user explicitly approves storage
 - promoted model: store only after validation/promotion policy is defined
 
 ## Current stage caution
 
-The latest BACKFILL ladder showed that adding pedigree IDs degraded the 2025 holdout while `pedigree_dam_id` received abnormally large gain importance. Therefore the workflow defaults to `style`, not the full `distance` stage. Pedigree must be redesigned/audited before promotion.
+Direct pedigree IDs are now blocked from L1 entirely. Direct jockey/trainer IDs are also blocked until point-in-time performance features replace them. The result-page `actual_start_time` is not used because it is not guaranteed to be known before the race.
 
 ## Future phases
 
@@ -60,7 +60,7 @@ After the L1 foundation is stable:
 
 ## AUTO FEATURE FACTORY V1
 
-Dataset version 3 / feature schema 5 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
+Dataset version 3 / feature schema 6 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
 
 The first connected sources are limited to prior-race:
 
@@ -97,3 +97,22 @@ The ML dataset can now receive the new normalized race conditions without changi
 Missing BACKFILL fields remain null. ML does not re-parse raw race-condition text.
 
 Margin normalization fields are readable by the adapter but are not yet model inputs. They remain blocked until their exact semantics and coverage are confirmed.
+
+
+## Safe stage set
+
+Current trainable stages:
+
+- `base`
+- `opponent_v1`
+- `opponent_both`
+- `lap`
+- `style`
+- `distance_v1`
+- `backfill_v1`
+- `auto_v1`
+- `auto_backfill_v1`
+
+The old direct-ID `pedigree` stage is removed. `distance_v1` contains distance features without pedigree IDs.
+
+AUTO features are only built for AUTO stages. BACKFILL race-condition features are only copied into the dataset for BACKFILL stages.
