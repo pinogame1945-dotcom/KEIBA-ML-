@@ -42,6 +42,7 @@ assert.equal(before.ped_sire_all_starts, 0);
 assert.equal(before.ped_damsire_all_starts, 0);
 
 state.add(lineage, race, {
+  result_status: "FINISHED",
   official_finish_position: 2,
   margin_type: "LENGTHS",
   margin_lengths: 0.5,
@@ -60,13 +61,10 @@ console.log(JSON.stringify({
   stat_rows: state.stat_rows(),
 }, null, 2));
 
-const foreign = lineageFromHorseRecord({
-  pedigree: [
-    { generation: 1, slot: 0, ancestor_id: "000", ancestor_name: "Foreign Sire" },
-    { generation: 2, slot: 2, ancestor_id: "000", ancestor_name: "Foreign Damsire" },
-  ],
+
+const beforeDnf = state.snapshot(lineage, race).ped_sire_all_starts;
+state.add(lineage, race, {
+  result_status: "DNF",
+  official_finish_position: null,
 });
-assert.deepEqual(foreign, {
-  sire_id: "name:Foreign Sire",
-  damsire_id: "name:Foreign Damsire",
-});
+assert.equal(state.snapshot(lineage, race).ped_sire_all_starts, beforeDnf);
