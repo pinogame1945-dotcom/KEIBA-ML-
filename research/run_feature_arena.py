@@ -217,16 +217,27 @@ def load_candidates(path, contract):
             invalid_auto_slices = sorted(set(auto_slices) - allowed_auto_slices)
             if invalid_auto_slices:
                 raise ValueError("invalid auto_slices: " + ", ".join(invalid_auto_slices))
+            pedigree_slices = item.get("pedigree_slices") or []
+            if not isinstance(pedigree_slices, list):
+                raise ValueError("candidate pedigree_slices must be a JSON array")
+            allowed_pedigree_slices = {"LEGACY", "RACE_CLASS"}
+            pedigree_slices = [str(x).strip().upper() for x in pedigree_slices if str(x).strip()]
+            invalid_pedigree_slices = sorted(set(pedigree_slices) - allowed_pedigree_slices)
+            if invalid_pedigree_slices:
+                raise ValueError("invalid pedigree_slices: " + ", ".join(invalid_pedigree_slices))
             feature_sets = normalize_sets(sets, contract)
             if actor_prefixes and "ACTOR" not in feature_sets:
                 raise ValueError("actor_prefixes requires ACTOR feature set")
             if auto_slices and "AUTO" not in feature_sets:
                 raise ValueError("auto_slices requires AUTO feature set")
+            if pedigree_slices and "PEDIGREE" not in feature_sets:
+                raise ValueError("pedigree_slices requires PEDIGREE feature set")
             normalized.append({
                 "name": name,
                 "feature_sets": feature_sets,
                 "actor_prefixes": actor_prefixes,
                 "auto_slices": auto_slices,
+                "pedigree_slices": pedigree_slices,
             })
         rows = normalized
 
@@ -241,6 +252,7 @@ def load_candidates(path, contract):
             tuple(row["feature_sets"]),
             tuple(sorted(row.get("actor_prefixes") or [])),
             tuple(sorted(row.get("auto_slices") or [])),
+            tuple(sorted(row.get("pedigree_slices") or [])),
         )
         if signature in seen_sets:
             raise ValueError("duplicate candidate feature set: " + ",".join(signature))
@@ -248,6 +260,7 @@ def load_candidates(path, contract):
         seen_sets.add(signature)
         row.setdefault("actor_prefixes", [])
         row.setdefault("auto_slices", [])
+        row.setdefault("pedigree_slices", [])
         out.append(row)
     return out
 
@@ -461,6 +474,7 @@ def main():
         sets = candidate["feature_sets"]
         actor_prefixes = candidate.get("actor_prefixes") or []
         auto_slices = candidate.get("auto_slices") or []
+        pedigree_slices = candidate.get("pedigree_slices") or []
         sets_arg = ",".join(sets)
         projected = projections / f"{slug}.jsonl.gz"
         model = models / f"{slug}.txt"
@@ -480,6 +494,8 @@ def main():
             projection_cmd.extend(["--actor-prefixes", ",".join(actor_prefixes)])
         if auto_slices:
             projection_cmd.extend(["--auto-slices", ",".join(auto_slices)])
+        if pedigree_slices:
+            projection_cmd.extend(["--pedigree-slices", ",".join(pedigree_slices)])
         projection_usage = run(projection_cmd, label=f"{name}:projection")
 
         cmd = [
@@ -525,6 +541,7 @@ def main():
             "feature_sets": sets,
             "actor_prefixes": actor_prefixes,
             "auto_slices": auto_slices,
+            "pedigree_slices": pedigree_slices,
             "race_scope": {
                 "train": str(a.train_race_class).strip().upper(),
                 "valid": str(a.valid_race_class).strip().upper(),
