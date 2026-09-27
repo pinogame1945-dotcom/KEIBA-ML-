@@ -7,7 +7,7 @@ import subprocess
 from datetime import datetime, timezone
 from pathlib import Path
 
-RESULT_MARKER = "FIRST_KODOKU_RESULT"
+RESULT_MARKERS = ("FEATURE_ARENA_RESULT", "FIRST_KODOKU_RESULT")
 ANSI_RE = re.compile(r"\\x1b\\[[0-9;]*[A-Za-z]")
 TIMESTAMP_RE = re.compile(r"^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?Z\\s+")
 
@@ -47,7 +47,7 @@ def clean_line(line):
 def extract_result(log_text):
     lines = [clean_line(x) for x in log_text.splitlines()]
     for i, line in enumerate(lines):
-        if RESULT_MARKER not in line:
+        if not any(marker in line for marker in RESULT_MARKERS):
             continue
         for candidate in lines[i + 1:i + 8]:
             start = candidate.find("{")
