@@ -17,6 +17,7 @@ from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 EXPECTED_DATASET_VERSION = 3
 EXPECTED_FEATURE_SCHEMA_VERSION = 8
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
+LOCKED_RESEARCH_YEAR = 2026
 
 DEFAULT_FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
 DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
@@ -411,7 +412,12 @@ def feature_selection_train_v1(train, a):
         inner_train = train[train["_race_date_dt"] < cut_date].copy()
         inner_valid = train[train["_race_date_dt"] >= cut_date].copy()
         inner_train, inner_valid = complete_races(inner_train), complete_races(inner_valid)
-        if not inner_train.empty and not inner_valid.empty and inner_train["_target"].nunique() >= 2:
+        if (
+            not inner_train.empty
+            and not inner_valid.empty
+            and inner_train["_target"].nunique() >= 2
+            and inner_valid["_target"].nunique() >= 2
+        ):
             ixtr, ixva, icat, _ = frames(inner_train, inner_valid, keep)
             iytr, iyva = inner_train["_target"].astype(int), inner_valid["_target"].astype(int)
             probe = lgb.LGBMClassifier(
@@ -681,6 +687,16 @@ def main():
         raise ValueError("train_end must be before valid_start")
     if pd.to_datetime(a.valid_start) > pd.to_datetime(a.valid_end):
         raise ValueError("valid_start must be <= valid_end")
+    for label, value in [
+        ("train_start", a.train_start),
+        ("train_end", a.train_end),
+        ("valid_start", a.valid_start),
+        ("valid_end", a.valid_end),
+    ]:
+        if pd.to_datetime(value).year >= LOCKED_RESEARCH_YEAR:
+            raise ValueError(
+                f"2026 research lock: {label}={value} is forbidden until final-confirmation code is explicitly changed"
+            )
     feature_contract = load_feature_contract(a.feature_contract)
     small_sample_contract = json.loads(Path(a.small_sample_contract).read_text(encoding="utf-8"))
     feature_sets = normalize_feature_sets(a.feature_sets, a.stage, feature_contract)
