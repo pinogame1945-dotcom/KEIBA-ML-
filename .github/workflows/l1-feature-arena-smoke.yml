@@ -1,0 +1,54 @@
+name: L1 Feature Arena smoke
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - research/run_feature_arena.py
+      - research/feature-arena-smoke.py
+      - .github/workflows/l1-feature-arena-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          python -m py_compile research/run_feature_arena.py research/feature-arena-smoke.py research/train-staged-lightgbm.py
+          node --check research/project-yearly-snapshots.mjs
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Feature Arena smoke
+        run: python research/feature-arena-smoke.py
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l1-feature-arena-smoke.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No persistent Artifact or Cache."
