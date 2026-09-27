@@ -59,3 +59,14 @@ console.log(JSON.stringify({
   version: PEDIGREE_FEATURE_BUILDER_VERSION,
   stat_rows: state.stat_rows(),
 }, null, 2));
+
+const foreign = lineageFromHorseRecord({
+  pedigree: [
+    { generation: 1, slot: 0, ancestor_id: "000", ancestor_name: "Foreign Sire" },
+    { generation: 2, slot: 2, ancestor_id: "000", ancestor_name: "Foreign Damsire" },
+  ],
+});
+assert.deepEqual(foreign, {
+  sire_id: "name:Foreign Sire",
+  damsire_id: "name:Foreign Damsire",
+});
