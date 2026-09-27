@@ -35,6 +35,28 @@ if (actorPrefixes.length && !featureSets.includes("ACTOR")) {
   throw new Error("--actor-prefixes requires ACTOR feature set");
 }
 
+const autoSlices = String(arg("--auto-slices") ?? "")
+  .split(",").map(x => x.trim().toUpperCase()).filter(Boolean);
+const ALLOWED_AUTO_SLICES = new Set(["ROLLING", "CONDITION", "FIELD", "PAIR"]);
+for (const slice of autoSlices) {
+  if (!ALLOWED_AUTO_SLICES.has(slice)) {
+    throw new Error("invalid --auto-slices value: " + slice);
+  }
+}
+if (autoSlices.length && !featureSets.includes("AUTO")) {
+  throw new Error("--auto-slices requires AUTO feature set");
+}
+
+function keepAutoFeature(key) {
+  if (!key.startsWith("auto_") || !autoSlices.length) return true;
+  if (key.startsWith("auto_field_")) return autoSlices.includes("FIELD");
+  if (key.startsWith("auto_pair_")) return autoSlices.includes("PAIR");
+  if (/^auto_(?:margin_gap|finish)_(?:same_|within_)/.test(key)) {
+    return autoSlices.includes("CONDITION");
+  }
+  return autoSlices.includes("ROLLING");
+}
+
 if (!inputs.length) throw new Error("--inputs is required");
 if (!output) throw new Error("--output is required");
 
@@ -59,10 +81,13 @@ for (const input of inputs) {
           selectFeatureFamilies(row.features ?? {}, featureSets),
           predictionPhase,
         );
-        if (!actorPrefixes.length) return phased;
+        if (!actorPrefixes.length && !autoSlices.length) return phased;
         return Object.fromEntries(Object.entries(phased).filter(([key]) => {
-          if (!key.startsWith("actor_")) return true;
-          return actorPrefixes.some(prefix => key.startsWith(prefix));
+          if (key.startsWith("actor_") && actorPrefixes.length) {
+            return actorPrefixes.some(prefix => key.startsWith(prefix));
+          }
+          if (key.startsWith("auto_")) return keepAutoFeature(key);
+          return true;
         }));
       })(),
     };
@@ -77,6 +102,7 @@ console.log(JSON.stringify({
   feature_sets: featureSets,
   prediction_phase: predictionPhase,
   actor_prefixes: actorPrefixes,
+  auto_slices: autoSlices,
   rows,
   output,
 }, null, 2));
