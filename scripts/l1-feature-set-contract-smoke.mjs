@@ -31,6 +31,20 @@ const selected = selectFeatureFamilies({
 }, ["BASE", "DISTANCE"]);
 assert.deepEqual(Object.keys(selected).sort(), ["distance_m", "distx_same_band_starts"]);
 
+const phase2Selected = selectFeatureFamilies({
+  distance_m: 1600,
+  ped_sire_all_starts: 10,
+  actor_jockey_all_starts: 50,
+  timepace_recent_races: 5,
+  style_recent_front_rate: 0.2,
+}, ["BASE", "PEDIGREE", "ACTOR", "TIME_PACE"]);
+assert.deepEqual(Object.keys(phase2Selected).sort(), [
+  "actor_jockey_all_starts",
+  "distance_m",
+  "ped_sire_all_starts",
+  "timepace_recent_races",
+]);
+
 const early = applyPredictionPhase({
   weather: "晴",
   track_condition: "良",
@@ -52,6 +66,8 @@ assert.deepEqual(normalizeHistoryWindows(), {
   auto_rolling: 20,
   career: "ALL",
   elo: "ALL",
+  actor_recent: 30,
+  time_pace: 10,
 });
 assert.equal(normalizeHistoryWindows({ opponent: 12 }).opponent, 12);
 assert.equal(normalizeHistoryWindows({}, 7).style_last3f, 7);
