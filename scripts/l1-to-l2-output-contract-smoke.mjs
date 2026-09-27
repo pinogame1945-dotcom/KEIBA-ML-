@@ -5,6 +5,7 @@ import { readFile } from "node:fs/promises";
 const contract = JSON.parse(await readFile(new URL("../contracts/l1-to-l2-output-contract-v1.json", import.meta.url), "utf8"));
 const featureContract = JSON.parse(await readFile(new URL("../contracts/l1-feature-set-contract-v1.json", import.meta.url), "utf8"));
 const trainer = await readFile(new URL("../research/train-staged-lightgbm.py", import.meta.url), "utf8");
+const walkForward = await readFile(new URL("../research/run_walk_forward.py", import.meta.url), "utf8");
 
 assert.equal(contract.contract, "L1_TO_L2_OUTPUT_CONTRACT_V1");
 assert.equal(contract.principles.ability_uses_odds, false);
@@ -57,5 +58,18 @@ for (const token of [
 ]) {
   assert.ok(trainer.includes(token), "trainer missing token: " + token);
 }
+
+for (const token of [
+  "--emit-l2-output",
+  "--l2-output",
+  "l1-to-l2-all.jsonl.gz",
+  "L1_TO_L2_OUTPUT_CONTRACT_V1",
+  "expert_id",
+]) {
+  assert.ok(walkForward.includes(token), "walk-forward missing token: " + token);
+}
+
+assert.ok(contract.expert_identity?.expert_id?.includes("fold-independent"));
+assert.ok(contract.l2_join_policy?.["2026_lock"]?.includes("2026"));
 
 console.log("L1_TO_L2_OUTPUT_CONTRACT_SMOKE_OK");
