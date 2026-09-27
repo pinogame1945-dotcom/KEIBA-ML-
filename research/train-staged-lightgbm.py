@@ -993,6 +993,7 @@ def main():
     meta = {
         "model_version": a.model_version,
         "expert_id": expert_id,
+        "expert_config": expert_config,
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
