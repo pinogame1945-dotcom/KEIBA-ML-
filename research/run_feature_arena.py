@@ -51,6 +51,8 @@ def parse_args():
     p.add_argument("--train-end", required=True)
     p.add_argument("--valid-start", required=True)
     p.add_argument("--valid-end", required=True)
+    p.add_argument("--train-race-class", default="ALL")
+    p.add_argument("--valid-race-class", default="ALL")
     p.add_argument("--prediction-phase", choices=["EARLY", "FINAL"], default="FINAL")
     p.add_argument(
         "--candidates-json",
@@ -422,8 +424,16 @@ def main():
         "ability_uses_odds": False,
         "source_snapshot_contract": source,
         "prediction_phase": requested_phase,
-        "train": {"start": a.train_start, "end": a.train_end},
-        "validation": {"start": a.valid_start, "end": a.valid_end},
+        "train": {
+            "start": a.train_start,
+            "end": a.train_end,
+            "race_class": str(a.train_race_class).strip().upper(),
+        },
+        "validation": {
+            "start": a.valid_start,
+            "end": a.valid_end,
+            "race_class": str(a.valid_race_class).strip().upper(),
+        },
         "feature_selection": a.feature_selection,
         "candidates": candidates,
         "combined_winner_score": None,
@@ -488,6 +498,8 @@ def main():
             "--train-end", a.train_end,
             "--valid-start", a.valid_start,
             "--valid-end", a.valid_end,
+            "--train-race-class", a.train_race_class,
+            "--valid-race-class", a.valid_race_class,
             "--model-out", model,
             "--meta-out", meta,
             "--schema-out", schema,
@@ -513,6 +525,10 @@ def main():
             "feature_sets": sets,
             "actor_prefixes": actor_prefixes,
             "auto_slices": auto_slices,
+            "race_scope": {
+                "train": str(a.train_race_class).strip().upper(),
+                "valid": str(a.valid_race_class).strip().upper(),
+            },
             "feature_count": metadata["feature_count"],
             "metrics": metadata["metrics"],
             "best_iteration": metadata["best_iteration"],
