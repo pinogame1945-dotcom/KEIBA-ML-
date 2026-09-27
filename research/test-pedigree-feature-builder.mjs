@@ -64,7 +64,6 @@ races.sort((a, b) => a.date.localeCompare(b.date) || String(a.row?.race?.race_id
 const lineageByHorse = new Map();
 const horseNames = (await readdir(horseDir))
   .filter(name => /^horse-\d{4}-\d{2}-\d{2}-\d+\.jsonl\.gz$/.test(name))
-  .filter(name => name.slice(6, 16) <= end)
   .sort();
 
 let horsePackFilesRead = 0;
@@ -153,6 +152,7 @@ console.log(JSON.stringify({
   lineage_coverage: targetHorseIds.size ? lineageByHorse.size / targetHorseIds.size : null,
   horse_pack_files_read: horsePackFilesRead,
   horse_records_read: horseRecordsRead,
+  lineage_source_policy: "STATIC_PEDIGREE_MAY_BE_BACKFILLED_AFTER_RACE_DATE",
   emit_rows: emitRows,
   sire_known_rate: emitRows ? sireKnown / emitRows : null,
   damsire_known_rate: emitRows ? damsireKnown / emitRows : null,
