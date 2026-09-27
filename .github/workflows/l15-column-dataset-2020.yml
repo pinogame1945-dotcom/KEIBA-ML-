@@ -19,7 +19,7 @@ jobs:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       GENERATION_ID: bf811fa2eab73db0
       KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
-      CORE_PREFIX: pino1945/keiba-r-royal-five-2019--fc95d0-
+      CORE_DATASET_REF: pino1945/keiba-r-royal-five-2019--fc95d0-e55fc106cdc3f5bb
 
     steps:
       - uses: actions/checkout@v4
@@ -45,57 +45,38 @@ jobs:
       - name: Storage preflight before build
         run: bash scripts/kaggle-storage-preflight.sh
 
-      - name: Find saved five-king core bundle
-        shell: bash
-        run: |
-          set -euo pipefail
-          found=""
-          for attempt in $(seq 1 80); do
-            found="$(python - <<'PY'
-          import json,os,subprocess
-          prefix=os.environ["CORE_PREFIX"]
-          refs=[]
-          for page in range(1,1001):
-              r=subprocess.run(
-                  ["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref,totalBytes)"],
-                  text=True,capture_output=True,check=True
-              )
-              raw=(r.stdout or "").strip()
-              if not raw or raw.lower().startswith("no datasets found"):
-                  batch=[]
-              else:
-                  batch=json.loads(raw)
-              refs.extend(str(x.get("ref") or "") for x in batch if str(x.get("ref") or "").startswith(prefix))
-              if not batch:
-                  break
-          refs=sorted(set(refs))
-          print(refs[-1] if refs else "")
-          PY
-            )"
-            if [[ -n "$found" ]]; then
-              echo "CORE_DATASET_REF=$found" >> "$GITHUB_ENV"
-              echo "CORE_DATASET_REF $found"
-              exit 0
-            fi
-            sleep 30
-          done
-          echo "saved five-king core bundle did not appear in the polling window" >&2
-          exit 1
-
       - name: Restore saved five-king outputs
         run: |
           set -euo pipefail
-          mkdir -p out/l15-2020/core
-          kaggle datasets download "$CORE_DATASET_REF" -p out/l15-2020/core --unzip --quiet --force
-          test -s out/l15-2020/core/router-features-2020.jsonl.gz
+          root=out/l15-2020/core
+          mkdir -p "$root"
+          kaggle datasets download "$CORE_DATASET_REF" -p "$root" --unzip --quiet --force
+          echo "===== DOWNLOADED FIVE-KING CORE FILES ====="
+          find "$root" -type f -maxdepth 4 -print | sort
+
+          canon() {
+            local name="$1"
+            local src
+            src="$(find "$root" -type f -name "$name" -print -quit)"
+            if [[ -z "$src" || ! -s "$src" ]]; then
+              echo "missing restored file: $name" >&2
+              exit 1
+            fi
+            if [[ "$src" != "$root/$name" ]]; then
+              cp "$src" "$root/$name"
+            fi
+            test -s "$root/$name"
+          }
+
           for f in \
+            router-features-2020.jsonl.gz \
             core4-no-pedigree.jsonl.gz \
             no-auto-full-pedigree.jsonl.gz \
             jockey-trainer-condition.jsonl.gz \
             no-auto-full.jsonl.gz \
             no-auto-jockey.jsonl.gz
           do
-            test -s "out/l15-2020/core/$f"
+            canon "$f"
           done
           echo "Saved five-king output bundle restored."
 
