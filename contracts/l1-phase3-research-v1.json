@@ -23,20 +23,64 @@
     "TIME_PACE"
   ],
   "window_grid": {
-    "recent_form": [3, 5, 8],
-    "style_last3f": [5, 10, 15],
-    "suitability": [10, 20, 30],
-    "opponent": [5, 10, 20],
-    "auto_rolling": [10, 20, 30],
-    "actor_recent": [15, 30, 50],
-    "time_pace": [5, 10, 20]
+    "recent_form": [
+      3,
+      5,
+      8
+    ],
+    "style_last3f": [
+      5,
+      10,
+      15
+    ],
+    "suitability": [
+      10,
+      20,
+      30
+    ],
+    "opponent": [
+      5,
+      10,
+      20
+    ],
+    "auto_rolling": [
+      10,
+      20,
+      30
+    ],
+    "actor_recent": [
+      15,
+      30,
+      50
+    ],
+    "time_pace": [
+      5,
+      10,
+      20
+    ]
   },
   "shrinkage_grid": {
-    "ratePriorStrength": [5, 10, 20, 40],
-    "meanPriorStrength": [5, 10, 20],
-    "minSpecificObservations": [3, 5, 10]
+    "ratePriorStrength": [
+      5,
+      10,
+      20,
+      40
+    ],
+    "meanPriorStrength": [
+      5,
+      10,
+      20
+    ],
+    "minSpecificObservations": [
+      3,
+      5,
+      10
+    ]
   },
-  "feature_selection_modes": ["none", "train_v1"],
+  "feature_selection_modes": [
+    "none",
+    "train_v1"
+  ],
   "primary_comparison_metric": "race_normalized_nll",
   "secondary_metrics": [
     "top1_winner_capture",
@@ -63,6 +107,7 @@
       "per-runner dataset dumps",
       "full diagnostics tree dumps",
       "large contribution row dumps"
-    ]
+    ],
+    "max_bytes": 2000000
   }
 }
