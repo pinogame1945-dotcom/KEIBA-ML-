@@ -12,27 +12,41 @@ if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
 fi
 
 mkdir -p "$out_dir"
-results="$(mktemp)"
-printf '[]\n' > "$results"
-page=1
-while :; do
-  page_json="$(mktemp)"
-  kaggle datasets list --mine --search "$slug" --page "$page" --format "json(ref)" >"$page_json"
-  count="$(python - "$results" "$page_json" <<'PY'
+
+if [[ -n "${KAGGLE_DATASET_REF:-}" ]]; then
+  dataset_ref="$KAGGLE_DATASET_REF"
+  if [[ "$dataset_ref" != */"$slug" ]]; then
+    echo "KAGGLE_DATASET_REF does not match generation: $dataset_ref" >&2
+    exit 3
+  fi
+else
+  results="$(mktemp)"
+  printf '[]\n' > "$results"
+  page=1
+  while :; do
+    page_json="$(mktemp)"
+    kaggle datasets list --mine --search "$slug" --page "$page" --format "json(ref)" >"$page_json"
+    count="$(python - "$results" "$page_json" <<'PY'
 import json,sys
-dst=json.load(open(sys.argv[1],encoding="utf-8"))
-src=json.load(open(sys.argv[2],encoding="utf-8"))
+dst_path,page_path=sys.argv[1:]
+with open(dst_path,encoding="utf-8") as f:
+    dst=json.load(f)
+raw=open(page_path,encoding="utf-8").read().strip()
+src=[] if not raw else json.loads(raw)
+if not isinstance(src,list):
+    raise SystemExit("Kaggle dataset list response must be a JSON array")
 dst.extend(src)
-json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
+with open(dst_path,"w",encoding="utf-8") as f:
+    json.dump(dst,f)
 print(len(src))
 PY
 )"
-  [[ "$count" == "0" ]] && break
-  page=$((page + 1))
-  [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 3; }
-done
+    [[ "$count" == "0" ]] && break
+    page=$((page + 1))
+    [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 3; }
+  done
 
-dataset_ref="$(python - "$results" "$slug" <<'PY'
+  dataset_ref="$(python - "$results" "$slug" <<'PY'
 import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
 slug=sys.argv[2]
@@ -42,6 +56,7 @@ if len(matches)!=1:
 print(matches[0])
 PY
 )"
+fi
 
 kaggle datasets download "$dataset_ref" -f manifest.json -p "$out_dir" --unzip --quiet --force
 
