@@ -65,16 +65,29 @@ def write_dataset(path, rows):
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def trainer_cmd(dataset, stem, *, prediction_phase="FINAL", feature_sets=None, stage="base"):
+def trainer_cmd(
+    dataset,
+    stem,
+    *,
+    prediction_phase="FINAL",
+    feature_sets=None,
+    stage="base",
+    feature_selection="none",
+    train_start="2024-01-01",
+    train_end="2024-12-31",
+    valid_start="2025-01-01",
+    valid_end="2025-12-31",
+):
     cmd = [
         sys.executable,
         str(ROOT / "research" / "train-staged-lightgbm.py"),
         "--dataset", str(dataset),
         "--prediction-phase", prediction_phase,
-        "--train-start", "2024-01-01",
-        "--train-end", "2024-12-31",
-        "--valid-start", "2025-01-01",
-        "--valid-end", "2025-12-31",
+        "--feature-selection", feature_selection,
+        "--train-start", train_start,
+        "--train-end", train_end,
+        "--valid-start", valid_start,
+        "--valid-end", valid_end,
         "--model-out", str(OUT / f"{stem}.txt"),
         "--meta-out", str(OUT / f"{stem}.json"),
         "--schema-out", str(OUT / f"{stem}-schema.json"),
@@ -146,6 +159,32 @@ def main():
     assert "distx_probe" in feature_meta["features"]
     assert "style_probe" not in feature_meta["features"]
 
+    selection_dataset = OUT / "selection-dataset.jsonl.gz"
+    selection_rows = make_rows(False)
+    for row in selection_rows:
+        row["features"]["constant_probe"] = 1
+        row["features"]["duplicate_distance_probe"] = row["features"]["distance_m"]
+    write_dataset(selection_dataset, selection_rows)
+    subprocess.run(
+        trainer_cmd(
+            selection_dataset,
+            "selection",
+            feature_sets="BASE",
+            stage=None,
+            feature_selection="train_v1",
+        ),
+        cwd=ROOT,
+        check=True,
+    )
+    selection_meta = json.loads((OUT / "selection.json").read_text(encoding="utf-8"))
+    selection_report = selection_meta["feature_selection"]
+    assert selection_report["contract"] == "L1_TRAIN_ONLY_FEATURE_SELECTION_V1"
+    assert selection_report["mode"] == "train_v1"
+    assert "constant_probe" in selection_report["dropped_constant"]
+    assert "duplicate_distance_probe" in selection_report["dropped_correlation"]
+    assert "constant_probe" not in selection_meta["features"]
+    assert "duplicate_distance_probe" not in selection_meta["features"]
+
     early_safe = OUT / "early-safe-dataset.jsonl.gz"
     write_dataset(early_safe, make_rows(False, early_safe=True))
     subprocess.run(
@@ -192,6 +231,23 @@ def main():
     assert blocked.returncode != 0
     combined = (blocked.stdout or "") + "\n" + (blocked.stderr or "")
     assert "L1 feature catalog blocked dataset columns: jockey_id" in combined
+
+    locked = subprocess.run(
+        trainer_cmd(
+            safe,
+            "locked-2026",
+            train_start="2025-01-01",
+            train_end="2025-12-31",
+            valid_start="2026-01-01",
+            valid_end="2026-12-31",
+        ),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    assert locked.returncode != 0
+    locked_text = (locked.stdout or "") + "\n" + (locked.stderr or "")
+    assert "2026 research lock" in locked_text
 
     print("TRAINER_FOUNDATION_SMOKE_OK")
     shutil.rmtree(OUT, ignore_errors=True)
