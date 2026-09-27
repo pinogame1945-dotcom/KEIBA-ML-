@@ -11,6 +11,8 @@ import {
   normalizePredictionPhase,
   selectFeatureFamilies,
 } from "../src/l1-feature-contract.mjs";
+import { lineageFromHorseRecord } from "../src/pedigree-feature-builder.mjs";
+import { DEFAULT_SMALL_SAMPLE_POLICY } from "../src/small-sample-feature-utils.mjs";
 
 function arg(name) {
   const at = process.argv.indexOf(name);
@@ -40,6 +42,8 @@ for (const [key, flag] of [
   ["suitability", "--history-suitability"],
   ["opponent", "--history-opponent"],
   ["auto_rolling", "--history-auto-rolling"],
+  ["actor_recent", "--history-actor-recent"],
+  ["time_pace", "--history-time-pace"],
 ]) {
   const value = arg(flag);
   if (value != null) historyOverrides[key] = Number(value);
@@ -50,6 +54,16 @@ const includeBackfillFeatures = featureSets.includes("BACKFILL");
 const includeLap = featureSets.includes("LAP");
 const includeStyle = featureSets.includes("STYLE");
 const includeDistance = featureSets.includes("DISTANCE");
+const includePedigreeFeatures = featureSets.includes("PEDIGREE");
+const includeActorFeatures = featureSets.includes("ACTOR");
+const includeOpponentRelationshipFeatures = featureSets.includes("OPPONENT");
+const includeTimePaceFeatures = featureSets.includes("TIME_PACE");
+const smallSamplePolicy = {
+  ratePriorStrength: Number(arg("--shrinkage-rate-strength") ?? DEFAULT_SMALL_SAMPLE_POLICY.ratePriorStrength),
+  meanPriorStrength: Number(arg("--shrinkage-mean-strength") ?? DEFAULT_SMALL_SAMPLE_POLICY.meanPriorStrength),
+  minSpecificObservations: Number(arg("--min-specific-observations") ?? DEFAULT_SMALL_SAMPLE_POLICY.minSpecificObservations),
+  actorRecentWindow: historyWindows.actor_recent,
+};
 if (sourceStart > emitStart) throw new Error("--source-start must be <= --emit-start");
 if (emitStart > emitEnd) throw new Error("--emit-start must be <= --emit-end");
 if (emitEnd > sourceEnd) throw new Error("--emit-end must be <= --source-end");
@@ -264,12 +278,51 @@ for (const name of dailyNames) {
   if (text) raceRows.push(...text.split("\n").map(JSON.parse));
 }
 
+async function loadLineageMap(rows) {
+  if (!includePedigreeFeatures) return { map: new Map(), files_read: 0, records_read: 0 };
+  const targetHorseIds = new Set(
+    rows.flatMap(row => (row?.entries ?? []).map(entry => String(entry?.horse_id ?? "")).filter(Boolean)),
+  );
+  const horseDir = path.join(sourceRoot, "data", "horses");
+  const horseNames = (await readdir(horseDir))
+    .filter(name => /^horse-\d{4}-\d{2}-\d{2}-\d+\.jsonl\.gz$/.test(name))
+    .sort();
+  const map = new Map();
+  let filesRead = 0;
+  let recordsRead = 0;
+  for (const name of horseNames) {
+    const zipped = await readFile(path.join(horseDir, name));
+    const text = gunzipSync(zipped).toString("utf8").trim();
+    if (text) {
+      for (const line of text.split("\n")) {
+        if (!line.trim()) continue;
+        recordsRead += 1;
+        const record = JSON.parse(line);
+        const horseId = String(record?.horse_id ?? "");
+        if (!horseId || !targetHorseIds.has(horseId) || map.has(horseId)) continue;
+        map.set(horseId, lineageFromHorseRecord(record));
+      }
+    }
+    filesRead += 1;
+    if (map.size === targetHorseIds.size) break;
+  }
+  return { map, files_read: filesRead, records_read: recordsRead, targets: targetHorseIds.size };
+}
+
+const lineage = await loadLineageMap(raceRows);
+
 const base = buildMlDataset(raceRows, {
   startDate: emitStart,
   endDate: emitEnd,
   historyWindows,
   includeAutoFeatures,
   includeBackfillFeatures,
+  includePedigreeFeatures,
+  includeActorFeatures,
+  includeOpponentRelationshipFeatures,
+  includeTimePaceFeatures,
+  lineageByHorse: lineage.map,
+  smallSamplePolicy,
 });
 const needsExtras = includeLap || includeStyle || includeDistance;
 const extras = needsExtras ? buildHistoricalExtraMap(raceRows) : new Map();
@@ -299,6 +352,7 @@ const staged = base.map(row => {
     prediction_phase: predictionPhase,
     feature_sets: featureSets,
     history_windows: historyWindows,
+    small_sample_policy: smallSamplePolicy,
     features: applyPredictionPhase(selected, predictionPhase),
   };
 });
@@ -332,6 +386,15 @@ console.log(JSON.stringify({
   legacy_history_limit: legacyHistoryLimit,
   include_auto_features: includeAutoFeatures,
   include_backfill_features: includeBackfillFeatures,
+  include_pedigree_features: includePedigreeFeatures,
+  include_actor_features: includeActorFeatures,
+  include_opponent_relationship_features: includeOpponentRelationshipFeatures,
+  include_time_pace_features: includeTimePaceFeatures,
+  small_sample_policy: smallSamplePolicy,
+  pedigree_lineage_targets: lineage.targets ?? 0,
+  pedigree_lineage_found: lineage.map.size,
+  pedigree_horse_pack_files_read: lineage.files_read,
+  pedigree_horse_records_read: lineage.records_read,
   source_files: dailyNames.length,
   source_races: raceRows.length,
   rows: staged.length,
