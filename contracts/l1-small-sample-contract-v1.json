@@ -1,0 +1,18 @@
+{
+  "contract": "L1_SMALL_SAMPLE_CONTRACT_V1",
+  "defaults": {
+    "rate_prior_strength": 20,
+    "mean_prior_strength": 10,
+    "min_specific_observations": 5,
+    "actor_recent_window": 30
+  },
+  "rules": {
+    "keep_raw_observation_counts": true,
+    "never_drop_small_samples_only_because_they_are_small": true,
+    "specific_fallback_order": ["SPECIFIC", "ENTITY_OVERALL", "GLOBAL"],
+    "shrinkage_target": "BROADER_POINT_IN_TIME_PRIOR",
+    "strength_is_research_parameter": true,
+    "future_or_same_day_results_forbidden": true
+  },
+  "note": "Defaults are engineering baselines only. Phase 3 walk-forward must compare shrinkage strength; these values are not production-selected."
+}
