@@ -1,0 +1,91 @@
+name: Kaggle private storage roundtrip smoke
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kaggle-roundtrip-smoke.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  roundtrip:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Private dataset write-read-delete smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}"
+
+          work="$(mktemp -d)"
+          download="$(mktemp -d)"
+          created=0
+          dataset_ref=""
+
+          cleanup() {
+            if [[ "$created" == "1" && -n "$dataset_ref" ]]; then
+              kaggle datasets delete "$dataset_ref" --yes >/dev/null 2>&1 || true
+            fi
+            rm -rf "$work" "$download"
+          }
+          trap cleanup EXIT
+
+          printf '{"probe":"keiba-ml-kaggle-roundtrip","run_id":"%s"}\n' "$GITHUB_RUN_ID" > "$work/probe.json"
+          kaggle datasets init -p "$work" >/dev/null
+
+          python - "$work/dataset-metadata.json" "$GITHUB_RUN_ID" <<'PY'
+          import json,sys
+          p,run_id=sys.argv[1:]
+          d=json.load(open(p,encoding="utf-8"))
+          dataset_id=str(d.get("id",""))
+          if "INSERT_SLUG_HERE" not in dataset_id:
+              raise SystemExit(f"unexpected dataset id template: {dataset_id!r}")
+          slug=f"keiba-ml-storage-smoke-{run_id}"
+          d["id"]=dataset_id.replace("INSERT_SLUG_HERE",slug)
+          d["title"]=f"KEIBA ML storage smoke {run_id}"[:50]
+          d["licenses"]=[{"name":"other"}]
+          d["description"]="Temporary private storage roundtrip smoke. Deleted by the workflow."
+          json.dump(d,open(p,"w",encoding="utf-8"),ensure_ascii=False,indent=2)
+          open(p,"a",encoding="utf-8").write("\n")
+          print(d["id"])
+          PY
+
+          dataset_ref="$(python - "$work/dataset-metadata.json" <<'PY'
+          import json,sys
+          print(json.load(open(sys.argv[1],encoding="utf-8"))["id"])
+          PY
+          )"
+
+          kaggle datasets create -p "$work" --quiet --keep-tabular --dir-mode skip
+          created=1
+
+          kaggle datasets download "$dataset_ref" -f probe.json -p "$download" --unzip --quiet --force
+          cmp "$work/probe.json" "$download/probe.json"
+
+          kaggle datasets delete "$dataset_ref" --yes >/dev/null
+          created=0
+
+          echo "KAGGLE_PRIVATE_ROUNDTRIP_OK"
+          echo "Created, downloaded, verified, and deleted a temporary PRIVATE Kaggle dataset."
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Temporary Kaggle dataset is deleted during the same run."
