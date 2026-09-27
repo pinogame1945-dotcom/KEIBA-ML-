@@ -42,7 +42,8 @@ jobs:
             research/sample_snapshot_races.py \
             research/build_router_feature_snapshot_v1.py \
             research/build_router_role_labels_v1.py \
-            research/run_router_baseline_arena_v1.py
+            research/run_router_baseline_arena_v1.py \
+            research/analyze_router_bet_coverage_v1.py
           node --check research/project-yearly-snapshots.mjs
           bash -n scripts/kaggle-fetch-snapshot.sh
 
@@ -182,6 +183,22 @@ jobs:
             --output out/router-royal-five/router-arena-2020.json
           echo "===== ROYAL FIVE ROUTER ARENA 2020 ====="
           cat out/router-royal-five/router-arena-2020.json
+
+      - name: Analyze pair trio and ordered coverage
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/router-royal-five/arena-2020/l2-input"
+          python research/analyze_router_bet_coverage_v1.py \
+            --snapshot out/router-royal-five/sample/valid-2020.jsonl.gz \
+            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
+            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
+            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
+            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
+            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --output out/router-royal-five/router-bet-coverage-2020.json
+          echo "===== ROYAL FIVE BET COVERAGE 2020 ====="
+          cat out/router-royal-five/router-bet-coverage-2020.json
 
       - name: Print L1 arena summary
         shell: bash
