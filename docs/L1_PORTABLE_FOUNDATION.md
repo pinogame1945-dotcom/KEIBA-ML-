@@ -40,7 +40,7 @@ OOF records are the only L1 predictions allowed as future L2 training input.
 Do not commit every experimental dataset/model to Git history.
 
 - temporary dataset: deleted after fold
-- experiment model/OOF: runner-local only by default; persistent Actions artifact upload is disabled unless the user explicitly approves storage
+- experiment model/OOF/diagnostics: runner-local only by default; persistent Actions artifact upload is disabled unless the user explicitly approves storage
 - promoted model: store only after validation/promotion policy is defined
 
 ## Current stage caution
@@ -96,7 +96,7 @@ The ML dataset can now receive the new normalized race conditions without changi
 
 Missing BACKFILL fields remain null. ML does not re-parse raw race-condition text.
 
-Margin normalization fields are readable by the adapter but are not yet model inputs. They remain blocked until their exact semantics and coverage are confirmed.
+Current-race margin is never a predictor. Prior-race normalized margin is now available only through past-only AUTO features after semantics/coverage verification.
 
 
 ## Safe stage set
@@ -122,3 +122,37 @@ AUTO features are only built for AUTO stages. BACKFILL race-condition features a
 
 Feature schema 7 adds past-only AUTO features from BACKFILL `margin_type` and `margin_lengths`.
 Current-race margin remains a target/output value and is never used as a predictor for that race.
+
+
+## BACKFILL READINESS V3
+
+Full training must pass two layers before LightGBM starts.
+
+1. BACKFILL's own `src/verify-range.mjs`
+   - every calendar date in the requested range must be classified as SUCCESS / confirmed non-meeting / schedule exception;
+   - required pack/parser versions must be current;
+   - daily race counts and schedule ownership must agree;
+   - result/lap/payout/race-meta contracts must pass.
+2. KEIBA-ML readiness coverage checks
+   - normalized race-condition coverage;
+   - invalid/unknown rates;
+   - year-to-year coverage gaps;
+   - normalized margin coverage.
+
+The exact BACKFILL SHA is part of the readiness contract.
+
+## Model safety and diagnostics
+
+Before training, model columns are checked against the Feature Catalog's L1-forbidden `model_keys`.
+A forbidden direct ID, market field, post-race field, or target field blocks training.
+
+Each fold metadata now records:
+
+- model SHA-256;
+- training-config SHA-256;
+- Feature Catalog SHA-256;
+- train/validation feature coverage;
+- subgroup metrics by surface, venue, distance band, class, grade, course layout and field size.
+
+Runner-local diagnostics can contain the LightGBM tree dump, split thresholds and mean absolute per-feature contribution.
+OOF rows carry dataset version, feature schema version and leakage policy.
