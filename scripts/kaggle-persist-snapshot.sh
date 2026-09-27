@@ -106,15 +106,24 @@ else
       echo "Could not verify Kaggle storage usage; refusing upload." >&2
       exit 7
     fi
-    count="$(python - "$usage_json" "$page_json" <<'PY'
+    # Kaggle CLI exits 0 but may emit an empty body when the account owns no datasets.
+    # Treat that as an empty page instead of attempting to JSON-decode an empty file.
+    if [[ ! -s "$page_json" ]]; then
+      count=0
+    else
+      count="$(python - "$usage_json" "$page_json" <<'PY'
 import json,sys
 dst=json.load(open(sys.argv[1],encoding="utf-8"))
-src=json.load(open(sys.argv[2],encoding="utf-8"))
+with open(sys.argv[2],encoding="utf-8") as fh:
+    src=json.load(fh)
+if not isinstance(src,list):
+    raise SystemExit("unexpected Kaggle datasets list payload")
 dst.extend(src)
 json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
 print(len(src))
 PY
 )"
+    fi
     [[ "$count" == "0" ]] && break
     page=$((page + 1))
     [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 7; }
