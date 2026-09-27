@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 import argparse
 import gzip
+import hashlib
 import json
 import platform
 from datetime import datetime, timezone
@@ -53,7 +54,42 @@ def args():
     p.add_argument("--source-ref")
     p.add_argument("--source-sha")
     p.add_argument("--ml-source-sha")
+    p.add_argument(
+        "--feature-catalog",
+        default=str(Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-catalog-v1.json"),
+    )
+    p.add_argument("--diagnostics-out")
+    p.add_argument("--contributions-out")
     return p.parse_args()
+
+def load_forbidden_model_keys(path):
+    catalog = json.loads(Path(path).read_text(encoding="utf-8"))
+    forbidden = set()
+    for row in catalog.get("features", []):
+        if row.get("l1_allowed") is False:
+            forbidden.update(str(key) for key in row.get("model_keys", []) if str(key))
+    return forbidden
+
+
+def assert_catalog_safety(columns, catalog_path):
+    forbidden = load_forbidden_model_keys(catalog_path)
+    bad = sorted(set(columns) & forbidden)
+    if bad:
+        raise ValueError("L1 feature catalog blocked model columns: " + ", ".join(bad))
+
+
+def sha256_file(path):
+    digest = hashlib.sha256()
+    with open(path, "rb") as fh:
+        for block in iter(lambda: fh.read(1024 * 1024), b""):
+            digest.update(block)
+    return digest.hexdigest()
+
+
+def sha256_json(value):
+    raw = json.dumps(value, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
+    return hashlib.sha256(raw).hexdigest()
+
 
 def load(path):
     rows = []
