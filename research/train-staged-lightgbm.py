@@ -627,7 +627,8 @@ def write_json_payload(path, value):
 def write_model_diagnostics(model, xva, valid, pred, names, diagnostics_out=None, contributions_out=None):
     if not diagnostics_out and not contributions_out:
         return None
-    booster = model.booster_
+    booster = model.booster_ if hasattr(model, "booster_") else model
+    best_iteration = getattr(model, "best_iteration_", None) or booster.best_iteration
     model_dump = booster.dump_model()
     sum_abs = np.zeros(len(names), dtype=float)
     rows_seen = 0
@@ -643,7 +644,7 @@ def write_model_diagnostics(model, xva, valid, pred, names, diagnostics_out=None
             matrix = booster.predict(
                 xva.iloc[start:stop],
                 pred_contrib=True,
-                num_iteration=model.best_iteration_,
+                num_iteration=best_iteration,
             )
             matrix = np.asarray(matrix, dtype=float)
             values = matrix[:, :len(names)]
@@ -779,23 +780,53 @@ def main():
         "deterministic": True,
         "force_col_wise": True,
     }
-    model = lgb.LGBMClassifier(**params)
-    model.fit(
-        xtr, ytr,
-        eval_set=[(xva, yva)],
-        eval_metric="binary_logloss",
+
+    # Build LightGBM's native training matrix while the pandas frame exists,
+    # then release the wide pandas training frame before boosting starts.
+    # This keeps the same rows/features/labels/model parameters while avoiding
+    # xtr + LightGBM Dataset being resident together for the whole fit.
+    train_feature_coverage = feature_coverage(xtr, list(xtr.columns))
+    train_dataset = lgb.Dataset(
+        xtr,
+        label=ytr,
         categorical_feature=categorical,
+        free_raw_data=True,
+    )
+    train_dataset.construct()
+    del xtr, ytr
+    gc.collect()
+
+    valid_dataset = lgb.Dataset(
+        xva,
+        label=yva,
+        reference=train_dataset,
+        categorical_feature=categorical,
+        free_raw_data=True,
+    )
+    valid_dataset.construct()
+
+    native_params = dict(params)
+    num_boost_round = int(native_params.pop("n_estimators"))
+    native_params["metric"] = "binary_logloss"
+    booster = lgb.train(
+        native_params,
+        train_dataset,
+        num_boost_round=num_boost_round,
+        valid_sets=[valid_dataset],
+        valid_names=["valid_0"],
         callbacks=[lgb.early_stopping(50, verbose=False)],
     )
-    raw = np.clip(model.predict_proba(xva, num_iteration=model.best_iteration_)[:, 1], 1e-15, 1 - 1e-15)
+    best_iteration = int(booster.best_iteration or num_boost_round)
+
+    raw = np.clip(booster.predict(xva, num_iteration=best_iteration), 1e-15, 1 - 1e-15)
     pred = predictions(valid_context, raw)
     result_metrics = metrics(pred, yva, raw)
     subgroup_report = subgroup_metrics(valid_context, pred)
 
     Path(a.model_out).parent.mkdir(parents=True, exist_ok=True)
-    model.booster_.save_model(a.model_out)
-    gain = model.booster_.feature_importance(importance_type="gain")
-    names = model.booster_.feature_name()
+    booster.save_model(a.model_out)
+    gain = booster.feature_importance(importance_type="gain")
+    names = booster.feature_name()
     importance = sorted(
         [{"feature": n, "gain": float(g)} for n, g in zip(names, gain)],
         key=lambda x: x["gain"], reverse=True,
@@ -835,7 +866,7 @@ def main():
     feature_contract_sha256 = sha256_file(a.feature_contract)
     small_sample_contract_sha256 = sha256_file(a.small_sample_contract)
     contribution_summary = write_model_diagnostics(
-        model,
+        booster,
         xva,
         valid_context,
         pred,
@@ -880,12 +911,12 @@ def main():
         "categorical_features": categorical,
         "category_levels": category_levels,
         "params": params,
-        "best_iteration": int(model.best_iteration_ or params["n_estimators"]),
+        "best_iteration": best_iteration,
         "metrics": result_metrics,
         "feature_importance_gain": importance,
         "subgroup_metrics": subgroup_report,
         "feature_coverage": {
-            "train": feature_coverage(xtr, names),
+            "train": train_feature_coverage,
             "valid": feature_coverage(xva, names),
         },
         "reproducibility": {
