@@ -47,6 +47,18 @@ if (autoSlices.length && !featureSets.includes("AUTO")) {
   throw new Error("--auto-slices requires AUTO feature set");
 }
 
+const pedigreeSlices = String(arg("--pedigree-slices") ?? "")
+  .split(",").map(x => x.trim().toUpperCase()).filter(Boolean);
+const ALLOWED_PEDIGREE_SLICES = new Set(["LEGACY", "RACE_CLASS"]);
+for (const slice of pedigreeSlices) {
+  if (!ALLOWED_PEDIGREE_SLICES.has(slice)) {
+    throw new Error("invalid --pedigree-slices value: " + slice);
+  }
+}
+if (pedigreeSlices.length && !featureSets.includes("PEDIGREE")) {
+  throw new Error("--pedigree-slices requires PEDIGREE feature set");
+}
+
 function keepAutoFeature(key) {
   if (!key.startsWith("auto_") || !autoSlices.length) return true;
   if (key.startsWith("auto_field_")) return autoSlices.includes("FIELD");
@@ -55,6 +67,12 @@ function keepAutoFeature(key) {
     return autoSlices.includes("CONDITION");
   }
   return autoSlices.includes("ROLLING");
+}
+
+function keepPedigreeFeature(key) {
+  if (!key.startsWith("ped_") || !pedigreeSlices.length) return true;
+  const raceClass = key.includes("_race_class_");
+  return raceClass ? pedigreeSlices.includes("RACE_CLASS") : pedigreeSlices.includes("LEGACY");
 }
 
 if (!inputs.length) throw new Error("--inputs is required");
@@ -85,12 +103,13 @@ for (const input of inputs) {
           selectFeatureFamilies(row.features ?? {}, featureSets),
           predictionPhase,
         );
-        if (!actorPrefixes.length && !autoSlices.length) return phased;
+        if (!actorPrefixes.length && !autoSlices.length && !pedigreeSlices.length) return phased;
         return Object.fromEntries(Object.entries(phased).filter(([key]) => {
           if (key.startsWith("actor_") && actorPrefixes.length) {
             return actorPrefixes.some(prefix => key.startsWith(prefix));
           }
           if (key.startsWith("auto_")) return keepAutoFeature(key);
+          if (key.startsWith("ped_")) return keepPedigreeFeature(key);
           return true;
         }));
       })(),
@@ -107,6 +126,7 @@ console.log(JSON.stringify({
   prediction_phase: predictionPhase,
   actor_prefixes: actorPrefixes,
   auto_slices: autoSlices,
+  pedigree_slices: pedigreeSlices,
   rows,
   output,
 }, null, 2));
