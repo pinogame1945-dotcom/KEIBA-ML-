@@ -73,6 +73,7 @@ def main():
     for row in arena.get("results") or []:
         resources[row["name"]]={
             "feature_count":row.get("feature_count"),
+            "metrics":row.get("metrics"),
             "resource_usage":row.get("resource_usage"),
             "l2_output":row.get("l2_output"),
         }
