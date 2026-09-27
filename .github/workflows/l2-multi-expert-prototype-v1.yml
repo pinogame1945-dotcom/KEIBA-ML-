@@ -54,9 +54,12 @@ jobs:
           from pathlib import Path
           cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
           generation=str(cfg["snapshot_generation"])
+          dataset_ref=f"pino1945/keiba-ml-snapshot-{generation}"
           with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
-              fh.write(f"GENERATION_ID={generation}\n")\n              fh.write(f"KAGGLE_DATASET_REF=pino1945/keiba-ml-snapshot-{generation}\n")
+              fh.write(f"GENERATION_ID={generation}\\n")
+              fh.write(f"KAGGLE_DATASET_REF={dataset_ref}\\n")
           print("generation",generation)
+          print("dataset_ref",dataset_ref)
           PY
 
       - name: Restore 2020 and 2021 snapshots read-only
