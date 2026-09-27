@@ -1,0 +1,206 @@
+name: Router Royal Five 2019-2020 Pretest
+
+on:
+  push:
+    branches:
+      - research/router-feature-snapshot-v1-20260928
+    paths:
+      - .github/triggers/router-royal-five-2019-2020-pretest.trigger
+  workflow_dispatch:
+
+\npermissions:
+  contents: read
+
+\njobs:
+  pretest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_feature_arena.py \
+            research/train-staged-lightgbm.py \
+            research/emit_l1_to_l2.py \
+            research/sample_snapshot_races.py \
+            research/build_router_feature_snapshot_v1.py \
+            research/build_router_role_labels_v1.py \
+            research/run_router_baseline_arena_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Install free-runner dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Resolve snapshot generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
+          assert 2026 in cfg["locked_years"], "2026 lock missing"
+          generation=str(cfg["snapshot_generation"])
+          dataset_ref=f"pino1945/keiba-ml-snapshot-{generation}"
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              print(f"GENERATION_ID={generation}", file=fh)
+              print(f"KAGGLE_DATASET_REF={dataset_ref}", file=fh)
+          print("generation",generation)
+          print("dataset_ref",dataset_ref)
+          PY
+
+      - name: Restore 2019 and 2020 snapshots read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/router-royal-five/source/$GENERATION_ID"
+
+          mkdir -p "$root"
+          for y in 2019 2020; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else echo "::error::snapshot $y missing" >&2; exit 1
+            fi
+          }
+          echo "SNAP_2019=$(resolve 2019)" >> "$GITHUB_ENV"
+          echo "SNAP_2020=$(resolve 2020)" >> "$GITHUB_ENV"
+
+      - name: Build deterministic pretest sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/router-royal-five/sample
+          python research/sample_snapshot_races.py \
+            --input "$SNAP_2019" \
+            --output out/router-royal-five/sample/train-2019.jsonl.gz \
+            --max-races 2000
+          python research/sample_snapshot_races.py \
+            --input "$SNAP_2020" \
+            --output out/router-royal-five/sample/valid-2020.jsonl.gz \
+            --max-races 1000
+
+      - name: Define five finalist kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
+          finalists=[x for x in cfg["candidates"] if x.get("role")=="finalist"]
+          expected={
+              "core4_no_pedigree",
+              "no_auto_full_pedigree",
+              "jockey_trainer_condition",
+              "no_auto_full",
+              "no_auto_jockey",
+          }
+          names={x["name"] for x in finalists}
+          if names != expected:
+              raise SystemExit(f"finalist set changed: {sorted(names)}")
+          Path("out/router-royal-five/candidates.json").write_text(
+              json.dumps(finalists,ensure_ascii=False,indent=2)+"\n",encoding="utf-8"
+          )
+          print("ROYAL_FIVE",sorted(names))
+          PY
+
+      - name: Score 2020 with all five finalist kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py \
+            --inputs "out/router-royal-five/sample/train-2019.jsonl.gz,out/router-royal-five/sample/valid-2020.jsonl.gz" \
+            --out-dir out/router-royal-five/arena-2020 \
+            --train-start 2019-01-01 \
+            --train-end 2019-12-31 \
+            --valid-start 2020-01-01 \
+            --valid-end 2020-12-31 \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json out/router-royal-five/candidates.json \
+            --emit-l2-output \
+            --l2-chunk-size 64 \
+            --source-ref main \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Build five-king Router Feature Snapshot V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/router-royal-five/arena-2020/l2-input"
+          ls -lah "$root"
+          python research/build_router_feature_snapshot_v1.py \
+            --snapshot out/router-royal-five/sample/valid-2020.jsonl.gz \
+            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
+            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
+            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
+            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
+            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --output out/router-royal-five/router-features-2020.jsonl.gz
+
+      - name: Build Top1 Top3 Top6 labels separately
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_router_role_labels_v1.py \
+            --features out/router-royal-five/router-features-2020.jsonl.gz \
+            --snapshot out/router-royal-five/sample/valid-2020.jsonl.gz \
+            --output out/router-royal-five/router-labels-2020.jsonl.gz
+
+      - name: Run five-king baseline Router Arena
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_router_baseline_arena_v1.py \
+            --features out/router-royal-five/router-features-2020.jsonl.gz \
+            --labels out/router-royal-five/router-labels-2020.jsonl.gz \
+            --output out/router-royal-five/router-arena-2020.json
+          echo "===== ROYAL FIVE ROUTER ARENA 2020 ====="
+          cat out/router-royal-five/router-arena-2020.json
+
+      - name: Print L1 arena summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "===== FIVE KING L1 ARENA SUMMARY ====="
+          cat out/router-royal-five/arena-2020/feature-arena-summary.json
+
+      - name: Cost guard
+          if: always()
+          run: |
+          set -euo pipefail
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/router-royal-five-2019-2020-pretest.yml; then
+            echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPR."
+          echo "No paid storage writes."
+          echo "No GitHub Artifact or Cache."
+          echo "2019/2020 source snapshots are read-only."
+          echo "2021-2026 are not read."
