@@ -345,6 +345,7 @@ def compact_candidate_result(item, summary):
             "holdout_year": fold.get("holdout_year"),
             "metrics": metrics,
             "feature_count": fold.get("feature_count"),
+            "features": fold.get("features") or [],
             "feature_selection": {
                 "mode": fs.get("mode"),
                 "input_feature_count": len(fs.get("input_features") or []),
