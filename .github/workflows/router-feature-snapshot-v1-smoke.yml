@@ -1,0 +1,167 @@
+name: Router Feature Snapshot V1 Smoke
+
+on:
+  push:
+    branches:
+      - research/router-feature-snapshot-v1-20260928
+    paths:
+      - .github/triggers/router-feature-snapshot-v1-smoke.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/build_router_feature_snapshot_v1.py             research/build_router_role_labels_v1.py             research/run_router_baseline_arena_v1.py
+
+      - name: Build synthetic three-king fixture
+        run: |
+          set -euo pipefail
+          mkdir -p out/router-feature-smoke
+          python - <<'PY'
+          import gzip,json
+          from pathlib import Path
+
+          root=Path("out/router-feature-smoke")
+          horses=["H1","H2","H3","H4","H5"]
+          winners={"R1":"H1","R2":"H2","R3":"H3","R4":"H4"}
+          dates={"R1":"2020-01-05","R2":"2020-01-06","R3":"2020-01-07","R4":"2020-01-08"}
+
+          with gzip.open(root/"snapshot.jsonl.gz","wt",encoding="utf-8") as fh:
+              for ri,rid in enumerate(["R1","R2","R3","R4"],start=1):
+                  for hi,hid in enumerate(horses,start=1):
+                      f={
+                          "race_date":dates[rid],
+                          "venue_code":"05" if ri%2 else "06",
+                          "surface":"TURF" if ri<=2 else "DIRT",
+                          "discipline":"FLAT",
+                          "direction":"RIGHT",
+                          "weather":"晴",
+                          "track_condition":"良",
+                          "distance_m":1200+ri*200,
+                          "backfill_race_class_normalized":"MAIDEN" if ri<=2 else "ONE_WIN",
+                          "backfill_field_size":5,
+                          "prior_starts":0 if (rid=="R1" and hi<=2) else hi+ri,
+                          "recent_window_starts":min(5,hi),
+                          "opponent_strength":0.1*hi,
+                          "auto_dummy":None if (rid=="R1" and hi<=2) else 1.0,
+                          "actor_dummy":1.0,
+                          "timepace_dummy":1.0 if hi%2 else None,
+                          "ped_dummy":1.0 if hi<=3 else None
+                      }
+                      row={
+                          "race_id":rid,
+                          "horse_id":hid,
+                          "features":f,
+                          "target":{"is_win":hid==winners[rid],"finish_position":1 if hid==winners[rid] else hi+1}
+                      }
+                      fh.write(json.dumps(row,ensure_ascii=False,separators=(",",":"))+"\n")
+
+          rankings={
+              "core":{"R1":["H1","H2","H3","H4","H5"],"R2":["H1","H2","H3","H4","H5"],"R3":["H2","H3","H1","H4","H5"],"R4":["H4","H2","H1","H3","H5"]},
+              "light":{"R1":["H2","H1","H3","H4","H5"],"R2":["H2","H1","H3","H4","H5"],"R3":["H3","H1","H2","H4","H5"],"R4":["H2","H4","H1","H3","H5"]},
+              "blood":{"R1":["H1","H3","H2","H4","H5"],"R2":["H3","H2","H1","H4","H5"],"R3":["H1","H3","H2","H4","H5"],"R4":["H3","H4","H2","H1","H5"]}
+          }
+          expert_ids={"core":"core-id","light":"light-id","blood":"blood-id"}
+          feature_sets={"core":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],"light":["BASE","OPPONENT","ACTOR","TIME_PACE"],"blood":["BASE","OPPONENT","PEDIGREE","ACTOR"]}
+
+          for name,by_race in rankings.items():
+              with gzip.open(root/(name+".jsonl.gz"),"wt",encoding="utf-8") as fh:
+                  for rid in ["R1","R2","R3","R4"]:
+                      order=by_race[rid]
+                      raw=[0.40,0.25,0.16,0.11,0.08]
+                      for rank,hid in enumerate(order,start=1):
+                          p=raw[rank-1]
+                          row={
+                              "contract":"L1_TO_L2_OUTPUT_CONTRACT_V1",
+                              "race_date":dates[rid],
+                              "race_id":rid,
+                              "horse_id":hid,
+                              "model_version":"smoke-v1",
+                              "expert_id":expert_ids[name],
+                              "feature_sets":feature_sets[name],
+                              "raw_win_probability":p,
+                              "race_normalized_win_probability":p,
+                              "predicted_rank":rank,
+                              "family_abs_share":{"BASE":0.2,"OPPONENT":0.2,"AUTO":0.2 if name=="core" else 0.0,"PEDIGREE":0.2 if name=="blood" else 0.0,"ACTOR":0.2,"TIME_PACE":0.2 if name!="blood" else 0.0}
+                          }
+                          fh.write(json.dumps(row,ensure_ascii=False,separators=(",",":"))+"\n")
+          PY
+
+      - name: Build feature snapshot
+        run: |
+          set -euo pipefail
+          python research/build_router_feature_snapshot_v1.py             --snapshot out/router-feature-smoke/snapshot.jsonl.gz             --expert core=out/router-feature-smoke/core.jsonl.gz             --expert light=out/router-feature-smoke/light.jsonl.gz             --expert blood=out/router-feature-smoke/blood.jsonl.gz             --output out/router-feature-smoke/router-features.jsonl.gz
+
+      - name: Build separate role labels
+        run: |
+          set -euo pipefail
+          python research/build_router_role_labels_v1.py             --features out/router-feature-smoke/router-features.jsonl.gz             --snapshot out/router-feature-smoke/snapshot.jsonl.gz             --output out/router-feature-smoke/router-labels.jsonl.gz
+
+      - name: Run baseline arena
+        run: |
+          set -euo pipefail
+          python research/run_router_baseline_arena_v1.py             --features out/router-feature-smoke/router-features.jsonl.gz             --labels out/router-feature-smoke/router-labels.jsonl.gz             --output out/router-feature-smoke/router-arena.json
+
+      - name: Contract assertions
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,json
+          from pathlib import Path
+
+          forbidden={"winner_horse_ids","actual_is_win","actual_finish_position","finish_position","target","payout","payouts","final_win_odds","final_popularity"}
+          def walk(v):
+              if isinstance(v,dict):
+                  assert not (set(v)&forbidden), set(v)&forbidden
+                  for x in v.values(): walk(x)
+              elif isinstance(v,list):
+                  for x in v: walk(x)
+
+          with gzip.open("out/router-feature-smoke/router-features.jsonl.gz","rt",encoding="utf-8") as fh:
+              features=[json.loads(x) for x in fh if x.strip()]
+          assert len(features)==4
+          assert all(x["contract"]=="ROUTER_FEATURE_SNAPSHOT_V1" for x in features)
+          assert all(x["consensus"]["expert_count"]==3 for x in features)
+          assert all(set(x["experts"])=={"core","light","blood"} for x in features)
+          for x in features: walk(x)
+
+          with gzip.open("out/router-feature-smoke/router-labels.jsonl.gz","rt",encoding="utf-8") as fh:
+              labels=[json.loads(x) for x in fh if x.strip()]
+          assert len(labels)==4
+          assert all(set(x["expert_labels"])=={"core","light","blood"} for x in labels)
+
+          arena=json.loads(Path("out/router-feature-smoke/router-arena.json").read_text(encoding="utf-8"))
+          assert arena["contract"]=="ROUTER_BASELINE_ARENA_V1"
+          assert set(arena["roles"])=={"TOP1","TOP3","TOP6"}
+          assert arena["races"]==4
+          print("ROUTER_FEATURE_SNAPSHOT_V1_SMOKE_OK")
+          print(json.dumps(arena,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/router-feature-snapshot-v1-smoke.yml; then
+            echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU."
+          echo "No cloud storage writes."
+          echo "No GitHub Artifact or Cache."
