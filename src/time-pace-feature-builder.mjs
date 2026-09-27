@@ -127,8 +127,12 @@ function summarizeHorseHistory(history, limit) {
     timepace_recent_races: rows.length,
     timepace_normalized_time_observations: rows.filter(x => x.normalized_time != null).length,
     timepace_normalized_last3f_observations: rows.filter(x => x.normalized_last3f != null).length,
+    timepace_normalized_early_pace_observations: rows.filter(x => x.normalized_early_pace != null).length,
+    timepace_normalized_late_pace_observations: rows.filter(x => x.normalized_late_pace != null).length,
     timepace_recent_avg_normalized_time: avg(rows, "normalized_time"),
     timepace_recent_avg_normalized_last3f: avg(rows, "normalized_last3f"),
+    timepace_recent_avg_normalized_early_pace: avg(rows, "normalized_early_pace"),
+    timepace_recent_avg_normalized_late_pace: avg(rows, "normalized_late_pace"),
     timepace_recent_avg_performance_score: avg(rows, "performance_score"),
     timepace_recent_avg_standard_fallback_level: avg(rows, "standard_fallback_level"),
   };
@@ -136,6 +140,7 @@ function summarizeHorseHistory(history, limit) {
     const xs = classRows(cls);
     const key = cls.toLowerCase();
     out[`timepace_${key}_pace_starts`] = xs.length;
+    out[`timepace_${key}_pace_rate`] = rows.length ? xs.length / rows.length : null;
     out[`timepace_${key}_pace_top3_rate`] = top3Rate(xs);
     out[`timepace_${key}_pace_avg_performance_score`] = avg(xs, "performance_score");
   }
@@ -182,6 +187,7 @@ export function createTimePaceFeatureState({
     const standard = chooseStandard(row?.race ?? {});
     const laps = lapSummary(row?.laps ?? []);
     const earlyScore = scoreLowerBetter(laps.early, standard.snapshot.early_pace);
+    const lateScore = scoreLowerBetter(laps.late, standard.snapshot.late_pace);
     const cls = paceClass(earlyScore, paceClassThreshold);
     const results = resultMap(row);
     const records = [];
@@ -198,6 +204,8 @@ export function createTimePaceFeatureState({
         finish: finite(result.official_finish_position),
         normalized_time: normalizedTime,
         normalized_last3f: normalizedLast3f,
+        normalized_early_pace: earlyScore,
+        normalized_late_pace: lateScore,
         performance_score: mean([normalizedTime, normalizedLast3f]),
         pace_class: cls,
         standard_fallback_level: standard.fallbackLevel,
