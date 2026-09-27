@@ -12,6 +12,7 @@ A promoted bundle will eventually contain at minimum:
 - prediction phase
 - exact Feature Set list
 - exact history-window configuration
+- exact small-sample/shrinkage policy
 - categorical levels
 - source BACKFILL commit SHA
 - ML source commit SHA
@@ -20,5 +21,6 @@ A promoted bundle will eventually contain at minimum:
 - training-config hash
 - Feature Catalog hash
 - Feature Set Contract hash
+- Small Sample Contract hash
 
 Promotion is a separate explicit step. Research workflows do not automatically overwrite a promoted model.
