@@ -1,0 +1,67 @@
+name: Archive current KODOKU-001 run
+
+on:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/triggers/archive-kodoku001-current.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GH_TOKEN: ${{ github.token }}
+      TARGET_RUN_ID: "36319162973"
+      EXPERIMENT_ID: KODOKU-001
+      GENERATION_ID: e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Require completed target run
+        shell: bash
+        run: |
+          set -euo pipefail
+          status="$(gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" --jq .status)"
+          conclusion="$(gh api "/repos/$GITHUB_REPOSITORY/actions/runs/$TARGET_RUN_ID" --jq .conclusion)"
+          echo "target_status=$status conclusion=$conclusion"
+          [[ "$status" == "completed" ]] || { echo "Target run is not complete; refusing partial archive." >&2; exit 2; }
+
+      - name: Archive immutable ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          python -m py_compile research/archive_feature_arena_run.py
+          python research/archive_feature_arena_run.py             --repo "$GITHUB_REPOSITORY"             --run-id "$TARGET_RUN_ID"             --experiment-id "$EXPERIMENT_ID"             --snapshot-generation "$GENERATION_ID"             --backfill-sha "$BACKFILL_SHA"             --train-start 2023-01-01             --train-end 2024-12-31             --valid-start 2025-01-01             --valid-end 2025-12-31             --prediction-phase FINAL             --model-family WIN_BINARY_LIGHTGBM             --feature-selection none
+
+      - name: Commit ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l1-feature-arena/$EXPERIMENT_ID"
+          git commit -m "research: archive $EXPERIMENT_ID run $TARGET_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
