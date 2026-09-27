@@ -224,7 +224,10 @@ def load_candidates(path, contract):
         name = row["name"]
         if name in seen_names:
             raise ValueError("duplicate candidate name: " + name)
-        signature = tuple(row["feature_sets"])
+        signature = (
+            tuple(row["feature_sets"]),
+            tuple(sorted(row.get("actor_prefixes") or [])),
+        )
         if signature in seen_sets:
             raise ValueError("duplicate candidate feature set: " + ",".join(signature))
         seen_names.add(name)
