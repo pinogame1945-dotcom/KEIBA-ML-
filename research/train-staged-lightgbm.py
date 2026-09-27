@@ -354,6 +354,8 @@ def feature_selection_train_v1(train, a):
         "dropped_constant": [],
         "dropped_correlation": [],
         "dropped_inner_gain": [],
+        "inner_gain_abstained": False,
+        "inner_gain_abstain_reason": None,
         "inner_split": None,
         "parameters": {
             "max_missing_rate": a.fs_max_missing_rate,
@@ -462,11 +464,16 @@ def feature_selection_train_v1(train, a):
                 "valid_rows": int(len(inner_valid)),
                 "gain_fraction": gain_fraction,
             }
-            report["dropped_inner_gain"] = [
+            gain_drop = [
                 name for name in keep
                 if gain_fraction.get(name, 0.0) <= a.fs_min_inner_gain_fraction
             ]
-            keep = [name for name in keep if name not in set(report["dropped_inner_gain"])]
+            if gain_drop and len(gain_drop) < len(keep):
+                report["dropped_inner_gain"] = gain_drop
+                keep = [name for name in keep if name not in set(gain_drop)]
+            elif gain_drop:
+                report["inner_gain_abstained"] = True
+                report["inner_gain_abstain_reason"] = "probe_would_remove_every_remaining_feature"
 
     if not keep:
         raise ValueError("train-only feature selection removed every feature")
