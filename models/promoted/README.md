@@ -2,7 +2,7 @@
 
 Only models that have passed the agreed walk-forward/holdout checks belong here.
 
-Experimental fold models are intentionally not committed to Git history. They are produced as short-retention workflow artifacts.
+Experimental fold models are intentionally not committed to Git history. They remain runner-local and ephemeral unless a separate storage policy is explicitly approved.
 
 A promoted bundle will eventually contain at minimum:
 
@@ -13,5 +13,7 @@ A promoted bundle will eventually contain at minimum:
 - source BACKFILL commit SHA
 - validation summary
 - checksum
+- training-config hash
+- Feature Catalog hash
 
 Promotion is a separate explicit step. Research workflows do not automatically overwrite a promoted model.
