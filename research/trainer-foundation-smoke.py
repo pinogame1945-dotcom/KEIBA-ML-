@@ -124,6 +124,8 @@ def main():
     assert oof["feature_sets"] == ["BASE"]
     assert oof["history_windows"]["suitability"] == 20
     assert "exact_feature_list" in oof
+    assert len(oof["feature_catalog_sha256"]) == 64
+    assert len(oof["feature_contract_sha256"]) == 64
 
     feature_set = OUT / "feature-set-dataset.jsonl.gz"
     write_dataset(feature_set, make_rows(False))
