@@ -1,0 +1,93 @@
+name: Kaggle storage breakdown read-only
+
+on:
+  push:
+    branches:
+      - audit/kaggle-storage-breakdown-20260928
+    paths:
+      - ".github/workflows/kaggle-storage-breakdown-readonly.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Read-only storage breakdown
+        shell: bash
+        run: |
+          set +e
+          python - <<'PY'
+          import json, subprocess
+
+          def run(args):
+              p=subprocess.run(args, text=True, capture_output=True)
+              return p.returncode, p.stdout, p.stderr
+
+          refs=[]
+          page=1
+          while page <= 100:
+              rc,out,err=run(["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref)"])
+              if rc != 0:
+                  print(json.dumps({"stage":"list","page":page,"error":err[-2000:]},ensure_ascii=False))
+                  break
+              try:
+                  rows=json.loads(out or "[]")
+              except Exception as e:
+                  print(json.dumps({"stage":"list-parse","page":page,"error":str(e),"stdout":out[-2000:]},ensure_ascii=False))
+                  break
+              if not rows:
+                  break
+              refs.extend(str(r.get("ref","")) for r in rows if r.get("ref"))
+              page += 1
+
+          result=[]
+          grand=0
+          for ref in refs:
+              rc,out,err=run(["kaggle","datasets","files",ref,"--page-size","1000","--format","json(name,size)"])
+              if rc != 0:
+                  result.append({"ref":ref,"error":err[-1200:]})
+                  continue
+              try:
+                  files=json.loads(out or "[]")
+              except Exception as e:
+                  result.append({"ref":ref,"error":f"parse: {e}","stdout":out[-1200:]})
+                  continue
+              items=[]
+              total=0
+              for f in files:
+                  name=str(f.get("name",""))
+                  size=f.get("size",0)
+                  try: size=int(size or 0)
+                  except: size=0
+                  items.append({"name":name,"bytes":size})
+                  total += size
+              items.sort(key=lambda x:x["bytes"], reverse=True)
+              grand += total
+              result.append({"ref":ref,"bytes":total,"file_count":len(items),"files":items})
+
+          print("KAGGLE_STORAGE_BREAKDOWN_JSON=" + json.dumps({
+              "dataset_count":len(refs),
+              "total_bytes":grand,
+              "datasets":result
+          }, ensure_ascii=False, separators=(",",":")))
+          PY
+          exit 0
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Read-only Kaggle API query only."
+          echo "Standard ubuntu-latest CPU runner."
+          echo "No GPU, Artifact, Cache, dataset create/update/delete, upload, or download."
