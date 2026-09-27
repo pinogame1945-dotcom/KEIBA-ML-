@@ -63,7 +63,8 @@ def load_feature_contract(path):
 
 
 def normalize_feature_sets(raw, legacy_stage, contract):
-    valid = set(contract["feature_sets"])
+    order = list(contract["feature_sets"])
+    valid = set(order)
     if raw:
         requested = []
         for item in str(raw).split(","):
@@ -78,12 +79,13 @@ def normalize_feature_sets(raw, legacy_stage, contract):
     if invalid:
         raise ValueError("invalid feature set(s): " + ", ".join(invalid))
     if "BASE" not in requested:
-        requested.insert(0, "BASE")
+        requested.append("BASE")
+    canonical = [name for name in order if name in requested]
     if raw and legacy_stage:
-        legacy = list(contract["legacy_stage_map"][legacy_stage])
-        if requested != legacy:
+        legacy = set(contract["legacy_stage_map"][legacy_stage])
+        if set(canonical) != legacy:
             raise ValueError("--feature-sets conflicts with deprecated --stage mapping")
-    return requested
+    return canonical
 
 
 def normalize_prediction_phase(value, contract):
