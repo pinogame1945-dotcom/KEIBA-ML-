@@ -102,8 +102,10 @@ fi
 
 echo "Kaggle dataset ref: $dataset_ref"
 
-# Idempotency: if this exact generation already exists, verify it rather than duplicating it.
-if kaggle datasets status "$dataset_ref" >/dev/null 2>&1; then
+# Idempotency: use the files endpoint, not the metadata/status endpoint.
+# Kaggle can return a transient/permission-like 403 from metadata immediately after
+# creating a large private dataset even while the dataset files are already becoming available.
+if kaggle datasets files "$dataset_ref" --csv >/dev/null 2>&1; then
   echo "Dataset already exists; verifying remote manifest instead of uploading again."
 else
   # Storage capacity was verified before the expensive snapshot build.
@@ -125,7 +127,23 @@ else
     exit 8
   fi
 
-  kaggle datasets create -p "$stage" --quiet --keep-tabular --dir-mode skip
+  create_ok=0
+  if kaggle datasets create -p "$stage" --quiet --keep-tabular --dir-mode skip; then
+    create_ok=1
+  else
+    echo "Kaggle create command returned non-zero; checking whether asynchronous dataset creation succeeded."
+    for attempt in 1 2 3 4 5 6 7 8; do
+      if kaggle datasets files "$dataset_ref" --csv >/dev/null 2>&1; then
+        create_ok=1
+        break
+      fi
+      sleep 15
+    done
+  fi
+  if [[ "$create_ok" != "1" ]]; then
+    echo "Kaggle dataset did not become readable after create; refusing to continue." >&2
+    exit 10
+  fi
   created_here=1
 fi
 
