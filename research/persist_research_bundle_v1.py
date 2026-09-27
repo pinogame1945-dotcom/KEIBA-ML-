@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import hashlib
 import json
 import os
 import shutil
@@ -60,7 +61,12 @@ def main():
 
     bid=str(m["bundle_id"])
     kind=str(m["kind"]).lower().replace("_","-")
-    slug=f"keiba-ml-research-{kind}-{bid}"
+    safe_kind="".join(ch if (ch.isalnum() or ch=="-") else "-" for ch in kind).strip("-")
+    kind_tag=hashlib.sha256(kind.encode("utf-8")).hexdigest()[:6]
+    # Kaggle dataset slugs must be <=50 chars. Keep a readable prefix plus stable hash.
+    slug=f"keiba-r-{safe_kind[:16]}-{kind_tag}-{bid}"
+    if len(slug) > 50:
+        raise SystemExit(f"internal slug length bug: {slug} ({len(slug)})")
     ref=f"pino1945/{slug}"
 
     with tempfile.TemporaryDirectory() as td:
