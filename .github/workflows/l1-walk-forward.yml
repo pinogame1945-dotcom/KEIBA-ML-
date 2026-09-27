@@ -27,25 +27,38 @@ on:
         description: History warm-up years before train window
         required: true
         default: "1"
-      history_limit:
-        description: Recent-race history limit
+      prediction_phase:
+        description: Prediction phase contract
         required: true
-        default: "5"
-      stage:
-        description: Cumulative feature stage
-        required: true
-        default: style
+        default: FINAL
         type: choice
         options:
-          - base
-          - opponent_v1
-          - opponent_both
-          - lap
-          - style
-          - distance_v1
-          - backfill_v1
-          - auto_v1
-          - auto_backfill_v1
+          - EARLY
+          - FINAL
+      feature_sets:
+        description: Comma-separated Feature Sets
+        required: true
+        default: BASE,OPPONENT,NETWORK,LAP,STYLE
+      history_recent_form:
+        description: Recent/form history window
+        required: true
+        default: "5"
+      history_style_last3f:
+        description: Style/last3f trend history window
+        required: true
+        default: "10"
+      history_suitability:
+        description: Suitability history window
+        required: true
+        default: "20"
+      history_opponent:
+        description: Opponent history window
+        required: true
+        default: "10"
+      history_auto_rolling:
+        description: AUTO rolling history window
+        required: true
+        default: "20"
       backfill_ref:
         description: KEIBA-BACKFILL branch/tag/sha
         required: true
@@ -126,8 +139,13 @@ jobs:
             --last-holdout "${{ inputs.last_holdout }}" \
             --train-years "${{ inputs.train_years }}" \
             --warmup-years "${{ inputs.warmup_years }}" \
-            --history-limit "${{ inputs.history_limit }}" \
-            --stage "${{ inputs.stage }}" \
+            --prediction-phase "${{ inputs.prediction_phase }}" \
+            --feature-sets "${{ inputs.feature_sets }}" \
+            --history-recent-form "${{ inputs.history_recent_form }}" \
+            --history-style-last3f "${{ inputs.history_style_last3f }}" \
+            --history-suitability "${{ inputs.history_suitability }}" \
+            --history-opponent "${{ inputs.history_opponent }}" \
+            --history-auto-rolling "${{ inputs.history_auto_rolling }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --ml-source-sha "$GITHUB_SHA" \
             --plan-only
@@ -142,8 +160,13 @@ jobs:
             --last-holdout "${{ inputs.last_holdout }}" \
             --train-years "${{ inputs.train_years }}" \
             --warmup-years "${{ inputs.warmup_years }}" \
-            --history-limit "${{ inputs.history_limit }}" \
-            --stage "${{ inputs.stage }}" \
+            --prediction-phase "${{ inputs.prediction_phase }}" \
+            --feature-sets "${{ inputs.feature_sets }}" \
+            --history-recent-form "${{ inputs.history_recent_form }}" \
+            --history-style-last3f "${{ inputs.history_style_last3f }}" \
+            --history-suitability "${{ inputs.history_suitability }}" \
+            --history-opponent "${{ inputs.history_opponent }}" \
+            --history-auto-rolling "${{ inputs.history_auto_rolling }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --source-sha "$BACKFILL_SHA" \
             --ml-source-sha "$GITHUB_SHA" \
