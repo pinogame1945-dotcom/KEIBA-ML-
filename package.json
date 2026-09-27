@@ -15,6 +15,7 @@
     "smoke:backfill-readiness": "node scripts/backfill-readiness-smoke.mjs",
     "audit:backfill-readiness": "node scripts/audit-backfill-readiness.mjs",
     "smoke:l1-readiness-gate": "node scripts/l1-readiness-gate-smoke.mjs",
-    "smoke:all": "npm run check:feature-catalog && npm run smoke:auto-feature-factory && npm run smoke:backfill-adapter && npm run smoke:backfill-readiness && npm run smoke:l1-readiness-gate && npm run smoke:l1-dataset"
+    "smoke:all": "npm run check:feature-catalog && npm run smoke:auto-feature-factory && npm run smoke:backfill-adapter && npm run smoke:backfill-readiness && npm run smoke:l1-readiness-gate && npm run smoke:l1-dataset",
+    "smoke:pedigree-feature-builder": "node scripts/pedigree-feature-builder-smoke.mjs"
   }
 }
