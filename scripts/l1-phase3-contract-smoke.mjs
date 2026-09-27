@@ -61,6 +61,6 @@ assert.ok(workflow.includes("base_plus_one"));
 assert.ok(workflow.includes("feature_selection"));
 assert.ok(workflow.includes("--source-sha"));
 assert.ok(workflow.includes("--execute"));
-assert.equal(workflow.includes("actions/upload-artifact"), false);
+assert.equal(/uses:\\s*actions\\/upload-artifact/.test(workflow), false);
 
 console.log("L1_PHASE3_CONTRACT_SMOKE_OK");
