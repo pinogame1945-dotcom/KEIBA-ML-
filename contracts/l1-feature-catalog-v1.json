@@ -3,7 +3,7 @@
   "created_date": "2026-09-27",
   "implementation_snapshot": {
     "repository": "pinogame1945-dotcom/KEIBA-ML-",
-    "main_commit": "cdac12283f080492f5824f59074dc573d4b57775",
+    "main_commit": "e09d3e88b04cb748ae045050f866d63b0336204b",
     "feature_schema_version": 7
   },
   "principles": {
@@ -12,7 +12,8 @@
     "source_of_truth": "KEIBA-BACKFILL",
     "ml_scraping_allowed": false,
     "catalog_is_allowlist_not_model_input": true,
-    "feature_selection_must_happen_inside_walk_forward": true
+    "feature_selection_must_happen_inside_walk_forward": true,
+    "historical_coverage_is_enforced_by": "BACKFILL_READINESS_V3"
   },
   "required_columns_per_feature": [
     "feature_id",
@@ -34,10 +35,10 @@
     "notes"
   ],
   "counts": {
-    "total": 137,
-    "available": 91,
+    "total": 138,
+    "available": 108,
     "derivable": 16,
-    "backfill_required": 16,
+    "backfill_required": 0,
     "prohibited_l1": 11,
     "l2_only": 3
   },
@@ -249,7 +250,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "race",
-      "notes": "BACKFILLの結果ページ由来の実発走時刻。レース前に確定している保証がないため学習入力から除外。将来scheduled_start_timeを別項目で用意する。"
+      "notes": "BACKFILLの結果ページ由来の実発走時刻。レース前に確定している保証がないため学習入力から除外。将来scheduled_start_timeを別項目で用意する。",
+      "model_keys": [
+        "actual_start_time"
+      ]
     },
     {
       "feature_id": "entry.gate",
@@ -363,7 +367,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "MEDIUM",
       "discovery_group": "identity",
-      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。"
+      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。",
+      "model_keys": [
+        "jockey_id"
+      ]
     },
     {
       "feature_id": "entry.trainer_id",
@@ -382,7 +389,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "MEDIUM",
       "discovery_group": "identity",
-      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。"
+      "notes": "IDそのものの暗記を避けるため直接学習は禁止。過去時点の騎手/調教師成績へ変換して使う。",
+      "model_keys": [
+        "trainer_id"
+      ]
     },
     {
       "feature_id": "entry.body_weight",
@@ -1788,7 +1798,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "pedigree",
-      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。"
+      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。",
+      "model_keys": [
+        "pedigree_sire_id"
+      ]
     },
     {
       "feature_id": "pedigree.dam_id",
@@ -1807,7 +1820,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "pedigree",
-      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。"
+      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。",
+      "model_keys": [
+        "pedigree_dam_id"
+      ]
     },
     {
       "feature_id": "pedigree.siresire_id",
@@ -1826,7 +1842,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "pedigree",
-      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。"
+      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。",
+      "model_keys": [
+        "pedigree_siresire_id"
+      ]
     },
     {
       "feature_id": "pedigree.damsire_id",
@@ -1845,7 +1864,10 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "pedigree",
-      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。"
+      "notes": "直接IDを学習へ入れると暗記の疑い。血統表現を作り直すまでL1は禁止。",
+      "model_keys": [
+        "pedigree_damsire_id"
+      ]
     },
     {
       "feature_id": "pedigree.known_nodes",
@@ -1880,10 +1902,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "course",
-      "notes": "INNER/OUTER/NORMAL/UNKNOWN"
+      "notes": "INNER/OUTER/NORMAL/UNKNOWN Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.course_laps",
@@ -1899,10 +1921,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "course",
-      "notes": "course laps"
+      "notes": "course laps Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.race_class_raw",
@@ -1918,10 +1940,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "class",
-      "notes": "raw retained"
+      "notes": "raw retained Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.race_class_normalized",
@@ -1937,10 +1959,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "class",
-      "notes": "NEWCOMER/MAIDEN/ONE_WIN/TWO_WIN/THREE_WIN/OPEN"
+      "notes": "NEWCOMER/MAIDEN/ONE_WIN/TWO_WIN/THREE_WIN/OPEN Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.grade",
@@ -1956,10 +1978,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "class",
-      "notes": "G1/G2/G3/JPN1/JPN2/JPN3/L/NONE/UNKNOWN"
+      "notes": "G1/G2/G3/JPN1/JPN2/JPN3/L/NONE/UNKNOWN Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.age_condition_raw",
@@ -1975,10 +1997,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "raw retained"
+      "notes": "raw retained Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.age_min",
@@ -1994,10 +2016,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "normalized"
+      "notes": "normalized Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.age_max",
@@ -2013,10 +2035,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "normalized"
+      "notes": "normalized Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.sex_condition",
@@ -2032,10 +2054,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "ANY/FEMALE_ONLY/MALE_ONLY/OTHER/UNKNOWN"
+      "notes": "ANY/FEMALE_ONLY/MALE_ONLY/OTHER/UNKNOWN Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.weight_rule",
@@ -2051,10 +2073,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "WEIGHT_FOR_AGE/SET_WEIGHT/SPECIAL_WEIGHT/HANDICAP/UNKNOWN"
+      "notes": "WEIGHT_FOR_AGE/SET_WEIGHT/SPECIAL_WEIGHT/HANDICAP/UNKNOWN Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.mixed",
@@ -2070,10 +2092,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "boolean"
+      "notes": "boolean Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.international",
@@ -2089,10 +2111,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "boolean"
+      "notes": "boolean Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.special_designated",
@@ -2108,10 +2130,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "boolean"
+      "notes": "boolean Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.designated",
@@ -2127,10 +2149,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "boolean"
+      "notes": "boolean Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.course_meta_raw",
@@ -2146,10 +2168,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "course",
-      "notes": "raw retained"
+      "notes": "raw retained Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "race.race_condition_raw",
@@ -2165,10 +2187,10 @@
       "l1_allowed": true,
       "l2_allowed": true,
       "android_mode": "TODAY",
-      "status": "BACKFILL_REQUIRED",
+      "status": "AVAILABLE",
       "leakage_risk": "LOW",
       "discovery_group": "condition",
-      "notes": "raw retained"
+      "notes": "raw retained Source normalization is implemented; historical coverage is enforced by BACKFILL_READINESS_V3."
     },
     {
       "feature_id": "jockey.win_rate",
@@ -2567,7 +2589,11 @@
       "status": "L2_ONLY",
       "leakage_risk": "HIGH",
       "discovery_group": "market",
-      "notes": "L1能力評価には入れない。L2の買い方側のみ。"
+      "notes": "L1能力評価には入れない。L2の買い方側のみ。",
+      "model_keys": [
+        "final_win_odds",
+        "market_final_win_odds"
+      ]
     },
     {
       "feature_id": "market.final_popularity",
@@ -2586,7 +2612,11 @@
       "status": "L2_ONLY",
       "leakage_risk": "HIGH",
       "discovery_group": "market",
-      "notes": "L1能力評価には入れない。L2の買い方側のみ。"
+      "notes": "L1能力評価には入れない。L2の買い方側のみ。",
+      "model_keys": [
+        "final_popularity",
+        "market_final_popularity"
+      ]
     },
     {
       "feature_id": "market.payout",
@@ -2605,7 +2635,12 @@
       "status": "L2_ONLY",
       "leakage_risk": "HIGH",
       "discovery_group": "market",
-      "notes": "L1能力評価には入れない。L2の買い方側のみ。"
+      "notes": "L1能力評価には入れない。L2の買い方側のみ。",
+      "model_keys": [
+        "payout",
+        "payout_yen",
+        "market_payout"
+      ]
     },
     {
       "feature_id": "history.margin_type",
@@ -2644,6 +2679,25 @@
       "leakage_risk": "LOW",
       "discovery_group": "margin",
       "notes": "ハナ/アタマ/クビ等を勝手に数値換算しない。対象レース自身の着差は使わない。"
+    },
+    {
+      "feature_id": "race.field_size",
+      "display_name": "出走頭数",
+      "domain": "RACE",
+      "source_field": "race.field_size / active entries",
+      "kind": "DERIVED",
+      "available_at": "FIELD_FIXED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "scope": "RACE",
+      "calculation": "race.field_size when valid, otherwise count active entries",
+      "missing_rule": "derive from active entries",
+      "l1_allowed": true,
+      "l2_allowed": true,
+      "android_mode": "FIELD",
+      "status": "AVAILABLE",
+      "leakage_risk": "LOW",
+      "discovery_group": "race",
+      "notes": "Already produced as backfill_field_size by the BACKFILL adapter."
     }
   ]
 }
