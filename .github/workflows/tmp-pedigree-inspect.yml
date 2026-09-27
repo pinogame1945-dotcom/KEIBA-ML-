@@ -22,15 +22,28 @@ jobs:
           repository: pinogame1945-dotcom/KEIBA-BACKFILL
           ref: 7e13f0a7f04b20d452a2e719c38a91924646e8e1
           path: backfill
-      - name: Inspect horse pack schema
+      - name: Inspect 2023 join schema
         shell: bash
         run: |
           set -euo pipefail
-          echo "LATEST_HORSE_FILES"
-          find backfill/data/horses -maxdepth 1 -type f -name 'horse-*.jsonl.gz' -printf '%f\n' | sort | tail -n 10
-          LATEST=$(find backfill/data/horses -maxdepth 1 -type f -name 'horse-*.jsonl.gz' | sort | tail -n 1)
-          echo "LATEST=$LATEST"
-          echo "FIRST_ROW"
-          gzip -cd "$LATEST" | head -n 1
-          echo "DAILY_LATEST"
-          find backfill/data/daily -maxdepth 1 -type f -name '*.jsonl.gz' -printf '%f\n' | sort | tail -n 5
+          python - <<'PY'
+          import gzip, json, glob, os
+          daily="backfill/data/daily/2023-04-15.jsonl.gz"
+          with gzip.open(daily,"rt",encoding="utf-8") as fh:
+              row=json.loads(next(fh))
+          print("DAILY_KEYS", sorted(row.keys()))
+          print("RACE_KEYS", sorted((row.get("race") or {}).keys()))
+          print("ENTRY_KEYS", sorted(((row.get("entries") or [{}])[0]).keys()))
+          print("RESULT_KEYS", sorted(((row.get("results") or [{}])[0]).keys()))
+          print("RACE_SAMPLE", json.dumps(row.get("race"), ensure_ascii=False))
+          print("ENTRY_SAMPLE", json.dumps((row.get("entries") or [None])[0], ensure_ascii=False))
+          print("RESULT_SAMPLE", json.dumps((row.get("results") or [None])[0], ensure_ascii=False))
+          horse_files=sorted(glob.glob("backfill/data/horses/horse-2023-04-15-*.jsonl.gz"))
+          print("HORSE_FILES", len(horse_files), [os.path.basename(x) for x in horse_files[:3]])
+          if horse_files:
+              with gzip.open(horse_files[0],"rt",encoding="utf-8") as fh:
+                  h=json.loads(next(fh))
+              print("HORSE_KEYS", sorted(h.keys()))
+              print("HORSE_ID", h.get("horse_id"))
+              print("PEDIGREE_HEAD", json.dumps((h.get("pedigree") or [])[:4], ensure_ascii=False))
+          PY
