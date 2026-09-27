@@ -1,0 +1,49 @@
+name: Feature Arena resource telemetry smoke
+
+on:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/workflows/tmp-arena-resource-telemetry-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: python -m py_compile research/run_feature_arena.py research/archive_feature_arena_run.py
+
+      - name: Exercise resource monitor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util
+          from pathlib import Path
+          p=Path("research/run_feature_arena.py").resolve()
+          spec=importlib.util.spec_from_file_location("arena",p)
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          usage=mod.run(["python","-c","a=[bytearray(1024*1024) for _ in range(64)]; import time; time.sleep(3)"], label="smoke")
+          print("SMOKE_USAGE",usage)
+          assert usage["peak_rss_mib"] >= 40, usage
+          assert usage["elapsed_seconds"] >= 2, usage
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
