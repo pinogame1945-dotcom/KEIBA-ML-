@@ -3,6 +3,7 @@ set -euo pipefail
 
 SNAPSHOT_ROOT="${1:-out/yearly-snapshots}"
 SAFETY_LIMIT_BYTES="${KAGGLE_SNAPSHOT_SAFETY_LIMIT_BYTES:-193273528320}" # 180 GiB
+EPHEMERAL="${KAGGLE_SNAPSHOT_EPHEMERAL:-0}"
 
 if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
   echo "KAGGLE_API_TOKEN is required" >&2
@@ -48,7 +49,16 @@ while IFS=$'\t' read -r kind file expected_sha expected_bytes; do
 done < <(printf '%s\n' "${meta[@]:3}")
 
 stage="$(mktemp -d)"
-trap 'rm -rf "$stage"' EXIT
+created_here=0
+dataset_ref=""
+
+cleanup() {
+  if [[ "$EPHEMERAL" == "1" && "$created_here" == "1" && -n "$dataset_ref" ]]; then
+    kaggle datasets delete "$dataset_ref" --yes >/dev/null 2>&1 || true
+  fi
+  rm -rf "$stage"
+}
+trap cleanup EXIT
 cp "$generation_dir"/snapshot-*.jsonl.gz "$stage"/
 cp "$manifest" "$stage/manifest.json"
 (
@@ -147,11 +157,22 @@ PY
   fi
 
   kaggle datasets create -p "$stage" --quiet --keep-tabular --dir-mode skip
+  created_here=1
 fi
 
 verify_dir="$(mktemp -d)"
 kaggle datasets download "$dataset_ref" -f manifest.json -p "$verify_dir" --unzip --quiet --force
 cmp "$stage/manifest.json" "$verify_dir/manifest.json"
+
+if [[ "$EPHEMERAL" == "1" ]]; then
+  if [[ "$created_here" != "1" ]]; then
+    echo "Ephemeral persistence test unexpectedly reused an existing dataset; refusing to delete it." >&2
+    exit 9
+  fi
+  kaggle datasets delete "$dataset_ref" --yes >/dev/null
+  created_here=0
+  echo "KAGGLE_SNAPSHOT_EPHEMERAL_DELETE_OK"
+fi
 
 echo "KAGGLE_SNAPSHOT_PERSIST_OK"
 echo "dataset_ref=$dataset_ref"
