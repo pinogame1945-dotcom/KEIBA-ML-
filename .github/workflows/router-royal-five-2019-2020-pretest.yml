@@ -8,10 +8,10 @@ on:
       - .github/triggers/router-royal-five-2019-2020-pretest.trigger
   workflow_dispatch:
 
-\npermissions:
+permissions:
   contents: read
 
-\njobs:
+jobs:
   pretest:
     runs-on: ubuntu-latest
     timeout-minutes: 60
@@ -191,15 +191,15 @@ on:
           cat out/router-royal-five/arena-2020/feature-arena-summary.json
 
       - name: Cost guard
-          if: always()
-          run: |
+        if: always()
+        run: |
           set -euo pipefail
           if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/router-royal-five-2019-2020-pretest.yml; then
             echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
             exit 1
           fi
           echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
-          echo "No GPR."
+          echo "No GPU."
           echo "No paid storage writes."
           echo "No GitHub Artifact or Cache."
           echo "2019/2020 source snapshots are read-only."
