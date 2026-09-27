@@ -4,6 +4,13 @@ import { once } from "node:events";
 import path from "node:path";
 import { gunzipSync, createGzip } from "node:zlib";
 import { buildMlDataset } from "../src/ml-dataset.mjs";
+import {
+  applyPredictionPhase,
+  normalizeFeatureSets,
+  normalizeHistoryWindows,
+  normalizePredictionPhase,
+  selectFeatureFamilies,
+} from "../src/l1-feature-contract.mjs";
 
 function arg(name) {
   const at = process.argv.indexOf(name);
@@ -22,22 +29,27 @@ const sourceStart = dateArg("--source-start", "2021-01-01");
 const sourceEnd = dateArg("--source-end", "2025-12-31");
 const emitStart = dateArg("--emit-start", "2022-01-01");
 const emitEnd = dateArg("--emit-end", "2025-12-31");
-const historyLimit = Number(arg("--history-limit") ?? 5);
-const stage = arg("--stage") ?? "style";
-const allowedStages = new Set([
-  "base", "opponent_v1", "opponent_both", "lap", "style",
-  "distance_v1", "backfill_v1", "auto_v1", "auto_backfill_v1",
-]);
-if (!allowedStages.has(stage)) throw new Error(`invalid --stage: ${stage}`);
-const includeAutoFeatures = stage === "auto_v1" || stage === "auto_backfill_v1";
-const includeBackfillFeatures = stage === "backfill_v1" || stage === "auto_backfill_v1";
-const includeLap = ["lap","style","distance_v1","backfill_v1","auto_v1","auto_backfill_v1"].includes(stage);
-const includeStyle = ["style","distance_v1","backfill_v1","auto_v1","auto_backfill_v1"].includes(stage);
-const includeDistance = stage === "distance_v1";
-
-if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
-  throw new Error("--history-limit must be an integer from 1 to 100");
+const legacyHistoryLimit = arg("--history-limit");
+const legacyStage = arg("--stage");
+const featureSets = normalizeFeatureSets(arg("--feature-sets"), legacyStage);
+const predictionPhase = normalizePredictionPhase(arg("--prediction-phase"));
+const historyOverrides = {};
+for (const [key, flag] of [
+  ["recent_form", "--history-recent-form"],
+  ["style_last3f", "--history-style-last3f"],
+  ["suitability", "--history-suitability"],
+  ["opponent", "--history-opponent"],
+  ["auto_rolling", "--history-auto-rolling"],
+]) {
+  const value = arg(flag);
+  if (value != null) historyOverrides[key] = Number(value);
 }
+const historyWindows = normalizeHistoryWindows(historyOverrides, legacyHistoryLimit);
+const includeAutoFeatures = featureSets.includes("AUTO");
+const includeBackfillFeatures = featureSets.includes("BACKFILL");
+const includeLap = featureSets.includes("LAP");
+const includeStyle = featureSets.includes("STYLE");
+const includeDistance = featureSets.includes("DISTANCE");
 if (sourceStart > emitStart) throw new Error("--source-start must be <= --emit-start");
 if (emitStart > emitEnd) throw new Error("--emit-start must be <= --emit-end");
 if (emitEnd > sourceEnd) throw new Error("--emit-end must be <= --source-end");
@@ -110,15 +122,16 @@ function parseCorners(raw, fieldSize) {
 }
 
 function historicalExtras(history, currentDistance) {
-  const recent = history.slice(-historyLimit).reverse();
-  const finished = recent.filter(x =>
+  const styleRecent = history.slice(-historyWindows.style_last3f).reverse();
+  const suitabilityRecent = history.slice(-historyWindows.suitability).reverse();
+  const finished = suitabilityRecent.filter(x =>
     String(x.result?.result_status ?? "").toUpperCase() === "FINISHED" &&
     finite(x.result?.official_finish_position) != null
   );
 
-  const lapItems = recent.map(x => lapSummary(x.laps)).filter(Boolean);
+  const lapItems = styleRecent.map(x => lapSummary(x.laps)).filter(Boolean);
   const prevLap = lapItems[0] ?? null;
-  const styleItems = recent.map(x => parseCorners(x.result?.corner_raw, x.fieldSize)).filter(Boolean);
+  const styleItems = styleRecent.map(x => parseCorners(x.result?.corner_raw, x.fieldSize)).filter(Boolean);
   const prevStyle = styleItems[0] ?? null;
 
   const current = finite(currentDistance);
@@ -254,7 +267,7 @@ for (const name of dailyNames) {
 const base = buildMlDataset(raceRows, {
   startDate: emitStart,
   endDate: emitEnd,
-  historyLimit,
+  historyWindows,
   includeAutoFeatures,
   includeBackfillFeatures,
 });
@@ -277,12 +290,16 @@ const staged = base.map(row => {
   const extra = selectExtra(extras.get(String(row.race_id) + "|" + String(row.horse_id)) ?? {});
   if ((extra.lap_recent_races_measured ?? 0) > 0) lapRows += 1;
   if ((extra.style_recent_races_measured ?? 0) > 0) styleRows += 1;
+  const selected = selectFeatureFamilies({
+    ...row.features,
+    ...extra,
+  }, featureSets);
   return {
     ...row,
-    features: {
-      ...row.features,
-      ...extra,
-    },
+    prediction_phase: predictionPhase,
+    feature_sets: featureSets,
+    history_windows: historyWindows,
+    features: applyPredictionPhase(selected, predictionPhase),
   };
 });
 const targetHorseIds = new Set(staged.map(row => String(row.horse_id)));
@@ -300,6 +317,7 @@ gzip.end();
 await once(sink, "close");
 
 console.log("ML_STAGED_DATASET_READY");
+console.log("ML_FEATURE_SET_DATASET_READY");
 console.log(JSON.stringify({
   output,
   source_root: sourceRoot,
@@ -307,8 +325,11 @@ console.log(JSON.stringify({
   source_end: sourceEnd,
   emit_start: emitStart,
   emit_end: emitEnd,
-  history_limit: historyLimit,
-  stage,
+  prediction_phase: predictionPhase,
+  feature_sets: featureSets,
+  history_windows: historyWindows,
+  legacy_stage: legacyStage,
+  legacy_history_limit: legacyHistoryLimit,
   include_auto_features: includeAutoFeatures,
   include_backfill_features: includeBackfillFeatures,
   source_files: dailyNames.length,
