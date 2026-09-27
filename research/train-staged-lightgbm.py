@@ -779,6 +779,11 @@ def main():
         "verbosity": -1,
         "deterministic": True,
         "force_col_wise": True,
+        # Bound LightGBM's histogram cache on memory-constrained standard
+        # runners. This does not change the feature set or tree parameters;
+        # it only limits cached histogram memory and may trade some speed for
+        # substantially lower peak RAM on very wide ALL candidates.
+        "histogram_pool_size": 1024,
     }
 
     # Build LightGBM's native training matrix while the pandas frame exists,
