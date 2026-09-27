@@ -1,0 +1,85 @@
+name: L2 Kaggle Persistence Smoke
+
+on:
+  push:
+    branches:
+      - research/l2-multi-expert-prototype-v1-20260928
+    paths:
+      - .github/workflows/l2-kaggle-persistence-smoke.yml
+      - scripts/kaggle-persist-l2.sh
+      - research/build_l2_expert_bundle.py
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile research/build_l2_expert_bundle.py
+          bash -n scripts/kaggle-persist-l2.sh
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Build tiny ephemeral L2 bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l2-smoke/$GITHUB_RUN_ID"
+          mkdir -p "$root"
+          printf '{"contract":"L1_TO_L2_OUTPUT_CONTRACT_V1","race_id":"smoke-race","horse_id":"smoke-horse","expert_id":"smoke-expert"}\n' | gzip -c > "$root/smoke.jsonl.gz"
+          printf '{"contract":"L2_MULTI_EXPERT_PROTOTYPE_V1","smoke":true}\n' > "$root/comparison-summary.json"
+          python - "$root" "$GITHUB_RUN_ID" <<'PY'
+          import hashlib,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1]); run_id=sys.argv[2]
+          def meta(name):
+              p=root/name
+              return {"file":name,"bytes":p.stat().st_size,"sha256":hashlib.sha256(p.read_bytes()).hexdigest()}
+          expert=meta("smoke.jsonl.gz")
+          expert.update({"candidate":"smoke","expert_id":"smoke-expert","model_version":"smoke","rows":1,"races":1})
+          summary=meta("comparison-summary.json")
+          manifest={
+              "contract":"L2_EXPERT_BUNDLE_V1",
+              "bundle_id":f"smoke-{run_id}",
+              "snapshot_generation":"smoke-generation",
+              "validation_start":"2025-01-01",
+              "validation_end":"2025-01-01",
+              "l1_output_contract":"L1_TO_L2_OUTPUT_CONTRACT_V1",
+              "expert_outputs":[expert],
+              "summary":summary,
+              "total_bytes":expert["bytes"]+summary["bytes"],
+              "persistent_upload":False,
+              "storage_class":"KAGGLE_PRIVATE_COMPANION_DATASET"
+          }
+          (root/"manifest.json").write_text(json.dumps(manifest,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Ephemeral Kaggle roundtrip
+        shell: bash
+        run: |
+          set -euo pipefail
+          KAGGLE_L2_EPHEMERAL=1           KAGGLE_L2_VERIFY_ATTEMPTS=30           KAGGLE_L2_VERIFY_SLEEP_SECONDS=5           bash scripts/kaggle-persist-l2.sh out/l2-smoke
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU. No Artifact/Cache."
+          echo "Tiny private Kaggle dataset is deleted after verification."
+          echo "180 GiB owned-dataset safety ceiling is enforced before upload."
