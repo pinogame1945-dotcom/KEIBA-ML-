@@ -13,6 +13,7 @@ assert.equal(contract.principles.outcomes_joined_separately_for_l2_training, tru
 assert.equal(contract.principles.market_data_joined_separately_with_timestamp_policy, true);
 
 for (const field of [
+  "expert_id",
   "raw_win_probability",
   "race_normalized_win_probability",
   "predicted_rank",
@@ -46,6 +47,8 @@ assert.ok(Object.keys(featureContract.feature_sets).includes("TIME_PACE"));
 for (const token of [
   "--l2-output",
   "L1_TO_L2_OUTPUT_CONTRACT_V1",
+  "expert_id",
+  "expert_config",
   "pred_contrib=True",
   "family_contribution_logit",
   "family_abs_contribution",
