@@ -1,0 +1,35 @@
+name: L1 Newcomer Pedigree V1 Smoke
+
+on:
+  push:
+    branches:
+      - research/l1-newcomer-specialist-v1-20260928
+    paths:
+      - .github/workflows/l1-newcomer-pedigree-v1-smoke.yml
+      - src/pedigree-feature-builder.mjs
+      - scripts/pedigree-feature-builder-smoke.mjs
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Syntax
+        run: |
+          node --check src/pedigree-feature-builder.mjs
+          node --check scripts/pedigree-feature-builder-smoke.mjs
+      - name: Run pedigree smoke
+        run: node scripts/pedigree-feature-builder-smoke.mjs
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU. No Artifact. No Cache."
