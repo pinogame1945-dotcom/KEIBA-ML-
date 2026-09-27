@@ -16,6 +16,7 @@ L1 の王者を 1 体に固定せず、複数 L1 を L2 の専門家入力とし
 - モデルの raw margin (logit)
 - Feature Set ごとの寄与度
 - レース全体の確信/混戦度を表す客観指標
+- L1候補を年度を跨いで識別する安定 `expert_id`
 - モデル、データ、契約の再現用ハッシュ
 
 「血統 80 点」のような人為的な 0–100 点は作らない。
@@ -31,6 +32,12 @@ BASE / PEDIGREE / ACTOR / OPPONENT / TIME_PACE 等の Feature Set 単位へ集�
 - 王C: OPPONENT が強く押す
 
 L2 は最終順位だけでなく「どの眼でそこへ辿り着いたか」を入力として学習できる。
+
+## Expert identity
+
+`model_version` は人間向けラベルで、同じ Feature Set の別設定候補が同名になる可能性がある。
+そのため prediction phase / Feature Sets / history windows / shrinkage / feature-selection policy だけから
+`expert_id` を作る。holdout 年や学習期間は含めないため、同じ王者は年度を跨いでも同じ expert として追跡できる。
 
 ## 漏洩防止
 
