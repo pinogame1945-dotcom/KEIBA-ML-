@@ -30,15 +30,7 @@ jobs:
         run: |
           set -euo pipefail
           refs="$(kaggle datasets list --mine --page 1 --format 'json(ref)' || true)"
-          python - "$TARGET_REF" <<'PY' <<<"$refs"
-import json,sys
-target=sys.argv[1]
-rows=json.load(sys.stdin)
-refs={str(x.get("ref","")) for x in rows}
-if target not in refs:
-    raise SystemExit(f"approved target not found: {target}")
-print("APPROVED_TARGET_FOUND",target)
-PY
+          python -c 'import json,sys; target=sys.argv[1]; rows=json.loads(sys.argv[2]); refs={str(x.get("ref","")) for x in rows}; assert target in refs, f"approved target not found: {target}"; print("APPROVED_TARGET_FOUND",target)' "$TARGET_REF" "$refs"
 
       - name: Delete exact approved dataset
         shell: bash
