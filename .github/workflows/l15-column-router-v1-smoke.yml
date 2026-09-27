@@ -1,0 +1,171 @@
+name: L1.5 Column Router V1 Smoke
+
+on:
+  push:
+    branches:
+      - research/l15-column-router-v1-20260928
+    paths:
+      - .github/triggers/l15-column-router-v1-smoke.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_l15_column_dataset_v1.py \
+            research/run_l15_column_baseline_v1.py
+
+      - name: Build synthetic five-expert input
+        run: |
+          set -euo pipefail
+          mkdir -p out/l15-smoke
+          python - <<'PY'
+          import gzip,json
+          from pathlib import Path
+
+          experts=[
+            "core4_no_pedigree",
+            "no_auto_full_pedigree",
+            "jockey_trainer_condition",
+            "no_auto_full",
+            "no_auto_jockey",
+          ]
+          horses=["A","B","C","D","E","F"]
+          rankings={
+            experts[0]:["A","B","C","D","E","F"],
+            experts[1]:["B","A","D","C","F","E"],
+            experts[2]:["A","C","B","E","D","F"],
+            experts[3]:["C","A","B","D","F","E"],
+            experts[4]:["B","C","A","D","E","F"],
+          }
+          races={
+            "R1":{"date":"2020-01-01","finish":{"A":1,"B":2,"C":3,"D":4,"E":5,"F":6}},
+            "R2":{"date":"2020-01-02","finish":{"A":1,"B":1,"C":3,"D":4,"E":5,"F":6}},
+          }
+
+          with gzip.open("out/l15-smoke/snapshot.jsonl.gz","wt",encoding="utf-8") as fh:
+            for rid,r in races.items():
+              for h in horses:
+                row={
+                  "race_id":rid,"race_date":r["date"],"horse_id":h,
+                  "features":{"venue_code":"TST","surface":"TURF","distance_m":1600,"prior_starts":3},
+                  "target":{"finish_position":r["finish"][h],"is_win":r["finish"][h]==1}
+                }
+                fh.write(json.dumps(row,separators=(",",":"))+"\n")
+
+          with gzip.open("out/l15-smoke/router-features.jsonl.gz","wt",encoding="utf-8") as fh:
+            for rid,r in races.items():
+              views={}
+              for e in experts:
+                rank=rankings[e]
+                views[e]={
+                  "expert_id":"id-"+e,
+                  "model_version":"smoke",
+                  "feature_sets":["BASE"],
+                  "top1_horse_id":rank[0],
+                  "top3_horse_ids":rank[:3],
+                  "top6_horse_ids":rank[:6],
+                  "top1_probability":0.25,
+                  "top2_probability":0.18,
+                  "top3_probability":0.14,
+                  "top1_top2_gap":0.07,
+                  "top1_top3_gap":0.11,
+                  "top3_probability_mass":0.57,
+                  "top6_probability_mass":1.0,
+                  "normalized_entropy":0.9,
+                  "top1_family_abs_share":{}
+                }
+              row={
+                "contract":"ROUTER_FEATURE_SNAPSHOT_V1",
+                "race_id":rid,"race_date":r["date"],
+                "race":{"venue_code":"TST","surface":"TURF","distance_m":1600,"field_size":6},
+                "data_coverage":{"field_size":6,"prior_starts_mean":3},
+                "experts":views,
+                "consensus":{"expert_count":5,"top1_unique_horses":3,"top1_max_vote":2,"top1_max_vote_share":0.4}
+              }
+              fh.write(json.dumps(row,separators=(",",":"))+"\n")
+
+          for e in experts:
+            with gzip.open(f"out/l15-smoke/{e}.jsonl.gz","wt",encoding="utf-8") as fh:
+              for rid,r in races.items():
+                rank=rankings[e]
+                for i,h in enumerate(rank,1):
+                  p=max(0.01,0.30-(i-1)*0.04)
+                  row={
+                    "contract":"L1_TO_L2_OUTPUT_CONTRACT_V1",
+                    "race_id":rid,"race_date":r["date"],"horse_id":h,
+                    "expert_id":"id-"+e,"model_version":"smoke",
+                    "predicted_rank":i,
+                    "race_normalized_win_probability":p,
+                  }
+                  fh.write(json.dumps(row,separators=(",",":"))+"\n")
+          PY
+
+      - name: Build L1.5 dataset
+        run: |
+          set -euo pipefail
+          python research/build_l15_column_dataset_v1.py \
+            --config research/l15-column-router-v1.json \
+            --router-features out/l15-smoke/router-features.jsonl.gz \
+            --snapshot out/l15-smoke/snapshot.jsonl.gz \
+            --expert core4_no_pedigree=out/l15-smoke/core4_no_pedigree.jsonl.gz \
+            --expert no_auto_full_pedigree=out/l15-smoke/no_auto_full_pedigree.jsonl.gz \
+            --expert jockey_trainer_condition=out/l15-smoke/jockey_trainer_condition.jsonl.gz \
+            --expert no_auto_full=out/l15-smoke/no_auto_full.jsonl.gz \
+            --expert no_auto_jockey=out/l15-smoke/no_auto_jockey.jsonl.gz \
+            --features-out out/l15-smoke/features.jsonl.gz \
+            --labels-out out/l15-smoke/labels.jsonl.gz
+
+      - name: Run baseline and assertions
+        run: |
+          set -euo pipefail
+          python research/run_l15_column_baseline_v1.py \
+            --features out/l15-smoke/features.jsonl.gz \
+            --labels out/l15-smoke/labels.jsonl.gz \
+            --output out/l15-smoke/baseline.json
+          python - <<'PY'
+          import gzip,json
+          feats=[json.loads(x) for x in gzip.open("out/l15-smoke/features.jsonl.gz","rt",encoding="utf-8") if x.strip()]
+          labels=[json.loads(x) for x in gzip.open("out/l15-smoke/labels.jsonl.gz","rt",encoding="utf-8") if x.strip()]
+          assert len(feats)==120, len(feats)
+          assert len(labels)==120, len(labels)
+          assert len({x["candidate_id"] for x in feats})==120
+          assert any(x["dead_heat_affected"] for x in labels)
+          forbidden={"target","finish_position","slot_hit","payouts","final_win_odds","final_popularity"}
+          def walk(v):
+            if isinstance(v,dict):
+              for k,x in v.items():
+                assert k not in forbidden,(k,v)
+                walk(x)
+            elif isinstance(v,list):
+              for x in v: walk(x)
+          for row in feats: walk(row)
+          b=json.load(open("out/l15-smoke/baseline.json",encoding="utf-8"))
+          assert b["contract"]=="L15_COLUMN_BASELINE_ARENA_V1"
+          assert set(b["fixed_candidates"])=={"COL1","COL2","COL3"}
+          print("L15_COLUMN_ROUTER_V1_SMOKE_OK")
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No Kaggle write."
+          echo "No GitHub Artifact/Cache."
