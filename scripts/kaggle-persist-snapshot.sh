@@ -165,8 +165,25 @@ PY
 fi
 
 verify_dir="$(mktemp -d)"
-kaggle datasets download "$dataset_ref" -f manifest.json -p "$verify_dir" --unzip --quiet --force
-cmp "$stage/manifest.json" "$verify_dir/manifest.json"
+verified=0
+for attempt in $(seq 1 12); do
+  rm -f "$verify_dir/manifest.json"
+  if kaggle datasets download "$dataset_ref" -f manifest.json -p "$verify_dir" --unzip --quiet --force; then
+    if cmp "$stage/manifest.json" "$verify_dir/manifest.json"; then
+      verified=1
+      break
+    fi
+    echo "Remote manifest downloaded but did not match local manifest." >&2
+    exit 10
+  fi
+  echo "Kaggle dataset is not readable yet; retrying verification ($attempt/12)." >&2
+  sleep 5
+done
+
+if [[ "$verified" != "1" ]]; then
+  echo "Kaggle dataset did not become readable within the verification window." >&2
+  exit 11
+fi
 
 if [[ "$EPHEMERAL" == "1" ]]; then
   if [[ "$created_here" != "1" ]]; then
