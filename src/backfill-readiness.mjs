@@ -4,7 +4,7 @@ import {
   readBackfillMarginContext,
 } from "./backfill-feature-adapter.mjs";
 
-export const BACKFILL_READINESS_VERSION = 2;
+export const BACKFILL_READINESS_VERSION = 3;
 
 export const RACE_FIELDS = [
   "field_size",
@@ -343,7 +343,7 @@ export function summarizeReadiness(overallBucket, yearBuckets, {
 
   const failed = gates.filter(gate => !gate.pass);
   return {
-    report_version: "BACKFILL_READINESS_V2",
+    report_version: "BACKFILL_READINESS_V3",
     readiness_version: BACKFILL_READINESS_VERSION,
     thresholds: {
       min_core_known_coverage: minCoreKnownCoverage,
