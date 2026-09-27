@@ -341,6 +341,8 @@ def compact_candidate_result(item, summary):
         metrics = fold.get("metrics") or {}
         metric_rows.append(metrics)
         fs = fold.get("feature_selection") or {}
+        inner = dict(fs.get("inner_split") or {})
+        inner.pop("gain_fraction", None)
         folds.append({
             "holdout_year": fold.get("holdout_year"),
             "metrics": metrics,
@@ -354,7 +356,8 @@ def compact_candidate_result(item, summary):
                 "dropped_constant": fs.get("dropped_constant") or [],
                 "dropped_correlation": fs.get("dropped_correlation") or [],
                 "dropped_inner_gain": fs.get("dropped_inner_gain") or [],
-                "inner_split": fs.get("inner_split"),
+                "inner_split": inner or None,
+                "parameters": fs.get("parameters") or {},
             },
             "subgroup_metrics": fold.get("subgroup_metrics"),
             "reproducibility": fold.get("reproducibility"),
@@ -488,7 +491,14 @@ def main():
         json.dumps(output, ensure_ascii=False, sort_keys=True, separators=(",", ":")).encode("utf-8")
     ).hexdigest()
     path = root / "research-summary.json"
-    path.write_text(json.dumps(output, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    payload = json.dumps(output, ensure_ascii=False, indent=2) + "\n"
+    size = len(payload.encode("utf-8"))
+    max_bytes = int(PHASE3["summary_contract"]["max_bytes"])
+    if size > max_bytes:
+        raise ValueError(
+            f"compact research summary is {size} bytes, exceeding contract max {max_bytes}"
+        )
+    path.write_text(payload, encoding="utf-8")
     print("L1_PHASE3_RESEARCH_DONE")
     print(json.dumps({
         "summary": str(path),
