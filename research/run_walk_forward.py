@@ -170,6 +170,7 @@ def main():
         schema = schemas / f"l1-{a.stage}-{year}-schema.json"
         pred = oof_dir / f"oof-{year}.jsonl.gz"
         diagnostic = diagnostics / f"l1-{a.stage}-{year}-diagnostics.json.gz"
+        contribution = diagnostics / f"l1-{a.stage}-{year}-contributions.jsonl.gz"
         contributions = diagnostics / f"l1-{a.stage}-{year}-contributions.jsonl.gz"
 
         run([
