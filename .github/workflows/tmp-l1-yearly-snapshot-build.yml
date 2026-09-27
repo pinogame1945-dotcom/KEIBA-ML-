@@ -2,11 +2,6 @@ name: Temporary L1 yearly snapshot build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/l1-yearly-superset-snapshot-v1-20260927
-    paths:
-      - .github/workflows/tmp-l1-yearly-snapshot-build.yml
 
 permissions:
   contents: read
