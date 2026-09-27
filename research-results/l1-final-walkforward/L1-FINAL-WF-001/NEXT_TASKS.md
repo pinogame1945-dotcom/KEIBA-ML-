@@ -2,23 +2,56 @@
 
 更新時点: 2026-09-28 JST
 
-## 現在進行中
+## 旧Run
 
-- Workflow: `L1 Final Walk-Forward League V1`
+旧Run:
 - Run ID: `36330952531`
-- Branch: `feature/l1-feature-arena-trainer-v1-20260927`
 - Launch SHA: `447f405af4a537e2421a2a74b75b9a1f792a6b4f`
-- Snapshot generation: `bf811fa2eab73db0`
-- 2019-2025: 全年 model-ready / Kaggle保存済み
-- 2026: LOCKED。まだ学習・調整・検証に使わない。
-- Jobs: 9 candidates x 5 validation years = 45
+
+問題:
+- 45試合自体は正しいが、matrix展開順が候補偏重。
+- 同一の重い候補が複数年ぶん連続でrunner枠へ入り、重い系が枠を占領する可能性がある。
+
+対応:
+- 旧Runはユーザーが手動停止する。
+- 旧Run停止後にラウンドロビン修正版を再発火する。
+- 旧Runの途中結果は最終比較の正本にしない。
+
+## 修正版Workflow
+
+Workflow:
+`L1 Final Walk-Forward League V1`
+
+Round-robin修正commit:
+`88532badb03f044290e64ea153c16cff70ca09e4`
+
+Branch:
+`feature/l1-feature-arena-trainer-v1-20260927`
+
+Snapshot generation:
+`bf811fa2eab73db0`
+
+2026:
+LOCKED
+
+### ラウンド制
+
+各年で9候補を1本ずつ走らせる。
+次年は前ラウンド9本が全て終了してから開始する。
+失敗候補があっても次年へ進めるよう後続roundは `if: always()`。
+
+- Round 2021: 2019-2020 -> 2021
+- Round 2022: 2020-2021 -> 2022
+- Round 2023: 2021-2022 -> 2023
+- Round 2024: 2022-2023 -> 2024
+- Round 2025: 2023-2024 -> 2025
+
+各round:
+- 9 candidates exactly once
 - max-parallel: 9
-- 学習窓:
-  - 2019-2020 -> 2021
-  - 2020-2021 -> 2022
-  - 2021-2022 -> 2023
-  - 2022-2023 -> 2024
-  - 2023-2024 -> 2025
+- fail-fast: false
+
+これにより、同一候補の年違いが同時にrunnerを占領しない。
 
 ## 決勝候補 5体
 
@@ -37,11 +70,11 @@
 
 ## 次にやること
 
-1. Run `36330952531` を最後まで確認する。
-2. 自動生成される永久台帳
-   `research-results/l1-final-walkforward/L1-FINAL-WF-001/attempts/run-36330952531/`
-   が正常にcommitされたか確認する。
-3. 各候補について5年分の以下を比較する。
+1. ユーザーが旧Run `36330952531` を停止する。
+2. 停止確認後、修正版workflowを再発火する。
+3. 5ラウンド終了まで確認する。
+4. 永久台帳が正常commitされたか確認する。
+5. 各候補の5年分について以下を比較する。
    - Top1 / Top3 / Top6
    - 勝ち馬平均順位
    - MRR
@@ -49,86 +82,25 @@
    - LogLoss / Brier / AUC
    - peak RSS
    - 完走年数
-4. 単年トップではなく、5年間の平均・最悪年・ばらつきで安定性を見る。
-5. 対策4-1ベンチ4体について:
-   - 生還したら性能候補としても比較対象へ昇格。
-   - まだメモリ死亡なら「4-1でも標準runner不可」と記録し、同じ条件の再試行を無限に繰り返さない。
-6. Walk-forward後、2026へ投入する候補を2-5体に絞る。
-7. ユーザーの明示判断後に2026を「L1決勝戦」として使用する。
-   - 2026を見た後は2026を完全未知データとして再利用しない。
-8. 2026で暫定L1上位を決めたら、L1を完全完成待ちにせずL2研究へ進む。
-   - L2は複数L1候補を入力にして、買い方・見送り・オッズ乖離・券種を比較する。
-9. L2へ進んでもL1 walk-forward結果と2026結果は永久台帳に保持し、後から差し替え可能にする。
-
-## KODOKU-006の扱い
-
-Run: `36329288628`
-
-確認済み:
-- AUTOなし・騎手+血統: success
-- 人全部+条件別AUTO: success
-- AUTOなし・人全部: success
-- 騎手だけ+条件別AUTO: success
-- 騎手だけ+特徴組合せAUTO: success
-- 騎手+調教師+条件別AUTO: success
-- AUTOなし・人全部+血統: success
-- AUTOなし・騎手だけ: success
-- 精鋭5再戦4: failure
-- 騎手だけ+血統 再戦2: failure
-- ALL再戦4 / 騎手+馬x騎手+血統 再戦2 は引き継ぎ時点では in_progress だが、研究判断上は死亡扱い済み。
-
-KODOKU-006を待って次へ進む必要はない。現在のL1決勝リーグを正とする。
-
-## 重要な基準値
-
-2025 holdout 3,456Rでの主な結果:
-
-- 旧・純性能王者 `core4_no_pedigree`
-  - Top1 28.07%
-  - Top3 60.16%
-  - Top6 82.18%
-  - mean winner rank 3.802
-  - 旧peak RAM 約14.95GB
-
-- `no_auto_full`
-  - Top1 28.79%
-  - Top3 59.46%
-  - Top6 81.57%
-  - mean 3.829
-  - RAM 約7GB
-
-- `no_auto_jockey`
-  - Top1 28.10%
-  - Top3 59.61%
-  - Top6 82.03%
-  - mean 3.820
-  - RAM 約4.42GB
-
-- `no_auto_full_pedigree`
-  - Top1 28.30%
-  - Top3 59.38%
-  - Top6 82.18%
-  - mean 3.795
-  - RAM 約12.55GB
-
-- `jockey_trainer_condition`
-  - Top1 28.21%
-  - Top3 59.87%
-  - Top6 81.66%
-  - mean 3.795
-  - RAM 約11.77GB
+6. 単年トップではなく、5年間の平均・最悪年・ばらつきで安定性を見る。
+7. 対策4-1ベンチ4体:
+   - 生還 → 性能候補として比較対象へ昇格
+   - 死亡 → 「4-1でも標準runner不可」と記録
+8. Walk-forward後、2026へ投入する候補を2-5体に絞る。
+9. ユーザー明示判断後に2026をL1決勝戦として使用する。
+10. 2026で暫定L1上位を決めたらL2研究へ進む。
 
 ## 対策4-1
 
 - Commit: `d709ac00981e566124038feba95e572a4227c10a`
 - Message: `perf: stream training JSONL rows into flatten`
-- 内容: training JSONLを全件list保持せず逐次読み込みする。
-- 目的: 入力JSONの二重保持を減らし、標準runnerのpeak RAMを下げる。
-- 現在のWalk-forward Runはこの対策を含む。
+- training JSONLを全件list保持せず逐次読み込みする。
+- 現在の修正版Walk-forwardはこの対策を含む。
 
 ## データ正本
 
-Snapshot generation: `bf811fa2eab73db0`
+Snapshot generation:
+`bf811fa2eab73db0`
 
 2019-2025:
 - total rows: 332,419
@@ -140,9 +112,9 @@ Snapshot generation: `bf811fa2eab73db0`
 
 - L1能力評価にオッズ・人気・払戻を入れない。
 - 2026は現在ロック。
-- 自動の「総合点」や合成winnerは作らない。
+- 自動の総合点や合成winnerは作らない。
 - 単一指標だけで決めず、複数年の安定性を比較する。
-- mainへfeature branchを盲目的にmergeしない。mainとの差分監査後に判断する。
+- mainへfeature branchを盲目的にmergeしない。
 
 ## COST / RUNNER RULE
 
@@ -157,6 +129,6 @@ Snapshot generation: `bf811fa2eab73db0`
 - 課金クラウド計算資源
 - 課金Artifact / Cache / Dataset / Model保存
 - 無料枠超過の可能性があるstorage
-- その他明示的課金が発生するもの
+- その他明示的課金
 
 曖昧なら停止側に倒す。
