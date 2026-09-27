@@ -56,6 +56,7 @@ def load_feature_contract(path):
 
 
 def resolve_feature_sets(a, contract):
+    order = list(contract["feature_sets"])
     if a.feature_sets:
         requested = []
         for item in a.feature_sets.split(","):
@@ -67,18 +68,19 @@ def resolve_feature_sets(a, contract):
     else:
         requested = list(contract["default_feature_sets"])
 
-    valid = set(contract["feature_sets"])
+    valid = set(order)
     invalid = [name for name in requested if name not in valid]
     if invalid:
         raise ValueError("invalid feature set(s): " + ", ".join(invalid))
     if "BASE" not in requested:
-        requested.insert(0, "BASE")
+        requested.append("BASE")
+    canonical = [name for name in order if name in requested]
 
     if a.feature_sets and a.stage:
-        legacy = list(contract["legacy_stage_map"][a.stage])
-        if requested != legacy:
+        legacy = set(contract["legacy_stage_map"][a.stage])
+        if set(canonical) != legacy:
             raise ValueError("--feature-sets conflicts with deprecated --stage mapping")
-    return requested
+    return canonical
 
 
 def resolve_history_windows(a, contract):
