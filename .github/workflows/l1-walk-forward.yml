@@ -79,6 +79,30 @@ on:
         description: Minimum specific-condition observations before fallback
         required: true
         default: "5"
+      feature_selection:
+        description: Train-only Feature Selection mode
+        required: true
+        default: none
+        type: choice
+        options:
+          - none
+          - train_v1
+      fs_max_missing_rate:
+        description: Feature Selection max missing rate
+        required: true
+        default: "0.98"
+      fs_max_correlation:
+        description: Feature Selection max absolute correlation
+        required: true
+        default: "0.995"
+      fs_min_inner_gain_fraction:
+        description: Drop train-internal features at or below this gain fraction
+        required: true
+        default: "0"
+      fs_inner_valid_fraction:
+        description: Fraction of fold-train reserved for internal temporal selection
+        required: true
+        default: "0.20"
       backfill_ref:
         description: KEIBA-BACKFILL branch/tag/sha
         required: true
@@ -171,6 +195,11 @@ jobs:
             --shrinkage-rate-strength "${{ inputs.shrinkage_rate_strength }}" \
             --shrinkage-mean-strength "${{ inputs.shrinkage_mean_strength }}" \
             --min-specific-observations "${{ inputs.min_specific_observations }}" \
+            --feature-selection "${{ inputs.feature_selection }}" \
+            --fs-max-missing-rate "${{ inputs.fs_max_missing_rate }}" \
+            --fs-max-correlation "${{ inputs.fs_max_correlation }}" \
+            --fs-min-inner-gain-fraction "${{ inputs.fs_min_inner_gain_fraction }}" \
+            --fs-inner-valid-fraction "${{ inputs.fs_inner_valid_fraction }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --ml-source-sha "$GITHUB_SHA" \
             --plan-only
@@ -197,6 +226,11 @@ jobs:
             --shrinkage-rate-strength "${{ inputs.shrinkage_rate_strength }}" \
             --shrinkage-mean-strength "${{ inputs.shrinkage_mean_strength }}" \
             --min-specific-observations "${{ inputs.min_specific_observations }}" \
+            --feature-selection "${{ inputs.feature_selection }}" \
+            --fs-max-missing-rate "${{ inputs.fs_max_missing_rate }}" \
+            --fs-max-correlation "${{ inputs.fs_max_correlation }}" \
+            --fs-min-inner-gain-fraction "${{ inputs.fs_min_inner_gain_fraction }}" \
+            --fs-inner-valid-fraction "${{ inputs.fs_inner_valid_fraction }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --source-sha "$BACKFILL_SHA" \
             --ml-source-sha "$GITHUB_SHA" \
