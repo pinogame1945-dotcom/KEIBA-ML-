@@ -2,12 +2,6 @@ name: Temporary L1 yearly snapshot build
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - feature/l1-yearly-superset-snapshot-v1-20260927
-    paths:
-      - .github/workflows/tmp-l1-yearly-snapshot-build.yml
-      - scripts/kaggle-persist-snapshot.sh
 
 permissions:
   contents: read
@@ -32,6 +26,65 @@ jobs:
       - name: Checkout KEIBA-ML
         uses: actions/checkout@v4
 
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Kaggle persistence preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kaggle-preflight"
+          generation="preflight-${GITHUB_RUN_ID}"
+          dir="$root/$generation"
+          mkdir -p "$dir"
+
+          printf '{"probe":"keiba-ml-snapshot-preflight","run_id":"%s"}\n' "$GITHUB_RUN_ID"             | gzip -c > "$dir/snapshot-2099.jsonl.gz"
+
+          bytes="$(stat -c %s "$dir/snapshot-2099.jsonl.gz")"
+          sha="$(sha256sum "$dir/snapshot-2099.jsonl.gz" | awk '{print $1}')"
+
+          python - "$dir/manifest.json" "$generation" "$bytes" "$sha" <<'PY'
+          import json,sys
+          path,generation,bytes_,sha=sys.argv[1:]
+          manifest={
+              "contract":"L1_YEARLY_SUPERSET_SNAPSHOT_V1",
+              "store_version":1,
+              "generation":{
+                  "generation_id":generation,
+                  "feature_schema_version":8,
+                  "leakage_policy":"STRICT_PRIOR_DATE_ONLY",
+                  "prediction_phase":"FINAL"
+              },
+              "years":[{
+                  "year":2099,
+                  "file":"snapshot-2099.jsonl.gz",
+                  "bytes":int(bytes_),
+                  "sha256":sha,
+                  "rows":1,
+                  "races":1,
+                  "horses":1,
+                  "min_date":"2099-01-01",
+                  "max_date":"2099-01-01",
+                  "model_ready":False,
+                  "history_status":"PREFLIGHT_ONLY"
+              }],
+              "total_bytes":int(bytes_),
+              "total_rows":1,
+              "persistent_upload":False
+          }
+          with open(path,"w",encoding="utf-8") as fh:
+              json.dump(manifest,fh,ensure_ascii=False,indent=2)
+              fh.write("\n")
+          PY
+
+          KAGGLE_SNAPSHOT_EPHEMERAL=1             bash scripts/kaggle-persist-snapshot.sh "$root"
+
+          echo "KAGGLE_PERSISTENCE_PREFLIGHT_OK"
+
       - name: Checkout BACKFILL
         uses: actions/checkout@v4
         with:
@@ -45,10 +98,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: "20"
-
-      - uses: actions/setup-python@v5
-        with:
-          python-version: "3.12"
 
       - name: Snapshot unit smoke
         run: npm run smoke:l1-yearly-snapshot
@@ -99,9 +148,6 @@ jobs:
           echo "--- disk usage ---"
           du -h "$(dirname "$manifest")"/*
 
-      - name: Install Kaggle CLI
-        run: python -m pip install --disable-pip-version-check kaggle
-
       - name: Persist snapshot to Kaggle private storage
         shell: bash
         run: bash scripts/kaggle-persist-snapshot.sh out/yearly-snapshots
@@ -117,4 +163,5 @@ jobs:
           echo "No GPU."
           echo "No GitHub Artifact."
           echo "No GitHub Cache."
+          echo "Kaggle preflight must pass before the expensive snapshot build."
           echo "Kaggle persistence helper enforces a conservative 180 GiB owned-dataset safety ceiling."
