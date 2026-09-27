@@ -60,6 +60,11 @@ def args():
     )
     p.add_argument("--diagnostics-out")
     p.add_argument("--contributions-out")
+    p.add_argument("--feature-selection", choices=["none", "train_v1"], default="none")
+    p.add_argument("--fs-max-missing-rate", type=float, default=0.98)
+    p.add_argument("--fs-max-correlation", type=float, default=0.995)
+    p.add_argument("--fs-min-inner-gain-fraction", type=float, default=0.0)
+    p.add_argument("--fs-inner-valid-fraction", type=float, default=0.20)
     return p.parse_args()
 
 def load_feature_contract(path):
@@ -311,8 +316,13 @@ def split(df, a):
         raise ValueError("empty split")
     return train, valid
 
-def frames(train, valid):
+def frames(train, valid, selected_columns=None):
     cols = [c for c in train.columns if not c.startswith("_")]
+    if selected_columns is not None:
+        selected = set(selected_columns)
+        cols = [c for c in cols if c in selected]
+    if not cols:
+        raise ValueError("feature selection removed every model column")
     xtr, xva = train[cols].copy(), valid[cols].copy()
     categorical = [c for c in BASE_CATEGORICAL if c in cols]
     for c in categorical:
@@ -331,6 +341,125 @@ def frames(train, valid):
         for c in categorical
     }
     return xtr, xva, categorical, category_levels
+
+
+def feature_selection_train_v1(train, a):
+    columns = [c for c in train.columns if not c.startswith("_")]
+    report = {
+        "contract": "L1_TRAIN_ONLY_FEATURE_SELECTION_V1",
+        "mode": a.feature_selection,
+        "input_features": list(columns),
+        "dropped_missing": [],
+        "dropped_constant": [],
+        "dropped_correlation": [],
+        "dropped_inner_gain": [],
+        "inner_split": None,
+    }
+    if a.feature_selection == "none":
+        report["selected_features"] = list(columns)
+        return list(columns), report
+
+    if not (0 <= a.fs_max_missing_rate <= 1):
+        raise ValueError("--fs-max-missing-rate must be from 0 to 1")
+    if not (0 <= a.fs_max_correlation <= 1):
+        raise ValueError("--fs-max-correlation must be from 0 to 1")
+    if a.fs_min_inner_gain_fraction < 0:
+        raise ValueError("--fs-min-inner-gain-fraction must be >= 0")
+    if not (0.05 <= a.fs_inner_valid_fraction <= 0.50):
+        raise ValueError("--fs-inner-valid-fraction must be from 0.05 to 0.50")
+
+    keep = []
+    for col in columns:
+        series = train[col]
+        missing = series.isna() | series.astype("string").str.strip().eq("")
+        if float(missing.mean()) > a.fs_max_missing_rate:
+            report["dropped_missing"].append(col)
+            continue
+        if series.dropna().astype("string").nunique() <= 1:
+            report["dropped_constant"].append(col)
+            continue
+        keep.append(col)
+
+    numeric = {}
+    for col in keep:
+        if col in BASE_CATEGORICAL:
+            continue
+        values = pd.to_numeric(train[col], errors="coerce")
+        if values.notna().sum() >= 3:
+            numeric[col] = values
+    correlated_drop = set()
+    numeric_names = list(numeric)
+    for i, left in enumerate(numeric_names):
+        if left in correlated_drop:
+            continue
+        for right in numeric_names[i + 1:]:
+            if right in correlated_drop:
+                continue
+            pair = pd.concat([numeric[left], numeric[right]], axis=1).dropna()
+            if len(pair) < 3:
+                continue
+            corr = pair.iloc[:, 0].corr(pair.iloc[:, 1])
+            if pd.notna(corr) and abs(float(corr)) >= a.fs_max_correlation:
+                correlated_drop.add(right)
+    report["dropped_correlation"] = [c for c in keep if c in correlated_drop]
+    keep = [c for c in keep if c not in correlated_drop]
+
+    unique_dates = sorted(train["_race_date_dt"].dropna().unique())
+    if len(unique_dates) >= 5 and keep:
+        cut = max(1, min(len(unique_dates) - 1, int(len(unique_dates) * (1 - a.fs_inner_valid_fraction))))
+        cut_date = pd.Timestamp(unique_dates[cut])
+        inner_train = train[train["_race_date_dt"] < cut_date].copy()
+        inner_valid = train[train["_race_date_dt"] >= cut_date].copy()
+        inner_train, inner_valid = complete_races(inner_train), complete_races(inner_valid)
+        if not inner_train.empty and not inner_valid.empty and inner_train["_target"].nunique() >= 2:
+            ixtr, ixva, icat, _ = frames(inner_train, inner_valid, keep)
+            iytr, iyva = inner_train["_target"].astype(int), inner_valid["_target"].astype(int)
+            probe = lgb.LGBMClassifier(
+                objective="binary",
+                n_estimators=250,
+                learning_rate=0.04,
+                num_leaves=23,
+                min_child_samples=20,
+                colsample_bytree=0.9,
+                reg_lambda=1.0,
+                random_state=42,
+                n_jobs=-1,
+                verbosity=-1,
+                deterministic=True,
+                force_col_wise=True,
+            )
+            probe.fit(
+                ixtr,
+                iytr,
+                eval_set=[(ixva, iyva)],
+                eval_metric="binary_logloss",
+                categorical_feature=icat,
+                callbacks=[lgb.early_stopping(30, verbose=False)],
+            )
+            gains = probe.booster_.feature_importance(importance_type="gain")
+            names = probe.booster_.feature_name()
+            total_gain = float(np.sum(gains))
+            gain_fraction = {
+                name: (float(gain) / total_gain if total_gain > 0 else 0.0)
+                for name, gain in zip(names, gains)
+            }
+            report["inner_split"] = {
+                "train_end": str(pd.Timestamp(inner_train["_race_date_dt"].max()).date()),
+                "valid_start": str(pd.Timestamp(inner_valid["_race_date_dt"].min()).date()),
+                "train_rows": int(len(inner_train)),
+                "valid_rows": int(len(inner_valid)),
+                "gain_fraction": gain_fraction,
+            }
+            report["dropped_inner_gain"] = [
+                name for name in keep
+                if gain_fraction.get(name, 0.0) <= a.fs_min_inner_gain_fraction
+            ]
+            keep = [name for name in keep if name not in set(report["dropped_inner_gain"])]
+
+    if not keep:
+        raise ValueError("train-only feature selection removed every feature")
+    report["selected_features"] = list(keep)
+    return keep, report
 
 def predictions(frame, raw):
     out = frame[["_race_id", "_horse_id", "_target", "_finish_position"]].copy()
@@ -573,7 +702,8 @@ def main():
         forbidden_model_keys,
     )
     train, valid = split(df, a)
-    xtr, xva, categorical, category_levels = frames(train, valid)
+    selected_features, feature_selection_report = feature_selection_train_v1(train, a)
+    xtr, xva, categorical, category_levels = frames(train, valid, selected_features)
     assert_catalog_safety(list(xtr.columns), a.feature_catalog)
     assert_catalog_availability(list(xtr.columns), a.feature_catalog, prediction_phase, feature_contract)
     assert_prediction_phase_safety(list(xtr.columns), prediction_phase, feature_contract)
@@ -632,6 +762,7 @@ def main():
         "feature_sets": feature_sets,
         "history_windows": history_windows,
         "small_sample_policy": small_sample_policy,
+        "feature_selection": feature_selection_report,
         "legacy_stage": a.stage,
         "split": split_config,
         "params": params,
@@ -664,6 +795,7 @@ def main():
         "feature_sets": feature_sets,
         "history_windows": history_windows,
         "small_sample_policy": small_sample_policy,
+        "feature_selection": feature_selection_report,
         "legacy_stage": a.stage,
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "ability_uses_odds": False,
@@ -752,6 +884,7 @@ def main():
                 record["feature_sets"] = feature_sets
                 record["history_windows"] = history_windows
                 record["small_sample_policy"] = small_sample_policy
+                record["feature_selection_mode"] = a.feature_selection
                 record["exact_feature_list"] = names
                 record["feature_catalog_sha256"] = catalog_sha256
                 record["feature_contract_sha256"] = feature_contract_sha256
@@ -775,6 +908,7 @@ def main():
             "feature_sets": feature_sets,
             "history_windows": history_windows,
             "small_sample_policy": small_sample_policy,
+            "feature_selection": feature_selection_report,
             "legacy_stage": a.stage,
             "feature_count": len(names),
             "feature_order": names,
@@ -799,6 +933,7 @@ def main():
         "feature_sets": feature_sets,
         "history_windows": history_windows,
         "small_sample_policy": small_sample_policy,
+        "feature_selection_mode": a.feature_selection,
         "legacy_stage": a.stage,
         "feature_count": len(names),
         "split": meta["split"],
