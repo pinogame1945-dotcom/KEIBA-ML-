@@ -13,7 +13,24 @@ fi
 
 mkdir -p "$out_dir"
 results="$(mktemp)"
-kaggle datasets list --mine --search "$slug" --page-size 1000 --format "json(ref)" >"$results"
+printf '[]\n' > "$results"
+page=1
+while :; do
+  page_json="$(mktemp)"
+  kaggle datasets list --mine --search "$slug" --page "$page" --format "json(ref)" >"$page_json"
+  count="$(python - "$results" "$page_json" <<'PY'
+import json,sys
+dst=json.load(open(sys.argv[1],encoding="utf-8"))
+src=json.load(open(sys.argv[2],encoding="utf-8"))
+dst.extend(src)
+json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
+print(len(src))
+PY
+)"
+  [[ "$count" == "0" ]] && break
+  page=$((page + 1))
+  [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 3; }
+done
 
 dataset_ref="$(python - "$results" "$slug" <<'PY'
 import json,sys
