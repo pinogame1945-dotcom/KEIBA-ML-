@@ -204,7 +204,7 @@ def main():
     if not root_readme.exists():
         root_readme.write_text(
             "# L1 MAIDEN Specialist Research Ledger\n\n"
-            "新馬戦専用L1研究の永久台帳。\n\n"
+            "未勝利戦専用L1研究の永久台帳。\n\n"
             "- 本線 research-results/l1-feature-arena/ とは完全分離する。\n"
             "- 実験IDは MAIDEN-001, MAIDEN-002, ... を使う。\n"
             "- 各Actions実行は <experiment>/attempts/run-<run_id>/ に不変保存する。\n"
