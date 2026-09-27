@@ -1,0 +1,120 @@
+name: L1 Race-Class Deep Snapshot
+
+on:
+  push:
+    branches:
+      - research/l1-newcomer-specialist-v1-20260928
+    paths:
+      - .github/triggers/l1-race-class-deep-snapshot.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-persist-restore:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout exact BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: ${{ env.BACKFILL_SHA }}
+          path: backfill
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Contract and syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/pedigree-feature-builder-smoke.mjs
+          bash -n scripts/kaggle-persist-snapshot.sh
+          bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Build deep race-class superset snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/race-class-deep-snapshot \
+            --source-start 2018-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2019-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2019 \
+            --prediction-phase FINAL \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+          manifest="$(find out/race-class-deep-snapshot -mindepth 2 -maxdepth 2 -name manifest.json -print | sort | tail -n 1)"
+          test -s "$manifest"
+          generation_dir="$(dirname "$manifest")"
+          generation_id="$(basename "$generation_dir")"
+          echo "GENERATION_ID=$generation_id" >> "$GITHUB_ENV"
+          echo "generation_id=$generation_id"
+
+          python - "$manifest" <<'PY'
+          import json,sys
+          m=json.load(open(sys.argv[1],encoding="utf-8"))
+          years=[int(x["year"]) for x in m["years"]]
+          assert years == [2019,2020,2021,2022,2023,2024,2025], years
+          assert all(x.get("model_ready") is True for x in m["years"])
+          assert all(x.get("history_status")=="COMPLETE_FROM_INCLUDED_WARMUP" for x in m["years"])
+          print("DEEP_SNAPSHOT_YEARS_OK", years)
+          print("total_rows",m["total_rows"])
+          print("total_bytes",m["total_bytes"])
+          PY
+
+      - name: Persist deep snapshot to Kaggle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-persist-snapshot.sh out/race-class-deep-snapshot
+
+      - name: Restore and verify all model-ready years
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/race-class-deep-restore/$GENERATION_ID"
+          bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" all "$root"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            test -s "$root/snapshot-$year.jsonl" || test -s "$root/snapshot-$year.jsonl.gz"
+          done
+          echo "RACE_CLASS_DEEP_SNAPSHOT_PERSIST_RESTORE_OK generation=$GENERATION_ID"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-race-class-deep-snapshot.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-race-class-deep-snapshot.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle upload is guarded by actual owned-dataset file-byte accounting and 180 GiB safety ceiling."
