@@ -1,0 +1,81 @@
+name: Temporary verify existing Kaggle snapshot
+
+on:
+  push:
+    branches:
+      - feature/l1-yearly-superset-snapshot-v1-20260927
+    paths:
+      - .github/workflows/tmp-kaggle-existing-snapshot-verify.yml
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-e75cd10b7837f676
+
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Wait for existing snapshot and verify manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}"
+          dir="$(mktemp -d)"
+          ok=0
+
+          for attempt in $(seq 1 60); do
+            rm -f "$dir/manifest.json"
+            if kaggle datasets download "$DATASET_REF" -f manifest.json -p "$dir" --unzip --quiet --force; then
+              ok=1
+              break
+            fi
+            echo "Dataset not readable yet ($attempt/60); retrying in 10s."
+            sleep 10
+          done
+
+          if [[ "$ok" != "1" ]]; then
+            echo "::error::Existing Kaggle dataset did not become readable."
+            exit 1
+          fi
+
+          python - "$dir/manifest.json" <<'PY'
+          import json,sys
+          p=sys.argv[1]
+          m=json.load(open(p,encoding="utf-8"))
+          assert m["generation"]["generation_id"]=="e75cd10b7837f676", m["generation"]["generation_id"]
+          assert int(m["total_bytes"])==1335027111, m["total_bytes"]
+          expected={
+            2022:(304584569,"e0ad77db2b27376fbb574988b13c933c56f38b48ebaa59a5a30dbe6ac2cab0bf"),
+            2023:(340168388,"0651c4dc3e56fb4a31bec65dd2fd6e4681783da984be45357a5cd30fb753086f"),
+            2024:(341599039,"5e972c6354ebf14f589145e33b8b98060fd70509d6b0134fef78a9ea65b9536b"),
+            2025:(348675115,"ededadf756df4d01d4a31614e0ae450b8db64cee0209a74e89dad53494173c61"),
+          }
+          got={int(y["year"]):(int(y["bytes"]),y["sha256"]) for y in m["years"]}
+          assert got==expected, (got,expected)
+          assert int(m["total_rows"])==189287, m["total_rows"]
+          assert int(m["source_races"])==13824, m["source_races"]
+          print("KAGGLE_EXISTING_SNAPSHOT_VERIFY_OK")
+          print("generation_id=e75cd10b7837f676")
+          print("total_bytes=1335027111")
+          print("total_rows=189287")
+          print("years=2022,2023,2024,2025")
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Downloads manifest.json only; does not regenerate or duplicate the 1.34GB snapshot."
