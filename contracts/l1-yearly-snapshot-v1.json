@@ -1,0 +1,32 @@
+{
+  "contract": "L1_YEARLY_SUPERSET_SNAPSHOT_V1",
+  "storage_unit": "GENERATION_SIGNATURE_X_YEAR",
+  "partition_key": "race_date_year",
+  "default_prediction_phase": "FINAL",
+  "source_of_truth": "KEIBA-BACKFILL",
+  "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
+  "rules": {
+    "build_superset_once_per_generation_signature": true,
+    "partition_after_generation": true,
+    "feature_set_projection_must_not_recompute_features": true,
+    "year_equal_to_source_start_year_is_provisional_without_prior_year": true,
+    "persistent_upload_requires_separate_cost_review": true
+  },
+  "model_ready_rule": {
+    "default_first_model_ready_year_offset_from_source_start": 1,
+    "reason": "The first source year has truncated prior history when no earlier source year is included."
+  },
+  "generation_signature_fields": [
+    "source_backfill_sha",
+    "ml_source_sha",
+    "dataset_version",
+    "feature_schema_version",
+    "leakage_policy",
+    "prediction_phase",
+    "feature_sets",
+    "history_windows",
+    "small_sample_policy",
+    "feature_contract_sha256",
+    "small_sample_contract_sha256"
+  ]
+}
