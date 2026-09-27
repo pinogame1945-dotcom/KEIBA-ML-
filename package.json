@@ -15,7 +15,7 @@
     "smoke:backfill-readiness": "node scripts/backfill-readiness-smoke.mjs",
     "audit:backfill-readiness": "node scripts/audit-backfill-readiness.mjs",
     "smoke:l1-readiness-gate": "node scripts/l1-readiness-gate-smoke.mjs",
-    "smoke:all": "npm run check:feature-catalog && npm run smoke:l1-feature-contract && npm run smoke:l1-phase3-contract && npm run smoke:small-sample && npm run smoke:auto-feature-factory && npm run smoke:backfill-adapter && npm run smoke:backfill-readiness && npm run smoke:l1-readiness-gate && npm run smoke:pedigree-feature-builder && npm run smoke:actor-feature-builder && npm run smoke:opponent-feature-builder && npm run smoke:time-pace-feature-builder && npm run smoke:l1-dataset && npm run smoke:l1-yearly-snapshot",
+    "smoke:all": "npm run check:feature-catalog && npm run smoke:l1-feature-contract && npm run smoke:l1-phase3-contract && npm run smoke:small-sample && npm run smoke:auto-feature-factory && npm run smoke:backfill-adapter && npm run smoke:backfill-readiness && npm run smoke:l1-readiness-gate && npm run smoke:pedigree-feature-builder && npm run smoke:actor-feature-builder && npm run smoke:opponent-feature-builder && npm run smoke:time-pace-feature-builder && npm run smoke:l1-dataset && npm run smoke:l1-yearly-snapshot && npm run smoke:l1-to-l2-contract",
     "smoke:pedigree-feature-builder": "node scripts/pedigree-feature-builder-smoke.mjs",
     "smoke:actor-feature-builder": "node scripts/actor-feature-builder-smoke.mjs",
     "smoke:l1-feature-contract": "node scripts/l1-feature-set-contract-smoke.mjs",
@@ -24,6 +24,7 @@
     "smoke:time-pace-feature-builder": "node scripts/time-pace-feature-builder-smoke.mjs",
     "smoke:l1-phase3-contract": "node scripts/l1-phase3-contract-smoke.mjs",
     "build:l1-yearly-snapshots": "node research/build-yearly-superset-snapshots.mjs",
-    "smoke:l1-yearly-snapshot": "node scripts/l1-yearly-snapshot-smoke.mjs"
+    "smoke:l1-yearly-snapshot": "node scripts/l1-yearly-snapshot-smoke.mjs",
+    "smoke:l1-to-l2-contract": "node scripts/l1-to-l2-output-contract-smoke.mjs"
   }
 }
