@@ -4,6 +4,7 @@ import gzip
 import json
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -70,10 +71,94 @@ def parse_args():
     return p.parse_args()
 
 
-def run(cmd):
+def _proc_tree_rss_kib(root_pid):
+    root_pid = int(root_pid)
+    rows = {}
+    proc_root = Path("/proc")
+    if not proc_root.is_dir():
+        return 0
+    for child in proc_root.iterdir():
+        if not child.name.isdigit():
+            continue
+        try:
+            status = (child / "status").read_text(encoding="utf-8", errors="ignore")
+        except (OSError, PermissionError):
+            continue
+        ppid = None
+        rss = 0
+        for line in status.splitlines():
+            if line.startswith("PPid:"):
+                ppid = int(line.split()[1])
+            elif line.startswith("VmRSS:"):
+                rss = int(line.split()[1])
+        if ppid is not None:
+            rows[int(child.name)] = (ppid, rss)
+
+    children = {}
+    for pid, (ppid, _rss) in rows.items():
+        children.setdefault(ppid, []).append(pid)
+
+    total = 0
+    stack = [root_pid]
+    seen = set()
+    while stack:
+        pid = stack.pop()
+        if pid in seen:
+            continue
+        seen.add(pid)
+        row = rows.get(pid)
+        if row:
+            total += row[1]
+        stack.extend(children.get(pid, []))
+    return total
+
+
+def run(cmd, label):
     command = [str(x) for x in cmd]
     print("+", " ".join(command), flush=True)
-    subprocess.run(command, cwd=ROOT, check=True)
+    started = time.monotonic()
+    proc = subprocess.Popen(command, cwd=ROOT)
+    peak_kib = 0
+    last_log = -15.0
+    while True:
+        elapsed = time.monotonic() - started
+        rss_kib = _proc_tree_rss_kib(proc.pid)
+        peak_kib = max(peak_kib, rss_kib)
+        if elapsed - last_log >= 15.0:
+            print(
+                "FEATURE_ARENA_RESOURCE_SAMPLE "
+                + json.dumps(
+                    {
+                        "label": label,
+                        "elapsed_seconds": round(elapsed, 1),
+                        "rss_mib": round(rss_kib / 1024.0, 1),
+                        "peak_rss_mib": round(peak_kib / 1024.0, 1),
+                    },
+                    separators=(",", ":"),
+                ),
+                flush=True,
+            )
+            last_log = elapsed
+        code = proc.poll()
+        if code is not None:
+            break
+        time.sleep(1.0)
+
+    elapsed = time.monotonic() - started
+    usage = {
+        "label": label,
+        "elapsed_seconds": round(elapsed, 3),
+        "peak_rss_mib": round(peak_kib / 1024.0, 3),
+        "exit_code": int(code),
+    }
+    print(
+        "FEATURE_ARENA_RESOURCE_USAGE "
+        + json.dumps(usage, separators=(",", ":")),
+        flush=True,
+    )
+    if code != 0:
+        raise subprocess.CalledProcessError(code, command)
+    return usage
 
 
 def load_contract():
@@ -339,13 +424,14 @@ def main():
         schema = schemas / f"{slug}-schema.json"
         pred = oof / f"{slug}.jsonl.gz"
 
-        run([
+        candidate_started = time.monotonic()
+        projection_usage = run([
             "node", "research/project-yearly-snapshots.mjs",
             "--inputs", input_arg,
             "--output", projected,
             "--feature-sets", sets_arg,
             "--prediction-phase", requested_phase,
-        ])
+        ], label=f"{name}:projection")
 
         cmd = [
             sys.executable, "research/train-staged-lightgbm.py",
@@ -380,7 +466,7 @@ def main():
                 "--diagnostics-out", diagnostics / f"{slug}.json.gz",
                 "--contributions-out", diagnostics / f"{slug}-contributions.jsonl.gz",
             ])
-        run(cmd)
+        training_usage = run(cmd, label=f"{name}:training")
 
         metadata = json.loads(meta.read_text(encoding="utf-8"))
         results.append({
@@ -393,6 +479,15 @@ def main():
             "metadata": str(meta),
             "schema": str(schema),
             "oof": str(pred),
+            "resource_usage": {
+                "projection": projection_usage,
+                "training": training_usage,
+                "candidate_elapsed_seconds": round(time.monotonic() - candidate_started, 3),
+                "candidate_peak_rss_mib": max(
+                    projection_usage["peak_rss_mib"],
+                    training_usage["peak_rss_mib"],
+                ),
+            },
         })
         if not a.keep_projections:
             projected.unlink(missing_ok=True)
