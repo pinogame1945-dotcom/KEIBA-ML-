@@ -217,6 +217,188 @@ def metrics(pred, y, raw):
         "raw_roc_auc": float(roc_auc_score(y, raw)),
     }
 
+
+def race_capture_metrics(pred):
+    ranks, probs = [], []
+    for _, g in pred.groupby("_race_id", sort=False):
+        w = g[g["_target"] == 1]
+        if w.empty:
+            continue
+        ranks.append(int(w["rank"].min()))
+        probs.append(float(w["pn"].sum()))
+    if not ranks:
+        return {"races": 0}
+    ranks = np.asarray(ranks, dtype=float)
+    probs = np.clip(np.asarray(probs, dtype=float), 1e-15, 1.0)
+    return {
+        "races": int(len(ranks)),
+        "top1_winner_capture": float(np.mean(ranks <= 1)),
+        "top3_winner_capture": float(np.mean(ranks <= 3)),
+        "top6_winner_capture": float(np.mean(ranks <= 6)),
+        "mean_winner_rank": float(np.mean(ranks)),
+        "mean_reciprocal_winner_rank": float(np.mean(1.0 / ranks)),
+        "race_normalized_nll": float(np.mean(-np.log(probs))),
+    }
+
+
+def subgroup_metrics(valid, pred):
+    context = valid.groupby("_race_id", sort=False).first().reset_index()
+    field_sizes = valid.groupby("_race_id").size().rename("field_size")
+    context = context.merge(field_sizes, left_on="_race_id", right_index=True, how="left")
+    if "distance_m" in context.columns:
+        distance = pd.to_numeric(context["distance_m"], errors="coerce")
+        context["distance_band"] = pd.cut(
+            distance,
+            bins=[-np.inf, 1400, 1800, 2200, np.inf],
+            labels=["<=1400", "1401-1800", "1801-2200", ">=2201"],
+        ).astype("string")
+    dimensions = {
+        "surface": "surface",
+        "venue": "venue_code",
+        "distance_band": "distance_band",
+        "race_class": "backfill_race_class_normalized",
+        "grade": "backfill_grade",
+        "course_layout": "backfill_course_layout",
+        "field_size": "field_size",
+    }
+    report = {}
+    for label, column in dimensions.items():
+        if column not in context.columns:
+            continue
+        rows = []
+        values = context[column].astype("string").fillna("__MISSING__")
+        for value in sorted(values.unique().tolist()):
+            race_ids = set(context.loc[values == value, "_race_id"].astype(str))
+            metric = race_capture_metrics(pred[pred["_race_id"].astype(str).isin(race_ids)])
+            rows.append({"value": str(value), **metric})
+        report[label] = rows
+    return report
+
+
+def feature_coverage(frame, columns):
+    out = {}
+    for column in columns:
+        series = frame[column]
+        present = int(series.notna().sum())
+        out[column] = {
+            "rows": int(len(series)),
+            "present": present,
+            "non_null_rate": float(present / len(series)) if len(series) else None,
+        }
+    return out
+
+
+def split_threshold_summary(model_dump):
+    summary = {}
+
+    def visit(node):
+        if not isinstance(node, dict):
+            return
+        if "split_feature" in node:
+            name = model_dump["feature_names"][int(node["split_feature"])]
+            row = summary.setdefault(name, {
+                "split_count": 0,
+                "gain_sum": 0.0,
+                "threshold_samples": [],
+            })
+            row["split_count"] += 1
+            row["gain_sum"] += float(node.get("split_gain") or 0.0)
+            if len(row["threshold_samples"]) < 25:
+                row["threshold_samples"].append(str(node.get("threshold")))
+            visit(node.get("left_child"))
+            visit(node.get("right_child"))
+
+    for tree in model_dump.get("tree_info", []):
+        visit(tree.get("tree_structure"))
+    return sorted(
+        [{"feature": name, **row} for name, row in summary.items()],
+        key=lambda row: (-row["gain_sum"], -row["split_count"], row["feature"]),
+    )
+
+
+def write_json_payload(path, value):
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    raw = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    if str(target).endswith(".gz"):
+        with gzip.open(target, "wt", encoding="utf-8") as fh:
+            fh.write(raw)
+            fh.write("\n")
+    else:
+        target.write_text(raw + "\n", encoding="utf-8")
+
+
+def write_model_diagnostics(model, xva, valid, pred, names, diagnostics_out=None, contributions_out=None):
+    if not diagnostics_out and not contributions_out:
+        return None
+    booster = model.booster_
+    model_dump = booster.dump_model()
+    sum_abs = np.zeros(len(names), dtype=float)
+    rows_seen = 0
+    contrib_handle = None
+    try:
+        if contributions_out:
+            target = Path(contributions_out)
+            target.parent.mkdir(parents=True, exist_ok=True)
+            contrib_handle = gzip.open(target, "wt", encoding="utf-8") if str(target).endswith(".gz") else open(target, "w", encoding="utf-8")
+        chunk = 2000
+        for start in range(0, len(xva), chunk):
+            stop = min(len(xva), start + chunk)
+            matrix = booster.predict(
+                xva.iloc[start:stop],
+                pred_contrib=True,
+                num_iteration=model.best_iteration_,
+            )
+            matrix = np.asarray(matrix, dtype=float)
+            values = matrix[:, :len(names)]
+            sum_abs += np.abs(values).sum(axis=0)
+            rows_seen += len(values)
+            if contrib_handle is not None:
+                for offset, row_values in enumerate(values):
+                    order = np.argsort(np.abs(row_values))[-5:][::-1]
+                    p = pred.iloc[start + offset]
+                    record = {
+                        "race_id": str(p["_race_id"]),
+                        "horse_id": str(p["_horse_id"]),
+                        "predicted_rank": int(p["rank"]),
+                        "top_contributions": [
+                            {"feature": names[int(i)], "value": float(row_values[int(i)])}
+                            for i in order
+                        ],
+                    }
+                    contrib_handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    finally:
+        if contrib_handle is not None:
+            contrib_handle.close()
+
+    mean_abs = sum_abs / rows_seen if rows_seen else sum_abs
+    contribution_summary = sorted(
+        [{"feature": name, "mean_abs_contribution": float(value)} for name, value in zip(names, mean_abs)],
+        key=lambda row: (-row["mean_abs_contribution"], row["feature"]),
+    )
+    if diagnostics_out:
+        write_json_payload(diagnostics_out, {
+            "contract": "L1_MODEL_DIAGNOSTICS_V1",
+            "feature_count": len(names),
+            "validation_rows": int(len(xva)),
+            "feature_importance_gain": sorted(
+                [
+                    {"feature": n, "gain": float(g)}
+                    for n, g in zip(
+                        booster.feature_name(),
+                        booster.feature_importance(importance_type="gain"),
+                    )
+                ],
+                key=lambda row: (-row["gain"], row["feature"]),
+            ),
+            "mean_abs_contribution": contribution_summary,
+            "split_threshold_summary": split_threshold_summary(model_dump),
+            "model_dump": model_dump,
+        })
+    return contribution_summary
+
+
+
 def main():
     a = args()
     if pd.to_datetime(a.train_end) >= pd.to_datetime(a.valid_start):
