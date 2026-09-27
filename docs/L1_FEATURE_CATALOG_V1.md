@@ -76,7 +76,12 @@ IDを暗記しているだけの可能性があるため。
 
 ## 学習直前のCatalog門番
 
-L1で禁止した事実は、Catalogの `model_keys` と実際のtrainer入力列を照合する。
+Catalogの `model_keys` は、台帳上の事実と実際のtrainer入力列を結びつける。
+
+用途は2つある。
+
+1. `l1_allowed=false` の行は、L1禁止列として常時ブロックする。
+2. `l1_allowed=true` の行でも、`available_at` が prediction phase より遅い場合は EARLY/FINAL availability gate でブロックする。
 
 例:
 
@@ -87,3 +92,14 @@ L1で禁止した事実は、Catalogの `model_keys` と実際のtrainer入力�
 - 対象レース自身の結果列
 
 禁止列が1つでもモデル入力へ混ざった場合、trainerは学習開始前に失敗させる。
+
+## EARLY / FINAL availability gate
+
+`contracts/l1-feature-set-contract-v1.json` がprediction phaseごとの可用時刻を定義する。
+
+- EARLY: `ALWAYS / ENTRY_PUBLISHED / FIELD_FIXED`
+- FINAL: EARLYに加えて `RACE_DAY / BODY_WEIGHT_ANNOUNCED`
+
+そのため、例えば `body_weight` はL1自体では利用可能だがEARLYでは利用不可、FINALでは利用可能になる。
+
+Catalogの禁止判定とprediction phase判定は別物として扱う。
