@@ -63,29 +63,27 @@ def load_feature_contract(path):
 
 
 def normalize_feature_sets(raw, legacy_stage, contract):
-    order = list(contract["feature_sets"])
-    valid = set(order)
+    canonical_order = list(contract["feature_sets"])
     if raw:
-        requested = []
-        for item in str(raw).split(","):
-            name = item.strip().upper()
-            if name and name not in requested:
-                requested.append(name)
+        requested = {item.strip().upper() for item in str(raw).split(",") if item.strip()}
     elif legacy_stage:
-        requested = list(contract["legacy_stage_map"][legacy_stage])
+        requested = set(contract["legacy_stage_map"][legacy_stage])
     else:
-        requested = list(contract["default_feature_sets"])
-    invalid = [name for name in requested if name not in valid]
+        requested = set(contract["default_feature_sets"])
+
+    requested.add("BASE")
+    invalid = [name for name in requested if name not in set(canonical_order)]
     if invalid:
-        raise ValueError("invalid feature set(s): " + ", ".join(invalid))
-    if "BASE" not in requested:
-        requested.append("BASE")
-    canonical = [name for name in order if name in requested]
+        raise ValueError("invalid feature set(s): " + ", ".join(sorted(invalid)))
+    normalized = [name for name in canonical_order if name in requested]
+
     if raw and legacy_stage:
         legacy = set(contract["legacy_stage_map"][legacy_stage])
-        if set(canonical) != legacy:
+        legacy.add("BASE")
+        normalized_legacy = [name for name in canonical_order if name in legacy]
+        if normalized != normalized_legacy:
             raise ValueError("--feature-sets conflicts with deprecated --stage mapping")
-    return canonical
+    return normalized
 
 
 def normalize_prediction_phase(value, contract):
