@@ -35,10 +35,25 @@ def gh_json(endpoint):
     return json.loads(raw)
 
 def gh_log(repo, job_id):
-    proc = subprocess.run(["gh", "api", f"/repos/{repo}/actions/jobs/{job_id}/logs"], text=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    token = os.environ.get("GH_TOKEN") or os.environ.get("GITHUB_TOKEN")
+    if not token:
+        return "", "GH_TOKEN/GITHUB_TOKEN is required for job log download"
+    api = os.environ.get("GITHUB_API_URL", "https://api.github.com").rstrip("/")
+    url = f"{api}/repos/{repo}/actions/jobs/{job_id}/logs"
+    proc = subprocess.run(
+        [
+            "curl", "-fsSL",
+            "-H", f"Authorization: Bearer {token}",
+            "-H", "Accept: application/vnd.github+json",
+            "-H", "X-GitHub-Api-Version: 2022-11-28",
+            url,
+        ],
+        stdout=subprocess.PIPE,
+        stderr=subprocess.PIPE,
+    )
     if proc.returncode != 0:
-        return "", proc.stderr.strip()
-    return proc.stdout, None
+        return "", proc.stderr.decode("utf-8", errors="replace").strip()
+    return proc.stdout.decode("utf-8", errors="replace"), None
 
 def clean_line(line):
     line = ANSI_RE.sub("", line).replace("\\ufeff", "")
