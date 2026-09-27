@@ -23,16 +23,36 @@ jobs:
           python-version: "3.12"
       - name: Install Kaggle CLI
         run: python -m pip install --disable-pip-version-check kaggle
-      - name: Probe owned dataset list without upload
+      - name: Probe actual owned dataset file sizes without upload
         shell: bash
         run: |
           set -euo pipefail
-          echo "=== JSON DEFAULT ==="
-          kaggle datasets list --mine --page 1 --format json || true
-          echo "=== JSON SELECT ==="
-          kaggle datasets list --mine --page 1 --format "json(ref,totalBytes)" || true
-          echo "=== CSV ==="
-          kaggle datasets list --mine --page 1 --csv || true
+          refs="$(kaggle datasets list --mine --page 1 --format json | python -c 'import json,sys; print("\n".join(x["ref"] for x in json.load(sys.stdin)))')"
+          total=0
+          while IFS= read -r ref; do
+            [ -n "$ref" ] || continue
+            echo "=== FILES $ref ==="
+            out="$(mktemp)"
+            kaggle datasets files "$ref" --csv > "$out"
+            cat "$out"
+            bytes="$(python - "$out" <<'PY'
+import csv,sys
+p=sys.argv[1]
+total=0
+with open(p,encoding="utf-8",newline="") as fh:
+    for row in csv.DictReader(fh):
+        raw=row.get("size") or row.get("totalBytes") or row.get("bytes") or "0"
+        try:
+            total += int(float(raw))
+        except ValueError:
+            raise SystemExit(f"unparseable size value: {raw!r}")
+print(total)
+PY
+)"
+            echo "DATASET_BYTES $ref $bytes"
+            total=$((total + bytes))
+          done <<< "$refs"
+          echo "OWNED_DATASET_FILE_BYTES=$total"
           echo "KAGGLE_STORAGE_PROBE_DONE"
       - name: Cost guard
         if: always()
