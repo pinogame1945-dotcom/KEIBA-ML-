@@ -1,0 +1,90 @@
+name: Temporary Kaggle snapshot persist preflight
+
+on:
+  push:
+    branches:
+      - feature/l1-yearly-superset-snapshot-v1-20260927
+    paths:
+      - .github/workflows/tmp-kaggle-snapshot-persist-preflight.yml
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Build tiny snapshot fixture
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kaggle-preflight"
+          generation="preflight-${GITHUB_RUN_ID}"
+          dir="$root/$generation"
+          mkdir -p "$dir"
+
+          printf '{"probe":"keiba-ml-snapshot-preflight","run_id":"%s"}\n' "$GITHUB_RUN_ID" | gzip -c > "$dir/snapshot-2099.jsonl.gz"
+          bytes="$(stat -c %s "$dir/snapshot-2099.jsonl.gz")"
+          sha="$(sha256sum "$dir/snapshot-2099.jsonl.gz" | awk '{print $1}')"
+
+          python - "$dir/manifest.json" "$generation" "$bytes" "$sha" <<'PY'
+          import json,sys
+          path,generation,bytes_,sha=sys.argv[1:]
+          payload={
+            "contract":"L1_YEARLY_SUPERSET_SNAPSHOT_V1",
+            "store_version":1,
+            "generation":{
+              "generation_id":generation,
+              "feature_schema_version":8,
+              "leakage_policy":"STRICT_PRIOR_DATE_ONLY",
+              "prediction_phase":"FINAL"
+            },
+            "years":[{
+              "year":2099,
+              "file":"snapshot-2099.jsonl.gz",
+              "bytes":int(bytes_),
+              "sha256":sha,
+              "rows":1,
+              "races":1,
+              "horses":1,
+              "min_date":"2099-01-01",
+              "max_date":"2099-01-01",
+              "model_ready":False,
+              "history_status":"PREFLIGHT_ONLY"
+            }],
+            "total_bytes":int(bytes_),
+            "total_rows":1,
+            "persistent_upload":False
+          }
+          with open(path,"w",encoding="utf-8") as fh:
+            json.dump(payload,fh,ensure_ascii=False,indent=2)
+            fh.write("\n")
+          PY
+
+      - name: Run actual persistence helper in ephemeral mode
+        shell: bash
+        run: |
+          set -euo pipefail
+          KAGGLE_SNAPSHOT_EPHEMERAL=1 bash scripts/kaggle-persist-snapshot.sh out/kaggle-preflight
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Temporary Kaggle dataset must be deleted in the same run."
