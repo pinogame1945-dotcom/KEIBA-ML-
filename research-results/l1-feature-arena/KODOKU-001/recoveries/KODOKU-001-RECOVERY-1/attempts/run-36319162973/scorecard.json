@@ -1,0 +1,264 @@
+{
+  "contract": "L1_FEATURE_ARENA_SCORECARD_V1",
+  "experiment_id": "KODOKU-001-RECOVERY-1",
+  "run_id": 36319162973,
+  "complete": false,
+  "composite_winner": null,
+  "candidates": [
+    {
+      "candidate": "actor",
+      "job_id": 108621924537,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "feature_count": 217,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2647569444444444,
+        "top3_winner_capture": 0.5818865740740741,
+        "top6_winner_capture": 0.8052662037037037,
+        "mean_winner_rank": 3.9288194444444446,
+        "mean_reciprocal_winner_rank": 0.47178686326779157,
+        "race_normalized_nll": 2.1418297729481535,
+        "raw_logloss": 0.2263612822936886,
+        "raw_brier": 0.06208400403486521,
+        "raw_roc_auc": 0.7729911072659497
+      }
+    },
+    {
+      "candidate": "all",
+      "job_id": 108621924108,
+      "status": "failure",
+      "feature_sets": [],
+      "feature_count": null,
+      "metrics": {},
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T13:25:19.3377075Z ##[error]The runner has received a shutdown signal. This can happen when the runner service is stopped, or a manually started runner is canceled.",
+        "2026-09-27T13:25:20.8227121Z ##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null
+    },
+    {
+      "candidate": "auto",
+      "job_id": 108621924204,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO"
+      ],
+      "feature_count": 421,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2725694444444444,
+        "top3_winner_capture": 0.5593171296296297,
+        "top6_winner_capture": 0.7870370370370371,
+        "mean_winner_rank": 4.12181712962963,
+        "mean_reciprocal_winner_rank": 0.46735044962998906,
+        "race_normalized_nll": 2.166210456011806,
+        "raw_logloss": 0.22510191464973026,
+        "raw_brier": 0.06165186389537928,
+        "raw_roc_auc": 0.7751650180682699
+      }
+    },
+    {
+      "candidate": "backfill",
+      "job_id": 108621924549,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "BACKFILL"
+      ],
+      "feature_count": 51,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2633101851851852,
+        "top3_winner_capture": 0.5622106481481481,
+        "top6_winner_capture": 0.7815393518518519,
+        "mean_winner_rank": 4.119791666666667,
+        "mean_reciprocal_winner_rank": 0.46266232545274116,
+        "race_normalized_nll": 2.1766521691181255,
+        "raw_logloss": 0.22802794605231613,
+        "raw_brier": 0.06223612578222817,
+        "raw_roc_auc": 0.7652011971503612
+      }
+    },
+    {
+      "candidate": "base",
+      "job_id": 108621924141,
+      "status": "success",
+      "feature_sets": [
+        "BASE"
+      ],
+      "feature_count": 38,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2630208333333333,
+        "top3_winner_capture": 0.5526620370370371,
+        "top6_winner_capture": 0.7792245370370371,
+        "mean_winner_rank": 4.158854166666667,
+        "mean_reciprocal_winner_rank": 0.46091680747330765,
+        "race_normalized_nll": 2.183908938624418,
+        "raw_logloss": 0.2293778015054907,
+        "raw_brier": 0.06251387768953563,
+        "raw_roc_auc": 0.760220066415816
+      }
+    },
+    {
+      "candidate": "distance",
+      "job_id": 108621924582,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "DISTANCE"
+      ],
+      "feature_count": 46,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2595486111111111,
+        "top3_winner_capture": 0.5546875,
+        "top6_winner_capture": 0.7838541666666666,
+        "mean_winner_rank": 4.171875,
+        "mean_reciprocal_winner_rank": 0.45782954513997715,
+        "race_normalized_nll": 2.1872295613293584,
+        "raw_logloss": 0.2295957053205894,
+        "raw_brier": 0.06254757909363641,
+        "raw_roc_auc": 0.7591784687906463
+      }
+    },
+    {
+      "candidate": "lap",
+      "job_id": 108621937915,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "LAP"
+      ],
+      "feature_count": 49,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2650462962962963,
+        "top3_winner_capture": 0.5503472222222222,
+        "top6_winner_capture": 0.7760416666666666,
+        "mean_winner_rank": 4.166087962962963,
+        "mean_reciprocal_winner_rank": 0.4610609654950699,
+        "race_normalized_nll": 2.1862940293836384,
+        "raw_logloss": 0.22962573954425927,
+        "raw_brier": 0.06251470814247634,
+        "raw_roc_auc": 0.7587867078429013
+      }
+    },
+    {
+      "candidate": "network",
+      "job_id": 108621923840,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "NETWORK"
+      ],
+      "feature_count": 46,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2633101851851852,
+        "top3_winner_capture": 0.5483217592592593,
+        "top6_winner_capture": 0.7818287037037037,
+        "mean_winner_rank": 4.136574074074074,
+        "mean_reciprocal_winner_rank": 0.46166279703223123,
+        "race_normalized_nll": 2.178118545525965,
+        "raw_logloss": 0.22752679675288837,
+        "raw_brier": 0.06219140574860857,
+        "raw_roc_auc": 0.7669729920037858
+      }
+    },
+    {
+      "candidate": "opponent",
+      "job_id": 108621944009,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT"
+      ],
+      "feature_count": 64,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2644675925925926,
+        "top3_winner_capture": 0.5584490740740741,
+        "top6_winner_capture": 0.7876157407407407,
+        "mean_winner_rank": 4.09056712962963,
+        "mean_reciprocal_winner_rank": 0.46331526770724585,
+        "race_normalized_nll": 2.169321474631118,
+        "raw_logloss": 0.22684056124864643,
+        "raw_brier": 0.062012472332226835,
+        "raw_roc_auc": 0.7693981110885828
+      }
+    },
+    {
+      "candidate": "pedigree",
+      "job_id": 108621924583,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE"
+      ],
+      "feature_count": 242,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.25810185185185186,
+        "top3_winner_capture": 0.5604745370370371,
+        "top6_winner_capture": 0.7939814814814815,
+        "mean_winner_rank": 4.0532407407407405,
+        "mean_reciprocal_winner_rank": 0.4620011121057893,
+        "race_normalized_nll": 2.1767316749261036,
+        "raw_logloss": 0.22906119315704807,
+        "raw_brier": 0.0625427351986856,
+        "raw_roc_auc": 0.7626440925814618
+      }
+    },
+    {
+      "candidate": "style",
+      "job_id": 108621940093,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "STYLE"
+      ],
+      "feature_count": 52,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.25752314814814814,
+        "top3_winner_capture": 0.5549768518518519,
+        "top6_winner_capture": 0.7815393518518519,
+        "mean_winner_rank": 4.143518518518518,
+        "mean_reciprocal_winner_rank": 0.45761931194618594,
+        "race_normalized_nll": 2.1806369193269783,
+        "raw_logloss": 0.22914935574220222,
+        "raw_brier": 0.062477116219248806,
+        "raw_roc_auc": 0.7606284364722116
+      }
+    },
+    {
+      "candidate": "time_pace",
+      "job_id": 108621924525,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "TIME_PACE"
+      ],
+      "feature_count": 61,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2664930555555556,
+        "top3_winner_capture": 0.5665509259259259,
+        "top6_winner_capture": 0.7861689814814815,
+        "mean_winner_rank": 4.1001157407407405,
+        "mean_reciprocal_winner_rank": 0.46552391911166924,
+        "race_normalized_nll": 2.1685526014042185,
+        "raw_logloss": 0.22849452831436437,
+        "raw_brier": 0.06234584113704314,
+        "raw_roc_auc": 0.7633677518694822
+      }
+    }
+  ]
+}\n
