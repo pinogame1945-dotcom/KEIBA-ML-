@@ -1,0 +1,240 @@
+name: L1 Maiden Specialist V0
+
+on:
+  push:
+    branches:
+      - research/l1-maiden-specialist-v0-20260928
+    paths:
+      - .github/triggers/l1-maiden-specialist-v0.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  duel:
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - name: general_no_auto_jockey
+            train_scope: ALL
+            sets: BASE,OPPONENT,ACTOR,TIME_PACE
+            actor_prefixes: actor_jockey_
+          - name: maiden_same_jockey
+            train_scope: MAIDEN
+            sets: BASE,OPPONENT,ACTOR,TIME_PACE
+            actor_prefixes: actor_jockey_
+          - name: general_no_auto_full
+            train_scope: ALL
+            sets: BASE,OPPONENT,ACTOR,TIME_PACE
+            actor_prefixes: ""
+          - name: maiden_same_full
+            train_scope: MAIDEN
+            sets: BASE,OPPONENT,ACTOR,TIME_PACE
+            actor_prefixes: ""
+          - name: general_no_auto_full_pedigree
+            train_scope: ALL
+            sets: BASE,OPPONENT,PEDIGREE,ACTOR,TIME_PACE
+            actor_prefixes: ""
+          - name: maiden_same_full_pedigree
+            train_scope: MAIDEN
+            sets: BASE,OPPONENT,PEDIGREE,ACTOR,TIME_PACE
+            actor_prefixes: ""
+
+    name: maiden-${{ matrix.name }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: e75cd10b7837f676
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      CANDIDATE_NAME: ${{ matrix.name }}
+      TRAIN_SCOPE: ${{ matrix.train_scope }}
+      CANDIDATE_SETS: ${{ matrix.sets }}
+      ACTOR_PREFIXES: ${{ matrix.actor_prefixes }}
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py research/archive_maiden_specialist_run.py
+          node --check research/project-yearly-snapshots.mjs
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2023-2025 superset snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/maiden-input/$GENERATION_ID"
+          mkdir -p "$root"
+          for year in 2023 2024 2025; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$year" "$root"
+          done
+          test -s "$root/snapshot-2023.jsonl"
+          test -s "$root/snapshot-2024.jsonl"
+          test -s "$root/snapshot-2025.jsonl"
+
+      - name: Build one-candidate config
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          row={
+              "name":os.environ["CANDIDATE_NAME"],
+              "feature_sets":[x.strip() for x in os.environ["CANDIDATE_SETS"].split(",") if x.strip()],
+          }
+          actor=[x.strip() for x in os.environ.get("ACTOR_PREFIXES","").split(",") if x.strip()]
+          if actor:
+              row["actor_prefixes"]=actor
+          with open("candidate.json","w",encoding="utf-8") as f:
+              json.dump([row],f,ensure_ascii=False)
+          print(json.dumps(row,ensure_ascii=False))
+          PY
+
+      - name: Run MAIDEN duel candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/maiden-input/$GENERATION_ID"
+          python research/run_feature_arena.py \
+            --inputs "$root/snapshot-2023.jsonl,$root/snapshot-2024.jsonl,$root/snapshot-2025.jsonl" \
+            --out-dir "out/maiden-v0/$CANDIDATE_NAME" \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --train-race-class "$TRAIN_SCOPE" \
+            --valid-race-class MAIDEN \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json candidate.json \
+            --source-ref main \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Print MAIDEN result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          name=os.environ["CANDIDATE_NAME"]
+          p=Path("out/maiden-v0")/name/"feature-arena-summary.json"
+          s=json.loads(p.read_text(encoding="utf-8"))
+          r=s["results"][0]
+          print("MAIDEN_DUEL_RESULT "+json.dumps({
+              "candidate":name,
+              "train_scope":os.environ["TRAIN_SCOPE"],
+              "valid_scope":"MAIDEN",
+              "feature_sets":r["feature_sets"],
+              "actor_prefixes":r.get("actor_prefixes") or [],
+              "feature_count":r["feature_count"],
+              "metrics":r["metrics"],
+              "resource_usage":r.get("resource_usage"),
+          },ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-maiden-specialist-v0.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-maiden-specialist-v0.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
+          echo "Existing Kaggle snapshot is download-only."
+
+  ledger:
+    if: always()
+    needs: duel
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EXPERIMENT_ID: MAIDEN-001
+      GENERATION_ID: e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      EXPECTED_CANDIDATES: general_no_auto_jockey,maiden_same_jockey,general_no_auto_full,maiden_same_full,general_no_auto_full_pedigree,maiden_same_full_pedigree
+
+    steps:
+      - name: Checkout MAIDEN research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive separate MAIDEN ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_maiden_specialist_run.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --experiment-id "$EXPERIMENT_ID" \
+            --snapshot-generation "$GENERATION_ID" \
+            --backfill-sha "$BACKFILL_SHA" \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --expected-candidates "$EXPECTED_CANDIDATES"
+
+      - name: Commit MAIDEN ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l1-maiden-specialist/$EXPERIMENT_ID"
+          git commit -m "research: archive $EXPERIMENT_ID run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Ledger cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
+          echo "Only small text/JSON MAIDEN ledger files are committed to Git."
