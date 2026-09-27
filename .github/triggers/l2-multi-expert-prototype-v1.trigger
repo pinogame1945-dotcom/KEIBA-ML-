@@ -1,1 +1,1 @@
-run 2026-09-28 v3 env-newline-fix
+run 2026-09-28 survivor-kings-1000r-v1
