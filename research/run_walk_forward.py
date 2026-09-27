@@ -10,6 +10,8 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[1]
 DEFAULT_FEATURE_CONTRACT_PATH = ROOT / "contracts" / "l1-feature-set-contract-v1.json"
 DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
+DEFAULT_SMALL_SAMPLE_CONTRACT_PATH = ROOT / "contracts" / "l1-small-sample-contract-v1.json"
+DEFAULT_SMALL_SAMPLE_CONTRACT = json.loads(DEFAULT_SMALL_SAMPLE_CONTRACT_PATH.read_text(encoding="utf-8"))
 
 
 def parse_args():
@@ -38,6 +40,11 @@ def parse_args():
     p.add_argument("--history-suitability", type=int)
     p.add_argument("--history-opponent", type=int)
     p.add_argument("--history-auto-rolling", type=int)
+    p.add_argument("--history-actor-recent", type=int)
+    p.add_argument("--history-time-pace", type=int)
+    p.add_argument("--shrinkage-rate-strength", type=float, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["rate_prior_strength"])
+    p.add_argument("--shrinkage-mean-strength", type=float, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["mean_prior_strength"])
+    p.add_argument("--min-specific-observations", type=int, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["min_specific_observations"])
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
     p.add_argument("--source-ref", default="main")
     p.add_argument("--source-sha")
@@ -95,6 +102,8 @@ def resolve_history_windows(a, contract):
         "suitability": a.history_suitability,
         "opponent": a.history_opponent,
         "auto_rolling": a.history_auto_rolling,
+        "actor_recent": a.history_actor_recent,
+        "time_pace": a.history_time_pace,
     }
     for key, value in explicit.items():
         if value is None:
@@ -176,6 +185,8 @@ def append_history_args(cmd, windows):
         "suitability": "--history-suitability",
         "opponent": "--history-opponent",
         "auto_rolling": "--history-auto-rolling",
+        "actor_recent": "--history-actor-recent",
+        "time_pace": "--history-time-pace",
     }
     for key, flag in mapping.items():
         cmd.extend([flag, windows[key]])
@@ -187,6 +198,16 @@ def main():
     feature_sets = resolve_feature_sets(a, contract)
     prediction_phase = str(a.prediction_phase).upper()
     history_windows = resolve_history_windows(a, contract)
+    small_sample_policy = {
+        "ratePriorStrength": a.shrinkage_rate_strength,
+        "meanPriorStrength": a.shrinkage_mean_strength,
+        "minSpecificObservations": a.min_specific_observations,
+        "actorRecentWindow": history_windows["actor_recent"],
+    }
+    if a.shrinkage_rate_strength < 0 or a.shrinkage_mean_strength < 0:
+        raise ValueError("shrinkage strengths must be >= 0")
+    if a.min_specific_observations < 1:
+        raise ValueError("min-specific-observations must be >= 1")
 
     if a.first_holdout > a.last_holdout:
         raise ValueError("first-holdout must be <= last-holdout")
@@ -209,6 +230,7 @@ def main():
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
         "legacy_stage": a.stage,
         "train_years": a.train_years,
         "warmup_years": a.warmup_years,
@@ -283,6 +305,11 @@ def main():
             "--prediction-phase", prediction_phase,
         ]
         append_history_args(dataset_cmd, history_windows)
+        dataset_cmd.extend([
+            "--shrinkage-rate-strength", a.shrinkage_rate_strength,
+            "--shrinkage-mean-strength", a.shrinkage_mean_strength,
+            "--min-specific-observations", a.min_specific_observations,
+        ])
         run(dataset_cmd)
 
         cmd = [
@@ -291,6 +318,7 @@ def main():
             "--feature-sets", ",".join(feature_sets),
             "--prediction-phase", prediction_phase,
             "--history-windows-json", json.dumps(history_windows, separators=(",", ":")),
+            "--small-sample-policy-json", json.dumps(small_sample_policy, separators=(",", ":")),
             "--feature-contract", a.feature_contract,
             "--train-start", fold["train_start"],
             "--train-end", fold["train_end"],
@@ -319,6 +347,7 @@ def main():
             "prediction_phase": metadata["prediction_phase"],
             "feature_sets": metadata["feature_sets"],
             "history_windows": metadata["history_windows"],
+            "small_sample_policy": metadata.get("small_sample_policy"),
             "split": metadata["split"],
             "metrics": metadata["metrics"],
             "feature_count": metadata["feature_count"],
@@ -342,6 +371,7 @@ def main():
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
         "legacy_stage": a.stage,
         "source": {
             "repository": a.source_repo,
