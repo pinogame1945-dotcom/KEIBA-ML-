@@ -59,6 +59,26 @@ on:
         description: AUTO rolling window
         required: true
         default: "20"
+      history_actor_recent:
+        description: Actor recent-form window
+        required: true
+        default: "30"
+      history_time_pace:
+        description: TIME_PACE horse-history window
+        required: true
+        default: "10"
+      shrinkage_rate_strength:
+        description: Small-sample rate prior strength (research parameter)
+        required: true
+        default: "20"
+      shrinkage_mean_strength:
+        description: Small-sample mean prior strength (research parameter)
+        required: true
+        default: "10"
+      min_specific_observations:
+        description: Minimum specific-condition observations before fallback
+        required: true
+        default: "5"
       backfill_ref:
         description: KEIBA-BACKFILL branch/tag/sha
         required: true
@@ -146,6 +166,11 @@ jobs:
             --history-suitability "${{ inputs.history_suitability }}" \
             --history-opponent "${{ inputs.history_opponent }}" \
             --history-auto-rolling "${{ inputs.history_auto_rolling }}" \
+            --history-actor-recent "${{ inputs.history_actor_recent }}" \
+            --history-time-pace "${{ inputs.history_time_pace }}" \
+            --shrinkage-rate-strength "${{ inputs.shrinkage_rate_strength }}" \
+            --shrinkage-mean-strength "${{ inputs.shrinkage_mean_strength }}" \
+            --min-specific-observations "${{ inputs.min_specific_observations }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --ml-source-sha "$GITHUB_SHA" \
             --plan-only
@@ -167,6 +192,11 @@ jobs:
             --history-suitability "${{ inputs.history_suitability }}" \
             --history-opponent "${{ inputs.history_opponent }}" \
             --history-auto-rolling "${{ inputs.history_auto_rolling }}" \
+            --history-actor-recent "${{ inputs.history_actor_recent }}" \
+            --history-time-pace "${{ inputs.history_time_pace }}" \
+            --shrinkage-rate-strength "${{ inputs.shrinkage_rate_strength }}" \
+            --shrinkage-mean-strength "${{ inputs.shrinkage_mean_strength }}" \
+            --min-specific-observations "${{ inputs.min_specific_observations }}" \
             --source-ref "${{ inputs.backfill_ref }}" \
             --source-sha "$BACKFILL_SHA" \
             --ml-source-sha "$GITHUB_SHA" \
