@@ -17,6 +17,7 @@
     "race_id",
     "horse_id",
     "model_version",
+    "expert_id",
     "prediction_phase",
     "feature_sets",
     "ml_dataset_version",
@@ -76,5 +77,10 @@
     "outcomes": "Join only inside L2 training/evaluation after the L1 payload has been materialized.",
     "market": "Join only through the L2 market pipeline using a prediction-time/timestamp policy. Never feed market values back into L1.",
     "2026_lock": "2026 remains sealed until L1/L2 model and selection rules are frozen for final confirmation."
+  },
+  "expert_identity": {
+    "expert_id": "First 16 hex characters of SHA-256 over the fold-independent L1 expert configuration: prediction phase, feature sets, history windows, small-sample policy, and feature-selection policy.",
+    "model_version": "Human-readable fold/model label. It is not sufficient by itself to distinguish experts.",
+    "training_config_sha256": "Fold-specific full training configuration hash used for exact reproducibility."
   }
 }
