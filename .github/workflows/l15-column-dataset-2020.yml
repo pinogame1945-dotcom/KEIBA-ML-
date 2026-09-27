@@ -1,0 +1,172 @@
+name: L1.5 Column Dataset 2020
+
+on:
+  push:
+    branches:
+      - research/l15-column-router-v1-20260928
+    paths:
+      - .github/triggers/l15-column-dataset-2020.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: bf811fa2eab73db0
+      CORE_PREFIX: pino1945/keiba-ml-research-royal-five-2019-2020-core-
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_l15_column_dataset_v1.py \
+            research/run_l15_column_baseline_v1.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Storage preflight before build
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Find saved five-king core bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,subprocess,tempfile
+          prefix=os.environ["CORE_PREFIX"]
+          refs=[]
+          for page in range(1,1001):
+              r=subprocess.run(
+                  ["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref,totalBytes)"],
+                  text=True,capture_output=True,check=True
+              )
+              raw=(r.stdout or "").strip()
+              if not raw or raw.lower().startswith("no datasets found"):
+                  batch=[]
+              else:
+                  batch=json.loads(raw)
+              refs.extend(str(x.get("ref") or "") for x in batch if str(x.get("ref") or "").startswith(prefix))
+              if not batch:
+                  break
+          refs=sorted(set(refs))
+          if not refs:
+              raise SystemExit("saved five-king core bundle not found yet")
+          # The core bundle is content-addressed; duplicates with the same source are equivalent.
+          ref=refs[-1]
+          print("CORE_DATASET_REF",ref)
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              print(f"CORE_DATASET_REF={ref}",file=fh)
+          PY
+
+      - name: Restore saved five-king outputs
+        run: |
+          set -euo pipefail
+          mkdir -p out/l15-2020/core
+          kaggle datasets download "$CORE_DATASET_REF" -p out/l15-2020/core --unzip --quiet --force
+          test -s out/l15-2020/core/router-features-2020.jsonl.gz
+          for f in \
+            core4-no-pedigree.jsonl.gz \
+            no-auto-full-pedigree.jsonl.gz \
+            jockey-trainer-condition.jsonl.gz \
+            no-auto-full.jsonl.gz \
+            no-auto-jockey.jsonl.gz
+          do
+            test -s "out/l15-2020/core/$f"
+          done
+          echo "Saved five-king output bundle restored."
+
+      - name: Restore 2020 source snapshot read-only
+        run: |
+          set -euo pipefail
+          mkdir -p out/l15-2020/source
+          bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" 2020 out/l15-2020/source
+          if [[ -s out/l15-2020/source/snapshot-2020.jsonl ]]; then
+            echo "SNAP_2020=out/l15-2020/source/snapshot-2020.jsonl" >> "$GITHUB_ENV"
+          elif [[ -s out/l15-2020/source/snapshot-2020.jsonl.gz ]]; then
+            echo "SNAP_2020=out/l15-2020/source/snapshot-2020.jsonl.gz" >> "$GITHUB_ENV"
+          else
+            echo "2020 snapshot missing" >&2
+            exit 1
+          fi
+
+      - name: Build 2020 L1.5 column dataset
+        run: |
+          set -euo pipefail
+          root=out/l15-2020/core
+          python research/build_l15_column_dataset_v1.py \
+            --config research/l15-column-router-v1.json \
+            --router-features "$root/router-features-2020.jsonl.gz" \
+            --snapshot "$SNAP_2020" \
+            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
+            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
+            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
+            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
+            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --features-out out/l15-2020/l15-column-features-2020.jsonl.gz \
+            --labels-out out/l15-2020/l15-column-labels-2020.jsonl.gz
+
+      - name: Baseline the 2020 column dataset
+        run: |
+          set -euo pipefail
+          python research/run_l15_column_baseline_v1.py \
+            --features out/l15-2020/l15-column-features-2020.jsonl.gz \
+            --labels out/l15-2020/l15-column-labels-2020.jsonl.gz \
+            --output out/l15-2020/l15-column-baseline-2020.json
+
+      - name: Freeze dataset metadata
+        run: |
+          set -euo pipefail
+          cp research/l15-column-router-v1.json out/l15-2020/l15-column-router-v1.json
+          cp contracts/l15-column-router-v1.json out/l15-2020/l15-column-router-contract-v1.json
+          printf '%s\n' "$CORE_DATASET_REF" > out/l15-2020/source-five-king-dataset-ref.txt
+
+      - name: Build persistent L1.5 dataset bundle
+        run: |
+          set -euo pipefail
+          python research/build_research_bundle_v1.py \
+            --kind l15_column_dataset_2020 \
+            --snapshot-generation "$GENERATION_ID" \
+            --train-start 2019-01-01 \
+            --train-end 2019-12-31 \
+            --test-start 2020-01-01 \
+            --test-end 2020-12-31 \
+            --code-sha "$GITHUB_SHA" \
+            --file l15-column-features-2020.jsonl.gz=out/l15-2020/l15-column-features-2020.jsonl.gz \
+            --file l15-column-labels-2020.jsonl.gz=out/l15-2020/l15-column-labels-2020.jsonl.gz \
+            --file l15-column-baseline-2020.json=out/l15-2020/l15-column-baseline-2020.json \
+            --file l15-column-router-v1.json=out/l15-2020/l15-column-router-v1.json \
+            --file l15-column-router-contract-v1.json=out/l15-2020/l15-column-router-contract-v1.json \
+            --file source-five-king-dataset-ref.txt=out/l15-2020/source-five-king-dataset-ref.txt \
+            --out-root out/l15-2020/bundle
+
+      - name: Persist L1.5 dataset
+        run: |
+          set -euo pipefail
+          python research/persist_research_bundle_v1.py out/l15-2020/bundle
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Kaggle capacity checked once before build; no pre-upload capacity re-check."
+          echo "2026 not read."
