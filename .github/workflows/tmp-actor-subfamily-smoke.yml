@@ -1,0 +1,79 @@
+name: ACTOR subfamily smoke
+
+on:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/workflows/tmp-actor-subfamily-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Syntax
+        run: |
+          python -m py_compile research/run_feature_arena.py research/archive_feature_arena_run.py
+          node --check research/project-yearly-snapshots.mjs
+
+      - name: Candidate contract smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import importlib.util, json
+          from pathlib import Path
+          p=Path("research/run_feature_arena.py").resolve()
+          spec=importlib.util.spec_from_file_location("arena",p)
+          mod=importlib.util.module_from_spec(spec)
+          spec.loader.exec_module(mod)
+          cfg=Path("actor-candidates.json")
+          cfg.write_text(json.dumps([
+            {"name":"jockey","feature_sets":["BASE","ACTOR"],"actor_prefixes":["actor_jockey_"]},
+            {"name":"trainer","feature_sets":["BASE","ACTOR"],"actor_prefixes":["actor_trainer_"]},
+            {"name":"horse_jockey","feature_sets":["BASE","ACTOR"],"actor_prefixes":["actor_horse_jockey_"]},
+          ]),encoding="utf-8")
+          rows=mod.load_candidates(str(cfg),mod.load_contract())
+          assert len(rows)==3, rows
+          print("ACTOR_CANDIDATE_CONTRACT_OK",rows)
+          PY
+
+      - name: Projection smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > tiny.jsonl <<'EOF'
+          {"ml_dataset_version":3,"feature_schema_version":8,"leakage_policy":"STRICT_PRIOR_DATE_ONLY","prediction_phase":"FINAL","feature_sets":["BASE","OPPONENT","NETWORK","LAP","STYLE","DISTANCE","BACKFILL","AUTO","PEDIGREE","ACTOR","TIME_PACE"],"history_windows":{"recent_form":5,"style_last3f":10,"suitability":20,"opponent":10,"auto_rolling":20,"career":"ALL","elo":"ALL","actor_recent":30,"time_pace":10},"small_sample_policy":{"ratePriorStrength":20,"meanPriorStrength":10,"minSpecificObservations":5,"actorRecentWindow":30},"race_id":"r1","horse_id":"h1","features":{"race_date":"2025-01-01","age":3,"actor_jockey_all_starts":10,"actor_trainer_all_starts":20,"actor_horse_jockey_all_starts":3},"target":{"is_win":true,"finish_position":1}}
+          EOF
+          node research/project-yearly-snapshots.mjs             --inputs tiny.jsonl             --output tiny-out.jsonl.gz             --feature-sets BASE,ACTOR             --actor-prefixes actor_jockey_             --prediction-phase FINAL
+          python - <<'PY'
+          import gzip,json
+          row=json.loads(gzip.open("tiny-out.jsonl.gz","rt",encoding="utf-8").readline())
+          keys=set(row["features"])
+          assert "actor_jockey_all_starts" in keys, keys
+          assert "actor_trainer_all_starts" not in keys, keys
+          assert "actor_horse_jockey_all_starts" not in keys, keys
+          assert "age" in keys, keys
+          print("ACTOR_PROJECTION_OK",sorted(keys))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
