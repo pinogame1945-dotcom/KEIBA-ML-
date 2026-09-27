@@ -2,39 +2,157 @@
   "contract": "L1_FEATURE_SET_CONTRACT_V1",
   "prediction_phases": {
     "EARLY": {
-      "allowed_available_at": ["ALWAYS", "ENTRY_PUBLISHED", "FIELD_FIXED"],
-      "blocked_exact_model_keys": ["weather", "track_condition", "body_weight", "body_weight_diff"],
-      "blocked_model_key_patterns": ["^auto_pair_body_weight_vs_recent_mean_", "_same_going_"]
+      "allowed_available_at": [
+        "ALWAYS",
+        "ENTRY_PUBLISHED",
+        "FIELD_FIXED"
+      ],
+      "blocked_exact_model_keys": [
+        "weather",
+        "track_condition",
+        "body_weight",
+        "body_weight_diff"
+      ],
+      "blocked_model_key_patterns": [
+        "^auto_pair_body_weight_vs_recent_mean_",
+        "_same_going_"
+      ]
     },
     "FINAL": {
-      "allowed_available_at": ["ALWAYS", "ENTRY_PUBLISHED", "FIELD_FIXED", "RACE_DAY", "BODY_WEIGHT_ANNOUNCED"],
+      "allowed_available_at": [
+        "ALWAYS",
+        "ENTRY_PUBLISHED",
+        "FIELD_FIXED",
+        "RACE_DAY",
+        "BODY_WEIGHT_ANNOUNCED"
+      ],
       "blocked_exact_model_keys": [],
       "blocked_model_key_patterns": []
     }
   },
   "feature_sets": {
-    "BASE": {"prefixes": []},
-    "OPPONENT": {"prefixes": ["opponent_"]},
-    "NETWORK": {"prefixes": ["network_"]},
-    "LAP": {"prefixes": ["lap_"]},
-    "STYLE": {"prefixes": ["style_"]},
-    "DISTANCE": {"prefixes": ["distx_"]},
-    "BACKFILL": {"prefixes": ["backfill_"]},
-    "AUTO": {"prefixes": ["auto_"]}
+    "BASE": {
+      "prefixes": []
+    },
+    "OPPONENT": {
+      "prefixes": [
+        "opponent_"
+      ]
+    },
+    "NETWORK": {
+      "prefixes": [
+        "network_"
+      ]
+    },
+    "LAP": {
+      "prefixes": [
+        "lap_"
+      ]
+    },
+    "STYLE": {
+      "prefixes": [
+        "style_"
+      ]
+    },
+    "DISTANCE": {
+      "prefixes": [
+        "distx_"
+      ]
+    },
+    "BACKFILL": {
+      "prefixes": [
+        "backfill_"
+      ]
+    },
+    "AUTO": {
+      "prefixes": [
+        "auto_"
+      ]
+    },
+    "PEDIGREE": {
+      "prefixes": [
+        "ped_"
+      ]
+    },
+    "ACTOR": {
+      "prefixes": [
+        "actor_"
+      ]
+    },
+    "TIME_PACE": {
+      "prefixes": [
+        "timepace_"
+      ]
+    }
   },
-  "reserved_feature_sets": ["PEDIGREE", "ACTOR", "TIME_PACE"],
+  "reserved_feature_sets": [],
   "legacy_stage_map": {
-    "base": ["BASE"],
-    "opponent_v1": ["BASE", "OPPONENT"],
-    "opponent_both": ["BASE", "OPPONENT", "NETWORK"],
-    "lap": ["BASE", "OPPONENT", "NETWORK", "LAP"],
-    "style": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE"],
-    "distance_v1": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE", "DISTANCE"],
-    "backfill_v1": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE", "BACKFILL"],
-    "auto_v1": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE", "AUTO"],
-    "auto_backfill_v1": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE", "AUTO", "BACKFILL"]
+    "base": [
+      "BASE"
+    ],
+    "opponent_v1": [
+      "BASE",
+      "OPPONENT"
+    ],
+    "opponent_both": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK"
+    ],
+    "lap": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP"
+    ],
+    "style": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP",
+      "STYLE"
+    ],
+    "distance_v1": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP",
+      "STYLE",
+      "DISTANCE"
+    ],
+    "backfill_v1": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP",
+      "STYLE",
+      "BACKFILL"
+    ],
+    "auto_v1": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP",
+      "STYLE",
+      "AUTO"
+    ],
+    "auto_backfill_v1": [
+      "BASE",
+      "OPPONENT",
+      "NETWORK",
+      "LAP",
+      "STYLE",
+      "AUTO",
+      "BACKFILL"
+    ]
   },
-  "default_feature_sets": ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE"],
+  "default_feature_sets": [
+    "BASE",
+    "OPPONENT",
+    "NETWORK",
+    "LAP",
+    "STYLE"
+  ],
   "default_prediction_phase": "FINAL",
   "history_windows": {
     "recent_form": 5,
@@ -43,17 +161,45 @@
     "opponent": 10,
     "auto_rolling": 20,
     "career": "ALL",
-    "elo": "ALL"
+    "elo": "ALL",
+    "actor_recent": 30,
+    "time_pace": 10
   },
   "history_window_bounds": {
-    "recent_form": [1, 100],
-    "style_last3f": [1, 100],
-    "suitability": [1, 100],
-    "opponent": [1, 100],
-    "auto_rolling": [1, 100]
+    "recent_form": [
+      1,
+      100
+    ],
+    "style_last3f": [
+      1,
+      100
+    ],
+    "suitability": [
+      1,
+      100
+    ],
+    "opponent": [
+      1,
+      100
+    ],
+    "auto_rolling": [
+      1,
+      100
+    ],
+    "actor_recent": [
+      1,
+      100
+    ],
+    "time_pace": [
+      1,
+      100
+    ]
   },
   "semantics": {
     "BACKFILL": "Collected and normalized historical/current race facts from KEIBA-BACKFILL, the sole data source of truth. KEIBA-ML does not scrape.",
-    "AUTO": "Derived ML features built only from approved point-in-time facts. AUTO is L1-safe only when every source fact is available before the target race and no future/target/market result leaks into the calculation."
+    "AUTO": "Derived ML features built only from approved point-in-time facts. AUTO is L1-safe only when every source fact is available before the target race and no future/target/market result leaks into the calculation.",
+    "PEDIGREE": "Point-in-time sire and damsire performance statistics only; raw ancestor IDs are never model inputs.",
+    "ACTOR": "Point-in-time jockey/trainer/horse-jockey performance statistics only; raw actor IDs are never model inputs.",
+    "TIME_PACE": "Past-race finish time, last3f and pace are normalized against point-in-time historical condition standards before becoming horse features."
   }
 }
