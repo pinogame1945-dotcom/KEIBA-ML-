@@ -1,0 +1,88 @@
+name: Temporary L1 Phase2 builder smoke
+
+on:
+  push:
+    branches:
+      - feature/l1-phase2-feature-builders-v1-20260927
+    paths:
+      - .github/workflows/tmp-l1-phase2-smoke.yml
+      - package.json
+      - contracts/**
+      - src/**
+      - scripts/**
+      - research/**
+      - .github/workflows/l1-walk-forward.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Node smoke suite
+        run: npm run smoke:all
+
+      - name: Syntax checks
+        run: |
+          node --check src/small-sample-feature-utils.mjs
+          node --check src/pedigree-feature-builder.mjs
+          node --check src/actor-feature-builder.mjs
+          node --check src/opponent-feature-builder.mjs
+          node --check src/time-pace-feature-builder.mjs
+          node --check src/ml-dataset.mjs
+          node --check research/build-staged-dataset.mjs
+          python -m py_compile research/run_walk_forward.py research/train-staged-lightgbm.py research/trainer-foundation-smoke.py
+
+      - name: Phase2 Feature Set plan smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_walk_forward.py \
+            --source-root nowhere \
+            --first-holdout 2025 \
+            --last-holdout 2025 \
+            --prediction-phase EARLY \
+            --feature-sets "TIME_PACE,ACTOR,PEDIGREE,OPPONENT,BASE" \
+            --history-actor-recent 25 \
+            --history-time-pace 8 \
+            --shrinkage-rate-strength 15 \
+            --shrinkage-mean-strength 7 \
+            --min-specific-observations 4 \
+            --plan-only > /tmp/phase2-plan.txt
+          cat /tmp/phase2-plan.txt
+          python - <<'PY'
+          import json
+          text = open("/tmp/phase2-plan.txt", encoding="utf-8").read()
+          payload = json.loads(text.split("L1_WALK_FORWARD_PLAN", 1)[1])
+          assert payload["feature_sets"] == ["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"], payload
+          assert payload["history_windows"]["actor_recent"] == 25, payload
+          assert payload["history_windows"]["time_pace"] == 8, payload
+          assert payload["small_sample_policy"]["ratePriorStrength"] == 15.0, payload
+          assert payload["small_sample_policy"]["meanPriorStrength"] == 7.0, payload
+          assert payload["small_sample_policy"]["minSpecificObservations"] == 4, payload
+          PY
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Trainer foundation smoke
+        run: python research/trainer-foundation-smoke.py
+
+      - name: Cost guard
+        run: |
+          if grep -R -E "uses:[[:space:]]*actions/upload-artifact" .github/workflows; then
+            echo "Persistent artifact upload found" >&2
+            exit 1
+          fi
