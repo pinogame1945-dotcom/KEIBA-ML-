@@ -46,8 +46,26 @@ jobs:
         run: |
           set -euo pipefail
           node scripts/pedigree-feature-builder-smoke.mjs
+          bash -n scripts/kaggle-owned-storage-bytes.sh
           bash -n scripts/kaggle-persist-snapshot.sh
           bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Preflight Kaggle storage before heavy build
+        shell: bash
+        run: |
+          set -euo pipefail
+          current_bytes="$(bash scripts/kaggle-owned-storage-bytes.sh)"
+          [[ "$current_bytes" =~ ^[0-9]+$ ]]
+          limit=180000000000
+          echo "Kaggle current owned bytes: $current_bytes"
+          echo "Kaggle storage ceiling: $limit"
+          if (( current_bytes >= limit )); then
+            echo "Kaggle storage is already at or above 180 GB; refusing heavy build." >&2
+            exit 8
+          fi
+          echo "KAGGLE_SNAPSHOT_CURRENT_BYTES=$current_bytes" >> "$GITHUB_ENV"
+          echo "KAGGLE_SNAPSHOT_SAFETY_LIMIT_BYTES=$limit" >> "$GITHUB_ENV"
+          echo "KAGGLE_STORAGE_PREFLIGHT_OK"
 
       - name: Build deep race-class superset snapshot
         shell: bash
@@ -117,4 +135,5 @@ jobs:
           echo "Standard GitHub-hosted ubuntu-latest only."
           echo "No GPU."
           echo "No GitHub Artifact or Cache."
-          echo "Kaggle upload is guarded by actual owned-dataset file-byte accounting and 180 GiB safety ceiling."
+          echo "Kaggle storage is checked before the heavy build."
+          echo "Upload is allowed only when preflight bytes + actual snapshot bytes stay at or below 180 GB."
