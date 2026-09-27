@@ -77,6 +77,32 @@ def extract_result(log_text):
                 return value
     return None
 
+def extract_resource_usage(log_text):
+    usages = []
+    for raw in (log_text or "").splitlines():
+        line = clean_line(raw)
+        marker = "FEATURE_ARENA_RESOURCE_USAGE "
+        at = line.find(marker)
+        if at < 0:
+            continue
+        payload = line[at + len(marker):].strip()
+        try:
+            value = json.loads(payload)
+        except json.JSONDecodeError:
+            continue
+        if isinstance(value, dict):
+            usages.append(value)
+    if not usages:
+        return None
+    peaks = [float(x.get("peak_rss_mib")) for x in usages if x.get("peak_rss_mib") is not None]
+    elapsed = [float(x.get("elapsed_seconds")) for x in usages if x.get("elapsed_seconds") is not None]
+    return {
+        "stages": usages,
+        "observed_peak_rss_mib": max(peaks) if peaks else None,
+        "observed_stage_seconds": sum(elapsed) if elapsed else None,
+    }
+
+
 def failed_step(job):
     for step in job.get("steps") or []:
         if step.get("conclusion") == "failure":
@@ -125,6 +151,7 @@ def main():
                 "candidate": result.get("candidate", candidate_name), "job_id": job.get("id"),
                 "status": "success", "feature_sets": result.get("feature_sets") or [],
                 "feature_count": result.get("feature_count"), "metrics": result.get("metrics") or {},
+                "resource_usage": result.get("resource_usage") or extract_resource_usage(log_text),
             })
         else:
             candidates.append({
@@ -132,6 +159,7 @@ def main():
                 "status": job.get("conclusion") or job.get("status"), "feature_sets": [],
                 "feature_count": None, "metrics": {}, "failed_step": failed_step(job),
                 "error_excerpt": short_error(log_text), "log_fetch_error": log_error,
+                "resource_usage": extract_resource_usage(log_text),
             })
 
     expected = {x.strip() for x in a.expected_candidates.split(",") if x.strip()}
@@ -186,13 +214,15 @@ def main():
         f"- Run conclusion: {run.get('conclusion')}",
         f"- Ledger complete: {'YES' if scorecard['complete'] else 'NO'}",
         "", "## Scorecard", "",
-        "| Candidate | Status | Features | Top1 | Top3 | Top6 | Mean rank | MRR | Race NLL | LogLoss | Brier | AUC |",
-        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Candidate | Status | Features | Peak MiB | Seconds | Top1 | Top3 | Top6 | Mean rank | MRR | Race NLL | LogLoss | Brier | AUC |",
+        "|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in sorted(candidates, key=lambda x: x["candidate"]):
         m = row.get("metrics") or {}
         lines.append("| " + " | ".join([
             row["candidate"], row["status"], fmt(row.get("feature_count")),
+            fmt((row.get("resource_usage") or {}).get("candidate_peak_rss_mib") or (row.get("resource_usage") or {}).get("observed_peak_rss_mib")),
+            fmt((row.get("resource_usage") or {}).get("candidate_elapsed_seconds") or (row.get("resource_usage") or {}).get("observed_stage_seconds")),
             fmt(m.get("top1_winner_capture")), fmt(m.get("top3_winner_capture")),
             fmt(m.get("top6_winner_capture")), fmt(m.get("mean_winner_rank")),
             fmt(m.get("mean_reciprocal_winner_rank")), fmt(m.get("race_normalized_nll")),
