@@ -355,6 +355,12 @@ def feature_selection_train_v1(train, a):
         "dropped_correlation": [],
         "dropped_inner_gain": [],
         "inner_split": None,
+        "parameters": {
+            "max_missing_rate": a.fs_max_missing_rate,
+            "max_correlation": a.fs_max_correlation,
+            "min_inner_gain_fraction": a.fs_min_inner_gain_fraction,
+            "inner_valid_fraction": a.fs_inner_valid_fraction,
+        },
     }
     if a.feature_selection == "none":
         report["selected_features"] = list(columns)
@@ -372,7 +378,7 @@ def feature_selection_train_v1(train, a):
     keep = []
     for col in columns:
         series = train[col]
-        missing = series.isna() | series.astype("string").str.strip().eq("")
+        missing = series.isna() | series.astype("string").str.strip().eq("").fillna(False)
         if float(missing.mean()) > a.fs_max_missing_rate:
             report["dropped_missing"].append(col)
             continue
