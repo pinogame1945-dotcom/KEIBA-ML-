@@ -75,6 +75,7 @@ def trainer_cmd(dataset, stem):
         "--schema-out", str(OUT / f"{stem}-schema.json"),
         "--predictions-out", str(OUT / f"{stem}-oof.jsonl.gz"),
         "--diagnostics-out", str(OUT / f"{stem}-diagnostics.json.gz"),
+        "--contributions-out", str(OUT / f"{stem}-contrib.jsonl.gz"),
         "--model-version", f"SMOKE_{stem.upper()}",
         "--source-sha", "BACKFILL_SMOKE_SHA",
         "--ml-source-sha", "ML_SMOKE_SHA",
@@ -109,6 +110,12 @@ def main():
     assert "model_dump" in diagnostics
     assert "split_threshold_summary" in diagnostics
     assert "mean_abs_contribution" in diagnostics
+
+    with gzip.open(OUT / "safe-contrib.jsonl.gz", "rt", encoding="utf-8") as fh:
+        contrib = json.loads(next(fh))
+    assert "race_id" in contrib
+    assert "horse_id" in contrib
+    assert len(contrib["top_contributions"]) <= 5
 
     forbidden = OUT / "forbidden-dataset.jsonl.gz"
     write_dataset(forbidden, make_rows(True))
