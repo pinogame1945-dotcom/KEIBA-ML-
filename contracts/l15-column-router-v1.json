@@ -1,0 +1,62 @@
+{
+  "contract": "L15_COLUMN_ROUTER_CONTRACT_V1",
+  "purpose": "Pre-race candidate features and separate post-race labels for learning which L1 expert and TopN should populate each betting formation column.",
+  "source_contracts": [
+    "L1_TO_L2_OUTPUT_CONTRACT_V1",
+    "ROUTER_FEATURE_SNAPSHOT_V1"
+  ],
+  "feature_contract": "L15_COLUMN_CANDIDATE_FEATURES_V1",
+  "label_contract": "L15_COLUMN_CANDIDATE_LABELS_V1",
+  "granularity": "one race x column x expert x top_n candidate",
+  "columns": {
+    "COL1": "candidate set intended for first-position/axis responsibility",
+    "COL2": "candidate set intended for second-position/mainline responsibility",
+    "COL3": "candidate set intended for third-position/opponent responsibility"
+  },
+  "pre_race_only": true,
+  "ability_uses_odds": false,
+  "feature_requirements": [
+    "race_id",
+    "race_date",
+    "candidate_id",
+    "column",
+    "expert_name",
+    "expert_id",
+    "model_version",
+    "top_n",
+    "candidate_horse_ids",
+    "candidate_size_cost",
+    "race",
+    "data_coverage",
+    "consensus",
+    "expert_summary",
+    "candidate_summary"
+  ],
+  "label_requirements": [
+    "race_id",
+    "candidate_id",
+    "column",
+    "expert_name",
+    "top_n",
+    "slot_hit"
+  ],
+  "forbidden_feature_fields": [
+    "winner_horse_ids",
+    "actual_is_win",
+    "actual_finish_position",
+    "finish_position",
+    "target",
+    "payout",
+    "payouts",
+    "final_win_odds",
+    "final_popularity",
+    "slot_hit"
+  ],
+  "principles": [
+    "Candidate size is an explicit cost; larger TopN must not be treated as automatically better.",
+    "Models estimate slot-capture probability; downstream optimization trades capture probability against ticket-size cost.",
+    "COL1/COL2/COL3 are learned separately or with column identity explicitly represented.",
+    "Dead heats create multiple valid ordered podium outcomes and must not be treated as missing truth.",
+    "2026 outcomes remain sealed."
+  ]
+}
