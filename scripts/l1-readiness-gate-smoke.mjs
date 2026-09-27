@@ -42,7 +42,7 @@ assert.ok(workflow.includes("prediction_phase:"));
 assert.ok(workflow.includes("- EARLY"));
 assert.ok(workflow.includes("- FINAL"));
 assert.ok(workflow.includes("feature_sets:"));
-assert.match(workflow, /default:\\s*["\']?BASE,OPPONENT,NETWORK,LAP,STYLE["\']?/);
+assert.match(workflow, /default:\s*["']?BASE,OPPONENT,NETWORK,LAP,STYLE["']?/);
 assert.ok(workflow.includes("--feature-sets"));
 assert.ok(workflow.includes("--history-recent-form"));
 assert.ok(workflow.includes("--history-style-last3f"));
