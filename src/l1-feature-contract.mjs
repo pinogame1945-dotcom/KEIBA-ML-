@@ -34,6 +34,13 @@ export function normalizeFeatureSets(raw, legacyStage = null) {
     requested = L1_FEATURE_SET_CONTRACT.default_feature_sets;
   }
   requested = unique(requested);
+  if (raw != null && String(raw).trim() && legacyStage != null && String(legacyStage).trim()) {
+    const legacy = L1_FEATURE_SET_CONTRACT.legacy_stage_map[String(legacyStage).trim()];
+    if (!legacy) throw new Error(`invalid legacy stage: ${legacyStage}`);
+    if (JSON.stringify(requested) !== JSON.stringify(legacy)) {
+      throw new Error("--feature-sets conflicts with deprecated --stage mapping");
+    }
+  }
   const invalid = requested.filter(name => !Object.hasOwn(FEATURE_PREFIXES, name));
   if (invalid.length) throw new Error(`invalid feature set(s): ${invalid.join(", ")}`);
   if (!requested.includes("BASE")) requested.unshift("BASE");
