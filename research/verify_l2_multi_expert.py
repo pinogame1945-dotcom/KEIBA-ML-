@@ -46,7 +46,9 @@ def main():
             if leaked:
                 raise ValueError("forbidden fields: "+",".join(leaked))
             share_sum=sum(float(v) for v in (row.get("family_abs_share") or {}).values())
-            if (row.get("family_abs_contribution") or {}) and abs(share_sum-1.0)>1e-6:
+            abs_total=sum(float(v) for v in (row.get("family_abs_contribution") or {}).values())
+            expected_share_sum=1.0 if abs_total>0 else 0.0
+            if abs(share_sum-expected_share_sum)>1e-6:
                 raise ValueError("family_abs_share sum mismatch")
             key=(str(row["race_id"]),str(row["horse_id"]))
             keys.add(key)
