@@ -6,6 +6,10 @@ import {
 } from "./auto-feature-factory.mjs";
 import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
 import { normalizeHistoryWindows } from "./l1-feature-contract.mjs";
+import { createPedigreeFeatureState } from "./pedigree-feature-builder.mjs";
+import { createActorFeatureState } from "./actor-feature-builder.mjs";
+import { createOpponentFeatureState } from "./opponent-feature-builder.mjs";
+import { createTimePaceFeatureState } from "./time-pace-feature-builder.mjs";
 
 export const ML_DATASET_VERSION = 3;
 export const ML_FEATURE_SCHEMA_VERSION = 7;
@@ -482,6 +486,12 @@ export function buildMlDataset(raceRows, {
   historyWindows = null,
   includeAutoFeatures = false,
   includeBackfillFeatures = false,
+  includePedigreeFeatures = false,
+  includeActorFeatures = false,
+  includeOpponentRelationshipFeatures = false,
+  includeTimePaceFeatures = false,
+  lineageByHorse = null,
+  smallSamplePolicy = {},
 } = {}) {
   if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
     throw new Error("historyLimit must be an integer from 1 to 100");
@@ -499,6 +509,26 @@ export function buildMlDataset(raceRows, {
   const historyByHorse = new Map();
   const horseStatsById = new Map();
   const eloByHorse = new Map();
+  const pedigreeState = includePedigreeFeatures
+    ? createPedigreeFeatureState({ smallSamplePolicy })
+    : null;
+  const actorState = includeActorFeatures
+    ? createActorFeatureState({
+        smallSamplePolicy: {
+          ...smallSamplePolicy,
+          actorRecentWindow: windows.actor_recent,
+        },
+      })
+    : null;
+  const opponentState = includeOpponentRelationshipFeatures
+    ? createOpponentFeatureState({ historyLimit: windows.opponent })
+    : null;
+  const timePaceState = includeTimePaceFeatures
+    ? createTimePaceFeatureState({ historyLimit: windows.time_pace })
+    : null;
+  const lineageMap = lineageByHorse instanceof Map
+    ? lineageByHorse
+    : new Map(Object.entries(lineageByHorse ?? {}));
   const out = [];
   let index = 0;
 
@@ -533,12 +563,27 @@ export function buildMlDataset(raceRows, {
           networkFeatures,
           { includeBackfillFeatures },
         );
+        const builderFeatures = {
+          ...(pedigreeState
+            ? pedigreeState.snapshot(
+                lineageMap.get(horseId) ?? { sire_key: null, damsire_key: null },
+                row.race ?? {},
+              )
+            : {}),
+          ...(actorState ? actorState.snapshot(entry, row.race ?? {}) : {}),
+          ...(opponentState ? opponentState.snapshot(row, entry) : {}),
+          ...(timePaceState ? timePaceState.snapshot(horseId) : {}),
+        };
         const features = includeAutoFeatures
           ? addAutoPairFeatures({
               ...baseFeatures,
+              ...builderFeatures,
               ...autoHistorySnapshot(history, row.race ?? {}, windows.auto_rolling),
             })
-          : baseFeatures;
+          : {
+              ...baseFeatures,
+              ...builderFeatures,
+            };
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
         if (inRange) {
           raceOutput.push({
@@ -559,6 +604,15 @@ export function buildMlDataset(raceRows, {
           : raceOutput
       ));
     }
+
+    // Evaluate every stateful Phase 2 builder against the day-start state.
+    // Commit only after all prediction rows for the date are complete.
+    const opponentEvaluations = opponentState
+      ? day.map(row => opponentState.evaluateRace(row))
+      : [];
+    const timePaceEvaluations = timePaceState
+      ? day.map(row => timePaceState.evaluateRace(row))
+      : [];
 
     for (const row of day) {
       const results = resultMap(row);
@@ -614,7 +668,22 @@ export function buildMlDataset(raceRows, {
         const result = results.get(horseId) ?? null;
         if (!horseId || !result || !isEligibleStarter(entry, result)) continue;
         updateHorseStats(horseStatsById, horseId, result);
+        if (pedigreeState) {
+          pedigreeState.add(
+            lineageMap.get(horseId) ?? { sire_key: null, damsire_key: null },
+            row.race ?? {},
+            result,
+          );
+        }
+        if (actorState) actorState.add(entry, row.race ?? {}, result);
       }
+    }
+
+    for (const evaluation of opponentEvaluations) {
+      opponentState.commitRaceEvaluation(evaluation);
+    }
+    for (const evaluation of timePaceEvaluations) {
+      timePaceState.commitRaceEvaluation(evaluation);
     }
   }
 
