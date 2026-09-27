@@ -1,5 +1,6 @@
 #!/usr/bin/env node
 import { createReadStream } from "node:fs";
+import { spawnSync } from "node:child_process";
 import { mkdir, readdir, writeFile } from "node:fs/promises";
 import { createGunzip } from "node:zlib";
 import { createInterface } from "node:readline";
@@ -52,6 +53,7 @@ const start = dateArg("--start", null);
 const end = dateArg("--end", null);
 const reportOut = path.resolve(arg("--report-out") ?? "out/backfill-readiness.json");
 const sourceSha = arg("--source-sha");
+const requireSourceIntegrity = process.argv.includes("--require-source-integrity");
 const minCoreKnownCoverage = numberArg("--min-core-known-coverage", 0.98);
 const maxInvalidRate = numberArg("--max-invalid-rate", 0);
 const maxYearGap = numberArg("--max-year-gap", 0.10);
@@ -88,6 +90,50 @@ const report = acc.finish({
   maxInvalidRate,
   maxYearGap,
 });
+
+let sourceIntegrity = {
+  required: requireSourceIntegrity,
+  passed: null,
+  verifier: null,
+  exit_code: null,
+  detail: null,
+};
+
+if (requireSourceIntegrity) {
+  if (!start || !end) throw new Error("--require-source-integrity needs --start and --end");
+  const verifier = path.join(sourceRoot, "src", "verify-range.mjs");
+  const checked = spawnSync(
+    process.execPath,
+    [verifier, end, start],
+    {
+      cwd: sourceRoot,
+      encoding: "utf8",
+      env: { ...process.env, SCHEDULE_INTEGRITY_V2: "1" },
+      maxBuffer: 16 * 1024 * 1024,
+    },
+  );
+  const combined = [checked.stdout, checked.stderr].filter(Boolean).join("\n").trim();
+  sourceIntegrity = {
+    required: true,
+    passed: checked.status === 0 && !checked.error,
+    verifier: "src/verify-range.mjs",
+    exit_code: checked.status,
+    detail: combined ? combined.slice(-8000) : (checked.error?.message ?? null),
+  };
+  if (!sourceIntegrity.passed) {
+    report.ready_for_l1_research = false;
+    report.failed_gates.push({
+      type: "SOURCE_INTEGRITY",
+      field: "source_range",
+      pass: false,
+      actual: sourceIntegrity.detail,
+      required: "BACKFILL verify-range PASS",
+    });
+    report.failed_gate_count = report.failed_gates.length;
+  }
+}
+
+report.source_integrity = sourceIntegrity;
 
 report.source = {
   root: sourceRoot,
