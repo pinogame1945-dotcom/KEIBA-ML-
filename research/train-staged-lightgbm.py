@@ -20,6 +20,8 @@ EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 DEFAULT_FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
 DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
+DEFAULT_SMALL_SAMPLE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-small-sample-contract-v1.json"
+DEFAULT_SMALL_SAMPLE_CONTRACT = json.loads(DEFAULT_SMALL_SAMPLE_CONTRACT_PATH.read_text(encoding="utf-8"))
 LEGACY_STAGES = sorted(DEFAULT_FEATURE_CONTRACT["legacy_stage_map"])
 
 BASE_CATEGORICAL = [
@@ -36,7 +38,9 @@ def args():
     p.add_argument("--stage", choices=LEGACY_STAGES, help="Deprecated cumulative stage; translated to Feature Sets")
     p.add_argument("--prediction-phase", default=DEFAULT_FEATURE_CONTRACT["default_prediction_phase"], choices=sorted(DEFAULT_FEATURE_CONTRACT["prediction_phases"]))
     p.add_argument("--history-windows-json", help="JSON object recording the dataset history-window contract")
+    p.add_argument("--small-sample-policy-json", help="JSON object recording shrinkage/fallback parameters")
     p.add_argument("--feature-contract", default=str(DEFAULT_FEATURE_CONTRACT_PATH))
+    p.add_argument("--small-sample-contract", default=str(DEFAULT_SMALL_SAMPLE_CONTRACT_PATH))
     p.add_argument("--train-start", required=True)
     p.add_argument("--train-end", required=True)
     p.add_argument("--valid-start", required=True)
@@ -117,6 +121,34 @@ def normalize_history_windows(raw, contract):
         if n < lo or n > hi:
             raise ValueError(f"{key} history window must be from {lo} to {hi}")
         out[key] = n
+    return out
+
+
+def normalize_small_sample_policy(raw, contract, history_windows):
+    defaults = contract["defaults"]
+    out = {
+        "ratePriorStrength": float(defaults["rate_prior_strength"]),
+        "meanPriorStrength": float(defaults["mean_prior_strength"]),
+        "minSpecificObservations": int(defaults["min_specific_observations"]),
+        "actorRecentWindow": int(history_windows["actor_recent"]),
+    }
+    if raw:
+        parsed = json.loads(raw)
+        if not isinstance(parsed, dict):
+            raise ValueError("--small-sample-policy-json must be a JSON object")
+        for key in out:
+            if key in parsed:
+                out[key] = parsed[key]
+    out["ratePriorStrength"] = float(out["ratePriorStrength"])
+    out["meanPriorStrength"] = float(out["meanPriorStrength"])
+    out["minSpecificObservations"] = int(out["minSpecificObservations"])
+    out["actorRecentWindow"] = int(out["actorRecentWindow"])
+    if out["ratePriorStrength"] < 0 or out["meanPriorStrength"] < 0:
+        raise ValueError("shrinkage strengths must be >= 0")
+    if out["minSpecificObservations"] < 1 or out["actorRecentWindow"] < 1:
+        raise ValueError("small-sample integer parameters must be >= 1")
+    if out["actorRecentWindow"] != int(history_windows["actor_recent"]):
+        raise ValueError("actorRecentWindow must match history_windows.actor_recent")
     return out
 
 
@@ -216,7 +248,7 @@ def load(path):
         raise ValueError("empty dataset")
     return rows
 
-def flatten(rows, feature_sets, prediction_phase, history_windows, feature_contract, forbidden_model_keys=None):
+def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_policy, feature_contract, forbidden_model_keys=None):
     forbidden_model_keys = set(forbidden_model_keys or [])
     records = []
     for row in rows:
@@ -229,6 +261,9 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, feature_contr
         row_windows = row.get("history_windows")
         if row_windows and dict(row_windows) != history_windows:
             raise ValueError("dataset history_windows mismatch")
+        row_small_sample = row.get("small_sample_policy")
+        if row_small_sample and dict(row_small_sample) != small_sample_policy:
+            raise ValueError("dataset small_sample_policy mismatch")
         f = feature_set_features(dict(row["features"]), feature_sets, feature_contract)
         assert_prediction_phase_safety(list(f), prediction_phase, feature_contract)
         bad = sorted(set(f) & forbidden_model_keys)
@@ -518,15 +553,22 @@ def main():
     if pd.to_datetime(a.valid_start) > pd.to_datetime(a.valid_end):
         raise ValueError("valid_start must be <= valid_end")
     feature_contract = load_feature_contract(a.feature_contract)
+    small_sample_contract = json.loads(Path(a.small_sample_contract).read_text(encoding="utf-8"))
     feature_sets = normalize_feature_sets(a.feature_sets, a.stage, feature_contract)
     prediction_phase = normalize_prediction_phase(a.prediction_phase, feature_contract)
     history_windows = normalize_history_windows(a.history_windows_json, feature_contract)
+    small_sample_policy = normalize_small_sample_policy(
+        a.small_sample_policy_json,
+        small_sample_contract,
+        history_windows,
+    )
     forbidden_model_keys = load_forbidden_model_keys(a.feature_catalog)
     df = flatten(
         load(a.dataset),
         feature_sets,
         prediction_phase,
         history_windows,
+        small_sample_policy,
         feature_contract,
         forbidden_model_keys,
     )
@@ -589,6 +631,7 @@ def main():
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
         "legacy_stage": a.stage,
         "split": split_config,
         "params": params,
@@ -605,6 +648,7 @@ def main():
     training_config_sha256 = sha256_json(training_config)
     catalog_sha256 = sha256_file(a.feature_catalog)
     feature_contract_sha256 = sha256_file(a.feature_contract)
+    small_sample_contract_sha256 = sha256_file(a.small_sample_contract)
     contribution_summary = write_model_diagnostics(
         model,
         xva,
@@ -619,6 +663,7 @@ def main():
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
         "legacy_stage": a.stage,
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "ability_uses_odds": False,
@@ -665,6 +710,8 @@ def main():
             "feature_catalog": str(Path(a.feature_catalog)),
             "feature_contract_sha256": feature_contract_sha256,
             "feature_contract": str(Path(a.feature_contract)),
+            "small_sample_contract_sha256": small_sample_contract_sha256,
+            "small_sample_contract": str(Path(a.small_sample_contract)),
         },
         "diagnostics": {
             "contract": "L1_MODEL_DIAGNOSTICS_V1" if a.diagnostics_out else None,
@@ -704,9 +751,11 @@ def main():
             for record in out.sort_values(["race_date", "race_id", "predicted_rank"])[cols].to_dict(orient="records"):
                 record["feature_sets"] = feature_sets
                 record["history_windows"] = history_windows
+                record["small_sample_policy"] = small_sample_policy
                 record["exact_feature_list"] = names
                 record["feature_catalog_sha256"] = catalog_sha256
                 record["feature_contract_sha256"] = feature_contract_sha256
+                record["small_sample_contract_sha256"] = small_sample_contract_sha256
                 record["model_sha256"] = model_sha256
                 record["training_config_sha256"] = training_config_sha256
                 record["source_backfill_sha"] = a.source_sha
@@ -725,6 +774,7 @@ def main():
             "prediction_phase": prediction_phase,
             "feature_sets": feature_sets,
             "history_windows": history_windows,
+            "small_sample_policy": small_sample_policy,
             "legacy_stage": a.stage,
             "feature_count": len(names),
             "feature_order": names,
@@ -735,6 +785,7 @@ def main():
                 "training_config_sha256": training_config_sha256,
                 "feature_catalog_sha256": catalog_sha256,
                 "feature_contract_sha256": feature_contract_sha256,
+                "small_sample_contract_sha256": small_sample_contract_sha256,
                 "source_backfill_sha": a.source_sha,
                 "ml_source_sha": a.ml_source_sha,
             },
@@ -747,6 +798,7 @@ def main():
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
         "legacy_stage": a.stage,
         "feature_count": len(names),
         "split": meta["split"],
