@@ -2,6 +2,9 @@ name: Kaggle connection test
 
 on:
   workflow_dispatch:
+  push:
+    paths:
+      - ".github/workflows/kaggle-connection-test.yml"
 
 permissions:
   contents: read
