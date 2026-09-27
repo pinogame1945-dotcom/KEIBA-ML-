@@ -112,6 +112,31 @@ assert.equal(Object.hasOwn(febOnly[0].features, "last_3f"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "popularity"), false);
 assert.equal(Object.hasOwn(febOnly[0].features, "payouts"), false);
 
+const window1 = race({ id: "202405019101", date: "2024-01-05", finish: 5, last3f: 35.0, time: 96000, horse: "WIN" });
+const window2 = race({ id: "202405019201", date: "2024-02-05", finish: 4, last3f: 34.5, time: 95000, horse: "WIN" });
+const window3 = race({ id: "202405019301", date: "2024-03-05", finish: 2, last3f: 34.0, time: 94000, horse: "WIN" });
+const windowTarget = race({ id: "202405019401", date: "2024-04-05", finish: 1, last3f: 33.5, time: 93000, horse: "WIN" });
+const windowed = buildRichDataset(
+  [window1, window2, window3, windowTarget],
+  {
+    startDate: "2024-04-05",
+    endDate: "2024-04-05",
+    historyWindows: {
+      recent_form: 1,
+      style_last3f: 2,
+      suitability: 3,
+      opponent: 1,
+      auto_rolling: 2,
+      career: "ALL",
+      elo: "ALL",
+    },
+  },
+);
+assert.equal(windowed[0].features.prior_starts, 3);
+assert.equal(windowed[0].features.recent_window_starts, 1);
+assert.equal(windowed[0].features.same_surface_starts, 3);
+assert.equal(windowed[0].features.auto_history_finish_position_observation_count, 2);
+
 const raceOutcomes = buildRaceOutcomes([jan, feb, mar], { startDate: "2024-02-01", endDate: "2024-02-01" });
 assert.equal(raceOutcomes.length, 1);
 assert.equal(raceOutcomes[0].race_id, feb.race.race_id);
