@@ -52,32 +52,27 @@ jobs:
           mkdir -p "$root"
           kaggle datasets download "$CORE_DATASET_REF" -p "$root" --unzip --quiet --force
           echo "===== DOWNLOADED FIVE-KING CORE FILES ====="
-          find "$root" -type f -maxdepth 4 -print | sort
+          find "$root" -maxdepth 4 -type f -print | sort
 
-          canon() {
-            local name="$1"
+          resolve_jsonl() {
+            local stem="$1"
             local src
-            src="$(find "$root" -type f -name "$name" -print -quit)"
+            src="$(find "$root" -type f \( -name "$stem.jsonl" -o -name "$stem.jsonl.gz" \) -print -quit)"
             if [[ -z "$src" || ! -s "$src" ]]; then
-              echo "missing restored file: $name" >&2
+              echo "missing restored file: $stem.jsonl(.gz)" >&2
               exit 1
             fi
-            if [[ "$src" != "$root/$name" ]]; then
-              cp "$src" "$root/$name"
-            fi
-            test -s "$root/$name"
+            printf '%s' "$src"
           }
 
-          for f in \
-            router-features-2020.jsonl.gz \
-            core4-no-pedigree.jsonl.gz \
-            no-auto-full-pedigree.jsonl.gz \
-            jockey-trainer-condition.jsonl.gz \
-            no-auto-full.jsonl.gz \
-            no-auto-jockey.jsonl.gz
-          do
-            canon "$f"
-          done
+          {
+            echo "ROUTER_FEATURES_2020=$(resolve_jsonl router-features-2020)"
+            echo "KING_CORE4=$(resolve_jsonl core4-no-pedigree)"
+            echo "KING_PEDIGREE=$(resolve_jsonl no-auto-full-pedigree)"
+            echo "KING_CONDITION=$(resolve_jsonl jockey-trainer-condition)"
+            echo "KING_TOP1=$(resolve_jsonl no-auto-full)"
+            echo "KING_LIGHT=$(resolve_jsonl no-auto-jockey)"
+          } >> "$GITHUB_ENV"
           echo "Saved five-king output bundle restored."
 
       - name: Restore 2020 source snapshot read-only
@@ -97,16 +92,15 @@ jobs:
       - name: Build 2020 L1.5 column dataset
         run: |
           set -euo pipefail
-          root=out/l15-2020/core
           python research/build_l15_column_dataset_v1.py \
             --config research/l15-column-router-v1.json \
-            --router-features "$root/router-features-2020.jsonl.gz" \
+            --router-features "$ROUTER_FEATURES_2020" \
             --snapshot "$SNAP_2020" \
-            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
-            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
-            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
-            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
-            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --expert core4_no_pedigree="$KING_CORE4" \
+            --expert no_auto_full_pedigree="$KING_PEDIGREE" \
+            --expert jockey_trainer_condition="$KING_CONDITION" \
+            --expert no_auto_full="$KING_TOP1" \
+            --expert no_auto_jockey="$KING_LIGHT" \
             --features-out out/l15-2020/l15-column-features-2020.jsonl.gz \
             --labels-out out/l15-2020/l15-column-labels-2020.jsonl.gz
 
