@@ -1,0 +1,177 @@
+{
+  "contract": "L1_NEWCOMER_SPECIALIST_SCORECARD_V1",
+  "experiment_id": "NEWCOMER-002",
+  "run_id": 36337019887,
+  "complete": true,
+  "candidates": [
+    {
+      "candidate": "general_no_auto_full",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.2532894736842105,
+        "top3_winner_capture": 0.5493421052631579,
+        "top6_winner_capture": 0.7828947368421053,
+        "mean_winner_rank": 4.1019736842105265,
+        "mean_reciprocal_winner_rank": 0.4585543659556818,
+        "race_normalized_nll": 2.1984206404354905,
+        "raw_logloss": 0.24001546657895367,
+        "raw_brier": 0.06521559924094279,
+        "raw_roc_auc": 0.7430397928784225
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "general_no_auto_full:projection",
+          "elapsed_seconds": 91.728,
+          "peak_rss_mib": 344.555,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "general_no_auto_full:training",
+          "elapsed_seconds": 135.944,
+          "peak_rss_mib": 5666.387,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 227.673,
+        "candidate_peak_rss_mib": 5666.387
+      }
+    },
+    {
+      "candidate": "newcomer_actor",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 192,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.21710526315789475,
+        "top3_winner_capture": 0.5460526315789473,
+        "top6_winner_capture": 0.756578947368421,
+        "mean_winner_rank": 4.404605263157895,
+        "mean_reciprocal_winner_rank": 0.43015435770369975,
+        "race_normalized_nll": 2.245639745238501,
+        "raw_logloss": 0.24419662001446543,
+        "raw_brier": 0.0660318734861461,
+        "raw_roc_auc": 0.7265223790608596
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_actor:projection",
+          "elapsed_seconds": 90.71,
+          "peak_rss_mib": 289.148,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_actor:training",
+          "elapsed_seconds": 104.68,
+          "peak_rss_mib": 4430.742,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 195.392,
+        "candidate_peak_rss_mib": 4430.742
+      }
+    },
+    {
+      "candidate": "newcomer_actor_pedigree_v1",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 430,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.21710526315789475,
+        "top3_winner_capture": 0.5296052631578947,
+        "top6_winner_capture": 0.7631578947368421,
+        "mean_winner_rank": 4.322368421052632,
+        "mean_reciprocal_winner_rank": 0.430972295678178,
+        "race_normalized_nll": 2.243441621233739,
+        "raw_logloss": 0.24502803019954675,
+        "raw_brier": 0.06621263735461137,
+        "raw_roc_auc": 0.7263689885090086
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_actor_pedigree_v1:projection",
+          "elapsed_seconds": 164.235,
+          "peak_rss_mib": 364.438,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_actor_pedigree_v1:training",
+          "elapsed_seconds": 186.236,
+          "peak_rss_mib": 9650.703,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 350.474,
+        "candidate_peak_rss_mib": 9650.703
+      }
+    },
+    {
+      "candidate": "newcomer_pedigree_v1",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 276,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.18092105263157895,
+        "top3_winner_capture": 0.40789473684210525,
+        "top6_winner_capture": 0.6414473684210527,
+        "mean_winner_rank": 5.3256578947368425,
+        "mean_reciprocal_winner_rank": 0.3645465019908712,
+        "race_normalized_nll": 2.4121294115448024,
+        "raw_logloss": 0.2574776092482112,
+        "raw_brier": 0.06835517544644983,
+        "raw_roc_auc": 0.6541512980564619
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_pedigree_v1:projection",
+          "elapsed_seconds": 97.77,
+          "peak_rss_mib": 353.531,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_pedigree_v1:training",
+          "elapsed_seconds": 131.852,
+          "peak_rss_mib": 5820.137,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 229.625,
+        "candidate_peak_rss_mib": 5820.137
+      }
+    }
+  ]
+}
