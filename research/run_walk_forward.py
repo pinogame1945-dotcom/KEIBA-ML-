@@ -64,6 +64,7 @@ def readiness_command(a, folds, report_path):
         "--min-core-known-coverage", a.min_core_known_coverage,
         "--max-invalid-rate", a.max_invalid_rate,
         "--max-year-gap", a.max_year_gap,
+        "--require-source-integrity",
     ]
 
 
@@ -74,6 +75,8 @@ def validate_readiness_report(path, a, folds):
     source = report.get("source") or {}
     thresholds = report.get("thresholds") or {}
     checks = [
+        (report.get("report_version") == "BACKFILL_READINESS_V3", "readiness version mismatch"),
+        (report.get("source_integrity", {}).get("passed") is True, "source integrity not verified"),
         (report.get("ready_for_l1_research") is True, "report is not ready"),
         (source.get("start") == expected_start, "readiness start mismatch"),
         (source.get("end") == expected_end, "readiness end mismatch"),
