@@ -1,0 +1,86 @@
+{
+  "contract": "L1_TO_L2_OUTPUT_CONTRACT_V1",
+  "version": 1,
+  "row_granularity": "ONE_L1_MODEL_X_ONE_RACE_X_ONE_HORSE",
+  "purpose": "Leakage-safe pre-race L1 evaluation payload for downstream L2 research and inference.",
+  "principles": {
+    "ability_uses_odds": false,
+    "pre_race_only": true,
+    "model_native_scores_only": true,
+    "no_invented_0_to_100_scores": true,
+    "outcomes_joined_separately_for_l2_training": true,
+    "market_data_joined_separately_with_timestamp_policy": true
+  },
+  "required_fields": [
+    "contract",
+    "race_date",
+    "race_id",
+    "horse_id",
+    "model_version",
+    "expert_id",
+    "prediction_phase",
+    "feature_sets",
+    "ml_dataset_version",
+    "feature_schema_version",
+    "leakage_policy",
+    "raw_win_probability",
+    "race_normalized_win_probability",
+    "predicted_rank",
+    "raw_margin_logit",
+    "bias_logit",
+    "family_contribution_logit",
+    "family_abs_contribution",
+    "family_abs_share",
+    "race_summary",
+    "model_sha256",
+    "training_config_sha256",
+    "feature_catalog_sha256",
+    "feature_contract_sha256",
+    "source_backfill_sha",
+    "ml_source_sha"
+  ],
+  "optional_fields": [
+    "horse_number"
+  ],
+  "canonical_feature_families_from": "contracts/l1-feature-set-contract-v1.json",
+  "contribution_semantics": {
+    "method": "LightGBM TreeSHAP pred_contrib",
+    "unit": "raw binary logit contribution",
+    "family_contribution_logit": "Signed sum of per-feature TreeSHAP contributions within each canonical Feature Set family.",
+    "family_abs_contribution": "Sum of absolute per-feature TreeSHAP contributions within each family.",
+    "family_abs_share": "family_abs_contribution divided by total absolute contribution across all families for the horse.",
+    "bias_logit": "TreeSHAP expected-value/bias term.",
+    "raw_margin_logit": "bias_logit plus all signed family contributions; should reconstruct the model raw margin."
+  },
+  "race_summary": {
+    "field_size": "Number of starters represented by this model for the race.",
+    "top1_probability": "Highest race-normalized win probability.",
+    "top2_probability": "Second-highest race-normalized win probability or null.",
+    "top1_top2_gap": "top1_probability minus top2_probability, or null when fewer than two starters.",
+    "top3_probability_mass": "Sum of the three highest race-normalized win probabilities.",
+    "normalized_entropy": "Shannon entropy divided by log(field_size); 0 means maximally concentrated, 1 means maximally diffuse."
+  },
+  "forbidden_payload_fields": [
+    "actual_is_win",
+    "actual_finish_position",
+    "target",
+    "finish_position",
+    "finish_time_ms",
+    "last_3f",
+    "prize_money",
+    "final_win_odds",
+    "final_popularity",
+    "payout",
+    "payouts"
+  ],
+  "l2_join_policy": {
+    "outcomes": "Join only inside L2 training/evaluation after the L1 payload has been materialized.",
+    "market": "Join only through the L2 market pipeline using a prediction-time/timestamp policy. Never feed market values back into L1.",
+    "2026_lock": "2026 remains sealed until L1/L2 model and selection rules are frozen for final confirmation."
+  },
+  "expert_identity": {
+    "expert_id": "First 16 hex characters of SHA-256 over the fold-independent L1 expert configuration: prediction phase, feature sets, history windows, small-sample policy, and feature-selection policy.",
+    "model_version": "Human-readable fold/model label. It is not sufficient by itself to distinguish experts.",
+    "training_config_sha256": "Fold-specific full training configuration hash used for exact reproducibility."
+  }
+}

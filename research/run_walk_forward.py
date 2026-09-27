@@ -57,6 +57,7 @@ def parse_args():
     p.add_argument("--ml-source-sha")
     p.add_argument("--readiness-report")
     p.add_argument("--keep-datasets", action="store_true")
+    p.add_argument("--emit-l2-output", action="store_true", help="Emit L1_TO_L2_OUTPUT_CONTRACT_V1 rows for each fold")
     p.add_argument("--plan-only", action="store_true")
     p.add_argument("--min-core-known-coverage", type=float, default=0.98)
     p.add_argument("--max-invalid-rate", type=float, default=0.0)
@@ -294,11 +295,14 @@ def main():
     oof_dir = root / "oof"
     schemas = root / "schemas"
     diagnostics = root / "diagnostics"
-    for p in (datasets, models, oof_dir, schemas, diagnostics):
+    l2_dir = root / "l2-input"
+    dirs = (datasets, models, oof_dir, schemas, diagnostics, l2_dir) if a.emit_l2_output else (datasets, models, oof_dir, schemas, diagnostics)
+    for p in dirs:
         p.mkdir(parents=True, exist_ok=True)
 
     summaries = []
     oof_paths = []
+    l2_paths = []
 
     for fold in folds:
         year = fold["holdout_year"]
@@ -309,6 +313,7 @@ def main():
         pred = oof_dir / f"oof-{year}.jsonl.gz"
         diagnostic = diagnostics / f"l1-{experiment_tag}-{prediction_phase.lower()}-{year}-diagnostics.json.gz"
         contributions = diagnostics / f"l1-{experiment_tag}-{prediction_phase.lower()}-{year}-contributions.jsonl.gz"
+        l2_output = l2_dir / f"l1-to-l2-{year}.jsonl.gz"
 
         dataset_cmd = [
             "node", "research/build-staged-dataset.mjs",
@@ -356,6 +361,8 @@ def main():
             "--source-repo", a.source_repo,
             "--source-ref", a.source_ref,
         ]
+        if a.emit_l2_output:
+            cmd.extend(["--l2-output", l2_output])
         if a.source_sha:
             cmd.extend(["--source-sha", a.source_sha])
         if a.ml_source_sha:
@@ -366,6 +373,7 @@ def main():
         summaries.append({
             "holdout_year": year,
             "model_version": metadata["model_version"],
+            "expert_id": metadata.get("expert_id"),
             "prediction_phase": metadata["prediction_phase"],
             "feature_sets": metadata["feature_sets"],
             "history_windows": metadata["history_windows"],
@@ -380,6 +388,8 @@ def main():
             "diagnostics": metadata.get("diagnostics"),
         })
         oof_paths.append(pred)
+        if a.emit_l2_output:
+            l2_paths.append(l2_output)
 
         if not a.keep_datasets:
             dataset.unlink(missing_ok=True)
@@ -389,6 +399,14 @@ def main():
         for p in oof_paths:
             with gzip.open(p, "rt", encoding="utf-8") as src:
                 shutil.copyfileobj(src, dst)
+
+    combined_l2 = None
+    if a.emit_l2_output:
+        combined_l2 = l2_dir / "l1-to-l2-all.jsonl.gz"
+        with gzip.open(combined_l2, "wt", encoding="utf-8") as dst:
+            for p in l2_paths:
+                with gzip.open(p, "rt", encoding="utf-8") as src:
+                    shutil.copyfileobj(src, dst)
 
     summary = {
         "contract": "L1_WALK_FORWARD_V2",
@@ -419,6 +437,8 @@ def main():
         },
         "folds": summaries,
         "combined_oof": str(combined),
+        "l2_output_contract": "L1_TO_L2_OUTPUT_CONTRACT_V1" if a.emit_l2_output else None,
+        "combined_l2_output": str(combined_l2) if combined_l2 else None,
     }
     (root / "walk-forward-summary.json").write_text(
         json.dumps(summary, ensure_ascii=False, indent=2) + "\n",

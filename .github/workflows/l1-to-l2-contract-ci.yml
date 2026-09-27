@@ -1,0 +1,48 @@
+name: L1 to L2 contract CI
+
+on:
+  push:
+    branches:
+      - feature/l1-to-l2-output-contract-v1-20260928
+  pull_request:
+    paths:
+      - "contracts/l1-to-l2-output-contract-v1.json"
+      - "docs/L1_TO_L2_OUTPUT_CONTRACT_V1.md"
+      - "research/train-staged-lightgbm.py"
+      - "research/run_walk_forward.py"
+      - "scripts/l1-to-l2-output-contract-smoke.mjs"
+      - "package.json"
+      - ".github/workflows/l1-to-l2-contract-ci.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: L1 to L2 contract smoke
+        run: npm run smoke:l1-to-l2-contract
+
+      - name: Python syntax check
+        run: python -m py_compile research/train-staged-lightgbm.py research/run_walk_forward.py
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache upload."
+          echo "No paid external storage."

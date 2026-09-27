@@ -1,0 +1,53 @@
+# L1 → L2 Output Contract V1
+
+L1 の王者を 1 体に固定せず、複数 L1 を L2 の専門家入力として使うための共通出口。
+
+機械用正本:
+
+`contracts/l1-to-l2-output-contract-v1.json`
+
+## 何を渡すか
+
+各 L1 は、各レース・各馬について次を返す。
+
+- 生の勝率推定
+- レース内で正規化した勝率
+- 予測順位
+- モデルの raw margin (logit)
+- Feature Set ごとの寄与度
+- レース全体の確信/混戦度を表す客観指標
+- L1候補を年度を跨いで識別する安定 `expert_id`
+- モデル、データ、契約の再現用ハッシュ
+
+「血統 80 点」のような人為的な 0–100 点は作らない。
+LightGBM が実際にその予測を作る際に各特徴をどれだけ押し上げ/押し下げたかを TreeSHAP で計算し、
+BASE / PEDIGREE / ACTOR / OPPONENT / TIME_PACE 等の Feature Set 単位へ集約する。
+
+## なぜこれが L2 に効くか
+
+同じ馬を複数 L1 が高評価していても理由は違い得る。
+
+- 王A: PEDIGREE が強く押す
+- 王B: TIME_PACE が強く押す
+- 王C: OPPONENT が強く押す
+
+L2 は最終順位だけでなく「どの眼でそこへ辿り着いたか」を入力として学習できる。
+
+## Expert identity
+
+`model_version` は人間向けラベルで、同じ Feature Set の別設定候補が同名になる可能性がある。
+そのため prediction phase / Feature Sets / history windows / shrinkage / feature-selection policy だけから
+`expert_id` を作る。holdout 年や学習期間は含めないため、同じ王者は年度を跨いでも同じ expert として追跡できる。
+
+## 漏洩防止
+
+この出力には対象レースの着順、勝敗、走破時計、上がり、払戻、最終人気、最終オッズを入れない。
+
+結果ラベルは L2 学習時だけ別経路で結合する。
+市場情報も L2 側の時刻契約に従って別経路で結合する。
+L1 の能力評価へ市場情報を逆流させない。
+
+## 2026
+
+2026 は最終確認用の封印年のまま維持する。
+2021–2025 で L2 の入力、モデル、選抜ルールを固定してから開封する。
