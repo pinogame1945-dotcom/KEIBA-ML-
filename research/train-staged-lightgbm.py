@@ -801,6 +801,16 @@ def main():
     del xtr, ytr
     gc.collect()
 
+    # Spool the validation pandas frame to ephemeral local disk before
+    # constructing LightGBM's validation Dataset.  Once constructed, xva can
+    # be released for the whole boosting phase and restored only for final
+    # prediction/diagnostics.  This trades a little local I/O for a lower
+    # training-time RAM peak without changing validation rows or features.
+    valid_feature_coverage = feature_coverage(xva, list(xva.columns))
+    validation_spool = Path(a.model_out).parent / ".validation-frame.pkl.gz"
+    validation_spool.parent.mkdir(parents=True, exist_ok=True)
+    xva.to_pickle(validation_spool, compression="gzip")
+
     valid_dataset = lgb.Dataset(
         xva,
         label=yva,
@@ -809,6 +819,8 @@ def main():
         free_raw_data=True,
     )
     valid_dataset.construct()
+    del xva
+    gc.collect()
 
     native_params = dict(params)
     num_boost_round = int(native_params.pop("n_estimators"))
@@ -825,6 +837,9 @@ def main():
 
     del train_dataset, valid_dataset
     gc.collect()
+
+    xva = pd.read_pickle(validation_spool, compression="gzip")
+    validation_spool.unlink(missing_ok=True)
 
     raw = np.clip(booster.predict(xva, num_iteration=best_iteration), 1e-15, 1 - 1e-15)
     pred = predictions(valid_context, raw)
@@ -925,7 +940,7 @@ def main():
         "subgroup_metrics": subgroup_report,
         "feature_coverage": {
             "train": train_feature_coverage,
-            "valid": feature_coverage(xva, names),
+            "valid": valid_feature_coverage,
         },
         "reproducibility": {
             "model_sha256": model_sha256,
