@@ -76,6 +76,10 @@ for (const input of inputs) {
       ...row,
       prediction_phase: predictionPhase,
       feature_sets: featureSets,
+      research_context: {
+        ...(row.research_context ?? {}),
+        race_class_normalized: row.features?.backfill_race_class_normalized ?? null,
+      },
       features: (() => {
         const phased = applyPredictionPhase(
           selectFeatureFamilies(row.features ?? {}, featureSets),
