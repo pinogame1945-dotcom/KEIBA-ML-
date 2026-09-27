@@ -837,7 +837,7 @@ def main():
     contribution_summary = write_model_diagnostics(
         model,
         xva,
-        valid,
+        valid_context,
         pred,
         names,
         diagnostics_out=a.diagnostics_out,
