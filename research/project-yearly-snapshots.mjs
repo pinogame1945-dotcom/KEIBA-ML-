@@ -29,10 +29,9 @@ gzip.pipe(sink);
 
 let rows = 0;
 for (const input of inputs) {
-  const gunzip = createGunzip();
   const source = createReadStream(input);
-  source.pipe(gunzip);
-  const rl = createInterface({ input: gunzip, crlfDelay: Infinity });
+  const decoded = input.endsWith(".gz") ? source.pipe(createGunzip()) : source;
+  const rl = createInterface({ input: decoded, crlfDelay: Infinity });
   for await (const line of rl) {
     if (!line.trim()) continue;
     const row = JSON.parse(line);
