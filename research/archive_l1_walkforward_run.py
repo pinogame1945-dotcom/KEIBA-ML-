@@ -149,7 +149,7 @@ def main():
 
     run=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}")
     jobs_payload=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}/jobs?per_page=100")
-    jobs=[j for j in jobs_payload.get("jobs",[]) if str(j.get("name","")).startswith("league-")]
+    jobs=[j for j in jobs_payload.get("jobs",[]) if "league-" in str(j.get("name",""))]
 
     rows=[]
     jobs_record=[]
@@ -180,8 +180,8 @@ def main():
                 "job_id":job.get("id"),
             })
         else:
-            m=re.match(r"^league-(.+)-y(20\\d{2})$",str(job.get("name","")))
-            candidate=m.group(1) if m else str(job.get("name","")).removeprefix("league-")
+            m=re.search(r"league-(.+?)-y(20\\d{2})(?:$|\\s|\\/)",str(job.get("name","")))
+            candidate=m.group(1) if m else str(job.get("name",""))
             year=int(m.group(2)) if m else None
             rows.append({
                 "candidate":candidate,"label_ja":labels.get(candidate,candidate),
