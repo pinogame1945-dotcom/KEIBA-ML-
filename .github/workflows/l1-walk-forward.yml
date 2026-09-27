@@ -28,7 +28,7 @@ on:
         required: true
         default: "1"
       prediction_phase:
-        description: Prediction phase contract
+        description: L1 input availability phase
         required: true
         default: FINAL
         type: choice
@@ -36,27 +36,27 @@ on:
           - EARLY
           - FINAL
       feature_sets:
-        description: Comma-separated Feature Sets
+        description: Comma-separated Feature Sets (BASE is added if omitted)
         required: true
-        default: BASE,OPPONENT,NETWORK,LAP,STYLE
+        default: "BASE,OPPONENT,NETWORK,LAP,STYLE"
       history_recent_form:
-        description: Recent/form history window
+        description: Recent form window
         required: true
         default: "5"
       history_style_last3f:
-        description: Style/last3f trend history window
+        description: Style/last3f window
         required: true
         default: "10"
       history_suitability:
-        description: Suitability history window
+        description: Suitability window
         required: true
         default: "20"
       history_opponent:
-        description: Opponent history window
+        description: Opponent window
         required: true
         default: "10"
       history_auto_rolling:
-        description: AUTO rolling history window
+        description: AUTO rolling window
         required: true
         default: "20"
       backfill_ref:
