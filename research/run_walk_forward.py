@@ -7,6 +7,9 @@ import subprocess
 import sys
 from pathlib import Path
 
+FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
+FEATURE_CONTRACT = json.loads(FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
+
 
 def parse_args():
     p = argparse.ArgumentParser(description="Run bounded-memory L1 walk-forward folds.")
@@ -16,9 +19,15 @@ def parse_args():
     p.add_argument("--last-holdout", type=int, required=True)
     p.add_argument("--train-years", type=int, default=3)
     p.add_argument("--warmup-years", type=int, default=1)
-    p.add_argument("--history-limit", type=int, default=5)
-    p.add_argument("--stage", default="style",
-                   choices=["base","opponent_v1","opponent_both","lap","style","distance_v1","backfill_v1","auto_v1","auto_backfill_v1"])
+    p.add_argument("--feature-sets", help="Comma-separated independent Feature Sets")
+    p.add_argument("--stage", choices=sorted(FEATURE_CONTRACT["legacy_stage_map"]), help="Deprecated cumulative stage")
+    p.add_argument("--prediction-phase", default=FEATURE_CONTRACT["default_prediction_phase"], choices=sorted(FEATURE_CONTRACT["prediction_phases"]))
+    p.add_argument("--history-limit", type=int, help="Deprecated: sets every bounded history window to the same value")
+    p.add_argument("--history-recent-form", type=int)
+    p.add_argument("--history-style-last3f", type=int)
+    p.add_argument("--history-suitability", type=int)
+    p.add_argument("--history-opponent", type=int)
+    p.add_argument("--history-auto-rolling", type=int)
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
     p.add_argument("--source-ref", default="main")
     p.add_argument("--source-sha")
@@ -30,6 +39,51 @@ def parse_args():
     p.add_argument("--max-invalid-rate", type=float, default=0.0)
     p.add_argument("--max-year-gap", type=float, default=0.10)
     return p.parse_args()
+
+
+def normalize_feature_sets(raw, legacy_stage):
+    if raw:
+        requested = []
+        for item in str(raw).split(","):
+            name = item.strip().upper()
+            if name and name not in requested:
+                requested.append(name)
+    elif legacy_stage:
+        requested = list(FEATURE_CONTRACT["legacy_stage_map"][legacy_stage])
+    else:
+        requested = list(FEATURE_CONTRACT["default_feature_sets"])
+    invalid = [name for name in requested if name not in FEATURE_CONTRACT["feature_sets"]]
+    if invalid:
+        raise ValueError("invalid feature set(s): " + ", ".join(invalid))
+    if "BASE" not in requested:
+        requested.insert(0, "BASE")
+    if raw and legacy_stage and requested != list(FEATURE_CONTRACT["legacy_stage_map"][legacy_stage]):
+        raise ValueError("--feature-sets conflicts with deprecated --stage mapping")
+    return requested
+
+
+def normalize_history_windows(a):
+    out = dict(FEATURE_CONTRACT["history_windows"])
+    if a.history_limit is not None:
+        if not 1 <= a.history_limit <= 100:
+            raise ValueError("history-limit must be from 1 to 100")
+        for key in FEATURE_CONTRACT["history_window_bounds"]:
+            out[key] = a.history_limit
+    overrides = {
+        "recent_form": a.history_recent_form,
+        "style_last3f": a.history_style_last3f,
+        "suitability": a.history_suitability,
+        "opponent": a.history_opponent,
+        "auto_rolling": a.history_auto_rolling,
+    }
+    for key, value in overrides.items():
+        if value is None:
+            continue
+        lo, hi = FEATURE_CONTRACT["history_window_bounds"][key]
+        if value < lo or value > hi:
+            raise ValueError(f"{key} history window must be from {lo} to {hi}")
+        out[key] = value
+    return out
 
 
 def fold_spec(year, train_years, warmup_years):
@@ -104,13 +158,20 @@ def main():
     if not (0 <= a.max_year_gap <= 1):
         raise ValueError("max-year-gap must be from 0 to 1")
 
+    feature_sets = normalize_feature_sets(a.feature_sets, a.stage)
+    prediction_phase = str(a.prediction_phase).upper()
+    history_windows = normalize_history_windows(a)
+    feature_slug = "-".join(name.lower() for name in feature_sets)
     folds = [
         fold_spec(y, a.train_years, a.warmup_years)
         for y in range(a.first_holdout, a.last_holdout + 1)
     ]
     print("L1_WALK_FORWARD_PLAN")
     print(json.dumps({
-        "stage": a.stage,
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "legacy_stage": a.stage,
         "train_years": a.train_years,
         "warmup_years": a.warmup_years,
         "folds": folds,
@@ -165,13 +226,12 @@ def main():
     for fold in folds:
         year = fold["holdout_year"]
         dataset = datasets / f"fold-{year}.jsonl.gz"
-        model = models / f"l1-{a.stage}-{year}.txt"
-        meta = models / f"l1-{a.stage}-{year}.json"
-        schema = schemas / f"l1-{a.stage}-{year}-schema.json"
+        model = models / f"l1-{prediction_phase.lower()}-{feature_slug}-{year}.txt"
+        meta = models / f"l1-{prediction_phase.lower()}-{feature_slug}-{year}.json"
+        schema = schemas / f"l1-{prediction_phase.lower()}-{feature_slug}-{year}-schema.json"
         pred = oof_dir / f"oof-{year}.jsonl.gz"
-        diagnostic = diagnostics / f"l1-{a.stage}-{year}-diagnostics.json.gz"
-        contribution = diagnostics / f"l1-{a.stage}-{year}-contributions.jsonl.gz"
-        contributions = diagnostics / f"l1-{a.stage}-{year}-contributions.jsonl.gz"
+        diagnostic = diagnostics / f"l1-{prediction_phase.lower()}-{feature_slug}-{year}-diagnostics.json.gz"
+        contributions = diagnostics / f"l1-{prediction_phase.lower()}-{feature_slug}-{year}-contributions.jsonl.gz"
 
         run([
             "node", "research/build-staged-dataset.mjs",
@@ -181,14 +241,21 @@ def main():
             "--source-end", fold["source_end"],
             "--emit-start", fold["emit_start"],
             "--emit-end", fold["emit_end"],
-            "--history-limit", a.history_limit,
-            "--stage", a.stage,
+            "--feature-sets", ",".join(feature_sets),
+            "--prediction-phase", prediction_phase,
+            "--history-recent-form", history_windows["recent_form"],
+            "--history-style-last3f", history_windows["style_last3f"],
+            "--history-suitability", history_windows["suitability"],
+            "--history-opponent", history_windows["opponent"],
+            "--history-auto-rolling", history_windows["auto_rolling"],
         ])
 
         cmd = [
             sys.executable, "research/train-staged-lightgbm.py",
             "--dataset", dataset,
-            "--stage", a.stage,
+            "--feature-sets", ",".join(feature_sets),
+            "--prediction-phase", prediction_phase,
+            "--history-windows-json", json.dumps(history_windows, separators=(",", ":")),
             "--train-start", fold["train_start"],
             "--train-end", fold["train_end"],
             "--valid-start", fold["valid_start"],
@@ -199,7 +266,7 @@ def main():
             "--predictions-out", pred,
             "--diagnostics-out", diagnostic,
             "--contributions-out", contributions,
-            "--model-version", f"L1_{a.stage.upper()}_WF_{year}",
+            "--model-version", f"L1_{prediction_phase}_{'_'.join(feature_sets)}_WF_{year}",
             "--source-repo", a.source_repo,
             "--source-ref", a.source_ref,
         ]
@@ -232,8 +299,11 @@ def main():
                 shutil.copyfileobj(src, dst)
 
     summary = {
-        "contract": "L1_WALK_FORWARD_V1",
-        "stage": a.stage,
+        "contract": "L1_WALK_FORWARD_V2",
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "legacy_stage": a.stage,
         "source": {
             "repository": a.source_repo,
             "ref": a.source_ref,
@@ -241,7 +311,6 @@ def main():
         },
         "train_years": a.train_years,
         "warmup_years": a.warmup_years,
-        "history_limit": a.history_limit,
         "readiness_gate": {
             "report": str(readiness_report),
             "min_core_known_coverage": a.min_core_known_coverage,
