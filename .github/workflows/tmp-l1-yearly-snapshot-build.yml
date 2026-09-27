@@ -37,6 +37,8 @@ jobs:
 
       - name: Syntax checks
         run: |
+          node --check src/ml-dataset.mjs
+          node --check src/historical-extra-builder.mjs
           node --check src/yearly-snapshot-store.mjs
           node --check research/build-yearly-superset-snapshots.mjs
 
@@ -65,7 +67,7 @@ jobs:
             --first-model-ready-year 2023 \
             --prediction-phase FINAL \
             --source-sha "$BACKFILL_SHA" \
-            --ml-source-sha "1c348b7ac78399c1671ed0893c10d76bdc969274"
+            --ml-source-sha "$GITHUB_SHA"
 
       - name: Print snapshot manifest and sizes
         shell: bash
