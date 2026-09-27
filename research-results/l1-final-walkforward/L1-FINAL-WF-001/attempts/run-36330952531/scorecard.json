@@ -1,0 +1,1850 @@
+{
+  "contract": "L1_FINAL_WALKFORWARD_SCORECARD_V1",
+  "experiment_id": "L1-FINAL-WF-001",
+  "run_id": 36330952531,
+  "complete": false,
+  "composite_winner": null,
+  "fold_results": [
+    {
+      "candidate": "all_retest_v5-y2021",
+      "label_ja": "all_retest_v5-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635711
+    },
+    {
+      "candidate": "all_retest_v5-y2022",
+      "label_ja": "all_retest_v5-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635627
+    },
+    {
+      "candidate": "all_retest_v5-y2023",
+      "label_ja": "all_retest_v5-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635782
+    },
+    {
+      "candidate": "all_retest_v5-y2024",
+      "label_ja": "all_retest_v5-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635757
+    },
+    {
+      "candidate": "all_retest_v5-y2025",
+      "label_ja": "all_retest_v5-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636203
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "旧・純性能王者",
+      "role": "finalist",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.26417824074074076,
+        "top3_winner_capture": 0.5642361111111112,
+        "top6_winner_capture": 0.8055555555555556,
+        "mean_winner_rank": 3.9655671296296298,
+        "mean_reciprocal_winner_rank": 0.4666042400621649,
+        "race_normalized_nll": 2.1504673074590093,
+        "raw_logloss": 0.2246001916432883,
+        "raw_brier": 0.06163624232406848,
+        "raw_roc_auc": 0.7780956658205216
+      },
+      "peak_rss_mib": 12894.262,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 248.904,
+          "peak_rss_mib": 539.824,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 452.897,
+          "peak_rss_mib": 12894.262,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 701.806,
+        "candidate_peak_rss_mib": 12894.262
+      },
+      "job_id": 108652634364
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "旧・純性能王者",
+      "role": "finalist",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28153935185185186,
+        "top3_winner_capture": 0.5954861111111112,
+        "top6_winner_capture": 0.8336226851851852,
+        "mean_winner_rank": 3.7378472222222223,
+        "mean_reciprocal_winner_rank": 0.485699346741524,
+        "race_normalized_nll": 2.092949438021368,
+        "raw_logloss": 0.22270241758597356,
+        "raw_brier": 0.061659189535230946,
+        "raw_roc_auc": 0.7921614935607886
+      },
+      "peak_rss_mib": 12892.93,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 247.895,
+          "peak_rss_mib": 549.723,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 466.114,
+          "peak_rss_mib": 12892.93,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 714.014,
+        "candidate_peak_rss_mib": 12892.93
+      },
+      "job_id": 108652634515
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "旧・純性能王者",
+      "role": "finalist",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28269675925925924,
+        "top3_winner_capture": 0.5891203703703703,
+        "top6_winner_capture": 0.8292824074074074,
+        "mean_winner_rank": 3.7760416666666665,
+        "mean_reciprocal_winner_rank": 0.48459496199870994,
+        "race_normalized_nll": 2.0983796429231183,
+        "raw_logloss": 0.22112264098344736,
+        "raw_brier": 0.06116879203418001,
+        "raw_roc_auc": 0.7917088247520054
+      },
+      "peak_rss_mib": 13712.898,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 244.921,
+          "peak_rss_mib": 541.445,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 450.994,
+          "peak_rss_mib": 13712.898,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 695.921,
+        "candidate_peak_rss_mib": 13712.898
+      },
+      "job_id": 108652634577
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "旧・純性能王者",
+      "role": "finalist",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2913773148148148,
+        "top3_winner_capture": 0.6067708333333334,
+        "top6_winner_capture": 0.8333333333333334,
+        "mean_winner_rank": 3.7193287037037037,
+        "mean_reciprocal_winner_rank": 0.4943158587121771,
+        "race_normalized_nll": 2.0820863152536946,
+        "raw_logloss": 0.22201638620139935,
+        "raw_brier": 0.0613571233581156,
+        "raw_roc_auc": 0.792655125360612
+      },
+      "peak_rss_mib": 13336.324,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 231.445,
+          "peak_rss_mib": 547.785,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 371.231,
+          "peak_rss_mib": 13336.324,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 602.68,
+        "candidate_peak_rss_mib": 13336.324
+      },
+      "job_id": 108652634553
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "旧・純性能王者",
+      "role": "finalist",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27719907407407407,
+        "top3_winner_capture": 0.6004050925925926,
+        "top6_winner_capture": 0.8110532407407407,
+        "mean_winner_rank": 3.8194444444444446,
+        "mean_reciprocal_winner_rank": 0.48360959661574965,
+        "race_normalized_nll": 2.106237080368206,
+        "raw_logloss": 0.22088765703806265,
+        "raw_brier": 0.06096926528035546,
+        "raw_roc_auc": 0.7909416257330927
+      },
+      "peak_rss_mib": 12853.918,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 209.593,
+          "peak_rss_mib": 548.73,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 357.689,
+          "peak_rss_mib": 12853.918,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 567.287,
+        "candidate_peak_rss_mib": 12853.918
+      },
+      "job_id": 108652634567
+    },
+    {
+      "candidate": "elite5_retest_v5-y2021",
+      "label_ja": "elite5_retest_v5-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636649
+    },
+    {
+      "candidate": "elite5_retest_v5-y2022",
+      "label_ja": "elite5_retest_v5-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636317
+    },
+    {
+      "candidate": "elite5_retest_v5-y2023",
+      "label_ja": "elite5_retest_v5-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636418
+    },
+    {
+      "candidate": "elite5_retest_v5-y2024",
+      "label_ja": "elite5_retest_v5-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636466
+    },
+    {
+      "candidate": "elite5_retest_v5-y2025",
+      "label_ja": "elite5_retest_v5-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636477
+    },
+    {
+      "candidate": "jockey_horse_pedigree_fullauto_v3-y2021",
+      "label_ja": "jockey_horse_pedigree_fullauto_v3-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652637094
+    },
+    {
+      "candidate": "jockey_horse_pedigree_fullauto_v3-y2022",
+      "label_ja": "jockey_horse_pedigree_fullauto_v3-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652637092
+    },
+    {
+      "candidate": "jockey_horse_pedigree_fullauto_v3-y2023",
+      "label_ja": "jockey_horse_pedigree_fullauto_v3-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652637117
+    },
+    {
+      "candidate": "jockey_horse_pedigree_fullauto_v3-y2024",
+      "label_ja": "jockey_horse_pedigree_fullauto_v3-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652637204
+    },
+    {
+      "candidate": "jockey_horse_pedigree_fullauto_v3-y2025",
+      "label_ja": "jockey_horse_pedigree_fullauto_v3-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652637172
+    },
+    {
+      "candidate": "jockey_pedigree_fullauto_v3-y2021",
+      "label_ja": "jockey_pedigree_fullauto_v3-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636508
+    },
+    {
+      "candidate": "jockey_pedigree_fullauto_v3-y2022",
+      "label_ja": "jockey_pedigree_fullauto_v3-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636577
+    },
+    {
+      "candidate": "jockey_pedigree_fullauto_v3-y2023",
+      "label_ja": "jockey_pedigree_fullauto_v3-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636722
+    },
+    {
+      "candidate": "jockey_pedigree_fullauto_v3-y2024",
+      "label_ja": "jockey_pedigree_fullauto_v3-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636936
+    },
+    {
+      "candidate": "jockey_pedigree_fullauto_v3-y2025",
+      "label_ja": "jockey_pedigree_fullauto_v3-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652636961
+    },
+    {
+      "candidate": "jockey_trainer_condition-y2021",
+      "label_ja": "jockey_trainer_condition-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": 531.9,
+      "resource_usage": {
+        "observed_peak_rss_mib": 531.9,
+        "samples": [
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 29.3,
+            "peak_rss_mib": 29.3
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 457.5,
+            "peak_rss_mib": 457.5
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 277.9,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 45.6,
+            "rss_mib": 280.1,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 60.7,
+            "rss_mib": 330.8,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 75.9,
+            "rss_mib": 162.3,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 91.1,
+            "rss_mib": 167.8,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 106.2,
+            "rss_mib": 155.8,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 121.4,
+            "rss_mib": 349.8,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 136.6,
+            "rss_mib": 372.2,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 151.8,
+            "rss_mib": 172.3,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 166.9,
+            "rss_mib": 345.9,
+            "peak_rss_mib": 481.8
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 182.1,
+            "rss_mib": 305.4,
+            "peak_rss_mib": 531.9
+          }
+        ]
+      },
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:01:41.1781662Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:31.7515000Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:31.7583650Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634527
+    },
+    {
+      "candidate": "jockey_trainer_condition-y2022",
+      "label_ja": "jockey_trainer_condition-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": 481.0,
+      "resource_usage": {
+        "observed_peak_rss_mib": 481.0,
+        "samples": [
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 28.3,
+            "peak_rss_mib": 28.3
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 257.0,
+            "peak_rss_mib": 327.7
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 192.8,
+            "peak_rss_mib": 441.7
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 45.5,
+            "rss_mib": 132.9,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 60.7,
+            "rss_mib": 250.9,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 75.9,
+            "rss_mib": 216.9,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 91.0,
+            "rss_mib": 195.6,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 106.2,
+            "rss_mib": 250.5,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 121.4,
+            "rss_mib": 275.9,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 136.6,
+            "rss_mib": 285.7,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 151.8,
+            "rss_mib": 236.5,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 167.0,
+            "rss_mib": 388.7,
+            "peak_rss_mib": 481.0
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 182.1,
+            "rss_mib": 129.0,
+            "peak_rss_mib": 481.0
+          }
+        ]
+      },
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:01:40.6719011Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:31.8165290Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:31.8237675Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634537
+    },
+    {
+      "candidate": "jockey_trainer_condition-y2023",
+      "label_ja": "jockey_trainer_condition-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:02:58.3557093Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:21.3789716Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:21.3844920Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634635
+    },
+    {
+      "candidate": "jockey_trainer_condition-y2024",
+      "label_ja": "jockey_trainer_condition-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": 507.2,
+      "resource_usage": {
+        "observed_peak_rss_mib": 507.2,
+        "samples": [
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 27.2,
+            "peak_rss_mib": 27.2
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 202.3,
+            "peak_rss_mib": 396.5
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 157.5,
+            "peak_rss_mib": 507.2
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 45.6,
+            "rss_mib": 306.2,
+            "peak_rss_mib": 507.2
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 60.8,
+            "rss_mib": 474.9,
+            "peak_rss_mib": 507.2
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 76.0,
+            "rss_mib": 228.7,
+            "peak_rss_mib": 507.2
+          },
+          {
+            "label": "jockey_trainer_condition:projection",
+            "elapsed_seconds": 91.1,
+            "rss_mib": 237.0,
+            "peak_rss_mib": 507.2
+          }
+        ]
+      },
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:03:10.0471575Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:31.9736744Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:31.9852981Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634641
+    },
+    {
+      "candidate": "jockey_trainer_condition-y2025",
+      "label_ja": "jockey_trainer_condition-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:03:16.2349266Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:26.4218447Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:26.4271739Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634792
+    },
+    {
+      "candidate": "no_auto_full-y2021",
+      "label_ja": "no_auto_full-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": 490.2,
+      "resource_usage": {
+        "observed_peak_rss_mib": 490.2,
+        "samples": [
+          {
+            "label": "no_auto_full:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 28.9,
+            "peak_rss_mib": 28.9
+          },
+          {
+            "label": "no_auto_full:projection",
+            "elapsed_seconds": 15.1,
+            "rss_mib": 467.3,
+            "peak_rss_mib": 467.3
+          },
+          {
+            "label": "no_auto_full:projection",
+            "elapsed_seconds": 30.2,
+            "rss_mib": 332.1,
+            "peak_rss_mib": 482.6
+          },
+          {
+            "label": "no_auto_full:projection",
+            "elapsed_seconds": 45.3,
+            "rss_mib": 264.2,
+            "peak_rss_mib": 490.2
+          },
+          {
+            "label": "no_auto_full:projection",
+            "elapsed_seconds": 60.4,
+            "rss_mib": 173.0,
+            "peak_rss_mib": 490.2
+          }
+        ]
+      },
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:03:43.3492063Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:32.0130754Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:32.0173591Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634655
+    },
+    {
+      "candidate": "no_auto_full-y2022",
+      "label_ja": "no_auto_full-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:03:56.2499175Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:30.5361417Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:30.5405754Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634698
+    },
+    {
+      "candidate": "no_auto_full-y2023",
+      "label_ja": "no_auto_full-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:05:20.8646918Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:32.3800861Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:32.3848656Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634680
+    },
+    {
+      "candidate": "no_auto_full-y2024",
+      "label_ja": "no_auto_full-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652634685
+    },
+    {
+      "candidate": "no_auto_full-y2025",
+      "label_ja": "no_auto_full-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635572
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "label_ja": "血統型",
+      "role": "finalist",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27054398148148145,
+        "top3_winner_capture": 0.5714699074074074,
+        "top6_winner_capture": 0.8153935185185185,
+        "mean_winner_rank": 3.8935185185185186,
+        "mean_reciprocal_winner_rank": 0.4720395923048599,
+        "race_normalized_nll": 2.149302990413396,
+        "raw_logloss": 0.22569245294826845,
+        "raw_brier": 0.06188595808463681,
+        "raw_roc_auc": 0.7753187818579832
+      },
+      "peak_rss_mib": 10186.5,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 219.55,
+          "peak_rss_mib": 555.281,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 352.751,
+          "peak_rss_mib": 10186.5,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 572.305,
+        "candidate_peak_rss_mib": 10186.5
+      },
+      "job_id": 108652634595
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "label_ja": "血統型",
+      "role": "finalist",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27488425925925924,
+        "top3_winner_capture": 0.5888310185185185,
+        "top6_winner_capture": 0.8272569444444444,
+        "mean_winner_rank": 3.7809606481481484,
+        "mean_reciprocal_winner_rank": 0.47981260500536443,
+        "race_normalized_nll": 2.111602823395426,
+        "raw_logloss": 0.22526016417541428,
+        "raw_brier": 0.06219466586695447,
+        "raw_roc_auc": 0.7852152388261523
+      },
+      "peak_rss_mib": 10117.609,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 222.541,
+          "peak_rss_mib": 544.551,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 355.848,
+          "peak_rss_mib": 10117.609,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 578.393,
+        "candidate_peak_rss_mib": 10117.609
+      },
+      "job_id": 108652634589
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "label_ja": "血統型",
+      "role": "finalist",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2745949074074074,
+        "top3_winner_capture": 0.5876736111111112,
+        "top6_winner_capture": 0.8324652777777778,
+        "mean_winner_rank": 3.778935185185185,
+        "mean_reciprocal_winner_rank": 0.4805495759233504,
+        "race_normalized_nll": 2.107404582436206,
+        "raw_logloss": 0.22306426500303597,
+        "raw_brier": 0.06158177323792007,
+        "raw_roc_auc": 0.7863861945465332
+      },
+      "peak_rss_mib": 10100.457,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 218.575,
+          "peak_rss_mib": 558.863,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 351.872,
+          "peak_rss_mib": 10100.457,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 570.452,
+        "candidate_peak_rss_mib": 10100.457
+      },
+      "job_id": 108652634591
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "label_ja": "血統型",
+      "role": "finalist",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28501157407407407,
+        "top3_winner_capture": 0.5957754629629629,
+        "top6_winner_capture": 0.8399884259259259,
+        "mean_winner_rank": 3.7254050925925926,
+        "mean_reciprocal_winner_rank": 0.4897020997160141,
+        "race_normalized_nll": 2.089655748845515,
+        "raw_logloss": 0.22428111985775068,
+        "raw_brier": 0.061856244431149024,
+        "raw_roc_auc": 0.7856554105694311
+      },
+      "peak_rss_mib": 10167.398,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 184.467,
+          "peak_rss_mib": 557.59,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 273.134,
+          "peak_rss_mib": 10167.398,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 457.604,
+        "candidate_peak_rss_mib": 10167.398
+      },
+      "job_id": 108652634568
+    },
+    {
+      "candidate": "no_auto_full_pedigree-y2025",
+      "label_ja": "no_auto_full_pedigree-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": 1216.0,
+      "resource_usage": {
+        "observed_peak_rss_mib": 1216.0,
+        "samples": [
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 27.6,
+            "peak_rss_mib": 27.6
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 221.2,
+            "peak_rss_mib": 394.8
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 203.0,
+            "peak_rss_mib": 553.5
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 45.6,
+            "rss_mib": 201.7,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 60.8,
+            "rss_mib": 375.9,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 76.0,
+            "rss_mib": 221.1,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 91.1,
+            "rss_mib": 215.8,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 106.3,
+            "rss_mib": 245.4,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 121.5,
+            "rss_mib": 389.6,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 136.7,
+            "rss_mib": 387.5,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 151.9,
+            "rss_mib": 389.4,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 167.0,
+            "rss_mib": 234.6,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 182.2,
+            "rss_mib": 140.5,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 197.4,
+            "rss_mib": 226.8,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 212.5,
+            "rss_mib": 231.8,
+            "peak_rss_mib": 559.2
+          },
+          {
+            "label": "no_auto_full_pedigree:projection",
+            "elapsed_seconds": 220.647,
+            "peak_rss_mib": 559.152,
+            "exit_code": 0
+          },
+          {
+            "label": "no_auto_full_pedigree:training",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 9.4,
+            "peak_rss_mib": 9.4
+          },
+          {
+            "label": "no_auto_full_pedigree:training",
+            "elapsed_seconds": 15.1,
+            "rss_mib": 656.4,
+            "peak_rss_mib": 656.4
+          },
+          {
+            "label": "no_auto_full_pedigree:training",
+            "elapsed_seconds": 30.3,
+            "rss_mib": 1216.0,
+            "peak_rss_mib": 1216.0
+          }
+        ]
+      },
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T16:00:38.3178197Z \u001b[36;1m    echo \"::error::snapshot for $year missing after restore\"\u001b[0m",
+        "2026-09-27T16:06:31.6994700Z ##[error]The operation was canceled.",
+        "2026-09-27T16:06:31.7045091Z \u001b[36;1m  echo \"::error::Persistent GitHub Artifact/Cache usage found; refusing workflow.\"\u001b[0m"
+      ],
+      "log_fetch_error": null,
+      "job_id": 108652634610
+    },
+    {
+      "candidate": "no_auto_jockey-y2021",
+      "label_ja": "no_auto_jockey-y2021",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635526
+    },
+    {
+      "candidate": "no_auto_jockey-y2022",
+      "label_ja": "no_auto_jockey-y2022",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635543
+    },
+    {
+      "candidate": "no_auto_jockey-y2023",
+      "label_ja": "no_auto_jockey-y2023",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635641
+    },
+    {
+      "candidate": "no_auto_jockey-y2024",
+      "label_ja": "no_auto_jockey-y2024",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635541
+    },
+    {
+      "candidate": "no_auto_jockey-y2025",
+      "label_ja": "no_auto_jockey-y2025",
+      "role": null,
+      "validation_year": null,
+      "status": "cancelled",
+      "feature_count": null,
+      "metrics": {},
+      "peak_rss_mib": null,
+      "resource_usage": null,
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "job_id": 108652635591
+    }
+  ],
+  "candidate_summaries": {
+    "core4_no_pedigree": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 13712.898,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2793981481481481,
+        "top3_winner_capture": 0.5912037037037037,
+        "top6_winner_capture": 0.8225694444444445,
+        "mean_winner_rank": 3.8036458333333334,
+        "mean_reciprocal_winner_rank": 0.48296480082606513,
+        "race_normalized_nll": 2.106023956805079,
+        "raw_logloss": 0.22226585869043425,
+        "raw_brier": 0.0613581225063901,
+        "raw_roc_auc": 0.7891125470454041
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.008893228107545621,
+        "top3_winner_capture": 0.014676044587088917,
+        "top6_winner_capture": 0.011875981386781365,
+        "mean_winner_rank": 0.08794194436991401,
+        "mean_reciprocal_winner_rank": 0.00902291961690985,
+        "race_normalized_nll": 0.02356966736377702,
+        "raw_logloss": 0.0013347896498705847,
+        "raw_brier": 0.0002664766245224646,
+        "raw_roc_auc": 0.005537215810708065
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.26417824074074076,
+        "top3_winner_capture": 0.5642361111111112,
+        "top6_winner_capture": 0.8055555555555556,
+        "mean_winner_rank": 3.9655671296296298,
+        "mean_reciprocal_winner_rank": 0.4666042400621649,
+        "race_normalized_nll": 2.1504673074590093,
+        "raw_logloss": 0.2246001916432883,
+        "raw_brier": 0.061659189535230946,
+        "raw_roc_auc": 0.7780956658205216
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2913773148148148,
+        "top3_winner_capture": 0.6067708333333334,
+        "top6_winner_capture": 0.8336226851851852,
+        "mean_winner_rank": 3.7193287037037037,
+        "mean_reciprocal_winner_rank": 0.4943158587121771,
+        "race_normalized_nll": 2.0820863152536946,
+        "raw_logloss": 0.22088765703806265,
+        "raw_brier": 0.06096926528035546,
+        "raw_roc_auc": 0.792655125360612
+      },
+      "label_ja": "旧・純性能王者",
+      "role": "finalist"
+    },
+    "no_auto_full_pedigree": {
+      "expected_folds": 5,
+      "successful_folds": 4,
+      "failed_folds": 1,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "years_failed": [
+        2025
+      ],
+      "max_peak_rss_mib": 10186.5,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2762586805555555,
+        "top3_winner_capture": 0.5859375,
+        "top6_winner_capture": 0.8287760416666666,
+        "mean_winner_rank": 3.794704861111111,
+        "mean_reciprocal_winner_rank": 0.48052596823739724,
+        "race_normalized_nll": 2.1144915362726358,
+        "raw_logloss": 0.22457450049611735,
+        "raw_brier": 0.06187966040516509,
+        "raw_roc_auc": 0.783143906450025
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.005336855474948673,
+        "top3_winner_capture": 0.008909030276817479,
+        "top6_winner_capture": 0.00895443473986628,
+        "mean_winner_rank": 0.061245781233748575,
+        "mean_reciprocal_winner_rank": 0.006259580852678235,
+        "race_normalized_nll": 0.021721091439462763,
+        "raw_logloss": 0.0010107961973005305,
+        "raw_brier": 0.00021711354976846294,
+        "raw_roc_auc": 0.0045371543321757165
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.27054398148148145,
+        "top3_winner_capture": 0.5714699074074074,
+        "top6_winner_capture": 0.8153935185185185,
+        "mean_winner_rank": 3.8935185185185186,
+        "mean_reciprocal_winner_rank": 0.4720395923048599,
+        "race_normalized_nll": 2.149302990413396,
+        "raw_logloss": 0.22569245294826845,
+        "raw_brier": 0.06219466586695447,
+        "raw_roc_auc": 0.7753187818579832
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.28501157407407407,
+        "top3_winner_capture": 0.5957754629629629,
+        "top6_winner_capture": 0.8399884259259259,
+        "mean_winner_rank": 3.7254050925925926,
+        "mean_reciprocal_winner_rank": 0.4897020997160141,
+        "race_normalized_nll": 2.089655748845515,
+        "raw_logloss": 0.22306426500303597,
+        "raw_brier": 0.06158177323792007,
+        "raw_roc_auc": 0.7863861945465332
+      },
+      "label_ja": "血統型",
+      "role": "finalist"
+    },
+    "jockey_trainer_condition": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "条件型",
+      "role": "finalist"
+    },
+    "no_auto_full": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "Top1型",
+      "role": "finalist"
+    },
+    "no_auto_jockey": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "軽量型",
+      "role": "finalist"
+    },
+    "all_retest_v5": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "ALL死亡組",
+      "role": "memory_benchmark"
+    },
+    "elite5_retest_v5": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "精鋭5死亡組",
+      "role": "memory_benchmark"
+    },
+    "jockey_pedigree_fullauto_v3": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "騎手＋血統＋フルAUTO死亡組",
+      "role": "memory_benchmark"
+    },
+    "jockey_horse_pedigree_fullauto_v3": {
+      "expected_folds": 5,
+      "successful_folds": 0,
+      "failed_folds": 5,
+      "years_success": [],
+      "years_failed": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "max_peak_rss_mib": null,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "mean_reciprocal_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_logloss": null,
+        "raw_brier": null,
+        "raw_roc_auc": null
+      },
+      "label_ja": "騎手＋馬×騎手＋血統＋フルAUTO死亡組",
+      "role": "memory_benchmark"
+    }
+  }
+}
