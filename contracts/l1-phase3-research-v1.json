@@ -1,0 +1,68 @@
+{
+  "contract": "L1_PHASE3_RESEARCH_V1",
+  "locked_year": 2026,
+  "production_promotion_allowed": false,
+  "selection_policy": {
+    "outer_holdout_must_not_influence_feature_selection": true,
+    "feature_selection_scope": "FOLD_TRAIN_ONLY",
+    "ability_uses_odds": false,
+    "persistent_experiment_models": false,
+    "persistent_oof": false,
+    "summary_may_be_persisted": true
+  },
+  "base_plus_one_families": [
+    "OPPONENT",
+    "NETWORK",
+    "LAP",
+    "STYLE",
+    "DISTANCE",
+    "BACKFILL",
+    "AUTO",
+    "PEDIGREE",
+    "ACTOR",
+    "TIME_PACE"
+  ],
+  "window_grid": {
+    "recent_form": [3, 5, 8],
+    "style_last3f": [5, 10, 15],
+    "suitability": [10, 20, 30],
+    "opponent": [5, 10, 20],
+    "auto_rolling": [10, 20, 30],
+    "actor_recent": [15, 30, 50],
+    "time_pace": [5, 10, 20]
+  },
+  "shrinkage_grid": {
+    "ratePriorStrength": [5, 10, 20, 40],
+    "meanPriorStrength": [5, 10, 20],
+    "minSpecificObservations": [3, 5, 10]
+  },
+  "feature_selection_modes": ["none", "train_v1"],
+  "primary_comparison_metric": "race_normalized_nll",
+  "secondary_metrics": [
+    "top1_winner_capture",
+    "top3_winner_capture",
+    "top6_winner_capture",
+    "mean_reciprocal_winner_rank",
+    "raw_brier"
+  ],
+  "summary_contract": {
+    "name": "L1_PHASE3_RESEARCH_SUMMARY_V1",
+    "allowed_payloads": [
+      "candidate configuration",
+      "fold metrics",
+      "aggregate metrics",
+      "subgroup metric summaries",
+      "source SHAs",
+      "contract hashes",
+      "selected feature names/counts",
+      "feature-selection report"
+    ],
+    "forbidden_payloads": [
+      "trained model bytes",
+      "OOF row dumps",
+      "per-runner dataset dumps",
+      "full diagnostics tree dumps",
+      "large contribution row dumps"
+    ]
+  }
+}
