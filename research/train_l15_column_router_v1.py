@@ -15,6 +15,21 @@ FEATURE_CONTRACT="L15_COLUMN_CANDIDATE_FEATURES_V1"
 LABEL_CONTRACT="L15_COLUMN_CANDIDATE_LABELS_V1"
 COLUMNS=("COL1","COL2","COL3")
 
+def json_safe(value):
+    if isinstance(value,dict):
+        return {str(k):json_safe(v) for k,v in value.items()}
+    if isinstance(value,list):
+        return [json_safe(v) for v in value]
+    if isinstance(value,tuple):
+        return [json_safe(v) for v in value]
+    if isinstance(value,(np.integer,)):
+        return int(value)
+    if isinstance(value,(np.floating,)):
+        return float(value)
+    if isinstance(value,(np.bool_,)):
+        return bool(value)
+    return value
+
 
 def parse_args():
     p=argparse.ArgumentParser(description="Train fixed-hyperparameter L1.5 column routers and evaluate expert routing at fixed TopN cost.")
@@ -283,6 +298,7 @@ def main():
         ]
     }
     sp=Path(a.summary_out); sp.parent.mkdir(parents=True,exist_ok=True)
+    summary=json_safe(summary)
     sp.write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("L15_COLUMN_ROUTER_MODEL_V1_OK")
     print(json.dumps(summary,ensure_ascii=False,separators=(",",":")))
