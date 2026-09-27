@@ -65,6 +65,7 @@ def parse_args():
     p.add_argument("--max-invalid-rate", type=float, default=0.0)
     p.add_argument("--max-year-gap", type=float, default=0.10)
     p.add_argument("--execute", action="store_true")
+    p.add_argument("--max-execute-candidates", type=int, default=24)
     return p.parse_args()
 
 
@@ -417,6 +418,13 @@ def main():
     if not a.execute:
         return
 
+    if a.max_execute_candidates < 1:
+        raise ValueError("--max-execute-candidates must be >= 1")
+    if len(candidates) > a.max_execute_candidates:
+        raise ValueError(
+            f"candidate count {len(candidates)} exceeds --max-execute-candidates={a.max_execute_candidates}; "
+            "split the matrix or explicitly raise the limit"
+        )
     if not a.source_sha:
         raise ValueError("--source-sha is required for Phase 3 execution reproducibility")
 
