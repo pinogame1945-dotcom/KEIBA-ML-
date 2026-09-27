@@ -374,6 +374,7 @@ def main():
             "split": metadata["split"],
             "metrics": metadata["metrics"],
             "feature_count": metadata["feature_count"],
+            "features": metadata.get("features") or [],
             "reproducibility": metadata.get("reproducibility"),
             "subgroup_metrics": metadata.get("subgroup_metrics"),
             "diagnostics": metadata.get("diagnostics"),
