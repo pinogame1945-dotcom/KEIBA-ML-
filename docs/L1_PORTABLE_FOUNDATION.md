@@ -45,7 +45,7 @@ Do not commit every experimental dataset/model to Git history.
 
 ## Current Feature Set caution
 
-Direct pedigree IDs are now blocked from L1 entirely. Direct jockey/trainer IDs are also blocked until point-in-time performance features replace them. The result-page `actual_start_time` is not used because it is not guaranteed to be known before the race.
+Direct pedigree/jockey/trainer IDs are blocked from L1 predictors. Phase 2 adds point-in-time PEDIGREE and ACTOR performance features instead; the raw IDs exist only as internal state keys. The result-page `actual_start_time` is not used because it is not guaranteed to be known before the race.
 
 ## Future phases
 
@@ -112,6 +112,9 @@ Current sets:
 - `DISTANCE`
 - `BACKFILL`
 - `AUTO`
+- `PEDIGREE`
+- `ACTOR`
+- `TIME_PACE`
 
 The old stage names remain only as migration aliases for existing commands. New research must use `--feature-sets`.
 
@@ -120,7 +123,11 @@ Prediction inputs are also phase-bound:
 - `EARLY`: only facts available by entry/field publication
 - `FINAL`: may additionally use race-day conditions and announced body weight
 
-Purpose-specific history windows replace the single research-wide `history_limit`. Exact phase, Feature Sets and window values are persisted for reproducibility.
+Purpose-specific history windows replace the single research-wide `history_limit`. Actor recent-form and time/pace histories have their own windows. Exact phase, Feature Sets, window values and small-sample policy are persisted for reproducibility.
+
+Phase 2 builders use a shared small-sample contract. Raw observation counts remain visible; sparse PEDIGREE/ACTOR condition buckets fall back to broader point-in-time stats and are shrunk rather than discarded. Shrinkage strengths are research parameters for Phase 3, not production-selected constants.
+
+TIME_PACE stores normalized historical final-time, last3f, early-pace and late-pace performance plus FAST/EVEN/SLOW historical suitability. Target-race result/laps never enter its own prediction row.
 
 See `docs/L1_FEATURE_SET_CONTRACT_V1.md`.
 
@@ -163,8 +170,10 @@ Each fold metadata now records:
 - training-config SHA-256;
 - Feature Catalog SHA-256;
 - Feature Set Contract SHA-256;
+- Small Sample Contract SHA-256;
+- exact small-sample policy;
 - train/validation feature coverage;
 - subgroup metrics by surface, venue, distance band, class, grade, course layout and field size.
 
 Runner-local diagnostics can contain the LightGBM tree dump, split thresholds and mean absolute per-feature contribution.
-OOF rows carry dataset version, feature schema version, leakage policy, prediction phase, Feature Sets, history windows, exact feature list, Feature Catalog hash and Feature Set Contract hash.
+OOF rows carry dataset version, feature schema version, leakage policy, prediction phase, Feature Sets, history windows, small-sample policy, exact feature list, Feature Catalog hash, Feature Set Contract hash and Small Sample Contract hash.
