@@ -14,7 +14,7 @@ permissions:
 jobs:
   build:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 60
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       GENERATION_ID: bf811fa2eab73db0
@@ -48,8 +48,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python - <<'PY'
-          import json,os,subprocess,tempfile
+          found=""
+          for attempt in $(seq 1 80); do
+            found="$(python - <<'PY'
+          import json,os,subprocess
           prefix=os.environ["CORE_PREFIX"]
           refs=[]
           for page in range(1,1001):
@@ -66,14 +68,18 @@ jobs:
               if not batch:
                   break
           refs=sorted(set(refs))
-          if not refs:
-              raise SystemExit("saved five-king core bundle not found yet")
-          # The core bundle is content-addressed; duplicates with the same source are equivalent.
-          ref=refs[-1]
-          print("CORE_DATASET_REF",ref)
-          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
-              print(f"CORE_DATASET_REF={ref}",file=fh)
+          print(refs[-1] if refs else "")
           PY
+            )"
+            if [[ -n "$found" ]]; then
+              echo "CORE_DATASET_REF=$found" >> "$GITHUB_ENV"
+              echo "CORE_DATASET_REF $found"
+              exit 0
+            fi
+            sleep 30
+          done
+          echo "saved five-king core bundle did not appear in the polling window" >&2
+          exit 1
 
       - name: Restore saved five-king outputs
         run: |
