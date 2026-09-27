@@ -1,4 +1,4 @@
-export const PEDIGREE_FEATURE_BUILDER_VERSION = 1;
+export const PEDIGREE_FEATURE_BUILDER_VERSION = 2;
 
 function finite(value) {
   const n = Number(value);
@@ -10,13 +10,20 @@ function text(value) {
   return s || null;
 }
 
+function ancestorKey(node) {
+  const id = text(node?.ancestor_id);
+  if (id && id !== "000") return `id:${id}`;
+  const name = text(node?.ancestor_name)?.normalize("NFKC").toLowerCase();
+  return name ? `name:${name}` : null;
+}
+
 export function lineageFromHorseRecord(record) {
   const nodes = Array.isArray(record?.pedigree) ? record.pedigree : [];
   const sire = nodes.find(node => Number(node?.generation) === 1 && Number(node?.slot) === 0);
   const damsire = nodes.find(node => Number(node?.generation) === 2 && Number(node?.slot) === 2);
   return {
-    sire_id: text(sire?.ancestor_id),
-    damsire_id: text(damsire?.ancestor_id),
+    sire_key: ancestorKey(sire),
+    damsire_key: ancestorKey(damsire),
   };
 }
 
@@ -57,7 +64,9 @@ function blankStats() {
 }
 
 function updateStats(stats, result) {
+  if (String(result?.result_status ?? "").toUpperCase() !== "FINISHED") return;
   const finish = finite(result?.official_finish_position);
+  if (finish == null || finish < 1) return;
   stats.starts += 1;
   if (finish != null) {
     if (finish === 1) stats.wins += 1;
@@ -141,13 +150,13 @@ export function createPedigreeFeatureState() {
   return {
     snapshot(lineage, race) {
       return {
-        ...featuresFor("sire", lineage?.sire_id, race),
-        ...featuresFor("damsire", lineage?.damsire_id, race),
+        ...featuresFor("sire", lineage?.sire_key, race),
+        ...featuresFor("damsire", lineage?.damsire_key, race),
       };
     },
     add(lineage, race, result) {
-      add("sire", lineage?.sire_id, race, result);
-      add("damsire", lineage?.damsire_id, race, result);
+      add("sire", lineage?.sire_key, race, result);
+      add("damsire", lineage?.damsire_key, race, result);
     },
     stat_rows() {
       return stats.size;
