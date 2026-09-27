@@ -160,6 +160,7 @@ def main():
                 "candidate": result.get("candidate", candidate_name), "job_id": job.get("id"),
                 "status": "success", "feature_sets": result.get("feature_sets") or [],
                 "actor_prefixes": result.get("actor_prefixes") or [],
+                "auto_slices": result.get("auto_slices") or [],
                 "feature_count": result.get("feature_count"), "metrics": result.get("metrics") or {},
                 "resource_usage": result.get("resource_usage") or extract_resource_usage(log_text),
             })
@@ -168,6 +169,7 @@ def main():
                 "candidate": candidate_name, "job_id": job.get("id"),
                 "status": job.get("conclusion") or job.get("status"), "feature_sets": [],
                 "actor_prefixes": [],
+                "auto_slices": [],
                 "feature_count": None, "metrics": {}, "failed_step": failed_step(job),
                 "error_excerpt": short_error(log_text), "log_fetch_error": log_error,
                 "resource_usage": extract_resource_usage(log_text),
@@ -225,13 +227,13 @@ def main():
         f"- Run conclusion: {run.get('conclusion')}",
         f"- Ledger complete: {'YES' if scorecard['complete'] else 'NO'}",
         "", "## Scorecard", "",
-        "| Candidate | Actor slice | Status | Features | Peak MiB | Seconds | Top1 | Top3 | Top6 | Mean rank | MRR | Race NLL | LogLoss | Brier | AUC |",
-        "|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
+        "| Candidate | Actor slice | AUTO slice | Status | Features | Peak MiB | Seconds | Top1 | Top3 | Top6 | Mean rank | MRR | Race NLL | LogLoss | Brier | AUC |",
+        "|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|---:|",
     ]
     for row in sorted(candidates, key=lambda x: x["candidate"]):
         m = row.get("metrics") or {}
         lines.append("| " + " | ".join([
-            row["candidate"], ",".join(row.get("actor_prefixes") or []), row["status"], fmt(row.get("feature_count")),
+            row["candidate"], ",".join(row.get("actor_prefixes") or []), ",".join(row.get("auto_slices") or []), row["status"], fmt(row.get("feature_count")),
             fmt((row.get("resource_usage") or {}).get("candidate_peak_rss_mib") or (row.get("resource_usage") or {}).get("observed_peak_rss_mib")),
             fmt((row.get("resource_usage") or {}).get("candidate_elapsed_seconds") or (row.get("resource_usage") or {}).get("observed_stage_seconds")),
             fmt(m.get("top1_winner_capture")), fmt(m.get("top3_winner_capture")),
