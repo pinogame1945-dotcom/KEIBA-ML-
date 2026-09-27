@@ -71,13 +71,6 @@ if (JSON.stringify(catalog.counts) !== JSON.stringify(expectedCounts)) {
   throw new Error("catalog counts are stale");
 }
 
-console.log("L1_FEATURE_CATALOG_OK");
-console.log(JSON.stringify({
-  version: catalog.catalog_version,
-  features: (catalog.features ?? []).length,
-  counts: catalog.counts
-}, null, 2));
-
 const forbiddenModelKeys = new Set(
   (catalog.features ?? [])
     .filter(row => row.l1_allowed === false)
@@ -89,3 +82,11 @@ for (const key of forbiddenModelKeys) {
 if (!forbiddenModelKeys.has("jockey_id") || !forbiddenModelKeys.has("trainer_id")) {
   throw new Error("catalog model-key gate is missing jockey/trainer IDs");
 }
+
+console.log("L1_FEATURE_CATALOG_OK");
+console.log(JSON.stringify({
+  version: catalog.catalog_version,
+  features: (catalog.features ?? []).length,
+  counts: catalog.counts,
+  forbidden_model_keys: forbiddenModelKeys.size,
+}, null, 2));
