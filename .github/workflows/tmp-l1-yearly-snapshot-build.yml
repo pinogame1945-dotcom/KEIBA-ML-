@@ -1,0 +1,86 @@
+name: Temporary L1 yearly snapshot build
+
+on:
+  push:
+    branches:
+      - feature/l1-yearly-superset-snapshot-v1-20260927
+    paths:
+      - .github/workflows/tmp-l1-yearly-snapshot-build.yml
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: main
+          path: backfill
+
+      - name: Record BACKFILL SHA
+        run: echo "BACKFILL_SHA=$(git -C backfill rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Snapshot unit smoke
+        run: npm run smoke:l1-yearly-snapshot
+
+      - name: Syntax checks
+        run: |
+          node --check src/yearly-snapshot-store.mjs
+          node --check research/build-yearly-superset-snapshots.mjs
+
+      - name: READINESS 2022-2025
+        run: |
+          node scripts/audit-backfill-readiness.mjs \
+            --source-root backfill \
+            --start 2022-01-01 \
+            --end 2025-12-31 \
+            --report-out out/snapshot-readiness.json \
+            --source-sha "$BACKFILL_SHA" \
+            --min-core-known-coverage 0.98 \
+            --max-invalid-rate 0 \
+            --max-year-gap 0.10 \
+            --require-source-integrity
+
+      - name: Build yearly superset snapshots
+        run: |
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/yearly-snapshots \
+            --source-start 2022-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2022-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "1c348b7ac78399c1671ed0893c10d76bdc969274"
+
+      - name: Print snapshot manifest and sizes
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest=$(find out/yearly-snapshots -name manifest.json -print -quit)
+          test -n "$manifest"
+          cat "$manifest"
+          echo "--- disk usage ---"
+          du -h "$(dirname "$manifest")"/*
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -R -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows; then
+            echo "Persistent artifact/cache action found" >&2
+            exit 1
+          fi
