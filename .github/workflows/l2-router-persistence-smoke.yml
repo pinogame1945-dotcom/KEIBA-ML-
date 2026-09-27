@@ -1,0 +1,78 @@
+name: L2 Router Persistence Smoke
+
+on:
+  push:
+    branches:
+      - research/l2-king-router-v0-20260928
+    paths:
+      - .github/triggers/l2-router-persistence-smoke.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: \${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Build tiny V1 router bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/router-smoke
+          cat > out/router-smoke/summary.json <<'JSON'
+          {
+            "contract":"L2_KING_ROUTER_V1",
+            "router_test":{"races":2,"selected":1,"skipped":1}
+          }
+          JSON
+          cat > out/router-smoke/decisions.jsonl <<'JSONL'
+          {"race_id":"SMOKE-R1","predicted_class":"CORE","selected_hit":true}
+          {"race_id":"SMOKE-R2","predicted_class":"NEITHER","selected_hit":false}
+          JSONL
+          python research/build_l2_router_bundle.py \
+            --router-version V1 \
+            --snapshot-generation smoke-generation \
+            --train-start 2021-01-01 \
+            --train-end 2021-12-31 \
+            --test-start 2022-01-01 \
+            --test-end 2022-12-31 \
+            --summary out/router-smoke/summary.json \
+            --decisions out/router-smoke/decisions.jsonl \
+            --train-l2-dataset-ref smoke/train \
+            --test-l2-dataset-ref smoke/test \
+            --expert no_auto_jockey=smoke-light \
+            --expert core4_no_pedigree=smoke-core \
+            --code-sha "$GITHUB_SHA" \
+            --out-root out/router-smoke/bundles
+
+      - name: Ephemeral upload download verify delete
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/persist_l2_router_bundle.py out/router-smoke/bundles --ephemeral
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l2-router-persistence-smoke.yml; then
+            echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle smoke dataset is created privately and deleted in the same run."
