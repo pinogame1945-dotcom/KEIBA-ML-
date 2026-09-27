@@ -1,0 +1,311 @@
+{
+  "contract": "L1_MAIDEN_SPECIALIST_SCORECARD_V1",
+  "experiment_id": "MAIDEN-002",
+  "run_id": 36339499483,
+  "complete": true,
+  "candidates": [
+    {
+      "candidate": "core4_no_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 649,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.29608938547486036,
+        "top3_winner_capture": 0.6464485235434956,
+        "top6_winner_capture": 0.8539505187549881,
+        "mean_winner_rank": 3.482043096568236,
+        "mean_reciprocal_winner_rank": 0.5089779766655266,
+        "race_normalized_nll": 2.015797334326247,
+        "raw_logloss": 0.20462072055004032,
+        "raw_brier": 0.057192139722981206,
+        "raw_roc_auc": 0.8242192323227249
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 262.194,
+          "peak_rss_mib": 504.973,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 405.703,
+          "peak_rss_mib": 13427.133,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 667.902,
+        "candidate_peak_rss_mib": 13427.133
+      }
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 423,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.3040702314445331,
+        "top3_winner_capture": 0.6368715083798883,
+        "top6_winner_capture": 0.8467677573822825,
+        "mean_winner_rank": 3.51316839584996,
+        "mean_reciprocal_winner_rank": 0.5108614749177398,
+        "race_normalized_nll": 2.025933749565812,
+        "raw_logloss": 0.20623776698122076,
+        "raw_brier": 0.05735760614445736,
+        "raw_roc_auc": 0.8188160762810587
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 267.164,
+          "peak_rss_mib": 524.801,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 279.08,
+          "peak_rss_mib": 9124.051,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 546.247,
+        "candidate_peak_rss_mib": 9124.051
+      }
+    },
+    {
+      "candidate": "maiden_same_full",
+      "status": "success",
+      "train_scope": "MAIDEN",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.3016759776536313,
+        "top3_winner_capture": 0.6161213088587391,
+        "top6_winner_capture": 0.8539505187549881,
+        "mean_winner_rank": 3.5347166799680765,
+        "mean_reciprocal_winner_rank": 0.5070399317805543,
+        "race_normalized_nll": 2.040564389918668,
+        "raw_logloss": 0.20759990418504504,
+        "raw_brier": 0.0576388881011467,
+        "raw_roc_auc": 0.8154291332747732
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "maiden_same_full:projection",
+          "elapsed_seconds": 159.927,
+          "peak_rss_mib": 94.961,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "maiden_same_full:training",
+          "elapsed_seconds": 189.946,
+          "peak_rss_mib": 5666.457,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 349.875,
+        "candidate_peak_rss_mib": 5666.457
+      }
+    },
+    {
+      "candidate": "maiden_same_full_pedigree_v1",
+      "status": "success",
+      "train_scope": "MAIDEN",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 504,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.29209896249002393,
+        "top3_winner_capture": 0.6129289704708699,
+        "top6_winner_capture": 0.839584996009577,
+        "mean_winner_rank": 3.5411013567438148,
+        "mean_reciprocal_winner_rank": 0.5028259261798766,
+        "race_normalized_nll": 2.0423258793448396,
+        "raw_logloss": 0.20805468798042231,
+        "raw_brier": 0.057860123219108134,
+        "raw_roc_auc": 0.8153879433599669
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "maiden_same_full_pedigree_v1:projection",
+          "elapsed_seconds": 244.964,
+          "peak_rss_mib": 506.625,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "maiden_same_full_pedigree_v1:training",
+          "elapsed_seconds": 307.143,
+          "peak_rss_mib": 10899.004,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 552.111,
+        "candidate_peak_rss_mib": 10899.004
+      }
+    },
+    {
+      "candidate": "no_auto_full",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.30965682362330404,
+        "top3_winner_capture": 0.6312849162011173,
+        "top6_winner_capture": 0.8443735035913806,
+        "mean_winner_rank": 3.5522745411013568,
+        "mean_reciprocal_winner_rank": 0.5119451057499741,
+        "race_normalized_nll": 2.0374419522671143,
+        "raw_logloss": 0.207024801989576,
+        "raw_brier": 0.057409818401420155,
+        "raw_roc_auc": 0.8160050786308815
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 159.929,
+          "peak_rss_mib": 94.523,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 199.167,
+          "peak_rss_mib": 5528.926,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 359.099,
+        "candidate_peak_rss_mib": 5528.926
+      }
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 504,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.30646448523543496,
+        "top3_winner_capture": 0.6344772545889864,
+        "top6_winner_capture": 0.8499600957701516,
+        "mean_winner_rank": 3.507581803671189,
+        "mean_reciprocal_winner_rank": 0.5109409212761168,
+        "race_normalized_nll": 2.022669218697451,
+        "raw_logloss": 0.20612624628327345,
+        "raw_brier": 0.05734950003351899,
+        "raw_roc_auc": 0.8193501658345923
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 241.911,
+          "peak_rss_mib": 502.621,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 331.788,
+          "peak_rss_mib": 10899.137,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 573.703,
+        "candidate_peak_rss_mib": 10899.137
+      }
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "MAIDEN",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 164,
+      "metrics": {
+        "races": 1253,
+        "top1_winner_capture": 0.3032721468475658,
+        "top3_winner_capture": 0.6312849162011173,
+        "top6_winner_capture": 0.8363926576217079,
+        "mean_winner_rank": 3.5650438946528333,
+        "mean_reciprocal_winner_rank": 0.5076727730458775,
+        "race_normalized_nll": 2.044116782356366,
+        "raw_logloss": 0.20761255764775371,
+        "raw_brier": 0.05758012915511051,
+        "raw_roc_auc": 0.8149110725910891
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 160.855,
+          "peak_rss_mib": 102.207,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 142.495,
+          "peak_rss_mib": 3424.457,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 303.351,
+        "candidate_peak_rss_mib": 3424.457
+      }
+    }
+  ]
+}

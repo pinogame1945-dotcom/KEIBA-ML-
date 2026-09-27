@@ -1,0 +1,42 @@
+{
+  "contract": "L1_MAIDEN_SPECIALIST_LEDGER_V1",
+  "experiment_id": "MAIDEN-002",
+  "run_id": 36339499483,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36339499483",
+  "head_branch": "research/l1-maiden-preseason-v1-20260928",
+  "head_sha": "db085a8d694a67bf883f6da528259c18d9f392e0",
+  "archived_at": "2026-09-27T20:17:46.780769+00:00",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "specialist_domain": "MAIDEN",
+  "snapshot_generation": "1474ef105ac588c1",
+  "snapshot_persistence": "runner_local_ephemeral",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "race_class": "MAIDEN"
+  },
+  "expected_candidates": [
+    "core4_no_pedigree",
+    "no_auto_full_pedigree",
+    "jockey_trainer_condition",
+    "no_auto_full",
+    "no_auto_jockey",
+    "maiden_same_full",
+    "maiden_same_full_pedigree_v1"
+  ],
+  "candidate_count": 7,
+  "missing_candidates": [],
+  "separate_from_main_feature_arena": true,
+  "storage_policy": {
+    "ledger": "git",
+    "snapshot": "ephemeral",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}
