@@ -54,9 +54,6 @@ Current sets:
 - `DISTANCE`
 - `BACKFILL`
 - `AUTO`
-
-Reserved for later builder work:
-
 - `PEDIGREE`
 - `ACTOR`
 - `TIME_PACE`
@@ -74,10 +71,26 @@ The old single `history_limit` is deprecated. Canonical defaults are:
 - suitability: 20 starts
 - opponent: 10 starts
 - AUTO rolling: 20 starts
+- actor recent form: 30 starts
+- time/pace horse history: 10 starts
 - career starts: all prior history
 - Elo: all prior history
 
 The bounded windows are explicit experiment parameters. Their actual values are persisted with the model and OOF output.
+
+## Small-sample policy
+
+PEDIGREE and ACTOR keep raw observation counts. Small samples are not dropped merely because they are small.
+
+The shared contract is `contracts/l1-small-sample-contract-v1.json`:
+
+- raw counts/rates/means remain visible;
+- rates and means may be shrunk toward a broader point-in-time prior;
+- sparse condition buckets fall back to entity-wide stats, then global stats;
+- rate/mean shrinkage strength and the minimum condition sample are research parameters;
+- the exact policy is persisted with model/meta/schema/OOF.
+
+The defaults are engineering baselines, not production-selected values.
 
 ## BACKFILL vs AUTO
 
@@ -99,6 +112,8 @@ Every trained fold records:
 - categorical levels
 - Feature Catalog SHA-256
 - Feature Set Contract SHA-256
+- Small Sample Contract SHA-256
+- exact small-sample policy
 - training-config SHA-256
 - model SHA-256
 - BACKFILL source SHA when supplied
@@ -108,7 +123,7 @@ OOF rows also carry phase, Feature Sets, history windows, exact feature list and
 
 ## Production boundary
 
-Feature Set availability does not mean production adoption. Existing STYLE/AUTO/BACKFILL results are research candidates only until walk-forward selection is complete.
+Feature Set availability does not mean production adoption. STYLE/AUTO/BACKFILL/PEDIGREE/ACTOR/OPPONENT/TIME_PACE remain research candidates until walk-forward selection is complete.
 
 2026 remains locked for final confirmation and must not be used to choose Feature Sets or history windows.
 
