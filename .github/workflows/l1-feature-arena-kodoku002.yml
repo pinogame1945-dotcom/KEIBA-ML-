@@ -125,6 +125,7 @@ jobs:
               "feature_sets":r["feature_sets"],
               "feature_count":r["feature_count"],
               "metrics":r["metrics"],
+              "resource_usage":r.get("resource_usage"),
           },ensure_ascii=False,separators=(",",":")))
           PY
 
