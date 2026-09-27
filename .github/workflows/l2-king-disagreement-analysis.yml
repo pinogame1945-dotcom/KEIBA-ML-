@@ -42,12 +42,43 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p out/l2-analysis/bundle
-          kaggle datasets download "$L2_DATASET_REF" -p out/l2-analysis/bundle --unzip --quiet --force
-          test -s out/l2-analysis/bundle/no_auto_jockey.jsonl.gz
-          test -s out/l2-analysis/bundle/core4_no_pedigree.jsonl.gz
-          test -s out/l2-analysis/bundle/manifest.json
-          cat out/l2-analysis/bundle/manifest.json
+          root="out/l2-analysis/bundle"
+          mkdir -p "$root"
+          kaggle datasets download "$L2_DATASET_REF" -p "$root" --unzip --quiet --force
+          echo "--- downloaded L2 files ---"
+          find "$root" -maxdepth 2 -type f -print | sort
+
+          manifest="$(find "$root" -name manifest.json -print -quit)"
+          test -n "$manifest"
+          test -s "$manifest"
+          cat "$manifest"
+
+          python - "$manifest" "$root" "$GITHUB_ENV" <<'PY'
+          import json,sys
+          from pathlib import Path
+          manifest_path,root,env_path=sys.argv[1:]
+          m=json.load(open(manifest_path,encoding="utf-8"))
+          candidates={str(x.get("candidate")):str(x.get("file")) for x in m.get("expert_outputs",[])}
+          aliases={
+              "LIGHT_L2":"no_auto_jockey",
+              "CORE_L2":"core4_no_pedigree",
+          }
+          with open(env_path,"a",encoding="utf-8") as env:
+              for env_name,candidate in aliases.items():
+                  declared=candidates.get(candidate)
+                  options=[]
+                  if declared:
+                      options.append(Path(root)/declared)
+                      if declared.endswith(".gz"):
+                          options.append(Path(root)/declared[:-3])
+                  options.extend(Path(root).rglob(f"*{candidate}*.jsonl*"))
+                  options.extend(Path(root).rglob(f"*{candidate.replace('_','-')}*.jsonl*"))
+                  found=next((p for p in options if p.is_file() and p.stat().st_size>0),None)
+                  if not found:
+                      raise SystemExit(f"could not resolve {candidate}; declared={declared}")
+                  print(f"{env_name}={found}",file=env)
+                  print(f"{env_name} -> {found}")
+          PY
 
       - name: Restore matching 2021 snapshot read-only
         shell: bash
