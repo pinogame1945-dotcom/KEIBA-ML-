@@ -7,6 +7,10 @@ on:
       - feature/l1-feature-arena-trainer-v1-20260927
     paths:
       - .github/workflows/l1-feature-arena-first-kodoku.yml
+      - scripts/kaggle-fetch-snapshot.sh
+      - research/run_feature_arena.py
+      - research/train-staged-lightgbm.py
+      - research/project-yearly-snapshots.mjs
 
 permissions:
   contents: read
@@ -18,6 +22,7 @@ jobs:
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       GENERATION_ID: e75cd10b7837f676
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-e75cd10b7837f676
       BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
 
     steps:
