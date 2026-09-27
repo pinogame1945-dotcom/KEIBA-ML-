@@ -1,0 +1,32 @@
+{
+  "contract": "L1_NEWCOMER_SPECIALIST_LEDGER_V1",
+  "experiment_id": "NEWCOMER-001",
+  "run_id": 36335844882,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36335844882",
+  "workflow": "L1 Newcomer Specialist V0",
+  "head_branch": "research/l1-newcomer-specialist-v0-20260928",
+  "head_sha": "9612bf9c2032a1677e3cbc1a8a1aefc97ab0fbcf",
+  "run_conclusion": "success",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "specialist_domain": "NEWCOMER",
+  "snapshot_generation": "e75cd10b7837f676",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "race_class": "NEWCOMER"
+  },
+  "candidate_count": 6,
+  "separate_from_main_feature_arena": true,
+  "storage_policy": {
+    "ledger": "git",
+    "models": "not_stored_by_ledger",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}
