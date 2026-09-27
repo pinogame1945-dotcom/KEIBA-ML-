@@ -79,27 +79,36 @@ def extract_result(log_text):
 
 def extract_resource_usage(log_text):
     usages = []
+    samples = []
+    markers = (
+        ("FEATURE_ARENA_RESOURCE_USAGE ", usages),
+        ("FEATURE_ARENA_RESOURCE_SAMPLE ", samples),
+    )
     for raw in (log_text or "").splitlines():
         line = clean_line(raw)
-        marker = "FEATURE_ARENA_RESOURCE_USAGE "
-        at = line.find(marker)
-        if at < 0:
-            continue
-        payload = line[at + len(marker):].strip()
-        try:
-            value = json.loads(payload)
-        except json.JSONDecodeError:
-            continue
-        if isinstance(value, dict):
-            usages.append(value)
-    if not usages:
+        for marker, target in markers:
+            at = line.find(marker)
+            if at < 0:
+                continue
+            payload = line[at + len(marker):].strip()
+            try:
+                value = json.loads(payload)
+            except json.JSONDecodeError:
+                continue
+            if isinstance(value, dict):
+                target.append(value)
+            break
+    if not usages and not samples:
         return None
-    peaks = [float(x.get("peak_rss_mib")) for x in usages if x.get("peak_rss_mib") is not None]
+    observed = usages + samples
+    peaks = [float(x.get("peak_rss_mib")) for x in observed if x.get("peak_rss_mib") is not None]
     elapsed = [float(x.get("elapsed_seconds")) for x in usages if x.get("elapsed_seconds") is not None]
     return {
         "stages": usages,
+        "samples": samples,
         "observed_peak_rss_mib": max(peaks) if peaks else None,
         "observed_stage_seconds": sum(elapsed) if elapsed else None,
+        "completed_resource_stages": len(usages),
     }
 
 
