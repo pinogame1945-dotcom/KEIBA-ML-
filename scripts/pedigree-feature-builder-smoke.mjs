@@ -7,7 +7,7 @@ import {
   createPedigreeFeatureState,
 } from "../src/pedigree-feature-builder.mjs";
 
-assert.equal(PEDIGREE_FEATURE_BUILDER_VERSION, 3);
+assert.equal(PEDIGREE_FEATURE_BUILDER_VERSION, 4);
 assert.equal(pedigreeDistanceBand(1200), "SPRINT_1400_OR_LESS");
 assert.equal(pedigreeDistanceBand(1600), "MILE_1600_1800");
 assert.equal(pedigreeDistanceBand(2000), "MIDDLE_2000_2200");
@@ -46,6 +46,7 @@ const turf = {
   venue_code: "05",
   course_layout: "OUTER",
   track_condition: "GOOD",
+  race_class_normalized: "NEWCOMER",
 };
 const dirt = { ...turf, surface: "DIRT", venue_code: "06" };
 
@@ -54,6 +55,8 @@ assert.equal(before.ped_sire_all_starts, 0);
 assert.equal(before.ped_sire_surface_starts, 0);
 assert.equal(before.ped_sire_surface_condition_known, 1);
 assert.equal(before.ped_sire_surface_fallback_level, 3);
+assert.equal(before.ped_sire_race_class_condition_known, 1);
+assert.equal(before.ped_sire_race_class_starts, 0);
 
 state.add(lineage, turf, {
   result_status: "FINISHED",
@@ -73,6 +76,9 @@ assert.equal(after.ped_sire_all_starts, 2);
 assert.equal(after.ped_sire_all_win_observations, 2);
 assert.equal(after.ped_sire_all_margin_observations, 1);
 assert.equal(after.ped_sire_surface_starts, 1);
+assert.equal(after.ped_sire_race_class_starts, 2);
+assert.ok(after.ped_sire_race_class_effective_win_rate > 0);
+assert.ok(after.ped_sire_race_class_effective_win_rate < 1);
 assert.equal(after.ped_sire_surface_fallback_level, 1);
 assert.equal(after.ped_sire_surface_effective_starts, 2);
 assert.ok(after.ped_sire_all_effective_win_rate > 0);
@@ -98,6 +104,7 @@ assert.equal(enough.ped_sire_surface_effective_starts, 3);
 
 const missingCondition = state.snapshot(lineage, {});
 assert.equal(missingCondition.ped_sire_surface_condition_known, 0);
+assert.equal(missingCondition.ped_sire_race_class_condition_known, 0);
 assert.equal(missingCondition.ped_sire_surface_fallback_level, 1);
 
 const keys = Object.keys(enough);
