@@ -107,13 +107,13 @@ while (at < races.length) {
       const finish = Number(result?.official_finish_position);
       if (!Number.isFinite(finish) || finish < 1) continue;
       starterRows += 1;
-      const lineage = lineageByHorse.get(horseId) ?? { sire_id: null, damsire_id: null };
+      const lineage = lineageByHorse.get(horseId) ?? { sire_key: null, damsire_key: null };
 
       if (date >= emitStart) {
         const features = state.snapshot(lineage, row?.race ?? {});
         emitRows += 1;
-        if (lineage.sire_id) sireKnown += 1;
-        if (lineage.damsire_id) damsireKnown += 1;
+        if (lineage.sire_key) sireKnown += 1;
+        if (lineage.damsire_key) damsireKnown += 1;
         if ((features.ped_sire_all_starts ?? 0) > 0) sireHistoryRows += 1;
         if ((features.ped_damsire_all_starts ?? 0) > 0) damsireHistoryRows += 1;
         totalFeatureKeys += Object.keys(features).length;
@@ -122,8 +122,8 @@ while (at < races.length) {
             date,
             race_id: row?.race?.race_id ?? null,
             horse_id: horseId,
-            sire_known: Boolean(lineage.sire_id),
-            damsire_known: Boolean(lineage.damsire_id),
+            sire_known: Boolean(lineage.sire_key),
+            damsire_known: Boolean(lineage.damsire_key),
             sire_starts: features.ped_sire_all_starts ?? 0,
             sire_top3_rate: features.ped_sire_all_top3_rate ?? null,
             damsire_starts: features.ped_damsire_all_starts ?? 0,
