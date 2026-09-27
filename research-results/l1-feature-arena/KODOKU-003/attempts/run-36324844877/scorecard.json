@@ -1,0 +1,985 @@
+{
+  "contract": "L1_FEATURE_ARENA_SCORECARD_V1",
+  "experiment_id": "KODOKU-003",
+  "run_id": 36324844877,
+  "complete": false,
+  "composite_winner": null,
+  "candidates": [
+    {
+      "candidate": "actor_full",
+      "job_id": 108635501516,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 217,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2647569444444444,
+        "top3_winner_capture": 0.5818865740740741,
+        "top6_winner_capture": 0.8052662037037037,
+        "mean_winner_rank": 3.9288194444444446,
+        "mean_reciprocal_winner_rank": 0.47178686326779157,
+        "race_normalized_nll": 2.1418297729481535,
+        "raw_logloss": 0.2263612822936886,
+        "raw_brier": 0.06208400403486521,
+        "raw_roc_auc": 0.7729911072659497
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_full:projection",
+          "elapsed_seconds": 157.635,
+          "peak_rss_mib": 514.047,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_full:training",
+          "elapsed_seconds": 158.432,
+          "peak_rss_mib": 6472.152,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 316.069,
+        "candidate_peak_rss_mib": 6472.152
+      }
+    },
+    {
+      "candidate": "actor_horse_jockey",
+      "job_id": 108635501505,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_horse_jockey_"
+      ],
+      "feature_count": 63,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2552083333333333,
+        "top3_winner_capture": 0.5581597222222222,
+        "top6_winner_capture": 0.7803819444444444,
+        "mean_winner_rank": 4.170717592592593,
+        "mean_reciprocal_winner_rank": 0.4564409793212642,
+        "race_normalized_nll": 2.1844206135346322,
+        "raw_logloss": 0.2293730849729844,
+        "raw_brier": 0.06249730945593849,
+        "raw_roc_auc": 0.7600997213362835
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_horse_jockey:projection",
+          "elapsed_seconds": 137.536,
+          "peak_rss_mib": 532.465,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_horse_jockey:training",
+          "elapsed_seconds": 90.973,
+          "peak_rss_mib": 2193.297,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 228.51,
+        "candidate_peak_rss_mib": 2193.297
+      }
+    },
+    {
+      "candidate": "actor_jockey",
+      "job_id": 108635501591,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 115,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.26880787037037035,
+        "top3_winner_capture": 0.5787037037037037,
+        "top6_winner_capture": 0.8127893518518519,
+        "mean_winner_rank": 3.927372685185185,
+        "mean_reciprocal_winner_rank": 0.4728589256896804,
+        "race_normalized_nll": 2.1466617713338847,
+        "raw_logloss": 0.22672240333263938,
+        "raw_brier": 0.062145991426462,
+        "raw_roc_auc": 0.7721645667676967
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_jockey:projection",
+          "elapsed_seconds": 146.718,
+          "peak_rss_mib": 542.09,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_jockey:training",
+          "elapsed_seconds": 117.217,
+          "peak_rss_mib": 3584.801,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 263.936,
+        "candidate_peak_rss_mib": 3584.801
+      }
+    },
+    {
+      "candidate": "actor_jockey_horse_jockey",
+      "job_id": 108635501623,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_horse_jockey_"
+      ],
+      "feature_count": 140,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2722800925925926,
+        "top3_winner_capture": 0.5859375,
+        "top6_winner_capture": 0.8052662037037037,
+        "mean_winner_rank": 3.9215856481481484,
+        "mean_reciprocal_winner_rank": 0.4757896791087151,
+        "race_normalized_nll": 2.14447457452022,
+        "raw_logloss": 0.22651079547423073,
+        "raw_brier": 0.06204789243916479,
+        "raw_roc_auc": 0.7721392632425164
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_jockey_horse_jockey:projection",
+          "elapsed_seconds": 152.805,
+          "peak_rss_mib": 537.023,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_jockey_horse_jockey:training",
+          "elapsed_seconds": 132.467,
+          "peak_rss_mib": 4001.887,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 285.273,
+        "candidate_peak_rss_mib": 4001.887
+      }
+    },
+    {
+      "candidate": "actor_jockey_trainer",
+      "job_id": 108635501619,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 192,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.26851851851851855,
+        "top3_winner_capture": 0.5833333333333334,
+        "top6_winner_capture": 0.8075810185185185,
+        "mean_winner_rank": 3.923900462962963,
+        "mean_reciprocal_winner_rank": 0.4738137466531819,
+        "race_normalized_nll": 2.1418002081818313,
+        "raw_logloss": 0.22632900565056818,
+        "raw_brier": 0.06207167023285436,
+        "raw_roc_auc": 0.7732426483178395
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_jockey_trainer:projection",
+          "elapsed_seconds": 156.876,
+          "peak_rss_mib": 519.133,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_jockey_trainer:training",
+          "elapsed_seconds": 155.645,
+          "peak_rss_mib": 5835.977,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 312.522,
+        "candidate_peak_rss_mib": 5835.977
+      }
+    },
+    {
+      "candidate": "actor_trainer",
+      "job_id": 108635501609,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_trainer_"
+      ],
+      "feature_count": 115,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2583912037037037,
+        "top3_winner_capture": 0.5732060185185185,
+        "top6_winner_capture": 0.7890625,
+        "mean_winner_rank": 4.052372685185185,
+        "mean_reciprocal_winner_rank": 0.46377934781287006,
+        "race_normalized_nll": 2.168700671697372,
+        "raw_logloss": 0.22834858627582327,
+        "raw_brier": 0.06235706245857059,
+        "raw_roc_auc": 0.7646707300813461
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_trainer:projection",
+          "elapsed_seconds": 156.584,
+          "peak_rss_mib": 519.258,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_trainer:training",
+          "elapsed_seconds": 108.988,
+          "peak_rss_mib": 3579.457,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 265.574,
+        "candidate_peak_rss_mib": 3579.457
+      }
+    },
+    {
+      "candidate": "actor_trainer_horse_jockey",
+      "job_id": 108635501577,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_trainer_",
+        "actor_horse_jockey_"
+      ],
+      "feature_count": 140,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.26591435185185186,
+        "top3_winner_capture": 0.5743634259259259,
+        "top6_winner_capture": 0.7919560185185185,
+        "mean_winner_rank": 4.030092592592593,
+        "mean_reciprocal_winner_rank": 0.46866566640361573,
+        "race_normalized_nll": 2.1646305297883615,
+        "raw_logloss": 0.22804574986880174,
+        "raw_brier": 0.06230504412693926,
+        "raw_roc_auc": 0.7658812016587994
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "actor_trainer_horse_jockey:projection",
+          "elapsed_seconds": 149.73,
+          "peak_rss_mib": 538.32,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "actor_trainer_horse_jockey:training",
+          "elapsed_seconds": 129.386,
+          "peak_rss_mib": 3990.07,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 279.117,
+        "candidate_peak_rss_mib": 3990.07
+      }
+    },
+    {
+      "candidate": "all_retest",
+      "job_id": 108635501418,
+      "status": "failure",
+      "feature_sets": [],
+      "actor_prefixes": [],
+      "feature_count": null,
+      "metrics": {},
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T14:20:22.8684834Z ##[error]The runner has received a shutdown signal. This can happen when the runner service is stopped, or a manually started runner is canceled.",
+        "2026-09-27T14:20:24.3299215Z ##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null,
+      "resource_usage": {
+        "stages": [
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 337.973,
+            "peak_rss_mib": 536.578,
+            "exit_code": 0
+          }
+        ],
+        "samples": [
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 27.4,
+            "peak_rss_mib": 27.4
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 495.2,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 221.1,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 45.6,
+            "rss_mib": 204.3,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 60.8,
+            "rss_mib": 214.8,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 75.9,
+            "rss_mib": 338.3,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 91.1,
+            "rss_mib": 161.9,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 106.3,
+            "rss_mib": 393.0,
+            "peak_rss_mib": 495.2
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 121.5,
+            "rss_mib": 355.4,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 136.7,
+            "rss_mib": 362.7,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 151.9,
+            "rss_mib": 208.2,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 167.0,
+            "rss_mib": 207.1,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 182.2,
+            "rss_mib": 323.9,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 197.4,
+            "rss_mib": 265.0,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 212.6,
+            "rss_mib": 364.8,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 227.7,
+            "rss_mib": 259.8,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 242.9,
+            "rss_mib": 217.0,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 258.1,
+            "rss_mib": 210.3,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 273.2,
+            "rss_mib": 215.8,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 288.4,
+            "rss_mib": 202.2,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 303.6,
+            "rss_mib": 356.6,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 318.7,
+            "rss_mib": 211.4,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:projection",
+            "elapsed_seconds": 333.9,
+            "rss_mib": 216.2,
+            "peak_rss_mib": 536.6
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 9.8,
+            "peak_rss_mib": 9.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 15.1,
+            "rss_mib": 2814.6,
+            "peak_rss_mib": 2814.6
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 30.3,
+            "rss_mib": 5780.4,
+            "peak_rss_mib": 5780.4
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 45.4,
+            "rss_mib": 8720.7,
+            "peak_rss_mib": 8720.7
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 60.6,
+            "rss_mib": 11700.2,
+            "peak_rss_mib": 11700.2
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 75.7,
+            "rss_mib": 14607.0,
+            "peak_rss_mib": 14607.0
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 90.9,
+            "rss_mib": 14856.5,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 106.1,
+            "rss_mib": 14938.8,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 121.3,
+            "rss_mib": 14929.8,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 136.4,
+            "rss_mib": 14904.8,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 151.6,
+            "rss_mib": 14894.1,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 166.8,
+            "rss_mib": 14896.1,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 182.0,
+            "rss_mib": 14838.1,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 197.1,
+            "rss_mib": 14966.4,
+            "peak_rss_mib": 14994.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 212.3,
+            "rss_mib": 15106.2,
+            "peak_rss_mib": 15106.2
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 227.5,
+            "rss_mib": 15237.8,
+            "peak_rss_mib": 15237.8
+          },
+          {
+            "label": "all_retest:training",
+            "elapsed_seconds": 243.4,
+            "rss_mib": 15294.1,
+            "peak_rss_mib": 15298.3
+          }
+        ],
+        "observed_peak_rss_mib": 15298.3,
+        "observed_stage_seconds": 337.973,
+        "completed_resource_stages": 1
+      }
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "job_id": 108635501533,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2806712962962963,
+        "top3_winner_capture": 0.6015625,
+        "top6_winner_capture": 0.8217592592592593,
+        "mean_winner_rank": 3.8017939814814814,
+        "mean_reciprocal_winner_rank": 0.485603198601054,
+        "race_normalized_nll": 2.1030634551850675,
+        "raw_logloss": 0.22081262416667216,
+        "raw_brier": 0.0610346385638911,
+        "raw_roc_auc": 0.7917824851034468
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 251.002,
+          "peak_rss_mib": 547.375,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 411.724,
+          "peak_rss_mib": 15025.066,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 662.743,
+        "candidate_peak_rss_mib": 15025.066
+      }
+    },
+    {
+      "candidate": "elite5_retest",
+      "job_id": 108635501526,
+      "status": "failure",
+      "feature_sets": [],
+      "actor_prefixes": [],
+      "feature_count": null,
+      "metrics": {},
+      "failed_step": null,
+      "error_excerpt": [
+        "2026-09-27T14:22:30.6903042Z ##[error]The runner has received a shutdown signal. This can happen when the runner service is stopped, or a manually started runner is canceled.",
+        "2026-09-27T14:22:32.1094736Z ##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null,
+      "resource_usage": {
+        "stages": [
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 322.692,
+            "peak_rss_mib": 508.648,
+            "exit_code": 0
+          }
+        ],
+        "samples": [
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 27.5,
+            "peak_rss_mib": 27.5
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 15.2,
+            "rss_mib": 203.7,
+            "peak_rss_mib": 406.5
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 30.4,
+            "rss_mib": 364.0,
+            "peak_rss_mib": 500.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 45.5,
+            "rss_mib": 356.7,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 60.7,
+            "rss_mib": 215.2,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 75.9,
+            "rss_mib": 495.5,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 91.0,
+            "rss_mib": 220.2,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 106.2,
+            "rss_mib": 202.0,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 121.4,
+            "rss_mib": 285.6,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 136.6,
+            "rss_mib": 374.8,
+            "peak_rss_mib": 503.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 151.7,
+            "rss_mib": 223.2,
+            "peak_rss_mib": 504.4
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 166.9,
+            "rss_mib": 502.0,
+            "peak_rss_mib": 504.4
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 182.1,
+            "rss_mib": 505.6,
+            "peak_rss_mib": 505.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 197.2,
+            "rss_mib": 220.9,
+            "peak_rss_mib": 505.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 212.4,
+            "rss_mib": 503.8,
+            "peak_rss_mib": 505.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 227.6,
+            "rss_mib": 219.1,
+            "peak_rss_mib": 505.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 242.8,
+            "rss_mib": 223.6,
+            "peak_rss_mib": 505.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 257.9,
+            "rss_mib": 130.0,
+            "peak_rss_mib": 508.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 273.1,
+            "rss_mib": 150.2,
+            "peak_rss_mib": 508.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 288.3,
+            "rss_mib": 339.6,
+            "peak_rss_mib": 508.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 303.5,
+            "rss_mib": 362.9,
+            "peak_rss_mib": 508.6
+          },
+          {
+            "label": "elite5_retest:projection",
+            "elapsed_seconds": 318.6,
+            "rss_mib": 203.2,
+            "peak_rss_mib": 508.6
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 0.0,
+            "rss_mib": 9.5,
+            "peak_rss_mib": 9.5
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 15.1,
+            "rss_mib": 2820.1,
+            "peak_rss_mib": 2820.1
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 30.3,
+            "rss_mib": 5811.4,
+            "peak_rss_mib": 5811.4
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 45.4,
+            "rss_mib": 8791.1,
+            "peak_rss_mib": 8791.1
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 60.6,
+            "rss_mib": 11833.6,
+            "peak_rss_mib": 11833.6
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 75.7,
+            "rss_mib": 14746.0,
+            "peak_rss_mib": 14746.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 90.9,
+            "rss_mib": 14839.6,
+            "peak_rss_mib": 14923.4
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 106.1,
+            "rss_mib": 14927.6,
+            "peak_rss_mib": 14935.7
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 121.2,
+            "rss_mib": 14859.9,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 136.5,
+            "rss_mib": 14923.5,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 151.6,
+            "rss_mib": 14880.8,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 166.8,
+            "rss_mib": 14913.4,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 182.0,
+            "rss_mib": 14911.9,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 197.2,
+            "rss_mib": 14895.4,
+            "peak_rss_mib": 14940.0
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 212.3,
+            "rss_mib": 14925.8,
+            "peak_rss_mib": 14947.9
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 227.5,
+            "rss_mib": 14952.4,
+            "peak_rss_mib": 14955.7
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 242.7,
+            "rss_mib": 14902.9,
+            "peak_rss_mib": 14955.7
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 257.9,
+            "rss_mib": 14937.4,
+            "peak_rss_mib": 14955.7
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 273.1,
+            "rss_mib": 14915.4,
+            "peak_rss_mib": 14955.7
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 288.2,
+            "rss_mib": 15071.5,
+            "peak_rss_mib": 15103.9
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 303.4,
+            "rss_mib": 15202.3,
+            "peak_rss_mib": 15202.3
+          },
+          {
+            "label": "elite5_retest:training",
+            "elapsed_seconds": 318.6,
+            "rss_mib": 15314.6,
+            "peak_rss_mib": 15314.6
+          }
+        ],
+        "observed_peak_rss_mib": 15314.6,
+        "observed_stage_seconds": 322.692,
+        "completed_resource_stages": 1
+      }
+    },
+    {
+      "candidate": "strong_opp",
+      "job_id": 108635501940,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 626,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28153935185185186,
+        "top3_winner_capture": 0.5946180555555556,
+        "top6_winner_capture": 0.8133680555555556,
+        "mean_winner_rank": 3.838252314814815,
+        "mean_reciprocal_winner_rank": 0.48387413781166333,
+        "race_normalized_nll": 2.110124150048824,
+        "raw_logloss": 0.22130777222027767,
+        "raw_brier": 0.06112880555034146,
+        "raw_roc_auc": 0.7901538463465814
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "strong_opp:projection",
+          "elapsed_seconds": 244.843,
+          "peak_rss_mib": 554.172,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "strong_opp:training",
+          "elapsed_seconds": 377.713,
+          "peak_rss_mib": 14836.762,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 622.571,
+        "candidate_peak_rss_mib": 14836.762
+      }
+    },
+    {
+      "candidate": "strong_time",
+      "job_id": 108635501520,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 623,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2838541666666667,
+        "top3_winner_capture": 0.5923032407407407,
+        "top6_winner_capture": 0.8139467592592593,
+        "mean_winner_rank": 3.837673611111111,
+        "mean_reciprocal_winner_rank": 0.48492894949058146,
+        "race_normalized_nll": 2.112764602088526,
+        "raw_logloss": 0.22147413960656914,
+        "raw_brier": 0.06111924087398421,
+        "raw_roc_auc": 0.7891011074709617
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "strong_time:projection",
+          "elapsed_seconds": 207.625,
+          "peak_rss_mib": 551.02,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "strong_time:training",
+          "elapsed_seconds": 299.718,
+          "peak_rss_mib": 14926.656,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 507.354,
+        "candidate_peak_rss_mib": 14926.656
+      }
+    }
+  ]
+}\n
