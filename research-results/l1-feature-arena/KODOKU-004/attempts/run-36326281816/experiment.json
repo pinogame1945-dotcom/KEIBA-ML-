@@ -1,0 +1,52 @@
+{
+  "contract": "L1_FEATURE_ARENA_LEDGER_V1",
+  "experiment_id": "KODOKU-004",
+  "run_id": 36326281816,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36326281816",
+  "workflow": "L1 Feature Arena KODOKU-004",
+  "event": "push",
+  "head_branch": "feature/l1-feature-arena-trainer-v1-20260927",
+  "head_sha": "ea3fa51e412cf12895102d5f9aa58bdb0dca1238",
+  "run_attempt": 1,
+  "run_status": "in_progress",
+  "run_conclusion": null,
+  "created_at": "2026-09-27T14:32:24Z",
+  "updated_at": "2026-09-27T15:18:33Z",
+  "archived_at": "2026-09-27T15:18:44.042592+00:00",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "snapshot_generation": "e75cd10b7837f676",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31"
+  },
+  "expected_candidates": [
+    "all_retest_v2",
+    "core4_full",
+    "core4_jockey",
+    "core4_jockey_horse",
+    "core4_jockey_horse_pedigree",
+    "core4_jockey_pedigree",
+    "core4_jockey_trainer",
+    "elite5_retest_v2",
+    "no_actor",
+    "no_auto",
+    "no_opponent",
+    "no_timepace"
+  ],
+  "candidate_count": 12,
+  "missing_candidates": [],
+  "storage_policy": {
+    "result_ledger": "git",
+    "models": "not_stored_by_ledger",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}\n
