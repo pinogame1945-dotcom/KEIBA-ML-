@@ -199,7 +199,22 @@ def load_candidates(path, contract):
             sets = item.get("feature_sets")
             if not name or not isinstance(sets, list) or not sets:
                 raise ValueError("candidate requires name and non-empty feature_sets")
-            normalized.append({"name": name, "feature_sets": normalize_sets(sets, contract)})
+            actor_prefixes = item.get("actor_prefixes") or []
+            if not isinstance(actor_prefixes, list):
+                raise ValueError("candidate actor_prefixes must be a JSON array")
+            allowed_actor_prefixes = {"actor_jockey_", "actor_trainer_", "actor_horse_jockey_"}
+            actor_prefixes = [str(x).strip() for x in actor_prefixes if str(x).strip()]
+            invalid_actor_prefixes = sorted(set(actor_prefixes) - allowed_actor_prefixes)
+            if invalid_actor_prefixes:
+                raise ValueError("invalid actor_prefixes: " + ", ".join(invalid_actor_prefixes))
+            feature_sets = normalize_sets(sets, contract)
+            if actor_prefixes and "ACTOR" not in feature_sets:
+                raise ValueError("actor_prefixes requires ACTOR feature set")
+            normalized.append({
+                "name": name,
+                "feature_sets": feature_sets,
+                "actor_prefixes": actor_prefixes,
+            })
         rows = normalized
 
     seen_names = set()
@@ -214,6 +229,7 @@ def load_candidates(path, contract):
             raise ValueError("duplicate candidate feature set: " + ",".join(signature))
         seen_names.add(name)
         seen_sets.add(signature)
+        row.setdefault("actor_prefixes", [])
         out.append(row)
     return out
 
@@ -417,6 +433,7 @@ def main():
         name = candidate["name"]
         slug = safe_slug(name)
         sets = candidate["feature_sets"]
+        actor_prefixes = candidate.get("actor_prefixes") or []
         sets_arg = ",".join(sets)
         projected = projections / f"{slug}.jsonl.gz"
         model = models / f"{slug}.txt"
@@ -425,13 +442,16 @@ def main():
         pred = oof / f"{slug}.jsonl.gz"
 
         candidate_started = time.monotonic()
-        projection_usage = run([
+        projection_cmd = [
             "node", "research/project-yearly-snapshots.mjs",
             "--inputs", input_arg,
             "--output", projected,
             "--feature-sets", sets_arg,
             "--prediction-phase", requested_phase,
-        ], label=f"{name}:projection")
+        ]
+        if actor_prefixes:
+            projection_cmd.extend(["--actor-prefixes", ",".join(actor_prefixes)])
+        projection_usage = run(projection_cmd, label=f"{name}:projection")
 
         cmd = [
             sys.executable, "research/train-staged-lightgbm.py",
@@ -472,6 +492,7 @@ def main():
         results.append({
             "name": name,
             "feature_sets": sets,
+            "actor_prefixes": actor_prefixes,
             "feature_count": metadata["feature_count"],
             "metrics": metadata["metrics"],
             "best_iteration": metadata["best_iteration"],
