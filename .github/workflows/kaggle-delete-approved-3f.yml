@@ -1,0 +1,68 @@
+name: Delete approved Kaggle snapshot 3f
+
+on:
+  push:
+    branches:
+      - audit/kaggle-storage-breakdown-20260928
+    paths:
+      - ".github/workflows/kaggle-delete-approved-3f.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  delete:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      TARGET_REF: pino1945/keiba-ml-snapshot-3f048f394b5d5ebf
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Verify exact target exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          refs="$(kaggle datasets list --mine --page 1 --format 'json(ref)' || true)"
+          python - "$TARGET_REF" <<'PY' <<<"$refs"
+import json,sys
+target=sys.argv[1]
+rows=json.load(sys.stdin)
+refs={str(x.get("ref","")) for x in rows}
+if target not in refs:
+    raise SystemExit(f"approved target not found: {target}")
+print("APPROVED_TARGET_FOUND",target)
+PY
+
+      - name: Delete exact approved dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$TARGET_REF" = "pino1945/keiba-ml-snapshot-3f048f394b5d5ebf"
+          kaggle datasets delete "$TARGET_REF" --yes
+          echo "KAGGLE_DELETE_3F_OK"
+
+      - name: Verify target is gone
+        shell: bash
+        run: |
+          set -euo pipefail
+          sleep 3
+          if kaggle datasets files "$TARGET_REF" --page-size 1 >/tmp/target.txt 2>/tmp/target.err; then
+            echo "Target still readable after delete" >&2
+            cat /tmp/target.txt >&2 || true
+            exit 2
+          fi
+          echo "KAGGLE_DELETE_3F_VERIFIED"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU runner only."
+          echo "No GPU, Artifact, Cache, upload, or paid storage."
+          echo "Deletes only the exact user-approved Kaggle dataset."
