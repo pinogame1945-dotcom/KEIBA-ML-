@@ -44,8 +44,12 @@ jobs:
       - name: Cost guard
         if: always()
         run: |
-          if grep -E "runs-on:.*(gpu|macos|windows)|uses:[[:space:]]*actions/(upload-artifact|cache)" .github/workflows/l1-newcomer-specialist-smoke.yml; then
-            echo "Paid/special runner or persistent artifact/cache usage found; refusing workflow." >&2
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-newcomer-specialist-smoke.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-newcomer-specialist-smoke.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
             exit 1
           fi
           echo "Standard GitHub-hosted ubuntu-latest runner only."
