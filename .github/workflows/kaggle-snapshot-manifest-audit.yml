@@ -1,0 +1,75 @@
+name: Kaggle snapshot manifest audit read-only
+
+on:
+  push:
+    branches:
+      - audit/kaggle-storage-breakdown-20260928
+    paths:
+      - ".github/workflows/kaggle-snapshot-manifest-audit.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Inspect snapshot manifests only
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$(mktemp -d)"
+          refs="$(kaggle datasets list --mine --search 'keiba-ml-snapshot' --page 1 --format 'json(ref)' | python -c 'import json,sys; print("\n".join(x["ref"] for x in json.load(sys.stdin)))')"
+          while IFS= read -r ref; do
+            [[ -n "$ref" ]] || continue
+            d="$tmp/${ref##*/}"
+            mkdir -p "$d"
+            if kaggle datasets download "$ref" -f manifest.json -p "$d" --unzip --quiet --force >/dev/null 2>&1; then
+              python - "$ref" "$d/manifest.json" <<'PY'
+import json,sys,os
+ref,p=sys.argv[1:]
+m=json.load(open(p,encoding="utf-8"))
+g=m.get("generation") or {}
+years=m.get("years") or []
+summary={
+  "ref":ref,
+  "generation_id":g.get("generation_id"),
+  "ml_source_sha":g.get("ml_source_sha"),
+  "source_branch":g.get("source_branch") or g.get("branch"),
+  "snapshot_version":m.get("snapshot_version") or m.get("version") or m.get("snapshotVersion"),
+  "schema_version":m.get("schema_version") or m.get("schemaVersion"),
+  "feature_contract_version":m.get("feature_contract_version") or m.get("featureContractVersion"),
+  "created_at":m.get("created_at") or m.get("createdAt") or g.get("created_at"),
+  "years":[{
+      "year":y.get("year"),
+      "rows":y.get("rows"),
+      "file":y.get("file"),
+      "sha256":y.get("sha256"),
+      "bytes":y.get("bytes")
+  } for y in years],
+  "top_keys":sorted(m.keys())
+}
+print("SNAPSHOT_MANIFEST="+json.dumps(summary,ensure_ascii=False,separators=(",",":")))
+PY
+            else
+              echo "SNAPSHOT_MANIFEST={\"ref\":\"$ref\",\"error\":\"manifest download failed\"}"
+            fi
+          done <<< "$refs"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU runner only."
+          echo "Read-only Kaggle access."
+          echo "Downloads manifest.json only (tiny metadata files)."
+          echo "No GPU, Artifact, Cache, dataset create/update/delete, or snapshot file download."
