@@ -1,0 +1,253 @@
+name: L1 Race-Class Absorption Pretest V1
+
+on:
+  push:
+    branches:
+      - research/l1-raceclass-absorption-pretest-v1-20260928
+    paths:
+      - .github/triggers/l1-raceclass-absorption-pretest-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  pretest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      EXPERIMENT_ID: ABSORB-001
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout exact BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: ${{ env.BACKFILL_SHA }}
+          path: backfill
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Syntax checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check research/project-yearly-snapshots.mjs
+          node --check research/build-yearly-superset-snapshots.mjs
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py research/archive_l1_absorption_local_summaries.py
+          node scripts/pedigree-feature-builder-smoke.mjs
+
+      - name: Build shallow race-class superset snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/absorption-pretest-snapshots \
+            --source-start 2022-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2022-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+          manifest="$(find out/absorption-pretest-snapshots -mindepth 2 -maxdepth 2 -name manifest.json -print | sort | tail -n 1)"
+          test -s "$manifest"
+          generation_dir="$(dirname "$manifest")"
+          generation_id="$(basename "$generation_dir")"
+          echo "GENERATION_DIR=$generation_dir" >> "$GITHUB_ENV"
+          echo "GENERATION_ID=$generation_id" >> "$GITHUB_ENV"
+          for y in 2023 2024 2025; do test -s "$generation_dir/snapshot-$y.jsonl.gz"; done
+          echo "ABSORPTION_PRETEST_SNAPSHOT_READY generation=$generation_id"
+
+      - name: Define baselines and absorbed candidates
+        shell: bash
+        run: |
+          cat > candidates.json <<'JSON'
+          [
+            {
+              "name":"core4_no_pedigree",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"no_auto_full_pedigree_legacy",
+              "feature_sets":["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
+              "pedigree_slices":["LEGACY"]
+            },
+            {
+              "name":"jockey_trainer_condition",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_","actor_trainer_"],
+              "auto_slices":["CONDITION"]
+            },
+            {
+              "name":"no_auto_full",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"no_auto_jockey",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"]
+            },
+
+            {
+              "name":"core4_plus_raceclass_pedigree",
+              "feature_sets":["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+              "pedigree_slices":["RACE_CLASS"]
+            },
+            {
+              "name":"no_auto_full_pedigree_v1",
+              "feature_sets":["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"jockey_trainer_condition_plus_raceclass",
+              "feature_sets":["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_","actor_trainer_"],
+              "auto_slices":["CONDITION"],
+              "pedigree_slices":["RACE_CLASS"]
+            },
+            {
+              "name":"no_auto_full_plus_raceclass",
+              "feature_sets":["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
+              "pedigree_slices":["RACE_CLASS"]
+            },
+            {
+              "name":"no_auto_jockey_plus_raceclass",
+              "feature_sets":["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"],
+              "pedigree_slices":["RACE_CLASS"]
+            }
+          ]
+          JSON
+
+      - name: Run 2025 absorption pretest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py \
+            --inputs "$GENERATION_DIR/snapshot-2023.jsonl.gz,$GENERATION_DIR/snapshot-2024.jsonl.gz,$GENERATION_DIR/snapshot-2025.jsonl.gz" \
+            --out-dir out/absorption-pretest/results \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --train-race-class ALL \
+            --valid-race-class ALL \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json candidates.json \
+            --source-ref "$BACKFILL_SHA" \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Print absorption score
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          s=json.loads(Path("out/absorption-pretest/results/feature-arena-summary.json").read_text())
+          rows={r["name"]:r for r in s["results"]}
+
+          pairs=[
+            ("core4_no_pedigree","core4_plus_raceclass_pedigree"),
+            ("no_auto_full_pedigree_legacy","no_auto_full_pedigree_v1"),
+            ("jockey_trainer_condition","jockey_trainer_condition_plus_raceclass"),
+            ("no_auto_full","no_auto_full_plus_raceclass"),
+            ("no_auto_jockey","no_auto_jockey_plus_raceclass"),
+          ]
+          for base,absorbed in pairs:
+              a=rows[base]; b=rows[absorbed]
+              print("ABSORPTION_PAIR "+json.dumps({
+                  "baseline":base,
+                  "absorbed":absorbed,
+                  "baseline_feature_count":a["feature_count"],
+                  "absorbed_feature_count":b["feature_count"],
+                  "baseline_metrics":a["metrics"],
+                  "absorbed_metrics":b["metrics"],
+                  "delta":{
+                    "top1":b["metrics"]["top1_winner_capture"]-a["metrics"]["top1_winner_capture"],
+                    "top3":b["metrics"]["top3_winner_capture"]-a["metrics"]["top3_winner_capture"],
+                    "top6":b["metrics"]["top6_winner_capture"]-a["metrics"]["top6_winner_capture"],
+                    "mean_winner_rank":b["metrics"]["mean_winner_rank"]-a["metrics"]["mean_winner_rank"],
+                  }
+              },ensure_ascii=False,separators=(",",":")))
+
+          for name,r in rows.items():
+              print("ABSORPTION_PRETEST_RESULT "+json.dumps({
+                  "candidate":name,
+                  "feature_sets":r.get("feature_sets") or [],
+                  "actor_prefixes":r.get("actor_prefixes") or [],
+                  "auto_slices":r.get("auto_slices") or [],
+                  "pedigree_slices":r.get("pedigree_slices") or [],
+                  "feature_count":r.get("feature_count"),
+                  "metrics":r.get("metrics"),
+                  "resource_usage":r.get("resource_usage")
+              },ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Archive ABSORB-001 separate ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l1_absorption_local_summaries.py \
+            --experiment-id "$EXPERIMENT_ID" \
+            --run-id "$GITHUB_RUN_ID" \
+            --snapshot-generation "$GENERATION_ID" \
+            --backfill-sha "$BACKFILL_SHA" \
+            --summary out/absorption-pretest/results/feature-arena-summary.json \
+            --expected-candidates core4_no_pedigree,no_auto_full_pedigree_legacy,jockey_trainer_condition,no_auto_full,no_auto_jockey,core4_plus_raceclass_pedigree,no_auto_full_pedigree_v1,jockey_trainer_condition_plus_raceclass,no_auto_full_plus_raceclass,no_auto_jockey_plus_raceclass \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31
+
+      - name: Commit ABSORB-001 ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l1-raceclass-absorption/$EXPERIMENT_ID"
+          git commit -m "research: archive $EXPERIMENT_ID run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-raceclass-absorption-pretest-v1.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-raceclass-absorption-pretest-v1.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Snapshot is runner-local ephemeral; only small JSON/text ledger is persisted."
