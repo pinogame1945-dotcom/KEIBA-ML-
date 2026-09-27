@@ -1,0 +1,46 @@
+name: Kaggle connection test
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  kaggle-connection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KAGGLE_API_TOKEN }}
+
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Verify Kaggle authentication
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${KAGGLE_API_TOKEN:-}" ]; then
+            echo "::error::KAGGLE_API_TOKEN is not available to this workflow."
+            exit 1
+          fi
+
+          kaggle --version
+          echo "Kaggle token is present. Testing authenticated dataset access..."
+          kaggle datasets list --mine --page 1 >/tmp/kaggle-datasets.txt
+          sed -n '1,20p' /tmp/kaggle-datasets.txt
+          echo "Kaggle authenticated access: OK"
+
+      - name: Cost/storage guard
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact upload."
+          echo "No cache write."
+          echo "No Kaggle dataset upload."
