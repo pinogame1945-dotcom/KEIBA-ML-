@@ -166,18 +166,29 @@ fi
 
 verify_dir="$(mktemp -d)"
 verified=0
-for attempt in $(seq 1 12); do
+VERIFY_ATTEMPTS="${KAGGLE_SNAPSHOT_VERIFY_ATTEMPTS:-60}"
+VERIFY_SLEEP_SECONDS="${KAGGLE_SNAPSHOT_VERIFY_SLEEP_SECONDS:-10}"
+
+echo "Waiting for Kaggle dataset readiness."
+echo "Verification attempts: $VERIFY_ATTEMPTS"
+echo "Verification interval seconds: $VERIFY_SLEEP_SECONDS"
+
+for attempt in $(seq 1 "$VERIFY_ATTEMPTS"); do
   rm -f "$verify_dir/manifest.json"
   if kaggle datasets download "$dataset_ref" -f manifest.json -p "$verify_dir" --unzip --quiet --force; then
     if cmp "$stage/manifest.json" "$verify_dir/manifest.json"; then
       verified=1
+      echo "Kaggle manifest verification succeeded on attempt $attempt."
       break
     fi
     echo "Remote manifest downloaded but did not match local manifest." >&2
     exit 10
   fi
-  echo "Kaggle dataset is not readable yet; retrying verification ($attempt/12)." >&2
-  sleep 5
+
+  echo "Kaggle dataset is not readable yet; retrying verification ($attempt/$VERIFY_ATTEMPTS)." >&2
+  if [[ "$attempt" -lt "$VERIFY_ATTEMPTS" ]]; then
+    sleep "$VERIFY_SLEEP_SECONDS"
+  fi
 done
 
 if [[ "$verified" != "1" ]]; then
