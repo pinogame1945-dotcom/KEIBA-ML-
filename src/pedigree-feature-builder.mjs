@@ -5,7 +5,7 @@ import {
   validateSmallSamplePolicy,
 } from "./small-sample-feature-utils.mjs";
 
-export const PEDIGREE_FEATURE_BUILDER_VERSION = 3;
+export const PEDIGREE_FEATURE_BUILDER_VERSION = 4;
 
 function finite(value) {
   if (value == null || (typeof value === "string" && value.trim() === "")) return null;
@@ -51,6 +51,7 @@ function conditionValues(race = {}) {
     course_layout: text(race.course_layout),
     going: text(race.track_condition),
     distance_band: pedigreeDistanceBand(race.distance_m),
+    race_class: text(race.race_class_normalized ?? race.grade),
   };
 }
 
