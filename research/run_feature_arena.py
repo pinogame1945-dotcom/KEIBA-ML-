@@ -144,7 +144,8 @@ def parse_inputs(raw):
 
 
 def first_row(path):
-    with gzip.open(path, "rt", encoding="utf-8") as fh:
+    opener = gzip.open if str(path).endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as fh:
         for line in fh:
             if line.strip():
                 return json.loads(line)
