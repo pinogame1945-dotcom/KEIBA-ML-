@@ -1,0 +1,235 @@
+{
+  "contract": "L1_NEWCOMER_SPECIALIST_SCORECARD_V1",
+  "experiment_id": "NEWCOMER-001",
+  "run_id": 36335844882,
+  "complete": true,
+  "candidates": [
+    {
+      "candidate": "general_no_auto_full",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.2532894736842105,
+        "top3_winner_capture": 0.5493421052631579,
+        "top6_winner_capture": 0.7828947368421053,
+        "mean_winner_rank": 4.1019736842105265,
+        "mean_reciprocal_winner_rank": 0.4585543659556818,
+        "race_normalized_nll": 2.1984206404354905,
+        "raw_logloss": 0.24001546657895367,
+        "raw_brier": 0.06521559924094279,
+        "raw_roc_auc": 0.7430397928784225
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 155.832,
+          "peak_rss_mib": 519.055
+        },
+        "training": {
+          "elapsed_seconds": 177.798,
+          "peak_rss_mib": 5669.223
+        },
+        "candidate_elapsed_seconds": 333.633,
+        "candidate_peak_rss_mib": 5669.223
+      }
+    },
+    {
+      "candidate": "general_no_auto_jockey",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 164,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.23026315789473684,
+        "top3_winner_capture": 0.5263157894736842,
+        "top6_winner_capture": 0.7861842105263158,
+        "mean_winner_rank": 4.319078947368421,
+        "mean_reciprocal_winner_rank": 0.432752148253793,
+        "race_normalized_nll": 2.2560996502985935,
+        "raw_logloss": 0.24472366858773387,
+        "raw_brier": 0.06616775515183755,
+        "raw_roc_auc": 0.7253404738260747
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 160.969,
+          "peak_rss_mib": 535.398
+        },
+        "training": {
+          "elapsed_seconds": 132.411,
+          "peak_rss_mib": 3349.559
+        },
+        "candidate_elapsed_seconds": 293.382,
+        "candidate_peak_rss_mib": 3349.559
+      }
+    },
+    {
+      "candidate": "newcomer_actor",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 192,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.21710526315789475,
+        "top3_winner_capture": 0.5460526315789473,
+        "top6_winner_capture": 0.756578947368421,
+        "mean_winner_rank": 4.404605263157895,
+        "mean_reciprocal_winner_rank": 0.43015435770369975,
+        "race_normalized_nll": 2.245639745238501,
+        "raw_logloss": 0.24419662001446543,
+        "raw_brier": 0.0660318734861461,
+        "raw_roc_auc": 0.7265223790608596
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 115.589,
+          "peak_rss_mib": 505.234
+        },
+        "training": {
+          "elapsed_seconds": 83.367,
+          "peak_rss_mib": 4434.395
+        },
+        "candidate_elapsed_seconds": 198.957,
+        "candidate_peak_rss_mib": 4434.395
+      }
+    },
+    {
+      "candidate": "newcomer_same_jockey",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 164,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.22697368421052633,
+        "top3_winner_capture": 0.5,
+        "top6_winner_capture": 0.756578947368421,
+        "mean_winner_rank": 4.542763157894737,
+        "mean_reciprocal_winner_rank": 0.4219371272002851,
+        "race_normalized_nll": 2.2682039435705903,
+        "raw_logloss": 0.2456692470324983,
+        "raw_brier": 0.0662690879687988,
+        "raw_roc_auc": 0.7220691764789331
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 154.805,
+          "peak_rss_mib": 510.797
+        },
+        "training": {
+          "elapsed_seconds": 124.178,
+          "peak_rss_mib": 3427.863
+        },
+        "candidate_elapsed_seconds": 278.985,
+        "candidate_peak_rss_mib": 3427.863
+      }
+    },
+    {
+      "candidate": "newcomer_pedigree",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 242,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.15460526315789475,
+        "top3_winner_capture": 0.3848684210526316,
+        "top6_winner_capture": 0.6644736842105263,
+        "mean_winner_rank": 5.368421052631579,
+        "mean_reciprocal_winner_rank": 0.3471683789529184,
+        "race_normalized_nll": 2.449908285409205,
+        "raw_logloss": 0.2607956699701508,
+        "raw_brier": 0.06909148286181258,
+        "raw_roc_auc": 0.636226769754575
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 156.898,
+          "peak_rss_mib": 537.43
+        },
+        "training": {
+          "elapsed_seconds": 160.529,
+          "peak_rss_mib": 5363.758
+        },
+        "candidate_elapsed_seconds": 317.429,
+        "candidate_peak_rss_mib": 5363.758
+      }
+    },
+    {
+      "candidate": "newcomer_actor_pedigree",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 396,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.22697368421052633,
+        "top3_winner_capture": 0.5296052631578947,
+        "top6_winner_capture": 0.7730263157894737,
+        "mean_winner_rank": 4.391447368421052,
+        "mean_reciprocal_winner_rank": 0.43397558807291775,
+        "race_normalized_nll": 2.2359021102976477,
+        "raw_logloss": 0.24421188561560264,
+        "raw_brier": 0.06598703594924603,
+        "raw_roc_auc": 0.7275774932614555
+      },
+      "resource_usage": {
+        "projection": {
+          "elapsed_seconds": 186.09,
+          "peak_rss_mib": 519.602
+        },
+        "training": {
+          "elapsed_seconds": 171.903,
+          "peak_rss_mib": 9028.605
+        },
+        "candidate_elapsed_seconds": 357.996,
+        "candidate_peak_rss_mib": 9028.605
+      }
+    }
+  ]
+}
