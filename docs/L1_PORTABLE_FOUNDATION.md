@@ -60,7 +60,7 @@ After the L1 foundation is stable:
 
 ## AUTO FEATURE FACTORY V1
 
-Dataset version 3 / feature schema 7 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
+Dataset version 3 / feature schema 8 contains AUTO FEATURE FACTORY V1 outputs and the optional BACKFILL feature receiver.
 
 The first connected sources are limited to prior-race:
 
@@ -127,7 +127,7 @@ See `docs/L1_FEATURE_SET_CONTRACT_V1.md`.
 
 ## Margin AUTO
 
-Feature schema 7 adds past-only AUTO features from BACKFILL `margin_type` and `margin_lengths`.
+Feature schema 8 adds past-only AUTO features from BACKFILL `margin_type` and `margin_lengths`.
 Current-race margin remains a target/output value and is never used as a predictor for that race.
 
 
