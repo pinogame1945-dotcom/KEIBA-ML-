@@ -90,7 +90,7 @@ assert.equal(febOnly[0].target.margin_lengths, null);
 assert.equal(febOnly[0].market_outcome.final_win_odds, 99.9);
 assert.equal(febOnly[0].market_outcome.final_popularity, 18);
 assert.equal(ML_DATASET_VERSION, 3);
-assert.equal(ML_FEATURE_SCHEMA_VERSION, 7);
+assert.equal(ML_FEATURE_SCHEMA_VERSION, 8);
 assert.equal(febOnly[0].ml_dataset_version, ML_DATASET_VERSION);
 assert.equal(febOnly[0].feature_schema_version, ML_FEATURE_SCHEMA_VERSION);
 assert.equal(febOnly[0].leakage_policy, ML_LEAKAGE_POLICY);
@@ -378,3 +378,117 @@ assert.equal(marginBuilt[0].features.auto_history_margin_small_gap_rate, 1);
 assert.equal(marginBuilt[0].features.auto_history_margin_lengths_observation_count, 0);
 assert.equal(marginBuilt[0].features.auto_margin_gap_same_course_layout_starts, 1);
 assert.equal(marginBuilt[0].features.auto_margin_gap_same_course_layout_success_rate, 1);
+
+
+// Phase 2 integrated builder contract: all stateful builders must observe the same
+// STRICT_PRIOR_DATE_ONLY day boundary inside buildMlDataset.
+function twoHorseRace({ id, date, mainFinish, otherFinish, mainTime, otherTime, mainLast3f, otherLast3f }) {
+  const row = race({
+    id,
+    date,
+    finish: mainFinish,
+    last3f: mainLast3f,
+    time: mainTime,
+    horse: "P1",
+    jockey: "JP1",
+  });
+  row.race.course_layout = "OUTER";
+  row.race.race_class_normalized = "OPEN";
+  row.entries[0].trainer_id = "TP1";
+  row.entries.push({
+    ...row.entries[0],
+    horse_id: "Q" + id.slice(-2),
+    horse_number: 4,
+    jockey_id: "JQ" + id.slice(-2),
+    trainer_id: "TQ" + id.slice(-2),
+  });
+  row.results.push({
+    ...row.results[0],
+    horse_id: row.entries[1].horse_id,
+    official_finish_position: otherFinish,
+    finish_time_ms: otherTime,
+    last_3f: otherLast3f,
+  });
+  row.laps = [12.1, 12.0, 11.9, 11.8, 11.7, 11.8, 11.9, 12.0]
+    .map(lap_seconds => ({ lap_seconds }));
+  return row;
+}
+
+const phase2Day1A = twoHorseRace({
+  id: "202505019901",
+  date: "2025-04-01",
+  mainFinish: 1,
+  otherFinish: 2,
+  mainTime: 94000,
+  otherTime: 95000,
+  mainLast3f: 34.0,
+  otherLast3f: 35.0,
+});
+const phase2Day1B = twoHorseRace({
+  id: "202505019902",
+  date: "2025-04-01",
+  mainFinish: 2,
+  otherFinish: 1,
+  mainTime: 94500,
+  otherTime: 93500,
+  mainLast3f: 34.2,
+  otherLast3f: 33.8,
+});
+const phase2Day2 = twoHorseRace({
+  id: "202505019903",
+  date: "2025-04-02",
+  mainFinish: 1,
+  otherFinish: 2,
+  mainTime: 93000,
+  otherTime: 95500,
+  mainLast3f: 33.5,
+  otherLast3f: 35.2,
+});
+
+const phase2Lineage = new Map([
+  ["P1", { sire_key: "id:S_PHASE2", damsire_key: "id:DS_PHASE2" }],
+]);
+
+const phase2SameDay = buildMlDataset(
+  [phase2Day1A, phase2Day1B],
+  {
+    startDate: "2025-04-01",
+    endDate: "2025-04-01",
+    includePedigreeFeatures: true,
+    includeActorFeatures: true,
+    includeOpponentRelationshipFeatures: true,
+    includeTimePaceFeatures: true,
+    lineageByHorse: phase2Lineage,
+  },
+).filter(row => row.horse_id === "P1");
+
+assert.equal(phase2SameDay.length, 2);
+for (const row of phase2SameDay) {
+  assert.equal(row.features.ped_sire_all_starts, 0);
+  assert.equal(row.features.actor_jockey_all_starts, 0);
+  assert.equal(row.features.opponent_relationship_races_measured, 0);
+  assert.equal(row.features.timepace_recent_races, 0);
+}
+
+const phase2Target = buildMlDataset(
+  [phase2Day1A, phase2Day1B, phase2Day2],
+  {
+    startDate: "2025-04-02",
+    endDate: "2025-04-02",
+    includePedigreeFeatures: true,
+    includeActorFeatures: true,
+    includeOpponentRelationshipFeatures: true,
+    includeTimePaceFeatures: true,
+    lineageByHorse: phase2Lineage,
+  },
+).find(row => row.horse_id === "P1");
+
+assert.ok(phase2Target);
+assert.equal(phase2Target.features.ped_sire_all_starts, 2);
+assert.equal(phase2Target.features.actor_jockey_all_starts, 2);
+assert.equal(phase2Target.features.actor_horse_jockey_all_starts, 2);
+assert.equal(phase2Target.features.opponent_relationship_races_measured, 2);
+assert.equal(phase2Target.features.timepace_recent_races, 2);
+for (const key of Object.keys(phase2Target.features)) {
+  assert.equal(/S_PHASE2|DS_PHASE2|JP1|TP1/.test(key), false);
+}
