@@ -28,11 +28,8 @@ for (const row of catalog.features ?? []) {
   if (!allowedKind.has(row.kind)) throw new Error(`${row.feature_id}: bad kind ${row.kind}`);
   if (!allowedAndroid.has(row.android_mode)) throw new Error(`${row.feature_id}: bad android_mode ${row.android_mode}`);
   if (row.model_keys != null) {
-    if (!Array.isArray(row.model_keys) || row.model_keys.some(key => typeof key !== "string" || !key.trim())) {
+    if (!Array.isArray(row.model_keys) || !row.model_keys.length || row.model_keys.some(key => typeof key !== "string" || !key.trim())) {
       throw new Error(`${row.feature_id}: model_keys must be a non-empty string array when present`);
-    }
-    if (row.l1_allowed !== false) {
-      throw new Error(`${row.feature_id}: model_keys are reserved for L1-forbidden facts`);
     }
   }
   if (row.status === "L2_ONLY" && row.l1_allowed !== false) {
@@ -81,6 +78,18 @@ for (const key of forbiddenModelKeys) {
 }
 if (!forbiddenModelKeys.has("jockey_id") || !forbiddenModelKeys.has("trainer_id")) {
   throw new Error("catalog model-key gate is missing jockey/trainer IDs");
+}
+
+for (const [featureId, modelKey] of [
+  ["race.weather", "weather"],
+  ["race.track_condition", "track_condition"],
+  ["entry.body_weight", "body_weight"],
+  ["entry.body_weight_diff", "body_weight_diff"],
+]) {
+  const row = (catalog.features ?? []).find(x => x.feature_id === featureId);
+  if (!row?.model_keys?.includes(modelKey)) {
+    throw new Error(`${featureId}: missing phase-availability model key ${modelKey}`);
+  }
 }
 
 console.log("L1_FEATURE_CATALOG_OK");
