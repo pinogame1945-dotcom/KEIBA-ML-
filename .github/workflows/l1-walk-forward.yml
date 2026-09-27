@@ -93,7 +93,8 @@ jobs:
             --source-sha "$BACKFILL_SHA" \
             --min-core-known-coverage 0.98 \
             --max-invalid-rate 0 \
-            --max-year-gap 0.10
+            --max-year-gap 0.10 \
+            --require-source-integrity
 
       - name: Setup Python
         uses: actions/setup-python@v5
