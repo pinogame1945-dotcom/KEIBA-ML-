@@ -207,13 +207,24 @@ def load_candidates(path, contract):
             invalid_actor_prefixes = sorted(set(actor_prefixes) - allowed_actor_prefixes)
             if invalid_actor_prefixes:
                 raise ValueError("invalid actor_prefixes: " + ", ".join(invalid_actor_prefixes))
+            auto_slices = item.get("auto_slices") or []
+            if not isinstance(auto_slices, list):
+                raise ValueError("candidate auto_slices must be a JSON array")
+            allowed_auto_slices = {"ROLLING", "CONDITION", "FIELD", "PAIR"}
+            auto_slices = [str(x).strip().upper() for x in auto_slices if str(x).strip()]
+            invalid_auto_slices = sorted(set(auto_slices) - allowed_auto_slices)
+            if invalid_auto_slices:
+                raise ValueError("invalid auto_slices: " + ", ".join(invalid_auto_slices))
             feature_sets = normalize_sets(sets, contract)
             if actor_prefixes and "ACTOR" not in feature_sets:
                 raise ValueError("actor_prefixes requires ACTOR feature set")
+            if auto_slices and "AUTO" not in feature_sets:
+                raise ValueError("auto_slices requires AUTO feature set")
             normalized.append({
                 "name": name,
                 "feature_sets": feature_sets,
                 "actor_prefixes": actor_prefixes,
+                "auto_slices": auto_slices,
             })
         rows = normalized
 
@@ -227,12 +238,14 @@ def load_candidates(path, contract):
         signature = (
             tuple(row["feature_sets"]),
             tuple(sorted(row.get("actor_prefixes") or [])),
+            tuple(sorted(row.get("auto_slices") or [])),
         )
         if signature in seen_sets:
             raise ValueError("duplicate candidate feature set: " + ",".join(signature))
         seen_names.add(name)
         seen_sets.add(signature)
         row.setdefault("actor_prefixes", [])
+        row.setdefault("auto_slices", [])
         out.append(row)
     return out
 
@@ -437,6 +450,7 @@ def main():
         slug = safe_slug(name)
         sets = candidate["feature_sets"]
         actor_prefixes = candidate.get("actor_prefixes") or []
+        auto_slices = candidate.get("auto_slices") or []
         sets_arg = ",".join(sets)
         projected = projections / f"{slug}.jsonl.gz"
         model = models / f"{slug}.txt"
@@ -454,6 +468,8 @@ def main():
         ]
         if actor_prefixes:
             projection_cmd.extend(["--actor-prefixes", ",".join(actor_prefixes)])
+        if auto_slices:
+            projection_cmd.extend(["--auto-slices", ",".join(auto_slices)])
         projection_usage = run(projection_cmd, label=f"{name}:projection")
 
         cmd = [
@@ -496,6 +512,7 @@ def main():
             "name": name,
             "feature_sets": sets,
             "actor_prefixes": actor_prefixes,
+            "auto_slices": auto_slices,
             "feature_count": metadata["feature_count"],
             "metrics": metadata["metrics"],
             "best_iteration": metadata["best_iteration"],
