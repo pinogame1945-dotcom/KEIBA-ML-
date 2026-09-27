@@ -47,6 +47,8 @@ def args():
     p.add_argument("--train-end", required=True)
     p.add_argument("--valid-start", required=True)
     p.add_argument("--valid-end", required=True)
+    p.add_argument("--train-race-class", default="ALL", help="Training race class filter; ALL keeps every class")
+    p.add_argument("--valid-race-class", default="ALL", help="Validation race class filter; ALL keeps every class")
     p.add_argument("--meta-out", required=True)
     p.add_argument("--model-out", required=True)
     p.add_argument("--predictions-out")
@@ -102,6 +104,13 @@ def normalize_prediction_phase(value, contract):
     if phase not in contract["prediction_phases"]:
         raise ValueError("invalid prediction phase: " + phase)
     return phase
+
+
+def normalize_race_class_filter(value):
+    scope = str(value or "ALL").strip().upper()
+    if not scope:
+        raise ValueError("race class filter must not be empty")
+    return scope
 
 
 def normalize_history_windows(raw, contract):
@@ -272,7 +281,9 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
         row_small_sample = row.get("small_sample_policy")
         if row_small_sample and dict(row_small_sample) != small_sample_policy:
             raise ValueError("dataset small_sample_policy mismatch")
-        f = feature_set_features(dict(row["features"]), feature_sets, feature_contract)
+        raw_features = dict(row["features"])
+        race_class = raw_features.get("backfill_race_class_normalized")
+        f = feature_set_features(raw_features, feature_sets, feature_contract)
         assert_prediction_phase_safety(list(f), prediction_phase, feature_contract)
         bad = sorted(set(f) & forbidden_model_keys)
         if bad:
@@ -292,6 +303,7 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
             "_race_id": str(row.get("race_id") or ""),
             "_horse_id": str(row.get("horse_id") or ""),
             "_race_date": str(date or ""),
+            "_race_class": str(race_class or "").strip().upper(),
             "_target": 1 if bool(is_win) else 0,
             "_finish_position": target.get("finish_position"),
             **f,
@@ -306,6 +318,8 @@ def complete_races(df):
     return df[df["_race_id"].isin(ids)].copy()
 
 def split(df, a):
+    train_scope = normalize_race_class_filter(a.train_race_class)
+    valid_scope = normalize_race_class_filter(a.valid_race_class)
     train = df[
         (df["_race_date_dt"] >= pd.to_datetime(a.train_start)) &
         (df["_race_date_dt"] <= pd.to_datetime(a.train_end))
@@ -314,9 +328,15 @@ def split(df, a):
         (df["_race_date_dt"] >= pd.to_datetime(a.valid_start)) &
         (df["_race_date_dt"] <= pd.to_datetime(a.valid_end))
     ].copy()
+    if train_scope != "ALL":
+        train = train[train["_race_class"].eq(train_scope)].copy()
+    if valid_scope != "ALL":
+        valid = valid[valid["_race_class"].eq(valid_scope)].copy()
     train, valid = complete_races(train), complete_races(valid)
     if train.empty or valid.empty:
-        raise ValueError("empty split")
+        raise ValueError(
+            f"empty split after race-class filter: train={train_scope} valid={valid_scope}"
+        )
     return train, valid
 
 def frames(train, valid, selected_columns=None):
@@ -746,7 +766,7 @@ def main():
     # Dropping them before LightGBM builds its native Dataset changes no model
     # features, parameters, labels, or evaluation semantics.
     valid_context_columns = [
-        "_race_id", "_horse_id", "_race_date", "_target", "_finish_position",
+        "_race_id", "_horse_id", "_race_date", "_race_class", "_target", "_finish_position",
         "surface", "venue_code", "distance_m",
         "backfill_race_class_normalized", "backfill_grade", "backfill_course_layout",
     ]
@@ -860,6 +880,8 @@ def main():
         "train_end": a.train_end,
         "valid_start": a.valid_start,
         "valid_end": a.valid_end,
+        "train_race_class": normalize_race_class_filter(a.train_race_class),
+        "valid_race_class": normalize_race_class_filter(a.valid_race_class),
     }
     training_config = {
         "dataset_contract": {
