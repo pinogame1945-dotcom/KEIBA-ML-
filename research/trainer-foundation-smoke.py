@@ -10,7 +10,7 @@ ROOT = Path(__file__).resolve().parents[1]
 OUT = ROOT / "out" / "trainer-foundation-smoke"
 
 
-def make_rows(forbidden=False):
+def make_rows(forbidden=False, early_safe=False):
     rows = []
     for year, race_count in [(2024, 12), (2025, 4)]:
         for r in range(1, race_count + 1):
@@ -34,7 +34,12 @@ def make_rows(forbidden=False):
                     "body_weight_diff": h - 2,
                     "prior_starts": r + h,
                     "recent_top3_rate": (5 - h) / 5,
+                    "style_probe": h / 10,
+                    "distx_probe": h * 100,
                 }
+                if early_safe:
+                    for key in ("weather", "track_condition", "body_weight", "body_weight_diff"):
+                        features.pop(key, None)
                 if forbidden:
                     features["jockey_id"] = "J_FORBIDDEN"
                 rows.append({
@@ -60,12 +65,12 @@ def write_dataset(path, rows):
             fh.write(json.dumps(row, ensure_ascii=False) + "\n")
 
 
-def trainer_cmd(dataset, stem):
-    return [
+def trainer_cmd(dataset, stem, *, prediction_phase="FINAL", feature_sets=None, stage="base"):
+    cmd = [
         sys.executable,
         str(ROOT / "research" / "train-staged-lightgbm.py"),
         "--dataset", str(dataset),
-        "--stage", "base",
+        "--prediction-phase", prediction_phase,
         "--train-start", "2024-01-01",
         "--train-end", "2024-12-31",
         "--valid-start", "2025-01-01",
@@ -80,6 +85,11 @@ def trainer_cmd(dataset, stem):
         "--source-sha", "BACKFILL_SMOKE_SHA",
         "--ml-source-sha", "ML_SMOKE_SHA",
     ]
+    if feature_sets is not None:
+        cmd.extend(["--feature-sets", feature_sets])
+    if stage is not None:
+        cmd.extend(["--stage", stage])
+    return cmd
 
 
 def main():
@@ -94,6 +104,13 @@ def main():
     assert len(meta["reproducibility"]["model_sha256"]) == 64
     assert len(meta["reproducibility"]["training_config_sha256"]) == 64
     assert len(meta["reproducibility"]["feature_catalog_sha256"]) == 64
+    assert len(meta["reproducibility"]["feature_contract_sha256"]) == 64
+    assert meta["prediction_phase"] == "FINAL"
+    assert meta["feature_sets"] == ["BASE"]
+    assert meta["history_windows"]["recent_form"] == 5
+    assert meta["history_windows"]["style_last3f"] == 10
+    assert "distx_probe" not in meta["features"]
+    assert "style_probe" not in meta["features"]
     assert "surface" in meta["subgroup_metrics"]
     assert "distance_band" in meta["subgroup_metrics"]
     assert meta["diagnostics"]["contract"] == "L1_MODEL_DIAGNOSTICS_V1"
@@ -103,6 +120,44 @@ def main():
     assert oof["ml_dataset_version"] == 3
     assert oof["feature_schema_version"] == 7
     assert oof["leakage_policy"] == "STRICT_PRIOR_DATE_ONLY"
+    assert oof["prediction_phase"] == "FINAL"
+    assert oof["feature_sets"] == ["BASE"]
+    assert oof["history_windows"]["suitability"] == 20
+    assert "exact_feature_list" in oof
+
+    feature_set = OUT / "feature-set-dataset.jsonl.gz"
+    write_dataset(feature_set, make_rows(False))
+    subprocess.run(
+        trainer_cmd(feature_set, "feature-set", feature_sets="BASE,DISTANCE", stage=None),
+        cwd=ROOT,
+        check=True,
+    )
+    feature_meta = json.loads((OUT / "feature-set.json").read_text(encoding="utf-8"))
+    assert feature_meta["feature_sets"] == ["BASE", "DISTANCE"]
+    assert "distx_probe" in feature_meta["features"]
+    assert "style_probe" not in feature_meta["features"]
+
+    early_safe = OUT / "early-safe-dataset.jsonl.gz"
+    write_dataset(early_safe, make_rows(False, early_safe=True))
+    subprocess.run(
+        trainer_cmd(early_safe, "early-safe", prediction_phase="EARLY"),
+        cwd=ROOT,
+        check=True,
+    )
+    early_meta = json.loads((OUT / "early-safe.json").read_text(encoding="utf-8"))
+    assert early_meta["prediction_phase"] == "EARLY"
+    assert "body_weight" not in early_meta["features"]
+    assert "weather" not in early_meta["features"]
+
+    early_blocked = subprocess.run(
+        trainer_cmd(safe, "early-blocked", prediction_phase="EARLY"),
+        cwd=ROOT,
+        text=True,
+        capture_output=True,
+    )
+    assert early_blocked.returncode != 0
+    early_text = (early_blocked.stdout or "") + "\n" + (early_blocked.stderr or "")
+    assert "prediction phase EARLY blocked model columns" in early_text
 
     with gzip.open(OUT / "safe-diagnostics.json.gz", "rt", encoding="utf-8") as fh:
         diagnostics = json.loads(fh.read())
