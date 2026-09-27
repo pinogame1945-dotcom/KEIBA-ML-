@@ -1,0 +1,36 @@
+name: Temporary pedigree builder test
+
+on:
+  push:
+    branches:
+      - test/pedigree-feature-builder-v1-20260927
+    paths:
+      - .github/workflows/tmp-pedigree-builder-test.yml
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Checkout BACKFILL exact source
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: 7e13f0a7f04b20d452a2e719c38a91924646e8e1
+          path: backfill
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Pedigree builder smoke
+        run: npm run smoke:pedigree-feature-builder
+      - name: Test pedigree features on historical window
+        run: |
+          node research/test-pedigree-feature-builder.mjs \
+            --source-root backfill \
+            --history-start 2022-11-20 \
+            --emit-start 2023-03-01 \
+            --end 2023-04-15
