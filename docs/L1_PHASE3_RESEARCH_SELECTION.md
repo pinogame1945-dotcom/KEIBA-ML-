@@ -82,8 +82,9 @@ Order:
 4. make a temporal inner split inside the outer train period;
 5. fit a small LightGBM probe on the inner train only;
 6. mark zero / configured-minimum gain features as deletion candidates;
-7. train the real outer-fold model with the selected columns;
-8. evaluate only then on the untouched outer holdout.
+7. if the inner probe would remove every remaining feature, abstain from the gain filter instead of deleting everything;
+8. train the real outer-fold model with the selected columns;
+9. evaluate only then on the untouched outer holdout.
 
 The outer holdout cannot influence which columns survive.
 
