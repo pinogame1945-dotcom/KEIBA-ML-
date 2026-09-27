@@ -13,7 +13,8 @@
     "ml_scraping_allowed": false,
     "catalog_is_allowlist_not_model_input": true,
     "feature_selection_must_happen_inside_walk_forward": true,
-    "historical_coverage_is_enforced_by": "BACKFILL_READINESS_V3"
+    "historical_coverage_is_enforced_by": "BACKFILL_READINESS_V3",
+    "model_input_must_pass_catalog_gate": true
   },
   "required_columns_per_feature": [
     "feature_id",
@@ -2513,7 +2514,11 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "result",
-      "notes": "正解側の情報。L1入力禁止。"
+      "notes": "正解側の情報。L1入力禁止。",
+      "model_keys": [
+        "finish_position",
+        "target_finish_position"
+      ]
     },
     {
       "feature_id": "target.finish_time_ms",
@@ -2532,7 +2537,11 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "result",
-      "notes": "正解側の情報。L1入力禁止。"
+      "notes": "正解側の情報。L1入力禁止。",
+      "model_keys": [
+        "finish_time_ms",
+        "target_finish_time_ms"
+      ]
     },
     {
       "feature_id": "target.last_3f",
@@ -2551,7 +2560,11 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "result",
-      "notes": "正解側の情報。L1入力禁止。"
+      "notes": "正解側の情報。L1入力禁止。",
+      "model_keys": [
+        "last_3f",
+        "target_last_3f"
+      ]
     },
     {
       "feature_id": "target.prize_money",
@@ -2570,7 +2583,11 @@
       "status": "PROHIBITED_L1",
       "leakage_risk": "HIGH",
       "discovery_group": "result",
-      "notes": "正解側の情報。L1入力禁止。"
+      "notes": "正解側の情報。L1入力禁止。",
+      "model_keys": [
+        "prize_money",
+        "target_prize_money"
+      ]
     },
     {
       "feature_id": "market.final_win_odds",
