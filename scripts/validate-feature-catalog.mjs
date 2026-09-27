@@ -27,6 +27,14 @@ for (const row of catalog.features ?? []) {
   if (!allowedStatus.has(row.status)) throw new Error(`${row.feature_id}: bad status ${row.status}`);
   if (!allowedKind.has(row.kind)) throw new Error(`${row.feature_id}: bad kind ${row.kind}`);
   if (!allowedAndroid.has(row.android_mode)) throw new Error(`${row.feature_id}: bad android_mode ${row.android_mode}`);
+  if (row.model_keys != null) {
+    if (!Array.isArray(row.model_keys) || row.model_keys.some(key => typeof key !== "string" || !key.trim())) {
+      throw new Error(`${row.feature_id}: model_keys must be a non-empty string array when present`);
+    }
+    if (row.l1_allowed !== false) {
+      throw new Error(`${row.feature_id}: model_keys are reserved for L1-forbidden facts`);
+    }
+  }
   if (row.status === "L2_ONLY" && row.l1_allowed !== false) {
     throw new Error(`${row.feature_id}: L2_ONLY must be forbidden in L1`);
   }
@@ -69,3 +77,15 @@ console.log(JSON.stringify({
   features: (catalog.features ?? []).length,
   counts: catalog.counts
 }, null, 2));
+
+const forbiddenModelKeys = new Set(
+  (catalog.features ?? [])
+    .filter(row => row.l1_allowed === false)
+    .flatMap(row => row.model_keys ?? [])
+);
+for (const key of forbiddenModelKeys) {
+  if (!key || key.trim() !== key) throw new Error(`invalid forbidden model key: ${JSON.stringify(key)}`);
+}
+if (!forbiddenModelKeys.has("jockey_id") || !forbiddenModelKeys.has("trainer_id")) {
+  throw new Error("catalog model-key gate is missing jockey/trainer IDs");
+}
