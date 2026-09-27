@@ -1,0 +1,96 @@
+name: Temporary L1 yearly snapshot regression
+
+on:
+  push:
+    branches:
+      - feature/l1-yearly-superset-snapshot-v1-20260927
+    paths:
+      - .github/workflows/tmp-l1-yearly-snapshot-regression.yml
+
+permissions:
+  contents: read
+
+jobs:
+  regression:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      PILOT_BACKFILL_SHA: 4426d800dfc2e3983cbf99f9aee6c38c59d41d7e
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout pilot BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: 4426d800dfc2e3983cbf99f9aee6c38c59d41d7e
+          path: backfill
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Safety and syntax smoke
+        run: |
+          npm run smoke:l1-yearly-snapshot
+          node --check research/project-yearly-snapshots.mjs
+          python -m py_compile research/test-yearly-snapshot-regression.py research/train-staged-lightgbm.py
+
+      - name: Install ML dependencies
+        run: python -m pip install -r ml/requirements.txt
+
+      - name: READINESS pilot source
+        run: |
+          node scripts/audit-backfill-readiness.mjs \
+            --source-root backfill \
+            --start 2022-01-01 \
+            --end 2025-12-31 \
+            --report-out out/snapshot-regression-readiness.json \
+            --source-sha "$PILOT_BACKFILL_SHA" \
+            --min-core-known-coverage 0.98 \
+            --max-invalid-rate 0 \
+            --max-year-gap 0.10 \
+            --require-source-integrity
+
+      - name: Build pilot-source yearly superset snapshots
+        run: |
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/yearly-snapshots \
+            --source-start 2022-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2022-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --source-sha "$PILOT_BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Run five-candidate regression
+        run: |
+          python research/test-yearly-snapshot-regression.py \
+            --snapshot-root out/yearly-snapshots \
+            --out-dir out/snapshot-regression \
+            --source-sha "$PILOT_BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA" \
+            --tolerance 1e-12
+
+      - name: Print compact regression result
+        if: always()
+        run: |
+          if [ -f out/snapshot-regression/summary.json ]; then
+            cat out/snapshot-regression/summary.json
+          fi
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -R -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/tmp-l1-yearly-snapshot-regression.yml; then
+            echo "Persistent artifact/cache action found" >&2
+            exit 1
+          fi
