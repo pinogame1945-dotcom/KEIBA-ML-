@@ -1,0 +1,42 @@
+{
+  "contract": "L1_MAIDEN_SPECIALIST_LEDGER_V1",
+  "experiment_id": "MAIDEN-001",
+  "run_id": 36337667531,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36337667531",
+  "workflow": "L1 Maiden Specialist V0",
+  "head_branch": "research/l1-maiden-specialist-v0-20260928",
+  "head_sha": "5c7206766a4c81f0ee28d66d4bd2730347336f3c",
+  "run_conclusion": null,
+  "archived_at": "2026-09-27T17:49:20.611076+00:00",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "specialist_domain": "MAIDEN",
+  "snapshot_generation": "e75cd10b7837f676",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "race_class": "MAIDEN"
+  },
+  "expected_candidates": [
+    "general_no_auto_full",
+    "general_no_auto_full_pedigree",
+    "general_no_auto_jockey",
+    "maiden_same_full",
+    "maiden_same_full_pedigree",
+    "maiden_same_jockey"
+  ],
+  "candidate_count": 6,
+  "missing_candidates": [],
+  "separate_from_main_feature_arena": true,
+  "storage_policy": {
+    "ledger": "git",
+    "models": "not_stored_by_ledger",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}
