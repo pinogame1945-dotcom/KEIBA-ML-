@@ -44,7 +44,7 @@ def make_rows(forbidden=False, early_safe=False):
                     features["jockey_id"] = "J_FORBIDDEN"
                 rows.append({
                     "ml_dataset_version": 3,
-                    "feature_schema_version": 7,
+                    "feature_schema_version": 8,
                     "leakage_policy": "STRICT_PRIOR_DATE_ONLY",
                     "race_id": race_id,
                     "horse_id": f"H{year}{r:02d}{h:02d}",
@@ -118,7 +118,7 @@ def main():
     with gzip.open(OUT / "safe-oof.jsonl.gz", "rt", encoding="utf-8") as fh:
         oof = json.loads(next(fh))
     assert oof["ml_dataset_version"] == 3
-    assert oof["feature_schema_version"] == 7
+    assert oof["feature_schema_version"] == 8
     assert oof["leakage_policy"] == "STRICT_PRIOR_DATE_ONLY"
     assert oof["prediction_phase"] == "FINAL"
     assert oof["feature_sets"] == ["BASE"]
