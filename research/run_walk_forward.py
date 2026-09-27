@@ -373,6 +373,7 @@ def main():
         summaries.append({
             "holdout_year": year,
             "model_version": metadata["model_version"],
+            "expert_id": metadata.get("expert_id"),
             "prediction_phase": metadata["prediction_phase"],
             "feature_sets": metadata["feature_sets"],
             "history_windows": metadata["history_windows"],
