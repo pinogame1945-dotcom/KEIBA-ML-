@@ -818,6 +818,9 @@ def main():
     )
     best_iteration = int(booster.best_iteration or num_boost_round)
 
+    del train_dataset, valid_dataset
+    gc.collect()
+
     raw = np.clip(booster.predict(xva, num_iteration=best_iteration), 1e-15, 1 - 1e-15)
     pred = predictions(valid_context, raw)
     result_metrics = metrics(pred, yva, raw)
