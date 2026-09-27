@@ -54,9 +54,10 @@ jobs:
           node -e 'const r=require("./out/readiness-v3-smoke.json"); if(r.report_version!=="BACKFILL_READINESS_V3"||r.source_integrity?.passed!==true||r.ready_for_l1_research!==true) process.exit(2); console.log(JSON.stringify({report_version:r.report_version,source_integrity:r.source_integrity.passed,ready:r.ready_for_l1_research,source:r.source},null,2));'
       - name: Confirm no persistent artifact workflow
         run: |
-          if grep -R "actions/upload-artifact" .github/workflows; then
+          if grep -R -E "^[[:space:]]*uses:[[:space:]]*actions/upload-artifact" .github/workflows; then
             echo "Persistent artifact upload found" >&2
             exit 1
           fi
 
-# rerun: catalog-gate-v2
+
+# rerun: precise-artifact-check
