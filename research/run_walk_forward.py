@@ -155,7 +155,8 @@ def main():
     models = root / "models"
     oof_dir = root / "oof"
     schemas = root / "schemas"
-    for p in (datasets, models, oof_dir, schemas):
+    diagnostics = root / "diagnostics"
+    for p in (datasets, models, oof_dir, schemas, diagnostics):
         p.mkdir(parents=True, exist_ok=True)
 
     summaries = []
@@ -168,6 +169,7 @@ def main():
         meta = models / f"l1-{a.stage}-{year}.json"
         schema = schemas / f"l1-{a.stage}-{year}-schema.json"
         pred = oof_dir / f"oof-{year}.jsonl.gz"
+        diagnostic = diagnostics / f"l1-{a.stage}-{year}-diagnostics.json.gz"
 
         run([
             "node", "research/build-staged-dataset.mjs",
@@ -193,6 +195,7 @@ def main():
             "--meta-out", meta,
             "--schema-out", schema,
             "--predictions-out", pred,
+            "--diagnostics-out", diagnostic,
             "--model-version", f"L1_{a.stage.upper()}_WF_{year}",
             "--source-repo", a.source_repo,
             "--source-ref", a.source_ref,
@@ -210,6 +213,9 @@ def main():
             "split": metadata["split"],
             "metrics": metadata["metrics"],
             "feature_count": metadata["feature_count"],
+            "reproducibility": metadata.get("reproducibility"),
+            "subgroup_metrics": metadata.get("subgroup_metrics"),
+            "diagnostics": metadata.get("diagnostics"),
         })
         oof_paths.append(pred)
 
