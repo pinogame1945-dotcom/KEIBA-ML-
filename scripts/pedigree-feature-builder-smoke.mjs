@@ -6,7 +6,7 @@ import {
   createPedigreeFeatureState,
 } from "../src/pedigree-feature-builder.mjs";
 
-assert.equal(PEDIGREE_FEATURE_BUILDER_VERSION, 1);
+assert.equal(PEDIGREE_FEATURE_BUILDER_VERSION, 2);
 
 const lineage = lineageFromHorseRecord({
   pedigree: [
@@ -15,7 +15,18 @@ const lineage = lineageFromHorseRecord({
     { generation: 2, slot: 2, ancestor_id: "DAMSIRE" },
   ],
 });
-assert.deepEqual(lineage, { sire_id: "SIRE", damsire_id: "DAMSIRE" });
+assert.deepEqual(lineage, { sire_key: "id:SIRE", damsire_key: "id:DAMSIRE" });
+
+const fallback = lineageFromHorseRecord({
+  pedigree: [
+    { generation: 1, slot: 0, ancestor_id: "000", ancestor_name: "Foreign Sire" },
+    { generation: 2, slot: 2, ancestor_id: "000", ancestor_name: "Foreign Damsire" },
+  ],
+});
+assert.deepEqual(fallback, {
+  sire_key: "name:foreign sire",
+  damsire_key: "name:foreign damsire",
+});
 
 const state = createPedigreeFeatureState();
 const race = {
