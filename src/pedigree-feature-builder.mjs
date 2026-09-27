@@ -1,6 +1,14 @@
-export const PEDIGREE_FEATURE_BUILDER_VERSION = 2;
+import {
+  blankOutcomeStats,
+  effectiveOutcomeSnapshot,
+  updateOutcomeStats,
+  validateSmallSamplePolicy,
+} from "./small-sample-feature-utils.mjs";
+
+export const PEDIGREE_FEATURE_BUILDER_VERSION = 3;
 
 function finite(value) {
+  if (value == null || (typeof value === "string" && value.trim() === "")) return null;
   const n = Number(value);
   return Number.isFinite(n) ? n : null;
 }
@@ -27,7 +35,7 @@ export function lineageFromHorseRecord(record) {
   };
 }
 
-function distanceBand(distance) {
+export function pedigreeDistanceBand(distance) {
   const d = finite(distance);
   if (d == null) return null;
   if (d <= 1400) return "SPRINT_1400_OR_LESS";
@@ -36,127 +44,98 @@ function distanceBand(distance) {
   return "LONG_2400_PLUS";
 }
 
-function conditionKeys(race = {}) {
-  const out = [];
-  const surface = text(race.surface);
-  const venue = text(race.venue_code);
-  const layout = text(race.course_layout);
-  const going = text(race.track_condition);
-  const band = distanceBand(race.distance_m);
-  if (surface) out.push(["surface", surface]);
-  if (venue) out.push(["venue", venue]);
-  if (layout) out.push(["course_layout", layout]);
-  if (going) out.push(["going", going]);
-  if (band) out.push(["distance_band", band]);
-  return out;
-}
-
-function blankStats() {
+function conditionValues(race = {}) {
   return {
-    starts: 0,
-    wins: 0,
-    top3: 0,
-    finish_sum: 0,
-    finish_n: 0,
-    margin_lengths_sum: 0,
-    margin_lengths_n: 0,
+    surface: text(race.surface),
+    venue: text(race.venue_code),
+    course_layout: text(race.course_layout),
+    going: text(race.track_condition),
+    distance_band: pedigreeDistanceBand(race.distance_m),
   };
 }
 
-function updateStats(stats, result) {
-  if (String(result?.result_status ?? "").toUpperCase() !== "FINISHED") return;
-  const finish = finite(result?.official_finish_position);
-  if (finish == null || finish < 1) return;
-  stats.starts += 1;
-  if (finish != null) {
-    if (finish === 1) stats.wins += 1;
-    if (finish <= 3) stats.top3 += 1;
-    stats.finish_sum += finish;
-    stats.finish_n += 1;
-  }
-  if (String(result?.margin_type ?? "").toUpperCase() === "LENGTHS") {
-    const margin = finite(result?.margin_lengths);
-    if (margin != null) {
-      stats.margin_lengths_sum += margin;
-      stats.margin_lengths_n += 1;
-    }
-  }
+function statKey(role, ancestorKeyValue, conditionType = "all", conditionValue = "all") {
+  return [role, ancestorKeyValue, conditionType, conditionValue].join("|");
 }
 
-function snapshot(stats) {
-  if (!stats) {
-    return {
-      starts: 0,
-      win_rate: null,
-      top3_rate: null,
-      avg_finish: null,
-      avg_margin_lengths: null,
-    };
-  }
-  return {
-    starts: stats.starts,
-    win_rate: stats.starts ? stats.wins / stats.starts : null,
-    top3_rate: stats.starts ? stats.top3 / stats.starts : null,
-    avg_finish: stats.finish_n ? stats.finish_sum / stats.finish_n : null,
-    avg_margin_lengths: stats.margin_lengths_n
-      ? stats.margin_lengths_sum / stats.margin_lengths_n
-      : null,
-  };
+function writePayload(out, base, payload) {
+  for (const [key, value] of Object.entries(payload)) out[`${base}_${key}`] = value;
 }
 
-function statKey(role, ancestorId, conditionType = "all", conditionValue = "all") {
-  return [role, ancestorId, conditionType, conditionValue].join("|");
-}
-
-export function createPedigreeFeatureState() {
+export function createPedigreeFeatureState({ smallSamplePolicy = {} } = {}) {
+  const policy = validateSmallSamplePolicy(smallSamplePolicy);
   const stats = new Map();
+  const globalByRole = new Map([
+    ["sire", blankOutcomeStats({ withMargin: true })],
+    ["damsire", blankOutcomeStats({ withMargin: true })],
+  ]);
 
-  function featuresFor(role, ancestorId, race = {}) {
-    const prefix = `ped_${role}`;
-    if (!ancestorId) {
-      return {
-        [`${prefix}_known`]: 0,
-        [`${prefix}_all_starts`]: 0,
-      };
+  function get(role, ancestor, type = "all", value = "all") {
+    if (!ancestor) return null;
+    return stats.get(statKey(role, ancestor, type, value)) ?? null;
+  }
+
+  function ensure(role, ancestor, type = "all", value = "all") {
+    const key = statKey(role, ancestor, type, value);
+    let row = stats.get(key);
+    if (!row) {
+      row = blankOutcomeStats({ withMargin: true });
+      stats.set(key, row);
     }
+    return row;
+  }
 
-    const out = { [`${prefix}_known`]: 1 };
-    const overall = snapshot(stats.get(statKey(role, ancestorId)));
-    for (const [k, v] of Object.entries(overall)) out[`${prefix}_all_${k}`] = v;
+  function featuresFor(role, ancestor, race = {}) {
+    const prefix = `ped_${role}`;
+    const out = { [`${prefix}_known`]: ancestor ? 1 : 0 };
+    const globalStats = globalByRole.get(role);
+    const overall = get(role, ancestor);
 
-    for (const [conditionType, conditionValue] of conditionKeys(race)) {
-      const snap = snapshot(stats.get(statKey(role, ancestorId, conditionType, conditionValue)));
-      const safeValue = String(conditionValue).toLowerCase().replace(/[^a-z0-9]+/g, "_");
-      const base = `${prefix}_${conditionType}_${safeValue}`;
-      for (const [k, v] of Object.entries(snap)) out[`${base}_${k}`] = v;
+    writePayload(out, `${prefix}_all`, effectiveOutcomeSnapshot({
+      specific: overall,
+      broader: null,
+      globalStats,
+      policy: { ...policy, minSpecificObservations: 1 },
+      withMargin: true,
+      allowFallback: true,
+    }));
+
+    for (const [type, value] of Object.entries(conditionValues(race))) {
+      out[`${prefix}_${type}_condition_known`] = value == null ? 0 : 1;
+      const specific = value == null ? null : get(role, ancestor, type, value);
+      writePayload(out, `${prefix}_${type}`, effectiveOutcomeSnapshot({
+        specific,
+        broader: overall,
+        globalStats,
+        policy,
+        withMargin: true,
+        allowFallback: true,
+      }));
     }
     return out;
   }
 
-  function add(role, ancestorId, race, result) {
-    if (!ancestorId) return;
-    const keys = [[role, ancestorId, "all", "all"], ...conditionKeys(race).map(([t, v]) => [role, ancestorId, t, v])];
-    for (const [r, id, type, value] of keys) {
-      const key = statKey(r, id, type, value);
-      let row = stats.get(key);
-      if (!row) {
-        row = blankStats();
-        stats.set(key, row);
-      }
-      updateStats(row, result);
+  function addAncestor(role, ancestor, race, result) {
+    updateOutcomeStats(globalByRole.get(role), result, { withMargin: true });
+    if (!ancestor) return;
+    updateOutcomeStats(ensure(role, ancestor), result, { withMargin: true });
+    for (const [type, value] of Object.entries(conditionValues(race))) {
+      if (value == null) continue;
+      updateOutcomeStats(ensure(role, ancestor, type, value), result, { withMargin: true });
     }
   }
 
   return {
+    policy,
     snapshot(lineage, race) {
       return {
-        ...featuresFor("sire", lineage?.sire_key, race),
-        ...featuresFor("damsire", lineage?.damsire_key, race),
+        ...featuresFor("sire", lineage?.sire_key ?? null, race),
+        ...featuresFor("damsire", lineage?.damsire_key ?? null, race),
       };
     },
     add(lineage, race, result) {
-      add("sire", lineage?.sire_key, race, result);
-      add("damsire", lineage?.damsire_key, race, result);
+      addAncestor("sire", lineage?.sire_key ?? null, race, result);
+      addAncestor("damsire", lineage?.damsire_key ?? null, race, result);
     },
     stat_rows() {
       return stats.size;
