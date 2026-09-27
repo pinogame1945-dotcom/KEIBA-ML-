@@ -356,6 +356,8 @@ def compact_candidate_result(item, summary):
                 "dropped_constant": fs.get("dropped_constant") or [],
                 "dropped_correlation": fs.get("dropped_correlation") or [],
                 "dropped_inner_gain": fs.get("dropped_inner_gain") or [],
+                "inner_gain_abstained": bool(fs.get("inner_gain_abstained", False)),
+                "inner_gain_abstain_reason": fs.get("inner_gain_abstain_reason"),
                 "inner_split": inner or None,
                 "parameters": fs.get("parameters") or {},
             },
