@@ -1,0 +1,482 @@
+{
+  "contract": "L1_ABSORPTION_SPECIALIST_SCORECARD_V1",
+  "experiment_id": "ABSORB-001",
+  "run_id": 36348397121,
+  "complete": true,
+  "candidates": [
+    {
+      "candidate": "core4_no_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [],
+      "feature_count": 649,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2806712962962963,
+        "top3_winner_capture": 0.6015625,
+        "top6_winner_capture": 0.8217592592592593,
+        "mean_winner_rank": 3.8017939814814814,
+        "mean_reciprocal_winner_rank": 0.485603198601054,
+        "race_normalized_nll": 2.1030634551850675,
+        "raw_logloss": 0.22081262416667216,
+        "raw_brier": 0.0610346385638911,
+        "raw_roc_auc": 0.7917824851034468
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 248.925,
+          "peak_rss_mib": 514.16,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 451.885,
+          "peak_rss_mib": 13679.59,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 700.815,
+        "candidate_peak_rss_mib": 13679.59
+      }
+    },
+    {
+      "candidate": "core4_plus_raceclass_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [
+        "RACE_CLASS"
+      ],
+      "feature_count": 683,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2769097222222222,
+        "top3_winner_capture": 0.5986689814814815,
+        "top6_winner_capture": 0.8194444444444444,
+        "mean_winner_rank": 3.8122106481481484,
+        "mean_reciprocal_winner_rank": 0.48243671046277764,
+        "race_normalized_nll": 2.1063648509805453,
+        "raw_logloss": 0.22098704189930787,
+        "raw_brier": 0.06106186008230456,
+        "raw_roc_auc": 0.7909173759777205
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "core4_plus_raceclass_pedigree:projection",
+          "elapsed_seconds": 337.791,
+          "peak_rss_mib": 508.754,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_plus_raceclass_pedigree:training",
+          "elapsed_seconds": 505.479,
+          "peak_rss_mib": 13881.273,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 843.31,
+        "candidate_peak_rss_mib": 13881.273
+      }
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "auto_slices": [
+        "CONDITION"
+      ],
+      "pedigree_slices": [],
+      "feature_count": 423,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2821180555555556,
+        "top3_winner_capture": 0.5986689814814815,
+        "top6_winner_capture": 0.8165509259259259,
+        "mean_winner_rank": 3.795138888888889,
+        "mean_reciprocal_winner_rank": 0.48715351460449496,
+        "race_normalized_nll": 2.1060388955588847,
+        "raw_logloss": 0.22211068642700496,
+        "raw_brier": 0.06118152303296639,
+        "raw_roc_auc": 0.7868132851310966
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 254.879,
+          "peak_rss_mib": 510.754,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 317.384,
+          "peak_rss_mib": 9123.996,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 572.267,
+        "candidate_peak_rss_mib": 9123.996
+      }
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "auto_slices": [
+        "CONDITION"
+      ],
+      "pedigree_slices": [
+        "RACE_CLASS"
+      ],
+      "feature_count": 457,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27719907407407407,
+        "top3_winner_capture": 0.6012731481481481,
+        "top6_winner_capture": 0.8246527777777778,
+        "mean_winner_rank": 3.7745949074074074,
+        "mean_reciprocal_winner_rank": 0.4850345316816671,
+        "race_normalized_nll": 2.1072834105781255,
+        "raw_logloss": 0.22242881697059527,
+        "raw_brier": 0.06132893960644851,
+        "raw_roc_auc": 0.7867078820507036
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 295.353,
+          "peak_rss_mib": 472.711,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 341.638,
+          "peak_rss_mib": 9742.703,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 636.994,
+        "candidate_peak_rss_mib": 9742.703
+      }
+    },
+    {
+      "candidate": "no_auto_full",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2879050925925926,
+        "top3_winner_capture": 0.5946180555555556,
+        "top6_winner_capture": 0.8156828703703703,
+        "mean_winner_rank": 3.8287037037037037,
+        "mean_reciprocal_winner_rank": 0.487440442863237,
+        "race_normalized_nll": 2.1136729895818314,
+        "raw_logloss": 0.2227713782750449,
+        "raw_brier": 0.06127397388632772,
+        "raw_roc_auc": 0.7838720472113929
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 156.826,
+          "peak_rss_mib": 94.301,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 222.364,
+          "peak_rss_mib": 5665.75,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 379.191,
+        "candidate_peak_rss_mib": 5665.75
+      }
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [
+        "LEGACY"
+      ],
+      "feature_count": 470,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2829861111111111,
+        "top3_winner_capture": 0.59375,
+        "top6_winner_capture": 0.8217592592592593,
+        "mean_winner_rank": 3.795428240740741,
+        "mean_reciprocal_winner_rank": 0.48585903390590884,
+        "race_normalized_nll": 2.109639091279433,
+        "raw_logloss": 0.22269453891820684,
+        "raw_brier": 0.061386014790416436,
+        "raw_roc_auc": 0.7853934037194147
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 252.951,
+          "peak_rss_mib": 511.445,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 351.708,
+          "peak_rss_mib": 10297.215,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 604.662,
+        "candidate_peak_rss_mib": 10297.215
+      }
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [],
+      "feature_count": 504,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2838541666666667,
+        "top3_winner_capture": 0.5986689814814815,
+        "top6_winner_capture": 0.8249421296296297,
+        "mean_winner_rank": 3.7881944444444446,
+        "mean_reciprocal_winner_rank": 0.4864762155982029,
+        "race_normalized_nll": 2.106489447266354,
+        "raw_logloss": 0.2223910380978572,
+        "raw_brier": 0.061286987746723864,
+        "raw_roc_auc": 0.7860856750219062
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 230.734,
+          "peak_rss_mib": 495.008,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 369.904,
+          "peak_rss_mib": 10899.16,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 600.667,
+        "candidate_peak_rss_mib": 10899.16
+      }
+    },
+    {
+      "candidate": "no_auto_full_plus_raceclass",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": [
+        "RACE_CLASS"
+      ],
+      "feature_count": 300,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2847222222222222,
+        "top3_winner_capture": 0.59375,
+        "top6_winner_capture": 0.8188657407407407,
+        "mean_winner_rank": 3.8113425925925926,
+        "mean_reciprocal_winner_rank": 0.4869936784216299,
+        "race_normalized_nll": 2.1059220111382873,
+        "raw_logloss": 0.2223150747238271,
+        "raw_brier": 0.06123173722947332,
+        "raw_roc_auc": 0.7859087395674669
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_plus_raceclass:projection",
+          "elapsed_seconds": 198.202,
+          "peak_rss_mib": 146.215,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_plus_raceclass:training",
+          "elapsed_seconds": 243.549,
+          "peak_rss_mib": 6130.316,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 441.753,
+        "candidate_peak_rss_mib": 6130.316
+      }
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "auto_slices": [],
+      "pedigree_slices": [],
+      "feature_count": 164,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28096064814814814,
+        "top3_winner_capture": 0.5960648148148148,
+        "top6_winner_capture": 0.8203125,
+        "mean_winner_rank": 3.8200231481481484,
+        "mean_reciprocal_winner_rank": 0.4842948993314088,
+        "race_normalized_nll": 2.119814234178951,
+        "raw_logloss": 0.223374094097356,
+        "raw_brier": 0.06147598311325125,
+        "raw_roc_auc": 0.7832630008866414
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 155.766,
+          "peak_rss_mib": 104.117,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 158.658,
+          "peak_rss_mib": 3424.289,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 314.425,
+        "candidate_peak_rss_mib": 3424.289
+      }
+    },
+    {
+      "candidate": "no_auto_jockey_plus_raceclass",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "ALL",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "auto_slices": [],
+      "pedigree_slices": [
+        "RACE_CLASS"
+      ],
+      "feature_count": 198,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2786458333333333,
+        "top3_winner_capture": 0.5966435185185185,
+        "top6_winner_capture": 0.8151041666666666,
+        "mean_winner_rank": 3.8136574074074074,
+        "mean_reciprocal_winner_rank": 0.4829674651914746,
+        "race_normalized_nll": 2.1106995709992153,
+        "raw_logloss": 0.22281132088144082,
+        "raw_brier": 0.06138809238043481,
+        "raw_roc_auc": 0.7849151161993597
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey_plus_raceclass:projection",
+          "elapsed_seconds": 188.147,
+          "peak_rss_mib": 137.781,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey_plus_raceclass:training",
+          "elapsed_seconds": 184.926,
+          "peak_rss_mib": 4494.77,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 373.076,
+        "candidate_peak_rss_mib": 4494.77
+      }
+    }
+  ]
+}
