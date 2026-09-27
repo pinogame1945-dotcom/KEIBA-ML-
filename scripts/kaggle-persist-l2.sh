@@ -2,12 +2,15 @@
 set -euo pipefail
 
 BUNDLE_ROOT="${1:-out/l2-bundles}"
-SAFETY_LIMIT_BYTES="${KAGGLE_L2_SAFETY_LIMIT_BYTES:-193273528320}" # 180 GiB
 EPHEMERAL="${KAGGLE_L2_EPHEMERAL:-0}"
 
 if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
   echo "KAGGLE_API_TOKEN is required" >&2
   exit 2
+fi
+if [[ "${KAGGLE_STORAGE_PREFLIGHT_OK:-0}" != "1" ]]; then
+  echo "Kaggle storage preflight marker missing; run scripts/kaggle-storage-preflight.sh before compute." >&2
+  exit 12
 fi
 
 manifest="$(find "$BUNDLE_ROOT" -mindepth 2 -maxdepth 2 -name manifest.json -print | sort | tail -n 1)"
@@ -106,54 +109,7 @@ fi
 if kaggle datasets status "$dataset_ref" >/dev/null 2>&1; then
   echo "Dataset already exists; verifying remote manifest instead of uploading again."
 else
-  usage_json="$(mktemp)"
-  printf '[]\n' > "$usage_json"
-  page=1
-  while :; do
-    page_json="$(mktemp)"
-    if ! kaggle datasets list --mine --page "$page" --format "json(ref,totalBytes)" >"$page_json"; then
-      echo "Could not verify Kaggle storage usage; refusing upload." >&2
-      exit 7
-    fi
-    if [[ ! -s "$page_json" ]]; then
-      count=0
-    else
-      count="$(python - "$usage_json" "$page_json" <<'PY'
-import json,sys
-dst=json.load(open(sys.argv[1],encoding="utf-8"))
-raw=open(sys.argv[2],encoding="utf-8").read().strip()
-if not raw or raw.lower().startswith("no datasets found"):
-    src=[]
-else:
-    src=json.loads(raw)
-if not isinstance(src,list):
-    raise SystemExit("unexpected Kaggle datasets list payload")
-dst.extend(src)
-json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
-print(len(src))
-PY
-)"
-    fi
-    [[ "$count" == "0" ]] && break
-    page=$((page+1))
-    [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 7; }
-  done
-
-  current_bytes="$(python - "$usage_json" <<'PY'
-import json,sys
-rows=json.load(open(sys.argv[1],encoding="utf-8"))
-print(sum(int(r.get("totalBytes") or 0) for r in rows))
-PY
-)"
-  projected=$(( current_bytes + bundle_bytes ))
-  echo "Owned Kaggle dataset bytes: $current_bytes"
-  echo "Projected bytes after L2 upload: $projected"
-  echo "Safety ceiling: $SAFETY_LIMIT_BYTES"
-  if (( projected > SAFETY_LIMIT_BYTES )); then
-    echo "Projected Kaggle storage exceeds the 180 GiB safety ceiling; refusing upload." >&2
-    exit 8
-  fi
-
+  # Capacity was checked once before compute. Do not re-check here.
   kaggle datasets create -p "$stage" --quiet --keep-tabular --dir-mode skip
   created_here=1
 fi
