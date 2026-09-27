@@ -282,7 +282,11 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
         if row_small_sample and dict(row_small_sample) != small_sample_policy:
             raise ValueError("dataset small_sample_policy mismatch")
         raw_features = dict(row["features"])
-        race_class = raw_features.get("backfill_race_class_normalized")
+        research_context = row.get("research_context") or {}
+        race_class = (
+            research_context.get("race_class_normalized")
+            or raw_features.get("backfill_race_class_normalized")
+        )
         f = feature_set_features(raw_features, feature_sets, feature_contract)
         assert_prediction_phase_safety(list(f), prediction_phase, feature_contract)
         bad = sorted(set(f) & forbidden_model_keys)
