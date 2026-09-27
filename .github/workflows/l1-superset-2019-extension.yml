@@ -1,0 +1,108 @@
+name: L1 superset extend to 2019
+
+on:
+  push:
+    branches:
+      - feature/l1-yearly-superset-snapshot-v1-20260927
+    paths:
+      - .github/workflows/l1-superset-2019-extension.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - name: Require approved free snapshot storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}" || { echo "::error::KAGGLE_API_TOKEN missing"; exit 1; }
+
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: main
+          path: backfill
+
+      - name: Record BACKFILL SHA
+        shell: bash
+        run: echo "BACKFILL_SHA=$(git -C backfill rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Syntax checks
+        run: |
+          node --check research/build-yearly-superset-snapshots.mjs
+          node --check scripts/audit-backfill-readiness.mjs
+          bash -n scripts/kaggle-persist-snapshot.sh
+
+      - name: READINESS 2018-2025
+        run: |
+          node scripts/audit-backfill-readiness.mjs             --source-root backfill             --start 2018-01-01             --end 2025-12-31             --report-out out/snapshot-readiness-2018-2025.json             --source-sha "$BACKFILL_SHA"             --min-core-known-coverage 0.98             --max-invalid-rate 0             --max-year-gap 0.10             --require-source-integrity
+
+      - name: Build 2019-2025 model-ready superset
+        run: |
+          node research/build-yearly-superset-snapshots.mjs             --source-root backfill             --out-dir out/yearly-snapshots             --source-start 2018-01-01             --source-end 2025-12-31             --emit-start 2019-01-01             --emit-end 2025-12-31             --first-model-ready-year 2019             --prediction-phase FINAL             --source-sha "$BACKFILL_SHA"             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Verify 2019 is model-ready
+        shell: bash
+        run: |
+          set -euo pipefail
+          manifest="$(find out/yearly-snapshots -name manifest.json -print -quit)"
+          test -n "$manifest"
+          python - "$manifest" <<'PY'
+          import json,sys
+          m=json.load(open(sys.argv[1],encoding="utf-8"))
+          by={int(y["year"]):y for y in m["years"]}
+          for year in range(2019,2026):
+              if year not in by:
+                  raise SystemExit(f"missing year {year}")
+          if not bool(by[2019].get("model_ready")):
+              raise SystemExit("2019 is not model-ready")
+          print("MODEL_READY_2019_OK")
+          print(json.dumps({
+              "generation_id":m["generation"]["generation_id"],
+              "years":m["years"],
+              "total_bytes":m["total_bytes"],
+              "total_rows":m["total_rows"],
+          },ensure_ascii=False))
+          PY
+
+      - name: Persist to approved Kaggle private storage
+        shell: bash
+        run: bash scripts/kaggle-persist-snapshot.sh out/yearly-snapshots
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l1-superset-2019-extension.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Existing approved Kaggle private storage only."
+          echo "Kaggle persistence helper keeps the 180 GiB safety ceiling."
