@@ -12,6 +12,7 @@ DEFAULT_FEATURE_CONTRACT_PATH = ROOT / "contracts" / "l1-feature-set-contract-v1
 DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
 DEFAULT_SMALL_SAMPLE_CONTRACT_PATH = ROOT / "contracts" / "l1-small-sample-contract-v1.json"
 DEFAULT_SMALL_SAMPLE_CONTRACT = json.loads(DEFAULT_SMALL_SAMPLE_CONTRACT_PATH.read_text(encoding="utf-8"))
+LOCKED_RESEARCH_YEAR = 2026
 
 
 def parse_args():
@@ -45,6 +46,11 @@ def parse_args():
     p.add_argument("--shrinkage-rate-strength", type=float, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["rate_prior_strength"])
     p.add_argument("--shrinkage-mean-strength", type=float, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["mean_prior_strength"])
     p.add_argument("--min-specific-observations", type=int, default=DEFAULT_SMALL_SAMPLE_CONTRACT["defaults"]["min_specific_observations"])
+    p.add_argument("--feature-selection", choices=["none", "train_v1"], default="none")
+    p.add_argument("--fs-max-missing-rate", type=float, default=0.98)
+    p.add_argument("--fs-max-correlation", type=float, default=0.995)
+    p.add_argument("--fs-min-inner-gain-fraction", type=float, default=0.0)
+    p.add_argument("--fs-inner-valid-fraction", type=float, default=0.20)
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
     p.add_argument("--source-ref", default="main")
     p.add_argument("--source-sha")
@@ -211,6 +217,10 @@ def main():
 
     if a.first_holdout > a.last_holdout:
         raise ValueError("first-holdout must be <= last-holdout")
+    if a.last_holdout >= LOCKED_RESEARCH_YEAR:
+        raise ValueError(
+            "2026 research lock: holdout years >= 2026 are forbidden in the Phase 3 research runner"
+        )
     if a.train_years < 1 or a.warmup_years < 0:
         raise ValueError("invalid train/warmup years")
     if not (0 <= a.min_core_known_coverage <= 1):
@@ -231,6 +241,13 @@ def main():
         "feature_sets": feature_sets,
         "history_windows": history_windows,
         "small_sample_policy": small_sample_policy,
+        "feature_selection": {
+            "mode": a.feature_selection,
+            "max_missing_rate": a.fs_max_missing_rate,
+            "max_correlation": a.fs_max_correlation,
+            "min_inner_gain_fraction": a.fs_min_inner_gain_fraction,
+            "inner_valid_fraction": a.fs_inner_valid_fraction,
+        },
         "legacy_stage": a.stage,
         "train_years": a.train_years,
         "warmup_years": a.warmup_years,
@@ -319,6 +336,11 @@ def main():
             "--prediction-phase", prediction_phase,
             "--history-windows-json", json.dumps(history_windows, separators=(",", ":")),
             "--small-sample-policy-json", json.dumps(small_sample_policy, separators=(",", ":")),
+            "--feature-selection", a.feature_selection,
+            "--fs-max-missing-rate", a.fs_max_missing_rate,
+            "--fs-max-correlation", a.fs_max_correlation,
+            "--fs-min-inner-gain-fraction", a.fs_min_inner_gain_fraction,
+            "--fs-inner-valid-fraction", a.fs_inner_valid_fraction,
             "--feature-contract", a.feature_contract,
             "--train-start", fold["train_start"],
             "--train-end", fold["train_end"],
@@ -348,6 +370,7 @@ def main():
             "feature_sets": metadata["feature_sets"],
             "history_windows": metadata["history_windows"],
             "small_sample_policy": metadata.get("small_sample_policy"),
+            "feature_selection": metadata.get("feature_selection"),
             "split": metadata["split"],
             "metrics": metadata["metrics"],
             "feature_count": metadata["feature_count"],
@@ -372,6 +395,13 @@ def main():
         "feature_sets": feature_sets,
         "history_windows": history_windows,
         "small_sample_policy": small_sample_policy,
+        "feature_selection": {
+            "mode": a.feature_selection,
+            "max_missing_rate": a.fs_max_missing_rate,
+            "max_correlation": a.fs_max_correlation,
+            "min_inner_gain_fraction": a.fs_min_inner_gain_fraction,
+            "inner_valid_fraction": a.fs_inner_valid_fraction,
+        },
         "legacy_stage": a.stage,
         "source": {
             "repository": a.source_repo,
