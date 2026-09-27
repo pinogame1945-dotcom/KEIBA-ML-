@@ -4,7 +4,7 @@
   "implementation_snapshot": {
     "repository": "pinogame1945-dotcom/KEIBA-ML-",
     "main_commit": "e09d3e88b04cb748ae045050f866d63b0336204b",
-    "feature_schema_version": 7
+    "feature_schema_version": 8
   },
   "principles": {
     "ability_uses_odds": false,
@@ -36,9 +36,9 @@
     "notes"
   ],
   "counts": {
-    "total": 145,
+    "total": 149,
     "available": 108,
-    "derivable": 19,
+    "derivable": 23,
     "backfill_required": 0,
     "prohibited_l1": 15,
     "l2_only": 3
@@ -2872,6 +2872,82 @@
       "model_keys": [
         "breeder_id"
       ]
+    },
+    {
+      "feature_id": "pedigree.point_in_time_stats_v1",
+      "display_name": "父・母父の過去時点条件別成績",
+      "domain": "PEDIGREE",
+      "source_field": "horse pedigree + prior race/results",
+      "kind": "DERIVED",
+      "available_at": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "scope": "HORSE",
+      "calculation": "sire/damsire overall + current-condition matched stats with observation counts, shrinkage and fallback",
+      "missing_rule": "keep observation counts; fallback condition -> ancestor overall -> global prior",
+      "l1_allowed": true,
+      "l2_allowed": true,
+      "android_mode": "STATE",
+      "status": "DERIVABLE",
+      "leakage_risk": "LOW",
+      "discovery_group": "pedigree",
+      "notes": "Raw ancestor IDs are keys inside the builder only and never model inputs. Distance bands: <=1400, 1401-1800, 1801-2200, >=2201."
+    },
+    {
+      "feature_id": "actor.point_in_time_stats_v1",
+      "display_name": "騎手・調教師・馬×騎手の過去時点成績",
+      "domain": "ACTOR",
+      "source_field": "entry actor identity + prior race/results",
+      "kind": "DERIVED",
+      "available_at": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "scope": "HORSE",
+      "calculation": "overall/surface/venue/distance/class/recent performance with observation counts, shrinkage and fallback",
+      "missing_rule": "keep observation counts; fallback condition/recent -> actor overall -> global prior",
+      "l1_allowed": true,
+      "l2_allowed": true,
+      "android_mode": "STATE",
+      "status": "DERIVABLE",
+      "leakage_risk": "LOW",
+      "discovery_group": "actor",
+      "notes": "Raw jockey/trainer IDs are keys inside the builder only and never model inputs."
+    },
+    {
+      "feature_id": "opponent.relationship_v2",
+      "display_name": "相手関係・強敵実績",
+      "domain": "OPPONENT",
+      "source_field": "prior fields/results + point-in-time Elo/performance state",
+      "kind": "DERIVED",
+      "available_at": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "scope": "HORSE",
+      "calculation": "historical field strength, strong opponents faced/beaten, strong-field top3/close rates, current field strength",
+      "missing_rule": "null when no prior measured races; counts remain zero",
+      "l1_allowed": true,
+      "l2_allowed": true,
+      "android_mode": "STATE",
+      "status": "DERIVABLE",
+      "leakage_risk": "LOW",
+      "discovery_group": "opponent",
+      "notes": "Same-day results are committed only after every prediction row for that date is created."
+    },
+    {
+      "feature_id": "time_pace.normalized_v1",
+      "display_name": "補正タイム・上がり・ペース適性",
+      "domain": "TIME_PACE",
+      "source_field": "prior result finish_time_ms/last_3f + race laps + normalized race conditions",
+      "kind": "DERIVED",
+      "available_at": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "scope": "HORSE",
+      "calculation": "normalize prior final time/last3f against point-in-time condition standards; classify prior pace and summarize FAST/EVEN/SLOW suitability",
+      "missing_rule": "fallback exact -> surface+distance band -> surface -> global; null until variance/observations exist",
+      "l1_allowed": true,
+      "l2_allowed": true,
+      "android_mode": "STATE",
+      "status": "DERIVABLE",
+      "leakage_risk": "LOW",
+      "discovery_group": "time_pace",
+      "notes": "Raw times are not compared across conditions directly. Current target-race result/laps are never predictors."
     }
   ]
 }
