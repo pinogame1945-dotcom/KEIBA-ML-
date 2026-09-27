@@ -12,7 +12,15 @@ import {
 assert.equal(normalizePredictionPhase("early"), "EARLY");
 assert.deepEqual(legacyStageToFeatureSets("distance_v1"), ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE", "DISTANCE"]);
 assert.deepEqual(normalizeFeatureSets("BASE,DISTANCE"), ["BASE", "DISTANCE"]);
-assert.deepEqual(normalizeFeatureSets("DISTANCE,BASE,DISTANCE"), ["DISTANCE", "BASE"]);
+assert.deepEqual(normalizeFeatureSets("DISTANCE,BASE,DISTANCE"), ["BASE", "DISTANCE"]);
+assert.deepEqual(
+  normalizeFeatureSets("STYLE,LAP,NETWORK,OPPONENT,BASE", "style"),
+  ["BASE", "OPPONENT", "NETWORK", "LAP", "STYLE"],
+);
+assert.throws(
+  () => normalizeFeatureSets("BASE,DISTANCE", "style"),
+  /conflicts with deprecated --stage mapping/,
+);
 
 const selected = selectFeatureFamilies({
   distance_m: 1600,
