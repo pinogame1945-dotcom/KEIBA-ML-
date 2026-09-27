@@ -120,7 +120,7 @@ def main():
     )
     assert blocked.returncode != 0
     combined = (blocked.stdout or "") + "\n" + (blocked.stderr or "")
-    assert "L1 feature catalog blocked model columns: jockey_id" in combined
+    assert "L1 feature catalog blocked dataset columns: jockey_id" in combined
 
     print("TRAINER_FOUNDATION_SMOKE_OK")
     shutil.rmtree(OUT, ignore_errors=True)
