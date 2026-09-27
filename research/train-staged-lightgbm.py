@@ -702,6 +702,8 @@ def main():
                 record["feature_sets"] = feature_sets
                 record["history_windows"] = history_windows
                 record["exact_feature_list"] = names
+                record["feature_catalog_sha256"] = catalog_sha256
+                record["feature_contract_sha256"] = feature_contract_sha256
                 fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     if a.schema_out:
