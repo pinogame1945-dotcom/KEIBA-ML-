@@ -1,0 +1,106 @@
+name: Temporary ALL memory diagnostic
+
+on:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/workflows/l1-feature-arena-all-memory-diagnostic.yml
+
+permissions:
+  contents: read
+
+jobs:
+  arena-all-memory:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: e75cd10b7837f676
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      CANDIDATE_NAME: all
+      CANDIDATE_SETS: BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,PEDIGREE,ACTOR,TIME_PACE
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2023-2025 superset snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kodoku-input/$GENERATION_ID"
+          mkdir -p "$root"
+          for year in 2023 2024 2025; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$year" "$root"
+          done
+          du -h "$root"/snapshot-*.jsonl
+          echo "=== PRE-RUN MEMORY ==="
+          free -h
+          df -h /
+
+      - name: Build ALL config
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os
+          sets=[x.strip() for x in os.environ["CANDIDATE_SETS"].split(",") if x.strip()]
+          with open("candidate.json","w",encoding="utf-8") as f:
+              json.dump([{"name":"all","feature_sets":sets}],f,ensure_ascii=False)
+          PY
+
+      - name: Run ALL with memory telemetry
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kodoku-input/$GENERATION_ID"
+          (
+            while true; do
+              echo "=== MEMORY_TICK $(date -u +%FT%TZ) ==="
+              free -m
+              awk '/MemTotal|MemAvailable|SwapTotal|SwapFree/ {print}' /proc/meminfo
+              ps -eo pid,ppid,rss,vsz,pcpu,pmem,comm,args --sort=-rss | head -n 8 || true
+              df -h /
+              sleep 60
+            done
+          ) &
+          monitor_pid=$!
+          trap 'kill "$monitor_pid" 2>/dev/null || true' EXIT
+
+          python research/run_feature_arena.py \
+            --inputs "$root/snapshot-2023.jsonl,$root/snapshot-2024.jsonl,$root/snapshot-2025.jsonl" \
+            --out-dir "out/feature-arena-all-memory-diagnostic" \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json candidate.json \
+            --source-ref main \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Standard GitHub-hosted ubuntu-latest runner only."
+          echo "No GPU. No paid runner. No Artifact/Cache upload."
