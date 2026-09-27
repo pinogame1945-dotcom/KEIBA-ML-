@@ -18,17 +18,6 @@
     "direct trainer_id",
     "direct pedigree ancestor IDs"
   ],
-  "feature_families": [
-    "base",
-    "opponent",
-    "network",
-    "lap",
-    "style",
-    "distance_v1",
-    "auto_v1",
-    "backfill_v1",
-    "auto_backfill_v1"
-  ],
   "portable_outputs": [
     "LightGBM text model",
     "model metadata",
@@ -36,5 +25,42 @@
     "categorical levels",
     "out-of-fold horse predictions"
   ],
-  "note": "Direct pedigree/jockey/trainer IDs and result-page actual_start_time are blocked from L1. AUTO/BACKFILL families are opt-in; style remains isolated. AUTO margin features use only prior-race margin_type/margin_lengths. Persistent Actions artifact upload is disabled by cost policy."
+  "note": "Direct pedigree/jockey/trainer IDs and result-page actual_start_time are blocked from L1. Feature Sets are independent and opt-in; legacy stage names are migration-only aliases. EARLY rejects race-day/body-weight dependent inputs; FINAL may use them when announced. AUTO uses only approved point-in-time facts. BACKFILL is the source-of-truth data layer. Persistent Actions artifact upload remains disabled by cost policy.",
+  "prediction_phase_contract": "L1_FEATURE_SET_CONTRACT_V1",
+  "prediction_phases": [
+    "EARLY",
+    "FINAL"
+  ],
+  "feature_sets": [
+    "BASE",
+    "OPPONENT",
+    "NETWORK",
+    "LAP",
+    "STYLE",
+    "DISTANCE",
+    "BACKFILL",
+    "AUTO"
+  ],
+  "history_windows": {
+    "recent_form": 5,
+    "style_last3f": 10,
+    "suitability": 20,
+    "opponent": 10,
+    "auto_rolling": 20,
+    "career": "ALL",
+    "elo": "ALL"
+  },
+  "reproducibility_required": [
+    "feature_schema_version",
+    "prediction_phase",
+    "feature_sets",
+    "history_windows",
+    "exact ordered feature list",
+    "Feature Catalog SHA-256",
+    "Feature Set Contract SHA-256",
+    "training-config SHA-256",
+    "model SHA-256",
+    "BACKFILL source SHA",
+    "ML source SHA"
+  ]
 }
