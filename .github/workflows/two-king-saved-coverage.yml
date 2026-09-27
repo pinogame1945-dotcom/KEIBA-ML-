@@ -1,0 +1,89 @@
+name: Two King Saved Coverage Read
+
+on:
+  push:
+    branches:
+      - research/router-feature-snapshot-v1-20260928
+    paths:
+      - .github/triggers/two-king-saved-coverage.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  read:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_router_bet_coverage_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Install Kaggle CLI only
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore saved two-king bundles
+        run: |
+          set -euo pipefail
+          mkdir -p out/two-king/2021 out/two-king/2022
+          kaggle datasets download pino1945/keiba-ml-l2-02f30855869e0f46 -p out/two-king/2021 --unzip --quiet --force
+          kaggle datasets download pino1945/keiba-ml-l2-15cb12a16d07998b -p out/two-king/2022 --unzip --quiet --force
+          find out/two-king -type f -maxdepth 3 -print | sort
+
+      - name: Restore 2021 and 2022 truth snapshots read-only
+        run: |
+          set -euo pipefail
+          root=out/two-king/snapshot
+          mkdir -p "$root"
+          bash scripts/kaggle-fetch-snapshot.sh bf811fa2eab73db0 2021 "$root"
+          bash scripts/kaggle-fetch-snapshot.sh bf811fa2eab73db0 2022 "$root"
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else exit 1
+            fi
+          }
+          echo "SNAP21=$(resolve 2021)" >> "$GITHUB_ENV"
+          echo "SNAP22=$(resolve 2022)" >> "$GITHUB_ENV"
+
+      - name: Analyze 2021 from saved scores
+        run: |
+          set -euo pipefail
+          light="$(find out/two-king/2021 -type f \( -name 'no-auto-jockey.jsonl' -o -name 'no-auto-jockey.jsonl.gz' \) -print -quit)"
+          core="$(find out/two-king/2021 -type f \( -name 'core4-no-pedigree.jsonl' -o -name 'core4-no-pedigree.jsonl.gz' \) -print -quit)"
+          python research/analyze_router_bet_coverage_v1.py             --snapshot "$SNAP21"             --expert light="$light"             --expert core4="$core"             --output out/two-king/coverage-2021.json
+          echo "===== TWO KING COVERAGE 2021 ====="
+          cat out/two-king/coverage-2021.json
+
+      - name: Analyze 2022 from saved scores
+        run: |
+          set -euo pipefail
+          light="$(find out/two-king/2022 -type f \( -name 'no-auto-jockey.jsonl' -o -name 'no-auto-jockey.jsonl.gz' \) -print -quit)"
+          core="$(find out/two-king/2022 -type f \( -name 'core4-no-pedigree.jsonl' -o -name 'core4-no-pedigree.jsonl.gz' \) -print -quit)"
+          python research/analyze_router_bet_coverage_v1.py             --snapshot "$SNAP22"             --expert light="$light"             --expert core4="$core"             --output out/two-king/coverage-2022.json
+          echo "===== TWO KING COVERAGE 2022 ====="
+          cat out/two-king/coverage-2022.json
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Read-only Kaggle restore only."
+          echo "No training."
+          echo "No upload."
+          echo "No Artifact/Cache."
+          echo "Standard ubuntu-latest CPU only."
