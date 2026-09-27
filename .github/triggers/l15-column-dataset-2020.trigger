@@ -3,3 +3,4 @@ retry wait-for-five-king-core 2026-09-28
 retry short-slug-fixed 2026-09-28
 retry pinned-snapshot-ref 2026-09-28
 retry exact-core-ref recursive-restore 2026-09-28
+retry jsonl-or-gz restore 2026-09-28
