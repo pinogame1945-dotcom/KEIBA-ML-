@@ -28,7 +28,11 @@ jobs:
           set -euo pipefail
           python -m py_compile \
             research/build_l15_column_dataset_v1.py \
-            research/run_l15_column_baseline_v1.py
+            research/run_l15_column_baseline_v1.py \
+            research/train_l15_column_router_v1.py
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
 
       - name: Build synthetic five-expert input
         run: |
@@ -159,6 +163,36 @@ jobs:
           assert b["contract"]=="L15_COLUMN_BASELINE_ARENA_V1"
           assert set(b["fixed_candidates"])=={"COL1","COL2","COL3"}
           print("L15_COLUMN_ROUTER_V1_SMOKE_OK")
+          PY
+
+      - name: Train synthetic fixed-cost column router
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,json
+          for kind in ["features","labels"]:
+            rows=[json.loads(x) for x in gzip.open(f"out/l15-smoke/{kind}.jsonl.gz","rt",encoding="utf-8") if x.strip()]
+            for name,rid in [("train","R1"),("test","R2")]:
+              with gzip.open(f"out/l15-smoke/{name}-{kind}.jsonl.gz","wt",encoding="utf-8") as fh:
+                for row in rows:
+                  if row["race_id"]==rid:
+                    fh.write(json.dumps(row,separators=(",",":"))+"\n")
+          PY
+          python research/train_l15_column_router_v1.py \
+            --config research/l15-column-router-v1.json \
+            --train-features out/l15-smoke/train-features.jsonl.gz \
+            --train-labels out/l15-smoke/train-labels.jsonl.gz \
+            --test-features out/l15-smoke/test-features.jsonl.gz \
+            --test-labels out/l15-smoke/test-labels.jsonl.gz \
+            --out-dir out/l15-smoke/models \
+            --summary-out out/l15-smoke/model-summary.json
+          python - <<'PY'
+          import json
+          s=json.load(open("out/l15-smoke/model-summary.json",encoding="utf-8"))
+          assert s["contract"]=="L15_COLUMN_ROUTER_MODEL_V1"
+          assert set(s["models"])=={"COL1","COL2","COL3"}
+          assert set(s["routing_at_fixed_top_n"])=={"COL1","COL2","COL3"}
+          print("L15_COLUMN_ROUTER_MODEL_SMOKE_OK")
           PY
 
       - name: Cost guard
