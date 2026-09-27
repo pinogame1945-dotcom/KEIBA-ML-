@@ -10,6 +10,9 @@ assert.ok(walk.includes("scripts/audit-backfill-readiness.mjs"));
 assert.ok(walk.includes("--min-core-known-coverage"));
 assert.ok(walk.includes("--max-invalid-rate"));
 assert.ok(walk.includes("--max-year-gap"));
+assert.ok(walk.includes("--require-source-integrity"));
+assert.ok(walk.includes("BACKFILL_READINESS_V3"));
+assert.ok(walk.includes("source integrity not verified"));
 
 const planAt = walk.indexOf("if a.plan_only:");
 const gateAt = walk.indexOf("L1_BACKFILL_READINESS_GATE");
@@ -28,6 +31,7 @@ assert.ok(workflowGate < runTraining);
 assert.ok(workflow.includes("--min-core-known-coverage 0.98"));
 assert.ok(workflow.includes("--max-invalid-rate 0"));
 assert.ok(workflow.includes("--max-year-gap 0.10"));
+assert.ok(workflow.includes("--require-source-integrity"));
 
 console.log("L1_READINESS_GATE_SMOKE_OK");
 
