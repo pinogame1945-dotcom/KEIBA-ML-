@@ -35,8 +35,25 @@ def read_expert(path):
     return races
 
 
+def ordered_outcomes(groups, slots):
+    """Generate valid ordered podium outcomes, including dead heats."""
+    import itertools
+    groups={int(k):list(v) for k,v in groups.items()}
+    pieces=[()]
+    for rank in sorted(groups):
+        if rank > slots:
+            continue
+        horses=groups[rank]
+        occupied=min(len(horses), slots-rank+1)
+        if occupied <= 0:
+            continue
+        choices=list(itertools.permutations(horses, occupied))
+        pieces=[a+b for a in pieces for b in choices]
+    return sorted(set(x for x in pieces if len(x)==slots))
+
+
 def read_truth(path,wanted):
-    races=defaultdict(dict)
+    groups=defaultdict(lambda: defaultdict(list))
     with open_text(path) as fh:
         for line in fh:
             if not line.strip(): continue
@@ -50,12 +67,26 @@ def read_truth(path,wanted):
                 finish=int(float(finish))
             except (TypeError,ValueError):
                 continue
-            if finish in (1,2,3):
-                races[rid][finish]=hid
-    missing=[rid for rid in wanted if set(races[rid])!={1,2,3}]
-    if missing:
-        raise ValueError(f"{len(missing)} races missing complete 1st/2nd/3rd truth")
-    return races
+            if finish <= 3:
+                groups[rid][finish].append(hid)
+
+    truth={}
+    bad=[]
+    dead_heat=0
+    for rid in wanted:
+        g=groups[rid]
+        pair=ordered_outcomes(g,2)
+        trio=ordered_outcomes(g,3)
+        if not pair or not trio:
+            bad.append({"race_id":rid,"groups":dict(g)})
+            continue
+        if any(len(v)>1 for v in g.values()):
+            dead_heat+=1
+        truth[rid]={"pair_outcomes":pair,"trio_outcomes":trio,"groups":dict(g)}
+    if bad:
+        raise ValueError(f"{len(bad)} races cannot form podium outcomes: {bad[:10]}")
+    print("PODIUM_TRUTH_READY "+json.dumps({"races":len(truth),"dead_heat_races":dead_heat},ensure_ascii=False,separators=(",",":")))
+    return truth
 
 
 def rate(hit,total):
@@ -76,29 +107,50 @@ def analyze_expert(races,truth):
         "second_rank_distribution":defaultdict(int),
         "third_rank_distribution":defaultdict(int),
     }
+
     for rid,rows in races.items():
         by_horse={str(r["horse_id"]):int(r["predicted_rank"]) for r in rows}
-        actual=truth[rid]
-        h1,h2,h3=actual[1],actual[2],actual[3]
-        r1=by_horse.get(h1)
-        r2=by_horse.get(h2)
-        r3=by_horse.get(h3)
-        if r1 is None or r2 is None or r3 is None:
-            raise ValueError(f"{rid}: truth horse missing from expert rows")
-        metrics["winner_rank_distribution"][str(r1)]+=1
-        metrics["second_rank_distribution"][str(r2)]+=1
-        metrics["third_rank_distribution"][str(r3)]+=1
+        predicted=[str(r["horse_id"]) for r in rows]
+        pair_outcomes=truth[rid]["pair_outcomes"]
+        trio_outcomes=truth[rid]["trio_outcomes"]
 
-        metrics["top1_hit"] += int(r1==1)
-        metrics["exact_top2_order"] += int(r1==1 and r2==2)
-        metrics["exact_top3_order"] += int(r1==1 and r2==2 and r3==3)
+        # A dead heat may make multiple ordered outcomes valid.
+        winner_horses={x[0] for x in pair_outcomes}
+        second_slot_horses={x[1] for x in pair_outcomes}
+        third_slot_horses={x[2] for x in trio_outcomes}
+
+        best_winner_rank=min(by_horse[h] for h in winner_horses)
+        best_second_rank=min(by_horse[h] for h in second_slot_horses)
+        best_third_rank=min(by_horse[h] for h in third_slot_horses)
+        metrics["winner_rank_distribution"][str(best_winner_rank)]+=1
+        metrics["second_rank_distribution"][str(best_second_rank)]+=1
+        metrics["third_rank_distribution"][str(best_third_rank)]+=1
+
+        metrics["top1_hit"] += int(predicted[0] in winner_horses)
+        metrics["exact_top2_order"] += int(tuple(predicted[:2]) in pair_outcomes)
+        metrics["exact_top3_order"] += int(tuple(predicted[:3]) in trio_outcomes)
 
         for n in range(2,7):
-            metrics["top2_set_in_topN"][str(n)] += int(r1<=n and r2<=n)
-            metrics["first_fixed_second_in_topN"][str(n)] += int(r1==1 and r2<=n)
+            topn=set(predicted[:n])
+            metrics["top2_set_in_topN"][str(n)] += int(
+                any(set(outcome).issubset(topn) for outcome in pair_outcomes)
+            )
+            metrics["first_fixed_second_in_topN"][str(n)] += int(
+                any(predicted[0]==outcome[0] and outcome[1] in topn for outcome in pair_outcomes)
+            )
         for n in range(3,7):
-            metrics["top3_set_in_topN"][str(n)] += int(r1<=n and r2<=n and r3<=n)
-            metrics["first_fixed_top3_set_in_topN"][str(n)] += int(r1==1 and r2<=n and r3<=n)
+            topn=set(predicted[:n])
+            metrics["top3_set_in_topN"][str(n)] += int(
+                any(set(outcome).issubset(topn) for outcome in trio_outcomes)
+            )
+            metrics["first_fixed_top3_set_in_topN"][str(n)] += int(
+                any(
+                    predicted[0]==outcome[0]
+                    and outcome[1] in topn
+                    and outcome[2] in topn
+                    for outcome in trio_outcomes
+                )
+            )
 
     return {
         "races":total,
