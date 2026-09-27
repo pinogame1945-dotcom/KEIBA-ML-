@@ -15,7 +15,7 @@ import pandas as pd
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 EXPECTED_DATASET_VERSION = 3
-EXPECTED_FEATURE_SCHEMA_VERSION = 7
+EXPECTED_FEATURE_SCHEMA_VERSION = 8
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
 DEFAULT_FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
