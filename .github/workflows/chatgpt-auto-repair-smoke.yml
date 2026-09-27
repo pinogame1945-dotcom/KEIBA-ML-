@@ -1,0 +1,17 @@
+name: ChatGPT auto-repair event smoke
+
+on:
+  push:
+    branches:
+      - test/actions-auto-repair-event-20260928
+    paths:
+      - ".github/workflows/chatgpt-auto-repair-smoke.yml"
+      - "scripts/chatgpt-auto-repair-smoke.mjs"
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run smoke
+        run: node scripts/chatgpt-auto-repiar-smoke.mjs
