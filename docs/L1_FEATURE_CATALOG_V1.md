@@ -16,7 +16,7 @@
 
 - AVAILABLE: 現在のKEIBA-MLコードで作れる
 - DERIVABLE: 元データがあれば安全に作れる候補
-- BACKFILL_REQUIRED: BACKFILL側の追加完了待ち
+- BACKFILL_REQUIRED: 将来の未実装ソース用。現時点の正規化race-condition項目は実装済みなので0件
 - PROHIBITED_L1: L1へ入れてはいけない
 - L2_ONLY: 買い方側だけで使う
 
@@ -39,20 +39,16 @@ IDを暗記しているだけの可能性があるため。
 
 などへ作り直す。
 
-### BACKFILL待ち
+### BACKFILLの履歴充足
 
-特に次を待つ。
+内外回り、周回数、レースクラス、grade、年齢/性別/斤量条件、指定区分、raw条件文、着差正規化はソース実装済み。
 
-- 内回り / 外回り
-- 周回数
-- レースクラス
-- G1/G2/G3等
-- 年齢条件
-- 性別条件
-- 斤量条件
-- 混合 / 国際 / 指定
-- 元の条件文
-- 着差の正規化
+「項目が実装されているか」と「必要な過去年代まで埋まっているか」は分離する。
+
+- Feature Catalog: 項目/安全性の台帳
+- BACKFILL_READINESS_V3: 履歴範囲、開催日分類、pack/parser version、coverageの門番
+
+したがって過去回収中であっても、実装済み項目をBACKFILL_REQUIREDには戻さない。
 
 ### 自動で作る特徴
 
@@ -76,3 +72,18 @@ IDを暗記しているだけの可能性があるため。
 `npm run check:feature-catalog`
 
 このチェックは学習を回さず、台帳の形式と危険項目だけを確認する。
+
+
+## 学習直前のCatalog門番
+
+L1で禁止した事実は、Catalogの `model_keys` と実際のtrainer入力列を照合する。
+
+例:
+
+- `jockey_id`
+- `trainer_id`
+- 生の血統ID
+- final odds / popularity / payout
+- 対象レース自身の結果列
+
+禁止列が1つでもモデル入力へ混ざった場合、trainerは学習開始前に失敗させる。
