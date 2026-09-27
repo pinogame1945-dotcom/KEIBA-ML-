@@ -1,0 +1,111 @@
+name: Persist NEWCOMER V1 Snapshot
+
+on:
+  push:
+    branches:
+      - research/l1-newcomer-specialist-v1-20260928
+    paths:
+      - .github/triggers/l1-newcomer-v1-snapshot-persist.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  persist:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      ML_SOURCE_SHA: a4a5c6d155cd99ad77d6b835cf407581ef794989
+
+    steps:
+      - name: Require free Kaggle storage path
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "${KAGGLE_API_TOKEN:-}" ]; then
+            echo "::error::KAGGLE_API_TOKEN is unavailable; refusing snapshot persistence."
+            exit 1
+          fi
+
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout exact BACKFILL used by NEWCOMER-002
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: ${{ env.BACKFILL_SHA }}
+          path: backfill
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Build exact NEWCOMER v1 snapshot generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/pedigree-feature-builder-smoke.mjs
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/newcomer-v1-persist \
+            --source-start 2022-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2022-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --feature-sets BASE,OPPONENT,BACKFILL,PEDIGREE,ACTOR,TIME_PACE \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$ML_SOURCE_SHA"
+
+          manifest="$(find out/newcomer-v1-persist -name manifest.json -print -quit)"
+          test -n "$manifest"
+          generation_dir="$(dirname "$manifest")"
+          generation_id="$(basename "$generation_dir")"
+          echo "GENERATION_ID=$generation_id" >> "$GITHUB_ENV"
+          echo "generation_id=$generation_id"
+          du -h "$generation_dir"/*
+
+      - name: Persist NEWCOMER v1 snapshot to Kaggle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-persist-snapshot.sh out/newcomer-v1-persist
+
+      - name: Verify saved generation can be restored
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/newcomer-v1-restore"
+          bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" 2025 "$root"
+          test -s "$root/snapshot-2025.jsonl" || test -s "$root/snapshot-2025.jsonl.gz"
+          echo "NEWCOMER_V1_PERSIST_AND_RESTORE_OK generation=$GENERATION_ID"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-newcomer-v1-snapshot-persist.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-newcomer-v1-snapshot-persist.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle helper verifies owned storage usage and refuses above the 180 GiB safety ceiling."
