@@ -1,0 +1,57 @@
+name: Temporary L1 Phase1 smoke
+
+on:
+  push:
+    branches:
+      - feature/l1-phase1-feature-set-contract-v1-20260927
+    paths:
+      - .github/workflows/tmp-l1-phase1-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Node smoke suite
+        run: npm run smoke:all
+
+      - name: Syntax checks
+        run: |
+          node --check src/l1-feature-contract.mjs
+          node --check src/ml-dataset.mjs
+          node --check research/build-staged-dataset.mjs
+          python -m py_compile research/run_walk_forward.py research/train-staged-lightgbm.py research/trainer-foundation-smoke.py
+
+      - name: New Feature Set plan smoke
+        run: |
+          python research/run_walk_forward.py             --source-root nowhere             --first-holdout 2025             --last-holdout 2025             --prediction-phase EARLY             --feature-sets BASE,DISTANCE             --history-recent-form 5             --history-style-last3f 10             --history-suitability 20             --history-opponent 10             --history-auto-rolling 20             --plan-only
+
+      - name: Legacy CLI migration plan smoke
+        run: |
+          python research/run_walk_forward.py             --source-root nowhere             --first-holdout 2025             --last-holdout 2025             --stage style             --history-limit 5             --plan-only
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Trainer Phase1 smoke
+        run: python research/trainer-foundation-smoke.py
+
+      - name: Cost guard
+        run: |
+          if grep -R -E "uses:[[:space:]]*actions/upload-artifact" .github/workflows; then
+            echo "Persistent artifact upload found" >&2
+            exit 1
+          fi
