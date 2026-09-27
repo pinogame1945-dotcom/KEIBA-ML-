@@ -35,8 +35,18 @@ async function sha256File(file) {
   return sha256Text(await readFile(file));
 }
 
+function canonicalize(value) {
+  if (Array.isArray(value)) return value.map(canonicalize);
+  if (value && typeof value === "object") {
+    return Object.fromEntries(
+      Object.keys(value).sort().map(key => [key, canonicalize(value[key])]),
+    );
+  }
+  return value;
+}
+
 function stableHash(value) {
-  return sha256Text(JSON.stringify(value, Object.keys(value).sort()));
+  return sha256Text(JSON.stringify(canonicalize(value)));
 }
 
 async function run(command, args) {
