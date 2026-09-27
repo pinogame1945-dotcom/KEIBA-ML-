@@ -4,6 +4,7 @@ import gzip
 import hashlib
 import json
 import platform
+import re
 from datetime import datetime, timezone
 from importlib.metadata import version as package_version
 from pathlib import Path
@@ -17,18 +18,9 @@ EXPECTED_DATASET_VERSION = 3
 EXPECTED_FEATURE_SCHEMA_VERSION = 7
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 
-STAGES = {
-    "base": [],
-    "opponent_v1": ["opponent_"],
-    "opponent_both": ["opponent_", "network_"],
-    "lap": ["opponent_", "network_", "lap_"],
-    "style": ["opponent_", "network_", "lap_", "style_"],
-    "distance_v1": ["opponent_", "network_", "lap_", "style_", "distx_"],
-    "backfill_v1": ["opponent_", "network_", "lap_", "style_", "backfill_"],
-    "auto_v1": ["opponent_", "network_", "lap_", "style_", "auto_"],
-    "auto_backfill_v1": ["opponent_", "network_", "lap_", "style_", "auto_", "backfill_"],
-}
-EXTRA_PREFIXES = ["opponent_", "network_", "lap_", "style_", "distx_", "auto_", "backfill_"]
+DEFAULT_FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
+DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
+LEGACY_STAGES = sorted(DEFAULT_FEATURE_CONTRACT["legacy_stage_map"])
 
 BASE_CATEGORICAL = [
     "venue_code", "discipline", "surface", "direction", "weather",
@@ -40,7 +32,11 @@ BASE_CATEGORICAL = [
 def args():
     p = argparse.ArgumentParser()
     p.add_argument("--dataset", required=True)
-    p.add_argument("--stage", choices=list(STAGES), required=True)
+    p.add_argument("--feature-sets", help="Comma-separated independent feature families, e.g. BASE,DISTANCE")
+    p.add_argument("--stage", choices=LEGACY_STAGES, help="Deprecated cumulative stage; translated to Feature Sets")
+    p.add_argument("--prediction-phase", default=DEFAULT_FEATURE_CONTRACT["default_prediction_phase"], choices=sorted(DEFAULT_FEATURE_CONTRACT["prediction_phases"]))
+    p.add_argument("--history-windows-json", help="JSON object recording the dataset history-window contract")
+    p.add_argument("--feature-contract", default=str(DEFAULT_FEATURE_CONTRACT_PATH))
     p.add_argument("--train-start", required=True)
     p.add_argument("--train-end", required=True)
     p.add_argument("--valid-start", required=True)
@@ -62,6 +58,99 @@ def args():
     p.add_argument("--contributions-out")
     return p.parse_args()
 
+def load_feature_contract(path):
+    return json.loads(Path(path).read_text(encoding="utf-8"))
+
+
+def normalize_feature_sets(raw, legacy_stage, contract):
+    valid = set(contract["feature_sets"])
+    if raw:
+        requested = []
+        for item in str(raw).split(","):
+            name = item.strip().upper()
+            if name and name not in requested:
+                requested.append(name)
+    elif legacy_stage:
+        requested = list(contract["legacy_stage_map"][legacy_stage])
+    else:
+        requested = list(contract["default_feature_sets"])
+    invalid = [name for name in requested if name not in valid]
+    if invalid:
+        raise ValueError("invalid feature set(s): " + ", ".join(invalid))
+    if "BASE" not in requested:
+        requested.insert(0, "BASE")
+    if raw and legacy_stage:
+        legacy = list(contract["legacy_stage_map"][legacy_stage])
+        if requested != legacy:
+            raise ValueError("--feature-sets conflicts with deprecated --stage mapping")
+    return requested
+
+
+def normalize_prediction_phase(value, contract):
+    phase = str(value or contract["default_prediction_phase"]).strip().upper()
+    if phase not in contract["prediction_phases"]:
+        raise ValueError("invalid prediction phase: " + phase)
+    return phase
+
+
+def normalize_history_windows(raw, contract):
+    defaults = dict(contract["history_windows"])
+    if not raw:
+        return defaults
+    parsed = json.loads(raw)
+    if not isinstance(parsed, dict):
+        raise ValueError("--history-windows-json must be a JSON object")
+    out = dict(defaults)
+    for key, value in parsed.items():
+        if key not in defaults:
+            raise ValueError("unknown history window: " + str(key))
+        if defaults[key] == "ALL":
+            if str(value).upper() != "ALL":
+                raise ValueError(f"{key} history window must stay ALL")
+            out[key] = "ALL"
+            continue
+        lo, hi = contract["history_window_bounds"][key]
+        n = int(value)
+        if n < lo or n > hi:
+            raise ValueError(f"{key} history window must be from {lo} to {hi}")
+        out[key] = n
+    return out
+
+
+def feature_set_features(features, feature_sets, contract):
+    prefix_map = {name: list(spec.get("prefixes") or []) for name, spec in contract["feature_sets"].items()}
+    all_prefixes = []
+    for prefixes in prefix_map.values():
+        for prefix in prefixes:
+            if prefix not in all_prefixes:
+                all_prefixes.append(prefix)
+    allowed = {prefix for name in feature_sets for prefix in prefix_map[name]}
+    out = {}
+    for key, value in features.items():
+        matched = next((prefix for prefix in all_prefixes if key.startswith(prefix)), None)
+        if matched is None or matched in allowed:
+            out[key] = value
+    return out
+
+
+def prediction_phase_blocked(columns, prediction_phase, contract):
+    policy = contract["prediction_phases"][prediction_phase]
+    exact = set(policy.get("blocked_exact_model_keys") or [])
+    patterns = [re.compile(raw) for raw in policy.get("blocked_model_key_patterns") or []]
+    return sorted(
+        column for column in columns
+        if column in exact or any(pattern.search(column) for pattern in patterns)
+    )
+
+
+def assert_prediction_phase_safety(columns, prediction_phase, contract):
+    bad = prediction_phase_blocked(columns, prediction_phase, contract)
+    if bad:
+        raise ValueError(
+            f"prediction phase {prediction_phase} blocked model columns: " + ", ".join(bad)
+        )
+
+
 def load_forbidden_model_keys(path):
     catalog = json.loads(Path(path).read_text(encoding="utf-8"))
     forbidden = set()
@@ -76,6 +165,21 @@ def assert_catalog_safety(columns, catalog_path):
     bad = sorted(set(columns) & forbidden)
     if bad:
         raise ValueError("L1 feature catalog blocked model columns: " + ", ".join(bad))
+
+
+def assert_catalog_availability(columns, catalog_path, prediction_phase, feature_contract):
+    catalog = json.loads(Path(catalog_path).read_text(encoding="utf-8"))
+    allowed = set(feature_contract["prediction_phases"][prediction_phase]["allowed_available_at"])
+    bad = []
+    for row in catalog.get("features", []):
+        keys = set(str(key) for key in row.get("model_keys", []) if str(key))
+        if keys.intersection(columns) and row.get("available_at") not in allowed:
+            bad.extend(sorted(keys.intersection(columns)))
+    if bad:
+        raise ValueError(
+            f"prediction phase {prediction_phase} catalog availability blocked model columns: "
+            + ", ".join(sorted(set(bad)))
+        )
 
 
 def sha256_file(path):
@@ -109,20 +213,21 @@ def load(path):
         raise ValueError("empty dataset")
     return rows
 
-def stage_features(features, stage):
-    allowed = STAGES[stage]
-    out = {}
-    for key, value in features.items():
-        matched = next((prefix for prefix in EXTRA_PREFIXES if key.startswith(prefix)), None)
-        if matched is None or matched in allowed:
-            out[key] = value
-    return out
-
-def flatten(rows, stage, forbidden_model_keys=None):
+def flatten(rows, feature_sets, prediction_phase, history_windows, feature_contract, forbidden_model_keys=None):
     forbidden_model_keys = set(forbidden_model_keys or [])
     records = []
     for row in rows:
-        f = stage_features(dict(row["features"]), stage)
+        row_phase = row.get("prediction_phase")
+        if row_phase and str(row_phase).upper() != prediction_phase:
+            raise ValueError("dataset prediction_phase mismatch")
+        row_sets = row.get("feature_sets")
+        if row_sets and list(row_sets) != feature_sets:
+            raise ValueError("dataset feature_sets mismatch")
+        row_windows = row.get("history_windows")
+        if row_windows and dict(row_windows) != history_windows:
+            raise ValueError("dataset history_windows mismatch")
+        f = feature_set_features(dict(row["features"]), feature_sets, feature_contract)
+        assert_prediction_phase_safety(list(f), prediction_phase, feature_contract)
         bad = sorted(set(f) & forbidden_model_keys)
         if bad:
             raise ValueError("L1 feature catalog blocked dataset columns: " + ", ".join(bad))
@@ -409,11 +514,24 @@ def main():
         raise ValueError("train_end must be before valid_start")
     if pd.to_datetime(a.valid_start) > pd.to_datetime(a.valid_end):
         raise ValueError("valid_start must be <= valid_end")
+    feature_contract = load_feature_contract(a.feature_contract)
+    feature_sets = normalize_feature_sets(a.feature_sets, a.stage, feature_contract)
+    prediction_phase = normalize_prediction_phase(a.prediction_phase, feature_contract)
+    history_windows = normalize_history_windows(a.history_windows_json, feature_contract)
     forbidden_model_keys = load_forbidden_model_keys(a.feature_catalog)
-    df = flatten(load(a.dataset), a.stage, forbidden_model_keys)
+    df = flatten(
+        load(a.dataset),
+        feature_sets,
+        prediction_phase,
+        history_windows,
+        feature_contract,
+        forbidden_model_keys,
+    )
     train, valid = split(df, a)
     xtr, xva, categorical, category_levels = frames(train, valid)
     assert_catalog_safety(list(xtr.columns), a.feature_catalog)
+    assert_catalog_availability(list(xtr.columns), a.feature_catalog, prediction_phase, feature_contract)
+    assert_prediction_phase_safety(list(xtr.columns), prediction_phase, feature_contract)
     ytr, yva = train["_target"].astype(int), valid["_target"].astype(int)
 
     params = {
@@ -465,7 +583,10 @@ def main():
             "feature_schema_version": EXPECTED_FEATURE_SCHEMA_VERSION,
             "leakage_policy": EXPECTED_LEAKAGE_POLICY,
         },
-        "stage": a.stage,
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "legacy_stage": a.stage,
         "split": split_config,
         "params": params,
         "feature_order": names,
@@ -480,6 +601,7 @@ def main():
     model_sha256 = sha256_file(a.model_out)
     training_config_sha256 = sha256_json(training_config)
     catalog_sha256 = sha256_file(a.feature_catalog)
+    feature_contract_sha256 = sha256_file(a.feature_contract)
     contribution_summary = write_model_diagnostics(
         model,
         xva,
@@ -491,7 +613,10 @@ def main():
     )
     meta = {
         "model_version": a.model_version,
-        "stage": a.stage,
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "legacy_stage": a.stage,
         "trained_at": datetime.now(timezone.utc).isoformat(),
         "ability_uses_odds": False,
         "dataset_contract": {
@@ -535,6 +660,8 @@ def main():
             "training_config_sha256": training_config_sha256,
             "feature_catalog_sha256": catalog_sha256,
             "feature_catalog": str(Path(a.feature_catalog)),
+            "feature_contract_sha256": feature_contract_sha256,
+            "feature_contract": str(Path(a.feature_contract)),
         },
         "diagnostics": {
             "contract": "L1_MODEL_DIAGNOSTICS_V1" if a.diagnostics_out else None,
@@ -550,7 +677,7 @@ def main():
         out = pred.copy()
         out["_race_date"] = valid["_race_date"].values
         out["model_version"] = a.model_version
-        out["stage"] = a.stage
+        out["prediction_phase"] = prediction_phase
         out["ml_dataset_version"] = EXPECTED_DATASET_VERSION
         out["feature_schema_version"] = EXPECTED_FEATURE_SCHEMA_VERSION
         out["leakage_policy"] = EXPECTED_LEAKAGE_POLICY
@@ -565,13 +692,16 @@ def main():
             "rank": "predicted_rank",
         })
         cols = [
-            "race_date", "race_id", "horse_id", "model_version", "stage",
+            "race_date", "race_id", "horse_id", "model_version", "prediction_phase",
             "ml_dataset_version", "feature_schema_version", "leakage_policy",
             "raw_win_probability", "race_normalized_win_probability", "predicted_rank",
             "actual_is_win", "actual_finish_position",
         ]
         with gzip.open(out_path, "wt", encoding="utf-8") as fh:
             for record in out.sort_values(["race_date", "race_id", "predicted_rank"])[cols].to_dict(orient="records"):
+                record["feature_sets"] = feature_sets
+                record["history_windows"] = history_windows
+                record["exact_feature_list"] = names
                 fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     if a.schema_out:
@@ -583,7 +713,10 @@ def main():
             "feature_schema_version": EXPECTED_FEATURE_SCHEMA_VERSION,
             "leakage_policy": EXPECTED_LEAKAGE_POLICY,
             "ability_uses_odds": False,
-            "stage": a.stage,
+            "prediction_phase": prediction_phase,
+            "feature_sets": feature_sets,
+            "history_windows": history_windows,
+            "legacy_stage": a.stage,
             "feature_count": len(names),
             "feature_order": names,
             "categorical_features": categorical,
@@ -592,9 +725,12 @@ def main():
         schema_path.write_text(json.dumps(schema, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
     Path(a.meta_out).write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
-    print("ML_STAGE_RESULT")
+    print("ML_FEATURE_SET_RESULT")
     print(json.dumps({
-        "stage": a.stage,
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "legacy_stage": a.stage,
         "feature_count": len(names),
         "split": meta["split"],
         "metrics": result_metrics,
