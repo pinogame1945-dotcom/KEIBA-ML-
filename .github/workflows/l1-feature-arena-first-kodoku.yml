@@ -6,7 +6,7 @@ on:
     branches:
       - feature/l1-feature-arena-trainer-v1-20260927
     paths:
-      - .github/workflows/l1-feature-arena-first-kodoku.yml
+      - .github/triggers/l1-feature-arena-first-kodoku.trigger
 
 permissions:
   contents: read
@@ -70,7 +70,7 @@ jobs:
 
       - name: Syntax checks
         run: |
-          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py research/archive_feature_arena_run.py
           node --check research/project-yearly-snapshots.mjs
 
       - name: Install dependencies
@@ -127,7 +127,7 @@ jobs:
               "feature_sets": r["feature_sets"],
               "feature_count": r["feature_count"],
               "metrics": m,
-          },ensure_ascii=False))
+          },ensure_ascii=False,separators=(",",":")))
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as out:
               out.write(f"# First Kodoku — {name}\n\n")
               out.write(f"Feature sets: {', '.join(r['feature_sets'])}\n\n")
@@ -155,4 +155,63 @@ jobs:
           echo "No GPU."
           echo "No persistent Artifact or Cache."
           echo "Kaggle input snapshot already exists; this run only downloads it."
-          echo "Candidate outputs remain ephemeral on each runner."
+          echo "Candidate outputs remain ephemeral; durable results are written by the ledger job."
+
+  ledger:
+    if: always()
+    needs: arena
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+      EXPERIMENT_ID: KODOKU-001
+      GENERATION_ID: e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward to latest branch head
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive run into immutable ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/archive_feature_arena_run.py
+          python research/archive_feature_arena_run.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --experiment-id "$EXPERIMENT_ID"             --snapshot-generation "$GENERATION_ID"             --backfill-sha "$BACKFILL_SHA"             --train-start 2023-01-01             --train-end 2024-12-31             --valid-start 2025-01-01             --valid-end 2025-12-31             --prediction-phase FINAL             --model-family WIN_BINARY_LIGHTGBM             --feature-selection none
+
+      - name: Commit permanent ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l1-feature-arena/$EXPERIMENT_ID"
+          git commit -m "research: archive $EXPERIMENT_ID run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              exit 0
+            fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          echo "Could not push permanent ledger after retries." >&2
+          exit 1
+
+      - name: Ledger cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No Artifact or Cache."
+          echo "Permanent result ledger is small text/JSON committed to Git."
