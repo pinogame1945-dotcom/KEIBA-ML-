@@ -56,8 +56,8 @@ jobs:
           generation=str(cfg["snapshot_generation"])
           dataset_ref=f"pino1945/keiba-ml-snapshot-{generation}"
           with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
-              fh.write(f"GENERATION_ID={generation}\\n")
-              fh.write(f"KAGGLE_DATASET_REF={dataset_ref}\\n")
+              print(f"GENERATION_ID={generation}", file=fh)
+              print(f"KAGGLE_DATASET_REF={dataset_ref}", file=fh)
           print("generation",generation)
           print("dataset_ref",dataset_ref)
           PY
