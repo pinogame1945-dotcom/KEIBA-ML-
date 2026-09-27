@@ -1,0 +1,52 @@
+{
+  "contract": "L1_FEATURE_ARENA_LEDGER_V1",
+  "experiment_id": "KODOKU-002",
+  "run_id": 36320769131,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36320769131",
+  "workflow": "L1 Feature Arena KODOKU-002",
+  "event": "push",
+  "head_branch": "feature/l1-feature-arena-trainer-v1-20260927",
+  "head_sha": "d0990a99c664b8ead17b98aef83bbfc637e2c7f0",
+  "run_attempt": 1,
+  "run_status": "in_progress",
+  "run_conclusion": null,
+  "created_at": "2026-09-27T12:58:10Z",
+  "updated_at": "2026-09-27T13:56:18Z",
+  "archived_at": "2026-09-27T13:56:31.250079+00:00",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "snapshot_generation": "e75cd10b7837f676",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31"
+  },
+  "expected_candidates": [
+    "actor",
+    "actor_auto",
+    "actor_auto_opponent",
+    "actor_auto_timepace",
+    "actor_opponent",
+    "actor_pedigree",
+    "actor_timepace",
+    "auto",
+    "auto_opponent",
+    "auto_timepace",
+    "base",
+    "elite5"
+  ],
+  "candidate_count": 12,
+  "missing_candidates": [],
+  "storage_policy": {
+    "result_ledger": "git",
+    "models": "not_stored_by_ledger",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}\n

@@ -1,0 +1,283 @@
+{
+  "contract": "L1_FEATURE_ARENA_SCORECARD_V1",
+  "experiment_id": "KODOKU-002",
+  "run_id": 36320769131,
+  "complete": false,
+  "composite_winner": null,
+  "candidates": [
+    {
+      "candidate": "actor",
+      "job_id": 108624028844,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "feature_count": 217,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2647569444444444,
+        "top3_winner_capture": 0.5818865740740741,
+        "top6_winner_capture": 0.8052662037037037,
+        "mean_winner_rank": 3.9288194444444446,
+        "mean_reciprocal_winner_rank": 0.47178686326779157,
+        "race_normalized_nll": 2.1418297729481535,
+        "raw_logloss": 0.2263612822936886,
+        "raw_brier": 0.06208400403486521,
+        "raw_roc_auc": 0.7729911072659497
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_auto",
+      "job_id": 108624028971,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO",
+        "ACTOR"
+      ],
+      "feature_count": 600,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2769097222222222,
+        "top3_winner_capture": 0.5908564814814815,
+        "top6_winner_capture": 0.8127893518518519,
+        "mean_winner_rank": 3.8587962962962963,
+        "mean_reciprocal_winner_rank": 0.48024725936924667,
+        "race_normalized_nll": 2.1190849200853257,
+        "raw_logloss": 0.22192011535731943,
+        "raw_brier": 0.06121374215799237,
+        "raw_roc_auc": 0.787698693191025
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_auto_opponent",
+      "job_id": 108624028923,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR"
+      ],
+      "feature_count": 626,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28153935185185186,
+        "top3_winner_capture": 0.5946180555555556,
+        "top6_winner_capture": 0.8133680555555556,
+        "mean_winner_rank": 3.838252314814815,
+        "mean_reciprocal_winner_rank": 0.48387413781166333,
+        "race_normalized_nll": 2.110124150048824,
+        "raw_logloss": 0.22130777222027767,
+        "raw_brier": 0.06112880555034146,
+        "raw_roc_auc": 0.7901538463465814
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_auto_timepace",
+      "job_id": 108624028853,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "feature_count": 623,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2838541666666667,
+        "top3_winner_capture": 0.5923032407407407,
+        "top6_winner_capture": 0.8139467592592593,
+        "mean_winner_rank": 3.837673611111111,
+        "mean_reciprocal_winner_rank": 0.48492894949058146,
+        "race_normalized_nll": 2.112764602088526,
+        "raw_logloss": 0.22147413960656914,
+        "raw_brier": 0.06111924087398421,
+        "raw_roc_auc": 0.7891011074709617
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_opponent",
+      "job_id": 108624028924,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR"
+      ],
+      "feature_count": 243,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.28096064814814814,
+        "top3_winner_capture": 0.5914351851851852,
+        "top6_winner_capture": 0.8165509259259259,
+        "mean_winner_rank": 3.837962962962963,
+        "mean_reciprocal_winner_rank": 0.48323725351464836,
+        "race_normalized_nll": 2.122494250700205,
+        "raw_logloss": 0.22332501012704406,
+        "raw_brier": 0.06142360405016571,
+        "raw_roc_auc": 0.7827224071876419
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_pedigree",
+      "job_id": 108624028861,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE",
+        "ACTOR"
+      ],
+      "feature_count": 421,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2664930555555556,
+        "top3_winner_capture": 0.5821759259259259,
+        "top6_winner_capture": 0.8136574074074074,
+        "mean_winner_rank": 3.8912037037037037,
+        "mean_reciprocal_winner_rank": 0.4732506105865736,
+        "race_normalized_nll": 2.1348805579569334,
+        "raw_logloss": 0.2259954817852772,
+        "raw_brier": 0.06202275172739594,
+        "raw_roc_auc": 0.7744803156387048
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "actor_timepace",
+      "job_id": 108624028847,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "feature_count": 240,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27633101851851855,
+        "top3_winner_capture": 0.5873842592592593,
+        "top6_winner_capture": 0.8110532407407407,
+        "mean_winner_rank": 3.873553240740741,
+        "mean_reciprocal_winner_rank": 0.4798650284314603,
+        "race_normalized_nll": 2.126917520688905,
+        "raw_logloss": 0.2252903801680993,
+        "raw_brier": 0.06183829402722104,
+        "raw_roc_auc": 0.7761804476202739
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "auto",
+      "job_id": 108624028685,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO"
+      ],
+      "feature_count": 421,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2725694444444444,
+        "top3_winner_capture": 0.5593171296296297,
+        "top6_winner_capture": 0.7870370370370371,
+        "mean_winner_rank": 4.12181712962963,
+        "mean_reciprocal_winner_rank": 0.46735044962998906,
+        "race_normalized_nll": 2.166210456011806,
+        "raw_logloss": 0.22510191464973026,
+        "raw_brier": 0.06165186389537928,
+        "raw_roc_auc": 0.7751650180682699
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "auto_opponent",
+      "job_id": 108624028935,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO"
+      ],
+      "feature_count": 447,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2743055555555556,
+        "top3_winner_capture": 0.5633680555555556,
+        "top6_winner_capture": 0.7907986111111112,
+        "mean_winner_rank": 4.074363425925926,
+        "mean_reciprocal_winner_rank": 0.4703264176884223,
+        "race_normalized_nll": 2.156879430199466,
+        "raw_logloss": 0.22430491699972036,
+        "raw_brier": 0.06152689242452535,
+        "raw_roc_auc": 0.7781340096095194
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "auto_timepace",
+      "job_id": 108624028870,
+      "status": "success",
+      "feature_sets": [
+        "BASE",
+        "AUTO",
+        "TIME_PACE"
+      ],
+      "feature_count": 444,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.27980324074074076,
+        "top3_winner_capture": 0.5642361111111112,
+        "top6_winner_capture": 0.7850115740740741,
+        "mean_winner_rank": 4.08912037037037,
+        "mean_reciprocal_winner_rank": 0.47302075628770884,
+        "race_normalized_nll": 2.1647510788146884,
+        "raw_logloss": 0.22500571828565094,
+        "raw_brier": 0.06168451045373925,
+        "raw_roc_auc": 0.775767271982059
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "base",
+      "job_id": 108624028907,
+      "status": "success",
+      "feature_sets": [
+        "BASE"
+      ],
+      "feature_count": 38,
+      "metrics": {
+        "races": 3456,
+        "top1_winner_capture": 0.2630208333333333,
+        "top3_winner_capture": 0.5526620370370371,
+        "top6_winner_capture": 0.7792245370370371,
+        "mean_winner_rank": 4.158854166666667,
+        "mean_reciprocal_winner_rank": 0.46091680747330765,
+        "race_normalized_nll": 2.183908938624418,
+        "raw_logloss": 0.2293778015054907,
+        "raw_brier": 0.06251387768953563,
+        "raw_roc_auc": 0.760220066415816
+      },
+      "resource_usage": null
+    },
+    {
+      "candidate": "elite5",
+      "job_id": 108624028978,
+      "status": "failure",
+      "feature_sets": [],
+      "feature_count": null,
+      "metrics": {},
+      "failed_step": null,
+      "error_excerpt": null,
+      "log_fetch_error": "curl: (22) The requested URL returned error: 404",
+      "resource_usage": null
+    }
+  ]
+}\n
