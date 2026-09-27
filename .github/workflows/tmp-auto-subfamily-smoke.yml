@@ -1,0 +1,84 @@
+name: Temporary AUTO subfamily smoke
+
+on:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/workflows/tmp-auto-subfamily-smoke.yml
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          python -m py_compile research/run_feature_arena.py research/archive_feature_arena_run.py
+          node --check research/project-yearly-snapshots.mjs
+
+      - name: AUTO slice projection contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          row={
+            "ml_dataset_version":3,
+            "feature_schema_version":8,
+            "leakage_policy":"STRICT_PRIOR_DATE_ONLY",
+            "prediction_phase":"FINAL",
+            "feature_sets":["BASE","OPPONENT","NETWORK","LAP","STYLE","DISTANCE","BACKFILL","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+            "history_windows":{"recent_form":5,"style_last3f":10,"suitability":20,"opponent":10,"auto_rolling":20,"career":"ALL","elo":"ALL","actor_recent":30,"time_pace":10},
+            "small_sample_policy":{},
+            "race_id":"R1","horse_id":"H1",
+            "features":{
+              "distance_m":1600,
+              "auto_history_finish_position_mean":4.2,
+              "auto_finish_same_venue_mean":3.5,
+              "auto_field_history_finish_position_mean_rank":2,
+              "auto_pair_distance_vs_recent_mean_diff":0,
+              "actor_jockey_overall_win_rate":0.12
+            },
+            "target":{"is_win":False,"finish_position":2}
+          }
+          open("/tmp/auto-smoke.jsonl","w").write(json.dumps(row)+"\n")
+          open("/tmp/candidates.json","w").write(json.dumps([
+            {"name":"field-only","feature_sets":["BASE","AUTO"],"auto_slices":["FIELD"]}
+          ]))
+          PY
+
+          node research/project-yearly-snapshots.mjs             --inputs /tmp/auto-smoke.jsonl             --output /tmp/field-only.jsonl.gz             --feature-sets BASE,AUTO             --prediction-phase FINAL             --auto-slices FIELD
+
+          python - <<'PY'
+          import gzip,json
+          row=json.loads(gzip.open("/tmp/field-only.jsonl.gz","rt").readline())
+          f=row["features"]
+          assert f["distance_m"] == 1600
+          assert f["auto_field_history_finish_position_mean_rank"] == 2
+          assert "auto_history_finish_position_mean" not in f
+          assert "auto_finish_same_venue_mean" not in f
+          assert "auto_pair_distance_vs_recent_mean_diff" not in f
+          assert row["feature_sets"] == ["BASE","AUTO"]
+          print("AUTO_FIELD_SLICE_OK", sorted(f))
+          PY
+
+          python research/run_feature_arena.py             --inputs /tmp/auto-smoke.jsonl             --out-dir /tmp/arena-plan             --train-start 2023-01-01 --train-end 2024-12-31             --valid-start 2025-01-01 --valid-end 2025-12-31             --prediction-phase FINAL             --candidates-json /tmp/candidates.json             --plan-only
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard CPU runner only; no GPU, Artifact, Cache, or external storage."
