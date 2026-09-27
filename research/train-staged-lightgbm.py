@@ -731,6 +731,7 @@ def write_l1_to_l2_output(
     path,
     *,
     model_version,
+    expert_id,
     prediction_phase,
     feature_sets,
     model_sha256,
@@ -804,6 +805,7 @@ def write_l1_to_l2_output(
                     "horse_id": str(p["_horse_id"]),
                     "horse_number": horse_number,
                     "model_version": model_version,
+                    "expert_id": expert_id,
                     "prediction_phase": prediction_phase,
                     "feature_sets": list(feature_sets),
                     "ml_dataset_version": EXPECTED_DATASET_VERSION,
@@ -918,6 +920,20 @@ def main():
         "valid_start": a.valid_start,
         "valid_end": a.valid_end,
     }
+    expert_config = {
+        "prediction_phase": prediction_phase,
+        "feature_sets": feature_sets,
+        "history_windows": history_windows,
+        "small_sample_policy": small_sample_policy,
+        "feature_selection_policy": {
+            "mode": a.feature_selection,
+            "max_missing_rate": a.fs_max_missing_rate,
+            "max_correlation": a.fs_max_correlation,
+            "min_inner_gain_fraction": a.fs_min_inner_gain_fraction,
+            "inner_valid_fraction": a.fs_inner_valid_fraction,
+        },
+    }
+    expert_id = sha256_json(expert_config)[:16]
     training_config = {
         "dataset_contract": {
             "ml_dataset_version": EXPECTED_DATASET_VERSION,
@@ -964,6 +980,7 @@ def main():
         feature_contract,
         a.l2_output,
         model_version=a.model_version,
+        expert_id=expert_id,
         prediction_phase=prediction_phase,
         feature_sets=feature_sets,
         model_sha256=model_sha256,
@@ -975,6 +992,7 @@ def main():
     )
     meta = {
         "model_version": a.model_version,
+        "expert_id": expert_id,
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
@@ -1084,6 +1102,7 @@ def main():
         schema_path.parent.mkdir(parents=True, exist_ok=True)
         schema = {
             "contract": "L1_FEATURE_SCHEMA_V1",
+            "expert_id": expert_id,
             "ml_dataset_version": EXPECTED_DATASET_VERSION,
             "feature_schema_version": EXPECTED_FEATURE_SCHEMA_VERSION,
             "leakage_policy": EXPECTED_LEAKAGE_POLICY,
@@ -1113,6 +1132,7 @@ def main():
     Path(a.meta_out).write_text(json.dumps(meta, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
     print("ML_FEATURE_SET_RESULT")
     print(json.dumps({
+        "expert_id": expert_id,
         "prediction_phase": prediction_phase,
         "feature_sets": feature_sets,
         "history_windows": history_windows,
