@@ -105,6 +105,11 @@ def main():
     assert len(meta["reproducibility"]["training_config_sha256"]) == 64
     assert len(meta["reproducibility"]["feature_catalog_sha256"]) == 64
     assert len(meta["reproducibility"]["feature_contract_sha256"]) == 64
+    assert len(meta["reproducibility"]["small_sample_contract_sha256"]) == 64
+    assert meta["small_sample_policy"]["ratePriorStrength"] == 20.0
+    assert meta["small_sample_policy"]["meanPriorStrength"] == 10.0
+    assert meta["small_sample_policy"]["minSpecificObservations"] == 5
+    assert meta["small_sample_policy"]["actorRecentWindow"] == 30
     assert meta["prediction_phase"] == "FINAL"
     assert meta["feature_sets"] == ["BASE"]
     assert meta["history_windows"]["recent_form"] == 5
@@ -126,6 +131,8 @@ def main():
     assert "exact_feature_list" in oof
     assert len(oof["feature_catalog_sha256"]) == 64
     assert len(oof["feature_contract_sha256"]) == 64
+    assert len(oof["small_sample_contract_sha256"]) == 64
+    assert oof["small_sample_policy"]["actorRecentWindow"] == 30
 
     feature_set = OUT / "feature-set-dataset.jsonl.gz"
     write_dataset(feature_set, make_rows(False))
