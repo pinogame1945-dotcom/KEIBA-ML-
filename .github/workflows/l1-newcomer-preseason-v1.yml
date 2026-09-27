@@ -1,0 +1,284 @@
+name: L1 Newcomer Preseason V1
+
+on:
+  push:
+    branches:
+      - research/l1-newcomer-preseason-v1-20260928
+    paths:
+      - .github/triggers/l1-newcomer-preseason-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  preseason:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+      EXPERIMENT_ID: NEWCOMER-003
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Checkout exact BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: ${{ env.BACKFILL_SHA }}
+          path: backfill
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install ML dependencies
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Syntax and pedigree-v1 smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check src/pedigree-feature-builder.mjs
+          node --check research/build-yearly-superset-snapshots.mjs
+          node --check research/project-yearly-snapshots.mjs
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py research/archive_newcomer_local_summaries.py
+          node scripts/pedigree-feature-builder-smoke.mjs
+
+      - name: Build shallow race-class superset snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root backfill \
+            --out-dir out/newcomer-preseason-snapshots \
+            --source-start 2022-01-01 \
+            --source-end 2025-12-31 \
+            --emit-start 2022-01-01 \
+            --emit-end 2025-12-31 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+          manifest="$(find out/newcomer-preseason-snapshots -mindepth 2 -maxdepth 2 -name manifest.json -print | sort | tail -n 1)"
+          test -s "$manifest"
+          generation_dir="$(dirname "$manifest")"
+          generation_id="$(basename "$generation_dir")"
+          echo "GENERATION_DIR=$generation_dir" >> "$GITHUB_ENV"
+          echo "GENERATION_ID=$generation_id" >> "$GITHUB_ENV"
+          for y in 2023 2024 2025; do test -s "$generation_dir/snapshot-$y.jsonl.gz"; done
+          echo "NEWCOMER_PRESEASON_SNAPSHOT_READY generation=$generation_id"
+
+      - name: Build main-five candidates
+        shell: bash
+        run: |
+          cat > main-five.json <<'JSON'
+          [
+            {
+              "name":"core4_no_pedigree",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"no_auto_full_pedigree",
+              "feature_sets":["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"jockey_trainer_condition",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_","actor_trainer_"],
+              "auto_slices":["CONDITION"]
+            },
+            {
+              "name":"no_auto_full",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"no_auto_jockey",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"]
+            }
+          ]
+          JSON
+
+      - name: Run main five on 2025 NEWCOMER holdout
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py \
+            --inputs "$GENERATION_DIR/snapshot-2023.jsonl.gz,$GENERATION_DIR/snapshot-2024.jsonl.gz,$GENERATION_DIR/snapshot-2025.jsonl.gz" \
+            --out-dir out/newcomer-preseason/main-five \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --train-race-class ALL \
+            --valid-race-class NEWCOMER \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json main-five.json \
+            --source-ref "$BACKFILL_SHA" \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Build NEWCOMER challengers
+        shell: bash
+        run: |
+          cat > challengers.json <<'JSON'
+          [
+            {
+              "name":"newcomer_same_jockey_v1",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"]
+            },
+            {
+              "name":"newcomer_same_full_v1",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"]
+            },
+            {
+              "name":"newcomer_actor",
+              "feature_sets":["BASE","ACTOR"],
+              "actor_prefixes":["actor_jockey_","actor_trainer_"]
+            },
+            {
+              "name":"newcomer_actor_pedigree_v1",
+              "feature_sets":["BASE","PEDIGREE","ACTOR"],
+              "actor_prefixes":["actor_jockey_","actor_trainer_"]
+            }
+          ]
+          JSON
+
+      - name: Run NEWCOMER challengers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py \
+            --inputs "$GENERATION_DIR/snapshot-2023.jsonl.gz,$GENERATION_DIR/snapshot-2024.jsonl.gz,$GENERATION_DIR/snapshot-2025.jsonl.gz" \
+            --out-dir out/newcomer-preseason/challengers \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31 \
+            --train-race-class NEWCOMER \
+            --valid-race-class NEWCOMER \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json challengers.json \
+            --source-ref "$BACKFILL_SHA" \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Verify unchanged controls and print preseason score
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+
+          main=json.loads(Path("out/newcomer-preseason/main-five/feature-arena-summary.json").read_text())
+          chal=json.loads(Path("out/newcomer-preseason/challengers/feature-arena-summary.json").read_text())
+          rows={r["name"]:r for r in main["results"]+chal["results"]}
+
+          expected={
+            "no_auto_full":{
+              "top1_winner_capture":0.2532894736842105,
+              "top3_winner_capture":0.5493421052631579,
+              "top6_winner_capture":0.7828947368421053,
+              "mean_winner_rank":4.1019736842105265
+            },
+            "newcomer_actor":{
+              "top1_winner_capture":0.21710526315789475,
+              "top3_winner_capture":0.5460526315789473,
+              "top6_winner_capture":0.756578947368421,
+              "mean_winner_rank":4.404605263157895
+            },
+            "newcomer_actor_pedigree_v1":{
+              "top1_winner_capture":0.21710526315789475,
+              "top3_winner_capture":0.5296052631578947,
+              "top6_winner_capture":0.7631578947368421,
+              "mean_winner_rank":4.322368421052632
+            }
+          }
+          for name,want in expected.items():
+              got=rows[name]["metrics"]
+              for key,value in want.items():
+                  if abs(float(got[key])-float(value))>1e-12:
+                      raise SystemExit(f"CONTROL_MISMATCH {name} {key}: expected={value} got={got[key]}")
+          print("NEWCOMER_PRESEASON_CONTROL_REPRODUCTION_OK")
+
+          order=[
+            "core4_no_pedigree","no_auto_full_pedigree","jockey_trainer_condition",
+            "no_auto_full","no_auto_jockey",
+            "newcomer_same_jockey_v1","newcomer_same_full_v1","newcomer_actor","newcomer_actor_pedigree_v1"
+          ]
+          for name in order:
+              r=rows[name]
+              print("NEWCOMER_PRESEASON_RESULT "+json.dumps({
+                  "candidate":name,
+                  "race_scope":r.get("race_scope"),
+                  "feature_sets":r.get("feature_sets") or [],
+                  "actor_prefixes":r.get("actor_prefixes") or [],
+                  "auto_slices":r.get("auto_slices") or [],
+                  "feature_count":r.get("feature_count"),
+                  "metrics":r.get("metrics"),
+                  "resource_usage":r.get("resource_usage")
+              },ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Archive NEWCOMER-003 separate ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_newcomer_local_summaries.py \
+            --experiment-id "$EXPERIMENT_ID" \
+            --run-id "$GITHUB_RUN_ID" \
+            --snapshot-generation "$GENERATION_ID" \
+            --backfill-sha "$BACKFILL_SHA" \
+            --summary out/newcomer-preseason/main-five/feature-arena-summary.json \
+            --summary out/newcomer-preseason/challengers/feature-arena-summary.json \
+            --expected-candidates core4_no_pedigree,no_auto_full_pedigree,jockey_trainer_condition,no_auto_full,no_auto_jockey,newcomer_same_jockey_v1,newcomer_same_full_v1,newcomer_actor,newcomer_actor_pedigree_v1 \
+            --train-start 2023-01-01 \
+            --train-end 2024-12-31 \
+            --valid-start 2025-01-01 \
+            --valid-end 2025-12-31
+
+      - name: Commit NEWCOMER-003 ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l1-newcomer-specialist/$EXPERIMENT_ID"
+          git commit -m "research: archive $EXPERIMENT_ID run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E '^[[:space:]]+runs-on:[[:space:]]*(macos|windows|.*gpu)' .github/workflows/l1-newcomer-preseason-v1.yml; then
+            echo "Paid/special runner found; refusing workflow." >&2
+            exit 1
+          fi
+          if grep -E '^[[:space:]]+uses:[[:space:]]*actions/(upload-artifact|cache)@' .github/workflows/l1-newcomer-preseason-v1.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Snapshot is runner-local ephemeral; only small JSON/text ledger is persisted."
