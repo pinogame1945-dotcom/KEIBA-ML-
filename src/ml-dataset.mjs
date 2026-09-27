@@ -5,6 +5,7 @@ import {
   buildSafePairFeatures,
 } from "./auto-feature-factory.mjs";
 import { readBackfillRaceFeatures } from "./backfill-feature-adapter.mjs";
+import { normalizeHistoryWindows } from "./l1-feature-contract.mjs";
 
 export const ML_DATASET_VERSION = 3;
 export const ML_FEATURE_SCHEMA_VERSION = 7;
@@ -218,17 +219,19 @@ function updateHorseStats(horseStatsById, horseId, result) {
   horseStatsById.set(key, stats);
 }
 
-function historySnapshot(history, current, limit, horseStatsById) {
-  const recent = history.slice(-limit).reverse();
+function historySnapshot(history, current, windows, horseStatsById) {
+  const recent = history.slice(-windows.recent_form).reverse();
+  const suitabilityRecent = history.slice(-windows.suitability).reverse();
   const currentDistance = finite(current.race?.distance_m);
   const currentSurface = current.race?.surface ?? null;
   const currentVenue = current.race?.venue_code ?? null;
   const previous = recent[0] ?? null;
 
   const finished = recent.filter(item => item.result?.result_status === "FINISHED" && item.result?.official_finish_position != null);
-  const sameSurface = finished.filter(item => item.race?.surface && item.race.surface === currentSurface);
-  const sameVenue = finished.filter(item => item.race?.venue_code && item.race.venue_code === currentVenue);
-  const sameDistance = finished.filter(item => finite(item.race?.distance_m) === currentDistance && currentDistance != null);
+  const suitabilityFinished = suitabilityRecent.filter(item => item.result?.result_status === "FINISHED" && item.result?.official_finish_position != null);
+  const sameSurface = suitabilityFinished.filter(item => item.race?.surface && item.race.surface === currentSurface);
+  const sameVenue = suitabilityFinished.filter(item => item.race?.venue_code && item.race.venue_code === currentVenue);
+  const sameDistance = suitabilityFinished.filter(item => finite(item.race?.distance_m) === currentDistance && currentDistance != null);
 
   const speeds = finished.map(item => {
     const distance = finite(item.race?.distance_m);
@@ -260,7 +263,7 @@ function historySnapshot(history, current, limit, horseStatsById) {
     same_distance_top3_rate: rate(sameDistance, item => Number(item.result?.official_finish_position) <= 3),
     same_venue_starts: sameVenue.length,
     same_venue_top3_rate: rate(sameVenue, item => Number(item.result?.official_finish_position) <= 3),
-    ...opponentSnapshot(history, horseStatsById, limit),
+    ...opponentSnapshot(history, horseStatsById, windows.opponent),
   };
 }
 
@@ -476,12 +479,17 @@ export function buildMlDataset(raceRows, {
   startDate = null,
   endDate = null,
   historyLimit = 5,
+  historyWindows = null,
   includeAutoFeatures = false,
   includeBackfillFeatures = false,
 } = {}) {
   if (!Number.isInteger(historyLimit) || historyLimit < 1 || historyLimit > 100) {
     throw new Error("historyLimit must be an integer from 1 to 100");
   }
+  const windows = normalizeHistoryWindows(
+    historyWindows ?? {},
+    historyWindows == null ? historyLimit : null,
+  );
 
   const normalized = (raceRows ?? [])
     .map(row => ({ row, date: stableRaceDate(row) }))
@@ -516,7 +524,7 @@ export function buildMlDataset(raceRows, {
         if (!result || !isEligibleStarter(entry, result)) continue;
         const history = historyByHorse.get(horseId) ?? [];
         const current = { date, race: row.race ?? {}, entry };
-        const historyFeatures = historySnapshot(history, current, historyLimit, horseStatsById);
+        const historyFeatures = historySnapshot(history, current, windows, horseStatsById);
         const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
         const baseFeatures = currentFeatures(
           row,
@@ -528,7 +536,7 @@ export function buildMlDataset(raceRows, {
         const features = includeAutoFeatures
           ? addAutoPairFeatures({
               ...baseFeatures,
-              ...autoHistorySnapshot(history, row.race ?? {}, historyLimit),
+              ...autoHistorySnapshot(history, row.race ?? {}, windows.auto_rolling),
             })
           : baseFeatures;
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
