@@ -53,6 +53,8 @@ const good = auditBackfillRows([
   maxYearGap: 0,
 });
 
+assert.equal(good.report_version, "BACKFILL_READINESS_V3");
+assert.equal(good.readiness_version, 3);
 assert.equal(good.ready_for_l1_research, true);
 assert.equal(good.failed_gate_count, 0);
 assert.equal(good.overall.races, 2);
