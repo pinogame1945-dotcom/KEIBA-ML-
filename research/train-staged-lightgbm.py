@@ -408,6 +408,7 @@ def main():
     df = flatten(load(a.dataset), a.stage)
     train, valid = split(df, a)
     xtr, xva, categorical, category_levels = frames(train, valid)
+    assert_catalog_safety(list(xtr.columns), a.feature_catalog)
     ytr, yva = train["_target"].astype(int), valid["_target"].astype(int)
 
     params = {
@@ -437,6 +438,7 @@ def main():
     raw = np.clip(model.predict_proba(xva, num_iteration=model.best_iteration_)[:, 1], 1e-15, 1 - 1e-15)
     pred = predictions(valid, raw)
     result_metrics = metrics(pred, yva, raw)
+    subgroup_report = subgroup_metrics(valid, pred)
 
     Path(a.model_out).parent.mkdir(parents=True, exist_ok=True)
     model.booster_.save_model(a.model_out)
@@ -445,6 +447,42 @@ def main():
     importance = sorted(
         [{"feature": n, "gain": float(g)} for n, g in zip(names, gain)],
         key=lambda x: x["gain"], reverse=True,
+    )
+    split_config = {
+        "train_start": a.train_start,
+        "train_end": a.train_end,
+        "valid_start": a.valid_start,
+        "valid_end": a.valid_end,
+    }
+    training_config = {
+        "dataset_contract": {
+            "ml_dataset_version": EXPECTED_DATASET_VERSION,
+            "feature_schema_version": EXPECTED_FEATURE_SCHEMA_VERSION,
+            "leakage_policy": EXPECTED_LEAKAGE_POLICY,
+        },
+        "stage": a.stage,
+        "split": split_config,
+        "params": params,
+        "feature_order": names,
+        "categorical_features": categorical,
+        "source": {
+            "repository": a.source_repo,
+            "ref": a.source_ref,
+            "sha": a.source_sha,
+            "ml_source_sha": a.ml_source_sha,
+        },
+    }
+    model_sha256 = sha256_file(a.model_out)
+    training_config_sha256 = sha256_json(training_config)
+    catalog_sha256 = sha256_file(a.feature_catalog)
+    contribution_summary = write_model_diagnostics(
+        model,
+        xva,
+        valid,
+        pred,
+        names,
+        diagnostics_out=a.diagnostics_out,
+        contributions_out=a.contributions_out,
     )
     meta = {
         "model_version": a.model_version,
@@ -470,8 +508,7 @@ def main():
             "numpy": package_version("numpy"),
         },
         "split": {
-            "train_start": a.train_start, "train_end": a.train_end,
-            "valid_start": a.valid_start, "valid_end": a.valid_end,
+            **split_config,
             "train_rows": int(len(train)), "train_races": int(train["_race_id"].nunique()),
             "valid_rows": int(len(valid)), "valid_races": int(valid["_race_id"].nunique()),
         },
@@ -483,6 +520,23 @@ def main():
         "best_iteration": int(model.best_iteration_ or params["n_estimators"]),
         "metrics": result_metrics,
         "feature_importance_gain": importance,
+        "subgroup_metrics": subgroup_report,
+        "feature_coverage": {
+            "train": feature_coverage(xtr, names),
+            "valid": feature_coverage(xva, names),
+        },
+        "reproducibility": {
+            "model_sha256": model_sha256,
+            "training_config_sha256": training_config_sha256,
+            "feature_catalog_sha256": catalog_sha256,
+            "feature_catalog": str(Path(a.feature_catalog)),
+        },
+        "diagnostics": {
+            "contract": "L1_MODEL_DIAGNOSTICS_V1" if a.diagnostics_out else None,
+            "diagnostics_out": a.diagnostics_out,
+            "contributions_out": a.contributions_out,
+            "mean_abs_contribution": contribution_summary,
+        },
     }
 
     if a.predictions_out:
@@ -492,6 +546,9 @@ def main():
         out["_race_date"] = valid["_race_date"].values
         out["model_version"] = a.model_version
         out["stage"] = a.stage
+        out["ml_dataset_version"] = EXPECTED_DATASET_VERSION
+        out["feature_schema_version"] = EXPECTED_FEATURE_SCHEMA_VERSION
+        out["leakage_policy"] = EXPECTED_LEAKAGE_POLICY
         out = out.rename(columns={
             "_race_date": "race_date",
             "_race_id": "race_id",
@@ -504,6 +561,7 @@ def main():
         })
         cols = [
             "race_date", "race_id", "horse_id", "model_version", "stage",
+            "ml_dataset_version", "feature_schema_version", "leakage_policy",
             "raw_win_probability", "race_normalized_win_probability", "predicted_rank",
             "actual_is_win", "actual_finish_position",
         ]
