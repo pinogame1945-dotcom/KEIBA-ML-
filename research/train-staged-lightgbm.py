@@ -118,10 +118,14 @@ def stage_features(features, stage):
             out[key] = value
     return out
 
-def flatten(rows, stage):
+def flatten(rows, stage, forbidden_model_keys=None):
+    forbidden_model_keys = set(forbidden_model_keys or [])
     records = []
     for row in rows:
         f = stage_features(dict(row["features"]), stage)
+        bad = sorted(set(f) & forbidden_model_keys)
+        if bad:
+            raise ValueError("L1 feature catalog blocked dataset columns: " + ", ".join(bad))
         date = f.pop("race_date", None)
         f.pop("actual_start_time", None)
         f.pop("jockey_id", None)
@@ -405,7 +409,8 @@ def main():
         raise ValueError("train_end must be before valid_start")
     if pd.to_datetime(a.valid_start) > pd.to_datetime(a.valid_end):
         raise ValueError("valid_start must be <= valid_end")
-    df = flatten(load(a.dataset), a.stage)
+    forbidden_model_keys = load_forbidden_model_keys(a.feature_catalog)
+    df = flatten(load(a.dataset), a.stage, forbidden_model_keys)
     train, valid = split(df, a)
     xtr, xva, categorical, category_levels = frames(train, valid)
     assert_catalog_safety(list(xtr.columns), a.feature_catalog)
