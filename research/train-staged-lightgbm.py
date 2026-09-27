@@ -237,8 +237,9 @@ def sha256_json(value):
     return hashlib.sha256(raw).hexdigest()
 
 
-def load(path):
-    rows = []
+def iter_dataset_rows(path):
+    """Yield validated JSONL rows without retaining the full source dataset."""
+    seen = False
     with gzip.open(path, "rt", encoding="utf-8") as fh:
         for line in fh:
             if not line.strip():
@@ -250,10 +251,10 @@ def load(path):
                 raise ValueError("feature schema mismatch")
             if row.get("leakage_policy") != EXPECTED_LEAKAGE_POLICY:
                 raise ValueError("leakage policy mismatch")
-            rows.append(row)
-    if not rows:
+            seen = True
+            yield row
+    if not seen:
         raise ValueError("empty dataset")
-    return rows
 
 def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_policy, feature_contract, forbidden_model_keys=None):
     forbidden_model_keys = set(forbidden_model_keys or [])
@@ -724,7 +725,7 @@ def main():
     )
     forbidden_model_keys = load_forbidden_model_keys(a.feature_catalog)
     df = flatten(
-        load(a.dataset),
+        iter_dataset_rows(a.dataset),
         feature_sets,
         prediction_phase,
         history_windows,
