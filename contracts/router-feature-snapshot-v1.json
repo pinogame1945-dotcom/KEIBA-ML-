@@ -1,0 +1,75 @@
+{
+  "contract": "ROUTER_FEATURE_SNAPSHOT_V1",
+  "granularity": "one row per race",
+  "purpose": "Pre-race feature store for expert routing and role routing.",
+  "principles": {
+    "pre_race_only": true,
+    "odds_used": false,
+    "outcomes_embedded": false,
+    "arbitrary_expert_count": true,
+    "labels_are_separate": true,
+    "roles": ["TOP1", "TOP3", "TOP6"]
+  },
+  "required_top_level": [
+    "contract",
+    "race_id",
+    "race_date",
+    "race",
+    "data_coverage",
+    "experts",
+    "consensus"
+  ],
+  "forbidden_outcome_fields": [
+    "winner_horse_ids",
+    "actual_is_win",
+    "actual_finish_position",
+    "finish_position",
+    "target",
+    "payout",
+    "payouts",
+    "final_win_odds",
+    "final_popularity"
+  ],
+  "expert_features": [
+    "expert_id",
+    "model_version",
+    "feature_sets",
+    "top1_horse_id",
+    "top3_horse_ids",
+    "top6_horse_ids",
+    "top1_probability",
+    "top2_probability",
+    "top3_probability",
+    "top1_top2_gap",
+    "top1_top3_gap",
+    "top3_probability_mass",
+    "top6_probability_mass",
+    "normalized_entropy",
+    "top1_family_abs_share"
+  ],
+  "consensus_features": [
+    "expert_count",
+    "top1_unique_horses",
+    "top1_max_vote",
+    "top1_max_vote_share",
+    "top1_full_agreement",
+    "top3_pairwise_jaccard_mean",
+    "top6_pairwise_jaccard_mean",
+    "pairwise_rank_abs_diff_mean",
+    "pairwise_rank_abs_diff_max",
+    "horse_rank_std_mean",
+    "horse_rank_std_max",
+    "horse_probability_std_mean",
+    "horse_probability_std_max"
+  ],
+  "data_coverage_features": [
+    "field_size",
+    "prior_starts_mean",
+    "prior_starts_zero_rate",
+    "prior_starts_le1_rate",
+    "prior_starts_le2_rate",
+    "recent_window_starts_mean",
+    "history_known_rate",
+    "family_horse_coverage"
+  ]
+}
