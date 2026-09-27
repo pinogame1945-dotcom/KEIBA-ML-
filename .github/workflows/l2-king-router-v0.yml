@@ -1,0 +1,214 @@
+name: L2 King Router V0
+
+on:
+  push:
+    branches:
+      - research/l2-king-router-v0-20260928
+    paths:
+      - .github/triggers/l2-king-router-v0.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  router-v0:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: \${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      TRAIN_L2_DATASET_REF: pino1945/keiba-ml-l2-02f30855869e0f46
+
+    steps:
+      - name: Checkout router branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/train_l2_king_router_v0.py \
+            research/run_feature_arena.py \
+            research/train-staged-lightgbm.py \
+            research/emit_l1_to_l2.py \
+            research/sample_snapshot_races.py \
+            research/verify_l2_multi_expert.py \
+            research/build_l2_expert_bundle.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-persist-l2.sh
+
+      - name: Install free-runner dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Resolve snapshot generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
+          generation=str(cfg["snapshot_generation"])
+          dataset_ref=f"pino1945/keiba-ml-snapshot-{generation}"
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              print(f"GENERATION_ID={generation}", file=fh)
+              print(f"KAGGLE_DATASET_REF={dataset_ref}", file=fh)
+          print("generation",generation)
+          print("dataset_ref",dataset_ref)
+          PY
+
+      - name: Restore 2021 and 2022 snapshots read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l2-router/source/$GENERATION_ID"
+          mkdir -p "$root"
+          for y in 2021 2022; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else echo "::error::snapshot $y missing" >&2; exit 1
+            fi
+          }
+          echo "SNAP_2021=$(resolve 2021)" >> "$GITHUB_ENV"
+          echo "SNAP_2022=$(resolve 2022)" >> "$GITHUB_ENV"
+
+      - name: Restore frozen 2021 king outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l2-router/train-bundle"
+          mkdir -p "$root"
+          kaggle datasets download "$TRAIN_L2_DATASET_REF" -p "$root" --unzip --quiet --force
+          echo "--- 2021 L2 bundle files ---"
+          find "$root" -type f -print | sort
+
+          light="$(find "$root" -type f \( -name 'no-auto-jockey.jsonl' -o -name 'no-auto-jockey.jsonl.gz' \) -print -quit)"
+          core="$(find "$root" -type f \( -name 'core4-no-pedigree.jsonl' -o -name 'core4-no-pedigree.jsonl.gz' \) -print -quit)"
+          test -n "$light" && test -s "$light"
+          test -n "$core" && test -s "$core"
+          echo "TRAIN_LIGHT_L2=$light" >> "$GITHUB_ENV"
+          echo "TRAIN_CORE_L2=$core" >> "$GITHUB_ENV"
+
+      - name: Build deterministic 2022 scoring sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-router/sample
+          python research/sample_snapshot_races.py \
+            --input "$SNAP_2021" \
+            --output out/l2-router/sample/train-2021.jsonl.gz \
+            --max-races 2000
+          python research/sample_snapshot_races.py \
+            --input "$SNAP_2022" \
+            --output out/l2-router/sample/valid-2022.jsonl.gz \
+            --max-races 1000
+
+      - name: Define survivor kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > out/l2-router/candidates.json <<'JSON'
+          [
+            {
+              "name":"no_auto_jockey",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"],
+              "auto_slices":[]
+            },
+            {
+              "name":"core4_no_pedigree",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+              "actor_prefixes":[],
+              "auto_slices":[]
+            }
+          ]
+          JSON
+
+      - name: Score frozen 2022 test races with both kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py \
+            --inputs "out/l2-router/sample/train-2021.jsonl.gz,out/l2-router/sample/valid-2022.jsonl.gz" \
+            --out-dir out/l2-router/arena-2022 \
+            --train-start 2021-01-01 \
+            --train-end 2021-12-31 \
+            --valid-start 2022-01-01 \
+            --valid-end 2022-12-31 \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json out/l2-router/candidates.json \
+            --emit-l2-output \
+            --l2-chunk-size 64 \
+            --source-ref main \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Verify 2022 king outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/verify_l2_multi_expert.py \
+            --inputs "out/l2-router/arena-2022/l2-input/no-auto-jockey.jsonl.gz,out/l2-router/arena-2022/l2-input/core4-no-pedigree.jsonl.gz" \
+            --arena-summary out/l2-router/arena-2022/feature-arena-summary.json \
+            --output out/l2-router/l2-2022-summary.json
+          cat out/l2-router/l2-2022-summary.json
+
+      - name: Persist 2022 king outputs for reuse
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_expert_bundle.py \
+            --snapshot-generation "$GENERATION_ID" \
+            --validation-start 2022-01-01 \
+            --validation-end 2022-12-31 \
+            --summary out/l2-router/l2-2022-summary.json \
+            --expert no_auto_jockey=out/l2-router/arena-2022/l2-input/no-auto-jockey.jsonl.gz \
+            --expert core4_no_pedigree=out/l2-router/arena-2022/l2-input/core4-no-pedigree.jsonl.gz \
+            --out-root out/l2-router/l2-bundles-2022
+          bash scripts/kaggle-persist-l2.sh out/l2-router/l2-bundles-2022
+
+      - name: Train on 2021 and freeze-test router on 2022
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/train_l2_king_router_v0.py \
+            --train-light "$TRAIN_LIGHT_L2" \
+            --train-core "$TRAIN_CORE_L2" \
+            --train-snapshot "$SNAP_2021" \
+            --test-light out/l2-router/arena-2022/l2-input/no-auto-jockey.jsonl.gz \
+            --test-core out/l2-router/arena-2022/l2-input/core4-no-pedigree.jsonl.gz \
+            --test-snapshot "$SNAP_2022" \
+            --output out/l2-router/router-v0-summary.json \
+            --decisions-out out/l2-router/router-v0-test-decisions.jsonl.gz
+          cat out/l2-router/router-v0-summary.json
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l2-king-router-v0.yml; then
+            echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle source snapshots are read-only."
+          echo "Only the small 2022 L2 companion bundle is persisted through the guarded 180 GiB helper."
