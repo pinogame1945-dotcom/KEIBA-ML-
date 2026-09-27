@@ -43,7 +43,7 @@ Do not commit every experimental dataset/model to Git history.
 - experiment model/OOF/diagnostics: runner-local only by default; persistent Actions artifact upload is disabled unless the user explicitly approves storage
 - promoted model: store only after validation/promotion policy is defined
 
-## Current stage caution
+## Current Feature Set caution
 
 Direct pedigree IDs are now blocked from L1 entirely. Direct jockey/trainer IDs are also blocked until point-in-time performance features replace them. The result-page `actual_start_time` is not used because it is not guaranteed to be known before the race.
 
@@ -80,42 +80,49 @@ Current-field relative features are limited to:
 - recent average last 3F
 - recent average speed
 
-Training does **not** consume these automatically. The existing `style` stage remains the default and filters every `auto_` feature out.
+Training does **not** consume these automatically. New research selects independent Feature Sets explicitly.
 
-Use `auto_v1` only when intentionally comparing the AUTO feature family in walk-forward research.
+Use the `AUTO` Feature Set only when intentionally comparing AUTO-derived features in walk-forward research.
 
 Final odds, popularity and payout remain forbidden AUTO inputs.
 
 
 ## BACKFILL receiver
 
-The ML dataset can now receive the new normalized race conditions without changing the existing `style` baseline.
+The ML dataset can receive normalized race conditions through the independent `BACKFILL` Feature Set without forcing STYLE, LAP, OPPONENT or AUTO into the same experiment.
 
-- `backfill_v1`: style + normalized BACKFILL race conditions
-- `auto_backfill_v1`: style + AUTO + normalized BACKFILL race conditions
+`AUTO` and `BACKFILL` may be selected independently or together.
 
 Missing BACKFILL fields remain null. ML does not re-parse raw race-condition text.
 
 Current-race margin is never a predictor. Prior-race normalized margin is now available only through past-only AUTO features after semantics/coverage verification.
 
 
-## Safe stage set
+## Feature Set contract
 
-Current trainable stages:
+The canonical selection unit is now an independent Feature Set, not a cumulative stage.
 
-- `base`
-- `opponent_v1`
-- `opponent_both`
-- `lap`
-- `style`
-- `distance_v1`
-- `backfill_v1`
-- `auto_v1`
-- `auto_backfill_v1`
+Current sets:
 
-The old direct-ID `pedigree` stage is removed. `distance_v1` contains distance features without pedigree IDs.
+- `BASE`
+- `OPPONENT`
+- `NETWORK`
+- `LAP`
+- `STYLE`
+- `DISTANCE`
+- `BACKFILL`
+- `AUTO`
 
-AUTO features are only built for AUTO stages. BACKFILL race-condition features are only copied into the dataset for BACKFILL stages.
+The old stage names remain only as migration aliases for existing commands. New research must use `--feature-sets`.
+
+Prediction inputs are also phase-bound:
+
+- `EARLY`: only facts available by entry/field publication
+- `FINAL`: may additionally use race-day conditions and announced body weight
+
+Purpose-specific history windows replace the single research-wide `history_limit`. Exact phase, Feature Sets and window values are persisted for reproducibility.
+
+See `docs/L1_FEATURE_SET_CONTRACT_V1.md`.
 
 
 ## Margin AUTO
@@ -148,11 +155,16 @@ A forbidden direct ID, market field, post-race field, or target field blocks tra
 
 Each fold metadata now records:
 
+- prediction phase;
+- exact Feature Set list;
+- exact history-window configuration;
+- exact ordered feature list;
 - model SHA-256;
 - training-config SHA-256;
 - Feature Catalog SHA-256;
+- Feature Set Contract SHA-256;
 - train/validation feature coverage;
 - subgroup metrics by surface, venue, distance band, class, grade, course layout and field size.
 
 Runner-local diagnostics can contain the LightGBM tree dump, split thresholds and mean absolute per-feature contribution.
-OOF rows carry dataset version, feature schema version and leakage policy.
+OOF rows carry dataset version, feature schema version, leakage policy, prediction phase, Feature Sets, history windows, exact feature list, Feature Catalog hash and Feature Set Contract hash.
