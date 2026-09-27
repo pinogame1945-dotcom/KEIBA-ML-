@@ -1,0 +1,155 @@
+name: L2 Multi Expert Prototype V1
+
+on:
+  push:
+    branches:
+      - research/l2-multi-expert-prototype-v1-20260928
+    paths:
+      - .github/triggers/l2-multi-expert-prototype-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  prototype:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - name: Checkout prototype branch
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/sample_snapshot_races.py             research/verify_l2_multi_expert.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Install free-runner dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Resolve snapshot generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
+          generation=str(cfg["snapshot_generation"])
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              fh.write(f"GENERATION_ID={generation}\n")
+          print("generation",generation)
+          PY
+
+      - name: Restore 2020 and 2021 snapshots read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l2-prototype/source/$GENERATION_ID"
+          mkdir -p "$root"
+          for y in 2020 2021; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else echo "::error::snapshot $y missing" >&2; exit 1
+            fi
+          }
+          echo "SNAP_2020=$(resolve 2020)" >> "$GITHUB_ENV"
+          echo "SNAP_2021=$(resolve 2021)" >> "$GITHUB_ENV"
+
+      - name: Build small deterministic prototype sample
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-prototype/sample
+          python research/sample_snapshot_races.py             --input "$SNAP_2020"             --output out/l2-prototype/sample/train-2020.jsonl.gz             --max-races 600
+          python research/sample_snapshot_races.py             --input "$SNAP_2021"             --output out/l2-prototype/sample/valid-2021.jsonl.gz             --max-races 100
+
+      - name: Define light and heavy kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          cat > out/l2-prototype/candidates.json <<'JSON'
+          [
+            {
+              "name":"no_auto_jockey",
+              "feature_sets":["BASE","OPPONENT","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"],
+              "auto_slices":[]
+            },
+            {
+              "name":"jockey_pedigree_fullauto_v3",
+              "feature_sets":["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+              "actor_prefixes":["actor_jockey_"],
+              "auto_slices":[]
+            }
+          ]
+          JSON
+
+      - name: Run 2-king L2 prototype with memory telemetry
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_feature_arena.py             --inputs "out/l2-prototype/sample/train-2020.jsonl.gz,out/l2-prototype/sample/valid-2021.jsonl.gz"             --out-dir out/l2-prototype/arena             --train-start 2020-01-01             --train-end 2020-12-31             --valid-start 2021-01-01             --valid-end 2021-12-31             --prediction-phase FINAL             --feature-selection none             --candidates-json out/l2-prototype/candidates.json             --emit-l2-output             --l2-chunk-size 64             --source-ref main             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Verify and bundle the two kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/verify_l2_multi_expert.py             --inputs "out/l2-prototype/arena/l2-input/no-auto-jockey.jsonl.gz,out/l2-prototype/arena/l2-input/jockey-pedigree-fullauto-v3.jsonl.gz"             --arena-summary out/l2-prototype/arena/feature-arena-summary.json             --output out/l2-prototype/l2-prototype-summary.json
+          cat out/l2-prototype/l2-prototype-summary.json
+
+      - name: Print stage memory comparison
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("out/l2-prototype/arena/feature-arena-summary.json")
+          if not p.exists():
+              print("arena summary unavailable")
+              raise SystemExit(0)
+          s=json.loads(p.read_text(encoding="utf-8"))
+          print("L2_PROTOTYPE_MEMORY_COMPARISON")
+          for r in s.get("results",[]):
+              u=r.get("resource_usage") or {}
+              print(json.dumps({
+                  "candidate":r.get("name"),
+                  "feature_count":r.get("feature_count"),
+                  "projection_peak_mib":(u.get("projection") or {}).get("peak_rss_mib"),
+                  "training_peak_mib":(u.get("training") or {}).get("peak_rss_mib"),
+                  "l2_output_peak_mib":(u.get("l2_output") or {}).get("peak_rss_mib"),
+                  "candidate_peak_mib":u.get("candidate_peak_rss_mib"),
+              },ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle snapshot access is read-only; no dataset/model upload."
+          echo "All prototype outputs are runner-local and ephemeral."
