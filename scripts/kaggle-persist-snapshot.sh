@@ -105,46 +105,71 @@ echo "Kaggle dataset ref: $dataset_ref"
 if kaggle datasets status "$dataset_ref" >/dev/null 2>&1; then
   echo "Dataset already exists; verifying remote manifest instead of uploading again."
 else
-  # Conservative free-tier guard: sum ALL datasets owned by this account, not just KEIBA datasets.
-  # If quota information cannot be read, stop rather than risk crossing a free storage boundary.
-  usage_json="$(mktemp)"
-  printf '[]\n' > "$usage_json"
+  # Conservative free-tier guard: sum the actual file bytes of ALL datasets owned by this
+  # account. The current Kaggle CLI reports dataset-list size as 0, so listing files is the
+  # only trustworthy CLI-side measurement. Any unreadable response fails closed before upload.
+  refs_file="$(mktemp)"
+  : > "$refs_file"
   page=1
   while :; do
     page_json="$(mktemp)"
-    if ! kaggle datasets list --mine --page "$page" --format "json(ref,totalBytes)" >"$page_json"; then
-      echo "Could not verify Kaggle storage usage; refusing upload." >&2
+    if ! kaggle datasets list --mine --page "$page" --format json >"$page_json"; then
+      echo "Could not verify Kaggle dataset ownership list; refusing upload." >&2
       exit 7
     fi
-    # Kaggle CLI exits 0 but may emit an empty body when the account owns no datasets.
-    # Treat that as an empty page instead of attempting to JSON-decode an empty file.
-    if [[ ! -s "$page_json" ]]; then
-      count=0
-    else
-      count="$(python - "$usage_json" "$page_json" <<'PY'
+    count="$(python - "$page_json" "$refs_file" <<'PY'
 import json,sys
-dst=json.load(open(sys.argv[1],encoding="utf-8"))
-with open(sys.argv[2],encoding="utf-8") as fh:
-    src=json.load(fh)
-if not isinstance(src,list):
+p,out=sys.argv[1:]
+raw=open(p,encoding="utf-8").read().strip()
+if not raw:
+    rows=[]
+else:
+    rows=json.loads(raw)
+if not isinstance(rows,list):
     raise SystemExit("unexpected Kaggle datasets list payload")
-dst.extend(src)
-json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
-print(len(src))
+with open(out,"a",encoding="utf-8") as fh:
+    for row in rows:
+        ref=row.get("ref")
+        if not isinstance(ref,str) or "/" not in ref:
+            raise SystemExit(f"unexpected Kaggle dataset ref: {ref!r}")
+        fh.write(ref+"\\n")
+print(len(rows))
 PY
 )"
-    fi
     [[ "$count" == "0" ]] && break
     page=$((page + 1))
     [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 7; }
   done
 
-  current_bytes="$(python - "$usage_json" <<'PY'
-import json,sys
-rows=json.load(open(sys.argv[1],encoding="utf-8"))
-print(sum(int(r.get("totalBytes") or 0) for r in rows))
+  current_bytes=0
+  sort -u "$refs_file" -o "$refs_file"
+  while IFS= read -r owned_ref; do
+    [[ -n "$owned_ref" ]] || continue
+    files_csv="$(mktemp)"
+    if ! kaggle datasets files "$owned_ref" --csv >"$files_csv"; then
+      echo "Could not verify file sizes for $owned_ref; refusing upload." >&2
+      exit 7
+    fi
+    dataset_bytes="$(python - "$files_csv" <<'PY'
+import csv,sys
+rows=list(csv.DictReader(open(sys.argv[1],encoding="utf-8",newline="")))
+if rows and "size" not in rows[0]:
+    raise SystemExit(f"unexpected Kaggle files CSV columns: {list(rows[0])}")
+total=0
+for row in rows:
+    raw=(row.get("size") or "").strip()
+    if not raw:
+        raise SystemExit("missing Kaggle file size")
+    try:
+        total += int(raw)
+    except ValueError:
+        raise SystemExit(f"unparseable Kaggle file size: {raw!r}")
+print(total)
 PY
 )"
+    echo "Owned Kaggle dataset bytes: $owned_ref = $dataset_bytes"
+    current_bytes=$(( current_bytes + dataset_bytes ))
+  done < "$refs_file"
 
   projected=$(( current_bytes + snapshot_bytes ))
   echo "Owned Kaggle dataset bytes: $current_bytes"
