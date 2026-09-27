@@ -35,32 +35,7 @@ jobs:
             d="$tmp/${ref##*/}"
             mkdir -p "$d"
             if kaggle datasets download "$ref" -f manifest.json -p "$d" --unzip --quiet --force >/dev/null 2>&1; then
-              python - "$ref" "$d/manifest.json" <<'PY'
-import json,sys,os
-ref,p=sys.argv[1:]
-m=json.load(open(p,encoding="utf-8"))
-g=m.get("generation") or {}
-years=m.get("years") or []
-summary={
-  "ref":ref,
-  "generation_id":g.get("generation_id"),
-  "ml_source_sha":g.get("ml_source_sha"),
-  "source_branch":g.get("source_branch") or g.get("branch"),
-  "snapshot_version":m.get("snapshot_version") or m.get("version") or m.get("snapshotVersion"),
-  "schema_version":m.get("schema_version") or m.get("schemaVersion"),
-  "feature_contract_version":m.get("feature_contract_version") or m.get("featureContractVersion"),
-  "created_at":m.get("created_at") or m.get("createdAt") or g.get("created_at"),
-  "years":[{
-      "year":y.get("year"),
-      "rows":y.get("rows"),
-      "file":y.get("file"),
-      "sha256":y.get("sha256"),
-      "bytes":y.get("bytes")
-  } for y in years],
-  "top_keys":sorted(m.keys())
-}
-print("SNAPSHOT_MANIFEST="+json.dumps(summary,ensure_ascii=False,separators=(",",":")))
-PY
+              python -c 'import json,sys; ref,p=sys.argv[1:]; m=json.load(open(p,encoding="utf-8")); g=m.get("generation") or {}; years=m.get("years") or []; summary={"ref":ref,"generation_id":g.get("generation_id"),"ml_source_sha":g.get("ml_source_sha"),"source_branch":g.get("source_branch") or g.get("branch"),"snapshot_version":m.get("snapshot_version") or m.get("version") or m.get("snapshotVersion"),"schema_version":m.get("schema_version") or m.get("schemaVersion"),"feature_contract_version":m.get("feature_contract_version") or m.get("featureContractVersion"),"created_at":m.get("created_at") or m.get("createdAt") or g.get("created_at"),"years":[{"year":y.get("year"),"rows":y.get("rows"),"file":y.get("file"),"sha256":y.get("sha256"),"bytes":y.get("bytes")} for y in years],"top_keys":sorted(m.keys())}; print("SNAPSHOT_MANIFEST="+json.dumps(summary,ensure_ascii=False,separators=(",",":")))' "$ref" "$d/manifest.json"
             else
               echo "SNAPSHOT_MANIFEST={\"ref\":\"$ref\",\"error\":\"manifest download failed\"}"
             fi
