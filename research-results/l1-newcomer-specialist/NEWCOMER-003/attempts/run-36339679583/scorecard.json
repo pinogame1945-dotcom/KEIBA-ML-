@@ -1,0 +1,399 @@
+{
+  "contract": "L1_NEWCOMER_SPECIALIST_SCORECARD_V1",
+  "experiment_id": "NEWCOMER-003",
+  "run_id": 36339679583,
+  "complete": true,
+  "candidates": [
+    {
+      "candidate": "core4_no_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 649,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.2598684210526316,
+        "top3_winner_capture": 0.5657894736842105,
+        "top6_winner_capture": 0.8092105263157895,
+        "mean_winner_rank": 3.976973684210526,
+        "mean_reciprocal_winner_rank": 0.4630177251476594,
+        "race_normalized_nll": 2.1893983829350954,
+        "raw_logloss": 0.23876726189356456,
+        "raw_brier": 0.06499981218051462,
+        "raw_roc_auc": 0.7490743367853596
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 253.025,
+          "peak_rss_mib": 485.125,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 346.75,
+          "peak_rss_mib": 13411.895,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 599.78,
+        "candidate_peak_rss_mib": 13411.895
+      }
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "AUTO",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 423,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.2532894736842105,
+        "top3_winner_capture": 0.5427631578947368,
+        "top6_winner_capture": 0.7960526315789473,
+        "mean_winner_rank": 4.092105263157895,
+        "mean_reciprocal_winner_rank": 0.45813560069316644,
+        "race_normalized_nll": 2.1924262418882114,
+        "raw_logloss": 0.2395398580670479,
+        "raw_brier": 0.06512990495014023,
+        "raw_roc_auc": 0.7456580720669599
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 251.889,
+          "peak_rss_mib": 492.055,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 248.755,
+          "peak_rss_mib": 9124.172,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 500.647,
+        "candidate_peak_rss_mib": 9124.172
+      }
+    },
+    {
+      "candidate": "newcomer_actor",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 192,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.21710526315789475,
+        "top3_winner_capture": 0.5460526315789473,
+        "top6_winner_capture": 0.756578947368421,
+        "mean_winner_rank": 4.404605263157895,
+        "mean_reciprocal_winner_rank": 0.43015435770369975,
+        "race_normalized_nll": 2.245639745238501,
+        "raw_logloss": 0.24419662001446543,
+        "raw_brier": 0.0660318734861461,
+        "raw_roc_auc": 0.7265223790608596
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_actor:projection",
+          "elapsed_seconds": 157.831,
+          "peak_rss_mib": 96.973,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_actor:training",
+          "elapsed_seconds": 143.346,
+          "peak_rss_mib": 4430.582,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 301.179,
+        "candidate_peak_rss_mib": 4430.582
+      }
+    },
+    {
+      "candidate": "newcomer_actor_pedigree_v1",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "PEDIGREE",
+        "ACTOR"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_",
+        "actor_trainer_"
+      ],
+      "feature_count": 430,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.21710526315789475,
+        "top3_winner_capture": 0.5296052631578947,
+        "top6_winner_capture": 0.7631578947368421,
+        "mean_winner_rank": 4.322368421052632,
+        "mean_reciprocal_winner_rank": 0.430972295678178,
+        "race_normalized_nll": 2.243441621233739,
+        "raw_logloss": 0.24502803019954675,
+        "raw_brier": 0.06621263735461137,
+        "raw_roc_auc": 0.7263689885090086
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_actor_pedigree_v1:projection",
+          "elapsed_seconds": 246.936,
+          "peak_rss_mib": 509.25,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_actor_pedigree_v1:training",
+          "elapsed_seconds": 243.365,
+          "peak_rss_mib": 9649.785,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 490.304,
+        "candidate_peak_rss_mib": 9649.785
+      }
+    },
+    {
+      "candidate": "newcomer_same_full_v1",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.20394736842105263,
+        "top3_winner_capture": 0.5526315789473685,
+        "top6_winner_capture": 0.7467105263157895,
+        "mean_winner_rank": 4.3980263157894735,
+        "mean_reciprocal_winner_rank": 0.4245427283522291,
+        "race_normalized_nll": 2.2311047676897324,
+        "raw_logloss": 0.243078428582452,
+        "raw_brier": 0.06584249102811071,
+        "raw_roc_auc": 0.7325719960278054
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_same_full_v1:projection",
+          "elapsed_seconds": 156.858,
+          "peak_rss_mib": 94.191,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_same_full_v1:training",
+          "elapsed_seconds": 168.627,
+          "peak_rss_mib": 5665.953,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 325.486,
+        "candidate_peak_rss_mib": 5665.953
+      }
+    },
+    {
+      "candidate": "newcomer_same_jockey_v1",
+      "status": "success",
+      "train_scope": "NEWCOMER",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 164,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.22697368421052633,
+        "top3_winner_capture": 0.5,
+        "top6_winner_capture": 0.756578947368421,
+        "mean_winner_rank": 4.542763157894737,
+        "mean_reciprocal_winner_rank": 0.4219371272002851,
+        "race_normalized_nll": 2.2682039435705903,
+        "raw_logloss": 0.2456692470324983,
+        "raw_brier": 0.0662690879687988,
+        "raw_roc_auc": 0.7220691764789331
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "newcomer_same_jockey_v1:projection",
+          "elapsed_seconds": 157.844,
+          "peak_rss_mib": 97.023,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "newcomer_same_jockey_v1:training",
+          "elapsed_seconds": 125.197,
+          "peak_rss_mib": 3346.461,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 283.043,
+        "candidate_peak_rss_mib": 3346.461
+      }
+    },
+    {
+      "candidate": "no_auto_full",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 266,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.2532894736842105,
+        "top3_winner_capture": 0.5493421052631579,
+        "top6_winner_capture": 0.7828947368421053,
+        "mean_winner_rank": 4.1019736842105265,
+        "mean_reciprocal_winner_rank": 0.4585543659556818,
+        "race_normalized_nll": 2.1984206404354905,
+        "raw_logloss": 0.24001546657895367,
+        "raw_brier": 0.06521559924094279,
+        "raw_roc_auc": 0.7430397928784225
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 156.852,
+          "peak_rss_mib": 97.711,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 180.908,
+          "peak_rss_mib": 5666.297,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 337.762,
+        "candidate_peak_rss_mib": 5666.297
+      }
+    },
+    {
+      "candidate": "no_auto_full_pedigree",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "PEDIGREE",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [],
+      "feature_count": 504,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.24671052631578946,
+        "top3_winner_capture": 0.569078947368421,
+        "top6_winner_capture": 0.819078947368421,
+        "mean_winner_rank": 3.9539473684210527,
+        "mean_reciprocal_winner_rank": 0.45763063234280343,
+        "race_normalized_nll": 2.173219567145595,
+        "raw_logloss": 0.23888649402258158,
+        "raw_brier": 0.06534227856550508,
+        "raw_roc_auc": 0.7520002837281885
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree:projection",
+          "elapsed_seconds": 232.747,
+          "peak_rss_mib": 481.977,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree:training",
+          "elapsed_seconds": 297.219,
+          "peak_rss_mib": 10898.977,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 529.969,
+        "candidate_peak_rss_mib": 10898.977
+      }
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "status": "success",
+      "train_scope": "ALL",
+      "valid_scope": "NEWCOMER",
+      "feature_sets": [
+        "BASE",
+        "OPPONENT",
+        "ACTOR",
+        "TIME_PACE"
+      ],
+      "actor_prefixes": [
+        "actor_jockey_"
+      ],
+      "feature_count": 164,
+      "metrics": {
+        "races": 304,
+        "top1_winner_capture": 0.23026315789473684,
+        "top3_winner_capture": 0.5263157894736842,
+        "top6_winner_capture": 0.7861842105263158,
+        "mean_winner_rank": 4.319078947368421,
+        "mean_reciprocal_winner_rank": 0.432752148253793,
+        "race_normalized_nll": 2.2560996502985935,
+        "raw_logloss": 0.24472366858773387,
+        "raw_brier": 0.06616775515183755,
+        "raw_roc_auc": 0.7253404738260747
+      },
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 156.827,
+          "peak_rss_mib": 98.793,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 132.375,
+          "peak_rss_mib": 3424.164,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 289.204,
+        "candidate_peak_rss_mib": 3424.164
+      }
+    }
+  ]
+}

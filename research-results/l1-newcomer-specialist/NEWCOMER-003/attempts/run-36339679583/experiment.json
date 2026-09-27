@@ -1,0 +1,44 @@
+{
+  "contract": "L1_NEWCOMER_SPECIALIST_LEDGER_V1",
+  "experiment_id": "NEWCOMER-003",
+  "run_id": 36339679583,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36339679583",
+  "head_branch": "research/l1-newcomer-preseason-v1-20260928",
+  "head_sha": "f917b2d23b1673b06cd7bba4efe73e3339391908",
+  "archived_at": "2026-09-27T20:16:31.271198+00:00",
+  "model_family": "WIN_BINARY_LIGHTGBM",
+  "ability_uses_odds": false,
+  "specialist_domain": "NEWCOMER",
+  "snapshot_generation": "7e9da605f80b98d6",
+  "snapshot_persistence": "runner_local_ephemeral",
+  "backfill_sha": "af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc",
+  "train": {
+    "start": "2023-01-01",
+    "end": "2024-12-31"
+  },
+  "holdout": {
+    "start": "2025-01-01",
+    "end": "2025-12-31",
+    "race_class": "NEWCOMER"
+  },
+  "expected_candidates": [
+    "core4_no_pedigree",
+    "no_auto_full_pedigree",
+    "jockey_trainer_condition",
+    "no_auto_full",
+    "no_auto_jockey",
+    "newcomer_same_jockey_v1",
+    "newcomer_same_full_v1",
+    "newcomer_actor",
+    "newcomer_actor_pedigree_v1"
+  ],
+  "candidate_count": 9,
+  "missing_candidates": [],
+  "separate_from_main_feature_arena": true,
+  "storage_policy": {
+    "ledger": "git",
+    "snapshot": "ephemeral",
+    "github_artifacts": false,
+    "github_cache": false
+  }
+}
