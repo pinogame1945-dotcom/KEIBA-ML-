@@ -26,6 +26,7 @@ def parse_args():
     p.add_argument("--prediction-phase", default="FINAL")
     p.add_argument("--model-family", default="WIN_BINARY_LIGHTGBM")
     p.add_argument("--feature-selection", default="none")
+    p.add_argument("--expected-candidates", default="base,opponent,network,lap,style,distance,backfill,auto,pedigree,actor,time_pace,all")
     p.add_argument("--token-env", default="GH_TOKEN")
     return p.parse_args()
 
@@ -118,7 +119,9 @@ def main():
                 "error_excerpt": short_error(log_text), "log_fetch_error": log_error,
             })
 
-    expected = {"base","opponent","network","lap","style","distance","backfill","auto","pedigree","actor","time_pace","all"}
+    expected = {x.strip() for x in a.expected_candidates.split(",") if x.strip()}
+    if not expected:
+        raise SystemExit("--expected-candidates resolved to an empty set")
     got = {row["candidate"] for row in candidates}
     missing = sorted(expected - got)
 
