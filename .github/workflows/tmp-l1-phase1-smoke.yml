@@ -6,6 +6,11 @@ on:
       - feature/l1-phase1-feature-set-contract-v1-20260927
     paths:
       - .github/workflows/tmp-l1-phase1-smoke.yml
+      - package.json
+      - contracts/**
+      - src/**
+      - scripts/**
+      - research/**
 
 permissions:
   contents: read
