@@ -35,9 +35,10 @@ jobs:
       - name: Syntax checks
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/sample_snapshot_races.py             research/verify_l2_multi_expert.py
+          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/sample_snapshot_races.py             research/verify_l2_multi_expert.py             research/build_l2_expert_bundle.py
           node --check research/project-yearly-snapshots.mjs
           bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-persist-l2.sh
 
       - name: Install free-runner dependencies
         run: |
@@ -123,6 +124,18 @@ jobs:
           python research/verify_l2_multi_expert.py             --inputs "out/l2-prototype/arena/l2-input/no-auto-jockey.jsonl.gz,out/l2-prototype/arena/l2-input/core4-no-pedigree.jsonl.gz"             --arena-summary out/l2-prototype/arena/feature-arena-summary.json             --output out/l2-prototype/l2-prototype-summary.json
           cat out/l2-prototype/l2-prototype-summary.json
 
+      - name: Build persistent L2 expert bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_expert_bundle.py             --snapshot-generation "$GENERATION_ID"             --validation-start 2021-01-01             --validation-end 2021-12-31             --summary out/l2-prototype/l2-prototype-summary.json             --expert no_auto_jockey=out/l2-prototype/arena/l2-input/no-auto-jockey.jsonl.gz             --expert core4_no_pedigree=out/l2-prototype/arena/l2-input/core4-no-pedigree.jsonl.gz             --out-root out/l2-bundles
+
+      - name: Persist L2 expert bundle to Kaggle private storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-persist-l2.sh out/l2-bundles
+
       - name: Print stage memory comparison
         if: always()
         shell: bash
@@ -151,8 +164,13 @@ jobs:
       - name: Cost guard
         if: always()
         run: |
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l2-multi-expert-prototype-v1.yml; then
+            echo "GitHub Artifact/Cache persistence found; refusing workflow." >&2
+            exit 1
+          fi
           echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
           echo "No GPU."
           echo "No GitHub Artifact or Cache."
-          echo "Kaggle snapshot access is read-only; no dataset/model upload."
-          echo "All prototype outputs are runner-local and ephemeral."
+          echo "Kaggle snapshot input is read-only."
+          echo "L2 outputs persist only to the guarded Kaggle private companion dataset."
+          echo "Kaggle L2 helper enforces the same conservative 180 GiB owned-dataset safety ceiling."
