@@ -37,10 +37,21 @@ console.log("L1_READINESS_GATE_SMOKE_OK");
 
 
 assert.equal(workflow.includes("actions/upload-artifact"), false);
-assert.equal(workflow.includes("- pedigree"), false);
-assert.equal(workflow.includes("- distance\n"), false);
-assert.ok(workflow.includes("- distance_v1"));
+assert.equal(workflow.includes("distance_v1"), false);
+assert.ok(workflow.includes("prediction_phase:"));
+assert.ok(workflow.includes("- EARLY"));
+assert.ok(workflow.includes("- FINAL"));
+assert.ok(workflow.includes("feature_sets:"));
+assert.ok(workflow.includes("default: BASE,OPPONENT,NETWORK,LAP,STYLE"));
+assert.ok(workflow.includes("--feature-sets"));
+assert.ok(workflow.includes("--history-recent-form"));
+assert.ok(workflow.includes("--history-style-last3f"));
+assert.ok(workflow.includes("--history-suitability"));
+assert.ok(workflow.includes("--history-opponent"));
+assert.ok(workflow.includes("--history-auto-rolling"));
 assert.ok(workflow.includes("--readiness-report out/backfill-readiness.json"));
 assert.ok(workflow.includes("--source-sha \"$BACKFILL_SHA\""));
+assert.ok(walk.includes("normalize_feature_sets"));
+assert.ok(walk.includes("normalize_history_windows"));
 assert.ok(walk.includes("validate_readiness_report"));
 assert.ok(walk.includes("BACKFILL SHA mismatch"));
