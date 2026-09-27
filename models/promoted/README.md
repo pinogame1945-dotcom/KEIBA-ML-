@@ -9,11 +9,16 @@ A promoted bundle will eventually contain at minimum:
 - LightGBM model
 - metadata
 - exact feature schema/order
+- prediction phase
+- exact Feature Set list
+- exact history-window configuration
 - categorical levels
 - source BACKFILL commit SHA
+- ML source commit SHA
 - validation summary
 - checksum
 - training-config hash
 - Feature Catalog hash
+- Feature Set Contract hash
 
 Promotion is a separate explicit step. Research workflows do not automatically overwrite a promoted model.
