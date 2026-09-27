@@ -112,7 +112,10 @@ def normalize_history_windows(raw, contract):
             out[key] = "ALL"
             continue
         lo, hi = contract["history_window_bounds"][key]
-        n = int(value)
+        numeric = float(value)
+        if not numeric.is_integer():
+            raise ValueError(f"{key} history window must be an integer")
+        n = int(numeric)
         if n < lo or n > hi:
             raise ValueError(f"{key} history window must be from {lo} to {hi}")
         out[key] = n
