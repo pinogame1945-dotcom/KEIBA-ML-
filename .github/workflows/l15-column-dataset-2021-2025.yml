@@ -1,0 +1,229 @@
+name: L1.5 Column Dataset 2021-2025
+
+on:
+  push:
+    branches:
+      - research/l15-column-router-v1-20260928
+    paths:
+      - .github/triggers/l15-column-dataset-2021-2025.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  build-year:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        test_year: [2021, 2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: bf811fa2eab73db0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_feature_arena.py \
+            research/train-staged-lightgbm.py \
+            research/emit_l1_to_l2.py \
+            research/build_router_feature_snapshot_v1.py \
+            research/build_l15_column_dataset_v1.py \
+            research/run_l15_column_baseline_v1.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Resolve year window
+        shell: bash
+        run: |
+          set -euo pipefail
+          Y="${{ matrix.test_year }}"
+          T1=$((Y-2))
+          T2=$((Y-1))
+          echo "TEST_YEAR=$Y" >> "$GITHUB_ENV"
+          echo "TRAIN_YEAR_1=$T1" >> "$GITHUB_ENV"
+          echo "TRAIN_YEAR_2=$T2" >> "$GITHUB_ENV"
+          echo "TRAIN_START=${T1}-01-01" >> "$GITHUB_ENV"
+          echo "TRAIN_END=${T2}-12-31" >> "$GITHUB_ENV"
+          echo "TEST_START=${Y}-01-01" >> "$GITHUB_ENV"
+          echo "TEST_END=${Y}-12-31" >> "$GITHUB_ENV"
+
+      - name: Restore three annual snapshots read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-wf/$TEST_YEAR/source"
+          mkdir -p "$root"
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$TEST_YEAR"; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else echo "snapshot $y missing" >&2; exit 1
+            fi
+          }
+          echo "SNAP_TRAIN_1=$(resolve "$TRAIN_YEAR_1")" >> "$GITHUB_ENV"
+          echo "SNAP_TRAIN_2=$(resolve "$TRAIN_YEAR_2")" >> "$GITHUB_ENV"
+          echo "SNAP_TEST=$(resolve "$TEST_YEAR")" >> "$GITHUB_ENV"
+
+      - name: Define five finalist kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "out/l15-wf/$TEST_YEAR"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-final-walkforward-v1.json").read_text(encoding="utf-8"))
+          if 2026 not in cfg["locked_years"]:
+              raise SystemExit("2026 lock missing")
+          finalists=[x for x in cfg["candidates"] if x.get("role")=="finalist"]
+          expected={
+              "core4_no_pedigree",
+              "no_auto_full_pedigree",
+              "jockey_trainer_condition",
+              "no_auto_full",
+              "no_auto_jockey",
+          }
+          if {x["name"] for x in finalists} != expected:
+              raise SystemExit("finalist set changed")
+          Path(f"out/l15-wf/{os.environ['TEST_YEAR']}/candidates.json").write_text(
+              json.dumps(finalists,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Score test year with five kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="out/l15-wf/$TEST_YEAR/arena"
+          python research/run_feature_arena.py \
+            --inputs "$SNAP_TRAIN_1,$SNAP_TRAIN_2,$SNAP_TEST" \
+            --out-dir "$out" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --valid-start "$TEST_START" \
+            --valid-end "$TEST_END" \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json "out/l15-wf/$TEST_YEAR/candidates.json" \
+            --emit-l2-output \
+            --l2-chunk-size 64 \
+            --source-ref main \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Build router feature snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-wf/$TEST_YEAR/arena/l2-input"
+          python research/build_router_feature_snapshot_v1.py \
+            --snapshot "$SNAP_TEST" \
+            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
+            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
+            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
+            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
+            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --output "out/l15-wf/$TEST_YEAR/router-features.jsonl.gz"
+
+      - name: Build L1.5 column candidates and labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-wf/$TEST_YEAR/arena/l2-input"
+          python research/build_l15_column_dataset_v1.py \
+            --config research/l15-column-router-v1.json \
+            --router-features "out/l15-wf/$TEST_YEAR/router-features.jsonl.gz" \
+            --snapshot "$SNAP_TEST" \
+            --expert core4_no_pedigree="$root/core4-no-pedigree.jsonl.gz" \
+            --expert no_auto_full_pedigree="$root/no-auto-full-pedigree.jsonl.gz" \
+            --expert jockey_trainer_condition="$root/jockey-trainer-condition.jsonl.gz" \
+            --expert no_auto_full="$root/no-auto-full.jsonl.gz" \
+            --expert no_auto_jockey="$root/no-auto-jockey.jsonl.gz" \
+            --features-out "out/l15-wf/$TEST_YEAR/l15-column-features.jsonl.gz" \
+            --labels-out "out/l15-wf/$TEST_YEAR/l15-column-labels.jsonl.gz"
+
+      - name: Baseline column candidates
+        run: |
+          set -euo pipefail
+          python research/run_l15_column_baseline_v1.py \
+            --features "out/l15-wf/$TEST_YEAR/l15-column-features.jsonl.gz" \
+            --labels "out/l15-wf/$TEST_YEAR/l15-column-labels.jsonl.gz" \
+            --output "out/l15-wf/$TEST_YEAR/l15-column-baseline.json"
+
+      - name: Freeze source config
+        run: |
+          set -euo pipefail
+          cp research/l15-column-router-v1.json "out/l15-wf/$TEST_YEAR/l15-column-router-v1.json"
+          cp contracts/l15-column-router-v1.json "out/l15-wf/$TEST_YEAR/l15-column-router-contract-v1.json"
+          cp "out/l15-wf/$TEST_YEAR/candidates.json" "out/l15-wf/$TEST_YEAR/five-kings.json"
+
+      - name: Build yearly persistent bundle
+        run: |
+          set -euo pipefail
+          root="out/l15-wf/$TEST_YEAR"
+          arena="$root/arena"
+          python research/build_research_bundle_v1.py \
+            --kind "l15_column_dataset_$TEST_YEAR" \
+            --snapshot-generation "$GENERATION_ID" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --test-start "$TEST_START" \
+            --test-end "$TEST_END" \
+            --code-sha "$GITHUB_SHA" \
+            --file five-kings.json="$root/five-kings.json" \
+            --file feature-arena-summary.json="$arena/feature-arena-summary.json" \
+            --file core4-no-pedigree.jsonl.gz="$arena/l2-input/core4-no-pedigree.jsonl.gz" \
+            --file no-auto-full-pedigree.jsonl.gz="$arena/l2-input/no-auto-full-pedigree.jsonl.gz" \
+            --file jockey-trainer-condition.jsonl.gz="$arena/l2-input/jockey-trainer-condition.jsonl.gz" \
+            --file no-auto-full.jsonl.gz="$arena/l2-input/no-auto-full.jsonl.gz" \
+            --file no-auto-jockey.jsonl.gz="$arena/l2-input/no-auto-jockey.jsonl.gz" \
+            --file router-features.jsonl.gz="$root/router-features.jsonl.gz" \
+            --file l15-column-features.jsonl.gz="$root/l15-column-features.jsonl.gz" \
+            --file l15-column-labels.jsonl.gz="$root/l15-column-labels.jsonl.gz" \
+            --file l15-column-baseline.json="$root/l15-column-baseline.json" \
+            --file l15-column-router-v1.json="$root/l15-column-router-v1.json" \
+            --file l15-column-router-contract-v1.json="$root/l15-column-router-contract-v1.json" \
+            --out-root "$root/bundle"
+
+      - name: Persist yearly L1.5 bundle
+        run: |
+          set -euo pipefail
+          python research/persist_research_bundle_v1.py "out/l15-wf/$TEST_YEAR/bundle"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Kaggle capacity checked once before compute; no pre-upload capacity re-check."
+          echo "2026 is never read."
