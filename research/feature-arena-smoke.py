@@ -62,6 +62,7 @@ def make_rows():
                     "style_probe": quality * 0.13,
                     "distx_probe": quality * 10,
                     "backfill_probe": quality * 0.14,
+                    "backfill_race_class_normalized": "NEWCOMER" if race_no % 2 else "OPEN",
                     "auto_probe": quality * 0.15,
                     "ped_probe": quality * 0.16,
                     "actor_probe": quality * 0.17,
@@ -172,6 +173,35 @@ def main():
 
     for projected in (arena_out / "projections").glob("*.jsonl.gz"):
         raise AssertionError(f"projection should have been deleted: {projected}")
+
+    newcomer_candidates = OUT / "newcomer-candidates.json"
+    newcomer_candidates.write_text(json.dumps([
+        {"name": "newcomer_base", "feature_sets": ["BASE"]},
+    ], ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    newcomer_out = OUT / "newcomer-arena"
+    run([
+        sys.executable,
+        ROOT / "research" / "run_feature_arena.py",
+        "--inputs", source,
+        "--out-dir", newcomer_out,
+        "--train-start", "2024-01-01",
+        "--train-end", "2024-12-31",
+        "--valid-start", "2025-01-01",
+        "--valid-end", "2025-12-31",
+        "--train-race-class", "NEWCOMER",
+        "--valid-race-class", "NEWCOMER",
+        "--candidates-json", newcomer_candidates,
+        "--source-sha", "BACKFILL_SMOKE_SHA",
+        "--ml-source-sha", "ML_SMOKE_SHA",
+    ])
+    newcomer_summary = json.loads((newcomer_out / "feature-arena-summary.json").read_text(encoding="utf-8"))
+    newcomer_row = newcomer_summary["results"][0]
+    newcomer_meta = json.loads(Path(newcomer_row["metadata"]).read_text(encoding="utf-8"))
+    assert newcomer_row["race_scope"] == {"train": "NEWCOMER", "valid": "NEWCOMER"}
+    assert newcomer_meta["split"]["train_race_class"] == "NEWCOMER"
+    assert newcomer_meta["split"]["valid_race_class"] == "NEWCOMER"
+    assert newcomer_meta["split"]["train_races"] == 9
+    assert newcomer_meta["split"]["valid_races"] == 3
 
     locked = run([
         sys.executable,
