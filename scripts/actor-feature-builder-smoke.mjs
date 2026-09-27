@@ -2,11 +2,13 @@
 import assert from "node:assert/strict";
 import {
   ACTOR_FEATURE_BUILDER_VERSION,
+  actorDistanceBand,
   actorIdentityFromEntry,
   createActorFeatureState,
 } from "../src/actor-feature-builder.mjs";
 
-assert.equal(ACTOR_FEATURE_BUILDER_VERSION, 1);
+assert.equal(ACTOR_FEATURE_BUILDER_VERSION, 2);
+assert.equal(actorDistanceBand(1600), "MILE_1600_1800");
 
 const entry = {
   horse_id: "H1",
@@ -32,37 +34,63 @@ const fallback = actorIdentityFromEntry({
 assert.equal(fallback.jockey_key, "name:foreign jockey");
 assert.equal(fallback.trainer_key, "name:foreign trainer");
 
-const state = createActorFeatureState();
-const race = { venue_code: "05", surface: "TURF", distance_m: 1600 };
+const state = createActorFeatureState({
+  smallSamplePolicy: {
+    minSpecificObservations: 3,
+    actorRecentWindow: 2,
+    ratePriorStrength: 10,
+    meanPriorStrength: 5,
+  },
+});
+const turfOpen = {
+  venue_code: "05",
+  surface: "TURF",
+  distance_m: 1600,
+  race_class_normalized: "OPEN",
+};
+const dirtClass = {
+  venue_code: "06",
+  surface: "DIRT",
+  distance_m: 1800,
+  race_class_normalized: "3WIN",
+};
 
-const before = state.snapshot(entry, race);
+const before = state.snapshot(entry, turfOpen);
 assert.equal(before.actor_jockey_all_starts, 0);
-assert.equal(before.actor_trainer_all_starts, 0);
-assert.equal(before.actor_horse_jockey_all_starts, 0);
+assert.equal(before.actor_jockey_surface_starts, 0);
+assert.equal(before.actor_jockey_race_class_condition_known, 1);
 
-state.add(entry, race, {
-  result_status: "FINISHED",
-  official_finish_position: 2,
-});
-const after = state.snapshot(entry, race);
-assert.equal(after.actor_jockey_all_starts, 1);
-assert.equal(after.actor_jockey_all_top3_rate, 1);
-assert.equal(after.actor_trainer_surface_turf_starts, 1);
-assert.equal(after.actor_horse_jockey_all_starts, 1);
+state.add(entry, turfOpen, { result_status: "FINISHED", official_finish_position: 1 });
+state.add(entry, dirtClass, { result_status: "FINISHED", official_finish_position: 7 });
 
-const starts = after.actor_jockey_all_starts;
-state.add(entry, race, {
-  result_status: "DNF",
-  official_finish_position: null,
-});
-assert.equal(state.snapshot(entry, race).actor_jockey_all_starts, starts);
+const after = state.snapshot(entry, turfOpen);
+assert.equal(after.actor_jockey_all_starts, 2);
+assert.equal(after.actor_jockey_recent_starts, 2);
+assert.equal(after.actor_jockey_surface_starts, 1);
+assert.equal(after.actor_jockey_surface_fallback_level, 1);
+assert.equal(after.actor_jockey_surface_effective_starts, 2);
+assert.equal(after.actor_trainer_race_class_starts, 1);
+assert.equal(after.actor_horse_jockey_all_starts, 2);
 
-// Caller must snapshot every race on a date before committing that date's results.
-// This smoke keeps the state API result-only and does not expose jockey/trainer IDs as features.
-for (const key of Object.keys(after)) {
-  assert.equal(key.includes("jockey_id"), false);
-  assert.equal(key.includes("trainer_id"), false);
-}
+state.add(entry, turfOpen, { result_status: "FINISHED", official_finish_position: 2 });
+const recent = state.snapshot(entry, turfOpen);
+assert.equal(recent.actor_jockey_recent_starts, 2);
+assert.equal(recent.actor_jockey_surface_starts, 2);
+assert.equal(recent.actor_jockey_surface_fallback_level, 1);
+
+state.add(entry, turfOpen, { result_status: "FINISHED", official_finish_position: 3 });
+const enough = state.snapshot(entry, turfOpen);
+assert.equal(enough.actor_jockey_surface_starts, 3);
+assert.equal(enough.actor_jockey_surface_fallback_level, 0);
+
+const keys = Object.keys(enough);
+assert.equal(keys.some(key => key.includes("jockey_id")), false);
+assert.equal(keys.some(key => key.includes("trainer_id")), false);
+assert.equal(keys.some(key => key.includes("J1") || key.includes("T1")), false);
+
+const starts = enough.actor_jockey_all_starts;
+state.add(entry, turfOpen, { result_status: "DNF", official_finish_position: null });
+assert.equal(state.snapshot(entry, turfOpen).actor_jockey_all_starts, starts);
 
 console.log(JSON.stringify({
   status: "PASS",
