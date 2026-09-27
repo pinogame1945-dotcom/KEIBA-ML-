@@ -182,6 +182,51 @@ jobs:
             --snapshot out/router-royal-five/sample/valid-2020.jsonl.gz \
             --output out/router-royal-five/router-labels-2020.jsonl.gz
 
+      - name: Build immutable five-king core bundle before derived analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/router-royal-five/arena-2020"
+          python research/build_research_bundle_v1.py \
+            --kind royal_five_2019_2020_core \
+            --snapshot-generation "$GENERATION_ID" \
+            --train-start 2019-01-01 \
+            --train-end 2019-12-31 \
+            --test-start 2020-01-01 \
+            --test-end 2020-12-31 \
+            --code-sha "$GITHUB_SHA" \
+            --file candidates.json=out/router-royal-five/candidates.json \
+            --file feature-arena-summary.json="$root/feature-arena-summary.json" \
+            --file core4-no-pedigree.jsonl.gz="$root/l2-input/core4-no-pedigree.jsonl.gz" \
+            --file no-auto-full-pedigree.jsonl.gz="$root/l2-input/no-auto-full-pedigree.jsonl.gz" \
+            --file jockey-trainer-condition.jsonl.gz="$root/l2-input/jockey-trainer-condition.jsonl.gz" \
+            --file no-auto-full.jsonl.gz="$root/l2-input/no-auto-full.jsonl.gz" \
+            --file no-auto-jockey.jsonl.gz="$root/l2-input/no-auto-jockey.jsonl.gz" \
+            --file core4-model.txt="$root/models/core4-no-pedigree.txt" \
+            --file core4-model.json="$root/models/core4-no-pedigree.json" \
+            --file core4-schema.json="$root/schemas/core4-no-pedigree-schema.json" \
+            --file pedigree-model.txt="$root/models/no-auto-full-pedigree.txt" \
+            --file pedigree-model.json="$root/models/no-auto-full-pedigree.json" \
+            --file pedigree-schema.json="$root/schemas/no-auto-full-pedigree-schema.json" \
+            --file condition-model.txt="$root/models/jockey-trainer-condition.txt" \
+            --file condition-model.json="$root/models/jockey-trainer-condition.json" \
+            --file condition-schema.json="$root/schemas/jockey-trainer-condition-schema.json" \
+            --file top1-model.txt="$root/models/no-auto-full.txt" \
+            --file top1-model.json="$root/models/no-auto-full.json" \
+            --file top1-schema.json="$root/schemas/no-auto-full-schema.json" \
+            --file light-model.txt="$root/models/no-auto-jockey.txt" \
+            --file light-model.json="$root/models/no-auto-jockey.json" \
+            --file light-schema.json="$root/schemas/no-auto-jockey-schema.json" \
+            --file router-features-2020.jsonl.gz=out/router-royal-five/router-features-2020.jsonl.gz \
+            --file router-labels-2020.jsonl.gz=out/router-royal-five/router-labels-2020.jsonl.gz \
+            --out-root out/router-royal-five/core-bundle
+
+      - name: Persist five-king core bundle before derived analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/persist_research_bundle_v1.py out/router-royal-five/core-bundle
+
       - name: Run five-king baseline Router Arena
         shell: bash
         run: |
@@ -248,13 +293,13 @@ jobs:
             --file router-labels-2020.jsonl.gz=out/router-royal-five/router-labels-2020.jsonl.gz \
             --file router-arena-2020.json=out/router-royal-five/router-arena-2020.json \
             --file router-bet-coverage-2020.json=out/router-royal-five/router-bet-coverage-2020.json \
-            --out-root out/router-royal-five/research-bundles
+            --out-root out/router-royal-five/final-bundle
 
       - name: Persist five-king research bundle
         shell: bash
         run: |
           set -euo pipefail
-          python research/persist_research_bundle_v1.py out/router-royal-five/research-bundles
+          python research/persist_research_bundle_v1.py out/router-royal-five/final-bundle
 
       - name: Print L1 arena summary
         shell: bash
