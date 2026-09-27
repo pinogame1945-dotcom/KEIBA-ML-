@@ -1,0 +1,79 @@
+{
+  "contract": "L15_COLUMN_ROUTER_EXPERIMENT_V1",
+  "experiment_id": "L15-COLUMN-ROUTER-001",
+  "snapshot_generation": "bf811fa2eab73db0",
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "candidate_space": {
+    "COL1": {
+      "top_n": [
+        1,
+        2,
+        3
+      ]
+    },
+    "COL2": {
+      "top_n": [
+        1,
+        2,
+        3,
+        4
+      ]
+    },
+    "COL3": {
+      "top_n": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ]
+    }
+  },
+  "expected_experts": [
+    "core4_no_pedigree",
+    "no_auto_full_pedigree",
+    "jockey_trainer_condition",
+    "no_auto_full",
+    "no_auto_jockey"
+  ],
+  "max_candidates_per_race": 60,
+  "learning_target": "slot_hit_probability",
+  "candidate_size_cost": "top_n",
+  "selection_rule": "predict slot capture probability, then choose candidate structures under downstream ticket-size constraints; do not maximize raw hit rate alone",
+  "sandbox": {
+    "train_years": [
+      2019
+    ],
+    "test_years": [
+      2020
+    ],
+    "purpose": "architecture and leakage pretest only"
+  },
+  "walk_forward": [
+    {
+      "train_through": 2021,
+      "test_year": 2022
+    },
+    {
+      "train_through": 2022,
+      "test_year": 2023
+    },
+    {
+      "train_through": 2023,
+      "test_year": 2024
+    },
+    {
+      "train_through": 2024,
+      "test_year": 2025
+    }
+  ],
+  "notes": [
+    "No odds in L1.5.",
+    "No buy/skip in L1.5.",
+    "Top1/Top3/Top6 winner capture remains diagnostic only.",
+    "The primary object is role/column candidate-set quality for later ticket construction."
+  ]
+}
