@@ -126,7 +126,10 @@ import json,sys
 dst=json.load(open(sys.argv[1],encoding="utf-8"))
 with open(sys.argv[2],encoding="utf-8") as fh:
     raw=fh.read().strip()
-src=[] if not raw else json.loads(raw)
+if not raw or raw.lower().startswith("no datasets found"):
+    src=[]
+else:
+    src=json.loads(raw)
 if not isinstance(src,list):
     raise SystemExit("unexpected Kaggle datasets list payload")
 dst.extend(src)
