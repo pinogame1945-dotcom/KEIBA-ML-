@@ -8,7 +8,6 @@ import tempfile
 import time
 from pathlib import Path
 
-DEFAULT_SAFETY_LIMIT=193273528320
 
 
 def parse_args():
@@ -45,29 +44,12 @@ def dataset_exists(ref):
     return run("kaggle","datasets","status",ref,capture=True,check=False).returncode == 0
 
 
-def owned_bytes():
-    rows=[]
-    for page in range(1,1001):
-        r=run("kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref,totalBytes)",capture=True)
-        raw=(r.stdout or "").strip()
-        if not raw or raw.lower().startswith("no datasets found"):
-            batch=[]
-        else:
-            batch=json.loads(raw)
-            if not isinstance(batch,list):
-                raise RuntimeError("unexpected Kaggle datasets list payload")
-        rows.extend(batch)
-        if not batch:
-            break
-    else:
-        raise RuntimeError("Kaggle dataset pagination safety stop")
-    return sum(int(x.get("totalBytes") or 0) for x in rows)
-
-
 def main():
     a=parse_args()
     if not os.environ.get("KAGGLE_API_TOKEN"):
         raise SystemExit("KAGGLE_API_TOKEN is required")
+    if os.environ.get("KAGGLE_STORAGE_PREFLIGHT_OK") != "1":
+        raise SystemExit("Kaggle storage preflight marker missing; capacity must be checked before compute.")
 
     manifests=sorted(Path(a.bundle_root).glob("*/manifest.json"))
     if not manifests:
@@ -99,7 +81,6 @@ def main():
     print(f"Snapshot generation: {snapshot_generation}")
     print(f"Bundle bytes: {bundle_bytes}")
 
-    safety_limit=int(os.environ.get("KAGGLE_ROUTER_SAFETY_LIMIT_BYTES",DEFAULT_SAFETY_LIMIT))
     verify_attempts=int(os.environ.get("KAGGLE_ROUTER_VERIFY_ATTEMPTS","60"))
     verify_sleep=float(os.environ.get("KAGGLE_ROUTER_VERIFY_SLEEP_SECONDS","10"))
 
@@ -130,13 +111,7 @@ def main():
         if dataset_exists(dataset_ref):
             print("Dataset already exists; verifying remote manifest instead of duplicating.")
         else:
-            current=owned_bytes()
-            projected=current+bundle_bytes
-            print(f"Owned Kaggle dataset bytes: {current}")
-            print(f"Projected bytes after router upload: {projected}")
-            print(f"Safety ceiling: {safety_limit}")
-            if projected > safety_limit:
-                raise SystemExit("Projected Kaggle storage exceeds the 180 GiB safety ceiling; refusing upload.")
+            # Capacity was checked once before compute. Do not re-check here.
             run("kaggle","datasets","create","-p",str(stage),"--quiet","--keep-tabular","--dir-mode","skip")
             created_here=True
 
