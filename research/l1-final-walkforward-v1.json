@@ -1,7 +1,7 @@
 {
   "contract": "L1_FINAL_WALKFORWARD_V1",
   "experiment_id": "L1-FINAL-WF-001",
-  "snapshot_generation": "PENDING_2019_EXTENSION",
+  "snapshot_generation": "bf811fa2eab73db0",
   "training_window_years": 2,
   "validation_years": [
     2021,
@@ -20,13 +20,7 @@
     {
       "name": "core4_no_pedigree",
       "label_ja": "旧・純性能王者",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "AUTO",
-        "ACTOR",
-        "TIME_PACE"
-      ],
+      "feature_sets": ["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
       "actor_prefixes": [],
       "auto_slices": [],
       "role": "finalist"
@@ -34,13 +28,7 @@
     {
       "name": "no_auto_full_pedigree",
       "label_ja": "血統型",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "PEDIGREE",
-        "ACTOR",
-        "TIME_PACE"
-      ],
+      "feature_sets": ["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
       "actor_prefixes": [],
       "auto_slices": [],
       "role": "finalist"
@@ -48,31 +36,15 @@
     {
       "name": "jockey_trainer_condition",
       "label_ja": "条件型",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "AUTO",
-        "ACTOR",
-        "TIME_PACE"
-      ],
-      "actor_prefixes": [
-        "actor_jockey_",
-        "actor_trainer_"
-      ],
-      "auto_slices": [
-        "CONDITION"
-      ],
+      "feature_sets": ["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_","actor_trainer_"],
+      "auto_slices": ["CONDITION"],
       "role": "finalist"
     },
     {
       "name": "no_auto_full",
       "label_ja": "Top1型",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "ACTOR",
-        "TIME_PACE"
-      ],
+      "feature_sets": ["BASE","OPPONENT","ACTOR","TIME_PACE"],
       "actor_prefixes": [],
       "auto_slices": [],
       "role": "finalist"
@@ -80,34 +52,15 @@
     {
       "name": "no_auto_jockey",
       "label_ja": "軽量型",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "ACTOR",
-        "TIME_PACE"
-      ],
-      "actor_prefixes": [
-        "actor_jockey_"
-      ],
+      "feature_sets": ["BASE","OPPONENT","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_"],
       "auto_slices": [],
       "role": "finalist"
     },
     {
       "name": "all_retest_v5",
       "label_ja": "ALL死亡組",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "NETWORK",
-        "LAP",
-        "STYLE",
-        "DISTANCE",
-        "BACKFILL",
-        "AUTO",
-        "PEDIGREE",
-        "ACTOR",
-        "TIME_PACE"
-      ],
+      "feature_sets": ["BASE","OPPONENT","NETWORK","LAP","STYLE","DISTANCE","BACKFILL","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
       "actor_prefixes": [],
       "auto_slices": [],
       "role": "memory_benchmark"
@@ -115,14 +68,7 @@
     {
       "name": "elite5_retest_v5",
       "label_ja": "精鋭5死亡組",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "AUTO",
-        "PEDIGREE",
-        "ACTOR",
-        "TIME_PACE"
-      ],
+      "feature_sets": ["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
       "actor_prefixes": [],
       "auto_slices": [],
       "role": "memory_benchmark"
@@ -130,35 +76,16 @@
     {
       "name": "jockey_pedigree_fullauto_v3",
       "label_ja": "騎手＋血統＋フルAUTO死亡組",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "AUTO",
-        "PEDIGREE",
-        "ACTOR",
-        "TIME_PACE"
-      ],
-      "actor_prefixes": [
-        "actor_jockey_"
-      ],
+      "feature_sets": ["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_"],
       "auto_slices": [],
       "role": "memory_benchmark"
     },
     {
       "name": "jockey_horse_pedigree_fullauto_v3",
       "label_ja": "騎手＋馬×騎手＋血統＋フルAUTO死亡組",
-      "feature_sets": [
-        "BASE",
-        "OPPONENT",
-        "AUTO",
-        "PEDIGREE",
-        "ACTOR",
-        "TIME_PACE"
-      ],
-      "actor_prefixes": [
-        "actor_jockey_",
-        "actor_horse_jockey_"
-      ],
+      "feature_sets": ["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_","actor_horse_jockey_"],
       "auto_slices": [],
       "role": "memory_benchmark"
     }
