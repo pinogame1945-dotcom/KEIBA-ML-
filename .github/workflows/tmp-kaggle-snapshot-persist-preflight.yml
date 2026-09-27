@@ -28,6 +28,19 @@ jobs:
       - name: Install Kaggle CLI
         run: python -m pip install --disable-pip-version-check kaggle
 
+      - name: Diagnose Kaggle owned-dataset listing
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$(mktemp)"
+          kaggle datasets list --mine --page 1 --format "json(ref,totalBytes)" >"$out"
+          python - "$out" <<'PY'
+          import pathlib,sys
+          raw=pathlib.Path(sys.argv[1]).read_bytes()
+          print("KAGGLE_LIST_STDOUT_BYTES", len(raw))
+          print("KAGGLE_LIST_STDOUT_REPR", repr(raw[:1000].decode("utf-8","replace")))
+          PY
+
       - name: Build tiny snapshot fixture
         shell: bash
         run: |
