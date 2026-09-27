@@ -706,6 +706,10 @@ def main():
                 record["exact_feature_list"] = names
                 record["feature_catalog_sha256"] = catalog_sha256
                 record["feature_contract_sha256"] = feature_contract_sha256
+                record["model_sha256"] = model_sha256
+                record["training_config_sha256"] = training_config_sha256
+                record["source_backfill_sha"] = a.source_sha
+                record["ml_source_sha"] = a.ml_source_sha
                 fh.write(json.dumps(record, ensure_ascii=False) + "\n")
 
     if a.schema_out:
@@ -725,6 +729,14 @@ def main():
             "feature_order": names,
             "categorical_features": categorical,
             "category_levels": category_levels,
+            "reproducibility": {
+                "model_sha256": model_sha256,
+                "training_config_sha256": training_config_sha256,
+                "feature_catalog_sha256": catalog_sha256,
+                "feature_contract_sha256": feature_contract_sha256,
+                "source_backfill_sha": a.source_sha,
+                "ml_source_sha": a.ml_source_sha,
+            },
         }
         schema_path.write_text(json.dumps(schema, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
 
