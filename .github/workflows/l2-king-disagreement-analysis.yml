@@ -101,7 +101,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python research/analyze_l2_king_disagreement.py             --light out/l2-analysis/bundle/no_auto_jockey.jsonl.gz             --core out/l2-analysis/bundle/core4_no_pedigree.jsonl.gz             --snapshot "$SNAP_2021"             --output out/l2-analysis/disagreement-analysis.json
+          python research/analyze_l2_king_disagreement.py             --light "$LIGHT_L2"             --core "$CORE_L2"             --snapshot "$SNAP_2021"             --output out/l2-analysis/disagreement-analysis.json
 
       - name: Cost guard
         if: always()
