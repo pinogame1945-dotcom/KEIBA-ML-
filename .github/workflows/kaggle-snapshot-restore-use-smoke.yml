@@ -1,0 +1,171 @@
+name: Kaggle snapshot restore/use smoke
+
+on:
+  workflow_dispatch:
+  workflow_run:
+    workflows:
+      - Temporary L1 yearly snapshot build
+    types:
+      - completed
+
+permissions:
+  contents: read
+
+jobs:
+  restore-use:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.head_branch == 'feature/l1-yearly-superset-snapshot-v1-20260927')
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SOURCE_SHA: ${{ github.event.workflow_run.head_sha }}
+
+    steps:
+      - name: Resolve source ref
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            echo "CHECKOUT_REF=feature/l1-yearly-superset-snapshot-v1-20260927" >> "$GITHUB_ENV"
+          else
+            test -n "${SOURCE_SHA:-}"
+            echo "CHECKOUT_REF=$SOURCE_SHA" >> "$GITHUB_ENV"
+          fi
+
+      - name: Checkout exact snapshot implementation
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ env.CHECKOUT_REF }}
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Find matching persisted generation
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}"
+
+          refs="$(mktemp)"
+          printf '[]\n' > "$refs"
+          page=1
+          while :; do
+            page_json="$(mktemp)"
+            kaggle datasets list --mine --search "keiba-ml-snapshot" --page "$page" --format "json(ref)" >"$page_json"
+            count="$(python - "$refs" "$page_json" <<'PY'
+          import json,sys
+          dst=json.load(open(sys.argv[1],encoding="utf-8"))
+          src=json.load(open(sys.argv[2],encoding="utf-8"))
+          dst.extend(src)
+          json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
+          print(len(src))
+          PY
+          )"
+            [[ "$count" == "0" ]] && break
+            page=$((page + 1))
+            [[ "$page" -le 1000 ]] || { echo "pagination safety stop" >&2; exit 2; }
+          done
+
+          match_file="$(mktemp)"
+          : > "$match_file"
+          python - "$refs" <<'PY' > /tmp/kaggle-snapshot-refs.txt
+          import json,sys
+          for r in json.load(open(sys.argv[1],encoding="utf-8")):
+              ref=str(r.get("ref",""))
+              if "/keiba-ml-snapshot-" in ref:
+                  print(ref)
+          PY
+
+          while IFS= read -r ref; do
+            [[ -n "$ref" ]] || continue
+            d="$(mktemp -d)"
+            if kaggle datasets download "$ref" -f manifest.json -p "$d" --unzip --quiet --force >/dev/null 2>&1; then
+              python - "$d/manifest.json" "$ref" "${SOURCE_SHA:-}" "$match_file" <<'PY'
+          import json,sys
+          manifest,ref,source_sha,out=sys.argv[1:]
+          m=json.load(open(manifest,encoding="utf-8"))
+          g=m.get("generation") or {}
+          # workflow_dispatch fallback accepts the newest/current branch generation only
+          # when SOURCE_SHA is unavailable; automatic workflow_run requires exact SHA.
+          if source_sha:
+              ok=g.get("ml_source_sha")==source_sha
+          else:
+              ok=True
+          if ok:
+              with open(out,"a",encoding="utf-8") as f:
+                  f.write(ref+"\t"+str(g.get("generation_id",""))+"\n")
+          PY
+            fi
+          done < /tmp/kaggle-snapshot-refs.txt
+
+          if [ -n "${SOURCE_SHA:-}" ]; then
+            matches="$(wc -l < "$match_file")"
+            [[ "$matches" == "1" ]] || { echo "expected exactly one persisted snapshot for source SHA $SOURCE_SHA, found $matches" >&2; cat "$match_file"; exit 3; }
+            line="$(cat "$match_file")"
+          else
+            # Manual fallback: choose lexically last generation only for ad-hoc smoke runs.
+            line="$(sort "$match_file" | tail -n 1)"
+            [[ -n "$line" ]] || { echo "no persisted snapshot datasets found" >&2; exit 3; }
+          fi
+
+          ref="${line%%$'\t'*}"
+          generation="${line#*$'\t'}"
+          echo "DATASET_REF=$ref" >> "$GITHUB_ENV"
+          echo "GENERATION_ID=$generation" >> "$GITHUB_ENV"
+          echo "Matched $ref generation=$generation"
+
+      - name: Restore 2025 from Kaggle into fresh runner directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/kaggle-restore
+          mkdir -p out/kaggle-restore
+          bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" 2025 "out/kaggle-restore/$GENERATION_ID"
+
+      - name: Consume restored snapshot with real projection code
+        shell: bash
+        run: |
+          set -euo pipefail
+          restored="out/kaggle-restore/$GENERATION_ID/snapshot-2025.jsonl.gz"
+          projected="out/kaggle-restore/projected-base-2025.jsonl.gz"
+
+          node research/project-yearly-snapshots.mjs \
+            --inputs "$restored" \
+            --output "$projected" \
+            --feature-sets BASE \
+            --prediction-phase FINAL
+
+          expected_rows="$(python - "out/kaggle-restore/$GENERATION_ID/manifest.json" <<'PY'
+          import json,sys
+          m=json.load(open(sys.argv[1],encoding="utf-8"))
+          print(next(y["rows"] for y in m["years"] if int(y["year"])==2025))
+          PY
+          )"
+          actual_rows="$(gzip -cd "$projected" | wc -l | tr -d ' ')"
+          [[ "$actual_rows" == "$expected_rows" ]] || {
+            echo "row mismatch after actual consumer use: expected=$expected_rows actual=$actual_rows" >&2
+            exit 4
+          }
+
+          gzip -cd "$projected" | head -n 1 | python -c 'import json,sys; r=json.load(sys.stdin); assert r["prediction_phase"]=="FINAL"; assert r["feature_sets"]==["BASE"]; assert isinstance(r.get("features"),dict) and r["features"]'
+          echo "KAGGLE_SNAPSHOT_RESTORE_USE_OK"
+          echo "generation=$GENERATION_ID year=2025 rows=$actual_rows"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Restored/projected files are runner-local and ephemeral."
