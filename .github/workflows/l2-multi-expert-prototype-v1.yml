@@ -1,4 +1,4 @@
-name: L2 Multi Expert Prototype V1
+name: L2 Survivor Kings 1000R Prototype
 
 on:
   push:
@@ -86,8 +86,8 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p out/l2-prototype/sample
-          python research/sample_snapshot_races.py             --input "$SNAP_2020"             --output out/l2-prototype/sample/train-2020.jsonl.gz             --max-races 600
-          python research/sample_snapshot_races.py             --input "$SNAP_2021"             --output out/l2-prototype/sample/valid-2021.jsonl.gz             --max-races 100
+          python research/sample_snapshot_races.py             --input "$SNAP_2020"             --output out/l2-prototype/sample/train-2020.jsonl.gz             --max-races 2000
+          python research/sample_snapshot_races.py             --input "$SNAP_2021"             --output out/l2-prototype/sample/valid-2021.jsonl.gz             --max-races 1000
 
       - name: Define light and heavy kings
         shell: bash
@@ -102,25 +102,25 @@ jobs:
               "auto_slices":[]
             },
             {
-              "name":"jockey_pedigree_fullauto_v3",
-              "feature_sets":["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
-              "actor_prefixes":["actor_jockey_"],
+              "name":"core4_no_pedigree",
+              "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+              "actor_prefixes":[],
               "auto_slices":[]
             }
           ]
           JSON
 
-      - name: Run 2-king L2 prototype with memory telemetry
+      - name: Run light-vs-core4 1000R prototype with memory telemetry
         shell: bash
         run: |
           set -euo pipefail
           python research/run_feature_arena.py             --inputs "out/l2-prototype/sample/train-2020.jsonl.gz,out/l2-prototype/sample/valid-2021.jsonl.gz"             --out-dir out/l2-prototype/arena             --train-start 2020-01-01             --train-end 2020-12-31             --valid-start 2021-01-01             --valid-end 2021-12-31             --prediction-phase FINAL             --feature-selection none             --candidates-json out/l2-prototype/candidates.json             --emit-l2-output             --l2-chunk-size 64             --source-ref main             --ml-source-sha "$GITHUB_SHA"
 
-      - name: Verify and bundle the two kings
+      - name: Verify light-vs-core4 comparison
         shell: bash
         run: |
           set -euo pipefail
-          python research/verify_l2_multi_expert.py             --inputs "out/l2-prototype/arena/l2-input/no-auto-jockey.jsonl.gz,out/l2-prototype/arena/l2-input/jockey-pedigree-fullauto-v3.jsonl.gz"             --arena-summary out/l2-prototype/arena/feature-arena-summary.json             --output out/l2-prototype/l2-prototype-summary.json
+          python research/verify_l2_multi_expert.py             --inputs "out/l2-prototype/arena/l2-input/no-auto-jockey.jsonl.gz,out/l2-prototype/arena/l2-input/core4-no-pedigree.jsonl.gz"             --arena-summary out/l2-prototype/arena/feature-arena-summary.json             --output out/l2-prototype/l2-prototype-summary.json
           cat out/l2-prototype/l2-prototype-summary.json
 
       - name: Print stage memory comparison
