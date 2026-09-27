@@ -68,36 +68,83 @@ if actual != sys.argv[2]:
     raise SystemExit(f"generation mismatch: expected {sys.argv[2]}, got {actual}")
 PY
 
+remote_csv="$(mktemp)"
+kaggle datasets files "$dataset_ref" --page-size 200 -v > "$remote_csv"
+
 if [[ "$year" == "all" ]]; then
-  mapfile -t files < <(python - "$out_dir/manifest.json" <<'PY'
+  mapfile -t requested < <(python - "$out_dir/manifest.json" <<'PY'
 import json,sys
 m=json.load(open(sys.argv[1],encoding="utf-8"))
 for y in m["years"]: print(y["file"])
 PY
 )
 else
-  files=("snapshot-${year}.jsonl.gz")
+  requested=("snapshot-${year}.jsonl.gz")
 fi
 
-for file in "${files[@]}"; do
-  kaggle datasets download "$dataset_ref" -f "$file" -p "$out_dir" --unzip --quiet --force
+resolved=()
+for manifest_name in "${requested[@]}"; do
+  remote_name="$(python - "$remote_csv" "$manifest_name" <<'PY'
+import csv,sys
+csv_path,wanted=sys.argv[1:]
+with open(csv_path,newline="",encoding="utf-8") as f:
+    names=[str(r.get("name") or "") for r in csv.DictReader(f)]
+if wanted in names:
+    print(wanted)
+elif wanted.endswith(".gz") and wanted[:-3] in names:
+    print(wanted[:-3])
+else:
+    raise SystemExit(f"remote snapshot file missing: wanted {wanted}; available={names}")
+PY
+)"
+  kaggle datasets download "$dataset_ref" -f "$remote_name" -p "$out_dir" --unzip --quiet --force
+  resolved+=("$remote_name")
 done
 
-python - "$out_dir/manifest.json" "$out_dir" "${files[@]}" <<'PY'
-import hashlib,json,os,sys
+python - "$out_dir/manifest.json" "$out_dir" "${resolved[@]}" <<'PY'
+import gzip,hashlib,json,os,sys
 manifest,out_dir,*files=sys.argv[1:]
 m=json.load(open(manifest,encoding="utf-8"))
-expected={y["file"]:y["sha256"] for y in m["years"]}
+by_gz={y["file"]:y for y in m["years"]}
 for name in files:
-    if name not in expected:
-        raise SystemExit(f"{name} is not in manifest")
-    h=hashlib.sha256()
-    with open(os.path.join(out_dir,name),"rb") as f:
-        for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
-    if h.hexdigest()!=expected[name]:
-        raise SystemExit(f"sha256 mismatch: {name}")
+    gz_name=name if name.endswith(".gz") else name+".gz"
+    if gz_name not in by_gz:
+        raise SystemExit(f"{name} is not represented in manifest")
+    expected=by_gz[gz_name]
+    path=os.path.join(out_dir,name)
+    if name.endswith(".gz"):
+        h=hashlib.sha256()
+        with open(path,"rb") as f:
+            for chunk in iter(lambda:f.read(1024*1024),b""): h.update(chunk)
+        if h.hexdigest()!=expected["sha256"]:
+            raise SystemExit(f"sha256 mismatch: {name}")
+        opener=lambda: gzip.open(path,"rt",encoding="utf-8")
+    else:
+        opener=lambda: open(path,"rt",encoding="utf-8")
+    rows=0
+    min_date=None
+    max_date=None
+    with opener() as f:
+        for line in f:
+            if not line.strip():
+                continue
+            row=json.loads(line)
+            date=str(row.get("race_date") or (row.get("features") or {}).get("race_date") or "")[:10]
+            rows+=1
+            if date:
+                min_date=date if min_date is None or date<min_date else min_date
+                max_date=date if max_date is None or date>max_date else max_date
+    if rows!=int(expected["rows"]):
+        raise SystemExit(f"row mismatch {name}: expected={expected['rows']} actual={rows}")
+    if min_date!=expected["min_date"] or max_date!=expected["max_date"]:
+        raise SystemExit(
+            f"date-range mismatch {name}: expected={expected['min_date']}..{expected['max_date']} "
+            f"actual={min_date}..{max_date}"
+        )
+    print(f"RESTORED_FILE_OK name={name} rows={rows} dates={min_date}..{max_date}")
 print("KAGGLE_SNAPSHOT_RESTORE_OK")
 PY
 
 echo "dataset_ref=$dataset_ref"
 echo "generation_id=$generation_id"
+printf 'restored_file=%s\n' "${resolved[@]}"
