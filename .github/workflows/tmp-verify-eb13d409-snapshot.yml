@@ -1,0 +1,76 @@
+name: Verify Deep Snapshot eb13d409
+
+on:
+  push:
+    branches:
+      - research/l1-newcomer-specialist-v1-20260928
+    paths:
+      - .github/triggers/tmp-verify-eb13d409-snapshot.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION_ID: eb13d4096519167b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+      - name: Verify created dataset and manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          for attempt in 1 2 3 4 5; do
+            if kaggle datasets files "$DATASET_REF" --csv > files.csv 2>err.txt; then
+              break
+            fi
+            echo "attempt=$attempt"
+            cat err.txt || true
+            sleep 15
+          done
+          test -s files.csv
+          cat files.csv
+
+          mkdir -p out
+          for attempt in 1 2 3 4 5; do
+            if kaggle datasets download "$DATASET_REF" -f manifest.json -p out --unzip --quiet --force; then
+              break
+            fi
+            sleep 15
+          done
+          test -s out/manifest.json
+
+          python - <<'PY'
+          import csv,json
+          rows=list(csv.DictReader(open("files.csv",encoding="utf-8")))
+          names={r.get("name") for r in rows}
+          required={"manifest.json","SHA256SUMS"}|{f"snapshot-{y}.jsonl.gz" for y in range(2019,2026)}
+          missing=sorted(required-names)
+          if missing:
+              raise SystemExit(f"missing remote files: {missing}")
+          m=json.load(open("out/manifest.json",encoding="utf-8"))
+          assert m["generation"]["generation_id"]=="eb13d4096519167b", m["generation"]["generation_id"]
+          assert m["total_bytes"]==2510225182, m["total_bytes"]
+          years=[int(x["year"]) for x in m["years"]]
+          assert years==list(range(2019,2026)), years
+          assert all(x.get("model_ready") is True for x in m["years"])
+          assert all(x.get("history_status")=="COMPLETE_FROM_INCLUDED_WARMUP" for x in m["years"])
+          print("REMOTE_DEEP_SNAPSHOT_MANIFEST_OK")
+          print("generation",m["generation"]["generation_id"])
+          print("total_bytes",m["total_bytes"])
+          print("years",years)
+          PY
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest only. No GPU. No Artifact/Cache. Read-only Kaggle verification."
