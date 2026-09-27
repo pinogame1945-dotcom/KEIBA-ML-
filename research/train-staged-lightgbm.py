@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import argparse
+import gc
 import gzip
 import hashlib
 import json
@@ -736,7 +737,31 @@ def main():
     assert_catalog_safety(list(xtr.columns), a.feature_catalog)
     assert_catalog_availability(list(xtr.columns), a.feature_catalog, prediction_phase, feature_contract)
     assert_prediction_phase_safety(list(xtr.columns), prediction_phase, feature_contract)
-    ytr, yva = train["_target"].astype(int), valid["_target"].astype(int)
+
+    # Keep only the compact validation context needed after fitting.  The full
+    # df/train/valid frames duplicate the same wide ALL feature matrix already
+    # held by xtr/xva and can push a standard 16 GiB runner into swap/OOM.
+    # Dropping them before LightGBM builds its native Dataset changes no model
+    # features, parameters, labels, or evaluation semantics.
+    valid_context_columns = [
+        "_race_id", "_horse_id", "_race_date", "_target", "_finish_position",
+        "surface", "venue_code", "distance_m",
+        "backfill_race_class_normalized", "backfill_grade", "backfill_course_layout",
+    ]
+    valid_context = valid[
+        [column for column in valid_context_columns if column in valid.columns]
+    ].copy()
+    split_stats = {
+        "train_rows": int(len(train)),
+        "train_races": int(train["_race_id"].nunique()),
+        "valid_rows": int(len(valid)),
+        "valid_races": int(valid["_race_id"].nunique()),
+    }
+    ytr = train["_target"].astype(int)
+    yva = valid["_target"].astype(int)
+
+    del df, train, valid
+    gc.collect()
 
     params = {
         "objective": "binary",
@@ -763,9 +788,9 @@ def main():
         callbacks=[lgb.early_stopping(50, verbose=False)],
     )
     raw = np.clip(model.predict_proba(xva, num_iteration=model.best_iteration_)[:, 1], 1e-15, 1 - 1e-15)
-    pred = predictions(valid, raw)
+    pred = predictions(valid_context, raw)
     result_metrics = metrics(pred, yva, raw)
-    subgroup_report = subgroup_metrics(valid, pred)
+    subgroup_report = subgroup_metrics(valid_context, pred)
 
     Path(a.model_out).parent.mkdir(parents=True, exist_ok=True)
     model.booster_.save_model(a.model_out)
@@ -848,8 +873,7 @@ def main():
         },
         "split": {
             **split_config,
-            "train_rows": int(len(train)), "train_races": int(train["_race_id"].nunique()),
-            "valid_rows": int(len(valid)), "valid_races": int(valid["_race_id"].nunique()),
+            **split_stats,
         },
         "feature_count": len(names),
         "features": names,
@@ -886,7 +910,7 @@ def main():
         out_path = Path(a.predictions_out)
         out_path.parent.mkdir(parents=True, exist_ok=True)
         out = pred.copy()
-        out["_race_date"] = valid["_race_date"].values
+        out["_race_date"] = valid_context["_race_date"].values
         out["model_version"] = a.model_version
         out["prediction_phase"] = prediction_phase
         out["ml_dataset_version"] = EXPECTED_DATASET_VERSION
