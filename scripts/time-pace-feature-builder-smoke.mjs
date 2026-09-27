@@ -49,6 +49,8 @@ const e3 = state.evaluateRace(r3);
 const a3 = e3.records.find(x => x.horseId === "A");
 assert.notEqual(a3.normalized_time, null);
 assert.notEqual(a3.normalized_last3f, null);
+assert.notEqual(a3.normalized_early_pace, null);
+assert.notEqual(a3.normalized_late_pace, null);
 assert.equal(a3.pace_class, "FAST");
 assert.equal(a3.standard_fallback_level, 0);
 
@@ -58,7 +60,10 @@ state.commitRaceEvaluation(e3);
 const afterCommit = state.snapshot("A");
 assert.equal(afterCommit.timepace_recent_races, 3);
 assert.equal(afterCommit.timepace_fast_pace_starts, 1);
+assert.equal(afterCommit.timepace_fast_pace_rate, 1 / 3);
 assert.equal(afterCommit.timepace_fast_pace_top3_rate, 1);
+assert.notEqual(afterCommit.timepace_recent_avg_normalized_early_pace, null);
+assert.notEqual(afterCommit.timepace_recent_avg_normalized_late_pace, null);
 assert.notEqual(afterCommit.timepace_recent_avg_normalized_time, null);
 
 const sameDay = createTimePaceFeatureState({ minStandardObservations: 2 });
