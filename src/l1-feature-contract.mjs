@@ -9,6 +9,7 @@ export const L1_FEATURE_SET_CONTRACT = JSON.parse(readFileSync(CONTRACT_PATH, "u
 export const FEATURE_PREFIXES = Object.fromEntries(
   Object.entries(L1_FEATURE_SET_CONTRACT.feature_sets).map(([name, spec]) => [name, spec.prefixes ?? []]),
 );
+export const FEATURE_SET_ORDER = Object.keys(FEATURE_PREFIXES);
 export const ALL_FAMILY_PREFIXES = [...new Set(Object.values(FEATURE_PREFIXES).flat())];
 
 function unique(items) {
@@ -34,17 +35,19 @@ export function normalizeFeatureSets(raw, legacyStage = null) {
     requested = L1_FEATURE_SET_CONTRACT.default_feature_sets;
   }
   requested = unique(requested);
+  const invalid = requested.filter(name => !Object.hasOwn(FEATURE_PREFIXES, name));
+  if (invalid.length) throw new Error(`invalid feature set(s): ${invalid.join(", ")}`);
+  if (!requested.includes("BASE")) requested.push("BASE");
+  const canonical = FEATURE_SET_ORDER.filter(name => requested.includes(name));
   if (raw != null && String(raw).trim() && legacyStage != null && String(legacyStage).trim()) {
     const legacy = L1_FEATURE_SET_CONTRACT.legacy_stage_map[String(legacyStage).trim()];
     if (!legacy) throw new Error(`invalid legacy stage: ${legacyStage}`);
-    if (JSON.stringify(requested) !== JSON.stringify(legacy)) {
+    const legacyCanonical = FEATURE_SET_ORDER.filter(name => legacy.includes(name));
+    if (JSON.stringify(canonical) !== JSON.stringify(legacyCanonical)) {
       throw new Error("--feature-sets conflicts with deprecated --stage mapping");
     }
   }
-  const invalid = requested.filter(name => !Object.hasOwn(FEATURE_PREFIXES, name));
-  if (invalid.length) throw new Error(`invalid feature set(s): ${invalid.join(", ")}`);
-  if (!requested.includes("BASE")) requested.unshift("BASE");
-  return requested;
+  return canonical;
 }
 
 export function legacyStageToFeatureSets(stage) {
