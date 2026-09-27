@@ -49,6 +49,7 @@ def args():
     p.add_argument("--meta-out", required=True)
     p.add_argument("--model-out", required=True)
     p.add_argument("--predictions-out")
+    p.add_argument("--l2-output", help="Leakage-safe L1_TO_L2_OUTPUT_CONTRACT_V1 JSONL(.gz)")
     p.add_argument("--schema-out")
     p.add_argument("--model-version", default="L1_LIGHTGBM_EXPERIMENTAL")
     p.add_argument("--source-repo", default="pinogame1945-dotcom/KEIBA-BACKFILL")
@@ -693,6 +694,142 @@ def write_model_diagnostics(model, xva, valid, pred, names, diagnostics_out=None
     return contribution_summary
 
 
+def feature_family_for_l2(feature_name, feature_contract):
+    for family, spec in feature_contract["feature_sets"].items():
+        for prefix in spec.get("prefixes") or []:
+            if str(feature_name).startswith(str(prefix)):
+                return family
+    return "BASE"
+
+
+def l2_race_summaries(pred):
+    summaries = {}
+    for race_id, group in pred.groupby("_race_id", sort=False):
+        probs = np.clip(group["pn"].to_numpy(dtype=float), 1e-15, 1.0)
+        ordered = np.sort(probs)[::-1]
+        field_size = int(len(ordered))
+        entropy = float(-np.sum(probs * np.log(probs)))
+        normalized_entropy = float(entropy / np.log(field_size)) if field_size > 1 else 0.0
+        summaries[str(race_id)] = {
+            "field_size": field_size,
+            "top1_probability": float(ordered[0]) if field_size else None,
+            "top2_probability": float(ordered[1]) if field_size > 1 else None,
+            "top1_top2_gap": float(ordered[0] - ordered[1]) if field_size > 1 else None,
+            "top3_probability_mass": float(np.sum(ordered[:3])) if field_size else None,
+            "normalized_entropy": normalized_entropy,
+        }
+    return summaries
+
+
+def write_l1_to_l2_output(
+    model,
+    xva,
+    valid,
+    pred,
+    names,
+    feature_contract,
+    path,
+    *,
+    model_version,
+    prediction_phase,
+    feature_sets,
+    model_sha256,
+    training_config_sha256,
+    feature_catalog_sha256,
+    feature_contract_sha256,
+    source_backfill_sha,
+    ml_source_sha,
+):
+    if not path:
+        return
+
+    target = Path(path)
+    target.parent.mkdir(parents=True, exist_ok=True)
+    families = list(feature_contract["feature_sets"])
+    family_by_feature = [feature_family_for_l2(name, feature_contract) for name in names]
+    race_summaries = l2_race_summaries(pred)
+    booster = model.booster_
+    handle = gzip.open(target, "wt", encoding="utf-8") if str(target).endswith(".gz") else open(target, "w", encoding="utf-8")
+
+    try:
+        chunk = 2000
+        for start in range(0, len(xva), chunk):
+            stop = min(len(xva), start + chunk)
+            matrix = np.asarray(
+                booster.predict(
+                    xva.iloc[start:stop],
+                    pred_contrib=True,
+                    num_iteration=model.best_iteration_,
+                ),
+                dtype=float,
+            )
+            if matrix.ndim != 2 or matrix.shape[1] != len(names) + 1:
+                raise ValueError(
+                    "unexpected pred_contrib shape for L1->L2 output: "
+                    + str(matrix.shape)
+                )
+
+            values = matrix[:, :len(names)]
+            biases = matrix[:, len(names)]
+            for offset, row_values in enumerate(values):
+                row_index = start + offset
+                p = pred.iloc[row_index]
+                v = valid.iloc[row_index]
+                signed = {family: 0.0 for family in families}
+                absolute = {family: 0.0 for family in families}
+
+                for i, contribution in enumerate(row_values):
+                    family = family_by_feature[i]
+                    value = float(contribution)
+                    signed[family] += value
+                    absolute[family] += abs(value)
+
+                abs_total = float(sum(absolute.values()))
+                shares = {
+                    family: (float(absolute[family] / abs_total) if abs_total > 0 else 0.0)
+                    for family in families
+                }
+                bias = float(biases[offset])
+                raw_margin = float(bias + sum(signed.values()))
+                horse_number = v.get("horse_number")
+                if pd.isna(horse_number):
+                    horse_number = None
+                elif horse_number is not None:
+                    horse_number = int(horse_number)
+
+                record = {
+                    "contract": "L1_TO_L2_OUTPUT_CONTRACT_V1",
+                    "race_date": str(v["_race_date"]),
+                    "race_id": str(p["_race_id"]),
+                    "horse_id": str(p["_horse_id"]),
+                    "horse_number": horse_number,
+                    "model_version": model_version,
+                    "prediction_phase": prediction_phase,
+                    "feature_sets": list(feature_sets),
+                    "ml_dataset_version": EXPECTED_DATASET_VERSION,
+                    "feature_schema_version": EXPECTED_FEATURE_SCHEMA_VERSION,
+                    "leakage_policy": EXPECTED_LEAKAGE_POLICY,
+                    "raw_win_probability": float(p["p"]),
+                    "race_normalized_win_probability": float(p["pn"]),
+                    "predicted_rank": int(p["rank"]),
+                    "raw_margin_logit": raw_margin,
+                    "bias_logit": bias,
+                    "family_contribution_logit": {k: float(v) for k, v in signed.items()},
+                    "family_abs_contribution": {k: float(v) for k, v in absolute.items()},
+                    "family_abs_share": shares,
+                    "race_summary": race_summaries[str(p["_race_id"])],
+                    "model_sha256": model_sha256,
+                    "training_config_sha256": training_config_sha256,
+                    "feature_catalog_sha256": feature_catalog_sha256,
+                    "feature_contract_sha256": feature_contract_sha256,
+                    "source_backfill_sha": source_backfill_sha,
+                    "ml_source_sha": ml_source_sha,
+                }
+                handle.write(json.dumps(record, ensure_ascii=False) + "\n")
+    finally:
+        handle.close()
+
+
 
 def main():
     a = args()
@@ -817,6 +954,24 @@ def main():
         names,
         diagnostics_out=a.diagnostics_out,
         contributions_out=a.contributions_out,
+    )
+    write_l1_to_l2_output(
+        model,
+        xva,
+        valid,
+        pred,
+        names,
+        feature_contract,
+        a.l2_output,
+        model_version=a.model_version,
+        prediction_phase=prediction_phase,
+        feature_sets=feature_sets,
+        model_sha256=model_sha256,
+        training_config_sha256=training_config_sha256,
+        feature_catalog_sha256=catalog_sha256,
+        feature_contract_sha256=feature_contract_sha256,
+        source_backfill_sha=a.source_sha,
+        ml_source_sha=a.ml_source_sha,
     )
     meta = {
         "model_version": a.model_version,
