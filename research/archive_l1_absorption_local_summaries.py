@@ -37,6 +37,8 @@ def main():
                 "valid_scope":(row.get("race_scope") or {}).get("valid"),
                 "feature_sets":row.get("feature_sets") or [],
                 "actor_prefixes":row.get("actor_prefixes") or [],
+                "auto_slices":row.get("auto_slices") or [],
+                "pedigree_slices":row.get("pedigree_slices") or [],
                 "feature_count":row.get("feature_count"),
                 "metrics":row.get("metrics") or {},
                 "resource_usage":row.get("resource_usage") or {},
