@@ -19,6 +19,21 @@ const inputs = String(arg("--inputs") ?? "").split(",").map(x => x.trim()).filte
 const output = arg("--output");
 const featureSets = normalizeFeatureSets(arg("--feature-sets"));
 const predictionPhase = normalizePredictionPhase(arg("--prediction-phase"));
+const actorPrefixes = String(arg("--actor-prefixes") ?? "")
+  .split(",").map(x => x.trim()).filter(Boolean);
+const ALLOWED_ACTOR_PREFIXES = new Set([
+  "actor_jockey_",
+  "actor_trainer_",
+  "actor_horse_jockey_",
+]);
+for (const prefix of actorPrefixes) {
+  if (!ALLOWED_ACTOR_PREFIXES.has(prefix)) {
+    throw new Error("invalid --actor-prefixes value: " + prefix);
+  }
+}
+if (actorPrefixes.length && !featureSets.includes("ACTOR")) {
+  throw new Error("--actor-prefixes requires ACTOR feature set");
+}
 
 if (!inputs.length) throw new Error("--inputs is required");
 if (!output) throw new Error("--output is required");
@@ -39,10 +54,17 @@ for (const input of inputs) {
       ...row,
       prediction_phase: predictionPhase,
       feature_sets: featureSets,
-      features: applyPredictionPhase(
-        selectFeatureFamilies(row.features ?? {}, featureSets),
-        predictionPhase,
-      ),
+      features: (() => {
+        const phased = applyPredictionPhase(
+          selectFeatureFamilies(row.features ?? {}, featureSets),
+          predictionPhase,
+        );
+        if (!actorPrefixes.length) return phased;
+        return Object.fromEntries(Object.entries(phased).filter(([key]) => {
+          if (!key.startsWith("actor_")) return true;
+          return actorPrefixes.some(prefix => key.startsWith(prefix));
+        }));
+      })(),
     };
     if (!gzip.write(JSON.stringify(projected) + "\n")) await once(gzip, "drain");
     rows += 1;
@@ -54,6 +76,7 @@ console.log(JSON.stringify({
   contract: "L1_SNAPSHOT_PROJECTION_V1",
   feature_sets: featureSets,
   prediction_phase: predictionPhase,
+  actor_prefixes: actorPrefixes,
   rows,
   output,
 }, null, 2));
