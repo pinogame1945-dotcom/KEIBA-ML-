@@ -1,0 +1,54 @@
+name: Temporary Phase3 readiness check
+
+on:
+  push:
+    branches:
+      - feature/l1-phase3-research-selection-v1-20260927
+    paths:
+      - .github/workflows/tmp-phase3-readiness.yml
+
+permissions:
+  contents: read
+
+jobs:
+  readiness:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Checkout BACKFILL
+        uses: actions/checkout@v4
+        with:
+          repository: pinogame1945-dotcom/KEIBA-BACKFILL
+          ref: main
+          path: backfill
+
+      - name: Record source SHA
+        run: echo "BACKFILL_SHA=$(git -C backfill rev-parse HEAD)" >> "$GITHUB_ENV"
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Check 2021-2025 READINESS V3
+        run: |
+          node scripts/audit-backfill-readiness.mjs \
+            --source-root backfill \
+            --start 2021-01-01 \
+            --end 2025-12-31 \
+            --report-out out/phase3-readiness.json \
+            --source-sha "$BACKFILL_SHA" \
+            --min-core-known-coverage 0.98 \
+            --max-invalid-rate 0 \
+            --max-year-gap 0.10 \
+            --require-source-integrity
+
+      - name: Cost guard
+        if: always()
+        run: |
+          if grep -R -E "uses:[[:space:]]*actions/upload-artifact" .github/workflows; then
+            echo "Persistent artifact upload found" >&2
+            exit 1
+          fi
