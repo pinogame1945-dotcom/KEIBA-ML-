@@ -7,6 +7,7 @@ on:
       - feature/l1-yearly-superset-snapshot-v1-20260927
     paths:
       - .github/workflows/tmp-l1-yearly-snapshot-build.yml
+      - scripts/kaggle-persist-snapshot.sh
 
 permissions:
   contents: read
