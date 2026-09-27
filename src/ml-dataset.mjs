@@ -223,7 +223,7 @@ function updateHorseStats(horseStatsById, horseId, result) {
   horseStatsById.set(key, stats);
 }
 
-function historySnapshot(history, current, windows, horseStatsById) {
+function historySnapshot(history, current, windows, horseStatsById, priorStarts = history.length) {
   const recent = history.slice(-windows.recent_form).reverse();
   const suitabilityRecent = history.slice(-windows.suitability).reverse();
   const currentDistance = finite(current.race?.distance_m);
@@ -244,7 +244,7 @@ function historySnapshot(history, current, windows, horseStatsById) {
   });
 
   return {
-    prior_starts: history.length,
+    prior_starts: priorStarts,
     recent_window_starts: recent.length,
     days_since_last_start: previous ? daysBetween(previous.date, current.date) : null,
     previous_finish_position: finite(previous?.result?.official_finish_position),
@@ -479,9 +479,7 @@ export function buildRaceOutcomes(raceRows, {
     .filter(row => row.race_id);
 }
 
-export function buildMlDataset(raceRows, {
-  startDate = null,
-  endDate = null,
+export function createMlDatasetProcessor({
   historyLimit = 5,
   historyWindows = null,
   includeAutoFeatures = false,
@@ -500,13 +498,8 @@ export function buildMlDataset(raceRows, {
     historyWindows ?? {},
     historyWindows == null ? historyLimit : null,
   );
-
-  const normalized = (raceRows ?? [])
-    .map(row => ({ row, date: stableRaceDate(row) }))
-    .filter(item => item.date)
-    .sort((a, b) => a.date.localeCompare(b.date) || String(a.row?.race?.race_id ?? "").localeCompare(String(b.row?.race?.race_id ?? "")));
-
   const historyByHorse = new Map();
+  const careerStartsByHorse = new Map();
   const horseStatsById = new Map();
   const eloByHorse = new Map();
   const pedigreeState = includePedigreeFeatures
@@ -529,16 +522,31 @@ export function buildMlDataset(raceRows, {
   const lineageMap = lineageByHorse instanceof Map
     ? lineageByHorse
     : new Map(Object.entries(lineageByHorse ?? {}));
-  const out = [];
-  let index = 0;
+  const retainedHistoryLimit = Math.max(
+    1,
+    ...["recent_form", "suitability", "opponent", "auto_rolling"]
+      .map(key => Number(windows[key]))
+      .filter(Number.isFinite),
+  );
 
-  while (index < normalized.length) {
-    const date = normalized[index].date;
-    const day = [];
-    while (index < normalized.length && normalized[index].date === date) {
-      day.push(normalized[index].row);
-      index += 1;
+  function processDay(dayRows, dateValue = null, {
+    startDate = null,
+    endDate = null,
+  } = {}) {
+    const day = [...(dayRows ?? [])]
+      .filter(row => stableRaceDate(row))
+      .sort((a, b) => String(a?.race?.race_id ?? "").localeCompare(String(b?.race?.race_id ?? "")));
+    if (!day.length) return [];
+
+    const date = dateValue ?? stableRaceDate(day[0]);
+    if (!date) throw new Error("processDay requires rows with a valid race date");
+    for (const row of day) {
+      if (stableRaceDate(row) !== date) {
+        throw new Error("processDay rows must all share the same race date");
+      }
     }
+
+    const out = [];
 
     // Generate every row for the day before committing any same-day result to history.
     // This guarantees a strict date-level anti-leakage boundary even when exact post times
@@ -554,7 +562,13 @@ export function buildMlDataset(raceRows, {
         if (!result || !isEligibleStarter(entry, result)) continue;
         const history = historyByHorse.get(horseId) ?? [];
         const current = { date, race: row.race ?? {}, entry };
-        const historyFeatures = historySnapshot(history, current, windows, horseStatsById);
+        const historyFeatures = historySnapshot(
+          history,
+          current,
+          windows,
+          horseStatsById,
+          careerStartsByHorse.get(horseId) ?? 0,
+        );
         const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
         const baseFeatures = currentFeatures(
           row,
@@ -629,12 +643,15 @@ export function buildMlDataset(raceRows, {
           result,
           opponentHorseIds: starterIds.filter(id => id !== horseId),
         });
+        if (history.length > retainedHistoryLimit) {
+          history.splice(0, history.length - retainedHistoryLimit);
+        }
         historyByHorse.set(horseId, history);
+        careerStartsByHorse.set(horseId, (careerStartsByHorse.get(horseId) ?? 0) + 1);
       }
     }
 
     // Calculate every same-day Elo delta from the day-start ratings, then apply them together.
-    // This preserves STRICT_PRIOR_DATE_ONLY for the network features as well.
     const eloUpdates = [];
     for (const row of day) {
       eloUpdates.push(...raceEloUpdates(row, eloByHorse));
@@ -660,7 +677,6 @@ export function buildMlDataset(raceRows, {
     }
 
     // Commit daily performance stats only after every feature row for the day was generated.
-    // This keeps same-day races outside the opponent-strength view.
     for (const row of day) {
       const results = resultMap(row);
       for (const entry of row?.entries ?? []) {
@@ -685,7 +701,46 @@ export function buildMlDataset(raceRows, {
     for (const evaluation of timePaceEvaluations) {
       timePaceState.commitRaceEvaluation(evaluation);
     }
+    return out;
   }
 
+  return {
+    windows,
+    retainedHistoryLimit,
+    processDay,
+    debugStateSizes() {
+      return {
+        history_horses: historyByHorse.size,
+        career_horses: careerStartsByHorse.size,
+        performance_horses: horseStatsById.size,
+        elo_horses: eloByHorse.size,
+        pedigree_stat_rows: pedigreeState?.stat_rows?.() ?? 0,
+        actor_stat_rows: actorState?.stat_rows?.() ?? 0,
+      };
+    },
+  };
+}
+
+export function buildMlDataset(raceRows, options = {}) {
+  const startDate = options.startDate ?? null;
+  const endDate = options.endDate ?? null;
+  const processor = createMlDatasetProcessor(options);
+  const normalized = (raceRows ?? [])
+    .map(row => ({ row, date: stableRaceDate(row) }))
+    .filter(item => item.date)
+    .sort((a, b) => a.date.localeCompare(b.date) ||
+      String(a.row?.race?.race_id ?? "").localeCompare(String(b.row?.race?.race_id ?? "")));
+
+  const out = [];
+  let index = 0;
+  while (index < normalized.length) {
+    const date = normalized[index].date;
+    const day = [];
+    while (index < normalized.length && normalized[index].date === date) {
+      day.push(normalized[index].row);
+      index += 1;
+    }
+    out.push(...processor.processDay(day, date, { startDate, endDate }));
+  }
   return out;
 }
