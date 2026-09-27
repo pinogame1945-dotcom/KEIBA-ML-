@@ -66,6 +66,8 @@ def parse_args():
     p.add_argument("--source-sha")
     p.add_argument("--ml-source-sha")
     p.add_argument("--diagnostics", action="store_true")
+    p.add_argument("--emit-l2-output", action="store_true")
+    p.add_argument("--l2-chunk-size", type=int, default=128)
     p.add_argument("--keep-projections", action="store_true")
     p.add_argument("--plan-only", action="store_true")
     return p.parse_args()
@@ -440,7 +442,9 @@ def main():
     schemas = out / "schemas"
     oof = out / "oof"
     diagnostics = out / "diagnostics"
-    for path in (projections, models, schemas, oof, diagnostics):
+    l2 = out / "l2-input"
+    paths = (projections, models, schemas, oof, diagnostics, l2) if a.emit_l2_output else (projections, models, schemas, oof, diagnostics)
+    for path in paths:
         path.mkdir(parents=True, exist_ok=True)
 
     results = []
@@ -507,6 +511,27 @@ def main():
             ])
         training_usage = run(cmd, label=f"{name}:training")
 
+        l2_output_path = None
+        l2_usage = None
+        if a.emit_l2_output:
+            l2_output_path = l2 / f"{slug}.jsonl.gz"
+            l2_cmd = [
+                sys.executable, "research/emit_l1_to_l2.py",
+                "--dataset", projected,
+                "--model", model,
+                "--schema", schema,
+                "--meta", meta,
+                "--output", l2_output_path,
+                "--candidate-name", name,
+                "--feature-sets-json", json.dumps(sets, separators=(",", ":")),
+                "--actor-prefixes-json", json.dumps(actor_prefixes, separators=(",", ":")),
+                "--auto-slices-json", json.dumps(auto_slices, separators=(",", ":")),
+                "--valid-start", a.valid_start,
+                "--valid-end", a.valid_end,
+                "--chunk-size", a.l2_chunk_size,
+            ]
+            l2_usage = run(l2_cmd, label=f"{name}:l2-output")
+
         metadata = json.loads(meta.read_text(encoding="utf-8"))
         results.append({
             "name": name,
@@ -520,13 +545,16 @@ def main():
             "metadata": str(meta),
             "schema": str(schema),
             "oof": str(pred),
+            "l2_output": str(l2_output_path) if l2_output_path else None,
             "resource_usage": {
                 "projection": projection_usage,
                 "training": training_usage,
+                "l2_output": l2_usage,
                 "candidate_elapsed_seconds": round(time.monotonic() - candidate_started, 3),
                 "candidate_peak_rss_mib": max(
                     projection_usage["peak_rss_mib"],
                     training_usage["peak_rss_mib"],
+                    (l2_usage or {}).get("peak_rss_mib", 0),
                 ),
             },
         })
