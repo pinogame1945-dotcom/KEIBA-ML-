@@ -1,0 +1,130 @@
+name: L1 Feature Arena first kodoku
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - feature/l1-feature-arena-trainer-v1-20260927
+    paths:
+      - .github/workflows/l1-feature-arena-first-kodoku.yml
+
+permissions:
+  contents: read
+
+jobs:
+  arena:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: e75cd10b7837f676
+      BACKFILL_SHA: af9d0dcf3295e8276ca39fcbe104d7e9ac4c1cdc
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py
+          node --check research/project-yearly-snapshots.mjs
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2023-2025 superset snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kodoku-input/$GENERATION_ID"
+          mkdir -p "$root"
+          for year in 2023 2024 2025; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$year" "$root"
+          done
+          test -s "$root/snapshot-2023.jsonl.gz"
+          test -s "$root/snapshot-2024.jsonl.gz"
+          test -s "$root/snapshot-2025.jsonl.gz"
+          du -h "$root"/snapshot-*.jsonl.gz
+
+      - name: Run first Feature Arena
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/kodoku-input/$GENERATION_ID"
+          python research/run_feature_arena.py             --inputs "$root/snapshot-2023.jsonl.gz,$root/snapshot-2024.jsonl.gz,$root/snapshot-2025.jsonl.gz"             --out-dir out/feature-arena-first-kodoku             --train-start 2023-01-01             --train-end 2024-12-31             --valid-start 2025-01-01             --valid-end 2025-12-31             --prediction-phase FINAL             --feature-selection none             --source-ref main             --source-sha "$BACKFILL_SHA"             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Print arena scorecard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("out/feature-arena-first-kodoku/feature-arena-summary.json")
+          s=json.loads(p.read_text(encoding="utf-8"))
+          print("FIRST_KODOKU_SCORECARD")
+          print("train=2023-2024 valid=2025 model=WIN_BINARY_LIGHTGBM")
+          print("candidate\tfeatures\ttop1\ttop3\ttop6\tmean_rank\tnll\tlogloss\tbrier\tauc")
+          for r in s["results"]:
+              m=r["metrics"]
+              def f(k):
+                  v=m.get(k)
+                  return "" if v is None else f"{v:.6f}"
+              print("\t".join([
+                  r["name"],
+                  str(r["feature_count"]),
+                  f("top1_winner_capture"),
+                  f("top3_winner_capture"),
+                  f("top6_winner_capture"),
+                  f("mean_winner_rank"),
+                  f("race_normalized_nll"),
+                  f("raw_logloss"),
+                  f("raw_brier"),
+                  f("raw_roc_auc"),
+              ]))
+
+          with open(Path(__import__("os").environ["GITHUB_STEP_SUMMARY"]), "a", encoding="utf-8") as out:
+              out.write("# L1 Feature Arena — First Kodoku\n\n")
+              out.write("Train: 2023–2024 / Holdout: 2025 / Model: WIN Binary LightGBM / Odds: OFF\n\n")
+              out.write("| Candidate | Features | Top1 | Top3 | Top6 | Mean winner rank | Race NLL | LogLoss | Brier | AUC |\n")
+              out.write("|---|---:|---:|---:|---:|---:|---:|---:|---:|---:|\n")
+              for r in s["results"]:
+                  m=r["metrics"]
+                  def cell(k):
+                      v=m.get(k)
+                      return "" if v is None else f"{v:.4f}"
+                  out.write(
+                      f"| {r['name']} | {r['feature_count']} | {cell('top1_winner_capture')} | "
+                      f"{cell('top3_winner_capture')} | {cell('top6_winner_capture')} | "
+                      f"{cell('mean_winner_rank')} | {cell('race_normalized_nll')} | "
+                      f"{cell('raw_logloss')} | {cell('raw_brier')} | {cell('raw_roc_auc')} |\n"
+                  )
+              out.write("\nNo composite winner is selected automatically.\n")
+          PY
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          if grep -E "uses:[[:space:]]*actions/upload-artifact|uses:[[:space:]]*actions/cache" .github/workflows/l1-feature-arena-first-kodoku.yml; then
+            echo "Persistent GitHub Artifact/Cache usage found; refusing workflow." >&2
+            exit 1
+          fi
+          echo "Standard GitHub-hosted runner only."
+          echo "No GPU."
+          echo "No persistent Artifact or Cache."
+          echo "Kaggle input snapshot already exists; this run only downloads it."
+          echo "Arena outputs remain ephemeral on the runner."
