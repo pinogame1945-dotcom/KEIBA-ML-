@@ -12,7 +12,7 @@ import { createOpponentFeatureState } from "./opponent-feature-builder.mjs";
 import { createTimePaceFeatureState } from "./time-pace-feature-builder.mjs";
 
 export const ML_DATASET_VERSION = 3;
-export const ML_FEATURE_SCHEMA_VERSION = 7;
+export const ML_FEATURE_SCHEMA_VERSION = 8;
 export const ML_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY";
 
 function finite(value) {
