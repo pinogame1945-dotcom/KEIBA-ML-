@@ -1,0 +1,174 @@
+name: L1 Surface Specialist WF One
+
+on:
+  workflow_call:
+    inputs:
+      candidate:
+        required: true
+        type: string
+      validation_year:
+        required: true
+        type: number
+      surface:
+        required: true
+        type: string
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+jobs:
+  run:
+    name: specialist-${{ inputs.surface }}-${{ inputs.candidate }}-y${{ inputs.validation_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      MATRIX_CANDIDATE: ${{ inputs.candidate }}
+      VALIDATION_YEAR: ${{ inputs.validation_year }}
+      SURFACE: ${{ inputs.surface }}
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Contract guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-surface-specialists-v1.json").read_text(encoding="utf-8"))
+          surface=os.environ["SURFACE"]
+          year=int(os.environ["VALIDATION_YEAR"])
+          assert surface in cfg["surfaces"]
+          assert year in cfg["validation_years"]
+          assert year not in cfg["locked_years"]
+          assert cfg["snapshot_generation"]=="eb13d4096519167b"
+          assert cfg["training_window_years"]==2
+          assert cfg["prediction_phase"]=="FINAL"
+          assert cfg["feature_selection"]=="none"
+          assert cfg["ability_uses_odds"] is False
+          print("SURFACE_SPECIALIST_METHOD_CONTRACT_OK",surface,year)
+          PY
+
+      - name: Load candidate and fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-surface-specialists-v1.json").read_text(encoding="utf-8"))
+          year=int(os.environ["VALIDATION_YEAR"])
+          name=os.environ["MATRIX_CANDIDATE"]
+          rows=[x for x in cfg["candidates"] if x["name"]==name]
+          if len(rows)!=1:
+              raise SystemExit(f"candidate config mismatch: {name}")
+          row=rows[0]
+          candidate={"name":name,"feature_sets":row["feature_sets"]}
+          for key in ("actor_prefixes","auto_slices","pedigree_slices"):
+              if row.get(key):
+                  candidate[key]=row[key]
+          Path("candidate.json").write_text(json.dumps([candidate],ensure_ascii=False)+"\n",encoding="utf-8")
+          train_y1,train_y2=year-2,year-1
+          env={
+            "GENERATION_ID":cfg["snapshot_generation"],
+            "TRAIN_YEAR_1":str(train_y1),
+            "TRAIN_YEAR_2":str(train_y2),
+            "TRAIN_START":f"{train_y1}-01-01",
+            "TRAIN_END":f"{train_y2}-12-31",
+            "VALID_START":f"{year}-01-01",
+            "VALID_END":f"{year}-12-31"
+          }
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              for k,v in env.items():
+                  fh.write(f"{k}={v}\n")
+          print("SURFACE_SPECIALIST_FOLD",os.environ["SURFACE"],name,train_y1,train_y2,"->",year)
+          PY
+
+      - name: Restore exact rolling snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/surface-specialist-input/$GENERATION_ID"
+          mkdir -p "$root"
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          paths=()
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then
+              paths+=("$root/snapshot-$y.jsonl")
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then
+              paths+=("$root/snapshot-$y.jsonl.gz")
+            else
+              echo "::error::snapshot $y missing"
+              exit 1
+            fi
+          done
+          echo "INPUTS=$(IFS=,; echo "${paths[*]}")" >> "$GITHUB_ENV"
+
+      - name: Run exact surface specialist
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="out/l1-surface-specialists/$SURFACE/$MATRIX_CANDIDATE-y$VALIDATION_YEAR"
+          python research/run_feature_arena.py             --inputs "$INPUTS"             --out-dir "$out"             --train-start "$TRAIN_START"             --train-end "$TRAIN_END"             --valid-start "$VALID_START"             --valid-end "$VALID_END"             --train-race-class ALL             --valid-race-class ALL             --train-surface "$SURFACE"             --valid-surface "$SURFACE"             --prediction-phase FINAL             --feature-selection none             --candidates-json candidate.json             --source-ref main             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Print specialist result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ["MATRIX_CANDIDATE"]
+          y=int(os.environ["VALIDATION_YEAR"])
+          s=os.environ["SURFACE"]
+          out=Path("out/l1-surface-specialists")/s/f"{n}-y{y}"
+          summary=json.loads((out/"feature-arena-summary.json").read_text(encoding="utf-8"))
+          result=summary["results"][0]
+          if result.get("surface_scope") != {"train":s,"valid":s}:
+              raise SystemExit(f"surface scope mismatch: {result.get('surface_scope')}")
+          payload={
+              "surface":s,
+              "candidate":n,
+              "validation_year":y,
+              "train_start":os.environ["TRAIN_START"],
+              "train_end":os.environ["TRAIN_END"],
+              "metrics":result["metrics"],
+              "feature_count":result["feature_count"],
+              "surface_scope":result["surface_scope"],
+              "resource_usage":result.get("resource_usage")
+          }
+          print("L1_SURFACE_SPECIALIST_RESULT")
+          print(json.dumps(payload,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact or Cache."
+          echo "Existing Kaggle snapshot is read-only."
+          echo "No persistent model/dataset upload."
