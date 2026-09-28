@@ -85,8 +85,8 @@ jobs:
             d="$root/$y"; mkdir -p "$d"
             ref="pino1945/keiba-l15-rolecmp-y$y-v1"
             for name in \
-              role-features-5k.jsonl.gz role-labels-5k.jsonl.gz \
-              role-features-7k.jsonl.gz role-labels-7k.jsonl.gz; do
+              role-features-5k.jsonl role-labels-5k.jsonl \
+              role-features-7k.jsonl role-labels-7k.jsonl; do
               restore_role_file "$ref" "$name" "$d"
             done
           done
