@@ -57,6 +57,52 @@ def error_excerpt(log,limit=12):
 
 def mean(xs): return sum(xs)/len(xs) if xs else None
 
+def outsider_overlap(rows, candidate_names, validation_years):
+    out={}
+    success=[r for r in rows if r.get("status")=="success"]
+    for year in validation_years:
+        year_rows=[r for r in success if int(r.get("validation_year") or 0)==int(year)]
+        by_name={r.get("candidate"):r for r in year_rows}
+        year_out={}
+        for n in ("1","3","6"):
+            sets={}
+            for name in candidate_names:
+                row=by_name.get(name) or {}
+                ids=((row.get("rescue") or {}).get("rescue_race_ids_by_topn") or {}).get(n) or []
+                sets[name]=set(map(str,ids))
+            union=set().union(*sets.values()) if sets else set()
+            rescuers={}
+            for rid in sorted(union):
+                rescuers[rid]=[name for name in candidate_names if rid in sets[name]]
+            exclusive={}
+            for name in candidate_names:
+                others=set().union(*(sets[x] for x in candidate_names if x!=name)) if len(candidate_names)>1 else set()
+                exclusive[name]=len(sets[name]-others)
+            pairs={}
+            for i,left in enumerate(candidate_names):
+                for right in candidate_names[i+1:]:
+                    inter=sets[left]&sets[right]
+                    uni=sets[left]|sets[right]
+                    pairs[f"{left}__{right}"]={
+                        "intersection_count":len(inter),
+                        "union_count":len(uni),
+                        "jaccard":len(inter)/len(uni) if uni else None,
+                    }
+            hist=defaultdict(int)
+            for names in rescuers.values():
+                hist[str(len(names))]+=1
+            year_out[n]={
+                "candidate_rescue_counts":{name:len(sets[name]) for name in candidate_names},
+                "union_rescue_count":len(union),
+                "union_rescue_race_ids":sorted(union),
+                "exclusive_rescue_counts":exclusive,
+                "rescuer_count_histogram":dict(sorted(hist.items(),key=lambda x:int(x[0]))),
+                "rescuers_by_race":rescuers,
+                "pairwise":pairs,
+            }
+        out[str(year)]=year_out
+    return out
+
 def aggregate(rows):
     ok=[r for r in rows if r.get("status")=="success"]
     agg={"successful_folds":len(ok),"expected_folds":len(rows),"mean_metrics":{},"topn":{},"max_peak_rss_mib":None}
@@ -146,10 +192,12 @@ def main():
                           "github_cache":False,"candidate_models":"ephemeral","candidate_scores":"ephemeral"}
     }
     complete=(not missing and len(rows)==len(expected) and all(r.get("status")=="success" for r in rows))
-    score={"contract":"L1_OUTSIDER_ARENA_SCORECARD_V1","experiment_id":exp,"run_id":a.run_id,
+    candidate_names=[c["name"] for c in cfg["candidates"]]
+    score={"contract":"L1_OUTSIDER_ARENA_SCORECARD_V2","experiment_id":exp,"run_id":a.run_id,
            "complete":complete,"composite_winner":None,
            "fold_results":sorted(rows,key=lambda x:(x.get("candidate",""),x.get("validation_year") or 0)),
-           "candidate_summaries":summaries}
+           "candidate_summaries":summaries,
+           "outsider_overlap":outsider_overlap(rows,candidate_names,cfg["validation_years"])}
     (run_dir/"experiment.json").write_text(json.dumps(experiment,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     (run_dir/"scorecard.json").write_text(json.dumps(score,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     (run_dir/"logs.json").write_text(json.dumps({"run_id":a.run_id,"jobs":logs},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
@@ -167,6 +215,11 @@ def main():
             f(m.get("top1_winner_capture")),f(m.get("top3_winner_capture")),f(m.get("top6_winner_capture")),
             f(m.get("mean_winner_rank")),f(t.get("seven_blind_spots")),f(t.get("rescues")),
             f(t.get("rescue_rate_on_seven_blind_spots"))])+" |")
+    lines += ["","## Top6 outsider overlap by year","",
+              "| Year | Union rescues |", "|---:|---:|"]
+    for year in cfg["validation_years"]:
+        y=score["outsider_overlap"].get(str(year),{}).get("6",{})
+        lines.append(f"| {year} | {y.get('union_rescue_count',0)} |")
     lines += ["","## Interpretation","",
               "No automatic winner is assigned. A useful outsider may be weaker standalone if it consistently rescues seven-king blind spots on untouched years.",
               "Promotion still requires downstream L2/L3 EV/ROI validation.",""]
