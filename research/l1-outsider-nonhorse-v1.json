@@ -1,0 +1,30 @@
+{
+  "contract": "L1_OUTSIDER_NONHORSE_V1",
+  "experiment_id": "OUTSIDER-NONHORSE-001",
+  "snapshot_generation": "eb13d4096519167b",
+  "training_window_years": 2,
+  "validation_years": [2021, 2022, 2023, 2024, 2025],
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "ability_uses_odds": false,
+  "locked_years": [2026],
+  "candidates": [
+    {"name":"outsider_daytrend","label_ja":"当日傾向型","mode":"DAY_TREND","feature_sets":["BASE"]},
+    {"name":"outsider_raceshape","label_ja":"レース構造型","mode":"RACE_SHAPE","feature_sets":["BASE"]},
+    {"name":"outsider_gatecourse","label_ja":"枠・コース型","mode":"GATE_COURSE","feature_sets":["BASE"]},
+    {"name":"outsider_jockey","label_ja":"騎手型","mode":"JOCKEY","feature_sets":["BASE"]},
+    {"name":"outsider_field","label_ja":"メンバー構成型","mode":"FIELD_COMPOSITION","feature_sets":["BASE"]},
+    {"name":"outsider_chimera","label_ja":"キメラ型","mode":"CHIMERA","feature_sets":["BASE"]}
+  ],
+  "policy": {
+    "horse_form_features": false,
+    "horse_speed_features": false,
+    "pedigree_features": false,
+    "odds_or_popularity": false,
+    "same_day_future_results": false,
+    "same_day_prior_results": true,
+    "same_day_prior_results_scope": "same venue, smaller race number only"
+  },
+  "research_goal": "Find broad-sample outsiders that mainly look away from the horse's ordinary ability history.",
+  "promotion_policy": "No automatic winner. Require adequate standalone strength plus stable seven-king blind-spot rescue."
+}
