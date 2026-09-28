@@ -124,6 +124,17 @@ def main():
             }
 
     exp=cfg["experiment_id"]
+    if missing or len(rows)!=len(expected):
+        print("L1_SURFACE_SPECIALIST_INCOMPLETE_NO_PERSIST")
+        print(json.dumps({
+            "experiment_id":exp,
+            "run_id":a.run_id,
+            "observed_jobs":len(rows),
+            "expected_jobs":len(expected),
+            "missing":missing
+        },ensure_ascii=False))
+        return
+
     run_dir=Path(a.out_root)/exp/"attempts"/f"run-{a.run_id}"
     if run_dir.exists():
         raise SystemExit(f"immutable ledger path exists: {run_dir}")
