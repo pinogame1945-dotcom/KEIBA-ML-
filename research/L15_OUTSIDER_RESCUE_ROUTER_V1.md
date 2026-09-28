@@ -542,3 +542,51 @@ Do not ask the outsider to become a king.
 The kings remain the normal path.
 
 The router's job is to recognize the places where the throne room has gone blind, then call the specialist that sees a different world.
+
+## 19. Parallel execution policy
+
+V1 should maximize useful parallelism without multiplying remote downloads.
+
+### GitHub Actions job graph
+
+```
+prepare/contracts
+      |
+      +--> fold-2022 --+
+      +--> fold-2023 --+
+      +--> fold-2024 --+--> aggregate/report
+      +--> fold-2025 --+
+```
+
+The four walk-forward test folds are independent and should run on four standard CPU runners in parallel.
+
+Each fold runner must:
+
+1. restore/download each required remote input at most once;
+2. reuse that local copy for Stage A and all Stage B models;
+3. build its train/test table once;
+4. run Stage A and the primary/shadow Stage B classifiers from that shared local table.
+
+Within a fold runner, independent model fits may use bounded local parallelism:
+
+- LightGBM `n_jobs=1` per model when multiple models are launched concurrently;
+- at most two concurrent training subprocesses by default on a standard runner;
+- never create extra remote-download lanes merely to parallelize model fits.
+
+This gives parallelism primarily across the four years, where work is truly independent, while avoiding the previous Kaggle 429 failure mode.
+
+### Forbidden pseudo-parallelism
+
+Do not:
+
+- create one runner per outsider if each runner downloads the same Kaggle source;
+- repeatedly fetch `.gz` and then `.jsonl` independently per candidate;
+- use paid/high-memory/GPU runners to gain concurrency;
+- persist large intermediate matrices just to coordinate parallel jobs.
+
+If a required shared-storage mechanism may be chargeable or its free status cannot be confirmed, stop before using it.
+
+### Aggregation barrier
+
+The final report job starts only after all four fold jobs finish. One failed fold does not silently disappear from aggregate metrics; the aggregate job must fail closed and list the missing fold.
+
