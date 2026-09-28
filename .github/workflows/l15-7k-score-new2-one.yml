@@ -1,0 +1,224 @@
+name: L1.5 7K Score New Two One Year
+
+on:
+  workflow_call:
+    inputs:
+      validation_year:
+        required: true
+        type: number
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+    outputs:
+      dataset_ref:
+        description: Persisted newcomer two-king dataset ref
+        value: ${{ jobs.score.outputs.dataset_ref }}
+
+permissions:
+  contents: read
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    outputs:
+      dataset_ref: ${{ steps.persist.outputs.dataset_ref }}
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      VALIDATION_YEAR: ${{ inputs.validation_year }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_feature_arena.py \
+            research/train-staged-lightgbm.py \
+            research/emit_l1_to_l2.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Resolve fold and newcomer configs
+        run: |
+          set -euo pipefail
+          Y="$VALIDATION_YEAR"
+          Y1=$((Y-2))
+          Y2=$((Y-1))
+          echo "TRAIN_YEAR_1=$Y1" >> "$GITHUB_ENV"
+          echo "TRAIN_YEAR_2=$Y2" >> "$GITHUB_ENV"
+          echo "TRAIN_START=$Y1-01-01" >> "$GITHUB_ENV"
+          echo "TRAIN_END=$Y2-12-31" >> "$GITHUB_ENV"
+          echo "VALID_START=$Y-01-01" >> "$GITHUB_ENV"
+          echo "VALID_END=$Y-12-31" >> "$GITHUB_ENV"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-raceclass-absorption-walkforward-v1.json").read_text(encoding="utf-8"))
+          wanted={"no_auto_full_pedigree_v1","jockey_trainer_condition_plus_raceclass"}
+          rows=[x for x in cfg["candidates"] if x["name"] in wanted]
+          if {x["name"] for x in rows} != wanted:
+              raise SystemExit("newcomer config mismatch")
+          Path("new-two.json").write_text(json.dumps(rows,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          PY
+
+      - name: Restore exact deep snapshots
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR/source"
+          mkdir -p "$root"
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          resolve() {
+            local y="$1"
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then printf '%s' "$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then printf '%s' "$root/snapshot-$y.jsonl.gz"
+            else echo "missing snapshot $y" >&2; exit 1
+            fi
+          }
+          echo "INPUTS=$(resolve "$TRAIN_YEAR_1"),$(resolve "$TRAIN_YEAR_2"),$(resolve "$VALIDATION_YEAR")" >> "$GITHUB_ENV"
+
+      - name: Score only the two newcomer kings
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR/arena"
+          python research/run_feature_arena.py \
+            --inputs "$INPUTS" \
+            --out-dir "$root" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --valid-start "$VALID_START" \
+            --valid-end "$VALID_END" \
+            --train-race-class ALL \
+            --valid-race-class ALL \
+            --prediction-phase FINAL \
+            --feature-selection none \
+            --candidates-json new-two.json \
+            --keep-projections \
+            --source-ref main \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Emit horse-level L1 to L2 rows
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR/arena"
+          mkdir -p "$root/l2-input"
+          python research/emit_l1_to_l2.py \
+            --dataset "$root/projections/no-auto-full-pedigree-v1.jsonl.gz" \
+            --model "$root/models/no-auto-full-pedigree-v1.txt" \
+            --schema "$root/schemas/no-auto-full-pedigree-v1-schema.json" \
+            --meta "$root/models/no-auto-full-pedigree-v1.json" \
+            --output "$root/l2-input/no-auto-full-pedigree-v1.jsonl.gz" \
+            --candidate-name no_auto_full_pedigree_v1 \
+            --feature-sets-json '["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"]' \
+            --actor-prefixes-json '[]' \
+            --auto-slices-json '[]' \
+            --valid-start "$VALID_START" \
+            --valid-end "$VALID_END" \
+            --chunk-size 64
+
+          python research/emit_l1_to_l2.py \
+            --dataset "$root/projections/jockey-trainer-condition-plus-raceclass.jsonl.gz" \
+            --model "$root/models/jockey-trainer-condition-plus-raceclass.txt" \
+            --schema "$root/schemas/jockey-trainer-condition-plus-raceclass-schema.json" \
+            --meta "$root/models/jockey-trainer-condition-plus-raceclass.json" \
+            --output "$root/l2-input/jockey-trainer-condition-plus-raceclass.jsonl.gz" \
+            --candidate-name jockey_trainer_condition_plus_raceclass \
+            --feature-sets-json '["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"]' \
+            --actor-prefixes-json '["actor_jockey_","actor_trainer_"]' \
+            --auto-slices-json '["CONDITION"]' \
+            --valid-start "$VALID_START" \
+            --valid-end "$VALID_END" \
+            --chunk-size 64
+
+      - name: Validate newcomer outputs
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR/arena"
+          test -s "$root/l2-input/no-auto-full-pedigree-v1.jsonl.gz"
+          test -s "$root/l2-input/jockey-trainer-condition-plus-raceclass.jsonl.gz"
+          python - <<'PY'
+          import gzip,json,os
+          from pathlib import Path
+          root=Path(f"out/new2-{os.environ['VALIDATION_YEAR']}/arena/l2-input")
+          for p in root.glob("*.jsonl.gz"):
+              races=set(); rows=0
+              with gzip.open(p,"rt",encoding="utf-8") as f:
+                  for line in f:
+                      if not line.strip(): continue
+                      x=json.loads(line); rows+=1; races.add(str(x["race_id"]))
+                      assert x["contract"]=="L1_TO_L2_OUTPUT_CONTRACT_V1"
+                      assert str(x["race_date"])[:4]==os.environ["VALIDATION_YEAR"]
+              if not rows or not races: raise SystemExit(f"empty {p}")
+              print("NEW_KING_OUTPUT_OK",p.name,"rows",rows,"races",len(races))
+          PY
+
+      - name: Build persistent newcomer bundle
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR"
+          arena="$root/arena"
+          cp new-two.json "$root/new-two.json"
+          python research/build_research_bundle_v1.py \
+            --kind "l15_7k_new2_$VALIDATION_YEAR" \
+            --snapshot-generation "$GENERATION_ID" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --test-start "$VALID_START" \
+            --test-end "$VALID_END" \
+            --code-sha "$GITHUB_SHA" \
+            --file new-two.json="$root/new-two.json" \
+            --file feature-arena-summary.json="$arena/feature-arena-summary.json" \
+            --file no-auto-full-pedigree-v1.jsonl.gz="$arena/l2-input/no-auto-full-pedigree-v1.jsonl.gz" \
+            --file jockey-trainer-condition-plus-raceclass.jsonl.gz="$arena/l2-input/jockey-trainer-condition-plus-raceclass.jsonl.gz" \
+            --file no-auto-full-pedigree-v1-model.txt="$arena/models/no-auto-full-pedigree-v1.txt" \
+            --file no-auto-full-pedigree-v1-meta.json="$arena/models/no-auto-full-pedigree-v1.json" \
+            --file no-auto-full-pedigree-v1-schema.json="$arena/schemas/no-auto-full-pedigree-v1-schema.json" \
+            --file condition-plus-raceclass-model.txt="$arena/models/jockey-trainer-condition-plus-raceclass.txt" \
+            --file condition-plus-raceclass-meta.json="$arena/models/jockey-trainer-condition-plus-raceclass.json" \
+            --file condition-plus-raceclass-schema.json="$arena/schemas/jockey-trainer-condition-plus-raceclass-schema.json" \
+            --out-root "$root/bundle"
+
+      - name: Persist newcomer bundle
+        id: persist
+        run: |
+          set -euo pipefail
+          root="out/new2-$VALIDATION_YEAR"
+          python research/persist_research_bundle_v1.py "$root/bundle" | tee "$root/persist.log"
+          ref="$(awk -F= '/^dataset_ref=/{print $2}' "$root/persist.log" | tail -1)"
+          test -n "$ref"
+          echo "dataset_ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Kaggle capacity checked before compute."
+          echo "Only the two newcomer kings are newly scored."
+          echo "2026 is never read."
