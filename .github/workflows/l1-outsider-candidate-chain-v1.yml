@@ -1,0 +1,65 @@
+name: L1 Outsider Candidate Chain V1
+
+on:
+  workflow_call:
+    inputs:
+      candidate:
+        required: true
+        type: string
+      initial_delay_seconds:
+        required: false
+        type: number
+        default: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+jobs:
+  y2021:
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ inputs.candidate }}
+      validation_year: 2021
+      start_delay_seconds: ${{ inputs.initial_delay_seconds }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  y2022:
+    needs: y2021
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ inputs.candidate }}
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  y2023:
+    needs: y2022
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ inputs.candidate }}
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  y2024:
+    needs: y2023
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ inputs.candidate }}
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  y2025:
+    needs: y2024
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ inputs.candidate }}
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
