@@ -1,0 +1,427 @@
+name: L1 Outsider Nonhorse V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-nonhorse-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-nonhorse-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-nonhorse-v1
+  cancel-in-progress: true
+
+jobs:
+  daytrend_2021:
+    name: daytrend-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_daytrend
+      validation_year: 2021
+      start_delay_seconds: 90
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  daytrend_2022:
+    name: daytrend-2022
+    needs: daytrend_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_daytrend
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  daytrend_2023:
+    name: daytrend-2023
+    needs: daytrend_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_daytrend
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  daytrend_2024:
+    name: daytrend-2024
+    needs: daytrend_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_daytrend
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  daytrend_2025:
+    name: daytrend-2025
+    needs: daytrend_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_daytrend
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  raceshape_2021:
+    name: raceshape-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_raceshape
+      validation_year: 2021
+      start_delay_seconds: 150
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  raceshape_2022:
+    name: raceshape-2022
+    needs: raceshape_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_raceshape
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  raceshape_2023:
+    name: raceshape-2023
+    needs: raceshape_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_raceshape
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  raceshape_2024:
+    name: raceshape-2024
+    needs: raceshape_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_raceshape
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  raceshape_2025:
+    name: raceshape-2025
+    needs: raceshape_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_raceshape
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  gatecourse_2021:
+    name: gatecourse-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_gatecourse
+      validation_year: 2021
+      start_delay_seconds: 210
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  gatecourse_2022:
+    name: gatecourse-2022
+    needs: gatecourse_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_gatecourse
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  gatecourse_2023:
+    name: gatecourse-2023
+    needs: gatecourse_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_gatecourse
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  gatecourse_2024:
+    name: gatecourse-2024
+    needs: gatecourse_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_gatecourse
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  gatecourse_2025:
+    name: gatecourse-2025
+    needs: gatecourse_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_gatecourse
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  jockey_2021:
+    name: jockey-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_jockey
+      validation_year: 2021
+      start_delay_seconds: 270
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  jockey_2022:
+    name: jockey-2022
+    needs: jockey_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_jockey
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  jockey_2023:
+    name: jockey-2023
+    needs: jockey_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_jockey
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  jockey_2024:
+    name: jockey-2024
+    needs: jockey_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_jockey
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  jockey_2025:
+    name: jockey-2025
+    needs: jockey_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_jockey
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  field_2021:
+    name: field-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_field
+      validation_year: 2021
+      start_delay_seconds: 330
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  field_2022:
+    name: field-2022
+    needs: field_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_field
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  field_2023:
+    name: field-2023
+    needs: field_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_field
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  field_2024:
+    name: field-2024
+    needs: field_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_field
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  field_2025:
+    name: field-2025
+    needs: field_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_field
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  chimera_2021:
+    name: chimera-2021
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_chimera
+      validation_year: 2021
+      start_delay_seconds: 390
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  chimera_2022:
+    name: chimera-2022
+    needs: chimera_2021
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_chimera
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  chimera_2023:
+    name: chimera-2023
+    needs: chimera_2022
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_chimera
+      validation_year: 2023
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  chimera_2024:
+    name: chimera-2024
+    needs: chimera_2023
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_chimera
+      validation_year: 2024
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  chimera_2025:
+    name: chimera-2025
+    needs: chimera_2024
+    if: ${{ always() }}
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v1.yml
+    with:
+      candidate: outsider_chimera
+      validation_year: 2025
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    name: ledger
+    if: ${{ always() }}
+    needs:
+      - daytrend_2025
+      - raceshape_2025
+      - gatecourse_2025
+      - jockey_2025
+      - field_2025
+      - chimera_2025
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive structured logs
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-nonhorse-v1.json             --out-root research-results/l1-outsider-nonhorse-v1
+
+      - name: Commit small permanent ledger
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive nonhorse outsider run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: ${{ always() }}
+        run: |
+          echo "Standard GitHub-hosted CPU only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Six outsider candidates run in parallel; years are sequential per candidate."
+          echo "Initial Kaggle reads are staggered to avoid rate-limit bursts."
+          echo "Only small text/JSON ledgers are committed."
+          echo "Existing Kaggle data is read-only."
+          echo "2026 remains sealed."
