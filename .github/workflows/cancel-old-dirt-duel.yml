@@ -1,0 +1,25 @@
+name: Cancel old pending DIRT duel
+
+on:
+  push:
+    branches:
+      - research/l1-surface-specialists-v1-20260928
+    paths:
+      - .github/triggers/cancel-old-dirt-duel.trigger
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cancel:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Cancel old pending run
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          gh api --method POST repos/${GITHUB_REPOSITORY}/actions/runs/36379501730/cancel
+          echo "CANCEL_REQUESTED_36379501730"
