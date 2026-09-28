@@ -53,6 +53,8 @@ def parse_args():
     p.add_argument("--valid-end", required=True)
     p.add_argument("--train-race-class", default="ALL")
     p.add_argument("--valid-race-class", default="ALL")
+    p.add_argument("--train-surface", choices=["ALL","TURF","DIRT"], default="ALL")
+    p.add_argument("--valid-surface", choices=["ALL","TURF","DIRT"], default="ALL")
     p.add_argument("--prediction-phase", choices=["EARLY", "FINAL"], default="FINAL")
     p.add_argument(
         "--candidates-json",
@@ -516,6 +518,8 @@ def main():
             "--valid-end", a.valid_end,
             "--train-race-class", a.train_race_class,
             "--valid-race-class", a.valid_race_class,
+            "--train-surface", a.train_surface,
+            "--valid-surface", a.valid_surface,
             "--model-out", model,
             "--meta-out", meta,
             "--schema-out", schema,
@@ -545,6 +549,10 @@ def main():
             "race_scope": {
                 "train": str(a.train_race_class).strip().upper(),
                 "valid": str(a.valid_race_class).strip().upper(),
+            },
+            "surface_scope": {
+                "train": str(a.train_surface).strip().upper(),
+                "valid": str(a.valid_surface).strip().upper(),
             },
             "feature_count": metadata["feature_count"],
             "metrics": metadata["metrics"],
