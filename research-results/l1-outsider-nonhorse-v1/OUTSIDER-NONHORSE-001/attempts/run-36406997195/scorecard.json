@@ -1,0 +1,1876 @@
+{
+  "contract": "L1_OUTSIDER_ARENA_SCORECARD_V2",
+  "experiment_id": "OUTSIDER-NONHORSE-001",
+  "run_id": 36406997195,
+  "complete": false,
+  "composite_winner": null,
+  "fold_results": [],
+  "candidate_summaries": {
+    "outsider_daytrend": {
+      "label_ja": "当日傾向型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_raceshape": {
+      "label_ja": "レース構造型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_gatecourse": {
+      "label_ja": "枠・コース型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_jockey": {
+      "label_ja": "騎手型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_field": {
+      "label_ja": "メンバー構成型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_chimera": {
+      "label_ja": "キメラ型",
+      "successful_folds": 0,
+      "expected_folds": 0,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    }
+  },
+  "outsider_overlap": {
+    "2021": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2022": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2023": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2024": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2025": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_daytrend": 0,
+          "outsider_raceshape": 0,
+          "outsider_gatecourse": 0,
+          "outsider_jockey": 0,
+          "outsider_field": 0,
+          "outsider_chimera": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_daytrend__outsider_raceshape": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_daytrend__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_gatecourse": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_raceshape__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_jockey": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_gatecourse__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_field": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_jockey__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_field__outsider_chimera": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    }
+  }
+}
