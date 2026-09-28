@@ -1,0 +1,50 @@
+name: Cleanup All Unsuccessful Runs 20260928
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-arena-v1-20260928
+    paths:
+      - .github/triggers/cleanup-all-unsuccessful-runs-20260928.trigger
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Delete failed and cancelled workflow runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          mapfile -t ids < <(
+            gh api --paginate "/repos/$REPO/actions/runs?per_page=100" \
+              --jq '.workflow_runs[] | select(.conclusion=="failure" or .conclusion=="cancelled" or .conclusion=="timed_out" or .conclusion=="startup_failure" or .conclusion=="stale") | .id'
+          )
+          echo "cleanup_count=${#ids[@]}"
+          deleted=0
+          for id in "${ids[@]}"; do
+            code="$(curl -sS -o /tmp/delete-body -w '%{http_code}' \
+              -X DELETE \
+              -H "Authorization: Bearer $GH_TOKEN" \
+              -H "Accept: application/vnd.github+json" \
+              -H "X-GitHub-Api-Version: 2022-11-28" \
+              "https://api.github.com/repos/$REPO/actions/runs/$id")"
+            if [[ "$code" == "204" || "$code" == "404" ]]; then
+              deleted=$((deleted + 1))
+              echo "cleaned run=$id http=$code"
+            else
+              cat /tmp/delete-body || true
+              echo "::error::failed to delete run=$id http=$code"
+              exit 1
+            fi
+          done
+          echo "deleted_count=$deleted"
+          echo "Success and skipped runs were preserved."
+          echo "Standard GitHub-hosted CPU runner only; no artifacts/cache/GPU."
