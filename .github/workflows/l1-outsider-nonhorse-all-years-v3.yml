@@ -1,0 +1,256 @@
+name: L1 Outsider Nonhorse All Years V3
+
+on:
+  workflow_call:
+    inputs:
+      candidate:
+        required: true
+        type: string
+      start_delay_seconds:
+        required: false
+        type: number
+        default: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  run_all_years:
+    name: outsider-${{ inputs.candidate }}-all-years
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      MATRIX_CANDIDATE: ${{ inputs.candidate }}
+      START_DELAY_SECONDS: ${{ inputs.start_delay_seconds }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_l1_nonhorse_dataset_v1.py \
+            research/run_feature_arena.py \
+            research/train-staged-lightgbm.py \
+            research/emit_l1_to_l2.py \
+            research/analyze_l1_outsider_rescue_v1.py \
+            research/archive_l1_outsider_arena_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-fetch-router-years.sh
+
+      - name: Install dependencies once
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Resolve candidate once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-outsider-nonhorse-v1.json").read_text(encoding="utf-8"))
+          assert cfg["snapshot_generation"]=="eb13d4096519167b"
+          assert cfg["training_window_years"]==2
+          assert cfg["ability_uses_odds"] is False
+          assert cfg["validation_years"]==[2021,2022,2023,2024,2025]
+          assert 2026 in cfg["locked_years"]
+          name=os.environ["MATRIX_CANDIDATE"]
+          row=next((x for x in cfg["candidates"] if x["name"]==name),None)
+          if row is None:
+              raise SystemExit("candidate missing")
+          Path("candidate.json").write_text(
+              json.dumps([{"name":name,"feature_sets":["BASE"]}],ensure_ascii=False,indent=2)+"\n",
+              encoding="utf-8")
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as f:
+              f.write(f"CANDIDATE_LABEL_JA={row.get('label_ja') or name}\n")
+              f.write(f"NONHORSE_MODE={row['mode']}\n")
+          print("NONHORSE_CANDIDATE",name,row["mode"])
+          PY
+
+      - name: Kaggle phase - restore everything once
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then
+            echo "Stagger candidate Kaggle entrance by ${START_DELAY_SECONDS}s"
+            sleep "$START_DELAY_SECONDS"
+          fi
+
+          snapshot_root="out/nonhorse-source/$GENERATION_ID"
+          router_root="out/nonhorse-router"
+          mkdir -p "$snapshot_root" "$router_root"
+
+          echo "=== KAGGLE PHASE START ==="
+          bash scripts/kaggle-fetch-snapshot.sh \
+            "$GENERATION_ID" \
+            "2019,2020,2021,2022,2023,2024,2025" \
+            "$snapshot_root"
+
+          sleep 20
+
+          bash scripts/kaggle-fetch-router-years.sh \
+            "2021,2022,2023,2024,2025" \
+            "$router_root"
+
+          for y in 2019 2020 2021 2022 2023 2024 2025; do
+            test -s "$snapshot_root/snapshot-$y.jsonl.gz" || test -s "$snapshot_root/snapshot-$y.jsonl"
+          done
+          for y in 2021 2022 2023 2024 2025; do
+            router="$(find "$router_root/$y" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
+            test -n "$router"
+            test -s "$router"
+          done
+          echo "=== KAGGLE PHASE COMPLETE; NO MORE KAGGLE ACCESS BELOW ==="
+          df -h .
+
+      - name: Research phase - 2021 through 2025 locally
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          snapshot_root="out/nonhorse-source/$GENERATION_ID"
+          router_root="out/nonhorse-router"
+
+          snapshot_path() {
+            local y="$1"
+            if [[ -s "$snapshot_root/snapshot-$y.jsonl.gz" ]]; then
+              printf '%s' "$snapshot_root/snapshot-$y.jsonl.gz"
+            elif [[ -s "$snapshot_root/snapshot-$y.jsonl" ]]; then
+              printf '%s' "$snapshot_root/snapshot-$y.jsonl"
+            else
+              echo "::error::local snapshot missing year=$y" >&2
+              return 1
+            fi
+          }
+
+          for year in 2021 2022 2023 2024 2025; do
+            echo "=== LOCAL RESEARCH START candidate=$MATRIX_CANDIDATE year=$year ==="
+            train1=$((year - 2))
+            train2=$((year - 1))
+            p1="$(snapshot_path "$train1")"
+            p2="$(snapshot_path "$train2")"
+            pv="$(snapshot_path "$year")"
+            raw_inputs="$p1,$p2,$pv"
+
+            train_start="${train1}-01-01"
+            train_end="${train2}-12-31"
+            valid_start="${year}-01-01"
+            valid_end="${year}-12-31"
+
+            custom="out/nonhorse-input/$MATRIX_CANDIDATE-y$year.jsonl.gz"
+            out="out/nonhorse/$MATRIX_CANDIDATE-y$year"
+            mkdir -p "$(dirname "$custom")"
+
+            python research/build_l1_nonhorse_dataset_v1.py \
+              --inputs "$raw_inputs" \
+              --mode "$NONHORSE_MODE" \
+              --output "$custom"
+            test -s "$custom"
+
+            python research/run_feature_arena.py \
+              --inputs "$custom" \
+              --out-dir "$out" \
+              --train-start "$train_start" \
+              --train-end "$train_end" \
+              --valid-start "$valid_start" \
+              --valid-end "$valid_end" \
+              --prediction-phase FINAL \
+              --feature-selection none \
+              --candidates-json candidate.json \
+              --source-ref main \
+              --ml-source-sha "$GITHUB_SHA" \
+              --keep-projections
+
+            projection="$(find "$out/projections" -type f -name '*.jsonl.gz' -print -quit)"
+            model="$(find "$out/models" -type f -name '*.txt' -print -quit)"
+            meta="$(find "$out/models" -type f -name '*.json' -print -quit)"
+            schema="$(find "$out/schemas" -type f -name '*-schema.json' -print -quit)"
+            for x in "$projection" "$model" "$meta" "$schema"; do
+              test -n "$x"
+              test -s "$x"
+            done
+
+            python research/emit_l1_to_l2.py \
+              --dataset "$projection" \
+              --model "$model" \
+              --schema "$schema" \
+              --meta "$meta" \
+              --output "$out/score.jsonl.gz" \
+              --candidate-name "$MATRIX_CANDIDATE" \
+              --feature-sets-json '["BASE"]' \
+              --valid-start "$valid_start" \
+              --valid-end "$valid_end" \
+              --chunk-size 64
+
+            router="$(find "$router_root/$year" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
+            test -n "$router"
+            test -s "$router"
+
+            python research/analyze_l1_outsider_rescue_v1.py \
+              --candidate-score "$out/score.jsonl.gz" \
+              --router-seven "$router" \
+              --snapshot "$pv" \
+              --candidate-name "$MATRIX_CANDIDATE" \
+              --year "$year" \
+              --output "$out/rescue.json"
+
+            YEAR="$year" TRAIN_START="$train_start" TRAIN_END="$train_end" OUT_DIR="$out" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ["MATRIX_CANDIDATE"]
+          y=int(os.environ["YEAR"])
+          out=Path(os.environ["OUT_DIR"])
+          s=json.loads((out/"feature-arena-summary.json").read_text(encoding="utf-8"))
+          r=s["results"][0]
+          rescue=json.loads((out/"rescue.json").read_text(encoding="utf-8"))
+          payload={
+              "candidate":n,
+              "label_ja":os.environ.get("CANDIDATE_LABEL_JA",n),
+              "mode":os.environ["NONHORSE_MODE"],
+              "validation_year":y,
+              "train_start":os.environ["TRAIN_START"],
+              "train_end":os.environ["TRAIN_END"],
+              "feature_sets":r["feature_sets"],
+              "feature_count":r["feature_count"],
+              "metrics":r["metrics"],
+              "resource_usage":r.get("resource_usage"),
+              "rescue":rescue,
+          }
+          print("L1_OUTSIDER_RESULT")
+          print(json.dumps(payload,ensure_ascii=False,separators=(",",":")))
+          PY
+
+            # Keep the seven downloaded snapshots and routers; discard only fold-heavy intermediates.
+            rm -f "$custom"
+            rm -rf "$out"
+            echo "=== LOCAL RESEARCH OK candidate=$MATRIX_CANDIDATE year=$year ==="
+            df -h .
+          done
+
+          echo "ALL_YEARS_LOCAL_RESEARCH_OK candidate=$MATRIX_CANDIDATE"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Snapshots and seven-king routers live only on this ephemeral runner SSD."
+          echo "Kaggle is accessed only in the initial acquisition phase."
+          echo "No model/dataset persistence; heavy fold intermediates are deleted after each year."
+          echo "2026 remains sealed."
