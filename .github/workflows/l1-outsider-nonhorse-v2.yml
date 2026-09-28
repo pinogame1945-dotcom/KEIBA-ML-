@@ -1,0 +1,41 @@
+name: L1 Outsider Nonhorse Arena V2
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-nonhorse-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-nonhorse-v2.trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-nonhorse-v2
+  cancel-in-progress: true
+
+jobs:
+  candidate_chain:
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - candidate: outsider_daytrend
+            delay: 0
+          - candidate: outsider_raceshape
+            delay: 60
+          - candidate: outsider_gatecourse
+            delay: 0
+          - candidate: outsider_jockey
+            delay: 60
+          - candidate: outsider_field
+            delay: 0
+          - candidate: outsider_chimera
+            delay: 60
+    uses: ./.github/workflows/l1-outsider-nonhorse-candidate-v2.yml
+    with:
+      candidate: ${{ matrix.candidate }}
+      initial_delay_seconds: ${{ matrix.delay }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
