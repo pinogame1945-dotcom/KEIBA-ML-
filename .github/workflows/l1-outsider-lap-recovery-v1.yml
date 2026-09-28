@@ -1,0 +1,25 @@
+name: L1 Outsider Lap Recovery V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-arena-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-lap-recovery-v1.trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-lap-recovery-v1
+  cancel-in-progress: true
+
+jobs:
+  lap:
+    name: lap-recovery
+    uses: ./.github/workflows/l1-outsider-incremental-v7.yml
+    with:
+      candidate: outsider_lap
+      start_delay_seconds: 30
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
