@@ -1,0 +1,45 @@
+{
+  "contract": "L15_ROLE_ROUTER_CONTRACT_V2",
+  "purpose": "Learn pre-race L1 expert routing by betting-role usefulness rather than literal finish-position columns.",
+  "feature_contract": "L15_ROLE_CANDIDATE_FEATURES_V2",
+  "label_contract": "L15_ROLE_CANDIDATE_LABELS_V2",
+  "granularity": "one race x role x expert x top_n candidate",
+  "roles": {
+    "ANCHOR": "candidate set captures a valid winner",
+    "MAINLINE": "candidate set captures at least one of the valid 2nd/3rd podium opponents",
+    "COVER": "candidate set captures both valid 2nd/3rd podium opponents"
+  },
+  "candidate_space": {
+    "ANCHOR": [
+      1,
+      2,
+      3
+    ],
+    "MAINLINE": [
+      1,
+      2,
+      3,
+      4
+    ],
+    "COVER": [
+      2,
+      3,
+      4,
+      5,
+      6
+    ]
+  },
+  "pre_race_only": true,
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "principles": [
+    "Do not treat literal 2nd and 3rd positions as separate responsibilities for MAINLINE/COVER.",
+    "MAINLINE rewards useful opponent capture regardless of whether that horse finished 2nd or 3rd.",
+    "COVER rewards complete capture of both podium opponents at a fixed candidate size.",
+    "Compare routers only against fixed experts at the same TopN candidate cost.",
+    "Dead heats are represented by all valid ordered podium outcomes.",
+    "2026 outcomes remain sealed."
+  ]
+}
