@@ -156,11 +156,14 @@ def build_rows(router_by_year,labels,years):
 def encode(train,test,key):
     tr=pd.DataFrame([r[key] for r in train])
     te=pd.DataFrame([r[key] for r in test])
-    both=pd.concat([tr,te],ignore_index=True)
-    cats=[c for c in both.columns if not pd.api.types.is_numeric_dtype(both[c])]
-    both=pd.get_dummies(both,columns=cats,dummy_na=True,dtype=float)
-    both=both.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
-    return both.iloc[:len(tr)].reset_index(drop=True),both.iloc[len(tr):].reset_index(drop=True)
+    tr_cats=[c for c in tr.columns if not pd.api.types.is_numeric_dtype(tr[c])]
+    te_cats=[c for c in te.columns if not pd.api.types.is_numeric_dtype(te[c])]
+    tr=pd.get_dummies(tr,columns=tr_cats,dummy_na=True,dtype=float)
+    te=pd.get_dummies(te,columns=te_cats,dummy_na=True,dtype=float)
+    te=te.reindex(columns=tr.columns,fill_value=0.0)
+    tr=tr.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
+    te=te.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
+    return tr.reset_index(drop=True),te.reset_index(drop=True)
 
 def model(seed):
     return lgb.LGBMClassifier(
