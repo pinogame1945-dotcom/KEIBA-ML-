@@ -13,10 +13,36 @@ permissions:
 
 concurrency:
   group: l15-role-router-v2-seven-kings
-  cancel-in-progress: false
+  cancel-in-progress: true
 
 jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      ok: ${{ steps.capacity.outputs.ok }}
+      bytes: ${{ steps.capacity.outputs.bytes }}
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+      - name: Verify free-storage headroom once
+        id: capacity
+        run: bash scripts/kaggle-storage-preflight.sh
+      - name: Cost guard
+        run: |
+          echo "Campaign-level preflight only."
+          echo "No GPU. Standard ubuntu-latest CPU only."
+          echo "All downstream jobs inherit this one preflight result."
+          echo "2026 remains sealed."
+
   score-seven:
+    needs: preflight
     strategy:
       fail-fast: false
       max-parallel: 7
@@ -39,6 +65,7 @@ jobs:
         year: [2021, 2022, 2023, 2024, 2025]
     uses: ./.github/workflows/l15-7k-score-one.yml
     with:
+      storage_preflight_ok: ${{ needs.preflight.outputs.ok }}
       candidate: ${{ matrix.king.candidate }}
       alias: ${{ matrix.king.alias }}
       validation_year: ${{ matrix.year }}
@@ -46,7 +73,7 @@ jobs:
       KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
 
   build-year:
-    needs: score-seven
+    needs: [preflight, score-seven]
     strategy:
       fail-fast: false
       max-parallel: 5
@@ -54,12 +81,13 @@ jobs:
         year: [2021, 2022, 2023, 2024, 2025]
     uses: ./.github/workflows/l15-7k-build-year.yml
     with:
+      storage_preflight_ok: ${{ needs.preflight.outputs.ok }}
       year: ${{ matrix.year }}
     secrets:
       KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
 
   train-fold:
-    needs: build-year
+    needs: [preflight, build-year]
     strategy:
       fail-fast: false
       max-parallel: 4
@@ -67,6 +95,7 @@ jobs:
         test_year: [2022, 2023, 2024, 2025]
     uses: ./.github/workflows/l15-7k-train-fold.yml
     with:
+      storage_preflight_ok: ${{ needs.preflight.outputs.ok }}
       test_year: ${{ matrix.test_year }}
     secrets:
       KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
