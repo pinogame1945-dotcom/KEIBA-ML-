@@ -1,0 +1,109 @@
+name: L1 Outsider Nonhorse Arena V3
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-nonhorse-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-nonhorse-v3.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-nonhorse-v3
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        include:
+          - candidate: outsider_daytrend
+            label: daytrend
+            delay: 0
+          - candidate: outsider_raceshape
+            label: raceshape
+            delay: 60
+          - candidate: outsider_gatecourse
+            label: gatecourse
+            delay: 120
+          - candidate: outsider_jockey
+            label: jockey
+            delay: 180
+          - candidate: outsider_field
+            label: field
+            delay: 240
+          - candidate: outsider_chimera
+            label: chimera
+            delay: 300
+    uses: ./.github/workflows/l1-outsider-nonhorse-all-years-v3.yml
+    with:
+      candidate: ${{ matrix.candidate }}
+      start_delay_seconds: ${{ matrix.delay }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    name: ledger
+    if: always()
+    needs:
+      - candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive all candidate-year results
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --config research/l1-outsider-nonhorse-v1.json \
+            --out-root research-results/l1-outsider-nonhorse-v1
+
+      - name: Commit small permanent ledger
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive nonhorse outsider v3 run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Six standard ubuntu-latest CPU runners at most."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Each candidate downloads its seven snapshots and five routers only once."
+          echo "All 2021-2025 folds then run from ephemeral runner SSD."
+          echo "Only small structured result ledger is committed."
+          echo "2026 remains sealed."
