@@ -1,0 +1,228 @@
+name: L1.5 Council Router V3
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-council-router-v3.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-council-router-v3
+  cancel-in-progress: true
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SNAPSHOT_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/analyze_l15_5k_council_arena_v1.py \
+            research/train_l15_council_router_v3.py \
+            research/persist_exact_kaggle_dataset.py
+          python -m pip install --disable-pip-version-check kaggle lightgbm pandas numpy scikit-learn
+
+      - name: Verify free-storage headroom
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore saved Council V3 inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          get_files_json() {
+            local ref="$1" attempt log raw delay
+            log="$(mktemp)"
+            for attempt in 1 2 3 4 5 6; do
+              : > "$log"
+              if raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)" 2>"$log")"; then
+                rm -f "$log"
+                printf '%s' "$raw"
+                return 0
+              fi
+              cat "$log" >&2
+              if ! grep -Eqi '429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+                echo "::error::Non-retryable Kaggle metadata failure: $ref" >&2
+                rm -f "$log"
+                return 1
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle metadata failed after retries: $ref" >&2
+                rm -f "$log"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              if [[ "$delay" -gt 60 ]]; then delay=60; fi
+              echo "::warning::Kaggle metadata throttled; ref=$ref attempt=$attempt/6 sleep=${delay}s" >&2
+              sleep "$delay"
+            done
+          }
+
+          resolve_remote() {
+            LOGICAL="$1" python - <<'PY'
+          import json,os
+          rows=json.loads(os.environ["RAW_JSON"])
+          names=sorted(str(x.get("name") or "") for x in rows if str(x.get("name") or ""))
+          logical=os.environ["LOGICAL"]
+          candidates=[logical]
+          if logical.endswith(".gz"):
+              candidates.append(logical[:-3])
+          else:
+              candidates.append(logical+".gz")
+          for x in candidates:
+              if x in names:
+                  print(x)
+                  raise SystemExit
+          nested=[
+              x for x in names
+              if x.startswith(logical+"/")
+              or x.startswith(logical+".gz/")
+              or (logical.endswith(".gz") and x.startswith(logical[:-3]+"/"))
+          ]
+          if len(nested)==1:
+              print(nested[0])
+              raise SystemExit
+          raise SystemExit(
+              f"missing/ambiguous remote file {logical}; nested={nested}; available={names}"
+          )
+          PY
+          }
+
+          download_remote() {
+            local ref="$1" remote="$2" out="$3" attempt log delay tmp p
+            log="$(mktemp)"
+            tmp="$out.tmpdir"
+            for attempt in 1 2 3 4 5 6; do
+              : > "$log"
+              rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$log" 2>&1; then
+                p="$(find "$tmp" -type f -print -quit)"
+                if [[ -n "$p" && -s "$p" ]]; then
+                  mkdir -p "$(dirname "$out")"
+                  cp "$p" "$out.tmp"
+                  mv "$out.tmp" "$out"
+                  rm -rf "$tmp"
+                  cat "$log"
+                  rm -f "$log"
+                  return 0
+                fi
+              fi
+              cat "$log" >&2 || true
+              if ! grep -Eqi '404|429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+                echo "::error::Non-retryable Kaggle download failure: $ref file=$remote" >&2
+                rm -f "$log"; rm -rf "$tmp"
+                return 1
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle download failed after retries: $ref file=$remote" >&2
+                rm -f "$log"; rm -rf "$tmp"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              if [[ "$delay" -gt 60 ]]; then delay=60; fi
+              echo "::warning::Kaggle download retry; ref=$ref file=$remote attempt=$attempt/6 sleep=${delay}s" >&2
+              sleep "$delay"
+            done
+          }
+
+          restore_logical() {
+            local ref="$1" logical="$2" out="$3"
+            local remote
+            remote="$(resolve_remote "$logical")"
+            download_remote "$ref" "$remote" "$out"
+          }
+
+          root="out/council-v3-input"
+          mkdir -p "$root"
+
+          echo "Restore Council Arena V1"
+          ref="pino1945/keiba-l15-5k-council-arena-v1"
+          export RAW_JSON="$(get_files_json "$ref")"
+          restore_logical             "$ref"             "l15-5k-council-arena-v1.json"             "$root/l15-5k-council-arena-v1.json"
+
+          echo "Restore snapshot dataset once"
+          export RAW_JSON="$(get_files_json "$SNAPSHOT_REF")"
+          for y in 2021 2022 2023 2024 2025; do
+            restore_logical               "$SNAPSHOT_REF"               "snapshot-$y.jsonl.gz"               "$root/snapshot-$y.jsonl"
+          done
+
+          echo "Restore yearly five-king role features"
+          for y in 2021 2022 2023 2024 2025; do
+            ref="pino1945/keiba-l15-rolecmp-y$y-v1"
+            export RAW_JSON="$(get_files_json "$ref")"
+            restore_logical               "$ref"               "role-features-5k.jsonl"               "$root/role-features-5k-y$y.jsonl"
+            sleep 1
+          done
+
+          echo "Restore OOS five-king router predictions"
+          for y in 2022 2023 2024 2025; do
+            ref="pino1945/keiba-l15-7k-fold-y$y-v1"
+            export RAW_JSON="$(get_files_json "$ref")"
+            restore_logical               "$ref"               "predictions-5k.jsonl"               "$root/predictions-5k-y$y.jsonl"
+            sleep 1
+          done
+
+          echo "COUNCIL_V3_INPUT_RESTORE_OK"
+
+      - name: Train and evaluate Council Router V3
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/council-v3-input"
+          out="out/council-router-v3"
+          mkdir -p "$out"
+
+          python research/train_l15_council_router_v3.py \
+            --arena "$root/l15-5k-council-arena-v1.json" \
+            --year-feature "2021:$root/role-features-5k-y2021.jsonl" \
+            --year-feature "2022:$root/role-features-5k-y2022.jsonl" \
+            --year-feature "2023:$root/role-features-5k-y2023.jsonl" \
+            --year-feature "2024:$root/role-features-5k-y2024.jsonl" \
+            --year-feature "2025:$root/role-features-5k-y2025.jsonl" \
+            --year-snapshot "2021:$root/snapshot-2021.jsonl" \
+            --year-snapshot "2022:$root/snapshot-2022.jsonl" \
+            --year-snapshot "2023:$root/snapshot-2023.jsonl" \
+            --year-snapshot "2024:$root/snapshot-2024.jsonl" \
+            --year-snapshot "2025:$root/snapshot-2025.jsonl" \
+            --year-pred "2022:$root/predictions-5k-y2022.jsonl" \
+            --year-pred "2023:$root/predictions-5k-y2023.jsonl" \
+            --year-pred "2024:$root/predictions-5k-y2024.jsonl" \
+            --year-pred "2025:$root/predictions-5k-y2025.jsonl" \
+            --out-dir "$out" \
+            --summary-out "$out/summary.json"
+
+      - name: Persist Council Router V3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-council-router-v3" \
+            --title "KEIBA L15 Council Router V3" \
+            --source-dir "out/council-router-v3"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Uses existing 2021-2025 snapshots, role features, OOS router predictions and Arena V1."
+          echo "No horse-score recomputation."
+          echo "2026 is sealed."
+          echo "Profit-first: L1.5 V3 is intermediate; production requires downstream L2/L3 EV/ROI validation."
