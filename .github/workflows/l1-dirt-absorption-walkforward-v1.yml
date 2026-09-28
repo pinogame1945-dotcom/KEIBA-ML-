@@ -1,0 +1,431 @@
+name: L1 Dirt Absorption Walk-Forward V1
+
+on:
+  push:
+    branches:
+      - research/l1-surface-specialists-v1-20260928
+    paths:
+      - .github/triggers/l1-dirt-absorption-walkforward-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-dirt-absorption-walkforward-v1
+  cancel-in-progress: false
+
+jobs:
+  lane_core4_2021:
+    name: league-core4_no_pedigree-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: core4_no_pedigree
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_core4_2022:
+    name: league-core4_no_pedigree-y2022
+    needs: lane_core4_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: core4_no_pedigree
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_core4_2023:
+    name: league-core4_no_pedigree-y2023
+    needs: lane_core4_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: core4_no_pedigree
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_core4_2024:
+    name: league-core4_no_pedigree-y2024
+    needs: lane_core4_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: core4_no_pedigree
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_core4_2025:
+    name: league-core4_no_pedigree-y2025
+    needs: lane_core4_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: core4_no_pedigree
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_legacy_2021:
+    name: league-no_auto_full_pedigree_legacy-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_legacy
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_legacy_2022:
+    name: league-no_auto_full_pedigree_legacy-y2022
+    needs: lane_pedigree_legacy_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_legacy
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_legacy_2023:
+    name: league-no_auto_full_pedigree_legacy-y2023
+    needs: lane_pedigree_legacy_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_legacy
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_legacy_2024:
+    name: league-no_auto_full_pedigree_legacy-y2024
+    needs: lane_pedigree_legacy_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_legacy
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_legacy_2025:
+    name: league-no_auto_full_pedigree_legacy-y2025
+    needs: lane_pedigree_legacy_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_legacy
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_2021:
+    name: league-jockey_trainer_condition-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_2022:
+    name: league-jockey_trainer_condition-y2022
+    needs: lane_condition_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_2023:
+    name: league-jockey_trainer_condition-y2023
+    needs: lane_condition_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_2024:
+    name: league-jockey_trainer_condition-y2024
+    needs: lane_condition_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_2025:
+    name: league-jockey_trainer_condition-y2025
+    needs: lane_condition_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_full_2021:
+    name: league-no_auto_full-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_full_2022:
+    name: league-no_auto_full-y2022
+    needs: lane_full_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_full_2023:
+    name: league-no_auto_full-y2023
+    needs: lane_full_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_full_2024:
+    name: league-no_auto_full-y2024
+    needs: lane_full_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_full_2025:
+    name: league-no_auto_full-y2025
+    needs: lane_full_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_light_2021:
+    name: league-no_auto_jockey-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_jockey
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_light_2022:
+    name: league-no_auto_jockey-y2022
+    needs: lane_light_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_jockey
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_light_2023:
+    name: league-no_auto_jockey-y2023
+    needs: lane_light_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_jockey
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_light_2024:
+    name: league-no_auto_jockey-y2024
+    needs: lane_light_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_jockey
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_light_2025:
+    name: league-no_auto_jockey-y2025
+    needs: lane_light_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_jockey
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_v1_2021:
+    name: league-no_auto_full_pedigree_v1-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_v1
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_v1_2022:
+    name: league-no_auto_full_pedigree_v1-y2022
+    needs: lane_pedigree_v1_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_v1
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_v1_2023:
+    name: league-no_auto_full_pedigree_v1-y2023
+    needs: lane_pedigree_v1_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_v1
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_v1_2024:
+    name: league-no_auto_full_pedigree_v1-y2024
+    needs: lane_pedigree_v1_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_v1
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_pedigree_v1_2025:
+    name: league-no_auto_full_pedigree_v1-y2025
+    needs: lane_pedigree_v1_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: no_auto_full_pedigree_v1
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_rc_2021:
+    name: league-jockey_trainer_condition_plus_raceclass-y2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition_plus_raceclass
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_rc_2022:
+    name: league-jockey_trainer_condition_plus_raceclass-y2022
+    needs: lane_condition_rc_2021
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition_plus_raceclass
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_rc_2023:
+    name: league-jockey_trainer_condition_plus_raceclass-y2023
+    needs: lane_condition_rc_2022
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition_plus_raceclass
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_rc_2024:
+    name: league-jockey_trainer_condition_plus_raceclass-y2024
+    needs: lane_condition_rc_2023
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition_plus_raceclass
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  lane_condition_rc_2025:
+    name: league-jockey_trainer_condition_plus_raceclass-y2025
+    needs: lane_condition_rc_2024
+    uses: ./.github/workflows/l1-dirt-absorption-wf-one.yml
+    with:
+      candidate: jockey_trainer_condition_plus_raceclass
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    name: ledger
+    if: always()
+    needs:
+      - lane_core4_2025
+      - lane_pedigree_legacy_2025
+      - lane_condition_2025
+      - lane_full_2025
+      - lane_light_2025
+      - lane_pedigree_v1_2025
+      - lane_condition_rc_2025
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive permanent dirt absorption walk-forward ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l1_walkforward_run.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --config research/l1-dirt-absorption-walkforward-v1.json \
+            --out-root research-results/l1-dirt-absorption-walkforward
+
+      - name: Commit permanent ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-dirt-absorption-walkforward/DIRT-ABSORB-WF-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive DIRT-ABSORB-WF-001 run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Ledger cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Only small text/JSON result ledgers are committed to Git."
+          echo "Kaggle snapshot eb13d4096519167b is read-only."
