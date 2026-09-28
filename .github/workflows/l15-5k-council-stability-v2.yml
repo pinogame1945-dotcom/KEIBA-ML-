@@ -1,0 +1,136 @@
+name: L1.5 Five-King Council Stability V2
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-5k-council-stability-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-role-router-v2-five-king-council
+  cancel-in-progress: true
+
+jobs:
+  stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/analyze_l15_5k_council_stability_v2.py \
+            research/persist_exact_kaggle_dataset.py
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Verify free-storage headroom
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore Council Arena V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="pino1945/keiba-l15-5k-council-arena-v1"
+          logical="l15-5k-council-arena-v1.json"
+          raw=""
+          log="$(mktemp)"
+
+          for attempt in 1 2 3 4 5 6; do
+            : > "$log"
+            if raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)" 2>"$log")"; then
+              break
+            fi
+            cat "$log" >&2
+            if ! grep -Eqi '429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+              echo "::error::Non-retryable Kaggle metadata failure" >&2
+              exit 1
+            fi
+            if [[ "$attempt" -eq 6 ]]; then
+              echo "::error::Kaggle metadata failed after retries" >&2
+              exit 1
+            fi
+            delay=$((5 * (2 ** (attempt - 1))))
+            if [[ "$delay" -gt 60 ]]; then delay=60; fi
+            sleep "$delay"
+          done
+
+          remote="$(RAW_JSON="$raw" LOGICAL="$logical" python - <<'PY'
+          import json,os
+          rows=json.loads(os.environ["RAW_JSON"])
+          names=sorted(str(x.get("name") or "") for x in rows if str(x.get("name") or ""))
+          logical=os.environ["LOGICAL"]
+          for x in (logical, logical+".gz"):
+              if x in names:
+                  print(x)
+                  raise SystemExit
+          nested=[x for x in names if x.startswith(logical+"/") or x.startswith(logical+".gz/")]
+          if len(nested)==1:
+              print(nested[0])
+              raise SystemExit
+          raise SystemExit(f"missing/ambiguous arena result: nested={nested}; available={names}")
+          PY
+          )"
+
+          tmp="out/stability-restore"
+          rm -rf "$tmp"; mkdir -p "$tmp"
+          for attempt in 1 2 3 4 5 6; do
+            rm -rf "$tmp"; mkdir -p "$tmp"
+            if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force; then
+              break
+            fi
+            if [[ "$attempt" -eq 6 ]]; then
+              echo "::error::Arena result download failed after retries" >&2
+              exit 1
+            fi
+            delay=$((5 * (2 ** (attempt - 1))))
+            if [[ "$delay" -gt 60 ]]; then delay=60; fi
+            sleep "$delay"
+          done
+
+          p="$(find "$tmp" -type f -print -quit)"
+          test -n "$p"; test -s "$p"
+          mkdir -p out
+          cp "$p" out/l15-5k-council-arena-v1.json
+          echo "COUNCIL_ARENA_V1_RESTORE_OK"
+
+      - name: Run stability selection
+        run: |
+          set -euo pipefail
+          python research/analyze_l15_5k_council_stability_v2.py \
+            --arena out/l15-5k-council-arena-v1.json \
+            --output out/l15-5k-council-stability-v2.json
+
+      - name: Persist stability result
+        run: |
+          set -euo pipefail
+          stage="out/stability-stage"
+          rm -rf "$stage"; mkdir -p "$stage"
+          cp out/l15-5k-council-stability-v2.json "$stage/"
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-5k-council-stability-v2" \
+            --title "KEIBA L15 Five King Council Stability V2" \
+            --source-dir "$stage"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Uses only saved Council Arena V1 output."
+          echo "2022-2024 select survivors; 2025 is confirmation only."
+          echo "2026 is sealed."
+          echo "North star: downstream betting profit/EV/ROI, not L1.5 accuracy alone."
