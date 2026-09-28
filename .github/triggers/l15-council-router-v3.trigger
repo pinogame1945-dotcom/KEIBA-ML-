@@ -1,1 +1,1 @@
-Run Council Router V3. Dynamic per-cell candidate pools selected only from prior OOS years; separate LightGBM hit-probability router per role/top_n; test 2023-2025; save models and race decisions. Profit-first. 2026 sealed.
+Run Council Router V3 parallel retry after exit 143. Split into ANCHOR / MAINLINE / COVER standard-CPU lanes. Each lane processes one role only. Stagger Kaggle restore to reduce throttling. Profit-first. 2026 sealed.
