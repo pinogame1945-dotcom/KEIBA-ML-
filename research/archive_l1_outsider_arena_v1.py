@@ -34,8 +34,10 @@ def gh_log(repo,job_id):
 def clean(s):
     return TS_RE.sub("",ANSI_RE.sub("",s).replace("\ufeff","")).strip()
 
-def extract(log):
+def extract_all(log):
     lines=[clean(x) for x in log.splitlines()]
+    out=[]
+    seen=set()
     for i,line in enumerate(lines):
         if MARKER not in line: continue
         for row in lines[i+1:i+10]:
@@ -44,8 +46,11 @@ def extract(log):
             try: v=json.loads(row[at:])
             except json.JSONDecodeError: continue
             if isinstance(v,dict) and v.get("candidate") and v.get("validation_year"):
-                return v
-    return None
+                key=(str(v.get("candidate")),int(v.get("validation_year")))
+                if key not in seen:
+                    out.append(v); seen.add(key)
+                break
+    return out
 
 def error_excerpt(log,limit=12):
     out=[]
@@ -208,22 +213,24 @@ def main():
         name=str(job.get("name") or "")
         if "outsider-" not in name: continue
         log,err=gh_log(a.repo,job["id"])
-        result=extract(log)
+        results=extract_all(log)
         rec={"job_id":job.get("id"),"name":name,"status":job.get("status"),"conclusion":job.get("conclusion"),
              "started_at":job.get("started_at"),"completed_at":job.get("completed_at"),"log_fetch_error":err}
-        if result:
-            row={**result,"status":"success","job_id":job.get("id")}
-            rows.append(row)
-            rec["structured_result"]=result
+        if results:
+            for result in results:
+                rows.append({**result,"status":"success","job_id":job.get("id")})
+            rec["structured_results"]=results
+            if job.get("conclusion")!="success":
+                rec["error_excerpt"]=error_excerpt(log)
         else:
-            m=re.search(r"outsider-(outsider_[a-z]+)-y(20\d{2})",name)
+            m=re.search(r"outsider-(outsider_[a-z]+)(?:-all-years|-y(20\d{2}))?",name)
             cand=m.group(1) if m else name
-            year=int(m.group(2)) if m else None
-            row={"candidate":cand,"label_ja":labels.get(cand,cand),"validation_year":year,
-                 "status":job.get("conclusion") or job.get("status"),"metrics":{},"rescue":{},
-                 "job_id":job.get("id"),"error_excerpt":error_excerpt(log),"log_fetch_error":err}
-            rows.append(row)
-            rec["error_excerpt"]=row["error_excerpt"]
+            year=int(m.group(2)) if m and m.group(2) else None
+            if year is not None:
+                rows.append({"candidate":cand,"label_ja":labels.get(cand,cand),"validation_year":year,
+                             "status":job.get("conclusion") or job.get("status"),"metrics":{},"rescue":{},
+                             "job_id":job.get("id"),"error_excerpt":error_excerpt(log),"log_fetch_error":err})
+            rec["error_excerpt"]=error_excerpt(log)
         logs.append(rec)
 
     got={(r.get("candidate"),r.get("validation_year")) for r in rows}
