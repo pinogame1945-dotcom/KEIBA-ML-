@@ -1,0 +1,42 @@
+{
+  "contract": "L1_TO_L2_OUTPUT_CONTRACT_V1",
+  "version": 1,
+  "row_granularity": "ONE_L1_EXPERT_X_ONE_RACE_X_ONE_HORSE",
+  "principles": {
+    "ability_uses_odds": false,
+    "pre_race_only": true,
+    "outcomes_joined_separately_for_l2_training": true,
+    "market_data_joined_separately_with_timestamp_policy": true,
+    "2026_locked": true
+  },
+  "forbidden_payload_fields": [
+    "actual_is_win",
+    "actual_finish_position",
+    "target",
+    "finish_position",
+    "finish_time_ms",
+    "last_3f",
+    "prize_money",
+    "final_win_odds",
+    "final_popularity",
+    "payout",
+    "payouts"
+  ],
+  "expert_identity": {
+    "basis": [
+      "candidate_name",
+      "prediction_phase",
+      "feature_sets",
+      "actor_prefixes",
+      "auto_slices",
+      "feature_selection_mode"
+    ],
+    "hash": "sha256 first 16 hex"
+  },
+  "contribution_method": "LightGBM TreeSHAP pred_contrib grouped by canonical Feature Set",
+  "prototype_memory_policy": {
+    "separate_process_after_training": true,
+    "default_chunk_size": 128,
+    "reason": "Do not stack TreeSHAP memory on top of peak L1 training memory."
+  }
+}
