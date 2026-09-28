@@ -206,7 +206,8 @@ def encode(train_rows,test_rows):
     te=pd.DataFrame([r["x"] for r in test_rows])
     cat=[c for c in tr.columns if not pd.api.types.is_numeric_dtype(tr[c])]
     tr=pd.get_dummies(tr,columns=cat,dummy_na=True,dtype=float)
-    te=pd.get_dummies(te,columns=[c for c in te.columns if c in cat],dummy_na=True,dtype=float)
+    te_cat=[c for c in te.columns if not pd.api.types.is_numeric_dtype(te[c])]
+    te=pd.get_dummies(te,columns=te_cat,dummy_na=True,dtype=float)
     te=te.reindex(columns=tr.columns,fill_value=0.0)
     tr=tr.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
     te=te.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
