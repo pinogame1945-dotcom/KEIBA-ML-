@@ -1,0 +1,79 @@
+{
+  "contract": "L15_OUTSIDER_ROUTER_31_V1_EXPERIMENT",
+  "experiment_id": "L15-OUTSIDER-ROUTER-31-001",
+  "source": {
+    "gate_selected_path": "research-results/l15-consensus-world-race-ids-v1/run-36442605271/selected-top10-all.csv",
+    "outsider_ledger_sha": "d63a7c4",
+    "outsider_run_id": 36419042735,
+    "router_contract": "ROUTER_FEATURE_SNAPSHOT_V1"
+  },
+  "candidates": [
+    "当日傾向型",
+    "レース構造型",
+    "枠・コース型",
+    "メンバー構成型",
+    "騎手型"
+  ],
+  "feature_sets": [
+    "COMPACT",
+    "FULL"
+  ],
+  "locked_years": [
+    2026
+  ],
+  "ability_uses_odds": false,
+  "walk_forward": [
+    {
+      "train_years": [
+        2021
+      ],
+      "test_year": 2022
+    },
+    {
+      "train_years": [
+        2021,
+        2022
+      ],
+      "test_year": 2023
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "test_year": 2024
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "test_year": 2025
+    }
+  ],
+  "parallelism": {
+    "fold_jobs": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "max_parallel": 4,
+    "restore_stagger_seconds": [
+      0,
+      35,
+      70,
+      105
+    ]
+  },
+  "persistence": {
+    "github_artifact": false,
+    "github_cache": false,
+    "new_kaggle_dataset": false,
+    "models": false,
+    "small_git_ledger": true
+  }
+}
