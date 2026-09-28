@@ -1,0 +1,4337 @@
+{
+  "contract": "L15_OUTSIDER_ROUTER_31_V1_FOLD",
+  "experiment_id": "L15-OUTSIDER-ROUTER-31-001",
+  "test_year": 2025,
+  "train_years": [
+    2021,
+    2022,
+    2023,
+    2024
+  ],
+  "train_blind_rows": 1358,
+  "alerts": 346,
+  "gate_caught_blind": 79,
+  "five_outsider_oracle_on_gate_blind": 69,
+  "feature_sets": {
+    "COMPACT": {
+      "feature_count": 87,
+      "candidate_models": {
+        "当日傾向型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4374079528718704,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 746.4638869762421
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 719.2922773361206
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 710.6963260173798
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 624.2695872783661
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 610.9466797113419
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 596.5906775593758
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 523.7023185491562
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 483.3987959623337
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 479.7511896491051
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 378.32413840293884
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 341.8169096708298
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 257.93347412347794
+            }
+          ]
+        },
+        "レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.42783505154639173,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 3467.48371642828
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1939.136631846428
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 563.0467246770859
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 510.57234847545624
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 473.9292874932289
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 471.478422999382
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 434.4919812679291
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 426.2099165916443
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 424.3031768798828
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 412.2879800796509
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 383.02224683761597
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 375.6096680164337
+            }
+          ]
+        },
+        "枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4322533136966127,
+          "top_features": [
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 914.9616487026215
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 806.0853429436684
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 729.1406598091125
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 710.2106721997261
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 552.7435536384583
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 527.6712654829025
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 489.92940306663513
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 425.38191962242126
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 415.3944254517555
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 324.8761794567108
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 309.0449410676956
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 295.72318452596664
+            }
+          ]
+        },
+        "メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.37260677466863035,
+          "top_features": [
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 768.0457845926285
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 625.0517110824585
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 573.8843163847923
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 541.8453611731529
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 523.3301109075546
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 506.06918156147003
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 478.3796561360359
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 472.5527198314667
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 462.4235880970955
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 460.2545291185379
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 438.2324974536896
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 405.5454099178314
+            }
+          ]
+        },
+        "騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.24005891016200295,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 1110.33269572258
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 731.8991311192513
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 687.2196089029312
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 684.6375352144241
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 602.1856106519699
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 580.3349046707153
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 543.6632941365242
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 531.4496799707413
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 520.5204371809959
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 518.6820908784866
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 497.40703082084656
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 296.8190094232559
+            }
+          ]
+        }
+      },
+      "combo_models": {
+        "当日傾向型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4374079528718704,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 746.4638869762421
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 719.2922773361206
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 710.6963260173798
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 624.2695872783661
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 610.9466797113419
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 596.5906775593758
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 523.7023185491562
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 483.3987959623337
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 479.7511896491051
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 378.32413840293884
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 341.8169096708298
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 257.93347412347794
+            }
+          ]
+        },
+        "レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.42783505154639173,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 3467.48371642828
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1939.136631846428
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 563.0467246770859
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 510.57234847545624
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 473.9292874932289
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 471.478422999382
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 434.4919812679291
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 426.2099165916443
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 424.3031768798828
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 412.2879800796509
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 383.02224683761597
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 375.6096680164337
+            }
+          ]
+        },
+        "枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4322533136966127,
+          "top_features": [
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 914.9616487026215
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 806.0853429436684
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 729.1406598091125
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 710.2106721997261
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 552.7435536384583
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 527.6712654829025
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 489.92940306663513
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 425.38191962242126
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 415.3944254517555
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 324.8761794567108
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 309.0449410676956
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 295.72318452596664
+            }
+          ]
+        },
+        "メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.37260677466863035,
+          "top_features": [
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 768.0457845926285
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 625.0517110824585
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 573.8843163847923
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 541.8453611731529
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 523.3301109075546
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 506.06918156147003
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 478.3796561360359
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 472.5527198314667
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 462.4235880970955
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 460.2545291185379
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 438.2324974536896
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 405.5454099178314
+            }
+          ]
+        },
+        "騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.24005891016200295,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 1110.33269572258
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 731.8991311192513
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 687.2196089029312
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 684.6375352144241
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 602.1856106519699
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 580.3349046707153
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 543.6632941365242
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 531.4496799707413
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 520.5204371809959
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 518.6820908784866
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 497.40703082084656
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 296.8190094232559
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6325478645066274,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2404.0874292850494
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 716.0370243787766
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 625.6528728604317
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 579.8551187515259
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 556.057305753231
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 548.4553692340851
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 533.848760843277
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 433.55888068675995
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 427.92006582021713
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 382.11337089538574
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 369.47687143087387
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 304.3427597284317
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6502209131075111,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 1032.2257902026176
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 709.5481173992157
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 675.2733755707741
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 589.6034299135208
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 559.6839001178741
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 531.9815310239792
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 528.3889731168747
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 472.87943816185
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 425.15914845466614
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 406.40742897987366
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 403.25368946790695
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 230.4892702102661
+            }
+          ]
+        },
+        "当日傾向型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6347569955817378,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 876.0051776170731
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 787.6322202086449
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 747.7226696014404
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 696.9831109642982
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 604.4593307971954
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 562.4315700531006
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 534.6312284469604
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 482.13287019729614
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 379.23722863197327
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 335.16513895988464
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 319.05885630846024
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 302.11912256479263
+            }
+          ]
+        },
+        "当日傾向型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5625920471281296,
+          "top_features": [
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 1029.5436072945595
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 926.4043478965759
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 831.7948476076126
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 693.3181203603745
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 578.7812910079956
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 577.9240766763687
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 505.7765098810196
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 453.8167505264282
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 437.3518397808075
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 392.8442703485489
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 380.4140205383301
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 276.63638150691986
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6745213549337261,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2271.8300619125366
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 790.301106929779
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 681.5660144090652
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 556.336339712143
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 531.5484378933907
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 523.5331121087074
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 489.5590009689331
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 399.57871383428574
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 370.8467381000519
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 343.277539730072
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 328.582782804966
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 325.6700317263603
+            }
+          ]
+        },
+        "レース構造型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6325478645066274,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1347.026224732399
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 1332.432439982891
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 759.3176944851875
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 718.9023652672768
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 646.3010028600693
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 610.0101277828217
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 571.435840010643
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 448.55539095401764
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 399.09828901290894
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 344.15027916431427
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 343.0373705625534
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 339.6090455055237
+            }
+          ]
+        },
+        "レース構造型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5758468335787923,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2907.728333234787
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 680.2761815786362
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 672.1195696592331
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 663.9681700468063
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 635.0490876436234
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 607.5909984111786
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 459.95578956604004
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 455.56688916683197
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 443.7723818421364
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 422.87737011909485
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 396.50777822732925
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 358.2408902645111
+            }
+          ]
+        },
+        "枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6362297496318114,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 886.7854434847832
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 867.2654112577438
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 827.1160368323326
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 664.0427978634834
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 579.0357689857483
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 548.8913502693176
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 486.5755796432495
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 431.16199004650116
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 408.40726125240326
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 376.72583013772964
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 376.02658927440643
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 255.23544037342072
+            }
+          ]
+        },
+        "枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5567010309278351,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 1000.7885887026787
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 817.646646797657
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 719.4406895637512
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 697.1082099676132
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 662.7406692504883
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 524.8044706583023
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 516.9320304393768
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 397.7096700668335
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 377.68499517440796
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 347.619992017746
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 340.18264842033386
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 323.4129611849785
+            }
+          ]
+        },
+        "メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5095729013254786,
+          "top_features": [
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 786.4656381011009
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 741.9044385552406
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 711.8716921806335
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 621.7438572645187
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 565.5766867399216
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 545.7209776639938
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 530.5144702196121
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 514.5098733901978
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 512.5594016313553
+            },
+            {
+              "feature": "coverage_prior_starts_le2_rate",
+              "gain": 491.2433397769928
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 423.91810870170593
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 399.1279903650284
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7731958762886598,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1491.0289504528046
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 1077.4759399294853
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 618.7710421681404
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 505.70276790857315
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 497.7812092900276
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 435.71048736572266
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 429.5021142959595
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 408.7201998233795
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 403.1251919269562
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 347.5859417915344
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 304.9346982240677
+            },
+            {
+              "feature": "coverage_prior_starts_le2_rate",
+              "gain": 299.0352588891983
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7496318114874816,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 900.7354023456573
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 884.2263340353966
+            },
+            {
+              "feature": "coverage_prior_starts_le1_rate",
+              "gain": 832.8134596347809
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 710.2946017980576
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 554.8437291383743
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 473.3025006055832
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 459.7293552160263
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 436.4619085788727
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 415.40907496213913
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 333.32114547491074
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 313.6591321825981
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 305.3152232170105
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7268041237113402,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2027.3760954141617
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 861.9977793097496
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 688.1274717450142
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 631.0936015844345
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 475.2963001728058
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 455.9560195207596
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 455.1521315574646
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 444.98047375679016
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 443.62095081806183
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 430.75353014469147
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 415.81919169425964
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 320.45425963401794
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7709867452135494,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 880.2267454862595
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 728.1421468257904
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 685.664720594883
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 677.5817431211472
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 670.3525192737579
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 562.1742889285088
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 437.11428022384644
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 422.27584087848663
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 347.5077061057091
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 320.72408175468445
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 287.4352583885193
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 265.7499483823776
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7245949926362297,
+          "top_features": [
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 1065.1436523199081
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 805.3901000022888
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 786.8833329677582
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 583.0107811689377
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 581.0088976025581
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 569.918325483799
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 521.1224809885025
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 508.5799205303192
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 483.6626156568527
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 365.5048803091049
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 313.71684861183167
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 285.6174577474594
+            }
+          ]
+        },
+        "当日傾向型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7083946980854198,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 842.3272914290428
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 751.1632902622223
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 736.1555668711662
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 635.4223761558533
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 622.9983140826225
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 585.4393503665924
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 449.3680373430252
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 438.44236993789673
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 420.78238838911057
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 378.9338780641556
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 328.7550423145294
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 326.9236913919449
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7916053019145802,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 999.5861865878105
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 809.5424856543541
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 663.6724808216095
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 565.710959136486
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 550.3238471746445
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 492.1627789735794
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 482.7465933561325
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 480.6817716360092
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 467.77235758304596
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 467.3528084754944
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 367.13542115688324
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 343.0479907989502
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7533136966126657,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1634.3386515378952
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 891.5041768550873
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 690.15929043293
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 552.7520577311516
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 540.3207592964172
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 494.4487606883049
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 462.9581159353256
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 449.2232095003128
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 427.5874309539795
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 412.5325199365616
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 393.0442410707474
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 285.1124923825264
+            }
+          ]
+        },
+        "レース構造型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.719440353460972,
+          "top_features": [
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 1109.718568444252
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 977.9125497341156
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 747.4730685949326
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 663.576686501503
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 657.7830203175545
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 620.6320117712021
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 604.2120821475983
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 593.5786710977554
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 453.45916879177094
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 416.55259144306183
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 352.7348098754883
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 334.70440924167633
+            }
+          ]
+        },
+        "枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7047128129602357,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 864.2309937477112
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 798.2099496722221
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 715.1583622694016
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 706.9684587717056
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 525.6031081676483
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 470.9151314496994
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 461.70823615789413
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 451.7600122690201
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 441.17799139022827
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 415.3001208305359
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 395.80079996585846
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 378.35377860069275
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8483063328424153,
+          "top_features": [
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 957.668281018734
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 728.8527799248695
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 673.7685436010361
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 630.531010389328
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 506.0823832154274
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 440.4603926539421
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 423.7470613718033
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 397.54781621694565
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 376.9913991689682
+            },
+            {
+              "feature": "coverage_prior_starts_le2_rate",
+              "gain": 349.3272124528885
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 327.34354043006897
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 320.80688029527664
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8298969072164949,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 989.1944327354431
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 848.8459242582321
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 544.1819497346878
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 523.9211491346359
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 523.7425884008408
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 512.1705847978592
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 503.4688103199005
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 495.8802660703659
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 435.7187753915787
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 434.4385209083557
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 331.78151845932007
+            },
+            {
+              "feature": "race_distance_m",
+              "gain": 265.89238357543945
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8092783505154639,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 780.6905226111412
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 740.8182197809219
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 636.8040685653687
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 571.3677572607994
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 551.0091807842255
+            },
+            {
+              "feature": "coverage_prior_starts_le1_rate",
+              "gain": 509.04873394966125
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 462.0633351802826
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 460.7906571030617
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 418.63253033161163
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 402.6157170534134
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 377.85984897613525
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 377.2967059016228
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.812960235640648,
+          "top_features": [
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 767.4518121480942
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 738.4130901694298
+            },
+            {
+              "feature": "cw_entropy_std",
+              "gain": 629.2539781332016
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 606.6636520624161
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 567.5408998727798
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 519.0633219480515
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 516.6675961017609
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 439.7708870768547
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 431.79303205013275
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 346.43107652664185
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 306.9470422267914
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 287.2649414539337
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8357879234167894,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 906.067188680172
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 751.9989480376244
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 566.2962483167648
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 527.0166212916374
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 514.2627831697464
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 505.6288274526596
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 429.5139439702034
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 429.161060154438
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 424.02665984630585
+            },
+            {
+              "feature": "cw_top6_jaccard",
+              "gain": 381.3146262168884
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 361.4245399236679
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 355.17260724306107
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.882179675994109,
+          "top_features": [
+            {
+              "feature": "cw_entropy_std",
+              "gain": 699.5399586558342
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 625.312866806984
+            },
+            {
+              "feature": "cw_prob_std_max",
+              "gain": 602.635446190834
+            },
+            {
+              "feature": "cw_prob_std_mean",
+              "gain": 509.2249003648758
+            },
+            {
+              "feature": "cw_entropy_mean",
+              "gain": 479.650551199913
+            },
+            {
+              "feature": "cw_top3_jaccard",
+              "gain": 431.62908005714417
+            },
+            {
+              "feature": "cw_top3_mass_mean",
+              "gain": 410.97483026981354
+            },
+            {
+              "feature": "cw_rank_std_mean",
+              "gain": 366.78738963603973
+            },
+            {
+              "feature": "cw_rank_diff_mean",
+              "gain": 355.445809006691
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 351.1256685256958
+            },
+            {
+              "feature": "cw_top6_mass_mean",
+              "gain": 349.1240730881691
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 325.3769388794899
+            }
+          ]
+        }
+      },
+      "policies": {
+        "INDIVIDUAL_TOP1": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 33,
+            "rescue_rate_within_gate_blind": 0.4177215189873418,
+            "end_to_end_rescue_rate_all_blind": 0.024158125915080528,
+            "outsider_calls": 346,
+            "avg_outsiders_per_alert": 1.0,
+            "rescue_per_100_outsider_calls": 9.53757225433526,
+            "rescue_per_100_gate_alerts": 9.53757225433526,
+            "false_alert_calls": 267,
+            "true_alert_calls": 79
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": -2,
+          "delta_gate_blind_recall_pp_vs_fixed": -2.53164556962025
+        },
+        "INDIVIDUAL_TOP2": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 47,
+            "rescue_rate_within_gate_blind": 0.5949367088607594,
+            "end_to_end_rescue_rate_all_blind": 0.034407027818448024,
+            "outsider_calls": 692,
+            "avg_outsiders_per_alert": 2.0,
+            "rescue_per_100_outsider_calls": 6.791907514450867,
+            "rescue_per_100_gate_alerts": 13.583815028901734,
+            "false_alert_calls": 534,
+            "true_alert_calls": 158
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": 2,
+          "delta_gate_blind_recall_pp_vs_fixed": 2.5316455696202445
+        },
+        "INDIVIDUAL_TOP3": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 55,
+            "rescue_rate_within_gate_blind": 0.6962025316455697,
+            "end_to_end_rescue_rate_all_blind": 0.04026354319180088,
+            "outsider_calls": 1038,
+            "avg_outsiders_per_alert": 3.0,
+            "rescue_per_100_outsider_calls": 5.298651252408478,
+            "rescue_per_100_gate_alerts": 15.895953757225433,
+            "false_alert_calls": 801,
+            "true_alert_calls": 237
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": -3,
+          "delta_gate_blind_recall_pp_vs_fixed": -3.797468354430378
+        },
+        "COMBO_K1": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 33,
+            "rescue_rate_within_gate_blind": 0.4177215189873418,
+            "end_to_end_rescue_rate_all_blind": 0.024158125915080528,
+            "outsider_calls": 346,
+            "avg_outsiders_per_alert": 1.0,
+            "rescue_per_100_outsider_calls": 9.53757225433526,
+            "rescue_per_100_gate_alerts": 9.53757225433526,
+            "false_alert_calls": 267,
+            "true_alert_calls": 79
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.5610986008794084,
+          "delta_rescued_vs_fixed": -2,
+          "delta_gate_blind_recall_pp_vs_fixed": -2.53164556962025
+        },
+        "COMBO_K2": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 47,
+            "rescue_rate_within_gate_blind": 0.5949367088607594,
+            "end_to_end_rescue_rate_all_blind": 0.034407027818448024,
+            "outsider_calls": 692,
+            "avg_outsiders_per_alert": 2.0,
+            "rescue_per_100_outsider_calls": 6.791907514450867,
+            "rescue_per_100_gate_alerts": 13.583815028901734,
+            "false_alert_calls": 534,
+            "true_alert_calls": 158
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.7552644796478434,
+          "delta_rescued_vs_fixed": 2,
+          "delta_gate_blind_recall_pp_vs_fixed": 2.5316455696202445
+        },
+        "COMBO_K3": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 57,
+            "rescue_rate_within_gate_blind": 0.7215189873417721,
+            "end_to_end_rescue_rate_all_blind": 0.04172767203513909,
+            "outsider_calls": 1038,
+            "avg_outsiders_per_alert": 3.0,
+            "rescue_per_100_outsider_calls": 5.491329479768786,
+            "rescue_per_100_gate_alerts": 16.473988439306357,
+            "false_alert_calls": 801,
+            "true_alert_calls": 237
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.84342547893835,
+          "delta_rescued_vs_fixed": -1,
+          "delta_gate_blind_recall_pp_vs_fixed": -1.2658227848101333
+        },
+        "COMBO_K4": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 67,
+            "rescue_rate_within_gate_blind": 0.8481012658227848,
+            "end_to_end_rescue_rate_all_blind": 0.04904831625183016,
+            "outsider_calls": 1384,
+            "avg_outsiders_per_alert": 4.0,
+            "rescue_per_100_outsider_calls": 4.841040462427745,
+            "rescue_per_100_gate_alerts": 19.36416184971098,
+            "false_alert_calls": 1068,
+            "true_alert_calls": 316
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.8795162356351327,
+          "delta_rescued_vs_fixed": 0,
+          "delta_gate_blind_recall_pp_vs_fixed": 0.0
+        },
+        "COMBO_K5": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 69,
+            "rescue_rate_within_gate_blind": 0.8734177215189873,
+            "end_to_end_rescue_rate_all_blind": 0.050512445095168376,
+            "outsider_calls": 1730,
+            "avg_outsiders_per_alert": 5.0,
+            "rescue_per_100_outsider_calls": 3.9884393063583814,
+            "rescue_per_100_gate_alerts": 19.942196531791907,
+            "false_alert_calls": 1335,
+            "true_alert_calls": 395
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.8706980129377495,
+          "delta_rescued_vs_fixed": 0,
+          "delta_gate_blind_recall_pp_vs_fixed": 0.0
+        }
+      }
+    },
+    "FULL": {
+      "feature_count": 210,
+      "candidate_models": {
+        "当日傾向型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4374079528718704,
+          "top_features": [
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 478.227840423584
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 316.09668016433716
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 310.64399123191833
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 299.9280982017517
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability_mass",
+              "gain": 268.6998198032379
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 243.8434398174286
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_probability",
+              "gain": 231.2354395389557
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 215.99882996082306
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 212.13945055007935
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 207.40560126304626
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 206.88368964195251
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top1_top3_gap",
+              "gain": 181.45262944698334
+            }
+          ]
+        },
+        "レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.42783505154639173,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2752.687835454941
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1819.8162393569946
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 451.9871777296066
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 424.06697046756744
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_TIME_PACE",
+              "gain": 384.1127893924713
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 285.6026494503021
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 276.8257887363434
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 276.0096607208252
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 256.56921792030334
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 242.50008153915405
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 231.7195999622345
+            },
+            {
+              "feature": "consensus_top3_pairwise_jaccard_mean",
+              "gain": 224.7301995754242
+            }
+          ]
+        },
+        "枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4322533136966127,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 301.5617707967758
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 280.12290143966675
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 273.5072796344757
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability_mass",
+              "gain": 256.3607213497162
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 248.35169100761414
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_BASE",
+              "gain": 244.55382919311523
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 240.7868103981018
+            },
+            {
+              "feature": "derived_top6_pair_jaccard_std",
+              "gain": 239.10137927532196
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 235.12142050266266
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 225.21258974075317
+            },
+            {
+              "feature": "king_no_auto_full_family_TIME_PACE",
+              "gain": 221.36966013908386
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 220.8119821548462
+            }
+          ]
+        },
+        "メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.37260677466863035,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 408.11669087409973
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top2_probability",
+              "gain": 339.93204069137573
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 319.00727105140686
+            },
+            {
+              "feature": "king_no_auto_jockey_normalized_entropy",
+              "gain": 311.24997913837433
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 291.2296612262726
+            },
+            {
+              "feature": "king_core4_no_pedigree_normalized_entropy",
+              "gain": 246.69683074951172
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top6_probability_mass",
+              "gain": 242.844660282135
+            },
+            {
+              "feature": "consensus_horse_rank_std_mean",
+              "gain": 226.29806184768677
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_OPPONENT",
+              "gain": 220.6945698261261
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 218.48123002052307
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 204.57312059402466
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 204.271550655365
+            }
+          ]
+        },
+        "騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.24005891016200295,
+          "top_features": [
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 563.7600908279419
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 439.0809304714203
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top1_top2_gap",
+              "gain": 433.9562392234802
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 370.1995441913605
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 318.36374020576477
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 276.6473309993744
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 275.60512948036194
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 274.78839015960693
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_probability",
+              "gain": 270.1486737728119
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability_mass",
+              "gain": 248.5857605934143
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top3_gap",
+              "gain": 230.8361690044403
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 228.31057047843933
+            }
+          ]
+        }
+      },
+      "combo_models": {
+        "当日傾向型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4374079528718704,
+          "top_features": [
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 478.227840423584
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 316.09668016433716
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 310.64399123191833
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 299.9280982017517
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability_mass",
+              "gain": 268.6998198032379
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 243.8434398174286
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_probability",
+              "gain": 231.2354395389557
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 215.99882996082306
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 212.13945055007935
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 207.40560126304626
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 206.88368964195251
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top1_top3_gap",
+              "gain": 181.45262944698334
+            }
+          ]
+        },
+        "レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.42783505154639173,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2752.687835454941
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1819.8162393569946
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 451.9871777296066
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 424.06697046756744
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_TIME_PACE",
+              "gain": 384.1127893924713
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 285.6026494503021
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 276.8257887363434
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 276.0096607208252
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 256.56921792030334
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 242.50008153915405
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 231.7195999622345
+            },
+            {
+              "feature": "consensus_top3_pairwise_jaccard_mean",
+              "gain": 224.7301995754242
+            }
+          ]
+        },
+        "枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.4322533136966127,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 301.5617707967758
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 280.12290143966675
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 273.5072796344757
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability_mass",
+              "gain": 256.3607213497162
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 248.35169100761414
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_BASE",
+              "gain": 244.55382919311523
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 240.7868103981018
+            },
+            {
+              "feature": "derived_top6_pair_jaccard_std",
+              "gain": 239.10137927532196
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 235.12142050266266
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 225.21258974075317
+            },
+            {
+              "feature": "king_no_auto_full_family_TIME_PACE",
+              "gain": 221.36966013908386
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 220.8119821548462
+            }
+          ]
+        },
+        "メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.37260677466863035,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 408.11669087409973
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top2_probability",
+              "gain": 339.93204069137573
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 319.00727105140686
+            },
+            {
+              "feature": "king_no_auto_jockey_normalized_entropy",
+              "gain": 311.24997913837433
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 291.2296612262726
+            },
+            {
+              "feature": "king_core4_no_pedigree_normalized_entropy",
+              "gain": 246.69683074951172
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top6_probability_mass",
+              "gain": 242.844660282135
+            },
+            {
+              "feature": "consensus_horse_rank_std_mean",
+              "gain": 226.29806184768677
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_OPPONENT",
+              "gain": 220.6945698261261
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 218.48123002052307
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 204.57312059402466
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 204.271550655365
+            }
+          ]
+        },
+        "騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.24005891016200295,
+          "top_features": [
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 563.7600908279419
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 439.0809304714203
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top1_top2_gap",
+              "gain": 433.9562392234802
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 370.1995441913605
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 318.36374020576477
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 276.6473309993744
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 275.60512948036194
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 274.78839015960693
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_probability",
+              "gain": 270.1486737728119
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability_mass",
+              "gain": 248.5857605934143
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top3_gap",
+              "gain": 230.8361690044403
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 228.31057047843933
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6325478645066274,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2100.2301025390625
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 468.6247568130493
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_AUTO",
+              "gain": 399.4533109664917
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 279.09811210632324
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 270.88757133483887
+            },
+            {
+              "feature": "king_no_auto_jockey_family_ACTOR",
+              "gain": 237.8264193534851
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 237.65546905994415
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_BASE",
+              "gain": 219.07064867019653
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 203.53639030456543
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_TIME_PACE",
+              "gain": 203.4057184457779
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 203.1929099559784
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 197.32136011123657
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6502209131075111,
+          "top_features": [
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 392.8844105005264
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 355.6909593343735
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 348.04129695892334
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 302.9341995716095
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 265.0283901691437
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 248.34536838531494
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 242.71034121513367
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 242.52569007873535
+            },
+            {
+              "feature": "king_no_auto_full_top1_top3_gap",
+              "gain": 240.7776815891266
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability",
+              "gain": 238.52003073692322
+            },
+            {
+              "feature": "king_no_auto_jockey_family_TIME_PACE",
+              "gain": 226.0267298221588
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 222.71239948272705
+            }
+          ]
+        },
+        "当日傾向型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6347569955817378,
+          "top_features": [
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 439.3705185651779
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top2_probability",
+              "gain": 336.71023881435394
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 300.173091173172
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 297.01031970977783
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 268.72911977767944
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 267.35273146629333
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_TIME_PACE",
+              "gain": 254.56821012496948
+            },
+            {
+              "feature": "consensus_pairwise_rank_abs_diff_mean",
+              "gain": 229.6771401166916
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_ACTOR",
+              "gain": 215.39193964004517
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 205.95608043670654
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 205.62068009376526
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability",
+              "gain": 201.3212606906891
+            }
+          ]
+        },
+        "当日傾向型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5625920471281296,
+          "top_features": [
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 479.9939019680023
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 289.8369686603546
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 269.12098002433777
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 252.22618985176086
+            },
+            {
+              "feature": "king_no_auto_full_top1_probability",
+              "gain": 242.82736921310425
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 229.20360016822815
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top2_probability",
+              "gain": 226.04150080680847
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 224.01839065551758
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 211.7770892381668
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 208.52128076553345
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_AUTO",
+              "gain": 204.56647062301636
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 204.30951929092407
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6745213549337261,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1911.12841629982
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 285.2027198076248
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 274.67111015319824
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 263.3425998687744
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability",
+              "gain": 263.1141700744629
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_BASE",
+              "gain": 248.1029908657074
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 245.68054974079132
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 244.45200943946838
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 216.6864993572235
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 213.59056115150452
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_ACTOR",
+              "gain": 211.2461210489273
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 210.97902011871338
+            }
+          ]
+        },
+        "レース構造型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6325478645066274,
+          "top_features": [
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 1289.3273731470108
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1186.3668513298035
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 527.4199726581573
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 345.95444202423096
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 333.91991925239563
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top1_top2_gap",
+              "gain": 303.3945002555847
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 296.42211985588074
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 258.0370011329651
+            },
+            {
+              "feature": "derived_top6_pair_jaccard_std",
+              "gain": 218.61653971672058
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_AUTO",
+              "gain": 218.54731822013855
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 216.24602031707764
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top6_probability_mass",
+              "gain": 203.06581819057465
+            }
+          ]
+        },
+        "レース構造型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5758468335787923,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 2083.924554347992
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 618.5743669271469
+            },
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 553.9134497642517
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_TIME_PACE",
+              "gain": 416.30206203460693
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 340.74018025398254
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 317.70113039016724
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 279.49187088012695
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_TIME_PACE",
+              "gain": 237.93279111385345
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 236.67903923988342
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 233.28726994991302
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 216.97196054458618
+            },
+            {
+              "feature": "derived_top6_pair_jaccard_std",
+              "gain": 215.72524094581604
+            }
+          ]
+        },
+        "枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.6362297496318114,
+          "top_features": [
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 417.3197304010391
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 381.0650179386139
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 347.67065131664276
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top2_probability",
+              "gain": 316.1320790052414
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 306.9114713668823
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top6_probability_mass",
+              "gain": 286.8497588634491
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top3_gap",
+              "gain": 243.13575983047485
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 229.20923805236816
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 223.76361989974976
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top6_probability_mass",
+              "gain": 223.70907163619995
+            },
+            {
+              "feature": "consensus_pairwise_rank_abs_diff_mean",
+              "gain": 218.24017214775085
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 213.87921226024628
+            }
+          ]
+        },
+        "枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5567010309278351,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 476.08960008621216
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 356.0808514356613
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 340.43210113048553
+            },
+            {
+              "feature": "king_no_auto_jockey_family_ACTOR",
+              "gain": 320.10450053215027
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 318.9220097064972
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 310.6099181175232
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 297.5990003347397
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 275.0916893482208
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 258.7640998363495
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 257.96963906288147
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 253.4580590724945
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 242.0662716627121
+            }
+          ]
+        },
+        "メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.5095729013254786,
+          "top_features": [
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 488.298047542572
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 396.61070919036865
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_ACTOR",
+              "gain": 388.95987915992737
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 368.813711643219
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 358.54592847824097
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 348.7674992084503
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 256.7449698448181
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 247.6964191198349
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 231.56766080856323
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 204.87252974510193
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 194.19080996513367
+            },
+            {
+              "feature": "king_no_auto_full_normalized_entropy",
+              "gain": 193.3640902042389
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7731958762886598,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1328.8220106363297
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 335.26956248283386
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 296.27336156368256
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 292.20188069343567
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability_mass",
+              "gain": 249.00880813598633
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_TIME_PACE",
+              "gain": 228.23023903369904
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 228.0434215068817
+            },
+            {
+              "feature": "king_no_auto_jockey_family_OPPONENT",
+              "gain": 218.85766005516052
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_OPPONENT",
+              "gain": 204.60679173469543
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 202.86263060569763
+            },
+            {
+              "feature": "king_jockey_trainer_condition_normalized_entropy",
+              "gain": 189.83453130722046
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_AUTO",
+              "gain": 189.46738040447235
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7496318114874816,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 804.2512738704681
+            },
+            {
+              "feature": "coverage_prior_starts_le1_rate",
+              "gain": 651.9717121124268
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 372.0654603242874
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 299.20555090904236
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 264.17635107040405
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 259.77822065353394
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 255.33646082878113
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 251.15955996513367
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 249.65379881858826
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 245.32934951782227
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 242.74797081947327
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 231.25221014022827
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7268041237113402,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1587.5575716495514
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 333.96784114837646
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 296.15777039527893
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_AUTO",
+              "gain": 264.9892909526825
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 259.1607098579407
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 244.92525053024292
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 233.2345690727234
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 218.50610065460205
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 207.9673089981079
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 201.2860608100891
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_AUTO",
+              "gain": 197.95058941841125
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 192.92056035995483
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7709867452135494,
+          "top_features": [
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 339.10716104507446
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 334.9391403198242
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability",
+              "gain": 284.5985903739929
+            },
+            {
+              "feature": "king_no_auto_full_family_OPPONENT",
+              "gain": 251.52964997291565
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 231.12145018577576
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 229.40814018249512
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability_mass",
+              "gain": 220.82295751571655
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top2_probability",
+              "gain": 213.76362991333008
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 210.4163203239441
+            },
+            {
+              "feature": "king_no_auto_full_family_BASE",
+              "gain": 204.50334882736206
+            },
+            {
+              "feature": "king_no_auto_full_top1_top3_gap",
+              "gain": 200.73740983009338
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_top2_gap",
+              "gain": 189.9663393497467
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7245949926362297,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 418.1841096878052
+            },
+            {
+              "feature": "consensus_horse_rank_std_mean",
+              "gain": 307.91143774986267
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 299.91285014152527
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 285.7105996608734
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 284.84798896312714
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability",
+              "gain": 273.8722095489502
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 264.9131815433502
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 254.29210007190704
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability",
+              "gain": 251.4081997871399
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 249.82577228546143
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 236.91736912727356
+            },
+            {
+              "feature": "king_no_auto_full_top1_top3_gap",
+              "gain": 214.1171998977661
+            }
+          ]
+        },
+        "当日傾向型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7083946980854198,
+          "top_features": [
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 331.8692584037781
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 293.9562394618988
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 283.57193779945374
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 256.6731195449829
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 253.8703293800354
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 244.4388998746872
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_TIME_PACE",
+              "gain": 234.91031062602997
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 226.80446767807007
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top2_probability",
+              "gain": 214.16714024543762
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 210.07369017601013
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 208.65200066566467
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top2_probability",
+              "gain": 204.05869913101196
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7916053019145802,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 1054.4450414180756
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 292.53028082847595
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 280.1449511051178
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 266.3184905052185
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 253.36285936832428
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 251.96053004264832
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 243.67073941230774
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 235.88122963905334
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 221.95144987106323
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top1_top2_gap",
+              "gain": 221.94025003910065
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 209.27761960029602
+            },
+            {
+              "feature": "consensus_horse_rank_std_mean",
+              "gain": 205.90411067008972
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7533136966126657,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 1278.5465030670166
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 374.8331196308136
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 307.716792345047
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 294.9087190628052
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 253.0045998096466
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 249.85941982269287
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 249.4210605621338
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_AUTO",
+              "gain": 241.93154871463776
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top1_top2_gap",
+              "gain": 229.76817905902863
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_TIME_PACE",
+              "gain": 212.64098930358887
+            },
+            {
+              "feature": "king_no_auto_full_family_ACTOR",
+              "gain": 204.68011021614075
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 201.94139075279236
+            }
+          ]
+        },
+        "レース構造型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.719440353460972,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 984.0681128501892
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 777.3764326572418
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 495.0970788002014
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 343.9016590118408
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 337.1435194015503
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 276.03756046295166
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 271.64555048942566
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 263.1088992357254
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 256.0402686595917
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 241.69523012638092
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 235.75716924667358
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_TIME_PACE",
+              "gain": 220.27406978607178
+            }
+          ]
+        },
+        "枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.7047128129602357,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 470.04303908348083
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 446.75128197669983
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 422.6867606639862
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 345.674250125885
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 338.45359909534454
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_ACTOR",
+              "gain": 290.1958203315735
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 273.4633996486664
+            },
+            {
+              "feature": "king_no_auto_full_family_BASE",
+              "gain": 256.21338844299316
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 253.74989008903503
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top3_probability",
+              "gain": 242.76692020893097
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_top2_gap",
+              "gain": 209.56808018684387
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability_mass",
+              "gain": 198.84208989143372
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + メンバー構成型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8483063328424153,
+          "top_features": [
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 753.5515134334564
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 288.8051493167877
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 280.1698216199875
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 264.0781717300415
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top3_probability",
+              "gain": 245.07147002220154
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top1_top2_gap",
+              "gain": 212.4473501443863
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability",
+              "gain": 209.89079999923706
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 197.29132974147797
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 193.61535048484802
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top1_probability",
+              "gain": 180.79412174224854
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 176.69244039058685
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 172.69864988327026
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8298969072164949,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 678.721919298172
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 300.0514591932297
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_AUTO",
+              "gain": 287.45556020736694
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 286.6384403705597
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 266.9110014438629
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 252.91719102859497
+            },
+            {
+              "feature": "consensus_top3_pairwise_jaccard_mean",
+              "gain": 232.40073955059052
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 224.81344890594482
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 208.18518948554993
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_OPPONENT",
+              "gain": 183.94885993003845
+            },
+            {
+              "feature": "king_jockey_trainer_condition_normalized_entropy",
+              "gain": 178.94192004203796
+            },
+            {
+              "feature": "consensus_pairwise_rank_abs_diff_mean",
+              "gain": 178.61015963554382
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8092783505154639,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 572.3382441997528
+            },
+            {
+              "feature": "coverage_prior_starts_le1_rate",
+              "gain": 404.9655828475952
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 372.00623881816864
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 347.0763325691223
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 287.41945028305054
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 265.2861399650574
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 262.3597500324249
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 259.7970595359802
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 246.43496942520142
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 232.42859876155853
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top1_top3_gap",
+              "gain": 202.10001969337463
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_BASE",
+              "gain": 195.5194993019104
+            }
+          ]
+        },
+        "当日傾向型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.812960235640648,
+          "top_features": [
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 520.1537297964096
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 264.9155695438385
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 254.19039964675903
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 237.94822752475739
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 236.12632942199707
+            },
+            {
+              "feature": "consensus_horse_rank_std_mean",
+              "gain": 226.1158344745636
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_top2_gap",
+              "gain": 223.63222908973694
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 223.51462125778198
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 223.34514033794403
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 219.84284055233002
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 215.12980937957764
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_AUTO",
+              "gain": 198.65873003005981
+            }
+          ]
+        },
+        "レース構造型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.8357879234167894,
+          "top_features": [
+            {
+              "feature": "coverage_prior_starts_zero_rate",
+              "gain": 689.2219992876053
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 428.20239984989166
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 403.30223059654236
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 299.5760691165924
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 297.83904099464417
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 283.06712102890015
+            },
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 280.6062877178192
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 248.1313591003418
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 238.24431908130646
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_AUTO",
+              "gain": 235.45708084106445
+            },
+            {
+              "feature": "king_no_auto_full_top1_top2_gap",
+              "gain": 222.9424592256546
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top3_probability_mass",
+              "gain": 220.88505935668945
+            }
+          ]
+        },
+        "当日傾向型 + レース構造型 + 枠・コース型 + メンバー構成型 + 騎手型": {
+          "mode": "lightgbm",
+          "train_rate": 0.882179675994109,
+          "top_features": [
+            {
+              "feature": "coverage_recent_window_starts_mean",
+              "gain": 568.5710138678551
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 270.1093792915344
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 265.83424043655396
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_BASE",
+              "gain": 260.6800100803375
+            },
+            {
+              "feature": "derived_top3_pair_jaccard_std",
+              "gain": 248.38178086280823
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 229.5019509792328
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 217.96417903900146
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 217.82602387666702
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 217.3050398826599
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_PEDIGREE",
+              "gain": 214.95051968097687
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 206.85052037239075
+            },
+            {
+              "feature": "king_no_auto_full_top2_probability",
+              "gain": 200.23365938663483
+            }
+          ]
+        }
+      },
+      "policies": {
+        "INDIVIDUAL_TOP1": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 32,
+            "rescue_rate_within_gate_blind": 0.4050632911392405,
+            "end_to_end_rescue_rate_all_blind": 0.02342606149341142,
+            "outsider_calls": 346,
+            "avg_outsiders_per_alert": 1.0,
+            "rescue_per_100_outsider_calls": 9.248554913294798,
+            "rescue_per_100_gate_alerts": 9.248554913294798,
+            "false_alert_calls": 267,
+            "true_alert_calls": 79
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": -3,
+          "delta_gate_blind_recall_pp_vs_fixed": -3.797468354430378
+        },
+        "INDIVIDUAL_TOP2": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 51,
+            "rescue_rate_within_gate_blind": 0.6455696202531646,
+            "end_to_end_rescue_rate_all_blind": 0.03733528550512445,
+            "outsider_calls": 692,
+            "avg_outsiders_per_alert": 2.0,
+            "rescue_per_100_outsider_calls": 7.369942196531792,
+            "rescue_per_100_gate_alerts": 14.739884393063583,
+            "false_alert_calls": 534,
+            "true_alert_calls": 158
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": 6,
+          "delta_gate_blind_recall_pp_vs_fixed": 7.594936708860756
+        },
+        "INDIVIDUAL_TOP3": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 58,
+            "rescue_rate_within_gate_blind": 0.7341772151898734,
+            "end_to_end_rescue_rate_all_blind": 0.0424597364568082,
+            "outsider_calls": 1038,
+            "avg_outsiders_per_alert": 3.0,
+            "rescue_per_100_outsider_calls": 5.5876685934489405,
+            "rescue_per_100_gate_alerts": 16.76300578034682,
+            "false_alert_calls": 801,
+            "true_alert_calls": 237
+          },
+          "selection_type": "top_k_independent_candidate_scores",
+          "delta_rescued_vs_fixed": 0,
+          "delta_gate_blind_recall_pp_vs_fixed": 0.0
+        },
+        "COMBO_K1": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 32,
+            "rescue_rate_within_gate_blind": 0.4050632911392405,
+            "end_to_end_rescue_rate_all_blind": 0.02342606149341142,
+            "outsider_calls": 346,
+            "avg_outsiders_per_alert": 1.0,
+            "rescue_per_100_outsider_calls": 9.248554913294798,
+            "rescue_per_100_gate_alerts": 9.248554913294798,
+            "false_alert_calls": 267,
+            "true_alert_calls": 79
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.5706768863975923,
+          "delta_rescued_vs_fixed": -3,
+          "delta_gate_blind_recall_pp_vs_fixed": -3.797468354430378
+        },
+        "COMBO_K2": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 50,
+            "rescue_rate_within_gate_blind": 0.6329113924050633,
+            "end_to_end_rescue_rate_all_blind": 0.036603221083455345,
+            "outsider_calls": 692,
+            "avg_outsiders_per_alert": 2.0,
+            "rescue_per_100_outsider_calls": 7.22543352601156,
+            "rescue_per_100_gate_alerts": 14.45086705202312,
+            "false_alert_calls": 534,
+            "true_alert_calls": 158
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.7808352830938029,
+          "delta_rescued_vs_fixed": 5,
+          "delta_gate_blind_recall_pp_vs_fixed": 6.329113924050633
+        },
+        "COMBO_K3": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 60,
+            "rescue_rate_within_gate_blind": 0.759493670886076,
+            "end_to_end_rescue_rate_all_blind": 0.043923865300146414,
+            "outsider_calls": 1038,
+            "avg_outsiders_per_alert": 3.0,
+            "rescue_per_100_outsider_calls": 5.780346820809249,
+            "rescue_per_100_gate_alerts": 17.341040462427745,
+            "false_alert_calls": 801,
+            "true_alert_calls": 237
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.8716985774763026,
+          "delta_rescued_vs_fixed": 2,
+          "delta_gate_blind_recall_pp_vs_fixed": 2.5316455696202556
+        },
+        "COMBO_K4": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 65,
+            "rescue_rate_within_gate_blind": 0.8227848101265823,
+            "end_to_end_rescue_rate_all_blind": 0.04758418740849195,
+            "outsider_calls": 1384,
+            "avg_outsiders_per_alert": 4.0,
+            "rescue_per_100_outsider_calls": 4.696531791907514,
+            "rescue_per_100_gate_alerts": 18.786127167630056,
+            "false_alert_calls": 1068,
+            "true_alert_calls": 316
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.9060419096890214,
+          "delta_rescued_vs_fixed": -2,
+          "delta_gate_blind_recall_pp_vs_fixed": -2.5316455696202445
+        },
+        "COMBO_K5": {
+          "test": {
+            "alerts": 346,
+            "gate_caught_blind": 79,
+            "rescued": 69,
+            "rescue_rate_within_gate_blind": 0.8734177215189873,
+            "end_to_end_rescue_rate_all_blind": 0.050512445095168376,
+            "outsider_calls": 1730,
+            "avg_outsiders_per_alert": 5.0,
+            "rescue_per_100_outsider_calls": 3.9884393063583814,
+            "rescue_per_100_gate_alerts": 19.942196531791907,
+            "false_alert_calls": 1335,
+            "true_alert_calls": 395
+          },
+          "selection_type": "direct_union_rescue_model_with_fixed_k",
+          "mean_selected_combo_score": 0.8911772475902312,
+          "delta_rescued_vs_fixed": 0,
+          "delta_gate_blind_recall_pp_vs_fixed": 0.0
+        }
+      }
+    }
+  },
+  "fixed_baselines": {
+    "FIXED_K1": {
+      "combo": [
+        "当日傾向型"
+      ],
+      "train_rescued": 594,
+      "train_rescue_rate": 0.4374079528718704,
+      "test": {
+        "alerts": 346,
+        "gate_caught_blind": 79,
+        "rescued": 35,
+        "rescue_rate_within_gate_blind": 0.4430379746835443,
+        "end_to_end_rescue_rate_all_blind": 0.02562225475841874,
+        "outsider_calls": 346,
+        "avg_outsiders_per_alert": 1.0,
+        "rescue_per_100_outsider_calls": 10.115606936416185,
+        "rescue_per_100_gate_alerts": 10.115606936416185,
+        "false_alert_calls": 267,
+        "true_alert_calls": 79
+      }
+    },
+    "FIXED_K2": {
+      "combo": [
+        "レース構造型",
+        "枠・コース型"
+      ],
+      "train_rescued": 916,
+      "train_rescue_rate": 0.6745213549337261,
+      "test": {
+        "alerts": 346,
+        "gate_caught_blind": 79,
+        "rescued": 45,
+        "rescue_rate_within_gate_blind": 0.569620253164557,
+        "end_to_end_rescue_rate_all_blind": 0.03294289897510981,
+        "outsider_calls": 692,
+        "avg_outsiders_per_alert": 2.0,
+        "rescue_per_100_outsider_calls": 6.502890173410405,
+        "rescue_per_100_gate_alerts": 13.00578034682081,
+        "false_alert_calls": 534,
+        "true_alert_calls": 158
+      }
+    },
+    "FIXED_K3": {
+      "combo": [
+        "レース構造型",
+        "枠・コース型",
+        "メンバー構成型"
+      ],
+      "train_rescued": 1075,
+      "train_rescue_rate": 0.7916053019145802,
+      "test": {
+        "alerts": 346,
+        "gate_caught_blind": 79,
+        "rescued": 58,
+        "rescue_rate_within_gate_blind": 0.7341772151898734,
+        "end_to_end_rescue_rate_all_blind": 0.0424597364568082,
+        "outsider_calls": 1038,
+        "avg_outsiders_per_alert": 3.0,
+        "rescue_per_100_outsider_calls": 5.5876685934489405,
+        "rescue_per_100_gate_alerts": 16.76300578034682,
+        "false_alert_calls": 801,
+        "true_alert_calls": 237
+      }
+    },
+    "FIXED_K4": {
+      "combo": [
+        "当日傾向型",
+        "レース構造型",
+        "枠・コース型",
+        "メンバー構成型"
+      ],
+      "train_rescued": 1152,
+      "train_rescue_rate": 0.8483063328424153,
+      "test": {
+        "alerts": 346,
+        "gate_caught_blind": 79,
+        "rescued": 67,
+        "rescue_rate_within_gate_blind": 0.8481012658227848,
+        "end_to_end_rescue_rate_all_blind": 0.04904831625183016,
+        "outsider_calls": 1384,
+        "avg_outsiders_per_alert": 4.0,
+        "rescue_per_100_outsider_calls": 4.841040462427745,
+        "rescue_per_100_gate_alerts": 19.36416184971098,
+        "false_alert_calls": 1068,
+        "true_alert_calls": 316
+      }
+    },
+    "FIXED_K5": {
+      "combo": [
+        "当日傾向型",
+        "レース構造型",
+        "枠・コース型",
+        "メンバー構成型",
+        "騎手型"
+      ],
+      "train_rescued": 1198,
+      "train_rescue_rate": 0.882179675994109,
+      "test": {
+        "alerts": 346,
+        "gate_caught_blind": 79,
+        "rescued": 69,
+        "rescue_rate_within_gate_blind": 0.8734177215189873,
+        "end_to_end_rescue_rate_all_blind": 0.050512445095168376,
+        "outsider_calls": 1730,
+        "avg_outsiders_per_alert": 5.0,
+        "rescue_per_100_outsider_calls": 3.9884393063583814,
+        "rescue_per_100_gate_alerts": 19.942196531791907,
+        "false_alert_calls": 1335,
+        "true_alert_calls": 395
+      }
+    }
+  },
+  "odds_used": false,
+  "locked_years": [
+    2026
+  ]
+}
