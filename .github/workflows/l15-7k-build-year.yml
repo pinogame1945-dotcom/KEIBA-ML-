@@ -1,0 +1,180 @@
+name: L1.5 7K Build One Role Year
+
+on:
+  workflow_call:
+    inputs:
+      year:
+        required: true
+        type: number
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      YEAR: ${{ inputs.year }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_router_feature_snapshot_v1.py \
+            research/build_l15_column_dataset_v1.py \
+            research/build_l15_role_dataset_v2.py \
+            research/persist_exact_kaggle_dataset.py
+          python -m pip install --disable-pip-version-check kaggle
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore seven horse-level score tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/year-$YEAR"
+          mkdir -p "$root/scores" "$root/snapshot"
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            d="$root/scores/$alias"; mkdir -p "$d"
+            ref="pino1945/keiba-l15-7k-$alias-y$YEAR-v1"
+            kaggle datasets download "$ref" -p "$d" --unzip --quiet --force
+            p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            key="SCORE_${alias^^}"
+            echo "$key=$p" >> "$GITHUB_ENV"
+          done
+          bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$YEAR" "$root/snapshot"
+          if [[ -s "$root/snapshot/snapshot-$YEAR.jsonl" ]]; then snap="$root/snapshot/snapshot-$YEAR.jsonl"
+          elif [[ -s "$root/snapshot/snapshot-$YEAR.jsonl.gz" ]]; then snap="$root/snapshot/snapshot-$YEAR.jsonl.gz"
+          else echo "::error::snapshot missing"; exit 1; fi
+          echo "SNAPSHOT=$snap" >> "$GITHUB_ENV"
+
+      - name: Build same-generation five-king control
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/year-$YEAR"
+          python research/build_router_feature_snapshot_v1.py \
+            --snapshot "$SNAPSHOT" \
+            --expert core4_no_pedigree="$SCORE_CORE4" \
+            --expert no_auto_full_pedigree_legacy="$SCORE_PEDLEGACY" \
+            --expert jockey_trainer_condition="$SCORE_CONDITION" \
+            --expert no_auto_full="$SCORE_FULL" \
+            --expert no_auto_jockey="$SCORE_LIGHT" \
+            --output "$root/router-5k.jsonl.gz"
+
+          python research/build_l15_column_dataset_v1.py \
+            --config research/l15-column-router-v1-5k-eb13.json \
+            --router-features "$root/router-5k.jsonl.gz" \
+            --snapshot "$SNAPSHOT" \
+            --expert core4_no_pedigree="$SCORE_CORE4" \
+            --expert no_auto_full_pedigree_legacy="$SCORE_PEDLEGACY" \
+            --expert jockey_trainer_condition="$SCORE_CONDITION" \
+            --expert no_auto_full="$SCORE_FULL" \
+            --expert no_auto_jockey="$SCORE_LIGHT" \
+            --features-out "$root/column-features-5k.jsonl.gz" \
+            --labels-out "$root/column-labels-5k.jsonl.gz"
+
+          python research/build_l15_role_dataset_v2.py \
+            --config research/l15-role-router-v2-5k-eb13.json \
+            --source-features "$root/column-features-5k.jsonl.gz" \
+            --snapshot "$SNAPSHOT" \
+            --features-out "$root/role-features-5k.jsonl.gz" \
+            --labels-out "$root/role-labels-5k.jsonl.gz"
+
+      - name: Build seven-king role data
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/year-$YEAR"
+          python research/build_router_feature_snapshot_v1.py \
+            --snapshot "$SNAPSHOT" \
+            --expert core4_no_pedigree="$SCORE_CORE4" \
+            --expert no_auto_full_pedigree_legacy="$SCORE_PEDLEGACY" \
+            --expert jockey_trainer_condition="$SCORE_CONDITION" \
+            --expert no_auto_full="$SCORE_FULL" \
+            --expert no_auto_jockey="$SCORE_LIGHT" \
+            --expert no_auto_full_pedigree_v1="$SCORE_PEDV1" \
+            --expert jockey_trainer_condition_plus_raceclass="$SCORE_CONDRC" \
+            --output "$root/router-7k.jsonl.gz"
+
+          python research/build_l15_column_dataset_v1.py \
+            --config research/l15-column-router-v1-7k.json \
+            --router-features "$root/router-7k.jsonl.gz" \
+            --snapshot "$SNAPSHOT" \
+            --expert core4_no_pedigree="$SCORE_CORE4" \
+            --expert no_auto_full_pedigree_legacy="$SCORE_PEDLEGACY" \
+            --expert jockey_trainer_condition="$SCORE_CONDITION" \
+            --expert no_auto_full="$SCORE_FULL" \
+            --expert no_auto_jockey="$SCORE_LIGHT" \
+            --expert no_auto_full_pedigree_v1="$SCORE_PEDV1" \
+            --expert jockey_trainer_condition_plus_raceclass="$SCORE_CONDRC" \
+            --features-out "$root/column-features-7k.jsonl.gz" \
+            --labels-out "$root/column-labels-7k.jsonl.gz"
+
+          python research/build_l15_role_dataset_v2.py \
+            --config research/l15-role-router-v2-7k.json \
+            --source-features "$root/column-features-7k.jsonl.gz" \
+            --snapshot "$SNAPSHOT" \
+            --features-out "$root/role-features-7k.jsonl.gz" \
+            --labels-out "$root/role-labels-7k.jsonl.gz"
+
+      - name: Validate expert counts
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,json,os
+          from pathlib import Path
+          root=Path(f"out/year-{os.environ['YEAR']}")
+          for tag,n in [("5k",5),("7k",7)]:
+              names=set()
+              with gzip.open(root/f"role-features-{tag}.jsonl.gz","rt",encoding="utf-8") as f:
+                  for line in f:
+                      if line.strip(): names.add(json.loads(line)["expert_name"])
+              assert len(names)==n,(tag,names)
+              print("ROLE_YEAR_EXPERTS_OK",tag,sorted(names))
+          PY
+
+      - name: Persist reusable yearly role data
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/year-$YEAR"; stage="out/year-stage"
+          rm -rf "$stage"; mkdir -p "$stage"
+          for f in \
+            router-5k.jsonl.gz column-features-5k.jsonl.gz column-labels-5k.jsonl.gz role-features-5k.jsonl.gz role-labels-5k.jsonl.gz \
+            router-7k.jsonl.gz column-features-7k.jsonl.gz column-labels-7k.jsonl.gz role-features-7k.jsonl.gz role-labels-7k.jsonl.gz; do
+            cp "$root/$f" "$stage/$f"
+          done
+          cp research/l15-column-router-v1-5k-eb13.json "$stage/"
+          cp research/l15-column-router-v1-7k.json "$stage/"
+          cp research/l15-role-router-v2-5k-eb13.json "$stage/"
+          cp research/l15-role-router-v2-7k.json "$stage/"
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-rolecmp-y$YEAR-v1" \
+            --title "KEIBA L15 Role Compare Y$YEAR V1" \
+            --source-dir "$stage"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Kaggle storage checked once before compute."
+          echo "2026 never read."
