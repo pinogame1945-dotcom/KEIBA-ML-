@@ -108,7 +108,7 @@ def main():
 
         rows={}
         for k,d0 in sorted(per.items()):
-            d=dict(d0); races=int(d["races"])
+            d=defaultdict(float,d0); races=int(d["races"])
             role,n=k.split("|")
             row={
                 "role":role,"top_n":int(n),"races":races,
@@ -154,7 +154,7 @@ def main():
 
     agg_rows={}
     for k,d0 in sorted(aggregate.items()):
-        d=dict(d0); races=int(d["races"])
+        d=defaultdict(float,d0); races=int(d["races"])
         role,n=k.split("|")
         agg_rows[k]={
             "role":role,"top_n":int(n),"races":races,
