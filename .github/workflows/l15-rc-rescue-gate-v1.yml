@@ -1,0 +1,166 @@
+name: L1.5 RC Rescue Gate V1
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-rc-rescue-gate-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-role-router-v2-seven-kings
+  cancel-in-progress: true
+
+jobs:
+  gate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Verify free-storage headroom
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore saved fold predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          get_files_json() {
+            local ref="$1" attempt log raw delay
+            log="$(mktemp)"
+            for attempt in 1 2 3 4 5 6; do
+              : > "$log"
+              if raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)" 2>"$log")"; then
+                rm -f "$log"
+                printf '%s' "$raw"
+                return 0
+              fi
+              cat "$log" >&2
+              if ! grep -Eqi '429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+                echo "::error::Non-retryable Kaggle metadata failure: $ref" >&2
+                rm -f "$log"
+                return 1
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle metadata failed after retries: $ref" >&2
+                rm -f "$log"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              if [[ "$delay" -gt 60 ]]; then delay=60; fi
+              echo "::warning::Kaggle metadata throttled; ref=$ref attempt=$attempt/6 sleep=${delay}s" >&2
+              sleep "$delay"
+            done
+          }
+
+          download_remote() {
+            local ref="$1" remote="$2" tmp="$3" attempt log delay
+            log="$(mktemp)"
+            for attempt in 1 2 3 4 5 6; do
+              : > "$log"
+              rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$log" 2>&1; then
+                cat "$log"
+                rm -f "$log"
+                return 0
+              fi
+              cat "$log" >&2
+              if ! grep -Eqi '404|429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+                echo "::error::Non-retryable Kaggle download failure: $ref file=$remote"
+                rm -f "$log"
+                return 1
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle download failed after retries: $ref file=$remote"
+                rm -f "$log"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              if [[ "$delay" -gt 60 ]]; then delay=60; fi
+              echo "::warning::Kaggle download retry; ref=$ref file=$remote attempt=$attempt/6 sleep=${delay}s"
+              sleep "$delay"
+            done
+          }
+
+          restore_one() {
+            local ref="$1" logical="$2" dest="$3"
+            mkdir -p "$dest"
+            local remote tmp p
+            remote="$(LOGICAL="$logical" python - <<'PY'
+          import json,os
+          rows=json.loads(os.environ["RAW_JSON"])
+          names=sorted(str(x.get("name") or "") for x in rows if str(x.get("name") or ""))
+          logical=os.environ["LOGICAL"]
+          for x in (logical, logical+".gz"):
+              if x in names:
+                  print(x)
+                  raise SystemExit
+          nested=[x for x in names if x.startswith(logical+"/") or x.startswith(logical+".gz/")]
+          if len(nested)==1:
+              print(nested[0])
+              raise SystemExit
+          raise SystemExit(f"missing/ambiguous remote file {logical}; nested={nested}; available={names}")
+          PY
+            )"
+            tmp="$dest/.restore-$logical"
+            download_remote "$ref" "$remote" "$tmp"
+            p="$(find "$tmp" -type f -print -quit)"
+            test -n "$p"; test -s "$p"
+            cp "$p" "$dest/$logical.tmp"
+            mv "$dest/$logical.tmp" "$dest/$logical"
+            rm -rf "$tmp"
+          }
+
+          for y in 2022 2023 2024 2025; do
+            ref="pino1945/keiba-l15-7k-fold-y$y-v1"
+            d="out/rc-gate-input/$y"
+            export RAW_JSON="$(get_files_json "$ref")"
+            restore_one "$ref" "predictions-5k.jsonl" "$d"
+            restore_one "$ref" "predictions-7k.jsonl" "$d"
+          done
+
+      - name: Run RC rescue gate walk-forward
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_rc_rescue_gate_v1.py research/persist_exact_kaggle_dataset.py
+          python research/analyze_l15_rc_rescue_gate_v1.py \
+            --year-file "2022:out/rc-gate-input/2022/predictions-5k.jsonl:out/rc-gate-input/2022/predictions-7k.jsonl" \
+            --year-file "2023:out/rc-gate-input/2023/predictions-5k.jsonl:out/rc-gate-input/2023/predictions-7k.jsonl" \
+            --year-file "2024:out/rc-gate-input/2024/predictions-5k.jsonl:out/rc-gate-input/2024/predictions-7k.jsonl" \
+            --year-file "2025:out/rc-gate-input/2025/predictions-5k.jsonl:out/rc-gate-input/2025/predictions-7k.jsonl" \
+            --output out/rc-rescue-gate-v1.json
+
+      - name: Persist gate result
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="out/rc-gate-stage"
+          rm -rf "$stage"; mkdir -p "$stage"
+          cp out/rc-rescue-gate-v1.json "$stage/"
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-rc-rescue-gate-v1" \
+            --title "KEIBA L15 RC Rescue Gate V1" \
+            --source-dir "$stage"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Existing 2022-2025 fold predictions only; no king rescoring."
+          echo "Small gate-result JSON persisted after storage preflight."
+          echo "2026 never read."
