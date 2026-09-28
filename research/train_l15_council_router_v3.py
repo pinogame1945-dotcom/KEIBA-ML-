@@ -216,7 +216,7 @@ def strategy_row(year,rid,cell,strategy,candidate,meta,hit,common,lists,preds,ex
     out.update(candidate_support_features(candidate,lists,lists[hard_expert]))
     return out
 
-def build_records(features,snapshots,preds_map):
+def build_records(features,snapshots,preds_map,role_filter):
     expert_stats=defaultdict(lambda:defaultdict(lambda:{"hits":0,"races":0}))
     fusion_stats=defaultdict(lambda:defaultdict(lambda:defaultdict(lambda:{"hits":0,"races":0})))
     records=defaultdict(lambda:defaultdict(list))
