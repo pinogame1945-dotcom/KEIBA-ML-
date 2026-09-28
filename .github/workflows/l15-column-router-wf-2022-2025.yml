@@ -1,0 +1,225 @@
+name: L1.5 Column Router Walk-Forward 2022-2025
+
+on:
+  push:
+    branches:
+      - research/l15-column-router-v1-20260928
+    paths:
+      - .github/triggers/l15-column-router-wf-2022-2025.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  train-fold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        test_year: [2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SNAPSHOT_GENERATION: bf811fa2eab73db0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/train_l15_column_router_v1.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Resolve fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          Y="${{ matrix.test_year }}"
+          echo "TEST_YEAR=$Y" >> "$GITHUB_ENV"
+          echo "TEST_START=${Y}-01-01" >> "$GITHUB_ENV"
+          echo "TEST_END=${Y}-12-31" >> "$GITHUB_ENV"
+          echo "TRAIN_START=2021-01-01" >> "$GITHUB_ENV"
+          PREV=$((Y-1))
+          echo "TRAIN_END=${PREV}-12-31" >> "$GITHUB_ENV"
+
+      - name: Restore persisted annual L1.5 datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "out/l15-router-wf/$TEST_YEAR/source"
+
+          ref_for_year() {
+            case "$1" in
+              2021) echo "pino1945/keiba-r-l15-column-datas-7ec32c-23e50a4c28694006" ;;
+              2022) echo "pino1945/keiba-r-l15-column-datas-35425e-143beb95b055e5c3" ;;
+              2023) echo "pino1945/keiba-r-l15-column-datas-a05a13-3d4b7bd71da3bd95" ;;
+              2024) echo "pino1945/keiba-r-l15-column-datas-211c0c-9c50fcef9f09ac3e" ;;
+              2025) echo "pino1945/keiba-r-l15-column-datas-7a0879-ec12fe608ee10757" ;;
+              *) echo "unsupported year $1" >&2; exit 1 ;;
+            esac
+          }
+
+          for y in $(seq 2021 "$TEST_YEAR"); do
+            ref="$(ref_for_year "$y")"
+            dir="out/l15-router-wf/$TEST_YEAR/source/$y"
+            mkdir -p "$dir"
+            kaggle datasets download "$ref" -p "$dir" --unzip --quiet --force
+            printf '%s\n' "$ref" > "$dir/dataset-ref.txt"
+            echo "restored year=$y ref=$ref"
+            find "$dir" -maxdepth 3 -type f -print | sort
+          done
+
+      - name: Build chronological train and test files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,os
+          from pathlib import Path
+
+          test_year=int(os.environ["TEST_YEAR"])
+          root=Path(f"out/l15-router-wf/{test_year}/source")
+          out=Path(f"out/l15-router-wf/{test_year}/prepared")
+          out.mkdir(parents=True,exist_ok=True)
+
+          def resolve(year, stem):
+              d=root/str(year)
+              for p in list(d.rglob(stem+".jsonl")) + list(d.rglob(stem+".jsonl.gz")):
+                  if p.is_file() and p.stat().st_size:
+                      return p
+              raise SystemExit(f"missing {stem} for {year}")
+
+          def copy_lines(srcs,dst):
+              with gzip.open(dst,"wt",encoding="utf-8") as w:
+                  for src in srcs:
+                      opener=gzip.open if str(src).endswith(".gz") else open
+                      with opener(src,"rt",encoding="utf-8") as r:
+                          for line in r:
+                              if line.strip():
+                                  w.write(line)
+
+          train_years=list(range(2021,test_year))
+          if not train_years:
+              raise SystemExit("empty training years")
+          copy_lines([resolve(y,"l15-column-features") for y in train_years],out/"train-features.jsonl.gz")
+          copy_lines([resolve(y,"l15-column-labels") for y in train_years],out/"train-labels.jsonl.gz")
+          copy_lines([resolve(test_year,"l15-column-features")],out/"test-features.jsonl.gz")
+          copy_lines([resolve(test_year,"l15-column-labels")],out/"test-labels.jsonl.gz")
+
+          (out/"source-datasets.txt").write_text(
+              "\n".join((root/str(y)/"dataset-ref.txt").read_text().strip() for y in range(2021,test_year+1))+"\n",
+              encoding="utf-8"
+          )
+          print("TRAIN_YEARS",train_years)
+          print("TEST_YEAR",test_year)
+          PY
+
+      - name: Train L1.5 column router
+        run: |
+          set -euo pipefail
+          root="out/l15-router-wf/$TEST_YEAR"
+          python research/train_l15_column_router_v1.py \
+            --config research/l15-column-router-v1.json \
+            --train-features "$root/prepared/train-features.jsonl.gz" \
+            --train-labels "$root/prepared/train-labels.jsonl.gz" \
+            --test-features "$root/prepared/test-features.jsonl.gz" \
+            --test-labels "$root/prepared/test-labels.jsonl.gz" \
+            --out-dir "$root/model" \
+            --summary-out "$root/router-summary.json"
+
+      - name: Validate fold outputs
+        run: |
+          set -euo pipefail
+          root="out/l15-router-wf/$TEST_YEAR"
+          test -s "$root/model/col1-router.txt"
+          test -s "$root/model/col2-router.txt"
+          test -s "$root/model/col3-router.txt"
+          test -s "$root/model/predictions.jsonl.gz"
+          test -s "$root/router-summary.json"
+          python - <<'PY'
+          import json,os
+          p=f"out/l15-router-wf/{os.environ['TEST_YEAR']}/router-summary.json"
+          s=json.load(open(p,encoding="utf-8"))
+          assert s["contract"]=="L15_COLUMN_ROUTER_MODEL_V1"
+          assert 2026 not in s["train_years"]
+          assert 2026 not in s["test_years"]
+          assert s["test_years"]==[int(os.environ["TEST_YEAR"])]
+          assert set(s["models"])=={"COL1","COL2","COL3"}
+          assert set(s["routing_at_fixed_top_n"])=={"COL1","COL2","COL3"}
+          print("L15_WALK_FORWARD_FOLD_OK",os.environ["TEST_YEAR"])
+          PY
+
+      - name: Freeze fold metadata
+        run: |
+          set -euo pipefail
+          root="out/l15-router-wf/$TEST_YEAR"
+          cp research/l15-column-router-v1.json "$root/l15-column-router-v1.json"
+          cp contracts/l15-column-router-v1.json "$root/l15-column-router-contract-v1.json"
+
+      - name: Build persistent router fold bundle
+        run: |
+          set -euo pipefail
+          root="out/l15-router-wf/$TEST_YEAR"
+          python research/build_research_bundle_v1.py \
+            --kind "l15_column_router_wf_$TEST_YEAR" \
+            --snapshot-generation "$SNAPSHOT_GENERATION" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --test-start "$TEST_START" \
+            --test-end "$TEST_END" \
+            --code-sha "$GITHUB_SHA" \
+            --file router-summary.json="$root/router-summary.json" \
+            --file predictions.jsonl.gz="$root/model/predictions.jsonl.gz" \
+            --file col1-router.txt="$root/model/col1-router.txt" \
+            --file col2-router.txt="$root/model/col2-router.txt" \
+            --file col3-router.txt="$root/model/col3-router.txt" \
+            --file l15-column-router-v1.json="$root/l15-column-router-v1.json" \
+            --file l15-column-router-contract-v1.json="$root/l15-column-router-contract-v1.json" \
+            --file source-datasets.txt="$root/prepared/source-datasets.txt" \
+            --out-root "$root/bundle"
+
+      - name: Persist router fold
+        run: |
+          set -euo pipefail
+          python research/persist_research_bundle_v1.py "out/l15-router-wf/$TEST_YEAR/bundle"
+
+      - name: Print compact fold result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          s=json.load(open(f"out/l15-router-wf/{os.environ['TEST_YEAR']}/router-summary.json",encoding="utf-8"))
+          print("=== L1.5 ROUTER FOLD",os.environ["TEST_YEAR"],"===")
+          for col in ["COL1","COL2","COL3"]:
+              print(col,"MODEL",s["models"][col])
+              print(col,"ROUTING",s["routing_at_fixed_top_n"][col])
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          set -euo pipefail
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Kaggle capacity checked once before compute; no pre-upload re-check."
+          echo "2026 is never read."
