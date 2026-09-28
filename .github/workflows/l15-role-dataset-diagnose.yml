@@ -1,0 +1,54 @@
+name: L1.5 Role Dataset Diagnose
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-role-dataset-diagnose.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-role-router-v2-seven-kings
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+      - name: List role dataset files
+        shell: bash
+        run: |
+          set -euo pipefail
+          for y in 2021 2022 2023 2024 2025; do
+            ref="pino1945/keiba-l15-rolecmp-y$y-v1"
+            echo "=== ROLECMP $y ==="
+            kaggle datasets status "$ref" || true
+            kaggle datasets files "$ref" --page-size 200 --format "json(name,size)" || true
+            echo "=== MANIFEST TEST $y ==="
+            d="out/diag/$y"; mkdir -p "$d"
+            kaggle datasets download "$ref" -f manifest.json -p "$d" --unzip --quiet --force || true
+            if [[ -s "$d/manifest.json" ]]; then
+              cat "$d/manifest.json"
+            else
+              echo "MANIFEST_MISSING"
+            fi
+          done
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "Diagnostic read-only Kaggle access."
+          echo "No GPU. No GitHub Artifact/Cache. No dataset writes."
