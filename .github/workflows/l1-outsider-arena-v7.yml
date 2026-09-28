@@ -47,7 +47,6 @@ jobs:
 
   ledger:
     name: ledger
-    if: always()
     needs:
       - candidate
     runs-on: ubuntu-latest
