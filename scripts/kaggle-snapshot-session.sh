@@ -106,6 +106,50 @@ print(matches[0])
 PY
 }
 
+download_once_classified() {
+  local ref="$1" remote="$2" dst="$3"
+  local err
+  err="$(mktemp)"
+  if kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force 2>"$err"; then
+    rm -f "$err"
+    return 0
+  fi
+  cat "$err" >&2 || true
+  if grep -Eqi '(^|[^0-9])404([^0-9]|$)|not[[:space:]]+found' "$err"; then
+    rm -f "$err"
+    return 44
+  fi
+  rm -f "$err"
+  return 1
+}
+
+retry_remote() {
+  local label="$1" ref="$2" remote="$3" dst="$4"
+  local attempt delay rc
+  for attempt in 1 2 3 4 5 6; do
+    if download_once_classified "$ref" "$remote" "$dst"; then
+      return 0
+    fi
+    rc=$?
+    if [[ "$rc" -eq 44 ]]; then
+      return 44
+    fi
+    if [[ "$attempt" -eq 6 ]]; then
+      echo "::error::Kaggle operation failed label=$label after $attempt attempts" >&2
+      return 1
+    fi
+    case "$attempt" in
+      1) delay=15 ;;
+      2) delay=30 ;;
+      3) delay=60 ;;
+      4) delay=90 ;;
+      *) delay=120 ;;
+    esac
+    echo "::warning::Kaggle retry label=$label attempt=$attempt/6 sleep=${delay}s" >&2
+    sleep "$delay"
+  done
+}
+
 case "$cmd" in
   init)
     dataset_ref="$(resolve_ref)"
@@ -146,13 +190,27 @@ PY
         continue
       fi
 
-      if retry_kaggle "session-snapshot:$year" kaggle datasets download "$dataset_ref" -f "$manifest_name" -p "$out_dir" --unzip --quiet --force; then
-        :
-      elif [[ "$plain_name" != "$manifest_name" ]]; then
-        retry_kaggle "session-snapshot:$year:fallback" kaggle datasets download "$dataset_ref" -f "$plain_name" -p "$out_dir" --unzip --quiet --force
+      # Kaggle currently stores these snapshot payloads under the uncompressed
+      # remote name even though the manifest keeps the canonical .jsonl.gz name.
+      # Treat 404 as a naming mismatch, not as a transient/rate-limit failure.
+      chosen_remote="$manifest_name"
+      if [[ "$plain_name" != "$manifest_name" ]]; then
+        if retry_remote "session-snapshot:$year:plain" "$dataset_ref" "$plain_name" "$out_dir"; then
+          chosen_remote="$plain_name"
+        else
+          rc=$?
+          if [[ "$rc" -eq 44 ]]; then
+            retry_remote "session-snapshot:$year:gzip" "$dataset_ref" "$manifest_name" "$out_dir"
+            chosen_remote="$manifest_name"
+          else
+            exit "$rc"
+          fi
+        fi
       else
-        exit 1
+        retry_remote "session-snapshot:$year" "$dataset_ref" "$manifest_name" "$out_dir"
       fi
+
+      echo "SESSION_REMOTE_NAME year=$year remote=$chosen_remote"
 
       if [[ -s "$gz_path" ]]; then
         validate_one "$gz_path" "$manifest_name"
