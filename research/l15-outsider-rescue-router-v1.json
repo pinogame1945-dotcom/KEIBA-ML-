@@ -1,0 +1,104 @@
+{
+  "contract": "L15_OUTSIDER_RESCUE_ROUTER_EXPERIMENT_V1",
+  "experiment_id": "L15-OUTSIDER-RESCUE-ROUTER-001",
+  "source": {
+    "l15_branch": "research/l15-role-router-v2-7kings-20260928",
+    "l15_sha": "4e20ca9381a8cc454dcc71eb6990d6796b373df2",
+    "outsider_branch": "research/l1-outsider-arena-v1-20260928",
+    "outsider_run_id": 36419042735,
+    "outsider_ledger_commit": "d63a7c4",
+    "router_feature_contract": "ROUTER_FEATURE_SNAPSHOT_V1"
+  },
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "target": {
+    "gate": "all_seven_kings_miss_winner_at_top6",
+    "outsider_rescue": "outsider_captures_winner_at_top6_given_gate_label_1"
+  },
+  "candidates": {
+    "primary": [
+      "outsider_gatecourse",
+      "outsider_raceshape",
+      "outsider_daytrend"
+    ],
+    "shadow": [
+      "outsider_field",
+      "outsider_jockey"
+    ],
+    "bench": [
+      "outsider_chimera",
+      "outsider_style",
+      "outsider_lap",
+      "outsider_network",
+      "outsider_distance",
+      "outsider_backfill"
+    ]
+  },
+  "walk_forward": [
+    {
+      "train_years": [
+        2021
+      ],
+      "test_year": 2022
+    },
+    {
+      "train_years": [
+        2021,
+        2022
+      ],
+      "test_year": 2023
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "test_year": 2024
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "test_year": 2025
+    }
+  ],
+  "policies": {
+    "P0": "seven_kings_only",
+    "P1": "always_best_fixed_primary_outsider_from_train_years",
+    "P2": "always_run_all_three_primary_outsiders",
+    "P3": "gate_then_top1_primary_router",
+    "P4": "gate_then_top2_primary_router"
+  },
+  "models": {
+    "gate": {
+      "type": "lightgbm_binary",
+      "n_jobs_max": 2,
+      "seed": 1945
+    },
+    "outsider_router": {
+      "type": "one_vs_rest_lightgbm_binary",
+      "n_jobs_max": 2,
+      "seed": 1945
+    }
+  },
+  "persistence": {
+    "persist_small_summary": true,
+    "persist_decisions": true,
+    "persist_large_training_matrices": false,
+    "persist_models": false,
+    "create_new_paid_storage": false
+  },
+  "notes": [
+    "2026 must never be read.",
+    "Odds/popularity/payout are forbidden.",
+    "Same-day trend may use same venue prior race number only.",
+    "V1 is additive rescue research; it must not replace the seven kings.",
+    "Production promotion requires downstream L2/L3 EV/ROI validation."
+  ]
+}
