@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,gzip,json,math
+import argparse,gc,gzip,itertools,json,math,resource
 from collections import defaultdict
 from pathlib import Path
 
@@ -99,13 +99,34 @@ def flatten(r):
     for k,v in sorted(fam.items()): x["coverage_"+str(k).lower()]=num(v)
     return x
 
-def frame(fp,lp):
-    fs=read_rows(fp,FEATURE_CONTRACT); ls=read_rows(lp,LABEL_CONTRACT)
-    if set(fs)!=set(ls): raise ValueError("feature/label coverage differs")
-    rows=[]
-    for cid,f in fs.items():
-        x=flatten(f); x["role_hit"]=int(bool(ls[cid]["role_hit"])); rows.append(x)
-    return pd.DataFrame(rows)
+def frame_role(fp,lp,role):
+    rows=[]; seen=set()
+    with open_text(fp) as ff, open_text(lp) as lf:
+        fit=(line for line in ff if line.strip())
+        lit=(line for line in lf if line.strip())
+        for i,(fline,lline) in enumerate(itertools.zip_longest(fit,lit),1):
+            if fline is None or lline is None:
+                raise ValueError(f"feature/label row count differs near row {i}")
+            f=json.loads(fline); l=json.loads(lline)
+            if f.get("contract")!=FEATURE_CONTRACT:
+                raise ValueError(f"unexpected contract in {fp}")
+            if l.get("contract")!=LABEL_CONTRACT:
+                raise ValueError(f"unexpected contract in {lp}")
+            fcid=str(f["candidate_id"]); lcid=str(l["candidate_id"])
+            if fcid!=lcid:
+                raise ValueError(f"feature/label order differs near row {i}")
+            if str(f.get("role"))!=str(l.get("role")):
+                raise ValueError(f"feature/label role differs for {fcid}")
+            if str(f.get("role"))!=role:
+                continue
+            if fcid in seen:
+                raise ValueError(f"duplicate candidate_id {fcid}")
+            seen.add(fcid)
+            x=flatten(f); x["role_hit"]=int(bool(l["role_hit"])); rows.append(x)
+    return pd.DataFrame.from_records(rows)
+
+def peak_rss_mib():
+    return resource.getrusage(resource.RUSAGE_SELF).ru_maxrss/1024.0
 
 def year_of(d):
     try:return int(str(d)[:4])
@@ -156,18 +177,26 @@ def main():
     a=parse_args()
     cfg=json.loads(Path(a.config).read_text(encoding="utf-8"))
     if cfg.get("contract")!="L15_ROLE_ROUTER_EXPERIMENT_V2": raise ValueError("bad config")
-    train=frame(a.train_features,a.train_labels); test=frame(a.test_features,a.test_labels)
-    ty={year_of(x) for x in train.race_date}; ty.discard(None)
-    vy={year_of(x) for x in test.race_date}; vy.discard(None)
     locked=set(map(int,cfg.get("locked_years",[])))
-    if locked&(ty|vy): raise ValueError("locked year present")
-    if train.race_date.max()>=test.race_date.min(): raise ValueError("chronology violation")
-
     outdir=Path(a.out_dir); outdir.mkdir(parents=True,exist_ok=True)
-    preds=[]; metrics={}
+    preds=[]; metrics={}; ty=vy=None
     for role in ROLES:
-        tr=train[train.role==role].copy(); te=test[test.role==role].copy()
+        tr=frame_role(a.train_features,a.train_labels,role)
+        te=frame_role(a.test_features,a.test_labels,role)
+        if tr.empty or te.empty:
+            raise ValueError(f"empty role frame: {role}")
+        rty={year_of(x) for x in tr.race_date}; rty.discard(None)
+        rvy={year_of(x) for x in te.race_date}; rvy.discard(None)
+        if locked&(rty|rvy): raise ValueError("locked year present")
+        if tr.race_date.max()>=te.race_date.min(): raise ValueError("chronology violation")
+        if ty is None:
+            ty,vy=rty,rvy
+        elif rty!=ty or rvy!=vy:
+            raise ValueError(f"role year coverage differs: {role}")
+        print(f"L15_ROLE_MEMORY role={role} stage=loaded peak_rss_mib={peak_rss_mib():.1f}",flush=True)
+
         Xtr,Xte=encode(tr,te); ytr=tr.role_hit.astype(int); yte=te.role_hit.astype(int)
+        print(f"L15_ROLE_MEMORY role={role} stage=encoded peak_rss_mib={peak_rss_mib():.1f}",flush=True)
         model=lgb.LGBMClassifier(objective="binary",n_estimators=250,learning_rate=0.03,num_leaves=15,
             min_child_samples=50,subsample=1.0,colsample_bytree=1.0,reg_lambda=1.0,
             random_state=1945,n_jobs=2,verbosity=-1)
@@ -179,6 +208,9 @@ def main():
         metrics[role]={"train_rows":int(len(tr)),"test_rows":int(len(te)),
             "test_log_loss":float(log_loss(yte,p,labels=[0,1])),
             "test_auc":float(auc) if auc is not None else None,"feature_count":int(Xtr.shape[1])}
+        print(f"L15_ROLE_MEMORY role={role} stage=trained peak_rss_mib={peak_rss_mib():.1f}",flush=True)
+        del tr,te,Xtr,Xte,ytr,yte,model,p,pr
+        gc.collect()
 
     pred=pd.concat(preds,ignore_index=True)
     pp=outdir/"predictions.jsonl.gz"
