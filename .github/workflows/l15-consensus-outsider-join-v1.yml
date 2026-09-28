@@ -1,0 +1,106 @@
+name: L1.5 Consensus Outsider Join V1
+
+on:
+  push:
+    branches:
+      - research/l15-consensus-outsider-join-v1-20260929
+    paths:
+      - .github/triggers/l15-consensus-outsider-join-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-consensus-outsider-join-v1
+  cancel-in-progress: true
+
+jobs:
+  join:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      GH_TOKEN: ${{ github.token }}
+      OUTSIDER_SHA: d63a7c4
+      SELECTED_PATH: research-results/l15-consensus-world-race-ids-v1/run-36442605271/selected-top10-all.csv
+      HORSE_PATH: research-results/l1-outsider-arena-v1/OUTSIDER-ARENA-001/attempts/run-36419042735/scorecard.json
+      NONHORSE_PATH: research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001/attempts/run-36419042735/scorecard.json
+
+    steps:
+      - name: Checkout join branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax check
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_consensus_outsider_join_v1.py
+          test -s "$SELECTED_PATH"
+
+      - name: Restore outsider ledgers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/source
+          fetch_raw() {
+            local path="$1"
+            local dst="$2"
+            local url="https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$OUTSIDER_SHA/$path"
+            curl -fL               --retry 6               --retry-delay 3               --retry-all-errors               -H "Authorization: Bearer $GH_TOKEN"               "$url"               -o "$dst"
+            test -s "$dst"
+          }
+          fetch_raw "$HORSE_PATH" out/source/horse-scorecard.json
+          fetch_raw "$NONHORSE_PATH" out/source/nonhorse-scorecard.json
+          python - <<'PY'
+          import json
+          for p in ("out/source/horse-scorecard.json","out/source/nonhorse-scorecard.json"):
+              x=json.load(open(p,encoding="utf-8"))
+              assert x.get("contract")=="L1_OUTSIDER_ARENA_SCORECARD_V2"
+              assert x.get("run_id")==36419042735
+              print("LEDGER_OK",p,len(x.get("fold_results") or []))
+          PY
+
+      - name: Join Gate alerts to outsider rescue sets
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l15-consensus-outsider-join-v1/run-$GITHUB_RUN_ID"
+          python research/analyze_l15_consensus_outsider_join_v1.py             --selected "$SELECTED_PATH"             --horse-scorecard out/source/horse-scorecard.json             --nonhorse-scorecard out/source/nonhorse-scorecard.json             --out-dir "$out"
+
+      - name: Cost guard
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No Kaggle access."
+          echo "No GPU or paid runner."
+          echo "No Artifact/Cache."
+          echo "No new external storage."
+          echo "All source ledgers are existing Git records."
+          echo "2026 unused. Odds unused."
+
+      - name: Commit permanent research ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          git add "research-results/l15-consensus-outsider-join-v1/run-$GITHUB_RUN_ID"
+          if git diff --cached --quiet; then
+            echo "No output changes"
+            exit 0
+          fi
+          git commit -m "research: archive consensus outsider join run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
