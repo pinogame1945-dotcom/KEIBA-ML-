@@ -9,6 +9,10 @@ on:
       validation_year:
         required: true
         type: number
+      start_delay_seconds:
+        required: false
+        type: number
+        default: 0
     secrets:
       KEIBA_ML_SNAPSHOTS:
         required: true
@@ -88,12 +92,36 @@ jobs:
 
       - name: Restore rolling snapshots
         shell: bash
+        env:
+          START_DELAY_SECONDS: ${{ inputs.start_delay_seconds }}
         run: |
           set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then
+            echo "Stagger Kaggle access by ${START_DELAY_SECONDS}s"
+            sleep "$START_DELAY_SECONDS"
+          fi
+
+          restore_snapshot() {
+            local y="$1" root="$2" attempt delay
+            for attempt in 1 2 3 4 5 6; do
+              if bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"; then
+                return 0
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::snapshot restore failed after retries year=$y"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              [[ "$delay" -gt 60 ]] && delay=60
+              echo "::warning::Kaggle restore retry year=$y attempt=$attempt/6 sleep=${delay}s"
+              sleep "$delay"
+            done
+          }
+
           root="out/outsider-source/$GENERATION_ID"
           mkdir -p "$root"
           for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
-            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+            restore_snapshot "$y" "$root"
           done
           paths=()
           for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
@@ -124,10 +152,47 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          get_files_json() {
+            local ref="$1" attempt delay raw
+            for attempt in 1 2 3 4 5 6; do
+              if raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)" 2>/tmp/kaggle-router.err)"; then
+                printf '%s' "$raw"
+                return 0
+              fi
+              cat /tmp/kaggle-router.err >&2 || true
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::router metadata failed after retries ref=$ref" >&2
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              [[ "$delay" -gt 60 ]] && delay=60
+              echo "::warning::Kaggle router metadata retry attempt=$attempt/6 sleep=${delay}s" >&2
+              sleep "$delay"
+            done
+          }
+
+          download_router() {
+            local ref="$1" remote="$2" dst="$3" attempt delay
+            for attempt in 1 2 3 4 5 6; do
+              if kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force; then
+                return 0
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::router download failed after retries ref=$ref file=$remote"
+                return 1
+              fi
+              delay=$((5 * (2 ** (attempt - 1))))
+              [[ "$delay" -gt 60 ]] && delay=60
+              echo "::warning::Kaggle router download retry attempt=$attempt/6 sleep=${delay}s"
+              sleep "$delay"
+            done
+          }
+
           ref="pino1945/keiba-l15-rolecmp-y$VALIDATION_YEAR-v1"
           dst="out/reference-y$VALIDATION_YEAR"
           mkdir -p "$dst"
-          raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)")"
+          raw="$(get_files_json "$ref")"
           remote="$(RAW="$raw" python - <<'PY'
           import json,os
           rows=json.loads(os.environ["RAW"])
@@ -142,7 +207,7 @@ jobs:
           raise SystemExit(f"router-7k missing/ambiguous: {names}")
           PY
           )"
-          kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force
+          download_router "$ref" "$remote" "$dst"
           router="$(find "$dst" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
           test -n "$router"; test -s "$router"
           echo "ROUTER_SEVEN=$router" >> "$GITHUB_ENV"
