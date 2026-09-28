@@ -1,0 +1,193 @@
+name: L1 Outsider Score One
+
+on:
+  workflow_call:
+    inputs:
+      candidate:
+        required: true
+        type: string
+      validation_year:
+        required: true
+        type: number
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  score:
+    name: outsider-${{ inputs.candidate }}-y${{ inputs.validation_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      MATRIX_CANDIDATE: ${{ inputs.candidate }}
+      VALIDATION_YEAR: ${{ inputs.validation_year }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax checks
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/analyze_l1_outsider_rescue_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Resolve outsider and fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-outsider-arena-v1.json").read_text(encoding="utf-8"))
+          assert cfg["snapshot_generation"]=="eb13d4096519167b"
+          assert cfg["training_window_years"]==2
+          assert 2026 in cfg["locked_years"]
+          y=int(os.environ["VALIDATION_YEAR"])
+          if y not in cfg["validation_years"] or y>=2026:
+              raise SystemExit("invalid/locked validation year")
+          name=os.environ["MATRIX_CANDIDATE"]
+          row=next((x for x in cfg["candidates"] if x["name"]==name),None)
+          if row is None: raise SystemExit("candidate missing")
+          cand={"name":name,"feature_sets":row["feature_sets"]}
+          Path("candidate.json").write_text(json.dumps([cand],ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          env={
+            "CANDIDATE_LABEL_JA":str(row.get("label_ja") or name),
+            "TRAIN_YEAR_1":str(y-2),"TRAIN_YEAR_2":str(y-1),
+            "TRAIN_START":f"{y-2}-01-01","TRAIN_END":f"{y-1}-12-31",
+            "VALID_START":f"{y}-01-01","VALID_END":f"{y}-12-31",
+            "FEATURE_SETS_JSON":json.dumps(cand["feature_sets"],separators=(",",":")),
+          }
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as f:
+              for k,v in env.items(): f.write(f"{k}={v}\n")
+          print("OUTSIDER_FOLD",name,y-2,y-1,"->",y,cand["feature_sets"])
+          PY
+
+      - name: Restore rolling snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/outsider-source/$GENERATION_ID"
+          mkdir -p "$root"
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+          paths=()
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then p="$root/snapshot-$y.jsonl"
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then p="$root/snapshot-$y.jsonl.gz"
+            else echo "::error::snapshot $y missing"; exit 1; fi
+            paths+=("$p")
+            if [[ "$y" = "$VALIDATION_YEAR" ]]; then echo "VALID_SNAPSHOT=$p" >> "$GITHUB_ENV"; fi
+          done
+          echo "INPUTS=$(IFS=,; echo "${paths[*]}")" >> "$GITHUB_ENV"
+
+      - name: Train and score outsider
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="out/outsider/$MATRIX_CANDIDATE-y$VALIDATION_YEAR"
+          python research/run_feature_arena.py             --inputs "$INPUTS"             --out-dir "$out"             --train-start "$TRAIN_START"             --train-end "$TRAIN_END"             --valid-start "$VALID_START"             --valid-end "$VALID_END"             --prediction-phase FINAL             --feature-selection none             --candidates-json candidate.json             --source-ref main             --ml-source-sha "$GITHUB_SHA"             --keep-projections
+
+          projection="$(find "$out/projections" -type f -name '*.jsonl.gz' -print -quit)"
+          model="$(find "$out/models" -type f -name '*.txt' -print -quit)"
+          meta="$(find "$out/models" -type f -name '*.json' -print -quit)"
+          schema="$(find "$out/schemas" -type f -name '*-schema.json' -print -quit)"
+          for x in "$projection" "$model" "$meta" "$schema"; do test -n "$x"; test -s "$x"; done
+
+          python research/emit_l1_to_l2.py             --dataset "$projection"             --model "$model"             --schema "$schema"             --meta "$meta"             --output "$out/score.jsonl.gz"             --candidate-name "$MATRIX_CANDIDATE"             --feature-sets-json "$FEATURE_SETS_JSON"             --valid-start "$VALID_START"             --valid-end "$VALID_END"             --chunk-size 64
+
+      - name: Restore seven-king router reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          ref="pino1945/keiba-l15-rolecmp-y$VALIDATION_YEAR-v1"
+          dst="out/reference-y$VALIDATION_YEAR"
+          mkdir -p "$dst"
+          raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)")"
+          remote="$(RAW="$raw" python - <<'PY'
+          import json,os
+          rows=json.loads(os.environ["RAW"])
+          names=[str(x.get("name") or "") for x in rows]
+          wanted=["router-7k.jsonl.gz","router-7k.jsonl"]
+          for w in wanted:
+              if w in names:
+                  print(w); raise SystemExit
+          nested=[x for x in names if x.endswith("/router-7k.jsonl.gz") or x.endswith("/router-7k.jsonl")]
+          if len(nested)==1:
+              print(nested[0]); raise SystemExit
+          raise SystemExit(f"router-7k missing/ambiguous: {names}")
+          PY
+          )"
+          kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force
+          router="$(find "$dst" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
+          test -n "$router"; test -s "$router"
+          echo "ROUTER_SEVEN=$router" >> "$GITHUB_ENV"
+
+      - name: Analyze outsider rescue and overlap
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="out/outsider/$MATRIX_CANDIDATE-y$VALIDATION_YEAR"
+          python research/analyze_l1_outsider_rescue_v1.py             --candidate-score "$out/score.jsonl.gz"             --router-seven "$ROUTER_SEVEN"             --snapshot "$VALID_SNAPSHOT"             --candidate-name "$MATRIX_CANDIDATE"             --year "$VALIDATION_YEAR"             --output "$out/rescue.json"
+
+      - name: Print structured outsider log
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ["MATRIX_CANDIDATE"]; y=int(os.environ["VALIDATION_YEAR"])
+          out=Path("out/outsider")/f"{n}-y{y}"
+          s=json.loads((out/"feature-arena-summary.json").read_text(encoding="utf-8"))
+          r=s["results"][0]
+          rescue=json.loads((out/"rescue.json").read_text(encoding="utf-8"))
+          payload={
+            "candidate":n,
+            "label_ja":os.environ.get("CANDIDATE_LABEL_JA",n),
+            "validation_year":y,
+            "train_start":os.environ["TRAIN_START"],
+            "train_end":os.environ["TRAIN_END"],
+            "feature_sets":r["feature_sets"],
+            "feature_count":r["feature_count"],
+            "metrics":r["metrics"],
+            "resource_usage":r.get("resource_usage"),
+            "rescue":rescue,
+          }
+          print("L1_OUTSIDER_RESULT")
+          print(json.dumps(payload,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Existing approved Kaggle snapshots/references are read-only."
+          echo "No model/dataset persistence from this outsider lane."
+          echo "Only final small text/JSON ledger is committed by the caller workflow."
+          echo "2026 remains sealed."
