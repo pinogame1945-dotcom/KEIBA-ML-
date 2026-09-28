@@ -202,11 +202,12 @@ def main():
         for mode,label_mode in (("test_rank","TEST_RANK"),("train_quantile","TRAIN_QUANTILE")):
             for b in budgets:
                 x=aggregate[model_key][mode][b]
+                enrich="" if x["enrichment_vs_prevalence"] is None else f"{x['enrichment_vs_prevalence']:.2f}x"
                 lines.append(
                     f"| {label} | {aggregate[model_key]['weighted_roc_auc']:.4f} | "
                     f"{aggregate[model_key]['weighted_pr_auc']:.4f} | {label_mode} | {b} | "
                     f"{pct(x['intervention_rate'])} | {pct(x['blind_recall'])} | {pct(x['precision'])} | "
-                    f"{'' if x['enrichment_vs_prevalence'] is None else f'{x['enrichment_vs_prevalence']:.2f}x'} |"
+                    f"{enrich} |"
                 )
 
     lines += [
