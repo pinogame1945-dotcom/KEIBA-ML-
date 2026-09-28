@@ -77,7 +77,7 @@ def fit_predict(train,test,variant):
    [project(r["features"],VARIANTS[variant]) for r in test]
  )
  ytr=np.array([r["blind"] for r in train],dtype=int)
- m=make_model(seed=2600+len(train)+len(test)+len(variant))
+ m=make_model(seed=1945+len(train)+len(test))
  m.fit(Xtr,ytr)
  pred=m.predict_proba(Xte)[:,1]
  gains=m.booster_.feature_importance(importance_type="gain")
