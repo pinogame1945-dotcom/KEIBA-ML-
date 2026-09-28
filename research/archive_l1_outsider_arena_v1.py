@@ -65,24 +65,32 @@ def outsider_overlap(rows, candidate_names, validation_years):
         by_name={r.get("candidate"):r for r in year_rows}
         year_out={}
         for n in ("1","3","6"):
-            sets={}
+            rescue_sets={}
+            class_sets={}
             for name in candidate_names:
                 row=by_name.get(name) or {}
-                ids=((row.get("rescue") or {}).get("rescue_race_ids_by_topn") or {}).get(n) or []
-                sets[name]=set(map(str,ids))
-            union=set().union(*sets.values()) if sets else set()
+                rescue=row.get("rescue") or {}
+                ids=(rescue.get("rescue_race_ids_by_topn") or {}).get(n) or []
+                rescue_sets[name]=set(map(str,ids))
+                raw_classes=(rescue.get("four_way_race_ids_by_topn") or {}).get(n) or {}
+                class_sets[name]={
+                    key:set(map(str,raw_classes.get(key) or []))
+                    for key in ("both_hit","kings_only","outsider_only","both_miss")
+                }
+
+            union=set().union(*rescue_sets.values()) if rescue_sets else set()
             rescuers={}
             for rid in sorted(union):
-                rescuers[rid]=[name for name in candidate_names if rid in sets[name]]
+                rescuers[rid]=[name for name in candidate_names if rid in rescue_sets[name]]
             exclusive={}
             for name in candidate_names:
-                others=set().union(*(sets[x] for x in candidate_names if x!=name)) if len(candidate_names)>1 else set()
-                exclusive[name]=len(sets[name]-others)
+                others=set().union(*(rescue_sets[x] for x in candidate_names if x!=name)) if len(candidate_names)>1 else set()
+                exclusive[name]=len(rescue_sets[name]-others)
             pairs={}
             for i,left in enumerate(candidate_names):
                 for right in candidate_names[i+1:]:
-                    inter=sets[left]&sets[right]
-                    uni=sets[left]|sets[right]
+                    inter=rescue_sets[left]&rescue_sets[right]
+                    uni=rescue_sets[left]|rescue_sets[right]
                     pairs[f"{left}__{right}"]={
                         "intersection_count":len(inter),
                         "union_count":len(uni),
@@ -91,21 +99,56 @@ def outsider_overlap(rows, candidate_names, validation_years):
             hist=defaultdict(int)
             for names in rescuers.values():
                 hist[str(len(names))]+=1
+
+            # Group-level four-way view: seven kings as one army vs every outsider as another.
+            available=[name for name in candidate_names if any(class_sets[name].values())]
+            group_vs_kings=None
+            if available:
+                first=available[0]
+                universe=set().union(*class_sets[first].values())
+                kings_hit=class_sets[first]["both_hit"]|class_sets[first]["kings_only"]
+                for name in available[1:]:
+                    u=set().union(*class_sets[name].values())
+                    kh=class_sets[name]["both_hit"]|class_sets[name]["kings_only"]
+                    if u!=universe:
+                        raise SystemExit(f"{year} Top{n}: outsider classification universe mismatch")
+                    if kh!=kings_hit:
+                        raise SystemExit(f"{year} Top{n}: seven-king hit set changed across candidates")
+                outsider_hit=set().union(*[
+                    class_sets[name]["both_hit"]|class_sets[name]["outsider_only"]
+                    for name in available
+                ])
+                grouped={
+                    "both_hit":kings_hit&outsider_hit,
+                    "kings_only":kings_hit-outsider_hit,
+                    "outsiders_only":outsider_hit-kings_hit,
+                    "both_miss":universe-(kings_hit|outsider_hit),
+                }
+                if sum(len(v) for v in grouped.values())!=len(universe):
+                    raise SystemExit(f"{year} Top{n}: group four-way count mismatch")
+                group_vs_kings={
+                    "races":len(universe),
+                    "counts":{key:len(value) for key,value in grouped.items()},
+                    "race_ids":{key:sorted(value) for key,value in grouped.items()},
+                }
+
             year_out[n]={
-                "candidate_rescue_counts":{name:len(sets[name]) for name in candidate_names},
+                "candidate_rescue_counts":{name:len(rescue_sets[name]) for name in candidate_names},
                 "union_rescue_count":len(union),
                 "union_rescue_race_ids":sorted(union),
                 "exclusive_rescue_counts":exclusive,
                 "rescuer_count_histogram":dict(sorted(hist.items(),key=lambda x:int(x[0]))),
                 "rescuers_by_race":rescuers,
                 "pairwise":pairs,
+                "group_vs_kings":group_vs_kings,
             }
         out[str(year)]=year_out
     return out
 
 def aggregate(rows):
     ok=[r for r in rows if r.get("status")=="success"]
-    agg={"successful_folds":len(ok),"expected_folds":len(rows),"mean_metrics":{},"topn":{},"max_peak_rss_mib":None}
+    agg={"successful_folds":len(ok),"expected_folds":len(rows),"mean_metrics":{},"topn":{},"max_peak_rss_mib":None,
+         "strong_rebellion_top1":{"count":0,"hit_count":0,"miss_count":0,"hit_rate":None,"miss_rate":None}}
     metrics=("top1_winner_capture","top3_winner_capture","top6_winner_capture","mean_winner_rank","race_normalized_nll","raw_roc_auc")
     for m in metrics:
         vals=[float(r["metrics"][m]) for r in ok if r.get("metrics",{}).get(m) is not None]
@@ -137,6 +180,19 @@ def aggregate(rows):
             "rescue_share_of_candidate_hits":rescues/hits if hits else None,
             "weighted_mean_jaccard_vs_seven_union":sum(v*w for v,w in jacc)/denom if denom else None,
         }
+    rebellion_count=rebellion_hits=rebellion_misses=0
+    for r in ok:
+        x=(r.get("rescue") or {}).get("strong_rebellion_top1") or {}
+        rebellion_count+=int(x.get("count") or 0)
+        rebellion_hits+=int(x.get("hit_count") or 0)
+        rebellion_misses+=int(x.get("miss_count") or 0)
+    agg["strong_rebellion_top1"]={
+        "count":rebellion_count,
+        "hit_count":rebellion_hits,
+        "miss_count":rebellion_misses,
+        "hit_rate":rebellion_hits/rebellion_count if rebellion_count else None,
+        "miss_rate":rebellion_misses/rebellion_count if rebellion_count else None,
+    }
     return agg
 
 def main():
@@ -220,6 +276,16 @@ def main():
     for year in cfg["validation_years"]:
         y=score["outsider_overlap"].get(str(year),{}).get("6",{})
         lines.append(f"| {year} | {y.get('union_rescue_count',0)} |")
+    lines += ["","## Top6 seven kings vs outsider army","",
+              "| Year | Both hit | Kings only | Outsiders only | Both miss |",
+              "|---:|---:|---:|---:|---:|"]
+    for year in cfg["validation_years"]:
+        g=(score["outsider_overlap"].get(str(year),{}).get("6",{}).get("group_vs_kings") or {})
+        counts=g.get("counts") or {}
+        lines.append(
+            f"| {year} | {counts.get('both_hit',0)} | {counts.get('kings_only',0)} | "
+            f"{counts.get('outsiders_only',0)} | {counts.get('both_miss',0)} |"
+        )
     lines += ["","## Interpretation","",
               "No automatic winner is assigned. A useful outsider may be weaker standalone if it consistently rescues seven-king blind spots on untouched years.",
               "Promotion still requires downstream L2/L3 EV/ROI validation.",""]
