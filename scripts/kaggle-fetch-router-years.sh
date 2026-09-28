@@ -11,13 +11,34 @@ fi
 
 mkdir -p "$out_dir"
 
-retry_kaggle() {
-  local label="$1"
-  shift
-  local attempt delay
+download_once_classified() {
+  local ref="$1" remote="$2" dst="$3"
+  local err
+  err="$(mktemp)"
+  if kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force 2>"$err"; then
+    rm -f "$err"
+    return 0
+  fi
+  cat "$err" >&2 || true
+  if grep -Eqi '(^|[^0-9])404([^0-9]|$)|not[[:space:]]+found' "$err"; then
+    rm -f "$err"
+    return 44
+  fi
+  rm -f "$err"
+  return 1
+}
+
+retry_remote() {
+  local label="$1" ref="$2" remote="$3" dst="$4"
+  local attempt delay rc
   for attempt in 1 2 3 4 5 6; do
-    if "$@"; then
+    if download_once_classified "$ref" "$remote" "$dst"; then
       return 0
+    fi
+    rc=$?
+    if [[ "$rc" -eq 44 ]]; then
+      echo "::notice::Kaggle 404 label=$label remote=$remote; switching name immediately" >&2
+      return 44
     fi
     if [[ "$attempt" -eq 6 ]]; then
       echo "::error::Kaggle operation failed label=$label after $attempt attempts" >&2
@@ -44,15 +65,25 @@ for raw_year in "${years[@]}"; do
   dst="$out_dir/$year"
   mkdir -p "$dst"
 
-  # Fast path: known canonical file name.
-  if retry_kaggle "router:${year}:gz" kaggle datasets download "$ref" -f router-7k.jsonl.gz -p "$dst" --unzip --quiet --force; then
-    :
+  if [[ -s "$dst/router-7k.jsonl" || -s "$dst/router-7k.jsonl.gz" ]]; then
+    router="$(find "$dst" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+    echo "ROUTER_YEAR_REUSE year=$year path=$router"
   else
-    # Fallback for datasets that store the uncompressed name.
-    retry_kaggle "router:${year}:jsonl" kaggle datasets download "$ref" -f router-7k.jsonl -p "$dst" --unzip --quiet --force
+    # Current Kaggle router datasets usually expose the uncompressed remote name.
+    # 404 means a name mismatch, not a transient outage: switch immediately.
+    if retry_remote "router:${year}:jsonl" "$ref" router-7k.jsonl "$dst"; then
+      :
+    else
+      rc=$?
+      if [[ "$rc" -eq 44 ]]; then
+        retry_remote "router:${year}:gz" "$ref" router-7k.jsonl.gz "$dst"
+      else
+        exit "$rc"
+      fi
+    fi
+    router="$(find "$dst" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
   fi
 
-  router="$(find "$dst" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
   test -n "$router"
   test -s "$router"
   echo "ROUTER_YEAR_OK year=$year path=$router"
