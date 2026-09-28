@@ -1,0 +1,185 @@
+name: L1.5 Blind-Spot Gate V2
+
+on:
+  push:
+    branches:
+      - research/l15-outsider-rescue-gate-v2-20260928
+    paths:
+      - .github/triggers/l15-blind-spot-gate-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-blind-spot-gate-v2
+  cancel-in-progress: true
+
+jobs:
+  year_lane:
+    name: blind-gate-v2-y${{ matrix.test_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - test_year: 2022
+            delay_seconds: 0
+          - test_year: 2023
+            delay_seconds: 35
+          - test_year: 2024
+            delay_seconds: 70
+          - test_year: 2025
+            delay_seconds: 105
+
+    env:
+      TEST_YEAR: ${{ matrix.test_year }}
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GH_TOKEN: ${{ github.token }}
+      OUTSIDER_LEDGER_SHA: d63a7c4
+      NONHORSE_SCORECARD_PATH: research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001/attempts/run-36419042735/scorecard.json
+
+    steps:
+      - name: Checkout Gate V2 branch
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/train_l15_outsider_rescue_router_v1.py             research/train_l15_blind_spot_gate_v2.py             research/archive_l15_blind_spot_gate_v2.py
+          bash -n scripts/kaggle-fetch-router-years.sh
+          python -m pip install --disable-pip-version-check kaggle lightgbm pandas numpy scikit-learn
+
+      - name: Stagger Kaggle restore only
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "test_year=$TEST_YEAR restore_delay=${START_DELAY_SECONDS}s"
+          sleep "$START_DELAY_SECONDS"
+
+      - name: Restore pre-race seven-king router snapshots once
+        shell: bash
+        run: |
+          set -euo pipefail
+          years=""
+          for ((y=2021; y<=TEST_YEAR; y++)); do
+            if [[ -n "$years" ]]; then years="$years,$y"; else years="$y"; fi
+          done
+          bash scripts/kaggle-fetch-router-years.sh "$years" "out/router-input-y$TEST_YEAR"
+          echo "ROUTER_RESTORE_DONE test_year=$TEST_YEAR years=$years"
+
+      - name: Restore outsider rescue ledger once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/ledger
+          url="https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$OUTSIDER_LEDGER_SHA/$NONHORSE_SCORECARD_PATH"
+          curl -fL             --retry 6             --retry-delay 3             --retry-all-errors             -H "Authorization: Bearer $GH_TOKEN"             "$url"             -o out/ledger/nonhorse-scorecard.json
+          test -s out/ledger/nonhorse-scorecard.json
+          python - <<'PY'
+          import json
+          p="out/ledger/nonhorse-scorecard.json"
+          x=json.load(open(p,encoding="utf-8"))
+          assert x.get("contract")=="L1_OUTSIDER_ARENA_SCORECARD_V2"
+          assert x.get("run_id")==36419042735
+          print("OUTSIDER_LEDGER_RESTORE_OK",len(x.get("fold_results") or []))
+          PY
+
+      - name: Train and evaluate Gate V2 fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(
+            --config research/l15-blind-spot-gate-v2.json
+            --test-year "$TEST_YEAR"
+            --nonhorse-scorecard out/ledger/nonhorse-scorecard.json
+            --out "out/blind-gate-v2/y$TEST_YEAR/result.json"
+          )
+          for ((y=2021; y<=TEST_YEAR; y++)); do
+            p="$(find "out/router-input-y$TEST_YEAR/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            args+=(--router-year "$y:$p")
+          done
+
+          python research/train_l15_blind_spot_gate_v2.py "${args[@]}"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "Four walk-forward year lanes in parallel."
+          echo "Kaggle restore stagger only reduces 429 collisions."
+          echo "Each required router year is restored once per runner and reused locally."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact/Cache."
+          echo "No new Kaggle dataset/model persistence."
+          echo "2026 sealed. Odds/popularity/payout forbidden."
+
+  ledger:
+    name: archive-blind-gate-v2-ledger
+    if: always()
+    needs:
+      - year_lane
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive Gate V2 fold results
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l15_blind_spot_gate_v2.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"
+
+      - name: Commit permanent small ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l15-blind-spot-gate-v2/run-$GITHUB_RUN_ID"
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive blind spot gate v2 run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Ledger policy
+        if: always()
+        shell: bash
+        run: |
+          echo "Small JSON/README only."
+          echo "10% race IDs preserved for independent-study joins."
+          echo "No model/matrix/Artifact/Cache/new Kaggle persistence."
