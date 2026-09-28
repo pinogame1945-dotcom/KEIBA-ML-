@@ -1,0 +1,1831 @@
+{
+  "contract": "L1_FINAL_WALKFORWARD_SCORECARD_V1",
+  "experiment_id": "MIXED-TRAIN-TURF-VALID-WF-001",
+  "run_id": 36379499534,
+  "complete": true,
+  "composite_winner": null,
+  "fold_results": [
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "role": "baseline",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.26670574443141853,
+        "top3_winner_capture": 0.5720984759671747,
+        "top6_winner_capture": 0.7989449003516998,
+        "mean_winner_rank": 3.9695193434935523,
+        "mean_reciprocal_winner_rank": 0.4692905271865344,
+        "race_normalized_nll": 2.145925773513488,
+        "raw_logloss": 0.2300386656646387,
+        "raw_brier": 0.06320132643810301,
+        "raw_roc_auc": 0.7716937238857523
+      },
+      "peak_rss_mib": 12891.422,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 256.066,
+          "peak_rss_mib": 577.984,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 394.417,
+          "peak_rss_mib": 12891.422,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 650.489,
+        "candidate_peak_rss_mib": 12891.422
+      },
+      "job_id": 108792129709
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "role": "baseline",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.26255049047893825,
+        "top3_winner_capture": 0.5764570109636469,
+        "top6_winner_capture": 0.8320830929024813,
+        "mean_winner_rank": 3.849394114252741,
+        "mean_reciprocal_winner_rank": 0.4706731805111867,
+        "race_normalized_nll": 2.1033438222879877,
+        "raw_logloss": 0.22987422443047065,
+        "raw_brier": 0.06374603308523792,
+        "raw_roc_auc": 0.782092883539583
+      },
+      "peak_rss_mib": 12924.645,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 258.137,
+          "peak_rss_mib": 583.82,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 409.578,
+          "peak_rss_mib": 12924.645,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 667.721,
+        "candidate_peak_rss_mib": 12924.645
+      },
+      "job_id": 108794854337
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "role": "baseline",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.28038439796495196,
+        "top3_winner_capture": 0.5952515545505935,
+        "top6_winner_capture": 0.8428490672696438,
+        "mean_winner_rank": 3.694742792538157,
+        "mean_reciprocal_winner_rank": 0.4850023595966801,
+        "race_normalized_nll": 2.071756743150219,
+        "raw_logloss": 0.2265347515245998,
+        "raw_brier": 0.06302877078552023,
+        "raw_roc_auc": 0.7907196047560769
+      },
+      "peak_rss_mib": 12887.336,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 256.033,
+          "peak_rss_mib": 581.68,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 406.568,
+          "peak_rss_mib": 12887.336,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 662.606,
+        "candidate_peak_rss_mib": 12887.336
+      },
+      "job_id": 108798014454
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "role": "baseline",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.29754426042261567,
+        "top3_winner_capture": 0.6196459166190749,
+        "top6_winner_capture": 0.8498001142204454,
+        "mean_winner_rank": 3.5728155339805827,
+        "mean_reciprocal_winner_rank": 0.5037908137632665,
+        "race_normalized_nll": 2.039532208817342,
+        "raw_logloss": 0.22566954801281158,
+        "raw_brier": 0.0628801672965035,
+        "raw_roc_auc": 0.7970474770268903
+      },
+      "peak_rss_mib": 13577.348,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 251.042,
+          "peak_rss_mib": 520.098,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 379.445,
+          "peak_rss_mib": 13577.348,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 630.493,
+        "candidate_peak_rss_mib": 13577.348
+      },
+      "job_id": 108801225470
+    },
+    {
+      "candidate": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "role": "baseline",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 649,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.2656072644721907,
+        "top3_winner_capture": 0.5919409761634506,
+        "top6_winner_capture": 0.818955732122588,
+        "mean_winner_rank": 3.829738933030647,
+        "mean_reciprocal_winner_rank": 0.47722962912837386,
+        "race_normalized_nll": 2.1034924913160635,
+        "raw_logloss": 0.22822012350221058,
+        "raw_brier": 0.0631711813057959,
+        "raw_roc_auc": 0.7840301390654721
+      },
+      "peak_rss_mib": 12894.648,
+      "resource_usage": {
+        "projection": {
+          "label": "core4_no_pedigree:projection",
+          "elapsed_seconds": 212.204,
+          "peak_rss_mib": 584.059,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "core4_no_pedigree:training",
+          "elapsed_seconds": 304.67,
+          "peak_rss_mib": 12894.648,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 516.878,
+        "candidate_peak_rss_mib": 12894.648
+      },
+      "job_id": 108804012032
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "role": "baseline",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 423,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.2719812426729191,
+        "top3_winner_capture": 0.5762016412661196,
+        "top6_winner_capture": 0.8042203985932005,
+        "mean_winner_rank": 3.9196951934349356,
+        "mean_reciprocal_winner_rank": 0.474545120764347,
+        "race_normalized_nll": 2.1389128785258174,
+        "raw_logloss": 0.2306855023954892,
+        "raw_brier": 0.06324083478543586,
+        "raw_roc_auc": 0.7686202154550599
+      },
+      "peak_rss_mib": 9054.332,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 212.686,
+          "peak_rss_mib": 519.723,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 219.624,
+          "peak_rss_mib": 9054.332,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 432.313,
+        "candidate_peak_rss_mib": 9054.332
+      },
+      "job_id": 108792129704
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "role": "baseline",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 423,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.2608193883439123,
+        "top3_winner_capture": 0.5822273514137334,
+        "top6_winner_capture": 0.8280438545874207,
+        "mean_winner_rank": 3.8395845354875937,
+        "mean_reciprocal_winner_rank": 0.46981288034120594,
+        "race_normalized_nll": 2.1107716116581896,
+        "raw_logloss": 0.23162060320790875,
+        "raw_brier": 0.06402696773791425,
+        "raw_roc_auc": 0.7761740498389557
+      },
+      "peak_rss_mib": 9196.691,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 247.909,
+          "peak_rss_mib": 544.156,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 278.944,
+          "peak_rss_mib": 9196.691,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 526.856,
+        "candidate_peak_rss_mib": 9196.691
+      },
+      "job_id": 108794011622
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "role": "baseline",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 423,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.2792538157150933,
+        "top3_winner_capture": 0.6014697569248163,
+        "top6_winner_capture": 0.8377614471452798,
+        "mean_winner_rank": 3.7190503109101187,
+        "mean_reciprocal_winner_rank": 0.48557976331851577,
+        "race_normalized_nll": 2.08750728919795,
+        "raw_logloss": 0.22918561964979717,
+        "raw_brier": 0.06354352304871759,
+        "raw_roc_auc": 0.7821220470897216
+      },
+      "peak_rss_mib": 9176.258,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 162.066,
+          "peak_rss_mib": 548.66,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 165.016,
+          "peak_rss_mib": 9176.258,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 327.085,
+        "candidate_peak_rss_mib": 9176.258
+      },
+      "job_id": 108796324434
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "role": "baseline",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 423,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.2866933181039406,
+        "top3_winner_capture": 0.6179326099371788,
+        "top6_winner_capture": 0.8600799543118218,
+        "mean_winner_rank": 3.6013706453455168,
+        "mean_reciprocal_winner_rank": 0.49611443238866215,
+        "race_normalized_nll": 2.051628433773764,
+        "raw_logloss": 0.2282325591020612,
+        "raw_brier": 0.06341365142614393,
+        "raw_roc_auc": 0.7891720562847686
+      },
+      "peak_rss_mib": 9011.602,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 154.933,
+          "peak_rss_mib": 531.406,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 157.895,
+          "peak_rss_mib": 9011.602,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 312.831,
+        "candidate_peak_rss_mib": 9011.602
+      },
+      "job_id": 108797958200
+    },
+    {
+      "candidate": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "role": "baseline",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 423,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.27695800227014755,
+        "top3_winner_capture": 0.6061293984108967,
+        "top6_winner_capture": 0.8269012485811578,
+        "mean_winner_rank": 3.7917139614074915,
+        "mean_reciprocal_winner_rank": 0.4855376939464206,
+        "race_normalized_nll": 2.1068927905858787,
+        "raw_logloss": 0.22984371015326457,
+        "raw_brier": 0.0634552432610508,
+        "raw_roc_auc": 0.7786152535770106
+      },
+      "peak_rss_mib": 9275.355,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition:projection",
+          "elapsed_seconds": 248.953,
+          "peak_rss_mib": 562.918,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition:training",
+          "elapsed_seconds": 282.046,
+          "peak_rss_mib": 9275.355,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 531.003,
+        "candidate_peak_rss_mib": 9275.355
+      },
+      "job_id": 108799548849
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 457,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.26553341148886284,
+        "top3_winner_capture": 0.5756154747948418,
+        "top6_winner_capture": 0.8065650644783119,
+        "mean_winner_rank": 3.9015240328253222,
+        "mean_reciprocal_winner_rank": 0.472339501874965,
+        "race_normalized_nll": 2.1393716207675753,
+        "raw_logloss": 0.23078637806348645,
+        "raw_brier": 0.0633368220614056,
+        "raw_roc_auc": 0.7689910308880101
+      },
+      "peak_rss_mib": 10182.902,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 316.602,
+          "peak_rss_mib": 547.941,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 310.427,
+          "peak_rss_mib": 10182.902,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 627.033,
+        "candidate_peak_rss_mib": 10182.902
+      },
+      "job_id": 108792129675
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 457,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.25851125216387766,
+        "top3_winner_capture": 0.5874206578188114,
+        "top6_winner_capture": 0.825735718407386,
+        "mean_winner_rank": 3.859203693017888,
+        "mean_reciprocal_winner_rank": 0.4687455883333484,
+        "race_normalized_nll": 2.106984368863036,
+        "raw_logloss": 0.2313194180522828,
+        "raw_brier": 0.06401341367969514,
+        "raw_roc_auc": 0.7763949415155111
+      },
+      "peak_rss_mib": 9819.168,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 383.183,
+          "peak_rss_mib": 552.707,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 346.809,
+          "peak_rss_mib": 9819.168,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 729.997,
+        "candidate_peak_rss_mib": 9819.168
+      },
+      "job_id": 108795105078
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 457,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.28886376483889203,
+        "top3_winner_capture": 0.6037309214245337,
+        "top6_winner_capture": 0.8422837761447145,
+        "mean_winner_rank": 3.6856981345392876,
+        "mean_reciprocal_winner_rank": 0.49165817583916877,
+        "race_normalized_nll": 2.0848893227467893,
+        "raw_logloss": 0.22894534882849438,
+        "raw_brier": 0.06346614285550435,
+        "raw_roc_auc": 0.7830777756051757
+      },
+      "peak_rss_mib": 9799.07,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 295.387,
+          "peak_rss_mib": 544.406,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 307.438,
+          "peak_rss_mib": 9799.07,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 602.829,
+        "candidate_peak_rss_mib": 9799.07
+      },
+      "job_id": 108798228517
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 457,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.2958309537407196,
+        "top3_winner_capture": 0.6150770988006853,
+        "top6_winner_capture": 0.8595088520845231,
+        "mean_winner_rank": 3.584808680753855,
+        "mean_reciprocal_winner_rank": 0.5015664824009636,
+        "race_normalized_nll": 2.043842287067472,
+        "raw_logloss": 0.22777357130557893,
+        "raw_brier": 0.06338921081967676,
+        "raw_roc_auc": 0.791153334951585
+      },
+      "peak_rss_mib": 9621.035,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 315.094,
+          "peak_rss_mib": 568.496,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 302.945,
+          "peak_rss_mib": 9621.035,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 618.042,
+        "candidate_peak_rss_mib": 9621.035
+      },
+      "job_id": 108800828336
+    },
+    {
+      "candidate": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 457,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.264472190692395,
+        "top3_winner_capture": 0.6095346197502838,
+        "top6_winner_capture": 0.8286038592508513,
+        "mean_winner_rank": 3.779228149829739,
+        "mean_reciprocal_winner_rank": 0.4804935623511607,
+        "race_normalized_nll": 2.1027281412260463,
+        "raw_logloss": 0.22950928054455977,
+        "raw_brier": 0.06339142951688118,
+        "raw_roc_auc": 0.779833146332316
+      },
+      "peak_rss_mib": 9817.043,
+      "resource_usage": {
+        "projection": {
+          "label": "jockey_trainer_condition_plus_raceclass:projection",
+          "elapsed_seconds": 288.364,
+          "peak_rss_mib": 519.879,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "jockey_trainer_condition_plus_raceclass:training",
+          "elapsed_seconds": 304.36,
+          "peak_rss_mib": 9817.043,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 592.727,
+        "candidate_peak_rss_mib": 9817.043
+      },
+      "job_id": 108803622499
+    },
+    {
+      "candidate": "no_auto_full",
+      "label_ja": "FULL",
+      "role": "baseline",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 266,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.25498241500586166,
+        "top3_winner_capture": 0.5644783118405627,
+        "top6_winner_capture": 0.8118405627198124,
+        "mean_winner_rank": 3.955451348182884,
+        "mean_reciprocal_winner_rank": 0.46173217217541745,
+        "race_normalized_nll": 2.148374064115349,
+        "raw_logloss": 0.23154916512999932,
+        "raw_brier": 0.06351439874169143,
+        "raw_roc_auc": 0.7671388724902836
+      },
+      "peak_rss_mib": 5615.797,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 165.181,
+          "peak_rss_mib": 568.277,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 175.066,
+          "peak_rss_mib": 5615.797,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 340.25,
+        "candidate_peak_rss_mib": 5615.797
+      },
+      "job_id": 108792129737
+    },
+    {
+      "candidate": "no_auto_full",
+      "label_ja": "FULL",
+      "role": "baseline",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 266,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.26255049047893825,
+        "top3_winner_capture": 0.571263704558569,
+        "top6_winner_capture": 0.8303519907674553,
+        "mean_winner_rank": 3.875937680323139,
+        "mean_reciprocal_winner_rank": 0.46884133530123145,
+        "race_normalized_nll": 2.1269728940411814,
+        "raw_logloss": 0.23294572038209826,
+        "raw_brier": 0.06438535831068665,
+        "raw_roc_auc": 0.7722537650449228
+      },
+      "peak_rss_mib": 5721.691,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 161.929,
+          "peak_rss_mib": 545.656,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 210.237,
+          "peak_rss_mib": 5721.691,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 372.168,
+        "candidate_peak_rss_mib": 5721.691
+      },
+      "job_id": 108793917541
+    },
+    {
+      "candidate": "no_auto_full",
+      "label_ja": "FULL",
+      "role": "baseline",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 266,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.2719050310910119,
+        "top3_winner_capture": 0.5997738835500283,
+        "top6_winner_capture": 0.8332391181458451,
+        "mean_winner_rank": 3.766534765404183,
+        "mean_reciprocal_winner_rank": 0.479297226842367,
+        "race_normalized_nll": 2.0899950252613904,
+        "raw_logloss": 0.22915443119399212,
+        "raw_brier": 0.06344200645316543,
+        "raw_roc_auc": 0.7812993753033312
+      },
+      "peak_rss_mib": 5712.691,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 164.01,
+          "peak_rss_mib": 562.117,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 205.239,
+          "peak_rss_mib": 5712.691,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 369.251,
+        "candidate_peak_rss_mib": 5712.691
+      },
+      "job_id": 108796043459
+    },
+    {
+      "candidate": "no_auto_full",
+      "label_ja": "FULL",
+      "role": "baseline",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 266,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.2946887492861222,
+        "top3_winner_capture": 0.6179326099371788,
+        "top6_winner_capture": 0.8429468874928612,
+        "mean_winner_rank": 3.63906339234723,
+        "mean_reciprocal_winner_rank": 0.49812238596966657,
+        "race_normalized_nll": 2.0611311249972326,
+        "raw_logloss": 0.22901869791908758,
+        "raw_brier": 0.06361336604169772,
+        "raw_roc_auc": 0.7862163341319286
+      },
+      "peak_rss_mib": 5845.762,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 163.886,
+          "peak_rss_mib": 558.098,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 205.27,
+          "peak_rss_mib": 5845.762,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 369.159,
+        "candidate_peak_rss_mib": 5845.762
+      },
+      "job_id": 108797824715
+    },
+    {
+      "candidate": "no_auto_full",
+      "label_ja": "FULL",
+      "role": "baseline",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 266,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.2735527809307605,
+        "top3_winner_capture": 0.6021566401816119,
+        "top6_winner_capture": 0.825766174801362,
+        "mean_winner_rank": 3.8388195232690125,
+        "mean_reciprocal_winner_rank": 0.4798976916027227,
+        "race_normalized_nll": 2.1158586209923387,
+        "raw_logloss": 0.23052953214644697,
+        "raw_brier": 0.06359075413342988,
+        "raw_roc_auc": 0.7761942258443187
+      },
+      "peak_rss_mib": 5727.125,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full:projection",
+          "elapsed_seconds": 161.965,
+          "peak_rss_mib": 564.219,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full:training",
+          "elapsed_seconds": 203.159,
+          "peak_rss_mib": 5727.125,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 365.126,
+        "candidate_peak_rss_mib": 5727.125
+      },
+      "job_id": 108799623906
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "label_ja": "血統型 legacy",
+      "role": "baseline",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.2661195779601407,
+        "top3_winner_capture": 0.5697538100820633,
+        "top6_winner_capture": 0.8141852286049238,
+        "mean_winner_rank": 3.9044548651817115,
+        "mean_reciprocal_winner_rank": 0.4699598290648046,
+        "race_normalized_nll": 2.147471763929237,
+        "raw_logloss": 0.23168136622418098,
+        "raw_brier": 0.06359487554230456,
+        "raw_roc_auc": 0.7666252733797583
+      },
+      "peak_rss_mib": 10179.703,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 247.906,
+          "peak_rss_mib": 530.48,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 317.49,
+          "peak_rss_mib": 10179.703,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 565.4,
+        "candidate_peak_rss_mib": 10179.703
+      },
+      "job_id": 108792129525
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "label_ja": "血統型 legacy",
+      "role": "baseline",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.25389497980380843,
+        "top3_winner_capture": 0.5614541257934218,
+        "top6_winner_capture": 0.8228505481823427,
+        "mean_winner_rank": 3.9024812463935374,
+        "mean_reciprocal_winner_rank": 0.46241933003541574,
+        "race_normalized_nll": 2.1262015469141873,
+        "raw_logloss": 0.2330186219244982,
+        "raw_brier": 0.06445095547805192,
+        "raw_roc_auc": 0.7724232310561112
+      },
+      "peak_rss_mib": 10390.328,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 256.075,
+          "peak_rss_mib": 551.98,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 325.626,
+          "peak_rss_mib": 10390.328,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 581.704,
+        "candidate_peak_rss_mib": 10390.328
+      },
+      "job_id": 108794534429
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "label_ja": "血統型 legacy",
+      "role": "baseline",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.27586206896551724,
+        "top3_winner_capture": 0.5946862634256642,
+        "top6_winner_capture": 0.8355002826455624,
+        "mean_winner_rank": 3.746184284906727,
+        "mean_reciprocal_winner_rank": 0.4828929306670968,
+        "race_normalized_nll": 2.089702258430903,
+        "raw_logloss": 0.22911063972985454,
+        "raw_brier": 0.06347770328781517,
+        "raw_roc_auc": 0.7825486128368583
+      },
+      "peak_rss_mib": 10379.949,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 252.022,
+          "peak_rss_mib": 581.75,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 315.462,
+          "peak_rss_mib": 10379.949,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 567.488,
+        "candidate_peak_rss_mib": 10379.949
+      },
+      "job_id": 108797058219
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "label_ja": "血統型 legacy",
+      "role": "baseline",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.2952598515134209,
+        "top3_winner_capture": 0.613934894346088,
+        "top6_winner_capture": 0.856082238720731,
+        "mean_winner_rank": 3.6019417475728157,
+        "mean_reciprocal_winner_rank": 0.4988903173436382,
+        "race_normalized_nll": 2.051563111626142,
+        "raw_logloss": 0.22845639161420112,
+        "raw_brier": 0.06356766539555682,
+        "raw_roc_auc": 0.7891464628469261
+      },
+      "peak_rss_mib": 10703.613,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 247.929,
+          "peak_rss_mib": 536.766,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 318.583,
+          "peak_rss_mib": 10703.613,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 566.515,
+        "candidate_peak_rss_mib": 10703.613
+      },
+      "job_id": 108799739905
+    },
+    {
+      "candidate": "no_auto_full_pedigree_legacy",
+      "label_ja": "血統型 legacy",
+      "role": "baseline",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 470,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.2763904653802497,
+        "top3_winner_capture": 0.6032917139614075,
+        "top6_winner_capture": 0.825766174801362,
+        "mean_winner_rank": 3.792281498297389,
+        "mean_reciprocal_winner_rank": 0.4835620389937008,
+        "race_normalized_nll": 2.1048150413644398,
+        "raw_logloss": 0.22981509286404778,
+        "raw_brier": 0.06351180404015595,
+        "raw_roc_auc": 0.7791570637364825
+      },
+      "peak_rss_mib": 10407.859,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_legacy:projection",
+          "elapsed_seconds": 201.026,
+          "peak_rss_mib": 510.371,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_legacy:training",
+          "elapsed_seconds": 210.055,
+          "peak_rss_mib": 10407.859,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 411.084,
+        "candidate_peak_rss_mib": 10407.859
+      },
+      "job_id": 108802213190
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統型v1",
+      "role": "challenger",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 504,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.26670574443141853,
+        "top3_winner_capture": 0.5732708089097304,
+        "top6_winner_capture": 0.8165298944900352,
+        "mean_winner_rank": 3.9155920281359906,
+        "mean_reciprocal_winner_rank": 0.4706069089615914,
+        "race_normalized_nll": 2.147437874614206,
+        "raw_logloss": 0.23142680939976315,
+        "raw_brier": 0.06351551156144862,
+        "raw_roc_auc": 0.7677372811032889
+      },
+      "peak_rss_mib": 11024.469,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 194.564,
+          "peak_rss_mib": 573.012,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 255.956,
+          "peak_rss_mib": 11024.469,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 450.523,
+        "candidate_peak_rss_mib": 11024.469
+      },
+      "job_id": 108792129695
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統型v1",
+      "role": "challenger",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 504,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.2619734564339296,
+        "top3_winner_capture": 0.5747259088286208,
+        "top6_winner_capture": 0.8303519907674553,
+        "mean_winner_rank": 3.8447778418926717,
+        "mean_reciprocal_winner_rank": 0.4701245963435808,
+        "race_normalized_nll": 2.124829362112429,
+        "raw_logloss": 0.232788787836106,
+        "raw_brier": 0.0643590388999224,
+        "raw_roc_auc": 0.7729170639091371
+      },
+      "peak_rss_mib": 10989.758,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 236.762,
+          "peak_rss_mib": 583.34,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 342.813,
+          "peak_rss_mib": 10989.758,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 579.579,
+        "candidate_peak_rss_mib": 10989.758
+      },
+      "job_id": 108794012223
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統型v1",
+      "role": "challenger",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 504,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.2849067269643867,
+        "top3_winner_capture": 0.5952515545505935,
+        "top6_winner_capture": 0.8355002826455624,
+        "mean_winner_rank": 3.729790842283776,
+        "mean_reciprocal_winner_rank": 0.48729545992788764,
+        "race_normalized_nll": 2.0867894060276657,
+        "raw_logloss": 0.22922678917432043,
+        "raw_brier": 0.06350989526689291,
+        "raw_roc_auc": 0.7817580107343853
+      },
+      "peak_rss_mib": 10978.281,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 246.903,
+          "peak_rss_mib": 578.691,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 354.099,
+          "peak_rss_mib": 10978.281,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 601.006,
+        "candidate_peak_rss_mib": 10978.281
+      },
+      "job_id": 108796894457
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統型v1",
+      "role": "challenger",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 504,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.278697886921759,
+        "top3_winner_capture": 0.6110793832095945,
+        "top6_winner_capture": 0.846944603083952,
+        "mean_winner_rank": 3.6419189034837234,
+        "mean_reciprocal_winner_rank": 0.4898689705627758,
+        "race_normalized_nll": 2.057030511112507,
+        "raw_logloss": 0.228771485078705,
+        "raw_brier": 0.06356870414665029,
+        "raw_roc_auc": 0.7876293584991475
+      },
+      "peak_rss_mib": 11179.957,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 232.551,
+          "peak_rss_mib": 574.176,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 293.872,
+          "peak_rss_mib": 11179.957,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 526.427,
+        "candidate_peak_rss_mib": 11179.957
+      },
+      "job_id": 108799931485
+    },
+    {
+      "candidate": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統型v1",
+      "role": "challenger",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 504,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.26503972758229283,
+        "top3_winner_capture": 0.5993189557321226,
+        "top6_winner_capture": 0.825766174801362,
+        "mean_winner_rank": 3.825766174801362,
+        "mean_reciprocal_winner_rank": 0.47749118416433295,
+        "race_normalized_nll": 2.1106338327919754,
+        "raw_logloss": 0.2302574711694036,
+        "raw_brier": 0.06354928754351018,
+        "raw_roc_auc": 0.777084335124497
+      },
+      "peak_rss_mib": 11417.582,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_full_pedigree_v1:projection",
+          "elapsed_seconds": 233.002,
+          "peak_rss_mib": 512.789,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_full_pedigree_v1:training",
+          "elapsed_seconds": 319.769,
+          "peak_rss_mib": 11417.582,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 552.774,
+        "candidate_peak_rss_mib": 11417.582
+      },
+      "job_id": 108802328665
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "role": "baseline",
+      "validation_year": 2021,
+      "train_start": "2019-01-01",
+      "train_end": "2020-12-31",
+      "status": "success",
+      "feature_count": 164,
+      "metrics": {
+        "races": 1706,
+        "top1_winner_capture": 0.26260257913247365,
+        "top3_winner_capture": 0.5691676436107854,
+        "top6_winner_capture": 0.8077373974208675,
+        "mean_winner_rank": 3.959554513481829,
+        "mean_reciprocal_winner_rank": 0.4678372785563669,
+        "race_normalized_nll": 2.1455495019018738,
+        "raw_logloss": 0.23128569433596866,
+        "raw_brier": 0.06342475151094921,
+        "raw_roc_auc": 0.7676722074902032
+      },
+      "peak_rss_mib": 3685.324,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 161.96,
+          "peak_rss_mib": 550.293,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 150.623,
+          "peak_rss_mib": 3685.324,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 312.585,
+        "candidate_peak_rss_mib": 3685.324
+      },
+      "job_id": 108792129716
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "role": "baseline",
+      "validation_year": 2022,
+      "train_start": "2020-01-01",
+      "train_end": "2021-12-31",
+      "status": "success",
+      "feature_count": 164,
+      "metrics": {
+        "races": 1733,
+        "top1_winner_capture": 0.2608193883439123,
+        "top3_winner_capture": 0.5678015002885171,
+        "top6_winner_capture": 0.8245816503173687,
+        "mean_winner_rank": 3.9336410848240044,
+        "mean_reciprocal_winner_rank": 0.4660189199257798,
+        "race_normalized_nll": 2.136047773204271,
+        "raw_logloss": 0.23363523781750448,
+        "raw_brier": 0.06446401141437627,
+        "raw_roc_auc": 0.7699958637057129
+      },
+      "peak_rss_mib": 3785.953,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 164.928,
+          "peak_rss_mib": 559.09,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 148.559,
+          "peak_rss_mib": 3785.953,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 313.489,
+        "candidate_peak_rss_mib": 3785.953
+      },
+      "job_id": 108793586915
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "role": "baseline",
+      "validation_year": 2023,
+      "train_start": "2021-01-01",
+      "train_end": "2022-12-31",
+      "status": "success",
+      "feature_count": 164,
+      "metrics": {
+        "races": 1769,
+        "top1_winner_capture": 0.2798191068400226,
+        "top3_winner_capture": 0.5946862634256642,
+        "top6_winner_capture": 0.8270209157716224,
+        "mean_winner_rank": 3.7914075749010743,
+        "mean_reciprocal_winner_rank": 0.48233236746479524,
+        "race_normalized_nll": 2.1056100936819986,
+        "raw_logloss": 0.23050771306956058,
+        "raw_brier": 0.06373918123103639,
+        "raw_roc_auc": 0.7776713462437831
+      },
+      "peak_rss_mib": 3928.824,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 163.894,
+          "peak_rss_mib": 554.477,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 150.604,
+          "peak_rss_mib": 3928.824,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 314.5,
+        "candidate_peak_rss_mib": 3928.824
+      },
+      "job_id": 108795116400
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "role": "baseline",
+      "validation_year": 2024,
+      "train_start": "2022-01-01",
+      "train_end": "2023-12-31",
+      "status": "success",
+      "feature_count": 164,
+      "metrics": {
+        "races": 1751,
+        "top1_winner_capture": 0.2826956025128498,
+        "top3_winner_capture": 0.6116504854368932,
+        "top6_winner_capture": 0.8389491719017704,
+        "mean_winner_rank": 3.685322672758424,
+        "mean_reciprocal_winner_rank": 0.49153038659455156,
+        "race_normalized_nll": 2.0739291785122016,
+        "raw_logloss": 0.23004743088952834,
+        "raw_brier": 0.06373710603968345,
+        "raw_roc_auc": 0.7830949477887204
+      },
+      "peak_rss_mib": 3868.902,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 136.038,
+          "peak_rss_mib": 551.539,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 111.821,
+          "peak_rss_mib": 3868.902,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 247.86,
+        "candidate_peak_rss_mib": 3868.902
+      },
+      "job_id": 108797141427
+    },
+    {
+      "candidate": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "role": "baseline",
+      "validation_year": 2025,
+      "train_start": "2023-01-01",
+      "train_end": "2024-12-31",
+      "status": "success",
+      "feature_count": 164,
+      "metrics": {
+        "races": 1762,
+        "top1_winner_capture": 0.25368898978433596,
+        "top3_winner_capture": 0.5856980703745743,
+        "top6_winner_capture": 0.8212258796821793,
+        "mean_winner_rank": 3.8734392735527807,
+        "mean_reciprocal_winner_rank": 0.46855271146768107,
+        "race_normalized_nll": 2.1270665059877496,
+        "raw_logloss": 0.23135214951333088,
+        "raw_brier": 0.06377428022424209,
+        "raw_roc_auc": 0.7734009597483553
+      },
+      "peak_rss_mib": 3730.301,
+      "resource_usage": {
+        "projection": {
+          "label": "no_auto_jockey:projection",
+          "elapsed_seconds": 160.907,
+          "peak_rss_mib": 573.0,
+          "exit_code": 0
+        },
+        "training": {
+          "label": "no_auto_jockey:training",
+          "elapsed_seconds": 146.535,
+          "peak_rss_mib": 3730.301,
+          "exit_code": 0
+        },
+        "candidate_elapsed_seconds": 307.444,
+        "candidate_peak_rss_mib": 3730.301
+      },
+      "job_id": 108798796637
+    }
+  ],
+  "candidate_summaries": {
+    "core4_no_pedigree": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 13577.348,
+      "mean_metrics": {
+        "top1_winner_capture": 0.27455843155402304,
+        "top3_winner_capture": 0.5910787868527881,
+        "top6_winner_capture": 0.8285265813733715,
+        "mean_winner_rank": 3.783242143459136,
+        "mean_reciprocal_winner_rank": 0.4811973020372083,
+        "race_normalized_nll": 2.0928102078170197,
+        "raw_logloss": 0.22806746262694624,
+        "raw_brier": 0.06320549578223211,
+        "raw_roc_auc": 0.7851167656547549
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.013025121492198102,
+        "top3_winner_capture": 0.016782638619823428,
+        "top6_winner_capture": 0.01809432277677336,
+        "mean_winner_rank": 0.13663727384800342,
+        "mean_reciprocal_winner_rank": 0.012595364899017686,
+        "race_normalized_nll": 0.03557562391784201,
+        "raw_logloss": 0.0017477146674017415,
+        "raw_brier": 0.0002934095399790665,
+        "raw_roc_auc": 0.00853506122489915
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.26255049047893825,
+        "top3_winner_capture": 0.5720984759671747,
+        "top6_winner_capture": 0.7989449003516998,
+        "mean_winner_rank": 3.9695193434935523,
+        "mean_reciprocal_winner_rank": 0.4692905271865344,
+        "race_normalized_nll": 2.145925773513488,
+        "raw_logloss": 0.2300386656646387,
+        "raw_brier": 0.06374603308523792,
+        "raw_roc_auc": 0.7716937238857523
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.29754426042261567,
+        "top3_winner_capture": 0.6196459166190749,
+        "top6_winner_capture": 0.8498001142204454,
+        "mean_winner_rank": 3.5728155339805827,
+        "mean_reciprocal_winner_rank": 0.5037908137632665,
+        "race_normalized_nll": 2.039532208817342,
+        "raw_logloss": 0.22566954801281158,
+        "raw_brier": 0.0628801672965035,
+        "raw_roc_auc": 0.7970474770268903
+      },
+      "label_ja": "CORE4",
+      "role": "baseline"
+    },
+    "no_auto_full_pedigree_legacy": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 10703.613,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2735053887246274,
+        "top3_winner_capture": 0.5886241615217289,
+        "top6_winner_capture": 0.8308768945909843,
+        "mean_winner_rank": 3.7894687284704363,
+        "mean_reciprocal_winner_rank": 0.4795448892209312,
+        "race_normalized_nll": 2.1039507444529817,
+        "raw_logloss": 0.23041642247135652,
+        "raw_brier": 0.06372060074877688,
+        "raw_roc_auc": 0.7779801287712272
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.013610676684031264,
+        "top3_winner_capture": 0.01993399295226362,
+        "top6_winner_capture": 0.01432367618058946,
+        "mean_winner_rank": 0.11228665471586481,
+        "mean_reciprocal_winner_rank": 0.01254392776355227,
+        "race_normalized_nll": 0.03267233625773495,
+        "raw_logloss": 0.0016899651781839998,
+        "raw_brier": 0.00036748042735744435,
+        "raw_roc_auc": 0.007832689096828917
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.25389497980380843,
+        "top3_winner_capture": 0.5614541257934218,
+        "top6_winner_capture": 0.8141852286049238,
+        "mean_winner_rank": 3.9044548651817115,
+        "mean_reciprocal_winner_rank": 0.46241933003541574,
+        "race_normalized_nll": 2.147471763929237,
+        "raw_logloss": 0.2330186219244982,
+        "raw_brier": 0.06445095547805192,
+        "raw_roc_auc": 0.7666252733797583
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2952598515134209,
+        "top3_winner_capture": 0.613934894346088,
+        "top6_winner_capture": 0.856082238720731,
+        "mean_winner_rank": 3.6019417475728157,
+        "mean_reciprocal_winner_rank": 0.4988903173436382,
+        "race_normalized_nll": 2.051563111626142,
+        "raw_logloss": 0.22845639161420112,
+        "raw_brier": 0.06347770328781517,
+        "raw_roc_auc": 0.7891464628469261
+      },
+      "label_ja": "血統型 legacy",
+      "role": "baseline"
+    },
+    "jockey_trainer_condition": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 9275.355,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2751411534212026,
+        "top3_winner_capture": 0.596792151590549,
+        "top6_winner_capture": 0.831401380643776,
+        "mean_winner_rank": 3.774282929317131,
+        "mean_reciprocal_winner_rank": 0.4823179781518303,
+        "race_normalized_nll": 2.09914260074832,
+        "raw_logloss": 0.22991359890170418,
+        "raw_brier": 0.0635360440518525,
+        "raw_roc_auc": 0.7789407244491032
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.008587961697711656,
+        "top3_winner_capture": 0.015440762083290132,
+        "top6_winner_capture": 0.01807341134689796,
+        "mean_winner_rank": 0.10831635821833961,
+        "mean_reciprocal_winner_rank": 0.009253569527484783,
+        "race_normalized_nll": 0.028878888032330897,
+        "raw_logloss": 0.0011722142928208795,
+        "raw_brier": 0.00026446899044342727,
+        "raw_roc_auc": 0.00676866737930527
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.2608193883439123,
+        "top3_winner_capture": 0.5762016412661196,
+        "top6_winner_capture": 0.8042203985932005,
+        "mean_winner_rank": 3.9196951934349356,
+        "mean_reciprocal_winner_rank": 0.46981288034120594,
+        "race_normalized_nll": 2.1389128785258174,
+        "raw_logloss": 0.23162060320790875,
+        "raw_brier": 0.06402696773791425,
+        "raw_roc_auc": 0.7686202154550599
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2866933181039406,
+        "top3_winner_capture": 0.6179326099371788,
+        "top6_winner_capture": 0.8600799543118218,
+        "mean_winner_rank": 3.6013706453455168,
+        "mean_reciprocal_winner_rank": 0.49611443238866215,
+        "race_normalized_nll": 2.051628433773764,
+        "raw_logloss": 0.2282325591020612,
+        "raw_brier": 0.06324083478543586,
+        "raw_roc_auc": 0.7891720562847686
+      },
+      "label_ja": "条件型",
+      "role": "baseline"
+    },
+    "no_auto_full": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 5845.762,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2715358933585389,
+        "top3_winner_capture": 0.5911210300135902,
+        "top6_winner_capture": 0.8288289467854671,
+        "mean_winner_rank": 3.81516134190529,
+        "mean_reciprocal_winner_rank": 0.47757816237828105,
+        "race_normalized_nll": 2.1084663458814985,
+        "raw_logloss": 0.23063950935432484,
+        "raw_brier": 0.06370917673613422,
+        "raw_roc_auc": 0.776620514562957
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.013379192398865012,
+        "top3_winner_capture": 0.020098085431088063,
+        "top6_winner_capture": 0.010188928202762758,
+        "mean_winner_rank": 0.10706053474465564,
+        "mean_reciprocal_winner_rank": 0.01231119875813139,
+        "race_normalized_nll": 0.030237648229802825,
+        "raw_logloss": 0.0014826101828860744,
+        "raw_brier": 0.0003434366174375273,
+        "raw_roc_auc": 0.006680168423733848
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.25498241500586166,
+        "top3_winner_capture": 0.5644783118405627,
+        "top6_winner_capture": 0.8118405627198124,
+        "mean_winner_rank": 3.955451348182884,
+        "mean_reciprocal_winner_rank": 0.46173217217541745,
+        "race_normalized_nll": 2.148374064115349,
+        "raw_logloss": 0.23294572038209826,
+        "raw_brier": 0.06438535831068665,
+        "raw_roc_auc": 0.7671388724902836
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2946887492861222,
+        "top3_winner_capture": 0.6179326099371788,
+        "top6_winner_capture": 0.8429468874928612,
+        "mean_winner_rank": 3.63906339234723,
+        "mean_reciprocal_winner_rank": 0.49812238596966657,
+        "race_normalized_nll": 2.0611311249972326,
+        "raw_logloss": 0.22901869791908758,
+        "raw_brier": 0.06344200645316543,
+        "raw_roc_auc": 0.7862163341319286
+      },
+      "label_ja": "FULL",
+      "role": "baseline"
+    },
+    "no_auto_jockey": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 3928.824,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2679251333227189,
+        "top3_winner_capture": 0.5858007926272869,
+        "top6_winner_capture": 0.8239030030187617,
+        "mean_winner_rank": 3.848673023903623,
+        "mean_reciprocal_winner_rank": 0.47525433280183493,
+        "race_normalized_nll": 2.117640610657619,
+        "raw_logloss": 0.2313656451251786,
+        "raw_brier": 0.06382786608405748,
+        "raw_roc_auc": 0.7743670649953549
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.011323624364878085,
+        "top3_winner_capture": 0.01641831253462225,
+        "top6_winner_capture": 0.010050501816847966,
+        "mean_winner_rank": 0.10009027135347291,
+        "mean_reciprocal_winner_rank": 0.010002257494498719,
+        "race_normalized_nll": 0.025542122015138845,
+        "raw_logloss": 0.0012354239298654872,
+        "raw_brier": 0.00034239044189958494,
+        "raw_roc_auc": 0.00551282304632705
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.25368898978433596,
+        "top3_winner_capture": 0.5678015002885171,
+        "top6_winner_capture": 0.8077373974208675,
+        "mean_winner_rank": 3.959554513481829,
+        "mean_reciprocal_winner_rank": 0.4660189199257798,
+        "race_normalized_nll": 2.1455495019018738,
+        "raw_logloss": 0.23363523781750448,
+        "raw_brier": 0.06446401141437627,
+        "raw_roc_auc": 0.7676722074902032
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2826956025128498,
+        "top3_winner_capture": 0.6116504854368932,
+        "top6_winner_capture": 0.8389491719017704,
+        "mean_winner_rank": 3.685322672758424,
+        "mean_reciprocal_winner_rank": 0.49153038659455156,
+        "race_normalized_nll": 2.0739291785122016,
+        "raw_logloss": 0.23004743088952834,
+        "raw_brier": 0.06342475151094921,
+        "raw_roc_auc": 0.7830949477887204
+      },
+      "label_ja": "軽量型",
+      "role": "baseline"
+    },
+    "no_auto_full_pedigree_v1": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 11417.582,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2714647084667573,
+        "top3_winner_capture": 0.5907293222461323,
+        "top6_winner_capture": 0.8310185891576733,
+        "mean_winner_rank": 3.791569158119505,
+        "mean_reciprocal_winner_rank": 0.4790774239920337,
+        "race_normalized_nll": 2.105344197331757,
+        "raw_logloss": 0.23049426853165964,
+        "raw_brier": 0.06370048748368487,
+        "raw_roc_auc": 0.7774252098740911
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.0087979397026639,
+        "top3_winner_capture": 0.014623722498631446,
+        "top6_winner_capture": 0.01011610576512209,
+        "mean_winner_rank": 0.09549244083799671,
+        "mean_reciprocal_winner_rank": 0.008226937420526766,
+        "race_normalized_nll": 0.03117056981648369,
+        "raw_logloss": 0.001467311217634957,
+        "raw_brier": 0.0003299877944912732,
+        "raw_roc_auc": 0.006887573621553337
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.2619734564339296,
+        "top3_winner_capture": 0.5732708089097304,
+        "top6_winner_capture": 0.8165298944900352,
+        "mean_winner_rank": 3.9155920281359906,
+        "mean_reciprocal_winner_rank": 0.4701245963435808,
+        "race_normalized_nll": 2.147437874614206,
+        "raw_logloss": 0.232788787836106,
+        "raw_brier": 0.0643590388999224,
+        "raw_roc_auc": 0.7677372811032889
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2849067269643867,
+        "top3_winner_capture": 0.6110793832095945,
+        "top6_winner_capture": 0.846944603083952,
+        "mean_winner_rank": 3.6419189034837234,
+        "mean_reciprocal_winner_rank": 0.4898689705627758,
+        "race_normalized_nll": 2.057030511112507,
+        "raw_logloss": 0.228771485078705,
+        "raw_brier": 0.06350989526689291,
+        "raw_roc_auc": 0.7876293584991475
+      },
+      "label_ja": "新血統型v1",
+      "role": "challenger"
+    },
+    "jockey_trainer_condition_plus_raceclass": {
+      "expected_folds": 5,
+      "successful_folds": 5,
+      "failed_folds": 0,
+      "years_success": [
+        2021,
+        2022,
+        2023,
+        2024,
+        2025
+      ],
+      "years_failed": [],
+      "max_peak_rss_mib": 10182.902,
+      "mean_metrics": {
+        "top1_winner_capture": 0.2746423145849494,
+        "top3_winner_capture": 0.5982757545178312,
+        "top6_winner_capture": 0.8325394540731574,
+        "mean_winner_rank": 3.762092538193218,
+        "mean_reciprocal_winner_rank": 0.4829606621599213,
+        "race_normalized_nll": 2.095563148134184,
+        "raw_logloss": 0.22966679935888049,
+        "raw_brier": 0.06351940378663261,
+        "raw_roc_auc": 0.7798900458585196
+      },
+      "stdev_metrics": {
+        "top1_winner_capture": 0.014817710936815557,
+        "top3_winner_capture": 0.014629610134810171,
+        "top6_winner_capture": 0.017656437252002805,
+        "mean_winner_rank": 0.11526579569941925,
+        "mean_reciprocal_winner_rank": 0.01218841451709543,
+        "race_normalized_nll": 0.031272805122971876,
+        "raw_logloss": 0.0012739089863924584,
+        "raw_brier": 0.00025041813431872316,
+        "raw_roc_auc": 0.007321623063005507
+      },
+      "worst_year_metrics": {
+        "top1_winner_capture": 0.25851125216387766,
+        "top3_winner_capture": 0.5756154747948418,
+        "top6_winner_capture": 0.8065650644783119,
+        "mean_winner_rank": 3.9015240328253222,
+        "mean_reciprocal_winner_rank": 0.4687455883333484,
+        "race_normalized_nll": 2.1393716207675753,
+        "raw_logloss": 0.2313194180522828,
+        "raw_brier": 0.06401341367969514,
+        "raw_roc_auc": 0.7689910308880101
+      },
+      "best_year_metrics": {
+        "top1_winner_capture": 0.2958309537407196,
+        "top3_winner_capture": 0.6150770988006853,
+        "top6_winner_capture": 0.8595088520845231,
+        "mean_winner_rank": 3.584808680753855,
+        "mean_reciprocal_winner_rank": 0.5015664824009636,
+        "race_normalized_nll": 2.043842287067472,
+        "raw_logloss": 0.22777357130557893,
+        "raw_brier": 0.0633368220614056,
+        "raw_roc_auc": 0.791153334951585
+      },
+      "label_ja": "条件型＋race-class血統",
+      "role": "challenger"
+    }
+  }
+}
