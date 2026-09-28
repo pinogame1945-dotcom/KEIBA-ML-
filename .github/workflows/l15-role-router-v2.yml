@@ -157,8 +157,8 @@ jobs:
         run: |
           set -euo pipefail
           root="out/l15-role-v2/$TEST_YEAR"
-          cp research/l15-role-router-v2.json "$root/"
-          cp contracts/l15-role-router-v2.json "$root/"
+          cp research/l15-role-router-v2.json "$root/l15-role-router-experiment-v2.json"
+          cp contracts/l15-role-router-v2.json "$root/l15-role-router-contract-v2.json"
           python research/build_research_bundle_v1.py \
             --kind "l15_role_router_v2_$TEST_YEAR" \
             --snapshot-generation "$GENERATION_ID" \
@@ -172,8 +172,8 @@ jobs:
             --file anchor-router.txt="$root/model/anchor-router.txt" \
             --file mainline-router.txt="$root/model/mainline-router.txt" \
             --file cover-router.txt="$root/model/cover-router.txt" \
-            --file l15-role-router-v2.json="$root/l15-role-router-v2.json" \
-            --file l15-role-router-contract-v2.json="$root/l15-role-router-v2.json" \
+            --file l15-role-router-experiment-v2.json="$root/l15-role-router-experiment-v2.json" \
+            --file l15-role-router-contract-v2.json="$root/l15-role-router-contract-v2.json" \
             --file source-datasets.txt="$root/source-datasets.txt" \
             --out-root "$root/bundle"
           python research/persist_research_bundle_v1.py "$root/bundle"
