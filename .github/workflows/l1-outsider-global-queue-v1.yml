@@ -1,0 +1,146 @@
+name: L1 Outsider Global Queue V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-arena-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-global-queue-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-global-queue-v1
+  cancel-in-progress: true
+
+jobs:
+  candidate:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - candidate: outsider_style
+            family: horse
+            label: style
+            delay: 0
+          - candidate: outsider_lap
+            family: horse
+            label: lap
+            delay: 60
+          - candidate: outsider_network
+            family: horse
+            label: network
+            delay: 120
+          - candidate: outsider_distance
+            family: horse
+            label: distance
+            delay: 0
+          - candidate: outsider_backfill
+            family: horse
+            label: backfill
+            delay: 60
+          - candidate: outsider_daytrend
+            family: nonhorse
+            label: daytrend
+            delay: 120
+          - candidate: outsider_raceshape
+            family: nonhorse
+            label: raceshape
+            delay: 0
+          - candidate: outsider_gatecourse
+            family: nonhorse
+            label: gatecourse
+            delay: 60
+          - candidate: outsider_jockey
+            family: nonhorse
+            label: jockey
+            delay: 120
+          - candidate: outsider_field
+            family: nonhorse
+            label: field
+            delay: 0
+          - candidate: outsider_chimera
+            family: nonhorse
+            label: chimera
+            delay: 60
+    uses: ./.github/workflows/l1-outsider-unified-candidate-v1.yml
+    with:
+      candidate: ${{ matrix.candidate }}
+      family: ${{ matrix.family }}
+      start_delay_seconds: ${{ matrix.delay }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    name: ledger
+    if: always()
+    needs:
+      - candidate
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout unified outsider branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive first outsider family
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --config research/l1-outsider-arena-v1.json \
+            --out-root research-results/l1-outsider-arena-v1
+
+      - name: Archive second outsider family
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id "$GITHUB_RUN_ID" \
+            --config research/l1-outsider-nonhorse-v1.json \
+            --out-root research-results/l1-outsider-nonhorse-v1
+
+      - name: Commit permanent small ledgers
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add \
+            research-results/l1-outsider-arena-v1/OUTSIDER-ARENA-001 \
+            research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive unified outsider queue run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "At most three standard ubuntu-latest CPU runners are active across all 11 outsiders."
+          echo "When one candidate completes, GitHub Actions starts the next queued candidate."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Only small structured result ledgers are committed."
+          echo "2026 remains sealed."
