@@ -50,28 +50,31 @@ jobs:
         run: |
           set -euo pipefail
 
-          restore_role_dataset() {
-            local ref="$1" dest="$2" attempt log
+          restore_role_file() {
+            local ref="$1" name="$2" dest="$3" attempt log
             log="$(mktemp)"
             for attempt in $(seq 1 60); do
               : > "$log"
-              if kaggle datasets download "$ref" -p "$dest" --unzip --quiet --force >"$log" 2>&1; then
+              rm -f "$dest/$name"
+              if kaggle datasets download "$ref" -f "$name" -p "$dest" --unzip --quiet --force >"$log" 2>&1; then
                 cat "$log"
-                rm -f "$log"
-                return 0
+                if [[ -s "$dest/$name" ]]; then
+                  rm -f "$log"
+                  return 0
+                fi
               fi
               cat "$log" >&2
               if ! grep -Eqi '404|429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
-                echo "::error::Non-retryable Kaggle dataset restore failure: $ref"
+                echo "::error::Non-retryable Kaggle file restore failure: $ref file=$name"
                 rm -f "$log"
                 return 1
               fi
               if [[ "$attempt" -eq 60 ]]; then
-                echo "::error::Kaggle dataset restore failed after 60 attempts: $ref"
+                echo "::error::Kaggle file restore failed after 60 attempts: $ref file=$name"
                 rm -f "$log"
                 return 1
               fi
-              echo "::warning::Kaggle dataset not yet downloadable; ref=$ref attempt=$attempt/60"
+              echo "::warning::Kaggle file not yet downloadable; ref=$ref file=$name attempt=$attempt/60"
               sleep 10
             done
           }
@@ -80,7 +83,12 @@ jobs:
           mkdir -p "$root"
           for y in $(seq 2021 "$TEST_YEAR"); do
             d="$root/$y"; mkdir -p "$d"
-            restore_role_dataset "pino1945/keiba-l15-rolecmp-y$y-v1" "$d"
+            ref="pino1945/keiba-l15-rolecmp-y$y-v1"
+            for name in \
+              role-features-5k.jsonl.gz role-labels-5k.jsonl.gz \
+              role-features-7k.jsonl.gz role-labels-7k.jsonl.gz; do
+              restore_role_file "$ref" "$name" "$d"
+            done
           done
 
       - name: Build chronological train and test files
