@@ -3,6 +3,9 @@ name: L1.5 5K vs 7K Train Fold
 on:
   workflow_call:
     inputs:
+      storage_preflight_ok:
+        required: true
+        type: string
       test_year:
         required: true
         type: number
@@ -19,6 +22,7 @@ jobs:
     timeout-minutes: 60
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_STORAGE_PREFLIGHT_OK: ${{ inputs.storage_preflight_ok }}
       TEST_YEAR: ${{ inputs.test_year }}
 
     steps:
@@ -27,6 +31,12 @@ jobs:
         with:
           python-version: "3.12"
 
+      - name: Validate inherited storage preflight
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = "1"
+          echo "Inherited campaign-level Kaggle storage preflight: OK"
+
       - name: Syntax and dependencies
         run: |
           set -euo pipefail
@@ -34,9 +44,6 @@ jobs:
           python -m pip install --disable-pip-version-check kaggle
           python -m pip install --disable-pip-version-check -r ml/requirements.txt
           bash -n scripts/kaggle-storage-preflight.sh
-
-      - name: Storage preflight before compute
-        run: bash scripts/kaggle-storage-preflight.sh
 
       - name: Restore yearly role datasets
         shell: bash
