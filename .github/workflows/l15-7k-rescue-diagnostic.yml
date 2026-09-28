@@ -41,27 +41,33 @@ jobs:
           restore_one() {
             local ref="$1" logical="$2" dest="$3"
             mkdir -p "$dest"
-            local raw remote
+            local raw remote tmp p
             raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)")"
             remote="$(RAW_JSON="$raw" LOGICAL="$logical" python - <<'PY'
           import json,os
           rows=json.loads(os.environ["RAW_JSON"])
-          names={str(x.get("name") or "") for x in rows}
+          names=sorted(str(x.get("name") or "") for x in rows if str(x.get("name") or ""))
           logical=os.environ["LOGICAL"]
           candidates=[logical, logical+".gz"]
           for x in candidates:
               if x in names:
                   print(x)
                   raise SystemExit
-          raise SystemExit(f"missing remote file {logical}; available={sorted(names)}")
+          nested=[x for x in names if x.startswith(logical+"/") or x.startswith(logical+".gz/")]
+          if len(nested)==1:
+              print(nested[0])
+              raise SystemExit
+          raise SystemExit(f"missing/ambiguous remote file {logical}; nested={nested}; available={names}")
           PY
             )"
-            kaggle datasets download "$ref" -f "$remote" -p "$dest" --unzip --quiet --force
-            local p
-            p="$(find "$dest" -type f \( -name "$logical" -o -name "$logical.gz" \) -print -quit)"
+            tmp="$dest/.restore-$logical"
+            rm -rf "$tmp"; mkdir -p "$tmp"
+            kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force
+            p="$(find "$tmp" -type f -print -quit)"
             test -n "$p"; test -s "$p"
             cp "$p" "$dest/$logical.tmp"
             mv "$dest/$logical.tmp" "$dest/$logical"
+            rm -rf "$tmp"
           }
 
           for y in 2022 2023 2024 2025; do
