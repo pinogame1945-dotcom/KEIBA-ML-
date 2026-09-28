@@ -22,6 +22,7 @@ permissions:
 
 jobs:
   score:
+    if: ${{ false }}
     name: outsider-${{ inputs.candidate }}-y${{ inputs.validation_year }}
     runs-on: ubuntu-latest
     timeout-minutes: 180
