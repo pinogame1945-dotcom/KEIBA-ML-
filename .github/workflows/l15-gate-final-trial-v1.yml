@@ -1,0 +1,56 @@
+name: L1.5 Gate Final Trial V1
+on:
+  push:
+    branches: [research/l15-king-anxiety-gate-v1-20260928]
+    paths: [.github/triggers/l15-gate-final-trial-v1.trigger]
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: l15-gate-final-trial-v1
+  cancel-in-progress: true
+jobs:
+  trial:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+        with: {fetch-depth: 0}
+      - uses: actions/setup-python@v5
+        with: {python-version: "3.12"}
+      - name: Install dependencies
+        run: python -m pip install --disable-pip-version-check kaggle lightgbm pandas numpy scikit-learn
+      - name: Restore router snapshots once
+        run: bash scripts/kaggle-fetch-router-years.sh "2021,2022,2023,2024,2025" out/final-gate-trial
+      - name: Restore existing blind-spot scorecard
+        run: |
+          mkdir -p out/ledger
+          curl -fL -H "Authorization: Bearer $GH_TOKEN" "https://raw.githubusercontent.com/$GITHUB_REPOSITORY/d63a7c4/research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001/attempts/run-36419042735/scorecard.json" -o out/ledger/scorecard.json
+      - name: Run final gate trial
+        run: |
+          mkdir -p "research-results/l15-gate-final-trial-v1/run-$GITHUB_RUN_ID"
+          args=(--scorecard out/ledger/scorecard.json --out "research-results/l15-gate-final-trial-v1/run-$GITHUB_RUN_ID/result.json")
+          for y in 2021 2022 2023 2024 2025; do
+            p="$(find out/final-gate-trial/$y -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            args+=(--router-year "$y:$p")
+          done
+          python research/run_l15_gate_final_trial_v1.py "${args[@]}"
+      - name: Commit small result ledger
+        run: |
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "research-results/l15-gate-final-trial-v1/run-$GITHUB_RUN_ID/result.json"
+          git commit -m "research: archive final gate trial run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Existing Kaggle datasets are read only; no new persistence."
+          echo "Only one small JSON result is committed to Git."
+          echo "2026 remains locked. Odds/popularity/payout are not used."
