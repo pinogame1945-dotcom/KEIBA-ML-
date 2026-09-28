@@ -1,0 +1,5 @@
+RECOVER=outsider_lap
+MODE=incremental_persistent_runner
+SNAPSHOT_SESSION=file_list_free
+START_DELAY_SECONDS=30
+LOCKED_YEAR=2026
