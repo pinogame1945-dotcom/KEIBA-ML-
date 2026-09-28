@@ -1,0 +1,67 @@
+name: Repair DIRT ABSORB Ledger Attempt 2
+
+on:
+  push:
+    branches:
+      - research/l1-surface-specialists-v1-20260928
+    paths:
+      - .github/triggers/repair-dirt-absorb-ledger-attempt2.trigger
+
+permissions:
+  actions: read
+  contents: write
+
+jobs:
+  repair:
+    name: repair-ledger-only
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Rebuild attempt 2 ledger from existing run logs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l1_walkforward_run.py \
+            --repo "$GITHUB_REPOSITORY" \
+            --run-id 36371667683 \
+            --config research/l1-dirt-absorption-walkforward-v1.json \
+            --out-root research-results/l1-dirt-absorption-walkforward
+
+      - name: Verify complete 35 of 35
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("research-results/l1-dirt-absorption-walkforward/DIRT-ABSORB-WF-001/attempts/run-36371667683-attempt-2/scorecard.json")
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["complete"] is True, x
+          assert len(x["fold_results"])==35, len(x["fold_results"])
+          assert all(r.get("status")=="success" for r in x["fold_results"])
+          print("DIRT_LEDGER_COMPLETE_35_OF_35")
+          PY
+
+      - name: Commit repaired immutable ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-dirt-absorption-walkforward/DIRT-ABSORB-WF-001/attempts/run-36371667683-attempt-2
+          git commit -m "research: archive repaired DIRT ABSORB attempt 2"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Ledger-only repair on standard ubuntu-latest CPU."
+          echo "No GPU / Artifact / Cache / dataset or model write."
