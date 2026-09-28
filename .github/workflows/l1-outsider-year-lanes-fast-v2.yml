@@ -1,0 +1,200 @@
+name: L1 Outsider Year Lanes Fast V2
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-arena-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-year-lanes-fast-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-year-lanes-fast-v2
+  cancel-in-progress: true
+
+jobs:
+  year_lane:
+    name: outsider-year-${{ matrix.validation_year }}
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        include:
+          - validation_year: 2021
+            delay_seconds: 0
+          - validation_year: 2022
+            delay_seconds: 45
+          - validation_year: 2023
+            delay_seconds: 90
+          - validation_year: 2024
+            delay_seconds: 135
+          - validation_year: 2025
+            delay_seconds: 180
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      VALIDATION_YEAR: ${{ matrix.validation_year }}
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l1_outsider_year_lane_v2.py             research/build_l1_nonhorse_dataset_v1.py             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/analyze_l1_outsider_rescue_v1.py             research/archive_l1_outsider_arena_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-snapshot-session.sh
+          bash -n scripts/kaggle-fetch-router-years.sh
+
+      - name: Install dependencies once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore one rolling fold once
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then
+            echo "Stagger Kaggle access by ${START_DELAY_SECONDS}s"
+            sleep "$START_DELAY_SECONDS"
+          fi
+
+          y="$VALIDATION_YEAR"
+          train1=$((y-2))
+          train2=$((y-1))
+          snapshot_root="out/year-lane-source/$GENERATION_ID/y$y"
+          router_root="out/year-lane-router"
+          mkdir -p "$snapshot_root" "$router_root"
+
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$snapshot_root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$snapshot_root" "$train1" "$train2" "$y"
+          bash scripts/kaggle-fetch-router-years.sh "$y" "$router_root"
+
+          snapshot_path() {
+            local yy="$1"
+            if [[ -s "$snapshot_root/snapshot-$yy.jsonl.gz" ]]; then
+              printf '%s' "$snapshot_root/snapshot-$yy.jsonl.gz"
+            elif [[ -s "$snapshot_root/snapshot-$yy.jsonl" ]]; then
+              printf '%s' "$snapshot_root/snapshot-$yy.jsonl"
+            else
+              echo "::error::snapshot missing year=$yy" >&2
+              return 1
+            fi
+          }
+
+          p1="$(snapshot_path "$train1")"
+          p2="$(snapshot_path "$train2")"
+          pv="$(snapshot_path "$y")"
+          router="$(find "$router_root/$y" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
+          test -n "$router"
+          test -s "$router"
+
+          echo "INPUTS=$p1,$p2,$pv" >> "$GITHUB_ENV"
+          echo "VALID_SNAPSHOT=$pv" >> "$GITHUB_ENV"
+          echo "ROUTER_SEVEN=$router" >> "$GITHUB_ENV"
+          echo "YEAR_LANE_DATA_READY year=$y train=$train1,$train2 valid=$y"
+
+      - name: Run all eleven outsiders on local fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_l1_outsider_year_lane_v2.py             --year "$VALIDATION_YEAR"             --inputs "$INPUTS"             --validation-snapshot "$VALID_SNAPSHOT"             --router-seven "$ROUTER_SEVEN"             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "Five validation-year lanes maximum."
+          echo "Each lane downloads its rolling three-year fold once, then reuses it for all 11 outsiders."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Kaggle is read-only."
+          echo "No candidate model/dataset persistence."
+          echo "Race IDs remain in structured rescue/four-way logs."
+          echo "2026 remains sealed."
+
+  ledger:
+    name: outsider-ledger-with-race-ids
+    if: always()
+    needs:
+      - year_lane
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive horse outsiders with race IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-arena-v1.json             --out-root research-results/l1-outsider-arena-v1
+
+      - name: Archive nonhorse outsiders with race IDs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-nonhorse-v1.json             --out-root research-results/l1-outsider-nonhorse-v1
+
+      - name: Commit permanent outsider ledgers
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add             research-results/l1-outsider-arena-v1/OUTSIDER-ARENA-001             research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive fast outsider year lanes run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Ledger policy
+        if: always()
+        shell: bash
+        run: |
+          echo "Permanent ledgers preserve outsider_only/kings_only/both_hit/both_miss race IDs."
+          echo "They also preserve outsider-vs-outsider union rescue, exclusive rescue, rescuers-by-race and pairwise Jaccard."
+          echo "No automatic winner is assigned."
