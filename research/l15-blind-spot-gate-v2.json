@@ -1,0 +1,86 @@
+{
+  "contract": "L15_BLIND_SPOT_GATE_V2_EXPERIMENT",
+  "experiment_id": "L15-BLIND-SPOT-GATE-002",
+  "source": {
+    "parent_branch": "research/l15-outsider-rescue-router-v1-20260928",
+    "parent_sha": "37134f6bb4965a3e58d87171388eebc13ac5eb93",
+    "outsider_ledger_sha": "d63a7c4",
+    "outsider_run_id": 36419042735,
+    "router_feature_contract": "ROUTER_FEATURE_SNAPSHOT_V1"
+  },
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "models": [
+    "BASE",
+    "PATTERN"
+  ],
+  "budgets": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25
+  ],
+  "primary_budget": 0.1,
+  "evaluation_modes": [
+    "TEST_RANK_DIAGNOSTIC",
+    "TRAIN_QUANTILE_DEPLOYABLE"
+  ],
+  "walk_forward": [
+    {
+      "train_years": [
+        2021
+      ],
+      "test_year": 2022
+    },
+    {
+      "train_years": [
+        2021,
+        2022
+      ],
+      "test_year": 2023
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "test_year": 2024
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "test_year": 2025
+    }
+  ],
+  "parallelism": {
+    "fold_jobs": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "max_parallel": 4,
+    "restore_stagger_seconds": [
+      0,
+      35,
+      70,
+      105
+    ],
+    "remote_input_rule": "restore each required router year once per fold runner and reuse locally"
+  },
+  "persistence": {
+    "github_artifact": false,
+    "github_cache": false,
+    "new_kaggle_dataset": false,
+    "models": false,
+    "small_git_ledger": true
+  }
+}
