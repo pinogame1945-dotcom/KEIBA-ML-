@@ -4,7 +4,9 @@ import csv
 import itertools
 import json
 import math
-from collections import defaultdict
+import gzip
+import statistics
+from collections import Counter, defaultdict
 from pathlib import Path
 
 import lightgbm as lgb
@@ -12,8 +14,84 @@ import numpy as np
 import pandas as pd
 
 from analyze_l15_consensus_outsider_join_v1 import LABELS
-from train_l15_king_anxiety_gate_v1 import uncertainty_features, labels as blind_labels, op
 from train_l15_outsider_rescue_router_v1 import router_features
+
+
+def op(path):
+    return gzip.open(path,"rt",encoding="utf-8") if str(path).endswith(".gz") else open(path,"rt",encoding="utf-8")
+
+def finite(x):
+    try:
+        v=float(x)
+        return v if math.isfinite(v) else None
+    except (TypeError,ValueError):
+        return None
+
+def mean(vals):
+    z=[x for x in vals if x is not None]
+    return sum(z)/len(z) if z else None
+
+def pstdev(vals):
+    z=[x for x in vals if x is not None]
+    return statistics.pstdev(z) if len(z)>1 else (0.0 if z else None)
+
+def four_way(row):
+    d=((row.get("rescue") or {}).get("four_way_race_ids_by_topn") or {}).get("6") or {}
+    return {k:set(map(str,d.get(k) or [])) for k in ("both_hit","kings_only","outsider_only","both_miss")}
+
+def blind_labels(score):
+    out={}
+    for row in score.get("fold_results") or []:
+        if row.get("status")!="success":
+            continue
+        year=int(row.get("validation_year") or 0)
+        if year not in (2021,2022,2023,2024,2025) or year in out:
+            continue
+        d=four_way(row)
+        universe=set().union(*d.values())
+        kings_hit=d["both_hit"]|d["kings_only"]
+        out[year]={rid:int(rid not in kings_hit) for rid in universe}
+    return out
+
+def uncertainty_features(rec,with_pattern=True):
+    experts=rec.get("experts") or {}
+    consensus=rec.get("consensus") or {}
+    if len(experts)!=7:
+        raise ValueError("expected 7 experts")
+    p1=[];g12=[];g13=[];ent=[];m3=[];m6=[];t3=[];t6=[];votes=Counter()
+    for v in experts.values():
+        p1.append(finite(v.get("top1_probability")))
+        g12.append(finite(v.get("top1_top2_gap")))
+        g13.append(finite(v.get("top1_top3_gap")))
+        ent.append(finite(v.get("normalized_entropy")))
+        m3.append(finite(v.get("top3_probability_mass")))
+        m6.append(finite(v.get("top6_probability_mass")))
+        t3.append(set(map(str,v.get("top3_horse_ids") or [])))
+        t6.append(set(map(str,v.get("top6_horse_ids") or [])))
+        votes[str(v.get("top1_horse_id"))]+=1
+    u3=set().union(*t3); u6=set().union(*t6)
+    f={
+        "p1_mean":mean(p1),"p1_std":pstdev(p1),
+        "p1_min":min(x for x in p1 if x is not None),"p1_max":max(x for x in p1 if x is not None),
+        "g12_mean":mean(g12),"g12_std":pstdev(g12),
+        "g12_min":min(x for x in g12 if x is not None),"g12_max":max(x for x in g12 if x is not None),
+        "g13_mean":mean(g13),"g13_std":pstdev(g13),
+        "entropy_mean":mean(ent),"entropy_std":pstdev(ent),
+        "top3_mass_mean":mean(m3),"top6_mass_mean":mean(m6),
+        "top3_jaccard":finite(consensus.get("top3_pairwise_jaccard_mean")),
+        "top6_jaccard":finite(consensus.get("top6_pairwise_jaccard_mean")),
+        "rank_diff_mean":finite(consensus.get("pairwise_rank_abs_diff_mean")),
+        "rank_std_mean":finite(consensus.get("horse_rank_std_mean")),
+        "prob_std_mean":finite(consensus.get("horse_probability_std_mean")),
+        "prob_std_max":finite(consensus.get("horse_probability_std_max")),
+        "top3_union":float(len(u3)),"top6_union":float(len(u6)),
+    }
+    if with_pattern:
+        f["vote_pattern"]="-".join(map(str,sorted(votes.values(),reverse=True)))
+        f["top1_unique"]=float(len(votes))
+        f["top1_max_vote"]=float(max(votes.values()))
+        f["top1_max_vote_share"]=float(max(votes.values())/7.0)
+    return f
 
 CONTRACT="L15_OUTSIDER_ROUTER_31_V1_FOLD"
 TARGET_LABELS=("当日傾向型","レース構造型","枠・コース型","メンバー構成型","騎手型")
