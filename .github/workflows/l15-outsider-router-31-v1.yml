@@ -1,0 +1,198 @@
+name: L1.5 Outsider Router 31 V1
+
+on:
+  push:
+    branches:
+      - research/l15-outsider-router-31-v1-20260929
+    paths:
+      - .github/triggers/l15-outsider-router-31-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-outsider-router-31-v1
+  cancel-in-progress: true
+
+jobs:
+  fold:
+    name: outsider-router-y${{ matrix.test_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - test_year: 2022
+            delay_seconds: 0
+          - test_year: 2023
+            delay_seconds: 35
+          - test_year: 2024
+            delay_seconds: 70
+          - test_year: 2025
+            delay_seconds: 105
+
+    env:
+      TEST_YEAR: ${{ matrix.test_year }}
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GH_TOKEN: ${{ github.token }}
+      OUTSIDER_SHA: d63a7c4
+      SCORECARD_PATH: research-results/l1-outsider-nonhorse-v1/OUTSIDER-NONHORSE-001/attempts/run-36419042735/scorecard.json
+      SELECTED_PATH: research-results/l15-consensus-world-race-ids-v1/run-36442605271/selected-top10-all.csv
+
+    steps:
+      - name: Checkout Router 31 branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/train_l15_outsider_router_31_v1.py             research/archive_l15_outsider_router_31_v1.py
+          bash -n scripts/kaggle-fetch-router-years.sh
+          python -m pip install --disable-pip-version-check kaggle lightgbm pandas numpy scikit-learn
+
+      - name: Stagger Kaggle restore only
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "test_year=$TEST_YEAR restore_delay=${START_DELAY_SECONDS}s"
+          sleep "$START_DELAY_SECONDS"
+
+      - name: Restore pre-race router snapshots once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          years=""
+          for ((y=2021; y<=TEST_YEAR; y++)); do
+            if [[ -n "$years" ]]; then years="$years,$y"; else years="$y"; fi
+          done
+          bash scripts/kaggle-fetch-router-years.sh "$years" "out/router-input-y$TEST_YEAR"
+          echo "ROUTER_RESTORE_DONE test_year=$TEST_YEAR years=$years"
+
+      - name: Restore five-outsider rescue ledger once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/source
+          url="https://raw.githubusercontent.com/$GITHUB_REPOSITORY/$OUTSIDER_SHA/$SCORECARD_PATH"
+          curl -fL             --retry 6             --retry-delay 3             --retry-all-errors             -H "Authorization: Bearer $GH_TOKEN"             "$url"             -o out/source/nonhorse-scorecard.json
+          test -s out/source/nonhorse-scorecard.json
+          python - <<'PY'
+          import json
+          p="out/source/nonhorse-scorecard.json"
+          x=json.load(open(p,encoding="utf-8"))
+          assert x.get("contract")=="L1_OUTSIDER_ARENA_SCORECARD_V2"
+          assert x.get("run_id")==36419042735
+          print("OUTSIDER_LEDGER_OK",len(x.get("fold_results") or []))
+          PY
+
+      - name: Train Router 31 fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l15-outsider-router-31-v1/run-$GITHUB_RUN_ID/y$TEST_YEAR"
+          args=(
+            --config research/l15-outsider-router-31-v1.json
+            --test-year "$TEST_YEAR"
+            --scorecard out/source/nonhorse-scorecard.json
+            --selected "$SELECTED_PATH"
+            --out-dir "$out"
+          )
+          for ((y=2021; y<=TEST_YEAR; y++)); do
+            p="$(find "out/router-input-y$TEST_YEAR/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            args+=(--router-year "$y:$p")
+          done
+          python research/train_l15_outsider_router_31_v1.py "${args[@]}"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "Four test-year folds run in parallel."
+          echo "Each fold restores each required router year once and reuses it for all 31 combo models."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact/Cache."
+          echo "No new Kaggle dataset/model persistence."
+          echo "Only small JSON/CSV ledgers are committed."
+          echo "2026 sealed. Odds/popularity/payout forbidden."
+
+      - name: Commit fold ledger
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "research-results/l15-outsider-router-31-v1/run-$GITHUB_RUN_ID/y$TEST_YEAR"
+          if git diff --cached --quiet; then
+            echo "No fold ledger changes"
+            exit 0
+          fi
+          git commit -m "research: archive outsider router y$TEST_YEAR run $GITHUB_RUN_ID"
+          for attempt in 1 2 3 4 5; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    name: aggregate-outsider-router-31
+    if: always()
+    needs:
+      - fold
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - name: Checkout Router 31 branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward all fold commits
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Aggregate four folds
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/archive_l15_outsider_router_31_v1.py             --run-id "$GITHUB_RUN_ID"
+
+      - name: Commit aggregate ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add             "research-results/l15-outsider-router-31-v1/run-$GITHUB_RUN_ID/summary.json"             "research-results/l15-outsider-router-31-v1/run-$GITHUB_RUN_ID/README.md"             "research-results/l15-outsider-router-31-v1/run-$GITHUB_RUN_ID/policy-comparison.csv"
+          git commit -m "research: aggregate outsider router 31 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Aggregate policy
+        if: always()
+        shell: bash
+        run: |
+          echo "No Artifact/Cache/new external persistence."
+          echo "Aggregate contains small JSON/CSV/README only."
