@@ -1,0 +1,85 @@
+{
+  "contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+  "experiment_id": "L15-ROLE-ROUTER-002",
+  "source_feature_contract": "L15_COLUMN_CANDIDATE_FEATURES_V1",
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "roles": {
+    "ANCHOR": {
+      "source_column": "COL1",
+      "top_n": [
+        1,
+        2,
+        3
+      ],
+      "target": "winner_capture"
+    },
+    "MAINLINE": {
+      "source_column": "COL2",
+      "top_n": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "target": "any_podium_opponent_capture"
+    },
+    "COVER": {
+      "source_column": "COL3",
+      "top_n": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "target": "both_podium_opponents_capture"
+    }
+  },
+  "expected_experts": [
+    "core4_no_pedigree",
+    "no_auto_full_pedigree",
+    "jockey_trainer_condition",
+    "no_auto_full",
+    "no_auto_jockey"
+  ],
+  "walk_forward": [
+    {
+      "train_years": [
+        2021
+      ],
+      "test_year": 2022
+    },
+    {
+      "train_years": [
+        2021,
+        2022
+      ],
+      "test_year": 2023
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "test_year": 2024
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "test_year": 2025
+    }
+  ],
+  "notes": [
+    "No new kings are added in V2; this isolates teacher-design effects.",
+    "No odds and no buy/skip decisions are used in L1.5.",
+    "MAINLINE/COVER are role labels, not literal finish-position columns."
+  ]
+}
