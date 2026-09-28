@@ -100,5 +100,24 @@
     "Same-day trend may use same venue prior race number only.",
     "V1 is additive rescue research; it must not replace the seven kings.",
     "Production promotion requires downstream L2/L3 EV/ROI validation."
-  ]
+  ],
+  "parallelism": {
+    "strategy": "parallelize_by_test_fold_reuse_inputs_within_runner",
+    "fold_jobs": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "max_fold_jobs_in_parallel": 4,
+    "remote_input_rule": "download_or_restore_each_required_input_once_per_fold_runner_then_reuse_locally",
+    "intra_runner": {
+      "concurrent_model_processes_max": 2,
+      "lightgbm_n_jobs_when_concurrent": 1
+    },
+    "aggregate_requires_all_folds": true,
+    "forbid_runner_per_outsider_with_duplicate_remote_downloads": true,
+    "forbid_paid_runner": true,
+    "forbid_gpu": true
+  }
 }
