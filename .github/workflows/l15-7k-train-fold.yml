@@ -1,0 +1,190 @@
+name: L1.5 5K vs 7K Train Fold
+
+on:
+  workflow_call:
+    inputs:
+      test_year:
+        required: true
+        type: number
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  train:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      TEST_YEAR: ${{ inputs.test_year }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        run: |
+          set -euo pipefail
+          python -m py_compile research/train_l15_role_router_v2.py research/persist_exact_kaggle_dataset.py
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore yearly role datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/fold-$TEST_YEAR/source"
+          mkdir -p "$root"
+          for y in $(seq 2021 "$TEST_YEAR"); do
+            d="$root/$y"; mkdir -p "$d"
+            kaggle datasets download "pino1945/keiba-l15-rolecmp-y$y-v1" -p "$d" --unzip --quiet --force
+          done
+
+      - name: Build chronological train and test files
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,os
+          from pathlib import Path
+          y=int(os.environ["TEST_YEAR"])
+          root=Path(f"out/fold-{y}")
+          prep=root/"prepared"; prep.mkdir(parents=True,exist_ok=True)
+
+          def resolve(year,name):
+              d=root/"source"/str(year)
+              for p in list(d.rglob(name))+list(d.rglob(name.removesuffix(".gz"))):
+                  if p.is_file() and p.stat().st_size: return p
+              raise SystemExit(f"missing {name} y{year}")
+
+          def merge(paths,out):
+              with gzip.open(out,"wt",encoding="utf-8") as w:
+                  for p in paths:
+                      op=gzip.open if str(p).endswith(".gz") else open
+                      with op(p,"rt",encoding="utf-8") as r:
+                          for line in r:
+                              if line.strip(): w.write(line)
+
+          for tag in ("5k","7k"):
+              train=range(2021,y)
+              merge([resolve(z,f"role-features-{tag}.jsonl.gz") for z in train],prep/f"train-features-{tag}.jsonl.gz")
+              merge([resolve(z,f"role-labels-{tag}.jsonl.gz") for z in train],prep/f"train-labels-{tag}.jsonl.gz")
+              merge([resolve(y,f"role-features-{tag}.jsonl.gz")],prep/f"test-features-{tag}.jsonl.gz")
+              merge([resolve(y,f"role-labels-{tag}.jsonl.gz")],prep/f"test-labels-{tag}.jsonl.gz")
+          PY
+
+      - name: Train five-king control
+        run: |
+          set -euo pipefail
+          root="out/fold-$TEST_YEAR"
+          python research/train_l15_role_router_v2.py \
+            --config research/l15-role-router-v2-5k-eb13.json \
+            --train-features "$root/prepared/train-features-5k.jsonl.gz" \
+            --train-labels "$root/prepared/train-labels-5k.jsonl.gz" \
+            --test-features "$root/prepared/test-features-5k.jsonl.gz" \
+            --test-labels "$root/prepared/test-labels-5k.jsonl.gz" \
+            --out-dir "$root/model-5k" \
+            --summary-out "$root/summary-5k.json"
+
+      - name: Train seven-king router
+        run: |
+          set -euo pipefail
+          root="out/fold-$TEST_YEAR"
+          python research/train_l15_role_router_v2.py \
+            --config research/l15-role-router-v2-7k.json \
+            --train-features "$root/prepared/train-features-7k.jsonl.gz" \
+            --train-labels "$root/prepared/train-labels-7k.jsonl.gz" \
+            --test-features "$root/prepared/test-features-7k.jsonl.gz" \
+            --test-labels "$root/prepared/test-labels-7k.jsonl.gz" \
+            --out-dir "$root/model-7k" \
+            --summary-out "$root/summary-7k.json"
+
+      - name: Compare five and seven kings
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          y=int(os.environ["TEST_YEAR"]); root=Path(f"out/fold-{y}")
+          a=json.loads((root/"summary-5k.json").read_text())
+          b=json.loads((root/"summary-7k.json").read_text())
+          out={"contract":"L15_ROLE_5K_VS_7K_V1","test_year":y,"roles":{}}
+          for role in ("ANCHOR","MAINLINE","COVER"):
+              out["roles"][role]={}
+              for n,x in b["routing_at_fixed_top_n"][role].items():
+                  z=a["routing_at_fixed_top_n"][role][n]
+                  oa=a["oracle_any_expert_at_fixed_top_n"][role][n]
+                  ob=b["oracle_any_expert_at_fixed_top_n"][role][n]
+                  out["roles"][role][n]={
+                    "five_hit_rate":z["hit_rate"],
+                    "seven_hit_rate":x["hit_rate"],
+                    "router_delta_pp":(x["hit_rate"]-z["hit_rate"])*100,
+                    "five_oracle":oa["hit_rate"],
+                    "seven_oracle":ob["hit_rate"],
+                    "oracle_delta_pp":(ob["hit_rate"]-oa["hit_rate"])*100,
+                    "seven_choice_counts":x["choice_counts"],
+                  }
+          (root/"comparison.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print("L15_ROLE_5K_VS_7K_OK")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Validate and persist fold
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/fold-$TEST_YEAR"
+          for tag in 5k 7k; do
+            test -s "$root/summary-$tag.json"
+            test -s "$root/model-$tag/predictions.jsonl.gz"
+            for role in anchor mainline cover; do test -s "$root/model-$tag/$role-router.txt"; done
+          done
+          test -s "$root/comparison.json"
+
+          stage="out/fold-stage"
+          rm -rf "$stage"; mkdir -p "$stage"
+          cp "$root/summary-5k.json" "$stage/"
+          cp "$root/summary-7k.json" "$stage/"
+          cp "$root/comparison.json" "$stage/"
+          cp "$root/model-5k/predictions.jsonl.gz" "$stage/predictions-5k.jsonl.gz"
+          cp "$root/model-7k/predictions.jsonl.gz" "$stage/predictions-7k.jsonl.gz"
+          for role in anchor mainline cover; do
+            cp "$root/model-5k/$role-router.txt" "$stage/$role-router-5k.txt"
+            cp "$root/model-7k/$role-router.txt" "$stage/$role-router-7k.txt"
+          done
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-7k-fold-y$TEST_YEAR-v1" \
+            --title "KEIBA L15 5K vs 7K Y$TEST_YEAR V1" \
+            --source-dir "$stage"
+
+      - name: Print compact comparison
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          c=json.load(open(f"out/fold-{os.environ['TEST_YEAR']}/comparison.json",encoding="utf-8"))
+          print("=== L1.5 5K VS 7K",os.environ["TEST_YEAR"],"===")
+          for role,rows in c["roles"].items():
+              for n,v in rows.items():
+                  print(role,"Top"+n,
+                        "5K",round(v["five_hit_rate"]*100,3),
+                        "7K",round(v["seven_hit_rate"]*100,3),
+                        "delta_pp",round(v["router_delta_pp"],3),
+                        "oracle_delta_pp",round(v["oracle_delta_pp"],3))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Kaggle storage checked once before compute."
+          echo "2026 never read."
