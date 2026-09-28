@@ -1,0 +1,29 @@
+{
+  "contract": "L1_OUTSIDER_ARENA_V1",
+  "experiment_id": "OUTSIDER-ARENA-001",
+  "snapshot_generation": "eb13d4096519167b",
+  "training_window_years": 2,
+  "validation_years": [2021, 2022, 2023, 2024, 2025],
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "ability_uses_odds": false,
+  "locked_years": [2026],
+  "reference_kings": [
+    {"name":"core4_no_pedigree","alias":"core4"},
+    {"name":"no_auto_full_pedigree_legacy","alias":"pedlegacy"},
+    {"name":"jockey_trainer_condition","alias":"condition"},
+    {"name":"no_auto_full","alias":"full"},
+    {"name":"no_auto_jockey","alias":"light"},
+    {"name":"no_auto_full_pedigree_v1","alias":"pedv1"},
+    {"name":"jockey_trainer_condition_plus_raceclass","alias":"condrc"}
+  ],
+  "candidates": [
+    {"name":"outsider_style","label_ja":"位置取り型","feature_sets":["BASE","STYLE"]},
+    {"name":"outsider_lap","label_ja":"ラップ型","feature_sets":["BASE","LAP"]},
+    {"name":"outsider_network","label_ja":"Elo型","feature_sets":["BASE","NETWORK"]},
+    {"name":"outsider_distance","label_ja":"距離詳細型","feature_sets":["BASE","DISTANCE"]},
+    {"name":"outsider_backfill","label_ja":"レース条件型","feature_sets":["BASE","BACKFILL"]}
+  ],
+  "research_goal": "Find L1 candidates that add non-redundant winner capture to the existing seven kings.",
+  "promotion_policy": "No automatic winner. Evaluate standalone stability, seven-king blind-spot rescue, overlap, and later downstream L2/L3 ROI."
+}
