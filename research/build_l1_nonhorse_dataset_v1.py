@@ -203,15 +203,16 @@ def build_features(mode,row,field_rows,prior_winners):
     return out
 
 def validate_safe(features):
-    forbidden=("odds","popularity","payout","recent_finish","recent_win","recent_top3","recent_speed",
-               "previous_finish","previous_last3f","opponent_","network_","ped_","timepace_","lap_","distx_")
-    bad=[]
-    for key in features:
-        low=str(key).lower()
-        if any(token in low for token in forbidden):
-            bad.append(key)
-    if bad:
-        raise ValueError("forbidden ordinary ability/market feature leaked: "+",".join(sorted(bad)[:20]))
+    # Strong allow-list: this derived research dataset may contain only race context,
+    # gate/horse-number, and explicitly derived nonhorse features.
+    # This is safer than substring-blocking names such as jockey_recent_win_rate or
+    # style_recent_finish_front_rate, which are legitimate nonhorse/shape signals.
+    allowed_exact=set(RACE_BASE_KEYS)|{"gate","horse_number"}
+    bad=[key for key in features if key not in allowed_exact and not str(key).startswith("nh_")]
+    market=[key for key in features if any(token in str(key).lower() for token in ("odds","popularity","payout"))]
+    if bad or market:
+        merged=sorted(set(bad+market))
+        raise ValueError("forbidden/unexpected feature leaked: "+",".join(merged[:20]))
 
 def process_day(day_rows,mode,writer,meta):
     races=defaultdict(list)
