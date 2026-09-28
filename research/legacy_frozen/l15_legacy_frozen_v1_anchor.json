@@ -1,0 +1,79 @@
+{
+  "contract": "L15_LEGACY_FROZEN_V1",
+  "name": "ANCHOR",
+  "status": "FROZEN_BASELINE",
+  "created_at": "2026-09-29",
+  "repository": "pinogame1945-dotcom/KEIBA-ML-",
+  "frozen_branch": "research/l15-legacy-frozen-v1-anchor-20260929",
+  "source": {
+    "handoff_branch": "research/l15-role-router-v2-7kings-20260928",
+    "handoff_head": "4e20ca9381a8cc454dcc71eb6990d6796b373df2",
+    "successful_run_id": 36393377779,
+    "successful_job_id": 108834089921,
+    "run_checkout_commit": "8b2907169a3eae5947197cfea4f5d06e90949551",
+    "trainer_path": "research/train_l15_council_router_v3.py",
+    "trainer_blob_sha": "0c146fae8ef0b8a4e9dfb73ef807544a2043c6ec",
+    "trainer_blob_matches_handoff_head": true
+  },
+  "role": "ANCHOR",
+  "experts": [
+    "core4_no_pedigree",
+    "no_auto_full_pedigree_legacy",
+    "jockey_trainer_condition",
+    "no_auto_full",
+    "no_auto_jockey"
+  ],
+  "protocol": {
+    "test_years": [2023, 2024, 2025],
+    "locked_years": [2026],
+    "odds_used": false,
+    "baseline": "router_hard",
+    "runner": "GitHub Actions standard CPU",
+    "storage_policy": "validation only; do not upload a new Artifact, Cache, Dataset, or Model"
+  },
+  "inputs": {
+    "council_arena": "pino1945/keiba-l15-5k-council-arena-v1",
+    "snapshot": "pino1945/keiba-ml-snapshot-eb13d4096519167b",
+    "role_features": {
+      "2021": "pino1945/keiba-l15-rolecmp-y2021-v1",
+      "2022": "pino1945/keiba-l15-rolecmp-y2022-v1",
+      "2023": "pino1945/keiba-l15-rolecmp-y2023-v1",
+      "2024": "pino1945/keiba-l15-rolecmp-y2024-v1",
+      "2025": "pino1945/keiba-l15-rolecmp-y2025-v1"
+    },
+    "oos_router_predictions": {
+      "2022": "pino1945/keiba-l15-7k-fold-y2022-v1",
+      "2023": "pino1945/keiba-l15-7k-fold-y2023-v1",
+      "2024": "pino1945/keiba-l15-7k-fold-y2024-v1",
+      "2025": "pino1945/keiba-l15-7k-fold-y2025-v1"
+    }
+  },
+  "frozen_output_dataset": "pino1945/keiba-l15-council-router-v3-anchor",
+  "expected": {
+    "aggregate_all_cells": {
+      "router_v3_hit_rate_pct_3dp": 45.184,
+      "baseline_hit_rate_pct_3dp": 45.245,
+      "delta_vs_baseline_pp_3dp": -0.061
+    },
+    "folds": {
+      "2023|ANCHOR|1": {"router_v3_pct_3dp": 28.038, "baseline_pct_3dp": 28.038, "delta_pp_3dp": 0.000},
+      "2023|ANCHOR|2": {"router_v3_pct_3dp": 45.197, "baseline_pct_3dp": 45.168, "delta_pp_3dp": 0.029},
+      "2023|ANCHOR|3": {"router_v3_pct_3dp": 59.115, "baseline_pct_3dp": 59.115, "delta_pp_3dp": 0.000},
+      "2024|ANCHOR|1": {"router_v3_pct_3dp": 29.282, "baseline_pct_3dp": 29.282, "delta_pp_3dp": 0.000},
+      "2024|ANCHOR|2": {"router_v3_pct_3dp": 47.483, "baseline_pct_3dp": 47.772, "delta_pp_3dp": -0.289},
+      "2024|ANCHOR|3": {"router_v3_pct_3dp": 60.909, "baseline_pct_3dp": 61.256, "delta_pp_3dp": -0.347},
+      "2025|ANCHOR|1": {"router_v3_pct_3dp": 28.993, "baseline_pct_3dp": 28.993, "delta_pp_3dp": 0.000},
+      "2025|ANCHOR|2": {"router_v3_pct_3dp": 47.193, "baseline_pct_3dp": 47.135, "delta_pp_3dp": 0.058},
+      "2025|ANCHOR|3": {"router_v3_pct_3dp": 60.446, "baseline_pct_3dp": 60.446, "delta_pp_3dp": 0.000}
+    },
+    "historical_reference": {
+      "year": 2024,
+      "cell": "ANCHOR|3",
+      "hard_router_baseline_pct_3dp": 61.256
+    }
+  },
+  "immutability": {
+    "rule": "Do not tune or overwrite this baseline. New methods must be compared against its frozen race-level decisions on identical race_ids.",
+    "future_comparison_target": "Council/uncertainty gate/outsider designs"
+  }
+}
