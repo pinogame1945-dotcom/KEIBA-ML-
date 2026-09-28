@@ -90,6 +90,7 @@ jobs:
           train_y1,train_y2=year-2,year-1
           env={
             "GENERATION_ID":cfg["snapshot_generation"],
+            "KAGGLE_DATASET_REF":f"pino1945/keiba-ml-snapshot-{cfg['snapshot_generation']}",
             "TRAIN_YEAR_1":str(train_y1),
             "TRAIN_YEAR_2":str(train_y2),
             "TRAIN_START":f"{train_y1}-01-01",
