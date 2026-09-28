@@ -17,11 +17,28 @@ concurrency:
 
 jobs:
   train:
+    name: train-${{ matrix.role }}
     runs-on: ubuntu-latest
     timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: ANCHOR
+            slug: anchor
+            delay: 0
+          - role: MAINLINE
+            slug: mainline
+            delay: 20
+          - role: COVER
+            slug: cover
+            delay: 40
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       SNAPSHOT_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      ROLE: ${{ matrix.role }}
+      ROLE_SLUG: ${{ matrix.slug }}
+      RESTORE_DELAY: ${{ matrix.delay }}
 
     steps:
       - uses: actions/checkout@v4
@@ -41,6 +58,11 @@ jobs:
 
       - name: Verify free-storage headroom
         run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Stagger Kaggle restore
+        run: |
+          echo "role=$ROLE delay=${RESTORE_DELAY}s"
+          sleep "$RESTORE_DELAY"
 
       - name: Restore saved Council V3 inputs
         shell: bash
@@ -186,11 +208,12 @@ jobs:
         run: |
           set -euo pipefail
           root="out/council-v3-input"
-          out="out/council-router-v3"
+          out="out/council-router-v3-$ROLE_SLUG"
           mkdir -p "$out"
 
           python research/train_l15_council_router_v3.py \
             --arena "$root/l15-5k-council-arena-v1.json" \
+            --role "$ROLE" \
             --year-feature "2021:$root/role-features-5k-y2021.jsonl" \
             --year-feature "2022:$root/role-features-5k-y2022.jsonl" \
             --year-feature "2023:$root/role-features-5k-y2023.jsonl" \
@@ -213,15 +236,17 @@ jobs:
         run: |
           set -euo pipefail
           python research/persist_exact_kaggle_dataset.py \
-            --ref "pino1945/keiba-l15-council-router-v3" \
-            --title "KEIBA L15 Council Router V3" \
-            --source-dir "out/council-router-v3"
+            --ref "pino1945/keiba-l15-council-router-v3-$ROLE_SLUG" \
+            --title "KEIBA L15 Council Router V3 $ROLE" \
+            --source-dir "out/council-router-v3-$ROLE_SLUG"
 
       - name: Cost guard
         if: always()
         run: |
           echo "Standard ubuntu-latest CPU only."
           echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Three independent role lanes run in parallel on standard CPU runners."
+          echo "This lane processes role=$ROLE only."
           echo "Uses existing 2021-2025 snapshots, role features, OOS router predictions and Arena V1."
           echo "No horse-score recomputation."
           echo "2026 is sealed."
