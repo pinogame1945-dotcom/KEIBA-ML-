@@ -8,56 +8,53 @@ if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
   exit 2
 fi
 
-usage_json="$(mktemp)"
-trap 'rm -f "$usage_json"' EXIT
-printf '[]\n' > "$usage_json"
+python - "$SAFETY_LIMIT_BYTES" <<'PY'
+import json,subprocess,sys
+limit=int(sys.argv[1])
 
-page=1
-while :; do
-  page_json="$(mktemp)"
-  if ! kaggle datasets list --mine --page "$page" --format "json(ref,totalBytes)" >"$page_json"; then
-    rm -f "$page_json"
-    echo "Could not verify Kaggle storage usage; refusing to start research run." >&2
-    exit 3
-  fi
-  count="$(python - "$usage_json" "$page_json" <<'PY'
-import json,sys
-dst=json.load(open(sys.argv[1],encoding="utf-8"))
-raw=open(sys.argv[2],encoding="utf-8").read().strip()
-if not raw or raw.lower().startswith("no datasets found"):
-    src=[]
+def run(args):
+    p=subprocess.run(args,text=True,stdout=subprocess.PIPE,stderr=subprocess.PIPE)
+    if p.returncode:
+        raise SystemExit("Could not verify Kaggle storage usage; refusing to start research run.\n"+(p.stderr or p.stdout))
+    return p.stdout.strip()
+
+refs=[]
+for page in range(1,1001):
+    raw=run(["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref)"])
+    if not raw or raw.lower().startswith("no datasets found"):
+        break
+    rows=json.loads(raw)
+    if not isinstance(rows,list):
+        raise SystemExit("unexpected Kaggle dataset list payload")
+    page_refs=[str(x.get("ref") or "").strip() for x in rows if str(x.get("ref") or "").strip()]
+    refs.extend(page_refs)
+    if not page_refs:
+        break
 else:
-    src=json.loads(raw)
-if not isinstance(src,list):
-    raise SystemExit("unexpected Kaggle datasets list payload")
-dst.extend(src)
-json.dump(dst,open(sys.argv[1],"w",encoding="utf-8"))
-print(len(src))
+    raise SystemExit("Kaggle dataset pagination safety stop")
+
+grand=0
+for ref in sorted(set(refs)):
+    raw=run(["kaggle","datasets","files",ref,"--page-size","1000","--format","json(name,size)"])
+    if not raw or raw.lower().startswith("no files found"):
+        rows=[]
+    else:
+        rows=json.loads(raw)
+    if not isinstance(rows,list):
+        raise SystemExit(f"unexpected Kaggle files payload for {ref}")
+    subtotal=0
+    for row in rows:
+        try: subtotal+=int(row.get("size") or 0)
+        except (TypeError,ValueError): raise SystemExit(f"invalid file size in {ref}")
+    grand+=subtotal
+
+print(f"Owned Kaggle dataset count: {len(set(refs))}")
+print(f"Owned Kaggle dataset bytes: {grand}")
+print(f"Research storage ceiling: {limit}")
+if grand>=limit:
+    raise SystemExit("Owned Kaggle storage is already at/above the 180 GiB research ceiling; refusing to start.")
+print(f"KAGGLE_STORAGE_PREFLIGHT_OK current_bytes={grand} limit_bytes={limit}")
+with open(__import__("os").environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+    fh.write("KAGGLE_STORAGE_PREFLIGHT_OK=1\n")
+    fh.write(f"KAGGLE_STORAGE_PREFLIGHT_BYTES={grand}\n")
 PY
-)"
-  rm -f "$page_json"
-  [[ "$count" == "0" ]] && break
-  page=$((page+1))
-  [[ "$page" -le 1000 ]] || { echo "Kaggle dataset pagination safety stop" >&2; exit 4; }
-done
-
-current_bytes="$(python - "$usage_json" <<'PY'
-import json,sys
-rows=json.load(open(sys.argv[1],encoding="utf-8"))
-print(sum(int(r.get("totalBytes") or 0) for r in rows))
-PY
-)"
-
-echo "Owned Kaggle dataset bytes: $current_bytes"
-echo "Research storage ceiling: $SAFETY_LIMIT_BYTES"
-
-if (( current_bytes >= SAFETY_LIMIT_BYTES )); then
-  echo "Owned Kaggle storage is already at/above the 180 GiB research ceiling; refusing to start." >&2
-  exit 5
-fi
-
-echo "KAGGLE_STORAGE_PREFLIGHT_OK current_bytes=$current_bytes limit_bytes=$SAFETY_LIMIT_BYTES"
-if [[ -n "${GITHUB_ENV:-}" ]]; then
-  echo "KAGGLE_STORAGE_PREFLIGHT_OK=1" >> "$GITHUB_ENV"
-  echo "KAGGLE_STORAGE_PREFLIGHT_BYTES=$current_bytes" >> "$GITHUB_ENV"
-fi
