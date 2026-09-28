@@ -97,8 +97,16 @@ def main():
     counts={n:defaultdict(float) for n in TOP_NS}
     pair=defaultdict(lambda:{n:defaultdict(float) for n in TOP_NS})
     rescue_race_ids={n:[] for n in TOP_NS}
+    classification_race_ids={
+        n:{"both_hit":[],"kings_only":[],"outsider_only":[],"both_miss":[]}
+        for n in TOP_NS
+    }
     blind_top6_ranks=[]
     top1_novel=top1_novel_hits=0
+    strong_rebellion_top1_count=0
+    strong_rebellion_top1_hits=0
+    strong_rebellion_top1_hit_race_ids=[]
+    strong_rebellion_top1_miss_race_ids=[]
     experts=None
 
     for rid in sorted(common):
@@ -124,6 +132,14 @@ def main():
             d["rescues"]+=int(rescued)
             if rescued:
                 rescue_race_ids[n].append(rid)
+            if ch and uh:
+                classification_race_ids[n]["both_hit"].append(rid)
+            elif (not ch) and uh:
+                classification_race_ids[n]["kings_only"].append(rid)
+            elif ch and (not uh):
+                classification_race_ids[n]["outsider_only"].append(rid)
+            else:
+                classification_race_ids[n]["both_miss"].append(rid)
             d["duplicate_hits"]+=int(uh and ch)
             d["candidate_union_jaccard_sum"]+=jac(csets[n],unions[n])
             for e in experts:
@@ -141,6 +157,18 @@ def main():
         novel=int(ctop1 is not None and ctop1 not in seven_top1)
         top1_novel+=novel
         top1_novel_hits+=int(novel and hit(winners,csets[1]))
+
+        # Strong rebellion = outsider's No.1 horse is outside every king's Top6.
+        # This directly measures the "outsider says this one, kings say no way" pattern.
+        strong_rebellion=bool(ctop1 is not None and ctop1 not in unions[6])
+        if strong_rebellion:
+            strong_rebellion_top1_count+=1
+            if hit(winners,csets[1]):
+                strong_rebellion_top1_hits+=1
+                strong_rebellion_top1_hit_race_ids.append(rid)
+            else:
+                strong_rebellion_top1_miss_race_ids.append(rid)
+
         if not hit(winners,unions[6]):
             wranks=[rank_by_horse[w] for w in winners if w in rank_by_horse]
             if wranks: blind_top6_ranks.append(min(wranks))
@@ -148,6 +176,15 @@ def main():
     topn={}
     for n in TOP_NS:
         d=counts[n]; races=int(d["races"]); blind=int(d["seven_blind_spots"]); hits=int(d["candidate_hits"])
+        classes=classification_race_ids[n]
+        class_counts={name:len(ids) for name,ids in classes.items()}
+        if sum(class_counts.values())!=races:
+            raise SystemExit(f"Top{n}: four-way classification count mismatch")
+        flat=[rid for ids in classes.values() for rid in ids]
+        if len(flat)!=len(set(flat)):
+            raise SystemExit(f"Top{n}: four-way classification overlap detected")
+        if class_counts["outsider_only"]!=int(d["rescues"]):
+            raise SystemExit(f"Top{n}: outsider-only/rescue mismatch")
         topn[str(n)]={
             "races":races,
             "candidate_hit_count":hits,
@@ -160,6 +197,7 @@ def main():
             "rescue_share_of_candidate_hits":(d["rescues"]/hits) if hits else None,
             "duplicate_hit_count":int(d["duplicate_hits"]),
             "mean_jaccard_vs_seven_union":d["candidate_union_jaccard_sum"]/races,
+            "four_way_counts":class_counts,
         }
 
     pairwise={}
@@ -176,7 +214,7 @@ def main():
             }
 
     out={
-        "contract":"L1_OUTSIDER_RESCUE_V1",
+        "contract":"L1_OUTSIDER_RESCUE_V2",
         "candidate":a.candidate_name,
         "validation_year":a.year,
         "races":len(common),
@@ -195,9 +233,32 @@ def main():
         "rescue_race_ids_by_topn":{
             str(n):sorted(rescue_race_ids[n]) for n in TOP_NS
         },
+        "four_way_race_ids_by_topn":{
+            str(n):{
+                name:sorted(ids) for name,ids in classification_race_ids[n].items()
+            } for n in TOP_NS
+        },
+        "strong_rebellion_top1":{
+            "definition":"outsider Top1 horse is outside the union of all seven kings' Top6",
+            "count":strong_rebellion_top1_count,
+            "hit_count":strong_rebellion_top1_hits,
+            "hit_rate":(
+                strong_rebellion_top1_hits/strong_rebellion_top1_count
+                if strong_rebellion_top1_count else None
+            ),
+            "miss_count":strong_rebellion_top1_count-strong_rebellion_top1_hits,
+            "miss_rate":(
+                (strong_rebellion_top1_count-strong_rebellion_top1_hits)/strong_rebellion_top1_count
+                if strong_rebellion_top1_count else None
+            ),
+            "hit_race_ids":sorted(strong_rebellion_top1_hit_race_ids),
+            "miss_race_ids":sorted(strong_rebellion_top1_miss_race_ids),
+        },
         "notes":[
             "Ability model uses no odds.",
-            "Rescue means all seven existing kings miss the winner at the same TopN while the outsider captures it.",
+            "Four-way classification: both_hit / kings_only / outsider_only / both_miss.",
+            "Rescue means outsider_only: all seven existing kings miss the winner at the same TopN while the outsider captures it.",
+            "Strong rebellion Top1 means the outsider's No.1 horse is outside every king's Top6.",
             "2026 is not read."
         ]
     }
