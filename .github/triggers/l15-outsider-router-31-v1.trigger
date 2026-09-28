@@ -1,0 +1,9 @@
+launch=2026-09-29T00:58:00+09:00
+experiment=L15-OUTSIDER-ROUTER-31-001
+years=2022,2023,2024,2025
+feature_sets=COMPACT,FULL
+policies=FIXED_K1-5,INDIVIDUAL_TOP1-3,COMBO_K1-5
+max_parallel=4
+kaggle_restore_stagger_seconds=0,35,70,105
+storage=git-small-ledger-only
+cost=standard-cpu-only
