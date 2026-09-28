@@ -3,7 +3,7 @@ import argparse,gzip,json,math,statistics
 from collections import Counter,defaultdict
 import numpy as np, pandas as pd
 from sklearn.metrics import roc_auc_score,average_precision_score
-from research.train_l15_outsider_rescue_router_v1 import router_features,make_model
+from train_l15_outsider_rescue_router_v1 import router_features,make_model
 
 BUDGETS=(0.05,0.10,0.15,0.20,0.30,0.40,0.50)
 p=argparse.ArgumentParser()
