@@ -111,8 +111,13 @@ jobs:
                 echo "::error::snapshot restore failed after retries year=$y"
                 return 1
               fi
-              delay=$((5 * (2 ** (attempt - 1))))
-              [[ "$delay" -gt 60 ]] && delay=60
+              case "$attempt" in
+                1) delay=15 ;;
+                2) delay=30 ;;
+                3) delay=60 ;;
+                4) delay=90 ;;
+                *) delay=120 ;;
+              esac
               echo "::warning::Kaggle restore retry year=$y attempt=$attempt/6 sleep=${delay}s"
               sleep "$delay"
             done
@@ -120,8 +125,14 @@ jobs:
 
           root="out/outsider-source/$GENERATION_ID"
           mkdir -p "$root"
+          first=1
           for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            if [[ "$first" -eq 0 ]]; then
+              echo "Cooling Kaggle API before next yearly snapshot"
+              sleep 10
+            fi
             restore_snapshot "$y" "$root"
+            first=0
           done
           paths=()
           for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
