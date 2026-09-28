@@ -1,6 +1,6 @@
 {
   "contract": "L15_COLUMN_ROUTER_EXPERIMENT_V1",
-  "experiment_id": "L15-COLUMN-ROUTER-001-7K",
+  "experiment_id": "L15-COLUMN-ROUTER-001-7K-EB13",
   "snapshot_generation": "eb13d4096519167b",
   "ability_uses_odds": false,
   "locked_years": [
@@ -34,7 +34,7 @@
   },
   "expected_experts": [
     "core4_no_pedigree",
-    "no_auto_full_pedigree",
+    "no_auto_full_pedigree_legacy",
     "jockey_trainer_condition",
     "no_auto_full",
     "no_auto_jockey",
@@ -44,7 +44,7 @@
   "max_candidates_per_race": 84,
   "learning_target": "slot_hit_probability",
   "candidate_size_cost": "top_n",
-  "selection_rule": "predict slot capture probability, then choose candidate structures under downstream ticket-size constraints; do not maximize raw hit rate alone",
+  "selection_rule": "fixed TopN expert routing only; no odds; no buy/skip",
   "walk_forward": [
     {
       "train_through": 2021,
@@ -64,10 +64,8 @@
     }
   ],
   "notes": [
-    "Seven-expert bridge dataset for L1.5 Role Router V2.",
-    "Existing five experts reuse persisted horse-level outputs.",
-    "Only two newcomer experts are newly scored.",
-    "No odds in L1.5.",
-    "2026 remains sealed."
+    "eb13d race-class-deep generation",
+    "two-year rolling L1 folds",
+    "2026 sealed"
   ]
 }
