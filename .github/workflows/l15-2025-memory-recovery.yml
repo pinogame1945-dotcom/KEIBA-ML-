@@ -1,0 +1,51 @@
+name: L1.5 2025 Memory Recovery
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-2025-memory-recovery.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-role-router-v2-seven-kings
+  cancel-in-progress: true
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    outputs:
+      ok: ${{ steps.capacity.outputs.ok }}
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+      - name: Verify free-storage headroom once
+        id: capacity
+        run: bash scripts/kaggle-storage-preflight.sh
+      - name: Cost guard
+        run: |
+          echo "2025-only L1.5 recovery."
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Existing role datasets are reused."
+          echo "2026 remains sealed."
+
+  train-2025:
+    needs: preflight
+    uses: ./.github/workflows/l15-7k-train-fold.yml
+    with:
+      storage_preflight_ok: ${{ needs.preflight.outputs.ok }}
+      test_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
