@@ -275,11 +275,10 @@ def encode(train,test):
     trX=tr.drop(columns=[c for c in drop if c in tr],errors="ignore").copy()
     teX=te.drop(columns=[c for c in drop if c in te],errors="ignore").copy()
 
-    cat_cols=[]
-    for c in trX.columns:
-        if trX[c].dtype=="object":
-            cat_cols.append(c)
     both=pd.concat([trX,teX],ignore_index=True)
+    # pandas 3.x may represent text columns as StringDtype ("str"), not object.
+    # Encode every non-numeric column so LightGBM receives only numeric/bool fields.
+    cat_cols=[c for c in both.columns if not pd.api.types.is_numeric_dtype(both[c])]
     both=pd.get_dummies(both,columns=cat_cols,dummy_na=False,dtype=float)
     both=both.replace([np.inf,-np.inf],np.nan).fillna(-999.0)
     Xtr=both.iloc[:len(trX)].reset_index(drop=True)
