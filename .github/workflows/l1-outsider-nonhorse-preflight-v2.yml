@@ -1,0 +1,36 @@
+name: L1 Outsider Nonhorse Preflight V2
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-nonhorse-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-nonhorse-preflight-v2.trigger
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-nonhorse-preflight-v2
+  cancel-in-progress: true
+
+jobs:
+  candidate_2021:
+    strategy:
+      fail-fast: false
+      max-parallel: 1
+      matrix:
+        candidate:
+          - outsider_daytrend
+          - outsider_raceshape
+          - outsider_gatecourse
+          - outsider_jockey
+          - outsider_field
+          - outsider_chimera
+    uses: ./.github/workflows/l1-outsider-nonhorse-one-v2.yml
+    with:
+      candidate: ${{ matrix.candidate }}
+      validation_year: 2021
+      start_delay_seconds: 20
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
