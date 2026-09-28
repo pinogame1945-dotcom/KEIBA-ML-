@@ -1,0 +1,87 @@
+{
+  "contract": "L15_BLIND_SPOT_ANATOMY_V1_EXPERIMENT",
+  "experiment_id": "L15-BLIND-SPOT-ANATOMY-001",
+  "source": {
+    "parent_branch": "research/l15-outsider-rescue-gate-v2-20260928",
+    "parent_sha": "1ad387a0c56fab114b0d418a625d836738034353",
+    "outsider_ledger_sha": "d63a7c4",
+    "outsider_run_id": 36419042735,
+    "router_feature_contract": "ROUTER_FEATURE_SNAPSHOT_V1"
+  },
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "groups": [
+    "BASE",
+    "BREADTH",
+    "REDUNDANCY",
+    "CORE_FRINGE",
+    "PAIRWISE",
+    "TOP3",
+    "TOP1",
+    "ALL_ANATOMY"
+  ],
+  "budgets": [
+    0.05,
+    0.1,
+    0.15,
+    0.2,
+    0.25
+  ],
+  "primary_budget": 0.1,
+  "walk_forward": [
+    {
+      "train_years": [
+        2021
+      ],
+      "test_year": 2022
+    },
+    {
+      "train_years": [
+        2021,
+        2022
+      ],
+      "test_year": 2023
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "test_year": 2024
+    },
+    {
+      "train_years": [
+        2021,
+        2022,
+        2023,
+        2024
+      ],
+      "test_year": 2025
+    }
+  ],
+  "parallelism": {
+    "test_year_jobs": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "max_parallel": 4,
+    "restore_stagger_seconds": [
+      0,
+      35,
+      70,
+      105
+    ]
+  },
+  "persistence": {
+    "github_artifact": false,
+    "github_cache": false,
+    "new_kaggle_dataset": false,
+    "trained_models": false,
+    "small_git_ledger": true
+  }
+}
