@@ -1,0 +1,1928 @@
+{
+  "contract": "L15_GATE_FINAL_TRIAL_V1",
+  "models": [
+    "current_gate",
+    "anxiety_gate",
+    "consensus_world"
+  ],
+  "consensus_keep": [
+    "entropy_mean",
+    "entropy_std",
+    "prob_std_max",
+    "prob_std_mean",
+    "rank_diff_mean",
+    "rank_std_mean",
+    "top1_max_vote",
+    "top1_max_vote_share",
+    "top1_unique",
+    "top3_jaccard",
+    "top3_mass_mean",
+    "top3_union",
+    "top6_jaccard",
+    "top6_mass_mean",
+    "top6_union",
+    "vote_pattern"
+  ],
+  "folds": [
+    {
+      "test_year": 2022,
+      "races": 3456,
+      "blind": 300,
+      "models": {
+        "current_gate": {
+          "roc_auc": 0.6219296577946768,
+          "pr_auc": 0.12538205885825315,
+          "feature_count": 208,
+          "top_features": [
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 3288.3140511512756
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 1434.8089718818665
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 1163.4339413642883
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 839.3660771846771
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability",
+              "gain": 795.2781038284302
+            },
+            {
+              "feature": "king_no_auto_full_family_ACTOR",
+              "gain": 757.1930284500122
+            },
+            {
+              "feature": "consensus_top6_pairwise_jaccard_mean",
+              "gain": 746.2246544361115
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_top2_gap",
+              "gain": 699.804536819458
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 658.7359194755554
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top1_top3_gap",
+              "gain": 654.4616189002991
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_OPPONENT",
+              "gain": 590.9868400096893
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 582.8082699775696
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability_mass",
+              "gain": 577.8223533630371
+            },
+            {
+              "feature": "king_no_auto_jockey_family_BASE",
+              "gain": 574.9773044586182
+            },
+            {
+              "feature": "king_no_auto_full_family_TIME_PACE",
+              "gain": 574.4011409282684
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top6_probability_mass",
+              "gain": 552.1301131248474
+            },
+            {
+              "feature": "coverage_prior_starts_mean",
+              "gain": 546.7164578437805
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top3_gap",
+              "gain": 541.1483612060547
+            },
+            {
+              "feature": "king_core4_no_pedigree_normalized_entropy",
+              "gain": 537.9874641895294
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_OPPONENT",
+              "gain": 526.6927909851074
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 26,
+              "recall": 0.08666666666666667,
+              "precision": 0.15028901734104047,
+              "lift": 1.7313294797687864
+            },
+            "10": {
+              "selected": 346,
+              "blind": 45,
+              "recall": 0.15,
+              "precision": 0.13005780346820808,
+              "lift": 1.4982658959537571
+            },
+            "15": {
+              "selected": 519,
+              "blind": 66,
+              "recall": 0.22,
+              "precision": 0.12716763005780346,
+              "lift": 1.4649710982658959
+            },
+            "20": {
+              "selected": 692,
+              "blind": 84,
+              "recall": 0.28,
+              "precision": 0.12138728323699421,
+              "lift": 1.3983815028901734
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 131,
+              "recall": 0.43666666666666665,
+              "precision": 0.12632594021215043,
+              "lift": 1.455274831243973
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 170,
+              "recall": 0.5666666666666667,
+              "precision": 0.12292118582791034,
+              "lift": 1.416052060737527
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 199,
+              "recall": 0.6633333333333333,
+              "precision": 0.11516203703703703,
+              "lift": 1.3266666666666667
+            }
+          }
+        },
+        "anxiety_gate": {
+          "roc_auc": 0.6421588508660752,
+          "pr_auc": 0.12928951436159347,
+          "feature_count": 39,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 4964.869578361511
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 2262.696155190468
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 1903.3807470798492
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 1871.2561708688736
+            },
+            {
+              "feature": "g12_std",
+              "gain": 1796.75241625309
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 1760.3862257003784
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 1679.7158961296082
+            },
+            {
+              "feature": "p1_std",
+              "gain": 1521.9492272138596
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 1484.303824186325
+            },
+            {
+              "feature": "g12_min",
+              "gain": 1462.8696748018265
+            },
+            {
+              "feature": "g12_mean",
+              "gain": 1245.7089005708694
+            },
+            {
+              "feature": "g13_std",
+              "gain": 1245.235838651657
+            },
+            {
+              "feature": "p1_max",
+              "gain": 1240.5452423095703
+            },
+            {
+              "feature": "g13_mean",
+              "gain": 1126.2915935516357
+            },
+            {
+              "feature": "g12_max",
+              "gain": 1025.3298872709274
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 959.4087293148041
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 954.9712314605713
+            },
+            {
+              "feature": "p1_min",
+              "gain": 816.5244572162628
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 773.075706243515
+            },
+            {
+              "feature": "p1_mean",
+              "gain": 593.6647033691406
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 28,
+              "recall": 0.09333333333333334,
+              "precision": 0.16184971098265896,
+              "lift": 1.8645086705202314
+            },
+            "10": {
+              "selected": 346,
+              "blind": 54,
+              "recall": 0.18,
+              "precision": 0.15606936416184972,
+              "lift": 1.7979190751445089
+            },
+            "15": {
+              "selected": 519,
+              "blind": 72,
+              "recall": 0.24,
+              "precision": 0.13872832369942195,
+              "lift": 1.598150289017341
+            },
+            "20": {
+              "selected": 692,
+              "blind": 94,
+              "recall": 0.31333333333333335,
+              "precision": 0.13583815028901733,
+              "lift": 1.5648554913294797
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 138,
+              "recall": 0.46,
+              "precision": 0.133076181292189,
+              "lift": 1.5330376084860176
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 172,
+              "recall": 0.5733333333333334,
+              "precision": 0.12436731742588576,
+              "lift": 1.432711496746204
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 205,
+              "recall": 0.6833333333333333,
+              "precision": 0.11863425925925926,
+              "lift": 1.3666666666666667
+            }
+          }
+        },
+        "consensus_world": {
+          "roc_auc": 0.6576330798479088,
+          "pr_auc": 0.13869026175871618,
+          "feature_count": 29,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 6046.064222812653
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 2820.4820551872253
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 2791.6158069372177
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 2700.1945658922195
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 2500.6232907772064
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 2465.685312986374
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 2199.3211164474487
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 1767.848914861679
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 1287.0551869869232
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 1223.1957876682281
+            },
+            {
+              "feature": "top6_union",
+              "gain": 609.8172194957733
+            },
+            {
+              "feature": "top1_max_vote",
+              "gain": 587.1770031452179
+            },
+            {
+              "feature": "top1_unique",
+              "gain": 496.9104777574539
+            },
+            {
+              "feature": "vote_pattern_6-1",
+              "gain": 93.58334016799927
+            },
+            {
+              "feature": "top3_union",
+              "gain": 71.2831392288208
+            },
+            {
+              "feature": "vote_pattern_4-2-1",
+              "gain": 32.14221000671387
+            },
+            {
+              "feature": "vote_pattern_5-2",
+              "gain": 18.68310022354126
+            },
+            {
+              "feature": "top1_max_vote_share",
+              "gain": 14.126280069351196
+            },
+            {
+              "feature": "vote_pattern_4-3",
+              "gain": 10.533499717712402
+            },
+            {
+              "feature": "vote_pattern_2-2-1-1-1",
+              "gain": 0.0
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 28,
+              "recall": 0.09333333333333334,
+              "precision": 0.16184971098265896,
+              "lift": 1.8645086705202314
+            },
+            "10": {
+              "selected": 346,
+              "blind": 55,
+              "recall": 0.18333333333333332,
+              "precision": 0.15895953757225434,
+              "lift": 1.8312138728323701
+            },
+            "15": {
+              "selected": 519,
+              "blind": 81,
+              "recall": 0.27,
+              "precision": 0.15606936416184972,
+              "lift": 1.7979190751445089
+            },
+            "20": {
+              "selected": 692,
+              "blind": 106,
+              "recall": 0.35333333333333333,
+              "precision": 0.1531791907514451,
+              "lift": 1.7646242774566476
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 140,
+              "recall": 0.4666666666666667,
+              "precision": 0.13500482160077146,
+              "lift": 1.5552555448408873
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 181,
+              "recall": 0.6033333333333334,
+              "precision": 0.13087490961677511,
+              "lift": 1.5076789587852493
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 212,
+              "recall": 0.7066666666666667,
+              "precision": 0.12268518518518519,
+              "lift": 1.4133333333333333
+            }
+          }
+        }
+      }
+    },
+    {
+      "test_year": 2023,
+      "races": 3456,
+      "blind": 343,
+      "models": {
+        "current_gate": {
+          "roc_auc": 0.6547423154475869,
+          "pr_auc": 0.16944809109309028,
+          "feature_count": 210,
+          "top_features": [
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 2461.9580268859863
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top6_probability_mass",
+              "gain": 2230.099890232086
+            },
+            {
+              "feature": "king_no_auto_full_top6_probability_mass",
+              "gain": 1950.3758492469788
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 1939.5413608551025
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 1804.7231922149658
+            },
+            {
+              "feature": "derived_top6_union_size",
+              "gain": 1468.096462726593
+            },
+            {
+              "feature": "consensus_top6_pairwise_jaccard_mean",
+              "gain": 1331.8472065925598
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 1223.0969171524048
+            },
+            {
+              "feature": "king_core4_no_pedigree_normalized_entropy",
+              "gain": 1086.8370084762573
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 1074.9721221923828
+            },
+            {
+              "feature": "king_no_auto_jockey_normalized_entropy",
+              "gain": 964.1296181678772
+            },
+            {
+              "feature": "king_core4_no_pedigree_top1_top3_gap",
+              "gain": 956.9142684936523
+            },
+            {
+              "feature": "king_no_auto_full_family_BASE",
+              "gain": 930.1235709190369
+            },
+            {
+              "feature": "king_no_auto_jockey_top1_top2_gap",
+              "gain": 925.5361113548279
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 911.8812365531921
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_PEDIGREE",
+              "gain": 889.0384478569031
+            },
+            {
+              "feature": "consensus_horse_rank_std_max",
+              "gain": 887.982572555542
+            },
+            {
+              "feature": "consensus_pairwise_rank_abs_diff_mean",
+              "gain": 884.6369104385376
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability",
+              "gain": 846.4432196617126
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_OPPONENT",
+              "gain": 841.4121851921082
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 44,
+              "recall": 0.1282798833819242,
+              "precision": 0.2543352601156069,
+              "lift": 2.5626316587741615
+            },
+            "10": {
+              "selected": 346,
+              "blind": 73,
+              "recall": 0.21282798833819241,
+              "precision": 0.21098265895953758,
+              "lift": 2.1258194442103844
+            },
+            "15": {
+              "selected": 519,
+              "blind": 94,
+              "recall": 0.27405247813411077,
+              "precision": 0.1811175337186898,
+              "lift": 1.8249043630664488
+            },
+            "20": {
+              "selected": 692,
+              "blind": 120,
+              "recall": 0.3498542274052478,
+              "precision": 0.17341040462427745,
+              "lift": 1.7472488582551104
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 165,
+              "recall": 0.48104956268221577,
+              "precision": 0.15911282545805208,
+              "lift": 1.6031892850817142
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 202,
+              "recall": 0.5889212827988338,
+              "precision": 0.146059291395517,
+              "lift": 1.4716644637402527
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 239,
+              "recall": 0.6967930029154519,
+              "precision": 0.13831018518518517,
+              "lift": 1.3935860058309035
+            }
+          }
+        },
+        "anxiety_gate": {
+          "roc_auc": 0.6564280891099957,
+          "pr_auc": 0.16589965457995404,
+          "feature_count": 40,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 10302.44772720337
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 3464.9306740760803
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 2741.327546596527
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 2655.712636947632
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 2490.9874930381775
+            },
+            {
+              "feature": "g12_std",
+              "gain": 2384.0864996910095
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 2378.4257276058197
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 2341.2565982341766
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 2107.200089931488
+            },
+            {
+              "feature": "g12_mean",
+              "gain": 2026.0723752975464
+            },
+            {
+              "feature": "p1_max",
+              "gain": 1929.876935005188
+            },
+            {
+              "feature": "top6_union",
+              "gain": 1912.3302614688873
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 1825.34872341156
+            },
+            {
+              "feature": "p1_std",
+              "gain": 1586.067463874817
+            },
+            {
+              "feature": "g12_min",
+              "gain": 1428.8452315330505
+            },
+            {
+              "feature": "g13_std",
+              "gain": 1419.166778087616
+            },
+            {
+              "feature": "p1_min",
+              "gain": 1330.6261818408966
+            },
+            {
+              "feature": "g13_mean",
+              "gain": 1274.2020707130432
+            },
+            {
+              "feature": "g12_max",
+              "gain": 1034.6922762393951
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 909.3975698947906
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 32,
+              "recall": 0.09329446064139942,
+              "precision": 0.18497109826589594,
+              "lift": 1.8637321154721176
+            },
+            "10": {
+              "selected": 346,
+              "blind": 68,
+              "recall": 0.19825072886297376,
+              "precision": 0.19653179190751446,
+              "lift": 1.9802153726891252
+            },
+            "15": {
+              "selected": 519,
+              "blind": 97,
+              "recall": 0.282798833819242,
+              "precision": 0.18689788053949905,
+              "lift": 1.8831459916749524
+            },
+            "20": {
+              "selected": 692,
+              "blind": 124,
+              "recall": 0.36151603498542273,
+              "precision": 0.1791907514450867,
+              "lift": 1.8054904868636141
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 167,
+              "recall": 0.4868804664723032,
+              "precision": 0.16104146576663453,
+              "lift": 1.622621882476644
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 198,
+              "recall": 0.577259475218659,
+              "precision": 0.14316702819956617,
+              "lift": 1.442522593171139
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 237,
+              "recall": 0.6909620991253644,
+              "precision": 0.1371527777777778,
+              "lift": 1.3819241982507289
+            }
+          }
+        },
+        "consensus_world": {
+          "roc_auc": 0.6715232557159434,
+          "pr_auc": 0.17740945894634091,
+          "feature_count": 30,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 11316.618765115738
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 4416.26118683815
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 4403.427083611488
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 3731.2673110961914
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 3499.39888715744
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 3377.391102552414
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 3173.832912683487
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 2853.748128414154
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 2633.6118824481964
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 1569.093388557434
+            },
+            {
+              "feature": "top6_union",
+              "gain": 1549.0736272335052
+            },
+            {
+              "feature": "top1_max_vote",
+              "gain": 637.2877607345581
+            },
+            {
+              "feature": "top1_unique",
+              "gain": 573.7394275665283
+            },
+            {
+              "feature": "top3_union",
+              "gain": 383.2871718406677
+            },
+            {
+              "feature": "vote_pattern_3-2-2",
+              "gain": 145.55487978458405
+            },
+            {
+              "feature": "vote_pattern_5-2",
+              "gain": 143.4776804447174
+            },
+            {
+              "feature": "vote_pattern_6-1",
+              "gain": 81.21112966537476
+            },
+            {
+              "feature": "vote_pattern_5-1-1",
+              "gain": 79.26084089279175
+            },
+            {
+              "feature": "top1_max_vote_share",
+              "gain": 69.46464014053345
+            },
+            {
+              "feature": "vote_pattern_4-3",
+              "gain": 25.121399879455566
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 42,
+              "recall": 0.12244897959183673,
+              "precision": 0.24277456647398843,
+              "lift": 2.4461484015571546
+            },
+            "10": {
+              "selected": 346,
+              "blind": 80,
+              "recall": 0.23323615160349853,
+              "precision": 0.23121387283236994,
+              "lift": 2.3296651443401473
+            },
+            "15": {
+              "selected": 519,
+              "blind": 110,
+              "recall": 0.3206997084548105,
+              "precision": 0.2119460500963391,
+              "lift": 2.1355263823118014
+            },
+            "20": {
+              "selected": 692,
+              "blind": 135,
+              "recall": 0.3935860058309038,
+              "precision": 0.19508670520231214,
+              "lift": 1.9656549655369993
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 176,
+              "recall": 0.5131195335276968,
+              "precision": 0.16972034715525555,
+              "lift": 1.7100685707538286
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 208,
+              "recall": 0.6064139941690962,
+              "precision": 0.15039768618944324,
+              "lift": 1.5153772695939236
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 245,
+              "recall": 0.7142857142857143,
+              "precision": 0.1417824074074074,
+              "lift": 1.4285714285714286
+            }
+          }
+        }
+      }
+    },
+    {
+      "test_year": 2024,
+      "races": 3456,
+      "blind": 346,
+      "models": {
+        "current_gate": {
+          "roc_auc": 0.6392478114603275,
+          "pr_auc": 0.14857553503819093,
+          "feature_count": 211,
+          "top_features": [
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top6_probability_mass",
+              "gain": 3907.990015029907
+            },
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 3660.0412216186523
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 2641.056046485901
+            },
+            {
+              "feature": "consensus_top6_pairwise_jaccard_mean",
+              "gain": 2598.9479389190674
+            },
+            {
+              "feature": "derived_top6_union_size",
+              "gain": 1857.7806582450867
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 1739.9956121444702
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top6_probability_mass",
+              "gain": 1646.994888305664
+            },
+            {
+              "feature": "king_no_auto_full_family_TIME_PACE",
+              "gain": 1459.4798288345337
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top6_probability_mass",
+              "gain": 1390.7208805084229
+            },
+            {
+              "feature": "king_no_auto_full_top3_probability",
+              "gain": 1209.2877616882324
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top6_probability_mass",
+              "gain": 1187.5685658454895
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 1098.658525943756
+            },
+            {
+              "feature": "king_jockey_trainer_condition_family_TIME_PACE",
+              "gain": 1091.063798904419
+            },
+            {
+              "feature": "king_no_auto_jockey_top3_probability",
+              "gain": 1078.2474250793457
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 1050.9324054718018
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_family_PEDIGREE",
+              "gain": 1015.3350467681885
+            },
+            {
+              "feature": "king_core4_no_pedigree_top3_probability_mass",
+              "gain": 992.2285480499268
+            },
+            {
+              "feature": "king_no_auto_jockey_family_TIME_PACE",
+              "gain": 979.3318958282471
+            },
+            {
+              "feature": "king_no_auto_jockey_family_ACTOR",
+              "gain": 976.9008941650391
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 945.5574913024902
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 29,
+              "recall": 0.0838150289017341,
+              "precision": 0.1676300578034682,
+              "lift": 1.6743626582912894
+            },
+            "10": {
+              "selected": 346,
+              "blind": 55,
+              "recall": 0.15895953757225434,
+              "precision": 0.15895953757225434,
+              "lift": 1.5877576932072572
+            },
+            "15": {
+              "selected": 519,
+              "blind": 88,
+              "recall": 0.2543352601156069,
+              "precision": 0.16955684007707128,
+              "lift": 1.6936082060877409
+            },
+            "20": {
+              "selected": 692,
+              "blind": 108,
+              "recall": 0.31213872832369943,
+              "precision": 0.15606936416184972,
+              "lift": 1.5588893715125798
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 148,
+              "recall": 0.4277456647398844,
+              "precision": 0.14271938283510124,
+              "lift": 1.425543893289335
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 197,
+              "recall": 0.569364161849711,
+              "precision": 0.14244396240057844,
+              "lift": 1.4227928729953732
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 244,
+              "recall": 0.7052023121387283,
+              "precision": 0.1412037037037037,
+              "lift": 1.4104046242774566
+            }
+          }
+        },
+        "anxiety_gate": {
+          "roc_auc": 0.6426565433154285,
+          "pr_auc": 0.16135789748151186,
+          "feature_count": 40,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 15300.796662569046
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 3845.868134021759
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 3004.756078004837
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 2991.505616903305
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 2556.1844635009766
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 2534.5847578048706
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 2485.715720653534
+            },
+            {
+              "feature": "top6_union",
+              "gain": 2418.142194032669
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 2392.5051126480103
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 2370.721936225891
+            },
+            {
+              "feature": "g13_std",
+              "gain": 2358.8709971904755
+            },
+            {
+              "feature": "p1_std",
+              "gain": 2076.7064929008484
+            },
+            {
+              "feature": "g13_mean",
+              "gain": 2017.188621520996
+            },
+            {
+              "feature": "g12_min",
+              "gain": 2000.8933672904968
+            },
+            {
+              "feature": "g12_std",
+              "gain": 1720.9155836105347
+            },
+            {
+              "feature": "p1_min",
+              "gain": 1690.0768339633942
+            },
+            {
+              "feature": "g12_max",
+              "gain": 1548.772455215454
+            },
+            {
+              "feature": "p1_max",
+              "gain": 1444.7896292209625
+            },
+            {
+              "feature": "g12_mean",
+              "gain": 1284.773530960083
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 1197.1265802383423
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 31,
+              "recall": 0.08959537572254335,
+              "precision": 0.1791907514450867,
+              "lift": 1.789835945069999
+            },
+            "10": {
+              "selected": 346,
+              "blind": 64,
+              "recall": 0.18497109826589594,
+              "precision": 0.18497109826589594,
+              "lift": 1.8475725884593537
+            },
+            "15": {
+              "selected": 519,
+              "blind": 85,
+              "recall": 0.24566473988439305,
+              "precision": 0.16377649325626203,
+              "lift": 1.6358715626983862
+            },
+            "20": {
+              "selected": 692,
+              "blind": 110,
+              "recall": 0.3179190751445087,
+              "precision": 0.15895953757225434,
+              "lift": 1.5877576932072572
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 154,
+              "recall": 0.44508670520231214,
+              "precision": 0.1485053037608486,
+              "lift": 1.4833362132875514
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 200,
+              "recall": 0.5780346820809249,
+              "precision": 0.14461315979754158,
+              "lift": 1.44445976953845
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 243,
+              "recall": 0.7023121387283237,
+              "precision": 0.140625,
+              "lift": 1.4046242774566473
+            }
+          }
+        },
+        "consensus_world": {
+          "roc_auc": 0.6475689087969072,
+          "pr_auc": 0.1661901517743489,
+          "feature_count": 30,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 16566.096335172653
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 4653.2092497348785
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 4500.38636469841
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 3889.9775149822235
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 3788.901201725006
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 3786.753163576126
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 3416.1097655296326
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 3412.280710220337
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 2793.073440551758
+            },
+            {
+              "feature": "top6_union",
+              "gain": 2759.5919501781464
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 1966.0599703788757
+            },
+            {
+              "feature": "vote_pattern_5-2",
+              "gain": 485.4277617931366
+            },
+            {
+              "feature": "top1_max_vote",
+              "gain": 467.65582180023193
+            },
+            {
+              "feature": "top1_unique",
+              "gain": 371.7103204727173
+            },
+            {
+              "feature": "top3_union",
+              "gain": 250.39450120925903
+            },
+            {
+              "feature": "vote_pattern_3-2-2",
+              "gain": 190.6763105392456
+            },
+            {
+              "feature": "vote_pattern_6-1",
+              "gain": 146.87730026245117
+            },
+            {
+              "feature": "vote_pattern_5-1-1",
+              "gain": 143.40128707885742
+            },
+            {
+              "feature": "top1_max_vote_share",
+              "gain": 32.52650022506714
+            },
+            {
+              "feature": "vote_pattern_4-2-1",
+              "gain": 19.930230140686035
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 33,
+              "recall": 0.0953757225433526,
+              "precision": 0.1907514450867052,
+              "lift": 1.9053092318487084
+            },
+            "10": {
+              "selected": 346,
+              "blind": 63,
+              "recall": 0.18208092485549132,
+              "precision": 0.18208092485549132,
+              "lift": 1.8187042667646762
+            },
+            "15": {
+              "selected": 519,
+              "blind": 96,
+              "recall": 0.2774566473988439,
+              "precision": 0.18497109826589594,
+              "lift": 1.8475725884593537
+            },
+            "20": {
+              "selected": 692,
+              "blind": 117,
+              "recall": 0.33815028901734107,
+              "precision": 0.16907514450867053,
+              "lift": 1.6887968191386282
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 159,
+              "recall": 0.4595375722543353,
+              "precision": 0.15332690453230471,
+              "lift": 1.5314964799527315
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 204,
+              "recall": 0.5895953757225434,
+              "precision": 0.1475054229934924,
+              "lift": 1.4733489649292189
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 236,
+              "recall": 0.6820809248554913,
+              "precision": 0.13657407407407407,
+              "lift": 1.3641618497109826
+            }
+          }
+        }
+      }
+    },
+    {
+      "test_year": 2025,
+      "races": 3456,
+      "blind": 377,
+      "models": {
+        "current_gate": {
+          "roc_auc": 0.6675071912665846,
+          "pr_auc": 0.18004672834999272,
+          "feature_count": 211,
+          "top_features": [
+            {
+              "feature": "king_core4_no_pedigree_top6_probability_mass",
+              "gain": 8634.277126312256
+            },
+            {
+              "feature": "king_no_auto_jockey_top6_probability_mass",
+              "gain": 4184.083981513977
+            },
+            {
+              "feature": "consensus_top6_pairwise_jaccard_mean",
+              "gain": 3015.314866065979
+            },
+            {
+              "feature": "king_core4_no_pedigree_top2_probability",
+              "gain": 2753.9209117889404
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_top6_probability_mass",
+              "gain": 2742.231372833252
+            },
+            {
+              "feature": "race_field_size",
+              "gain": 2362.1342945098877
+            },
+            {
+              "feature": "derived_top6_union_size",
+              "gain": 2275.01286649704
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top6_probability_mass",
+              "gain": 2266.4315814971924
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_v1_top6_probability_mass",
+              "gain": 1716.9282035827637
+            },
+            {
+              "feature": "consensus_horse_probability_std_max",
+              "gain": 1505.3973336219788
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_family_TIME_PACE",
+              "gain": 1337.4659547805786
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_OPPONENT",
+              "gain": 1208.156319618225
+            },
+            {
+              "feature": "consensus_horse_probability_std_mean",
+              "gain": 1190.4084033966064
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_BASE",
+              "gain": 1174.0507831573486
+            },
+            {
+              "feature": "king_no_auto_full_pedigree_legacy_top2_probability",
+              "gain": 1079.0276947021484
+            },
+            {
+              "feature": "king_core4_no_pedigree_family_ACTOR",
+              "gain": 1078.0148425102234
+            },
+            {
+              "feature": "king_no_auto_full_top6_probability_mass",
+              "gain": 1043.9077968597412
+            },
+            {
+              "feature": "king_jockey_trainer_condition_plus_raceclass_family_TIME_PACE",
+              "gain": 1035.0583038330078
+            },
+            {
+              "feature": "consensus_pairwise_rank_abs_diff_mean",
+              "gain": 1028.0762538909912
+            },
+            {
+              "feature": "king_jockey_trainer_condition_top3_probability",
+              "gain": 1018.4121952056885
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 35,
+              "recall": 0.09283819628647215,
+              "precision": 0.2023121387283237,
+              "lift": 1.8546173778384263
+            },
+            "10": {
+              "selected": 346,
+              "blind": 67,
+              "recall": 0.17771883289124668,
+              "precision": 0.1936416184971098,
+              "lift": 1.775133775931065
+            },
+            "15": {
+              "selected": 519,
+              "blind": 106,
+              "recall": 0.28116710875331563,
+              "precision": 0.20423892100192678,
+              "lift": 1.8722804004845064
+            },
+            "20": {
+              "selected": 692,
+              "blind": 132,
+              "recall": 0.35013262599469497,
+              "precision": 0.1907514450867052,
+              "lift": 1.7486392419619445
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 188,
+              "recall": 0.4986737400530504,
+              "precision": 0.18129218900675023,
+              "lift": 1.6619252127515352
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 231,
+              "recall": 0.6127320954907162,
+              "precision": 0.16702819956616052,
+              "lift": 1.5311656702935033
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 266,
+              "recall": 0.7055702917771883,
+              "precision": 0.15393518518518517,
+              "lift": 1.4111405835543764
+            }
+          }
+        },
+        "anxiety_gate": {
+          "roc_auc": 0.6743275874991277,
+          "pr_auc": 0.18363470815062183,
+          "feature_count": 40,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 20636.834371089935
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 4699.12993979454
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 3774.096432685852
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 3476.6394617557526
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 3168.0261545181274
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 3164.3210740089417
+            },
+            {
+              "feature": "top6_union",
+              "gain": 2957.913092851639
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 2873.457947731018
+            },
+            {
+              "feature": "g12_min",
+              "gain": 2390.719452857971
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 2159.1360745429993
+            },
+            {
+              "feature": "p1_std",
+              "gain": 2027.9967603683472
+            },
+            {
+              "feature": "g12_std",
+              "gain": 2011.5918526649475
+            },
+            {
+              "feature": "g13_std",
+              "gain": 2002.6223154067993
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 1882.2329638004303
+            },
+            {
+              "feature": "g13_mean",
+              "gain": 1691.1771800518036
+            },
+            {
+              "feature": "g12_max",
+              "gain": 1478.047767162323
+            },
+            {
+              "feature": "p1_min",
+              "gain": 1423.815999031067
+            },
+            {
+              "feature": "p1_max",
+              "gain": 1182.6581609249115
+            },
+            {
+              "feature": "p1_mean",
+              "gain": 1177.4760913848877
+            },
+            {
+              "feature": "g12_mean",
+              "gain": 1163.257149219513
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 44,
+              "recall": 0.11671087533156499,
+              "precision": 0.2543352601156069,
+              "lift": 2.3315189892825927
+            },
+            "10": {
+              "selected": 346,
+              "blind": 76,
+              "recall": 0.20159151193633953,
+              "precision": 0.21965317919075145,
+              "lift": 2.0135845816531486
+            },
+            "15": {
+              "selected": 519,
+              "blind": 110,
+              "recall": 0.2917771883289125,
+              "precision": 0.2119460500963391,
+              "lift": 1.9429324910688273
+            },
+            "20": {
+              "selected": 692,
+              "blind": 138,
+              "recall": 0.3660477453580902,
+              "precision": 0.1994219653179191,
+              "lift": 1.828122843869306
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 195,
+              "recall": 0.5172413793103449,
+              "precision": 0.1880424300867888,
+              "lift": 1.7238054068433477
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 231,
+              "recall": 0.6127320954907162,
+              "precision": 0.16702819956616052,
+              "lift": 1.5311656702935033
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 269,
+              "recall": 0.713527851458886,
+              "precision": 0.1556712962962963,
+              "lift": 1.427055702917772
+            }
+          }
+        },
+        "consensus_world": {
+          "roc_auc": 0.6754535516112832,
+          "pr_auc": 0.19302832132926537,
+          "feature_count": 30,
+          "top_features": [
+            {
+              "feature": "top6_mass_mean",
+              "gain": 21257.192798614502
+            },
+            {
+              "feature": "top6_jaccard",
+              "gain": 4741.684157848358
+            },
+            {
+              "feature": "prob_std_max",
+              "gain": 4615.077551364899
+            },
+            {
+              "feature": "rank_diff_mean",
+              "gain": 4466.161483287811
+            },
+            {
+              "feature": "prob_std_mean",
+              "gain": 4431.953051567078
+            },
+            {
+              "feature": "entropy_mean",
+              "gain": 4185.768309831619
+            },
+            {
+              "feature": "entropy_std",
+              "gain": 4034.6789071559906
+            },
+            {
+              "feature": "top3_mass_mean",
+              "gain": 3405.3746461868286
+            },
+            {
+              "feature": "rank_std_mean",
+              "gain": 3390.970769405365
+            },
+            {
+              "feature": "top6_union",
+              "gain": 3133.6710810661316
+            },
+            {
+              "feature": "top3_jaccard",
+              "gain": 1737.5757927894592
+            },
+            {
+              "feature": "top1_max_vote",
+              "gain": 446.6729807853699
+            },
+            {
+              "feature": "vote_pattern_6-1",
+              "gain": 442.12360668182373
+            },
+            {
+              "feature": "top1_unique",
+              "gain": 417.9608106613159
+            },
+            {
+              "feature": "top3_union",
+              "gain": 327.5187096595764
+            },
+            {
+              "feature": "vote_pattern_3-2-2",
+              "gain": 261.6926922798157
+            },
+            {
+              "feature": "vote_pattern_5-2",
+              "gain": 203.2407190799713
+            },
+            {
+              "feature": "vote_pattern_4-3",
+              "gain": 69.49730110168457
+            },
+            {
+              "feature": "vote_pattern_5-1-1",
+              "gain": 62.98568105697632
+            },
+            {
+              "feature": "vote_pattern_3-3-1",
+              "gain": 43.58432960510254
+            }
+          ],
+          "budgets": {
+            "5": {
+              "selected": 173,
+              "blind": 38,
+              "recall": 0.10079575596816977,
+              "precision": 0.21965317919075145,
+              "lift": 2.0135845816531486
+            },
+            "10": {
+              "selected": 346,
+              "blind": 79,
+              "recall": 0.20954907161803712,
+              "precision": 0.22832369942196531,
+              "lift": 2.0930681835605096
+            },
+            "15": {
+              "selected": 519,
+              "blind": 104,
+              "recall": 0.27586206896551724,
+              "precision": 0.2003853564547206,
+              "lift": 1.836954355192346
+            },
+            "20": {
+              "selected": 692,
+              "blind": 145,
+              "recall": 0.38461538461538464,
+              "precision": 0.20953757225433525,
+              "lift": 1.920853712761227
+            },
+            "30": {
+              "selected": 1037,
+              "blind": 197,
+              "recall": 0.5225464190981433,
+              "precision": 0.18997107039537126,
+              "lift": 1.7414854622981513
+            },
+            "40": {
+              "selected": 1383,
+              "blind": 236,
+              "recall": 0.6259946949602122,
+              "precision": 0.17064352856109907,
+              "lift": 1.5643077843691204
+            },
+            "50": {
+              "selected": 1728,
+              "blind": 266,
+              "recall": 0.7055702917771883,
+              "precision": 0.15393518518518517,
+              "lift": 1.4111405835543764
+            }
+          }
+        }
+      }
+    }
+  ],
+  "aggregate": {
+    "current_gate": {
+      "roc_auc": 0.6488059322956171,
+      "pr_auc": 0.15522043130257673,
+      "prevalence": 0.09881365740740741,
+      "budgets": {
+        "5": {
+          "selected": 692,
+          "blind": 134,
+          "recall": 0.09809663250366032,
+          "precision": 0.1936416184971098,
+          "lift": 1.9596645198419076
+        },
+        "10": {
+          "selected": 1384,
+          "blind": 240,
+          "recall": 0.17569546120058566,
+          "precision": 0.17341040462427745,
+          "lift": 1.7549234506046936
+        },
+        "15": {
+          "selected": 2076,
+          "blind": 354,
+          "recall": 0.2591508052708638,
+          "precision": 0.17052023121387283,
+          "lift": 1.7256747264279486
+        },
+        "20": {
+          "selected": 2768,
+          "blind": 444,
+          "recall": 0.32503660322108346,
+          "precision": 0.16040462427745664,
+          "lift": 1.6233041918093414
+        },
+        "30": {
+          "selected": 4148,
+          "blind": 632,
+          "recall": 0.46266471449487556,
+          "precision": 0.1523625843780135,
+          "lift": 1.541918277043674
+        },
+        "40": {
+          "selected": 5532,
+          "blind": 800,
+          "recall": 0.5856515373352855,
+          "precision": 0.14461315979754158,
+          "lift": 1.4634936464430561
+        },
+        "50": {
+          "selected": 6912,
+          "blind": 948,
+          "recall": 0.6939970717423133,
+          "precision": 0.1371527777777778,
+          "lift": 1.3879941434846268
+        }
+      }
+    },
+    "anxiety_gate": {
+      "roc_auc": 0.6554562128164982,
+      "pr_auc": 0.1580484964899393,
+      "prevalence": 0.09881365740740741,
+      "budgets": {
+        "5": {
+          "selected": 692,
+          "blind": 135,
+          "recall": 0.09882869692532943,
+          "precision": 0.19508670520231214,
+          "lift": 1.9742888819302802
+        },
+        "10": {
+          "selected": 1384,
+          "blind": 262,
+          "recall": 0.191800878477306,
+          "precision": 0.1893063583815029,
+          "lift": 1.9157914335767905
+        },
+        "15": {
+          "selected": 2076,
+          "blind": 364,
+          "recall": 0.2664714494875549,
+          "precision": 0.17533718689788053,
+          "lift": 1.7744226000558567
+        },
+        "20": {
+          "selected": 2768,
+          "blind": 466,
+          "recall": 0.3411420204978038,
+          "precision": 0.16835260115606937,
+          "lift": 1.7037381832953902
+        },
+        "30": {
+          "selected": 4148,
+          "blind": 654,
+          "recall": 0.4787701317715959,
+          "precision": 0.15766634522661524,
+          "lift": 1.595592647447093
+        },
+        "40": {
+          "selected": 5532,
+          "blind": 801,
+          "recall": 0.5863836017569546,
+          "precision": 0.1447939262472885,
+          "lift": 1.46532301350111
+        },
+        "50": {
+          "selected": 6912,
+          "blind": 954,
+          "recall": 0.698389458272328,
+          "precision": 0.13802083333333334,
+          "lift": 1.396778916544656
+        }
+      }
+    },
+    "consensus_world": {
+      "roc_auc": 0.6641748191933682,
+      "pr_auc": 0.16513105799767716,
+      "prevalence": 0.09881365740740741,
+      "budgets": {
+        "5": {
+          "selected": 692,
+          "blind": 141,
+          "recall": 0.10322108345534407,
+          "precision": 0.203757225433526,
+          "lift": 2.062035054460515
+        },
+        "10": {
+          "selected": 1384,
+          "blind": 277,
+          "recall": 0.2027818448023426,
+          "precision": 0.20014450867052022,
+          "lift": 2.025474149239584
+        },
+        "15": {
+          "selected": 2076,
+          "blind": 391,
+          "recall": 0.2862371888726208,
+          "precision": 0.18834296724470134,
+          "lift": 1.9060418588512087
+        },
+        "20": {
+          "selected": 2768,
+          "blind": 503,
+          "recall": 0.36822840409956076,
+          "precision": 0.18171965317919075,
+          "lift": 1.8390135326128352
+        },
+        "30": {
+          "selected": 4148,
+          "blind": 672,
+          "recall": 0.49194729136163984,
+          "precision": 0.16200578592092574,
+          "lift": 1.6395080414135266
+        },
+        "40": {
+          "selected": 5532,
+          "blind": 829,
+          "recall": 0.6068814055636896,
+          "precision": 0.14985538684020247,
+          "lift": 1.516545291126617
+        },
+        "50": {
+          "selected": 6912,
+          "blind": 959,
+          "recall": 0.7020497803806734,
+          "precision": 0.13874421296296297,
+          "lift": 1.404099560761347
+        }
+      }
+    }
+  },
+  "comparison": [
+    {
+      "model": "current_gate",
+      "roc_auc": 0.6488059322956171,
+      "delta_roc_vs_current": 0.0,
+      "pr_auc": 0.15522043130257673,
+      "delta_pr_vs_current": 0.0,
+      "b10_blind": 240,
+      "b10_recall": 0.17569546120058566,
+      "delta_b10_blind_vs_current": 0,
+      "b20_blind": 444,
+      "b20_recall": 0.32503660322108346,
+      "delta_b20_blind_vs_current": 0
+    },
+    {
+      "model": "anxiety_gate",
+      "roc_auc": 0.6554562128164982,
+      "delta_roc_vs_current": 0.006650280520881124,
+      "pr_auc": 0.1580484964899393,
+      "delta_pr_vs_current": 0.0028280651873625606,
+      "b10_blind": 262,
+      "b10_recall": 0.191800878477306,
+      "delta_b10_blind_vs_current": 22,
+      "b20_blind": 466,
+      "b20_recall": 0.3411420204978038,
+      "delta_b20_blind_vs_current": 22
+    },
+    {
+      "model": "consensus_world",
+      "roc_auc": 0.6641748191933682,
+      "delta_roc_vs_current": 0.015368886897751066,
+      "pr_auc": 0.16513105799767716,
+      "delta_pr_vs_current": 0.009910626695100427,
+      "b10_blind": 277,
+      "b10_recall": 0.2027818448023426,
+      "delta_b10_blind_vs_current": 37,
+      "b20_blind": 503,
+      "b20_recall": 0.36822840409956076,
+      "delta_b20_blind_vs_current": 59
+    }
+  ],
+  "odds_used": false,
+  "locked_years": [
+    2026
+  ],
+  "note": "Fixed-seed final research trial. No 2026 labels used. Same folds and budgets for all models."
+}
