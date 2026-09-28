@@ -10,6 +10,7 @@ import pandas as pd
 import analyze_l15_5k_council_arena_v1 as arena
 
 BASELINE="router_hard"
+ROLES=arena.ROLES
 FEATURE_CONTRACT="L15_ROLE_CANDIDATE_FEATURES_V2"
 TEST_YEARS=(2023,2024,2025)
 MAX_SURVIVORS=4
@@ -25,6 +26,7 @@ ALIASES={
 def parse_args():
     p=argparse.ArgumentParser()
     p.add_argument("--arena",required=True)
+    p.add_argument("--role",required=True,choices=ROLES)
     p.add_argument("--year-feature",action="append",required=True,help="YEAR:PATH")
     p.add_argument("--year-snapshot",action="append",required=True,help="YEAR:PATH")
     p.add_argument("--year-pred",action="append",required=True,help="YEAR:PATH")
@@ -232,6 +234,8 @@ def build_records(features,snapshots,preds_map,role_filter):
                 raise ValueError(f"truth missing y{year} race={rid}")
             for cell,rows in groups.items():
                 role,top_n=cell
+                if role != role_filter:
+                    continue
                 if set(rows)!=set(arena.EXPERTS):
                     raise ValueError(f"expert coverage mismatch y{year} race={rid} cell={cell}")
                 lists={e:rows[e]["horses"] for e in arena.EXPERTS}
@@ -432,7 +436,7 @@ def main():
     fold_metrics=arena_by_year(arena_json)
 
     outdir=Path(a.out_dir); outdir.mkdir(parents=True,exist_ok=True)
-    records=build_records(features,snapshots,preds_map)
+    records=build_records(features,snapshots,preds_map,a.role)
 
     decisions_path=outdir/"decisions.jsonl.gz"
     folds=[]
@@ -487,8 +491,10 @@ def main():
             "primary":"profit_maximization",
             "note":"Council Router V3 improves candidate construction only. Final adoption requires downstream L2/L3 EV/ROI validation.",
         },
+        "role":a.role,
         "protocol":{
             "test_years":list(TEST_YEARS),
+            "parallel_lane":"one role per standard CPU runner",
             "candidate_pool_selection":"For each test year, select up to four non-baseline council strategies using only earlier OOS arena years; router_hard is always included.",
             "pool_rule":"positive mean delta and positive in at least ceil(prior_year_count/2) prior years; rank by wins, mean, worst-year, volatility.",
             "model":"separate LightGBM binary hit-probability router per role/top_n/test fold",
@@ -520,7 +526,7 @@ def main():
     Path(a.summary_out).parent.mkdir(parents=True,exist_ok=True)
     Path(a.summary_out).write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 
-    print("L15_COUNCIL_ROUTER_V3_OK")
+    print("L15_COUNCIL_ROUTER_V3_OK",a.role)
     print("AGGREGATE_ALL",
           "v3",round(summary["aggregate_all_cells"]["router_v3_hit_rate"]*100,3),
           "base",round(summary["aggregate_all_cells"]["baseline_hit_rate"]*100,3),
