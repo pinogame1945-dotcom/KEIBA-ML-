@@ -206,6 +206,7 @@ def main():
     exp=cfg["experiment_id"]
     expected={(c["name"],int(y)) for c in cfg["candidates"] for y in cfg["validation_years"]}
     labels={c["name"]:c.get("label_ja",c["name"]) for c in cfg["candidates"]}
+    allowed_candidates=set(labels)
     run=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}")
     jobs=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}/jobs?per_page=100").get("jobs",[])
     rows=[]; logs=[]
@@ -217,16 +218,20 @@ def main():
         rec={"job_id":job.get("id"),"name":name,"status":job.get("status"),"conclusion":job.get("conclusion"),
              "started_at":job.get("started_at"),"completed_at":job.get("completed_at"),"log_fetch_error":err}
         if results:
+            accepted=[]
             for result in results:
+                if str(result.get("candidate") or "") not in allowed_candidates:
+                    continue
                 rows.append({**result,"status":"success","job_id":job.get("id")})
-            rec["structured_results"]=results
+                accepted.append(result)
+            rec["structured_results"]=accepted
             if job.get("conclusion")!="success":
                 rec["error_excerpt"]=error_excerpt(log)
         else:
             m=re.search(r"outsider-(outsider_[a-z]+)(?:-all-years|-y(20\d{2}))?",name)
             cand=m.group(1) if m else name
             year=int(m.group(2)) if m and m.group(2) else None
-            if year is not None:
+            if year is not None and cand in allowed_candidates:
                 rows.append({"candidate":cand,"label_ja":labels.get(cand,cand),"validation_year":year,
                              "status":job.get("conclusion") or job.get("status"),"metrics":{},"rescue":{},
                              "job_id":job.get("id"),"error_excerpt":error_excerpt(log),"log_fetch_error":err})
@@ -266,7 +271,7 @@ def main():
     (run_dir/"logs.json").write_text(json.dumps({"run_id":a.run_id,"jobs":logs},ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 
     lines=[f"# {exp} — run {a.run_id}","",f"- Run: {run.get('html_url')}",f"- Code SHA: {run.get('head_sha')}",
-           f"- Snapshot: {cfg['snapshot_generation']}","- 5 outsider families × 5 validation years","- 2026 sealed",
+           f"- Snapshot: {cfg['snapshot_generation']}",f"- {len(cfg['candidates'])} outsider families × {len(cfg['validation_years'])} validation years","- 2026 sealed",
            "- Odds in L1: NO","- Raw logs: GitHub Actions","- Structured logs: logs.json","",
            "## Summary","",
            "| Candidate | Success | Mean Top1 | Mean Top3 | Mean Top6 | Mean rank | Top6 blind spots | Top6 rescues | Rescue rate |",
