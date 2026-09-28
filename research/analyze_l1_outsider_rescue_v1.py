@@ -96,6 +96,7 @@ def main():
 
     counts={n:defaultdict(float) for n in TOP_NS}
     pair=defaultdict(lambda:{n:defaultdict(float) for n in TOP_NS})
+    rescue_race_ids={n:[] for n in TOP_NS}
     blind_top6_ranks=[]
     top1_novel=top1_novel_hits=0
     experts=None
@@ -119,7 +120,10 @@ def main():
             d["candidate_hits"]+=ch
             d["seven_union_hits"]+=uh
             d["seven_blind_spots"]+=int(not uh)
-            d["rescues"]+=int((not uh) and ch)
+            rescued=bool((not uh) and ch)
+            d["rescues"]+=int(rescued)
+            if rescued:
+                rescue_race_ids[n].append(rid)
             d["duplicate_hits"]+=int(uh and ch)
             d["candidate_union_jaccard_sum"]+=jac(csets[n],unions[n])
             for e in experts:
@@ -188,6 +192,9 @@ def main():
             "top10_rate":sum(x<=10 for x in blind_top6_ranks)/len(blind_top6_ranks) if blind_top6_ranks else None,
         },
         "pairwise":pairwise,
+        "rescue_race_ids_by_topn":{
+            str(n):sorted(rescue_race_ids[n]) for n in TOP_NS
+        },
         "notes":[
             "Ability model uses no odds.",
             "Rescue means all seven existing kings miss the winner at the same TopN while the outsider captures it.",
