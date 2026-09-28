@@ -43,7 +43,7 @@ jobs:
         run: |
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add "research-results/l15-consensus-world-race-ids-v1/run-$GITHUB_RUN_ID/result.json"
+          git add "research-results/l15-consensus-world-race-ids-v1/run-$GITHUB_RUN_ID/"
           git commit -m "research: archive consensus world race ids $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
       - name: Cost guard
@@ -52,4 +52,4 @@ jobs:
           echo "Standard ubuntu-latest CPU only."
           echo "No GPU. No paid runner. No GitHub Artifact/Cache."
           echo "Existing Kaggle datasets are read only; no new persistence."
-          echo "Only one JSON result is committed to Git."
+          echo "Only small JSON/CSV research results are committed to Git."
