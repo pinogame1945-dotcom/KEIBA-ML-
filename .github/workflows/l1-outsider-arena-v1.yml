@@ -1,0 +1,90 @@
+name: L1 Outsider Arena V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-arena-v1-20260928
+    paths:
+      - .github/triggers/l1-outsider-arena-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-arena-v1
+  cancel-in-progress: false
+
+jobs:
+  race:
+    strategy:
+      fail-fast: false
+      max-parallel: 25
+      matrix:
+        candidate:
+          - outsider_style
+          - outsider_lap
+          - outsider_network
+          - outsider_distance
+          - outsider_backfill
+        year: [2021, 2022, 2023, 2024, 2025]
+    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+    with:
+      candidate: ${{ matrix.candidate }}
+      validation_year: ${{ matrix.year }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    name: ledger
+    if: always()
+    needs: race
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Checkout outsider branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive structured logs
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-arena-v1.json
+
+      - name: Commit permanent small ledger
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-outsider-arena-v1/OUTSIDER-ARENA-001
+          if git diff --cached --quiet; then
+            echo "No ledger changes to commit"
+            exit 0
+          fi
+          git commit -m "research: archive outsider arena run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted CPU runner only."
+          echo "No GPU. No paid runner. No GitHub Artifact/Cache."
+          echo "Only small text/JSON result ledgers are committed."
+          echo "Existing Kaggle datasets are read-only."
+          echo "2026 remains sealed."
