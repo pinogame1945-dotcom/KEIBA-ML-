@@ -1,3 +1,4 @@
 Diagnose 2022-2025 seven-king rescue/override behavior from saved fold predictions only. No rescoring. 2026 sealed.
 retry_nested_prediction_paths=dacd136e316c194077d717644e83c799c94d5fb9
 retry_sparse_counter_fix=15dd1bd82d85487c178f06404d2e28f4e5a84dc9
+retry_kaggle_429=e0f11b29f55421ef3a123940bfaba16937aff4b0
