@@ -1,4 +1,4 @@
-launch=2026-09-29T01:23:00+09:00
+launch=2026-09-29T01:38:00+09:00\nretry=2\nreason=restore_requires_KAGGLE_DATASET_REF
 experiment=L15-CANDIDATE-INFLATION-001
 years=2022,2023,2024,2025
 outsiders=daytrend,raceshape,gatecourse,field,jockey
