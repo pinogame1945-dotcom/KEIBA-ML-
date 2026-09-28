@@ -16,273 +16,32 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  style_2021:
-    name: style-2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
+  candidate_chain:
+    name: ${{ matrix.label }}
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        include:
+          - candidate: outsider_style
+            label: style-chain
+            delay: 0
+          - candidate: outsider_lap
+            label: lap-chain
+            delay: 60
+          - candidate: outsider_network
+            label: network-chain
+            delay: 0
+          - candidate: outsider_distance
+            label: distance-chain
+            delay: 60
+          - candidate: outsider_backfill
+            label: backfill-chain
+            delay: 0
+    uses: ./.github/workflows/l1-outsider-candidate-chain-v1.yml
     with:
-      candidate: outsider_style
-      validation_year: 2021
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  style_2022:
-    name: style-2022
-    needs: style_2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_style
-      validation_year: 2022
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  style_2023:
-    name: style-2023
-    needs: style_2022
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_style
-      validation_year: 2023
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  style_2024:
-    name: style-2024
-    needs: style_2023
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_style
-      validation_year: 2024
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  style_2025:
-    name: style-2025
-    needs: style_2024
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_style
-      validation_year: 2025
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  lap_2021:
-    name: lap-2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_lap
-      validation_year: 2021
-      start_delay_seconds: 12
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  lap_2022:
-    name: lap-2022
-    needs: lap_2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_lap
-      validation_year: 2022
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  lap_2023:
-    name: lap-2023
-    needs: lap_2022
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_lap
-      validation_year: 2023
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  lap_2024:
-    name: lap-2024
-    needs: lap_2023
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_lap
-      validation_year: 2024
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  lap_2025:
-    name: lap-2025
-    needs: lap_2024
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_lap
-      validation_year: 2025
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  network_2021:
-    name: network-2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_network
-      validation_year: 2021
-      start_delay_seconds: 24
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  network_2022:
-    name: network-2022
-    needs: network_2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_network
-      validation_year: 2022
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  network_2023:
-    name: network-2023
-    needs: network_2022
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_network
-      validation_year: 2023
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  network_2024:
-    name: network-2024
-    needs: network_2023
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_network
-      validation_year: 2024
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  network_2025:
-    name: network-2025
-    needs: network_2024
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_network
-      validation_year: 2025
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  distance_2021:
-    name: distance-2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_distance
-      validation_year: 2021
-      start_delay_seconds: 36
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  distance_2022:
-    name: distance-2022
-    needs: distance_2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_distance
-      validation_year: 2022
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  distance_2023:
-    name: distance-2023
-    needs: distance_2022
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_distance
-      validation_year: 2023
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  distance_2024:
-    name: distance-2024
-    needs: distance_2023
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_distance
-      validation_year: 2024
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  distance_2025:
-    name: distance-2025
-    needs: distance_2024
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_distance
-      validation_year: 2025
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  backfill_2021:
-    name: backfill-2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_backfill
-      validation_year: 2021
-      start_delay_seconds: 48
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  backfill_2022:
-    name: backfill-2022
-    needs: backfill_2021
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_backfill
-      validation_year: 2022
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  backfill_2023:
-    name: backfill-2023
-    needs: backfill_2022
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_backfill
-      validation_year: 2023
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  backfill_2024:
-    name: backfill-2024
-    needs: backfill_2023
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_backfill
-      validation_year: 2024
-      start_delay_seconds: 0
-    secrets:
-      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
-
-  backfill_2025:
-    name: backfill-2025
-    needs: backfill_2024
-    uses: ./.github/workflows/l1-outsider-score-one-v1.yml
-    with:
-      candidate: outsider_backfill
-      validation_year: 2025
-      start_delay_seconds: 0
+      candidate: ${{ matrix.candidate }}
+      initial_delay_seconds: ${{ matrix.delay }}
     secrets:
       KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
 
@@ -290,11 +49,7 @@ jobs:
     name: ledger
     if: always()
     needs:
-      - style_2025
-      - lap_2025
-      - network_2025
-      - distance_2025
-      - backfill_2025
+      - candidate_chain
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
