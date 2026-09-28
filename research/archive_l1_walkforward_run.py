@@ -148,8 +148,15 @@ def main():
     roles={x["name"]:x.get("role") for x in cfg["candidates"]}
 
     run=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}")
-    jobs_payload=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}/jobs?per_page=100")
-    jobs=[j for j in jobs_payload.get("jobs",[]) if "league-" in str(j.get("name",""))]
+    jobs_payload=gh_json(f"/repos/{a.repo}/actions/runs/{a.run_id}/jobs?per_page=100&filter=all")
+    league_jobs=[j for j in jobs_payload.get("jobs",[]) if "league-" in str(j.get("name",""))]
+    latest_by_name={}
+    for job in league_jobs:
+        key=str(job.get("name",""))
+        prev=latest_by_name.get(key)
+        if prev is None or int(job.get("run_attempt") or 1) > int(prev.get("run_attempt") or 1):
+            latest_by_name[key]=job
+    jobs=list(latest_by_name.values())
 
     rows=[]
     jobs_record=[]
@@ -207,7 +214,9 @@ def main():
         summaries[candidate]["label_ja"]=labels.get(candidate,candidate)
         summaries[candidate]["role"]=roles.get(candidate)
 
-    run_dir=Path(a.out_root)/exp/"attempts"/f"run-{a.run_id}"
+    run_attempt=int(run.get("run_attempt") or 1)
+    run_name=f"run-{a.run_id}" if run_attempt==1 else f"run-{a.run_id}-attempt-{run_attempt}"
+    run_dir=Path(a.out_root)/exp/"attempts"/run_name
     if run_dir.exists():
         raise SystemExit(f"immutable ledger path exists: {run_dir}")
     run_dir.mkdir(parents=True)
