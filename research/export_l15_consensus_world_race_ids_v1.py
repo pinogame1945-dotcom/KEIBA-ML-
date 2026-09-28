@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,json,math
+import argparse,json,math,csv\nfrom pathlib import Path
 import numpy as np
 from train_l15_king_anxiety_gate_v1 import (
     uncertainty_features, labels, op, encode, make_model
@@ -69,6 +69,24 @@ for key,v in out["budgets"].items():
  v["caught_blind_race_ids"]=[x["race_id"] for x in v["caught_blind"]]
 
 open(a.out,"w",encoding="utf-8").write(json.dumps(out,ensure_ascii=False,indent=2))
+
+outdir=Path(a.out).parent
+for year in (2022,2023,2024,2025):
+ caught30=[x for x in out["budgets"]["30"]["caught_blind"] if x["year"]==year]
+ sets={key:set(x["race_id"] for x in out["budgets"][key]["caught_blind"]) for key in ("5","10","15","20","30")}
+ with open(outdir/f"caught-blind-membership-{year}.csv","w",newline="",encoding="utf-8-sig") as fh:
+  w=csv.writer(fh)
+  w.writerow(["year","race_id","score","in_top5","in_top10","in_top15","in_top20","in_top30"])
+  for x in caught30:
+   rid=x["race_id"]
+   w.writerow([year,rid,x["score"],
+               rid in sets["5"],rid in sets["10"],rid in sets["15"],rid in sets["20"],rid in sets["30"]])
+
+with open(outdir/"caught-blind-top10-all.csv","w",newline="",encoding="utf-8-sig") as fh:
+ w=csv.writer(fh)
+ w.writerow(["year","race_id","score"])
+ for x in out["budgets"]["10"]["caught_blind"]:
+  w.writerow([x["year"],x["race_id"],x["score"]])
 print("CONSENSUS_WORLD_RACE_IDS_RESULT")
 print(json.dumps({k:{
  "selected_count":v["selected_count"],
