@@ -1,0 +1,105 @@
+name: L1.5 Seven-King Rescue Diagnostic
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-7k-rescue-diagnostic.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l15-role-router-v2-seven-kings
+  cancel-in-progress: true
+
+jobs:
+  diagnose:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Verify free-storage headroom
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Restore saved fold predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          restore_one() {
+            local ref="$1" logical="$2" dest="$3"
+            mkdir -p "$dest"
+            local raw remote
+            raw="$(kaggle datasets files "$ref" --page-size 200 --format "json(name,size)")"
+            remote="$(RAW_JSON="$raw" LOGICAL="$logical" python - <<'PY'
+          import json,os
+          rows=json.loads(os.environ["RAW_JSON"])
+          names={str(x.get("name") or "") for x in rows}
+          logical=os.environ["LOGICAL"]
+          candidates=[logical, logical+".gz"]
+          for x in candidates:
+              if x in names:
+                  print(x)
+                  raise SystemExit
+          raise SystemExit(f"missing remote file {logical}; available={sorted(names)}")
+          PY
+            )"
+            kaggle datasets download "$ref" -f "$remote" -p "$dest" --unzip --quiet --force
+            local p
+            p="$(find "$dest" -type f \( -name "$logical" -o -name "$logical.gz" \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            cp "$p" "$dest/$logical.tmp"
+            mv "$dest/$logical.tmp" "$dest/$logical"
+          }
+
+          for y in 2022 2023 2024 2025; do
+            ref="pino1945/keiba-l15-7k-fold-y$y-v1"
+            d="out/rescue-input/$y"
+            restore_one "$ref" "predictions-5k.jsonl" "$d"
+            restore_one "$ref" "predictions-7k.jsonl" "$d"
+          done
+
+      - name: Run rescue diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_7king_rescue.py research/persist_exact_kaggle_dataset.py
+          python research/analyze_l15_7king_rescue.py \
+            --year-file "2022:out/rescue-input/2022/predictions-5k.jsonl:out/rescue-input/2022/predictions-7k.jsonl" \
+            --year-file "2023:out/rescue-input/2023/predictions-5k.jsonl:out/rescue-input/2023/predictions-7k.jsonl" \
+            --year-file "2024:out/rescue-input/2024/predictions-5k.jsonl:out/rescue-input/2024/predictions-7k.jsonl" \
+            --year-file "2025:out/rescue-input/2025/predictions-5k.jsonl:out/rescue-input/2025/predictions-7k.jsonl" \
+            --output out/rescue-diagnostic.json
+
+      - name: Persist diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          stage="out/rescue-stage"
+          rm -rf "$stage"; mkdir -p "$stage"
+          cp out/rescue-diagnostic.json "$stage/"
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-l15-7k-rescue-diagnostic-v1" \
+            --title "KEIBA L15 Seven King Rescue Diagnostic V1" \
+            --source-dir "$stage"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU. No GitHub Artifact/Cache."
+          echo "Existing fold predictions only; no king rescoring."
+          echo "Small diagnostic JSON persisted after storage preflight."
+          echo "2026 never read."
