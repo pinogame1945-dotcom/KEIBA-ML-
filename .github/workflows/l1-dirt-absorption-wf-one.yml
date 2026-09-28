@@ -1,0 +1,179 @@
+name: L1 Dirt Absorption WF One Match
+
+on:
+  workflow_call:
+    inputs:
+      candidate:
+        required: true
+        type: string
+      validation_year:
+        required: true
+        type: number
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+jobs:
+  run:
+    name: league-${{ inputs.candidate }}-y${{ inputs.validation_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      MATRIX_CANDIDATE: ${{ inputs.candidate }}
+      VALIDATION_YEAR: ${{ inputs.validation_year }}
+
+    steps:
+      - name: Checkout KEIBA-ML
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_feature_arena.py research/train-staged-lightgbm.py research/archive_l1_walkforward_run.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-dirt-absorption-walkforward-v1.json").read_text(encoding="utf-8"))
+          assert cfg["snapshot_generation"]=="eb13d4096519167b"
+          assert cfg["training_window_years"]==2
+          assert cfg["validation_years"]==[2021,2022,2023,2024,2025]
+          assert cfg["prediction_phase"]=="FINAL"
+          assert cfg["feature_selection"]=="none"
+          assert cfg["train_race_class"]=="ALL"
+          assert cfg["valid_race_class"]=="ALL"
+          assert cfg["surface"]=="DIRT"
+          assert cfg["ability_uses_odds"] is False
+          assert 2026 in cfg["locked_years"]
+          print("DIRT_ABSORPTION_WF_METHOD_CONTRACT_OK")
+          PY
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Load walk-forward config
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          cfg=json.loads(Path("research/l1-dirt-absorption-walkforward-v1.json").read_text(encoding="utf-8"))
+          year=int(os.environ["VALIDATION_YEAR"])
+          if year not in set(int(x) for x in cfg["validation_years"]):
+              raise SystemExit(f"validation year outside contract: {year}")
+          if year in set(int(x) for x in cfg["locked_years"]):
+              raise SystemExit(f"locked validation year: {year}")
+          name=os.environ["MATRIX_CANDIDATE"]
+          rows=[x for x in cfg["candidates"] if x["name"]==name]
+          if len(rows)!=1:
+              raise SystemExit(f"candidate config mismatch: {name}")
+          row=rows[0]
+          train_y1,train_y2=year-2,year-1
+          candidate={"name":name,"feature_sets":row["feature_sets"]}
+          for key in ("actor_prefixes","auto_slices","pedigree_slices"):
+              if row.get(key):
+                  candidate[key]=row[key]
+          Path("candidate.json").write_text(json.dumps([candidate],ensure_ascii=False)+"\n",encoding="utf-8")
+          env={
+            "GENERATION_ID":cfg["snapshot_generation"],
+            "KAGGLE_DATASET_REF":f"pino1945/keiba-ml-snapshot-{cfg['snapshot_generation']}",
+            "CANDIDATE_LABEL_JA":str(row.get("label_ja") or name),
+            "TRAIN_YEAR_1":str(train_y1),
+            "TRAIN_YEAR_2":str(train_y2),
+            "TRAIN_START":f"{train_y1}-01-01",
+            "TRAIN_END":f"{train_y2}-12-31",
+            "VALID_START":f"{year}-01-01",
+            "VALID_END":f"{year}-12-31",
+          }
+          with open(os.environ["GITHUB_ENV"],"a",encoding="utf-8") as fh:
+              for k,v in env.items():
+                  fh.write(f"{k}={v}\n")
+          print("WF_FOLD",name,train_y1,train_y2,"->",year)
+          PY
+
+      - name: Restore exact rolling three-year snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/wf-input/$GENERATION_ID"
+          mkdir -p "$root"
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$root"
+          done
+
+          paths=()
+          for y in "$TRAIN_YEAR_1" "$TRAIN_YEAR_2" "$VALIDATION_YEAR"; do
+            if [[ -s "$root/snapshot-$y.jsonl" ]]; then
+              paths+=("$root/snapshot-$y.jsonl")
+            elif [[ -s "$root/snapshot-$y.jsonl.gz" ]]; then
+              paths+=("$root/snapshot-$y.jsonl.gz")
+            else
+              echo "::error::snapshot $y missing"
+              exit 1
+            fi
+          done
+          echo "INPUTS=$(IFS=,; echo "${paths[*]}")" >> "$GITHUB_ENV"
+
+      - name: Run exact walk-forward candidate
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="out/l1-dirt-absorption-wf/$MATRIX_CANDIDATE-y$VALIDATION_YEAR"
+          python research/run_feature_arena.py             --inputs "$INPUTS"             --out-dir "$out"             --train-start "$TRAIN_START"             --train-end "$TRAIN_END"             --valid-start "$VALID_START"             --valid-end "$VALID_END"             --train-race-class ALL             --valid-race-class ALL             --train-surface DIRT             --valid-surface DIRT             --prediction-phase FINAL             --feature-selection none             --candidates-json candidate.json             --source-ref main             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Print walk-forward result
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          n=os.environ["MATRIX_CANDIDATE"]
+          y=int(os.environ["VALIDATION_YEAR"])
+          s=json.loads((Path("out/l1-dirt-absorption-wf")/f"{n}-y{y}"/"feature-arena-summary.json").read_text())
+          r=s["results"][0]
+          if r.get("surface_scope")!={"train":"DIRT","valid":"DIRT"}:
+              raise SystemExit(f"surface scope mismatch: {r.get('surface_scope')}")
+          print("L1_WALKFORWARD_RESULT")
+          print(json.dumps({
+            "candidate":n,
+            "validation_year":y,
+            "train_start":os.environ["TRAIN_START"],
+            "train_end":os.environ["TRAIN_END"],
+            "feature_sets":r["feature_sets"],
+            "actor_prefixes":r.get("actor_prefixes") or [],
+            "auto_slices":r.get("auto_slices") or [],
+            "pedigree_slices":r.get("pedigree_slices") or [],
+            "feature_count":r["feature_count"],
+            "metrics":r["metrics"],
+            "surface":"DIRT",
+            "surface_scope":r.get("surface_scope"),
+            "resource_usage":r.get("resource_usage")
+          },ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          set -euo pipefail
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Existing Kaggle snapshot is read-only; no new persistent dataset/model storage."
