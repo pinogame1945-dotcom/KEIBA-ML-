@@ -1,0 +1,111 @@
+{
+  "run_id": 36398285642,
+  "jobs": [
+    {
+      "job_id": 108849798873,
+      "name": "backfill-2021 / outsider-outsider_backfill-y2021",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-09-28T08:35:51Z",
+      "completed_at": "2026-09-28T08:39:39Z",
+      "log_fetch_error": null,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]snapshot restore failed after retries year=2019",
+        "##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "job_id": 108849799150,
+      "name": "network-2021 / outsider-outsider_network-y2021",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-09-28T08:35:50Z",
+      "completed_at": "2026-09-28T08:44:02Z",
+      "log_fetch_error": null,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]The operation was canceled."
+      ]
+    },
+    {
+      "job_id": 108849799187,
+      "name": "lap-2021 / outsider-outsider_lap-y2021",
+      "status": "completed",
+      "conclusion": "failure",
+      "started_at": "2026-09-28T08:35:50Z",
+      "completed_at": "2026-09-28T08:38:54Z",
+      "log_fetch_error": null,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "##[error]snapshot restore failed after retries year=2019",
+        "##[error]Process completed with exit code 1."
+      ]
+    },
+    {
+      "job_id": 108849799234,
+      "name": "style-2021 / outsider-outsider_style-y2021",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-09-28T08:35:50Z",
+      "completed_at": "2026-09-28T08:44:02Z",
+      "log_fetch_error": null,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]The operation was canceled."
+      ]
+    },
+    {
+      "job_id": 108849799321,
+      "name": "distance-2021 / outsider-outsider_distance-y2021",
+      "status": "completed",
+      "conclusion": "cancelled",
+      "started_at": "2026-09-28T08:35:51Z",
+      "completed_at": "2026-09-28T08:44:07Z",
+      "log_fetch_error": null,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "##[error]The operation was canceled."
+      ]
+    }
+  ]
+}

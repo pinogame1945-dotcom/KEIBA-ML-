@@ -1,0 +1,1524 @@
+{
+  "contract": "L1_OUTSIDER_ARENA_SCORECARD_V2",
+  "experiment_id": "OUTSIDER-ARENA-001",
+  "run_id": 36398285642,
+  "complete": false,
+  "composite_winner": null,
+  "fold_results": [
+    {
+      "candidate": "outsider_backfill",
+      "label_ja": "レース条件型",
+      "validation_year": 2021,
+      "status": "failure",
+      "metrics": {},
+      "rescue": {},
+      "job_id": 108849798873,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]snapshot restore failed after retries year=2019",
+        "##[error]Process completed with exit code 1."
+      ],
+      "log_fetch_error": null
+    },
+    {
+      "candidate": "outsider_distance",
+      "label_ja": "距離詳細型",
+      "validation_year": 2021,
+      "status": "cancelled",
+      "metrics": {},
+      "rescue": {},
+      "job_id": 108849799321,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null
+    },
+    {
+      "candidate": "outsider_lap",
+      "label_ja": "ラップ型",
+      "validation_year": 2021,
+      "status": "failure",
+      "metrics": {},
+      "rescue": {},
+      "job_id": 108849799187,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "##[error]snapshot restore failed after retries year=2019",
+        "##[error]Process completed with exit code 1."
+      ],
+      "log_fetch_error": null
+    },
+    {
+      "candidate": "outsider_network",
+      "label_ja": "Elo型",
+      "validation_year": 2021,
+      "status": "cancelled",
+      "metrics": {},
+      "rescue": {},
+      "job_id": 108849799150,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null
+    },
+    {
+      "candidate": "outsider_style",
+      "label_ja": "位置取り型",
+      "validation_year": 2021,
+      "status": "cancelled",
+      "metrics": {},
+      "rescue": {},
+      "job_id": 108849799234,
+      "error_excerpt": [
+        "echo \"::error::snapshot restore failed after retries year=$y\"",
+        "else echo \"::error::snapshot $y missing\"; exit 1; fi",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/GetDatasetMetadata",
+        "429 Client Error: Too Many Requests for url: https://api.kaggle.com/v1/datasets.DatasetApiService/ListDatasetFiles",
+        "##[error]The operation was canceled."
+      ],
+      "log_fetch_error": null
+    }
+  ],
+  "candidate_summaries": {
+    "outsider_style": {
+      "label_ja": "位置取り型",
+      "successful_folds": 0,
+      "expected_folds": 1,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_lap": {
+      "label_ja": "ラップ型",
+      "successful_folds": 0,
+      "expected_folds": 1,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_network": {
+      "label_ja": "Elo型",
+      "successful_folds": 0,
+      "expected_folds": 1,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_distance": {
+      "label_ja": "距離詳細型",
+      "successful_folds": 0,
+      "expected_folds": 1,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    },
+    "outsider_backfill": {
+      "label_ja": "レース条件型",
+      "successful_folds": 0,
+      "expected_folds": 1,
+      "mean_metrics": {
+        "top1_winner_capture": null,
+        "top3_winner_capture": null,
+        "top6_winner_capture": null,
+        "mean_winner_rank": null,
+        "race_normalized_nll": null,
+        "raw_roc_auc": null
+      },
+      "topn": {
+        "1": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "3": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        },
+        "6": {
+          "races": 0,
+          "candidate_hits": 0,
+          "seven_union_hits": 0,
+          "seven_blind_spots": 0,
+          "rescues": 0,
+          "rescue_rate_on_seven_blind_spots": null,
+          "rescue_share_of_candidate_hits": null,
+          "weighted_mean_jaccard_vs_seven_union": null
+        }
+      },
+      "max_peak_rss_mib": null,
+      "strong_rebellion_top1": {
+        "count": 0,
+        "hit_count": 0,
+        "miss_count": 0,
+        "hit_rate": null,
+        "miss_rate": null
+      },
+      "stdev_top1_winner_capture": null,
+      "stdev_top3_winner_capture": null,
+      "stdev_top6_winner_capture": null,
+      "stdev_mean_winner_rank": null,
+      "stdev_race_normalized_nll": null,
+      "stdev_raw_roc_auc": null
+    }
+  },
+  "outsider_overlap": {
+    "2021": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2022": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2023": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2024": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    },
+    "2025": {
+      "1": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "3": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      },
+      "6": {
+        "candidate_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "union_rescue_count": 0,
+        "union_rescue_race_ids": [],
+        "exclusive_rescue_counts": {
+          "outsider_style": 0,
+          "outsider_lap": 0,
+          "outsider_network": 0,
+          "outsider_distance": 0,
+          "outsider_backfill": 0
+        },
+        "rescuer_count_histogram": {},
+        "rescuers_by_race": {},
+        "pairwise": {
+          "outsider_style__outsider_lap": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_style__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_network": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_lap__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_distance": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_network__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          },
+          "outsider_distance__outsider_backfill": {
+            "intersection_count": 0,
+            "union_count": 0,
+            "jaccard": null
+          }
+        },
+        "group_vs_kings": null
+      }
+    }
+  }
+}
