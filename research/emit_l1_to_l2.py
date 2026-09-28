@@ -33,6 +33,7 @@ def args():
     p.add_argument("--feature-sets-json", required=True)
     p.add_argument("--actor-prefixes-json", default="[]")
     p.add_argument("--auto-slices-json", default="[]")
+    p.add_argument("--pedigree-slices-json", default="[]")
     p.add_argument("--valid-start", required=True)
     p.add_argument("--valid-end", required=True)
     p.add_argument("--chunk-size", type=int, default=128)
@@ -170,12 +171,14 @@ def main():
     feature_sets = json.loads(a.feature_sets_json)
     actor_prefixes = json.loads(a.actor_prefixes_json)
     auto_slices = json.loads(a.auto_slices_json)
+    pedigree_slices = json.loads(a.pedigree_slices_json)
     expert_config = {
         "candidate_name": a.candidate_name,
         "prediction_phase": str(meta.get("prediction_phase") or "FINAL"),
         "feature_sets": feature_sets,
         "actor_prefixes": actor_prefixes,
         "auto_slices": auto_slices,
+        "pedigree_slices": pedigree_slices,
         "feature_selection_mode": (meta.get("feature_selection") or {}).get("mode", "none"),
     }
     expert_id = sha256_json(expert_config)[:16]
