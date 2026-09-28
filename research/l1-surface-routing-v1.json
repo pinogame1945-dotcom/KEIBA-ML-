@@ -1,0 +1,72 @@
+{
+  "contract": "L1_SURFACE_ROUTING_WALKFORWARD_V1",
+  "experiment_id": "SURFACE-WF-001",
+  "snapshot_generation": "eb13d4096519167b",
+  "training_window_years": 2,
+  "validation_years": [2021, 2022, 2023, 2024, 2025],
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "train_race_class": "ALL",
+  "valid_race_class": "ALL",
+  "ability_uses_odds": false,
+  "locked_years": [2026],
+  "surfaces": ["TURF", "DIRT"],
+  "candidates": [
+    {
+      "name": "core4_no_pedigree",
+      "label_ja": "CORE4",
+      "feature_sets": ["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": []
+    },
+    {
+      "name": "no_auto_full_pedigree_legacy",
+      "label_ja": "旧血統型",
+      "feature_sets": ["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": ["LEGACY"]
+    },
+    {
+      "name": "jockey_trainer_condition",
+      "label_ja": "条件型",
+      "feature_sets": ["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_","actor_trainer_"],
+      "auto_slices": ["CONDITION"],
+      "pedigree_slices": []
+    },
+    {
+      "name": "no_auto_full",
+      "label_ja": "FULL",
+      "feature_sets": ["BASE","OPPONENT","ACTOR","TIME_PACE"],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": []
+    },
+    {
+      "name": "no_auto_jockey",
+      "label_ja": "軽量型",
+      "feature_sets": ["BASE","OPPONENT","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_"],
+      "auto_slices": [],
+      "pedigree_slices": []
+    },
+    {
+      "name": "no_auto_full_pedigree_v1",
+      "label_ja": "新血統v1",
+      "feature_sets": ["BASE","OPPONENT","PEDIGREE","ACTOR","TIME_PACE"],
+      "actor_prefixes": [],
+      "auto_slices": [],
+      "pedigree_slices": []
+    },
+    {
+      "name": "jockey_trainer_condition_plus_raceclass",
+      "label_ja": "条件型＋RC",
+      "feature_sets": ["BASE","OPPONENT","AUTO","PEDIGREE","ACTOR","TIME_PACE"],
+      "actor_prefixes": ["actor_jockey_","actor_trainer_"],
+      "auto_slices": ["CONDITION"],
+      "pedigree_slices": ["RACE_CLASS"]
+    }
+  ]
+}
