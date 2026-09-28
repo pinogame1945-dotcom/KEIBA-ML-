@@ -125,6 +125,10 @@ jobs:
           set -euo pipefail
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
+          if [[ ! -d research-results/l1-surface-specialists/SURFACE-SPECIALIST-WF-001 ]]; then
+            echo "No complete specialist ledger to persist"
+            exit 0
+          fi
           git add research-results/l1-surface-specialists/SURFACE-SPECIALIST-WF-001
           if git diff --cached --quiet; then
             echo "No ledger changes to commit"
