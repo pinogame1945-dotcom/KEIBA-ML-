@@ -1,0 +1,11 @@
+launch=2026-09-28T14:58:00Z
+experiment=L15-BLIND-SPOT-ANATOMY-001
+mode=parallel-year-lanes
+years=2022,2023,2024,2025
+groups=BASE,BREADTH,REDUNDANCY,CORE_FRINGE,PAIRWISE,TOP3,TOP1,ALL_ANATOMY
+budgets=5,10,15,20,25
+primary_budget=10
+max_parallel=4
+kaggle_restore_stagger_seconds=0,35,70,105
+storage=no-artifact-no-cache-no-new-kaggle-persistence
+cost=standard-cpu-only
