@@ -1,0 +1,52 @@
+{
+  "contract": "L1_OUTSIDER_ARENA_LEDGER_V1",
+  "experiment_id": "OUTSIDER-ARENA-001",
+  "run_id": 36407724857,
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/36407724857",
+  "head_branch": "research/l1-outsider-arena-v1-20260928",
+  "head_sha": "f4d7689d0853699ef73bc06e2ff3e7ee91d91725",
+  "archived_at": "2026-09-28T11:56:49.706385+00:00",
+  "snapshot_generation": "eb13d4096519167b",
+  "validation_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "candidates": [
+    "outsider_style",
+    "outsider_lap",
+    "outsider_network",
+    "outsider_distance",
+    "outsider_backfill"
+  ],
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "expected_jobs": 25,
+  "observed_jobs": 22,
+  "missing_jobs": [
+    {
+      "candidate": "outsider_backfill",
+      "validation_year": 2024
+    },
+    {
+      "candidate": "outsider_backfill",
+      "validation_year": 2025
+    },
+    {
+      "candidate": "outsider_distance",
+      "validation_year": 2025
+    }
+  ],
+  "storage_policy": {
+    "raw_logs": "github_actions",
+    "structured_logs": "git_json",
+    "github_artifacts": false,
+    "github_cache": false,
+    "candidate_models": "ephemeral",
+    "candidate_scores": "ephemeral"
+  }
+}
