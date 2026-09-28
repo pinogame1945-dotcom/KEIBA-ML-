@@ -1,0 +1,316 @@
+name: L1.5 Role Router V2 Seven Kings
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-7kings-20260928
+    paths:
+      - .github/triggers/l15-role-router-v2-7kings.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  new_2021:
+    uses: ./.github/workflows/l15-7k-score-new2-one.yml
+    with:
+      validation_year: 2021
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  new_2022:
+    uses: ./.github/workflows/l15-7k-score-new2-one.yml
+    with:
+      validation_year: 2022
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  new_2023:
+    uses: ./.github/workflows/l15-7k-score-new2-one.yml
+    with:
+      validation_year: 2023
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  new_2024:
+    uses: ./.github/workflows/l15-7k-score-new2-one.yml
+    with:
+      validation_year: 2024
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  new_2025:
+    uses: ./.github/workflows/l15-7k-score-new2-one.yml
+    with:
+      validation_year: 2025
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  role_fold:
+    needs: [new_2021, new_2022, new_2023, new_2024, new_2025]
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        test_year: [2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DEEP_GENERATION: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      TEST_YEAR: ${{ matrix.test_year }}
+      NEW_REF_2021: ${{ needs.new_2021.outputs.dataset_ref }}
+      NEW_REF_2022: ${{ needs.new_2022.outputs.dataset_ref }}
+      NEW_REF_2023: ${{ needs.new_2023.outputs.dataset_ref }}
+      NEW_REF_2024: ${{ needs.new_2024.outputs.dataset_ref }}
+      NEW_REF_2025: ${{ needs.new_2025.outputs.dataset_ref }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_router_feature_snapshot_v1.py \
+            research/build_l15_column_dataset_v1.py \
+            research/build_l15_role_dataset_v2.py \
+            research/train_l15_role_router_v2.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Resolve fold
+        run: |
+          set -euo pipefail
+          PREV=$((TEST_YEAR-1))
+          echo "TRAIN_START=2021-01-01" >> "$GITHUB_ENV"
+          echo "TRAIN_END=$PREV-12-31" >> "$GITHUB_ENV"
+          echo "TEST_START=$TEST_YEAR-01-01" >> "$GITHUB_ENV"
+          echo "TEST_END=$TEST_YEAR-12-31" >> "$GITHUB_ENV"
+
+      - name: Restore seven-king sources and build yearly role datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-7k/$TEST_YEAR"
+          mkdir -p "$root/years"
+
+          five_ref() {
+            case "$1" in
+              2021) echo "pino1945/keiba-r-l15-column-datas-7ec32c-23e50a4c28694006" ;;
+              2022) echo "pino1945/keiba-r-l15-column-datas-35425e-143beb95b055e5c3" ;;
+              2023) echo "pino1945/keiba-r-l15-column-datas-a05a13-3d4b7bd71da3bd95" ;;
+              2024) echo "pino1945/keiba-r-l15-column-datas-211c0c-9c50fcef9f09ac3e" ;;
+              2025) echo "pino1945/keiba-r-l15-column-datas-7a0879-ec12fe608ee10757" ;;
+              *) exit 2 ;;
+            esac
+          }
+
+          new_ref() {
+            case "$1" in
+              2021) echo "$NEW_REF_2021" ;;
+              2022) echo "$NEW_REF_2022" ;;
+              2023) echo "$NEW_REF_2023" ;;
+              2024) echo "$NEW_REF_2024" ;;
+              2025) echo "$NEW_REF_2025" ;;
+              *) exit 2 ;;
+            esac
+          }
+
+          resolve_file() {
+            local dir="$1"
+            local stem="$2"
+            local p
+            p="$(find "$dir" -type f \( -name "$stem.jsonl" -o -name "$stem.jsonl.gz" \) -print -quit)"
+            [[ -n "$p" && -s "$p" ]] || { echo "missing $stem under $dir" >&2; exit 1; }
+            printf '%s' "$p"
+          }
+
+          for y in $(seq 2021 "$TEST_YEAR"); do
+            yd="$root/years/$y"
+            mkdir -p "$yd/five" "$yd/new" "$yd/snapshot"
+            fref="$(five_ref "$y")"
+            nref="$(new_ref "$y")"
+            test -n "$nref"
+            kaggle datasets download "$fref" -p "$yd/five" --unzip --quiet --force
+            kaggle datasets download "$nref" -p "$yd/new" --unzip --quiet --force
+            bash scripts/kaggle-fetch-snapshot.sh "$DEEP_GENERATION" "$y" "$yd/snapshot"
+
+            snap="$(find "$yd/snapshot" -type f \( -name "snapshot-$y.jsonl" -o -name "snapshot-$y.jsonl.gz" \) -print -quit)"
+            [[ -n "$snap" && -s "$snap" ]] || { echo "missing deep snapshot $y" >&2; exit 1; }
+
+            core="$(resolve_file "$yd/five" core4-no-pedigree)"
+            ped="$(resolve_file "$yd/five" no-auto-full-pedigree)"
+            cond="$(resolve_file "$yd/five" jockey-trainer-condition)"
+            full="$(resolve_file "$yd/five" no-auto-full)"
+            light="$(resolve_file "$yd/five" no-auto-jockey)"
+            pedv1="$(resolve_file "$yd/new" no-auto-full-pedigree-v1)"
+            condrc="$(resolve_file "$yd/new" jockey-trainer-condition-plus-raceclass)"
+
+            python research/build_router_feature_snapshot_v1.py \
+              --snapshot "$snap" \
+              --expert core4_no_pedigree="$core" \
+              --expert no_auto_full_pedigree="$ped" \
+              --expert jockey_trainer_condition="$cond" \
+              --expert no_auto_full="$full" \
+              --expert no_auto_jockey="$light" \
+              --expert no_auto_full_pedigree_v1="$pedv1" \
+              --expert jockey_trainer_condition_plus_raceclass="$condrc" \
+              --output "$yd/router-features-7k.jsonl.gz"
+
+            python research/build_l15_column_dataset_v1.py \
+              --config research/l15-column-router-v1-7k.json \
+              --router-features "$yd/router-features-7k.jsonl.gz" \
+              --snapshot "$snap" \
+              --expert core4_no_pedigree="$core" \
+              --expert no_auto_full_pedigree="$ped" \
+              --expert jockey_trainer_condition="$cond" \
+              --expert no_auto_full="$full" \
+              --expert no_auto_jockey="$light" \
+              --expert no_auto_full_pedigree_v1="$pedv1" \
+              --expert jockey_trainer_condition_plus_raceclass="$condrc" \
+              --features-out "$yd/l15-column-features-7k.jsonl.gz" \
+              --labels-out "$yd/l15-column-labels-7k.jsonl.gz"
+
+            python research/build_l15_role_dataset_v2.py \
+              --config research/l15-role-router-v2-7k.json \
+              --source-features "$yd/l15-column-features-7k.jsonl.gz" \
+              --snapshot "$snap" \
+              --features-out "$yd/role-features-7k.jsonl.gz" \
+              --labels-out "$yd/role-labels-7k.jsonl.gz"
+
+            printf '%s | %s | %s\n' "$y" "$fref" "$nref" >> "$root/source-datasets.txt"
+          done
+
+      - name: Build chronological fold files
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,os
+          from pathlib import Path
+          y=int(os.environ["TEST_YEAR"])
+          root=Path(f"out/l15-7k/{y}")
+          prep=root/"prepared"; prep.mkdir(parents=True,exist_ok=True)
+
+          def merge(paths,out):
+              with gzip.open(out,"wt",encoding="utf-8") as w:
+                  for p in paths:
+                      with gzip.open(p,"rt",encoding="utf-8") as r:
+                          for line in r:
+                              if line.strip(): w.write(line)
+
+          train=range(2021,y)
+          merge([root/"years"/str(z)/"role-features-7k.jsonl.gz" for z in train],prep/"train-features.jsonl.gz")
+          merge([root/"years"/str(z)/"role-labels-7k.jsonl.gz" for z in train],prep/"train-labels.jsonl.gz")
+          merge([root/"years"/str(y)/"role-features-7k.jsonl.gz"],prep/"test-features.jsonl.gz")
+          merge([root/"years"/str(y)/"role-labels-7k.jsonl.gz"],prep/"test-labels.jsonl.gz")
+          PY
+
+      - name: Train seven-king role router
+        run: |
+          set -euo pipefail
+          root="out/l15-7k/$TEST_YEAR"
+          python research/train_l15_role_router_v2.py \
+            --config research/l15-role-router-v2-7k.json \
+            --train-features "$root/prepared/train-features.jsonl.gz" \
+            --train-labels "$root/prepared/train-labels.jsonl.gz" \
+            --test-features "$root/prepared/test-features.jsonl.gz" \
+            --test-labels "$root/prepared/test-labels.jsonl.gz" \
+            --out-dir "$root/model" \
+            --summary-out "$root/summary.json"
+
+      - name: Validate seven-king fold
+        run: |
+          set -euo pipefail
+          root="out/l15-7k/$TEST_YEAR"
+          for f in anchor-router.txt mainline-router.txt cover-router.txt predictions.jsonl.gz; do
+            test -s "$root/model/$f"
+          done
+          python - <<'PY'
+          import json,os
+          s=json.load(open(f"out/l15-7k/{os.environ['TEST_YEAR']}/summary.json",encoding="utf-8"))
+          expected={
+            "core4_no_pedigree","no_auto_full_pedigree","jockey_trainer_condition",
+            "no_auto_full","no_auto_jockey","no_auto_full_pedigree_v1",
+            "jockey_trainer_condition_plus_raceclass",
+          }
+          assert s["contract"]=="L15_ROLE_ROUTER_MODEL_V2"
+          assert s["test_years"]==[int(os.environ["TEST_YEAR"])]
+          assert 2026 not in s["train_years"]+s["test_years"]
+          for role in ("ANCHOR","MAINLINE","COVER"):
+              assert set(s["fixed_expert_at_fixed_top_n"][role])==expected
+          print("L15_ROLE_ROUTER_V2_7K_FOLD_OK",os.environ["TEST_YEAR"])
+          PY
+
+      - name: Freeze metadata
+        run: |
+          set -euo pipefail
+          root="out/l15-7k/$TEST_YEAR"
+          cp research/l15-column-router-v1-7k.json "$root/"
+          cp research/l15-role-router-v2-7k.json "$root/"
+          cp contracts/l15-role-router-v2.json "$root/l15-role-router-contract-v2.json"
+
+      - name: Persist seven-king fold
+        run: |
+          set -euo pipefail
+          root="out/l15-7k/$TEST_YEAR"
+          python research/build_research_bundle_v1.py \
+            --kind "l15_role_router_v2_7k_$TEST_YEAR" \
+            --snapshot-generation "mixed-bf811fa2eab73db0-eb13d4096519167b" \
+            --train-start "$TRAIN_START" \
+            --train-end "$TRAIN_END" \
+            --test-start "$TEST_START" \
+            --test-end "$TEST_END" \
+            --code-sha "$GITHUB_SHA" \
+            --file summary.json="$root/summary.json" \
+            --file predictions.jsonl.gz="$root/model/predictions.jsonl.gz" \
+            --file anchor-router.txt="$root/model/anchor-router.txt" \
+            --file mainline-router.txt="$root/model/mainline-router.txt" \
+            --file cover-router.txt="$root/model/cover-router.txt" \
+            --file l15-column-router-v1-7k.json="$root/l15-column-router-v1-7k.json" \
+            --file l15-role-router-v2-7k.json="$root/l15-role-router-v2-7k.json" \
+            --file l15-role-router-contract-v2.json="$root/l15-role-router-contract-v2.json" \
+            --file source-datasets.txt="$root/source-datasets.txt" \
+            --out-root "$root/bundle"
+          python research/persist_research_bundle_v1.py "$root/bundle"
+
+      - name: Print compact result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          s=json.load(open(f"out/l15-7k/{os.environ['TEST_YEAR']}/summary.json",encoding="utf-8"))
+          print("=== L1.5 ROLE ROUTER V2 SEVEN KINGS",os.environ["TEST_YEAR"],"===")
+          for role in ("ANCHOR","MAINLINE","COVER"):
+              print(role,"MODEL",s["models"][role])
+              print(role,"ROUTING",s["routing_at_fixed_top_n"][role])
+              print(role,"ORACLE",s["oracle_any_expert_at_fixed_top_n"][role])
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Existing five-king outputs are restored read-only."
+          echo "Only the two newcomer kings were newly scored."
+          echo "Kaggle capacity checked before compute."
+          echo "2026 is never read."
