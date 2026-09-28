@@ -49,7 +49,7 @@ jobs:
       - name: Syntax checks
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/analyze_l1_outsider_rescue_v1.py
+          python -m py_compile             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/analyze_l1_outsider_rescue_v1.py             research/archive_l1_outsider_arena_v1.py
           node --check research/project-yearly-snapshots.mjs
           bash -n scripts/kaggle-fetch-snapshot.sh
 
