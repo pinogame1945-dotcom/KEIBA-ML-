@@ -49,6 +49,8 @@ def args():
     p.add_argument("--valid-end", required=True)
     p.add_argument("--train-race-class", default="ALL", help="Training race class filter; ALL keeps every class")
     p.add_argument("--valid-race-class", default="ALL", help="Validation race class filter; ALL keeps every class")
+    p.add_argument("--train-surface", default="ALL", help="Training surface filter: ALL, TURF, or DIRT")
+    p.add_argument("--valid-surface", default="ALL", help="Validation surface filter: ALL, TURF, or DIRT")
     p.add_argument("--meta-out", required=True)
     p.add_argument("--model-out", required=True)
     p.add_argument("--predictions-out")
@@ -110,6 +112,22 @@ def normalize_race_class_filter(value):
     scope = str(value or "ALL").strip().upper()
     if not scope:
         raise ValueError("race class filter must not be empty")
+    return scope
+
+
+def normalize_surface_value(value):
+    scope = str(value or "").strip().upper()
+    if scope in {"芝", "TURF", "T"} or "TURF" in scope:
+        return "TURF"
+    if scope in {"ダート", "DIRT", "D"} or "DIRT" in scope:
+        return "DIRT"
+    return scope
+
+
+def normalize_surface_filter(value):
+    scope = str(value or "ALL").strip().upper()
+    if scope not in {"ALL", "TURF", "DIRT"}:
+        raise ValueError("surface filter must be one of ALL, TURF, DIRT")
     return scope
 
 
@@ -287,6 +305,7 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
             research_context.get("race_class_normalized")
             or raw_features.get("backfill_race_class_normalized")
         )
+        surface = raw_features.get("surface") or research_context.get("surface")
         f = feature_set_features(raw_features, feature_sets, feature_contract)
         assert_prediction_phase_safety(list(f), prediction_phase, feature_contract)
         bad = sorted(set(f) & forbidden_model_keys)
@@ -308,6 +327,7 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
             "_horse_id": str(row.get("horse_id") or ""),
             "_race_date": str(date or ""),
             "_race_class": str(race_class or "").strip().upper(),
+            "_surface": normalize_surface_value(surface),
             "_target": 1 if bool(is_win) else 0,
             "_finish_position": target.get("finish_position"),
             **f,
@@ -324,6 +344,8 @@ def complete_races(df):
 def split(df, a):
     train_scope = normalize_race_class_filter(a.train_race_class)
     valid_scope = normalize_race_class_filter(a.valid_race_class)
+    train_surface = normalize_surface_filter(a.train_surface)
+    valid_surface = normalize_surface_filter(a.valid_surface)
     train = df[
         (df["_race_date_dt"] >= pd.to_datetime(a.train_start)) &
         (df["_race_date_dt"] <= pd.to_datetime(a.train_end))
@@ -336,10 +358,16 @@ def split(df, a):
         train = train[train["_race_class"].eq(train_scope)].copy()
     if valid_scope != "ALL":
         valid = valid[valid["_race_class"].eq(valid_scope)].copy()
+    if train_surface != "ALL":
+        train = train[train["_surface"].eq(train_surface)].copy()
+    if valid_surface != "ALL":
+        valid = valid[valid["_surface"].eq(valid_surface)].copy()
     train, valid = complete_races(train), complete_races(valid)
     if train.empty or valid.empty:
         raise ValueError(
-            f"empty split after race-class filter: train={train_scope} valid={valid_scope}"
+            "empty split after filters: "
+            f"race_class train={train_scope} valid={valid_scope}; "
+            f"surface train={train_surface} valid={valid_surface}"
         )
     return train, valid
 
@@ -886,6 +914,8 @@ def main():
         "valid_end": a.valid_end,
         "train_race_class": normalize_race_class_filter(a.train_race_class),
         "valid_race_class": normalize_race_class_filter(a.valid_race_class),
+        "train_surface": normalize_surface_filter(a.train_surface),
+        "valid_surface": normalize_surface_filter(a.valid_surface),
     }
     training_config = {
         "dataset_contract": {
