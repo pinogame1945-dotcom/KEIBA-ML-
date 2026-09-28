@@ -1,0 +1,10 @@
+launch=2026-09-29T01:23:00+09:00
+experiment=L15-CANDIDATE-INFLATION-001
+years=2022,2023,2024,2025
+outsiders=daytrend,raceshape,gatecourse,field,jockey
+policies=FULL_COMBO_K2,FULL_COMBO_K3,COMPACT_INDIVIDUAL_TOP3,FIXED_K2,FIXED_K3,FIXED_K5
+baseline=seven_king_top6_union
+storage=git-small-ledger-only
+cost=standard-cpu-only
+locked_year=2026
+odds=false
