@@ -49,11 +49,38 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+
+          restore_role_dataset() {
+            local ref="$1" dest="$2" attempt log
+            log="$(mktemp)"
+            for attempt in $(seq 1 60); do
+              : > "$log"
+              if kaggle datasets download "$ref" -p "$dest" --unzip --quiet --force >"$log" 2>&1; then
+                cat "$log"
+                rm -f "$log"
+                return 0
+              fi
+              cat "$log" >&2
+              if ! grep -Eqi '404|429|too many requests|502|503|504|timed out|temporary|temporarily|connection' "$log"; then
+                echo "::error::Non-retryable Kaggle dataset restore failure: $ref"
+                rm -f "$log"
+                return 1
+              fi
+              if [[ "$attempt" -eq 60 ]]; then
+                echo "::error::Kaggle dataset restore failed after 60 attempts: $ref"
+                rm -f "$log"
+                return 1
+              fi
+              echo "::warning::Kaggle dataset not yet downloadable; ref=$ref attempt=$attempt/60"
+              sleep 10
+            done
+          }
+
           root="out/fold-$TEST_YEAR/source"
           mkdir -p "$root"
           for y in $(seq 2021 "$TEST_YEAR"); do
             d="$root/$y"; mkdir -p "$d"
-            kaggle datasets download "pino1945/keiba-l15-rolecmp-y$y-v1" -p "$d" --unzip --quiet --force
+            restore_role_dataset "pino1945/keiba-l15-rolecmp-y$y-v1" "$d"
           done
 
       - name: Build chronological train and test files
