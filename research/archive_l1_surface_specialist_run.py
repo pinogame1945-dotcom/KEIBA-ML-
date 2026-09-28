@@ -38,8 +38,10 @@ def job_log(repo,job_id):
 def clean(s):
     return TS_RE.sub("",ANSI_RE.sub("",s).replace("\ufeff","")).strip()
 
-def extract(log):
+def extract_all(log):
     lines=[clean(x) for x in log.splitlines()]
+    out=[]
+    seen=set()
     for i,line in enumerate(lines):
         if MARKER not in line:
             continue
@@ -51,9 +53,15 @@ def extract(log):
                 obj=json.loads(row[at:])
             except json.JSONDecodeError:
                 continue
-            if isinstance(obj,dict) and obj.get("candidate") and obj.get("surface") and obj.get("validation_year"):
-                return obj
-    return None
+            if not (isinstance(obj,dict) and obj.get("candidate") and obj.get("surface") and obj.get("validation_year")):
+                continue
+            key=(str(obj["surface"]),str(obj["candidate"]),int(obj["validation_year"]))
+            if key in seen:
+                break
+            seen.add(key)
+            out.append(obj)
+            break
+    return out
 
 def weighted(rows,key):
     pairs=[]
@@ -88,8 +96,8 @@ def main():
             continue
         if job.get("conclusion")!="success":
             continue
-        result=extract(job_log(a.repo,job["id"]))
-        if result:
+        results=extract_all(job_log(a.repo,job["id"]))
+        for result in results:
             result["job_id"]=job["id"]
             rows.append(result)
 
