@@ -1,0 +1,202 @@
+name: L1.5 Role Router V2 Walk-Forward
+
+on:
+  push:
+    branches:
+      - research/l15-role-router-v2-20260928
+    paths:
+      - .github/triggers/l15-role-router-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  fold:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        test_year: [2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+      GENERATION_ID: bf811fa2eab73db0
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/build_l15_role_dataset_v2.py \
+            research/train_l15_role_router_v2.py \
+            research/build_research_bundle_v1.py \
+            research/persist_research_bundle_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+
+      - name: Install dependencies
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Storage preflight before compute
+        run: bash scripts/kaggle-storage-preflight.sh
+
+      - name: Resolve fold
+        run: |
+          set -euo pipefail
+          Y="${{ matrix.test_year }}"
+          PREV=$((Y-1))
+          echo "TEST_YEAR=$Y" >> "$GITHUB_ENV"
+          echo "TRAIN_END=${PREV}-12-31" >> "$GITHUB_ENV"
+
+      - name: Restore source datasets and build role labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-role-v2/$TEST_YEAR"
+          mkdir -p "$root/source" "$root/role"
+
+          ref_for_year() {
+            case "$1" in
+              2021) echo "pino1945/keiba-r-l15-column-datas-7ec32c-23e50a4c28694006" ;;
+              2022) echo "pino1945/keiba-r-l15-column-datas-35425e-143beb95b055e5c3" ;;
+              2023) echo "pino1945/keiba-r-l15-column-datas-a05a13-3d4b7bd71da3bd95" ;;
+              2024) echo "pino1945/keiba-r-l15-column-datas-211c0c-9c50fcef9f09ac3e" ;;
+              2025) echo "pino1945/keiba-r-l15-column-datas-7a0879-ec12fe608ee10757" ;;
+              *) exit 2 ;;
+            esac
+          }
+
+          for y in $(seq 2021 "$TEST_YEAR"); do
+            d="$root/source/$y"
+            mkdir -p "$d/l15" "$d/snapshot"
+            ref="$(ref_for_year "$y")"
+            kaggle datasets download "$ref" -p "$d/l15" --unzip --quiet --force
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" "$d/snapshot"
+
+            features="$(find "$d/l15" -type f \( -name 'l15-column-features.jsonl' -o -name 'l15-column-features.jsonl.gz' \) -print -quit)"
+            snapshot="$(find "$d/snapshot" -type f \( -name "snapshot-$y.jsonl" -o -name "snapshot-$y.jsonl.gz" \) -print -quit)"
+            test -n "$features"; test -s "$features"
+            test -n "$snapshot"; test -s "$snapshot"
+
+            python research/build_l15_role_dataset_v2.py \
+              --config research/l15-role-router-v2.json \
+              --source-features "$features" \
+              --snapshot "$snapshot" \
+              --features-out "$root/role/role-features-$y.jsonl.gz" \
+              --labels-out "$root/role/role-labels-$y.jsonl.gz"
+            printf '%s\n' "$ref" >> "$root/source-datasets.txt"
+          done
+
+      - name: Build chronological fold files
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import gzip,os
+          from pathlib import Path
+          y=int(os.environ["TEST_YEAR"])
+          root=Path(f"out/l15-role-v2/{y}")
+          prep=root/"prepared"; prep.mkdir(parents=True,exist_ok=True)
+
+          def merge(paths,out):
+              with gzip.open(out,"wt",encoding="utf-8") as w:
+                  for p in paths:
+                      with gzip.open(p,"rt",encoding="utf-8") as r:
+                          for line in r:
+                              if line.strip(): w.write(line)
+
+          train=range(2021,y)
+          merge([root/"role"/f"role-features-{z}.jsonl.gz" for z in train],prep/"train-features.jsonl.gz")
+          merge([root/"role"/f"role-labels-{z}.jsonl.gz" for z in train],prep/"train-labels.jsonl.gz")
+          merge([root/"role"/f"role-features-{y}.jsonl.gz"],prep/"test-features.jsonl.gz")
+          merge([root/"role"/f"role-labels-{y}.jsonl.gz"],prep/"test-labels.jsonl.gz")
+          PY
+
+      - name: Train role router V2
+        run: |
+          set -euo pipefail
+          root="out/l15-role-v2/$TEST_YEAR"
+          python research/train_l15_role_router_v2.py \
+            --config research/l15-role-router-v2.json \
+            --train-features "$root/prepared/train-features.jsonl.gz" \
+            --train-labels "$root/prepared/train-labels.jsonl.gz" \
+            --test-features "$root/prepared/test-features.jsonl.gz" \
+            --test-labels "$root/prepared/test-labels.jsonl.gz" \
+            --out-dir "$root/model" \
+            --summary-out "$root/summary.json"
+
+      - name: Validate outputs
+        run: |
+          set -euo pipefail
+          root="out/l15-role-v2/$TEST_YEAR"
+          for f in anchor-router.txt mainline-router.txt cover-router.txt predictions.jsonl.gz; do
+            test -s "$root/model/$f"
+          done
+          python - <<'PY'
+          import json,os
+          s=json.load(open(f"out/l15-role-v2/{os.environ['TEST_YEAR']}/summary.json",encoding="utf-8"))
+          assert s["contract"]=="L15_ROLE_ROUTER_MODEL_V2"
+          assert s["test_years"]==[int(os.environ["TEST_YEAR"])]
+          assert 2026 not in s["train_years"]+s["test_years"]
+          assert set(s["models"])=={"ANCHOR","MAINLINE","COVER"}
+          print("L15_ROLE_ROUTER_V2_FOLD_OK",os.environ["TEST_YEAR"])
+          PY
+
+      - name: Freeze and persist fold
+        run: |
+          set -euo pipefail
+          root="out/l15-role-v2/$TEST_YEAR"
+          cp research/l15-role-router-v2.json "$root/"
+          cp contracts/l15-role-router-v2.json "$root/"
+          python research/build_research_bundle_v1.py \
+            --kind "l15_role_router_v2_$TEST_YEAR" \
+            --snapshot-generation "$GENERATION_ID" \
+            --train-start 2021-01-01 \
+            --train-end "$TRAIN_END" \
+            --test-start "$TEST_YEAR-01-01" \
+            --test-end "$TEST_YEAR-12-31" \
+            --code-sha "$GITHUB_SHA" \
+            --file summary.json="$root/summary.json" \
+            --file predictions.jsonl.gz="$root/model/predictions.jsonl.gz" \
+            --file anchor-router.txt="$root/model/anchor-router.txt" \
+            --file mainline-router.txt="$root/model/mainline-router.txt" \
+            --file cover-router.txt="$root/model/cover-router.txt" \
+            --file l15-role-router-v2.json="$root/l15-role-router-v2.json" \
+            --file l15-role-router-contract-v2.json="$root/l15-role-router-v2.json" \
+            --file source-datasets.txt="$root/source-datasets.txt" \
+            --out-root "$root/bundle"
+          python research/persist_research_bundle_v1.py "$root/bundle"
+
+      - name: Print result
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          s=json.load(open(f"out/l15-role-v2/{os.environ['TEST_YEAR']}/summary.json",encoding="utf-8"))
+          print("=== L1.5 ROLE ROUTER V2",os.environ["TEST_YEAR"],"===")
+          for role in ["ANCHOR","MAINLINE","COVER"]:
+              print(role,"MODEL",s["models"][role])
+              print(role,"ROUTING",s["routing_at_fixed_top_n"][role])
+              print(role,"FIXED",s["fixed_expert_at_fixed_top_n"][role])
+              print(role,"ORACLE",s["oracle_any_expert_at_fixed_top_n"][role])
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU."
+          echo "No GitHub Artifact/Cache."
+          echo "Kaggle preflight checked once before compute."
+          echo "2026 never read."
