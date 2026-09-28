@@ -1,0 +1,81 @@
+name: "research: validate complete L1.5 legacy frozen v1"
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - research/l15-legacy-frozen-v1-20260929
+    paths:
+      - .github/workflows/research-l15-legacy-frozen-v1.yml
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    name: validate-${{ matrix.role }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - role: ANCHOR
+            slug: anchor
+            dataset: pino1945/keiba-l15-council-router-v3-anchor
+            manifest: research/legacy_frozen/l15_legacy_frozen_v1_anchor.json
+          - role: MAINLINE
+            slug: mainline
+            dataset: pino1945/keiba-l15-council-router-v3-mainline
+            manifest: research/legacy_frozen/l15_legacy_frozen_v1_mainline.json
+          - role: COVER
+            slug: cover
+            dataset: pino1945/keiba-l15-council-router-v3-cover
+            manifest: research/legacy_frozen/l15_legacy_frozen_v1_cover.json
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      FROZEN_DATASET: ${{ matrix.dataset }}
+      MANIFEST: ${{ matrix.manifest }}
+      ROLE_SLUG: ${{ matrix.slug }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cost guard
+        run: |
+          set -euo pipefail
+          echo "standard_cpu_runner=ubuntu-latest"
+          echo "new_paid_storage=disabled"
+          echo "artifact_upload=disabled"
+          echo "cache_upload=disabled"
+          echo "dataset_upload=disabled"
+          echo "model_upload=disabled"
+
+      - name: Syntax and manifest checks
+        run: |
+          set -euo pipefail
+          python -m py_compile research/verify_l15_legacy_frozen_role_v1.py
+          python -m json.tool "$MANIFEST" >/dev/null
+          python -m json.tool research/legacy_frozen/l15_legacy_frozen_v1_index.json >/dev/null
+
+      - name: Install Kaggle client
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore frozen historical output
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}" || { echo "::error::KAGGLE_API_TOKEN is not configured"; exit 1; }
+          out="out/legacy-frozen-$ROLE_SLUG"
+          mkdir -p "$out"
+          kaggle datasets download "$FROZEN_DATASET"             -p "$out"             --unzip --quiet --force
+          summary="$(find "$out" -type f -name summary.json -print -quit)"
+          test -n "$summary" || { echo "::error::summary.json not found in frozen dataset"; exit 1; }
+          echo "summary=$summary" >> "$GITHUB_ENV"
+
+      - name: Verify frozen baseline
+        run: |
+          set -euo pipefail
+          python research/verify_l15_legacy_frozen_role_v1.py             --summary "$summary"             --manifest "$MANIFEST"
