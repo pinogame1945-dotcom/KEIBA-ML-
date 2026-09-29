@@ -1,0 +1,51 @@
+{
+  "contract": "L2_WIN_CALIBRATION_AUDIT_RESULT_V1",
+  "source_router_run": 36511322402,
+  "source_win_edge_run": 36519899646,
+  "analysis_years": [
+    2024,
+    2025
+  ],
+  "selected_win_races": 1255,
+  "candidate_ticket_rows": 8922,
+  "phit_market_features": false,
+  "market_probability_normalization": "(1/odds) / sum_all_field(1/odds)",
+  "edge_formula": "predicted_probability * decimal_odds - 1",
+  "blend_grid": [
+    0.0,
+    0.25,
+    0.5,
+    0.75,
+    1.0
+  ],
+  "yearly": [
+    {
+      "year": 2024,
+      "rows": 4011,
+      "wins": 439,
+      "actual_win_rate_pct": 10.944901520817751,
+      "mean_model_p_pct": 11.562301409192255,
+      "mean_market_norm_p_pct": 11.019122387333253,
+      "model_brier": 0.09295993228949817,
+      "market_brier": 0.08565301914923487,
+      "model_logloss": 0.3215227291981845,
+      "market_logloss": 0.29300677897234256
+    },
+    {
+      "year": 2025,
+      "rows": 4911,
+      "wins": 560,
+      "actual_win_rate_pct": 11.402972917939321,
+      "mean_model_p_pct": 11.576340491840524,
+      "mean_market_norm_p_pct": 11.154764546384786,
+      "model_brier": 0.09625030035778392,
+      "market_brier": 0.09075554414586368,
+      "model_logloss": 0.3320956641633806,
+      "market_logloss": 0.3100629200340622
+    }
+  ],
+  "2025_is_holdout": false,
+  "2026_locked": true,
+  "production_promotion": false,
+  "interpretation_guard": "Calibration/blend results are development diagnostics on already-observed 2024-2025; they do not authorize a production rule."
+}
