@@ -1,0 +1,36 @@
+{
+  "contract": "L21_MARKET_GAP_RESULT_V1",
+  "upstream": "L15_FIXED_V1",
+  "expected_races": 13824,
+  "market_eligible_races": 13821,
+  "excluded_races": 3,
+  "gate_alerts": 1384,
+  "development_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_tuning": false,
+  "ai_uses_odds": false,
+  "market_price": "historical final WIN odds",
+  "market_rank": "ascending final win odds; ties by horse_number",
+  "normalized_market_probability": "(1/odds) / sum(1/odds) within race",
+  "locked_years": [
+    2026
+  ],
+  "coverage": {
+    "races_processed": 13821,
+    "market_lt3": 3
+  },
+  "outputs": [
+    "overview.csv",
+    "ai-top1-market-rank.csv",
+    "market-favorite-ai-rank.csv",
+    "rank-gap.csv",
+    "signals.csv",
+    "k2-novel-market-rank.csv",
+    "race-summary.csv",
+    "excluded-races.csv"
+  ]
+}
