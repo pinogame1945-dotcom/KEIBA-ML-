@@ -4,7 +4,7 @@ from pathlib import Path
 from collections import defaultdict
 
 CANDS=["outsider_daytrend","outsider_raceshape","outsider_gatecourse","outsider_field","outsider_jockey"]
-NS=[5,6]
+NS=[3,4,5,6]
 A3=[0.0,0.5,1.0,1.5,2.0,3.0]
 B6=[0.0,0.25,0.5,1.0,1.5]
 PROMOTE_MIN=[0,2,3]
