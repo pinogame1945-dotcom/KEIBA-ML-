@@ -1,0 +1,12 @@
+launch=2026-09-29T13:20:00+09:00
+experiment=L2-WIN-CALIBRATION-AUDIT-V1
+source_router_run=36511322402
+source_win_edge_run=36519899646
+analysis_years=2024,2025
+market_probability=normalized-full-field-win-odds
+blend_grid=0,0.25,0.5,0.75,1
+locked_year=2026
+runner=ubuntu-latest
+gpu=false
+artifact_cache=false
+production_promotion=false
