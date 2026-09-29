@@ -1,0 +1,98 @@
+name: Rank Tie-Safe CI V1
+
+on:
+  push:
+    branches:
+      - research/rank-tie-safe-v1-20260929
+    paths:
+      - .github/triggers/rank-tie-safe-ci-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: rank-tie-safe-ci-v1
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/rank_utils.py             research/test_rank_utils_v1.py             research/rerank_l1_score_v1.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/build_l1_nonhorse_dataset_v1.py             research/run_l1_outsider_year_lane_v2.py             research/aggregate_tiesafe_outsider_union_v1.py
+
+      - name: Unit tests
+        run: |
+          set -euo pipefail
+          python research/test_rank_utils_v1.py
+
+      - name: Persisted-score shuffle regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out
+          python - <<'PY'
+          import gzip,json,random
+          rows=[]
+          for hid,score,old_rank in [
+              ("H01",0.9,1),("H02",0.8,2),("H03",0.8,3),("H04",0.7,4),
+              ("H05",0.6,5),("H06",0.5,6),("H07",0.5,7),("H08",0.4,8),
+          ]:
+              rows.append({
+                  "contract":"L1_TO_L2_OUTPUT_CONTRACT_V1",
+                  "race_id":"R1","horse_id":hid,"predicted_rank":old_rank,
+                  "raw_margin_logit":score,"raw_win_probability":score,
+                  "race_summary":{}
+              })
+          with gzip.open("out/a.jsonl.gz","wt",encoding="utf-8") as f:
+              for x in rows: f.write(json.dumps(x,separators=(",",":"))+"\n")
+          random.Random(1945).shuffle(rows)
+          with gzip.open("out/b.jsonl.gz","wt",encoding="utf-8") as f:
+              for x in rows: f.write(json.dumps(x,separators=(",",":"))+"\n")
+          PY
+          python research/rerank_l1_score_v1.py --input out/a.jsonl.gz --output out/a-safe.jsonl.gz --summary out/a-summary.json
+          python research/rerank_l1_score_v1.py --input out/b.jsonl.gz --output out/b-safe.jsonl.gz --summary out/b-summary.json
+          python - <<'PY'
+          import gzip,json
+          def load(p):
+              with gzip.open(p,"rt",encoding="utf-8") as f:
+                  return [(x["horse_id"],x["predicted_rank"]) for x in map(json.loads,f) if x]
+          a=load("out/a-safe.jsonl.gz")
+          b=load("out/b-safe.jsonl.gz")
+          assert a==b,(a,b)
+          assert dict(a)["H06"]==6
+          assert dict(a)["H07"]==7
+          print("TIE_SAFE_SHUFFLE_REGRESSION_OK",a)
+          PY
+
+      - name: Guard central consumers
+        run: |
+          set -euo pipefail
+          grep -q "deterministic_ranks" research/train-staged-lightgbm.py
+          grep -q "deterministic_ranks" research/emit_l1_to_l2.py
+          if grep -q 'rank(method="first"' research/train-staged-lightgbm.py; then
+            echo "::error::unsafe pandas first tie-break remains"
+            exit 1
+          fi
+          if grep -q 'argsort(-probabilities.*kind="stable"' research/emit_l1_to_l2.py; then
+            echo "::error::unsafe stable input-order tie-break remains"
+            exit 1
+          fi
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner. No Kaggle access."
+          echo "No Artifact/Cache."
+          echo "No persistent model/dataset output."
