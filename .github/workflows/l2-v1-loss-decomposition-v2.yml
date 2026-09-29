@@ -1,0 +1,166 @@
+name: L2 V1 Loss Decomposition V2
+
+on:
+  push:
+    branches:
+      - research/l2-v1-loss-decomposition-v2-20260929
+    paths:
+      - .github/triggers/l2-v1-loss-decomposition-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-v1-loss-decomposition-v2
+  cancel-in-progress: true
+
+jobs:
+  v1-loss-decomposition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      FIXED_LEDGER_DIR: research-results/l15-fixed-v1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/build_l2_bet_kings_dataset_v1.py             research/run_l2_normal_router_v1.py             research/run_l2_normal_loss_anatomy_v1.py             research/run_l2_v1_loss_decomposition_v2.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-v1-loss-decomposition-v2.json",encoding="utf-8"))
+          assert c["contract"]=="L2_V1_LOSS_DECOMPOSITION_V2"
+          assert c["upstream"]["l15_sha"]=="2db82c3ca3cfab6cf35c33cdf7a70d9972eced04"
+          assert c["scope"]["battlefield"]=="PASS_SEVEN_ONLY"
+          assert c["scope"]["analysis_years"]==[2023,2024,2025]
+          assert c["scope"]["locked_years"]==[2026]
+          assert c["scope"]["race_filtering"] is False
+          assert c["scope"]["all_normal_races_used"] is True
+          assert c["scope"]["selected_architecture"]=="DIRECT_TEMPLATE"
+          assert c["hindsight"]["permitted_as_prediction_features"] is False
+          assert c["guards"]["reproduce_v1_roi"] is True
+          assert c["promotion"] is False
+          s=Path("research/run_l2_v1_loss_decomposition_v2.py").read_text()
+          for token in (
+              "L1_CANDIDATE_IMPOSSIBLE",
+              "L2_ROUTING_MISS_SAME_BET",
+              "L2_ROUTING_MISS_CROSS_BET",
+              "L2_ROLE_TEMPLATE_MISS",
+              "L2_HIT_BUT_PRICE_POINTS_LOSS",
+              "V1 ROI reproduction drift",
+          ):
+              assert token in s
+          p=Path(".github/workflows/l2-v1-loss-decomposition-v2.yml")
+          lines=p.read_text().splitlines()
+          runners=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"], runners
+          uses=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("uses:")]
+          forbidden=[u for u in uses if u.startswith("actions/cache") or u.startswith("actions/upload-artifact")]
+          assert not forbidden, forbidden
+          print("L2_V1_LOSS_DECOMPOSITION_V2_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2022-2025 seven-king routers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/l2-v1-loss-decomp/router
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-v1-loss-decomp/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve race dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-v1-loss-decomp
+          python research/extract_l2_bet_kings_dates_v1.py             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --dates-out out/l2-v1-loss-decomp/all-dates.txt             --race-dates-out out/l2-v1-loss-decomp/all-race-dates.csv
+
+      - name: Sparse restore race and market packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout             https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            echo "/data/odds/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-v1-loss-decomp/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build deterministic ticket dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/l2-v1-loss-decomp/dataset
+          python research/build_l2_bet_kings_dataset_v1.py             --fixed-ledger-dir "$FIXED_LEDGER_DIR"             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --backfill-root out/backfill             --out-dir out/l2-v1-loss-decomp/dataset
+
+      - name: Run V1 loss decomposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-v1-loss-decomposition-v2/run-$GITHUB_RUN_ID"
+          python research/run_l2_v1_loss_decomposition_v2.py             --contract contracts/l2-v1-loss-decomposition-v2.json             --fixed-ledger-dir "$FIXED_LEDGER_DIR"             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --dataset-dir out/l2-v1-loss-decomp/dataset             --backfill-root out/backfill             --v1-metrics research-results/l2-normal-router-v1/run-36528381682/router-metrics.csv             --out-dir "$result"
+          echo "===== V1 REPRODUCTION ====="
+          cat "$result/v1-reproduction.csv"
+          echo "===== PERIOD SUMMARY ====="
+          cat "$result/period-summary.csv"
+          echo "===== 2024-2025 PRIORITY ====="
+          cat "$result/priority-2024-2025.csv"
+          echo "===== BET TYPE SUMMARY ====="
+          cat "$result/bet-type-summary.csv"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache and no upload-artifact."
+          echo "Kaggle router datasets are read-only."
+          echo "BACKFILL is sparse-cloned read-only at a pinned commit."
+          echo "Large ticket datasets stay ephemeral on the runner."
+          echo "Only compact diagnostic results and compressed race decomposition are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-v1-loss-decomposition-v2/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add             "$result/README.md"             "$result/summary.json"             "$result/v1-reproduction.csv"             "$result/period-summary.csv"             "$result/root-cause-summary.csv"             "$result/bet-type-summary.csv"             "$result/routing-transitions.csv"             "$result/priority-2024-2025.csv"             "$result/race-decomposition.csv.gz"
+          git commit -m "research: archive V1 loss decomposition v2 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
