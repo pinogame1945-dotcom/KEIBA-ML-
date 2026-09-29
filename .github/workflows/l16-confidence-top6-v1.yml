@@ -1,0 +1,46 @@
+name: L1.6 Confidence Top6 OOS V1
+
+on:
+  push:
+    branches:
+      - research/l16-confidence-top6-v1-20260929
+    paths:
+      - .github/triggers/l16-confidence-top6-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  top6:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CONF_ROWS_RUN_ID: "36568903779"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Evaluate fixed Top6
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check scikit-learn
+          inroot="research-results/l16-outsider-confidence-v1/run-$CONF_ROWS_RUN_ID"
+          outroot="research-results/l16-confidence-top6-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$outroot"
+          python research/analyze_l16_confidence_top6_v1.py             --inputs "$inroot/y2022-rows.csv.gz,$inroot/y2023-rows.csv.gz,$inroot/y2024-rows.csv.gz,$inroot/y2025-rows.csv.gz"             --output "$outroot/summary.json"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$outroot/summary.json"
+          git commit -m "research: fixed Top6 confidence OOS run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only; no GPU, paid runner, Artifact or Cache."
