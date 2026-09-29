@@ -1,0 +1,161 @@
+name: L2.1 K2 Novel Decomposition V1
+
+on:
+  push:
+    branches:
+      - research/l21-k2-novel-decomp-v1-20260929
+    paths:
+      - .github/triggers/l21-k2-novel-decomp-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l21-k2-novel-decomp-v1
+  cancel-in-progress: true
+
+jobs:
+  decompose:
+    name: k2-novel-profit-decomposition
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      FIXED_LEDGER_DIR: research-results/l15-fixed-v1
+      CANDIDATE_ROOT: research-results/l15-candidate-inflation-v1/run-36452274400
+      MARKET_GAP_RACE_SUMMARY: research-results/l21-market-gap-v1/run-36508670081/race-summary.csv
+
+    steps:
+      - name: Checkout decomposition branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Contract syntax and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l21_k2_novel_decomp_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("contracts/l21-k2-novel-decomp-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L21_K2_NOVEL_DECOMP_V1"
+          assert c["upstream"]["l15_contract"]=="L15_FIXED_V1"
+          assert c["scope"]["expected_novel_horses"]==5577
+          assert c["scope"]["development_years"]==[2022,2023,2024]
+          assert c["scope"]["holdout_year"]==2025
+          assert c["scope"]["locked_years"]==[2026]
+          assert c["claim_discipline"]["tuning"] is False
+          assert c["cost"]["kaggle_restore"] is False
+          print("L21_K2_NOVEL_DECOMP_CONTRACT_OK")
+          PY
+          if grep -E "uses:[[:space:]]*actions/(upload-artifact|cache)" .github/workflows/l21-k2-novel-decomp-v1.yml; then
+            echo "Artifact/Cache use is forbidden" >&2
+            exit 1
+          fi
+
+      - name: Resolve Gate alert dates from archived Market Gap ledger
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/k2-novel-decomp
+          python - <<'PY'
+          import csv, json
+          from pathlib import Path
+          src=Path("research-results/l21-market-gap-v1/run-36508670081/race-summary.csv")
+          dates=set()
+          races=0
+          with open(src,newline="",encoding="utf-8-sig") as fh:
+              for row in csv.DictReader(fh):
+                  if str(row.get("gate_alert") or "").strip().lower()=="true":
+                      dates.add(row["race_date"])
+                      races+=1
+          if races != 1384:
+              raise SystemExit(f"Gate race count regression: {races} != 1384")
+          Path("out/k2-novel-decomp/alert-dates.txt").write_text(
+              "\n".join(sorted(dates))+"\n",encoding="utf-8"
+          )
+          print(json.dumps({"gate_races":races,"unique_dates":len(dates)},ensure_ascii=False))
+          PY
+
+      - name: Sparse restore required BACKFILL market packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone \
+            --depth 1 \
+            --filter=blob:none \
+            --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            echo "/data/odds/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/k2-novel-decomp/alert-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "BACKFILL_FILES=$(find out/backfill/data -type f | wc -l)"
+
+      - name: Decompose K2 novel profit
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l21-k2-novel-decomp-v1/run-$GITHUB_RUN_ID"
+          python research/run_l21_k2_novel_decomp_v1.py \
+            --contract contracts/l21-k2-novel-decomp-v1.json \
+            --fixed-ledger-dir "$FIXED_LEDGER_DIR" \
+            --candidate-root "$CANDIDATE_ROOT" \
+            --race-summary "$MARKET_GAP_RACE_SUMMARY" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== CONCENTRATION ====="
+          cat "$result/concentration.csv"
+
+      - name: Research cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "No Kaggle restore or write."
+          echo "BACKFILL is sparse-cloned read-only at a pinned commit."
+          echo "Only compact CSV/JSON/README research ledgers are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact K2 novel decomposition ledger
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l21-k2-novel-decomp-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/novel-ledger.csv" \
+            "$result/bucket-summary.csv" \
+            "$result/outsider-source-set.csv" \
+            "$result/outsider-label-fractional.csv" \
+            "$result/concentration.csv" \
+            "$result/jackpot-winners.csv"
+          git commit -m "research: archive K2 novel decomposition run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
