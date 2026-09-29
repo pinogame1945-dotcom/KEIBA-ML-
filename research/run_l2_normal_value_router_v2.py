@@ -84,13 +84,15 @@ def load_normal_universe(router_paths,fixed_dir):
 
 def prepare_template_df(path,template,bet_type):
     df=load_template(path)
-    df=df[(df["year"].isin(ANALYSIS_YEARS)) & (df["gate_alert"].astype(int)==0)].copy()
-    if "ticket_novel_count" in df.columns and int(pd.to_numeric(df["ticket_novel_count"],errors="coerce").fillna(0).sum())!=0:
-        raise SystemExit(f"novel leakage template={template}")
     if set(df["template"].astype(str).unique())!={template}:
         raise SystemExit(f"template contamination {template}")
     if set(df["bet_type"].astype(str).unique())!={bet_type}:
         raise SystemExit(f"bet type contamination {template}")
+    df=df[(df["year"].isin(ANALYSIS_YEARS)) & (df["gate_alert"].astype(int)==0)].copy()
+    if df.empty:
+        return df
+    if "ticket_novel_count" in df.columns and int(pd.to_numeric(df["ticket_novel_count"],errors="coerce").fillna(0).sum())!=0:
+        raise SystemExit(f"novel leakage template={template}")
     df["hit"]=df["hit"].astype(bool)
     df["odds"]=pd.to_numeric(df["odds"],errors="coerce")
     df["return_yen_per100"]=pd.to_numeric(df["return_yen_per100"],errors="coerce").fillna(0.0)
@@ -118,6 +120,9 @@ def train_template_folds(dataset_dir):
             raise SystemExit(f"missing template {template}")
         bet=info["bet_type"]
         df=prepare_template_df(root/info["file"],template,bet)
+        # Novel-only templates are unavailable in PASS_SEVEN_ONLY races by construction.
+        if df.empty:
+            continue
         cols=feature_columns(df)
         if any(tok in c.lower() for c in cols for tok in ("odds","payout","return","profit","roi","hit","winner","finish","popularity")):
             raise SystemExit(f"forbidden feature in {template}: {cols}")
