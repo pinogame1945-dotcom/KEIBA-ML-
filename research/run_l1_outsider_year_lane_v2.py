@@ -22,6 +22,7 @@ def parse_args():
     p.add_argument("--router-seven", required=True)
     p.add_argument("--horse-config", default="research/l1-outsider-arena-v1.json")
     p.add_argument("--nonhorse-config", default="research/l1-outsider-nonhorse-v1.json")
+    p.add_argument("--transition-config", default="research/l1-outsider-transition-v1.json")
     p.add_argument("--out-root", default="out/outsider-year-lane-v2")
     p.add_argument("--ml-source-sha", default="")
     p.add_argument("--only-candidates", default="", help="Comma-separated candidate names; empty means all")
@@ -47,11 +48,11 @@ def open_first_row(path):
     raise RuntimeError(f"empty snapshot: {p}")
 
 
-def validate_contract(args, horse_cfg, nonhorse_cfg):
+def validate_contract(args, horse_cfg, nonhorse_cfg, transition_cfg):
     year = args.year
-    if year >= LOCKED_YEAR or year not in horse_cfg["validation_years"] or year not in nonhorse_cfg["validation_years"]:
+    if year >= LOCKED_YEAR or any(year not in cfg["validation_years"] for cfg in (horse_cfg, nonhorse_cfg, transition_cfg)):
         raise RuntimeError(f"invalid/locked validation year: {year}")
-    for cfg in (horse_cfg, nonhorse_cfg):
+    for cfg in (horse_cfg, nonhorse_cfg, transition_cfg):
         if cfg["snapshot_generation"] != EXPECTED_GENERATION:
             raise RuntimeError("snapshot generation mismatch")
         if cfg["training_window_years"] != 2:
@@ -306,7 +307,8 @@ def main():
     args = parse_args()
     horse_cfg = json.loads((ROOT / args.horse_config).read_text(encoding="utf-8"))
     nonhorse_cfg = json.loads((ROOT / args.nonhorse_config).read_text(encoding="utf-8"))
-    inputs, valid_snapshot, router = validate_contract(args, horse_cfg, nonhorse_cfg)
+    transition_cfg = json.loads((ROOT / args.transition_config).read_text(encoding="utf-8"))
+    inputs, valid_snapshot, router = validate_contract(args, horse_cfg, nonhorse_cfg, transition_cfg)
 
     gate_ids = load_gate_race_ids(args.gate_race_ids) if args.gate_race_ids else set()
     if bool(args.top6_output) != bool(gate_ids):
@@ -319,6 +321,7 @@ def main():
     candidates = (
         [("horse", x) for x in horse_cfg["candidates"]]
         + [("nonhorse", x) for x in nonhorse_cfg["candidates"]]
+        + [("transition", x) for x in transition_cfg["candidates"]]
     )
     only = {x.strip() for x in args.only_candidates.split(",") if x.strip()}
     if only:
