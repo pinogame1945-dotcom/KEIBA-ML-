@@ -1,0 +1,51 @@
+{
+  "contract": "L17_SEVEN_KING_FULLFIELD_V1",
+  "status": "DRAFT",
+  "version": "1.0.0",
+  "purpose": "Independent full-field diagnostic layer built only from the seven persisted L1 expert horse-level scores.",
+  "architecture": {
+    "expert_count": 7,
+    "input_contract": "L1_TO_L2_OUTPUT_CONTRACT_V1",
+    "output_contract": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+    "odds_used": false,
+    "popularity_used": false,
+    "payout_used": false,
+    "result_labels_used": false,
+    "gate_used": false,
+    "outsiders_used": false,
+    "ranking": "For each expert, rank by raw_margin_logit desc, then horse_number asc when present, then horse_id asc. Aggregate horses by mean rank asc, Top6 support desc, Top3 support desc, Top1 votes desc, mean normalized probability desc, horse_number asc, horse_id asc."
+  },
+  "output_fields": [
+    "year",
+    "race_id",
+    "field_size",
+    "expert_count",
+    "consensus_order",
+    "horses"
+  ],
+  "horse_fields": [
+    "horse_id",
+    "horse_number",
+    "consensus_rank",
+    "mean_rank",
+    "rank_std",
+    "best_rank",
+    "worst_rank",
+    "top1_votes",
+    "top3_support",
+    "top6_support",
+    "mean_probability",
+    "probability_std",
+    "experts"
+  ],
+  "rules": [
+    "L1.7 is diagnostic only and does not alter L1.5.",
+    "No Gate or Outsider logic is allowed in L1.7.",
+    "No odds, popularity, payout, ROI or post-race result labels are allowed.",
+    "Input row order must not affect expert or consensus ranking.",
+    "2026 remains sealed for historical model-selection research."
+  ],
+  "locked_years": [
+    2026
+  ]
+}
