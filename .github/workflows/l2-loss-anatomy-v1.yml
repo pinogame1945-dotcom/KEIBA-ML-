@@ -1,0 +1,168 @@
+name: L2 Loss Anatomy V1
+
+on:
+  push:
+    branches:
+      - research/l2-loss-anatomy-v1-20260929
+    paths:
+      - .github/triggers/l2-loss-anatomy-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-loss-anatomy-v1
+  cancel-in-progress: true
+
+jobs:
+  loss-anatomy:
+    name: fast-loss-anatomy
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      FIXED_LEDGER_DIR: research-results/l15-fixed-v1
+      SELECTIONS: research-results/l2-router-arena-v1/run-36511322402/router-selections.csv
+
+    steps:
+      - name: Checkout loss anatomy branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fast path and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_loss_anatomy_v1.py
+          test -s "$SELECTIONS"
+          test -s "$FIXED_LEDGER_DIR/y2024.jsonl"
+          test -s "$FIXED_LEDGER_DIR/y2025.jsonl"
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path(".github/workflows/l2-loss-anatomy-v1.yml").read_text(encoding="utf-8").splitlines()
+          runners=[line.strip().split(":",1)[1].strip() for line in lines if line.strip().startswith("runs-on:")]
+          if runners != ["ubuntu-latest"]:
+              raise SystemExit(f"Non-standard runner guard: {runners}")
+          text="\n".join(lines)
+          if "actions/upload-artifact" in text or "actions/cache" in text:
+              raise SystemExit("Artifact/Cache forbidden")
+          print("FAST_PATH_OK no P(hit) retraining, no Router rerun, standard CPU only")
+          PY
+
+      - name: Install Kaggle client only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore only 2024-2025 seven-king routers
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2024,2025" out/l2-loss/router
+          for y in 2024 2025; do
+            p="$(find "out/l2-loss/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Extract only selected race dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-loss
+          python - <<'PY'
+          import csv
+          from pathlib import Path
+          dates=set()
+          races=set()
+          with open("research-results/l2-router-arena-v1/run-36511322402/router-selections.csv",newline="",encoding="utf-8-sig") as fh:
+              for r in csv.DictReader(fh):
+                  if int(float(r["test_year"])) not in (2024,2025):
+                      continue
+                  dates.add(r["race_date"][:10])
+                  races.add(r["race_id"])
+          Path("out/l2-loss/selected-dates.txt").write_text("\n".join(sorted(dates))+"\n",encoding="utf-8")
+          print(f"SELECTED_RACES={len(races)} SELECTED_DATES={len(dates)}")
+          PY
+
+      - name: Sparse restore selected result days only
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone \
+            --depth 1 \
+            --filter=blob:none \
+            --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+            done < out/l2-loss/selected-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run fast loss anatomy
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-loss-anatomy-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_loss_anatomy_v1.py \
+            --selections "$SELECTIONS" \
+            --fixed-ledger-dir "$FIXED_LEDGER_DIR" \
+            --router-year "2024:$ROUTER_2024" \
+            --router-year "2025:$ROUTER_2025" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== LOSS CAUSES ====="
+          cat "$result/loss-causes.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No Artifact / Cache."
+          echo "No P(hit) retraining."
+          echo "No Router rerun."
+          echo "Only 2024-2025 router inputs are restored."
+          echo "Only selected result dates are sparse-cloned."
+          echo "2026 remains sealed."
+
+      - name: Commit compact loss audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-loss-anatomy-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/loss-causes.csv" \
+            "$result/loss-causes-by-bet-type.csv" \
+            "$result/candidate-podium-coverage.csv" \
+            "$result/race-diagnostics.csv.gz"
+          git commit -m "research: archive L2 loss anatomy run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
