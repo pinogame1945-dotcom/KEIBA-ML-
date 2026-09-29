@@ -1,0 +1,250 @@
+{
+  "contract": "L2_CANDIDATE_PROFIT_V1",
+  "policies": [
+    "BASE",
+    "FULL_K2",
+    "FULL_K3"
+  ],
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "training_rule": "walk-forward; each test year uses only prior years",
+  "calibration_rule": "last 20% of prior training races by date reserved for sigmoid calibration",
+  "ticket_stake_yen": 100,
+  "market_input": "historical final odds",
+  "market_caveat": "FINAL_ODDS_PROXY is valid for historical comparison but is not yet a live timestamp execution simulation",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "place_bets": false,
+  "wide_bets": false,
+  "filters": {
+    "ALL": null,
+    "EDGE_GT_0": 0.0,
+    "EDGE_GT_005": 0.05,
+    "EDGE_GT_010": 0.1
+  },
+  "segments": [
+    "ALL_ALERTS",
+    "TRUE_BLIND",
+    "FALSE_ALERT"
+  ],
+  "ability_uses_odds": false,
+  "l2_uses_odds": true,
+  "locked_years": [
+    2026
+  ],
+  "folds": [
+    {
+      "policy": "BASE",
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ],
+      "fit_races": 276,
+      "calibration_races": 70,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 0.7480401581675773,
+        "intercept": -0.706023667956003
+      }
+    },
+    {
+      "policy": "BASE",
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ],
+      "fit_races": 553,
+      "calibration_races": 139,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 1.0571359145882733,
+        "intercept": 0.16844947390414028
+      }
+    },
+    {
+      "policy": "BASE",
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ],
+      "fit_races": 830,
+      "calibration_races": 208,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 0.9627316296351969,
+        "intercept": 0.009156777289003524
+      }
+    },
+    {
+      "policy": "FULL_K2",
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ],
+      "fit_races": 276,
+      "calibration_races": 70,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 0.770050009131926,
+        "intercept": -0.6885229566563202
+      }
+    },
+    {
+      "policy": "FULL_K2",
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ],
+      "fit_races": 553,
+      "calibration_races": 139,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 1.1247350222482888,
+        "intercept": 0.5028811609049392
+      }
+    },
+    {
+      "policy": "FULL_K2",
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ],
+      "fit_races": 830,
+      "calibration_races": 208,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 1.1057241940808233,
+        "intercept": 0.4661562925845364
+      }
+    },
+    {
+      "policy": "FULL_K3",
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ],
+      "fit_races": 276,
+      "calibration_races": 70,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 0.7515325806932706,
+        "intercept": -0.779331913869582
+      }
+    },
+    {
+      "policy": "FULL_K3",
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ],
+      "fit_races": 553,
+      "calibration_races": 139,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 1.0337213552711755,
+        "intercept": 0.19555938187933283
+      }
+    },
+    {
+      "policy": "FULL_K3",
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ],
+      "fit_races": 830,
+      "calibration_races": 208,
+      "test_races": 346,
+      "calibration": {
+        "mode": "sigmoid",
+        "coef": 1.0328307571323658,
+        "intercept": 0.18202993151125585
+      }
+    }
+  ],
+  "coverage": {
+    "contract": "L2_CANDIDATE_PROFIT_DATASET_V1",
+    "gate_alerts": 1384,
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "policies": [
+      "BASE",
+      "FULL_K2",
+      "FULL_K3"
+    ],
+    "strategies": [
+      "WIN_CORE2",
+      "QUINELLA_AXIS1",
+      "EXACTA_MULTI1",
+      "TRIO_AXIS12",
+      "TRIO_AXIS1",
+      "TRIFECTA_MULTI12"
+    ],
+    "backfill_race_packs": 1384,
+    "historical_odds_races": 1384,
+    "missing_odds_races": 0,
+    "missing_odds_race_ids": [],
+    "missing_day_files": [],
+    "missing_odds_day_files": [],
+    "generated_tickets_by_policy": {
+      "BASE": 110326,
+      "FULL_K2": 211915,
+      "FULL_K3": 243326
+    },
+    "priced_tickets_by_policy": {
+      "BASE": 102633,
+      "FULL_K2": 170323,
+      "FULL_K3": 188611
+    },
+    "races_by_policy": {
+      "BASE": 1384,
+      "FULL_K2": 1384,
+      "FULL_K3": 1384
+    },
+    "payout_type_missing_counts": {},
+    "counters": {
+      "priced_rows": 461567,
+      "missing_odds_TRIFECTA": 65400,
+      "missing_odds_TRIO": 35495,
+      "missing_odds_EXACTA": 2824,
+      "hit_rows": 6597,
+      "missing_odds_QUINELLA": 281
+    },
+    "ability_uses_odds": false,
+    "l2_uses_final_odds": true,
+    "odds_timestamp_policy": "FINAL_ODDS_PROXY",
+    "locked_years": [
+      2026
+    ],
+    "place_bets_included": false,
+    "wide_bets_included": false
+  }
+}
