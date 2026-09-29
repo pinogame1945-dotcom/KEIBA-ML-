@@ -1,0 +1,287 @@
+name: L1.6 Outsider Rescue Matrix V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-rescue-matrix-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-rescue-matrix-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-rescue-matrix-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    name: rescue-matrix-y${{ matrix.test_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - test_year: 2022
+            delay_seconds: 0
+          - test_year: 2023
+            delay_seconds: 25
+          - test_year: 2024
+            delay_seconds: 50
+          - test_year: 2025
+            delay_seconds: 75
+
+    env:
+      TEST_YEAR: ${{ matrix.test_year }}
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/materialize_l16_full_rank_consensus_v1.py             research/analyze_l16_outsider_rescue_matrix_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Stagger restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+
+      - name: Restore one year scores and truth read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="$TEST_YEAR"
+          mkdir -p "out/l16-rescue/snapshot" "out/l16-rescue/scores/$y"
+
+          retry_file() {
+            local ref="$1" remote="$2" dst="$3"
+            local attempt delay tmp p
+            tmp="$dst.tmpdir"
+            for attempt in 1 2 3 4 5 6; do
+              rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                p="$(find "$tmp" -type f ! -name log -print -quit)"
+                if [[ -n "$p" && -s "$p" ]]; then
+                  mkdir -p "$(dirname "$dst")"
+                  cp "$p" "$dst"
+                  rm -rf "$tmp"
+                  return 0
+                fi
+              fi
+              cat "$tmp/log" >&2 || true
+              if grep -Eqi '404|not found' "$tmp/log"; then
+                rm -rf "$tmp"
+                return 44
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                rm -rf "$tmp"
+                return 1
+              fi
+              case "$attempt" in
+                1) delay=10 ;;
+                2) delay=20 ;;
+                3) delay=40 ;;
+                4) delay=60 ;;
+                *) delay=90 ;;
+              esac
+              sleep "$delay"
+            done
+          }
+
+          restore_score() {
+            local ref="$1" dst="$2" rc
+            if retry_file "$ref" "score.jsonl.gz" "$dst/score.jsonl.gz"; then
+              test -s "$dst/score.jsonl.gz"
+              return 0
+            else
+              rc=$?
+            fi
+            if [[ "$rc" -eq 44 ]]; then
+              if retry_file "$ref" "score.jsonl" "$dst/score.jsonl"; then
+                test -s "$dst/score.jsonl"
+                return 0
+              else
+                rc=$?
+                return "$rc"
+              fi
+            fi
+            return "$rc"
+          }
+
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/l16-rescue/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/l16-rescue/snapshot "$y"
+
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            dst="out/l16-rescue/scores/$y/$alias"
+            mkdir -p "$dst"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            restore_score "$ref" "$dst"
+            test -s "$dst/score.jsonl.gz" || test -s "$dst/score.jsonl"
+            sleep 2
+          done
+
+      - name: Materialize L1.6 and analyze outsider overlap
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="$TEST_YEAR"
+          out="research-results/l16-outsider-rescue-matrix-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$out" out/l16-rescue/consensus
+
+          score_path() {
+            local alias="$1"
+            if [[ -s "out/l16-rescue/scores/$y/$alias/score.jsonl.gz" ]]; then
+              echo "out/l16-rescue/scores/$y/$alias/score.jsonl.gz"
+            else
+              echo "out/l16-rescue/scores/$y/$alias/score.jsonl"
+            fi
+          }
+          if [[ -s "out/l16-rescue/snapshot/snapshot-$y.jsonl.gz" ]]; then
+            snap="out/l16-rescue/snapshot/snapshot-$y.jsonl.gz"
+          else
+            snap="out/l16-rescue/snapshot/snapshot-$y.jsonl"
+          fi
+          outsider="research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"
+          test -s "$outsider"
+
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/l16-rescue/consensus/l16-$y.jsonl.gz"
+
+          python research/analyze_l16_outsider_rescue_matrix_v1.py             --consensus "out/l16-rescue/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "$outsider"             --year "$y"             --output "$out/y$y.json"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Four standard ubuntu-latest CPU lanes maximum."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle read-only; no Dataset/Model creation or update."
+          echo "Only compact JSON summaries are committed."
+          echo "2026 locked. Odds/popularity/payout forbidden."
+
+      - name: Commit year result
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l16-outsider-rescue-matrix-v1/run-$GITHUB_RUN_ID/y$TEST_YEAR.json"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: L1.6 outsider rescue matrix y$TEST_YEAR run $GITHUB_RUN_ID"
+          for attempt in 1 2 3 4 5; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    name: aggregate-rescue-matrix
+    if: always()
+    needs: [year]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l16-outsider-rescue-matrix-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["ROOT"])
+          ys=[2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in ys}
+          cand_names=list(rows[2022]["candidates"])
+          races=sum(rows[y]["races"] for y in ys)
+          missed=sum(rows[y]["l16_top3_missed_podium_horse_occurrences"] for y in ys)
+          failr=sum(rows[y]["l16_top3_failure_races"] for y in ys)
+          l16hits=sum(rows[y]["l16_top3_full_hits"] for y in ys)
+          buckets={b:sum(rows[y]["missed_podium_l16_rank_buckets"][b] for y in ys) for b in ["4-6","7-10","11+","unranked"]}
+          out={
+            "contract":"L16_OUTSIDER_RESCUE_MATRIX_V1",
+            "years":ys,"locked_years":[2026],"races":races,
+            "l16_top3_full_hits":l16hits,
+            "l16_top3_full_rate":l16hits/races,
+            "l16_top3_failure_races":failr,
+            "l16_top3_missed_podium_horse_occurrences":missed,
+            "missed_podium_l16_rank_buckets":buckets,
+            "candidates":{},
+            "by_year":rows
+          }
+          for c in cand_names:
+            s={}
+            keys=[
+              "top3_rescued_occurrences","top6_rescued_occurrences",
+              "novel_top3_selections","novel_top3_true_podium",
+              "novel_top6_selections","novel_top6_true_podium",
+              "race_full_rescues_top3","race_full_rescues_top6",
+              "full_hits_after_top3","full_hits_after_top6"
+            ]
+            for k in keys:s[k]=sum(rows[y]["candidates"][c][k] for y in ys)
+            s["top3_rescue_rate_on_l16_missed_podium_occurrences"]=s["top3_rescued_occurrences"]/missed
+            s["top6_rescue_rate_on_l16_missed_podium_occurrences"]=s["top6_rescued_occurrences"]/missed
+            s["novel_top3_precision_for_actual_podium"]=s["novel_top3_true_podium"]/s["novel_top3_selections"] if s["novel_top3_selections"] else None
+            s["novel_top6_precision_for_actual_podium"]=s["novel_top6_true_podium"]/s["novel_top6_selections"] if s["novel_top6_selections"] else None
+            s["race_full_rescue_rate_on_l16_top3_failures_top3"]=s["race_full_rescues_top3"]/failr
+            s["race_full_rescue_rate_on_l16_top3_failures_top6"]=s["race_full_rescues_top6"]/failr
+            s["full_podium_rate_after_l16_top3_plus_outsider_top3"]=s["full_hits_after_top3"]/races
+            s["full_podium_rate_after_l16_top3_plus_outsider_top6"]=s["full_hits_after_top6"]/races
+            s["by_l16_rank_bucket"]={}
+            for b in buckets:
+              r3=sum(rows[y]["candidates"][c]["by_l16_rank_bucket"][b]["top3_rescued"] for y in ys)
+              r6=sum(rows[y]["candidates"][c]["by_l16_rank_bucket"][b]["top6_rescued"] for y in ys)
+              d=buckets[b]
+              s["by_l16_rank_bucket"][b]={
+                "denominator":d,"top3_rescued":r3,"top6_rescued":r6,
+                "top3_rescue_rate":r3/d if d else None,
+                "top6_rescue_rate":r6/d if d else None
+              }
+            out["candidates"][c]=s
+          ss={}
+          for k in ["all5_top3_union_avg","all5_top6_union_avg","l16_top3_plus_all5_top3_avg","l16_top3_plus_all5_top6_avg"]:
+            ss[k]=sum(rows[y]["selection_size"][k]*rows[y]["races"] for y in ys)/races
+          out["selection_size"]=ss
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Commit summary
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l16-outsider-rescue-matrix-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate L1.6 outsider rescue matrix run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
