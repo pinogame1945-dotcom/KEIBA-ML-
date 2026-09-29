@@ -43,8 +43,9 @@ jobs:
           from pathlib import Path
           wf=Path('.github/workflows/l2-danger-old-prefilter-audit-v1.yml').read_text()
           assert 'runs-on: ubuntu-latest' in wf
-          assert 'actions/cache' not in wf
-          assert 'actions/upload-artifact' not in wf
+          uses=[line.strip().split(':',1)[1].strip() for line in wf.splitlines() if line.strip().startswith('- uses:')]
+          forbidden=[u for u in uses if u.startswith('actions/cache') or u.startswith('actions/upload-artifact')]
+          assert not forbidden, forbidden
           src=Path('research/run_l2_danger_old_prefilter_audit_v1.py').read_text()
           assert 'YEARS=(2023,2024,2025)' in src
           assert 'LOCKED_YEARS=(2026,)' in src
