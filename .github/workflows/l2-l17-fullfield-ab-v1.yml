@@ -91,70 +91,23 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-
-          download_once_classified() {
-            local ref="$1" remote="$2" dest="$3" err
-            err="$(mktemp)"
-            rm -rf "$dest"; mkdir -p "$dest"
-            if kaggle datasets download "$ref" -f "$remote" -p "$dest" --unzip --quiet --force 2>"$err"; then
-              rm -f "$err"
-              return 0
-            fi
-            cat "$err" >&2 || true
-            if grep -Eqi '(^|[^0-9])404([^0-9]|$)|not[[:space:]]+found' "$err"; then
-              rm -f "$err"
-              return 44
-            fi
-            rm -f "$err"
-            return 1
-          }
-
-          retry_remote() {
-            local label="$1" ref="$2" remote="$3" dest="$4" attempt delay rc
-            for attempt in 1 2 3 4 5 6; do
-              if download_once_classified "$ref" "$remote" "$dest"; then
-                return 0
-              fi
-              rc=$?
-              if [[ "$rc" -eq 44 ]]; then
-                echo "::notice::Kaggle 404 label=$label remote=$remote; switching filename immediately" >&2
-                return 44
-              fi
-              if [[ "$attempt" -eq 6 ]]; then
-                echo "::error::Kaggle score restore failed label=$label after $attempt attempts" >&2
-                return 1
-              fi
-              case "$attempt" in
-                1) delay=15;; 2) delay=30;; 3) delay=60;; 4) delay=90;; *) delay=120;;
-              esac
-              echo "::warning::Kaggle retry label=$label attempt=$attempt/6 sleep=$delay" >&2
-              sleep "$delay"
-            done
-          }
+          session_script="scripts/kaggle-dataset-session-v2.sh"
+          test -s "$session_script"
 
           for y in 2022 2023 2024 2025; do
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/l17-ab/scores/$y/$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
 
-              # Current Kaggle score datasets may expose either the uncompressed
-              # remote filename or the original .gz filename. A 404 is a name
-              # mismatch, so switch immediately instead of sleeping/retrying it.
-              if retry_remote "score:$alias:$y:jsonl" "$ref" score.jsonl "$d"; then
-                :
-              else
-                rc=$?
-                if [[ "$rc" -eq 44 ]]; then
-                  retry_remote "score:$alias:$y:gz" "$ref" score.jsonl.gz "$d"
-                else
-                  exit "$rc"
-                fi
-              fi
+              # Metadata first: resolve the real remote name once, then download
+              # only that exact file. 404 after metadata is metadata drift and
+              # must fail instead of guessing alternate names.
+              bash "$session_script" init "$ref" "$d"
+              bash "$session_script" fetch "$d" score.jsonl
 
               p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
               test -n "$p"; test -s "$p"
               echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
-              sleep 2
             done
           done
 
