@@ -1,0 +1,310 @@
+{
+  "contract": "L2_DANGER_OLD_PREFILTER_AUDIT_V1",
+  "analysis_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "old_prefilter_definition": {
+    "unit": "K2 novel instance",
+    "requires_win_odds": true,
+    "requires_any_exacta_k2_first_price": true,
+    "requires_both_a1_a2_k2_and_a2_a1_k2_trifecta_prices": true,
+    "requires_exacta_and_trifecta_payout_types": true
+  },
+  "interpretation_guard": "This reconstructs and diagnoses the old market-completeness prefilter. Missingness itself is NOT promoted as a betting rule.",
+  "old_reconstruction": {
+    "2023": {
+      "year": 2023,
+      "old_eligible": 1,
+      "instances": 694,
+      "races": 293,
+      "stake_yen": 138800.0,
+      "return_yen": 213260.0,
+      "profit_yen": 74460.0,
+      "roi_pct": 153.64553314121036,
+      "hit_instances": 6,
+      "hit_rate_pct": 0.8645533141210374
+    },
+    "2024": {
+      "year": 2024,
+      "old_eligible": 1,
+      "instances": 737,
+      "races": 283,
+      "stake_yen": 147400.0,
+      "return_yen": 275020.0,
+      "profit_yen": 127620.0,
+      "roi_pct": 186.58073270013568,
+      "hit_instances": 8,
+      "hit_rate_pct": 1.0854816824966078
+    },
+    "2025": {
+      "year": 2025,
+      "old_eligible": 1,
+      "instances": 743,
+      "races": 291,
+      "stake_yen": 148600.0,
+      "return_yen": 238210.0,
+      "profit_yen": 89610.0,
+      "roi_pct": 160.3028263795424,
+      "hit_instances": 6,
+      "hit_rate_pct": 0.8075370121130552
+    }
+  },
+  "excluded_partition": {
+    "2023": {
+      "year": 2023,
+      "old_eligible": 0,
+      "instances": 682,
+      "races": 281,
+      "stake_yen": 136400.0,
+      "return_yen": 0.0,
+      "profit_yen": -136400.0,
+      "roi_pct": 0.0,
+      "hit_instances": 0,
+      "hit_rate_pct": 0.0
+    },
+    "2024": {
+      "year": 2024,
+      "old_eligible": 0,
+      "instances": 698,
+      "races": 272,
+      "stake_yen": 139600.0,
+      "return_yen": 216260.0,
+      "profit_yen": 76660.0,
+      "roi_pct": 154.9140401146132,
+      "hit_instances": 1,
+      "hit_rate_pct": 0.14326647564469913
+    },
+    "2025": {
+      "year": 2025,
+      "old_eligible": 0,
+      "instances": 709,
+      "races": 291,
+      "stake_yen": 141800.0,
+      "return_yen": 0.0,
+      "profit_yen": -141800.0,
+      "roi_pct": 0.0,
+      "hit_instances": 0,
+      "hit_rate_pct": 0.0
+    }
+  },
+  "full_population": {
+    "instances": 4263,
+    "stake_yen": 852600.0,
+    "return_yen": 942750.0,
+    "profit_yen": 90150.0,
+    "roi_pct": 110.57353976073188
+  },
+  "old_kept_share_pct": 50.996950504339665,
+  "old_dropped_share_pct": 49.003049495660335,
+  "structural_predictability": [
+    {
+      "test_year": 2024,
+      "train_years": "2023",
+      "train_instances": 1376,
+      "test_instances": 1435,
+      "positive_rate_test_pct": 51.358885017421606,
+      "roc_auc": 0.6295482732210269,
+      "pr_auc": 0.6273931287275434
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2023|2024",
+      "train_instances": 2811,
+      "test_instances": 1452,
+      "positive_rate_test_pct": 51.170798898071624,
+      "roc_auc": 0.5991757579439129,
+      "pr_auc": 0.6078098367409859
+    }
+  ],
+  "largest_numeric_structural_differences": [
+    {
+      "year": "ALL",
+      "feature": "field_size",
+      "kept_mean": 15.823827046918124,
+      "dropped_mean": 16.23743417903303,
+      "standardized_mean_diff_kept_minus_dropped": -0.3169273138586043,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "cw_rank_diff_mean",
+      "kept_mean": 1.187562431030016,
+      "dropped_mean": 1.255796370992416,
+      "standardized_mean_diff_kept_minus_dropped": -0.2349942893306405,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "cw_rank_std_mean",
+      "kept_mean": 0.9887412968833806,
+      "dropped_mean": 1.0415319294670535,
+      "standardized_mean_diff_kept_minus_dropped": -0.23297469479811148,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "candidate_pool_size",
+      "kept_mean": 11.82198712051518,
+      "dropped_mean": 12.13786500718047,
+      "standardized_mean_diff_kept_minus_dropped": -0.22882588800011222,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "cw_top6_jaccard",
+      "kept_mean": 0.8470562220595076,
+      "dropped_mean": 0.8225615441644983,
+      "standardized_mean_diff_kept_minus_dropped": 0.22873644458776413,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "cw_top3_jaccard",
+      "kept_mean": 0.7047378104875804,
+      "dropped_mean": 0.6723403770316169,
+      "standardized_mean_diff_kept_minus_dropped": 0.2083073923174128,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "cw_prob_std_max",
+      "kept_mean": 0.030730706158439623,
+      "dropped_mean": 0.028716565176127504,
+      "standardized_mean_diff_kept_minus_dropped": 0.2046220130099781,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    },
+    {
+      "year": "ALL",
+      "feature": "seven_union_count",
+      "kept_mean": 7.314167433302668,
+      "dropped_mean": 7.503590234561991,
+      "standardized_mean_diff_kept_minus_dropped": -0.1939178733415229,
+      "kept_n": 2174,
+      "dropped_n": 2089
+    }
+  ],
+  "largest_categorical_structural_differences": [
+    {
+      "feature": "race_class",
+      "value": "OPEN",
+      "kept_rate_pct": 13.017479300827967,
+      "dropped_rate_pct": 18.28626136907611,
+      "rate_diff_pp": -5.268782068248146,
+      "kept_count": 283,
+      "dropped_count": 382
+    },
+    {
+      "feature": "selected_outsider_1",
+      "value": "レース構造型",
+      "kept_rate_pct": 40.15639374425023,
+      "dropped_rate_pct": 37.242699856390615,
+      "rate_diff_pp": 2.913693887859614,
+      "kept_count": 873,
+      "dropped_count": 778
+    },
+    {
+      "feature": "selected_outsider_pair",
+      "value": "レース構造型|騎手型",
+      "kept_rate_pct": 5.335786568537258,
+      "dropped_rate_pct": 2.680708472953566,
+      "rate_diff_pp": 2.655078095583692,
+      "kept_count": 116,
+      "dropped_count": 56
+    },
+    {
+      "feature": "venue_code",
+      "value": "06",
+      "kept_rate_pct": 13.707451701931921,
+      "dropped_rate_pct": 16.32359980852082,
+      "rate_diff_pp": -2.6161481065889003,
+      "kept_count": 298,
+      "dropped_count": 341
+    },
+    {
+      "feature": "selected_outsider_2",
+      "value": "騎手型",
+      "kept_rate_pct": 13.431462741490341,
+      "dropped_rate_pct": 10.914313068453806,
+      "rate_diff_pp": 2.5171496730365353,
+      "kept_count": 292,
+      "dropped_count": 228
+    },
+    {
+      "feature": "venue_code",
+      "value": "01",
+      "kept_rate_pct": 5.151793928242871,
+      "dropped_rate_pct": 2.7764480612733364,
+      "rate_diff_pp": 2.3753458669695338,
+      "kept_count": 112,
+      "dropped_count": 58
+    },
+    {
+      "feature": "surface",
+      "value": "TURF",
+      "kept_rate_pct": 55.74977000919963,
+      "dropped_rate_pct": 58.11393011010053,
+      "rate_diff_pp": -2.364160100900903,
+      "kept_count": 1212,
+      "dropped_count": 1214
+    },
+    {
+      "feature": "surface",
+      "value": "DIRT",
+      "kept_rate_pct": 44.06623735050598,
+      "dropped_rate_pct": 41.74246050741982,
+      "rate_diff_pp": 2.3237768430861614,
+      "kept_count": 958,
+      "dropped_count": 872
+    },
+    {
+      "feature": "selected_outsider_2",
+      "value": "枠・コース型",
+      "kept_rate_pct": 36.33854645814167,
+      "dropped_rate_pct": 38.48731450454763,
+      "rate_diff_pp": -2.1487680464059578,
+      "kept_count": 790,
+      "dropped_count": 804
+    },
+    {
+      "feature": "selected_outsider_1",
+      "value": "当日傾向型",
+      "kept_rate_pct": 43.28426862925483,
+      "dropped_rate_pct": 45.38056486357109,
+      "rate_diff_pp": -2.0962962343162586,
+      "kept_count": 941,
+      "dropped_count": 948
+    },
+    {
+      "feature": "race_class",
+      "value": "THREE_WIN",
+      "kept_rate_pct": 11.959521619135234,
+      "dropped_rate_pct": 10.292005744375299,
+      "rate_diff_pp": 1.6675158747599352,
+      "kept_count": 260,
+      "dropped_count": 215
+    },
+    {
+      "feature": "selected_outsider_pair",
+      "value": "当日傾向型|枠・コース型",
+      "kept_rate_pct": 14.627414903403862,
+      "dropped_rate_pct": 16.27573001436094,
+      "rate_diff_pp": -1.648315110957077,
+      "kept_count": 318,
+      "dropped_count": 340
+    }
+  ],
+  "next_decision": "If structural-only predictability is weak, treat the old ROI lift as market-data-selection bias. If it is materially predictive and stable, investigate those pre-race structural variables directly in a fresh walk-forward gate without using odds-missingness as a feature.",
+  "production_promotion": false
+}
