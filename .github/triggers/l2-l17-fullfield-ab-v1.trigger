@@ -1,1 +1,1 @@
-relaunch after persistence-guard self-reference fix 2026-09-29 JST
+relaunch after Kaggle 404 filename-switch fix 2026-09-29 JST
