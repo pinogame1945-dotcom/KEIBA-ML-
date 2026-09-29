@@ -78,18 +78,30 @@ def safe_ap(y,p):
     y=np.asarray(y,dtype=int)
     return float(average_precision_score(y,p)) if len(set(y.tolist()))>1 else None
 
-def result_positions(pack):
+def result_targets(pack):
     out={}
+    counters=defaultdict(int)
     for row in pack.get("results") or []:
-        if str(row.get("result_status") or "FINISHED")!="FINISHED":
-            continue
         hid=str(row.get("horse_id") or "")
-        try:
-            pos=int(row.get("official_finish_position"))
-        except (TypeError,ValueError):
+        status=str(row.get("result_status") or "").upper()
+        if not hid:
             continue
-        if hid and pos>0: out[hid]=pos
-    return out
+        if status in {"SCRATCHED","EXCLUDED"}:
+            counters[f"result_status_{status.lower()}"]+=1
+            continue
+        if status=="FINISHED":
+            try:
+                pos=int(row.get("official_finish_position"))
+            except (TypeError,ValueError):
+                raise SystemExit(f"FINISHED result missing official position horse={hid}")
+            if pos<=0:
+                raise SystemExit(f"FINISHED result invalid official position horse={hid} pos={pos}")
+            out[hid]={"third":int(pos==3),"top3":int(pos<=3),"status":status,"position":pos}
+        else:
+            # A legitimate starter that did not finish cannot occupy the third-place seat.
+            counters[f"result_status_{status.lower() or 'unknown'}"]+=1
+            out[hid]={"third":0,"top3":0,"status":status or "UNKNOWN","position":None}
+    return out,dict(counters)
 
 def make_model(market):
     nums=STRUCT_NUMERIC+(MARKET_NUMERIC if market else [])
@@ -133,9 +145,12 @@ def build_rows(fixed,routers,root):
             missing=set(candidates)-set(horse_no)
             if missing: raise SystemExit(f"horse number missing race={rid} sample={sorted(missing)[:5]}")
 
-            pos=result_positions(pack)
-            if any(k not in pos for k in novel):
-                raise SystemExit(f"result position missing K2 race={rid}")
+            targets,target_counts=result_targets(pack)
+            for key,val in target_counts.items():
+                counters[key]+=val
+            missing_targets=[k for k in novel if k not in targets]
+            if missing_targets:
+                raise SystemExit(f"eligible result target missing K2 race={rid} sample={missing_targets[:5]}")
 
             odds=decode_odds(odds_rec)
             candidate_odds={}
@@ -167,8 +182,9 @@ def build_rows(fixed,routers,root):
                 mr=float(market_rank[hid])
                 rows.append({
                     "year":year,"race_id":rid,"race_date":date,"horse_id":hid,
-                    "third_label":int(pos[hid]==3),
-                    "top3_label":int(pos[hid]<=3),
+                    "third_label":int(targets[hid]["third"]),
+                    "top3_label":int(targets[hid]["top3"]),
+                    "result_status_target":targets[hid]["status"],
 
                     "gate_score":finite(fr.get("gate_score")) or 0.0,
                     "candidate_pool_size":len(candidates),
