@@ -1,0 +1,213 @@
+name: L1.6 Full-Rank Consensus V1
+
+on:
+  push:
+    branches:
+      - research/l16-full-rank-consensus-v1-20260929
+    paths:
+      - .github/triggers/l16-full-rank-consensus-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-full-rank-consensus-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate and install Kaggle
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/materialize_l16_full_rank_consensus_v1.py             research/evaluate_l16_full_rank_consensus_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("contracts/l16-full-rank-consensus-v1.json"))
+          assert c["contract"]=="L16_FULL_RANK_CONSENSUS_V1"
+          assert c["consensus"]["truncation_before_consensus"] is False
+          assert 2026 in c["historical_scope"]["locked_years"]
+          PY
+          bash -n scripts/kaggle-snapshot-session.sh
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore frozen scores and truth read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l16/snapshot out/l16/scores
+
+          retry_file() {
+            local ref="$1" remote="$2" dst="$3"
+            local attempt delay tmp p
+            tmp="$dst.tmpdir"
+            for attempt in 1 2 3 4 5 6; do
+              rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                p="$(find "$tmp" -type f ! -name log -print -quit)"
+                if [[ -n "$p" && -s "$p" ]]; then
+                  mkdir -p "$(dirname "$dst")"
+                  cp "$p" "$dst"
+                  rm -rf "$tmp"
+                  return 0
+                fi
+              fi
+              cat "$tmp/log" >&2 || true
+              if grep -Eqi '404|not found' "$tmp/log"; then
+                rm -rf "$tmp"
+                return 44
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                rm -rf "$tmp"
+                return 1
+              fi
+              case "$attempt" in
+                1) delay=10 ;;
+                2) delay=20 ;;
+                3) delay=40 ;;
+                4) delay=60 ;;
+                *) delay=90 ;;
+              esac
+              echo "::warning::retry ref=$ref remote=$remote attempt=$attempt/6 sleep=${delay}s"
+              sleep "$delay"
+            done
+          }
+
+          restore_score() {
+            local ref="$1" dst="$2" rc
+            if retry_file "$ref" "score.jsonl.gz" "$dst/score.jsonl.gz"; then
+              test -s "$dst/score.jsonl.gz"
+              return 0
+            else
+              rc=$?
+            fi
+            if [[ "$rc" -eq 44 ]]; then
+              if retry_file "$ref" "score.jsonl" "$dst/score.jsonl"; then
+                test -s "$dst/score.jsonl"
+                return 0
+              else
+                rc=$?
+                return "$rc"
+              fi
+            fi
+            return "$rc"
+          }
+
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/l16/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/l16/snapshot 2022 2023 2024 2025
+
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              dst="out/l16/scores/$y/$alias"
+              mkdir -p "$dst"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              restore_score "$ref" "$dst"
+              test -s "$dst/score.jsonl.gz" || test -s "$dst/score.jsonl"
+              echo "L16_SCORE_OK year=$y alias=$alias"
+              sleep 2
+            done
+          done
+
+      - name: Materialize and evaluate L1.6
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l16-full-rank-consensus-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$out" out/l16/consensus
+
+          score_path() {
+            local y="$1" alias="$2"
+            if [[ -s "out/l16/scores/$y/$alias/score.jsonl.gz" ]]; then
+              echo "out/l16/scores/$y/$alias/score.jsonl.gz"
+            else
+              echo "out/l16/scores/$y/$alias/score.jsonl"
+            fi
+          }
+
+          snapshot_path() {
+            local y="$1"
+            if [[ -s "out/l16/snapshot/snapshot-$y.jsonl.gz" ]]; then
+              echo "out/l16/snapshot/snapshot-$y.jsonl.gz"
+            else
+              echo "out/l16/snapshot/snapshot-$y.jsonl"
+            fi
+          }
+
+          for y in 2022 2023 2024 2025; do
+            python research/materialize_l16_full_rank_consensus_v1.py               --expert "core4=$(score_path "$y" core4)"               --expert "pedlegacy=$(score_path "$y" pedlegacy)"               --expert "condition=$(score_path "$y" condition)"               --expert "full=$(score_path "$y" full)"               --expert "light=$(score_path "$y" light)"               --expert "pedv1=$(score_path "$y" pedv1)"               --expert "condrc=$(score_path "$y" condrc)"               --output "out/l16/consensus/l16-$y.jsonl.gz"
+
+            python research/evaluate_l16_full_rank_consensus_v1.py               --consensus "out/l16/consensus/l16-$y.jsonl.gz"               --snapshot "$(snapshot_path "$y")"               --year "$y"               --output "$out/y$y.json"
+          done
+
+          OUT_DIR="$out" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["OUT_DIR"])
+          years=[2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in years}
+          topns=sorted(int(n) for n in rows[2022]["topn"])
+          races=sum(rows[y]["races"] for y in years)
+          overall={}
+          for n in topns:
+              hits=sum(rows[y]["topn"][str(n)]["hits"] for y in years)
+              overall[str(n)]={"hits":hits,"races":races,"rate":hits/races}
+          exact_hits=sum(rows[y]["exact_consensus_1_2_3"]["hits"] for y in years)
+          summary={
+            "contract":"L16_FULL_RANK_CONSENSUS_EVAL_V1",
+            "l16_contract":"L16_FULL_RANK_CONSENSUS_V1",
+            "years":years,
+            "locked_years":[2026],
+            "races":races,
+            "consensus_policy":"ALL_HORSES_FULL_RANK",
+            "truncation_before_consensus":False,
+            "topn":overall,
+            "exact_consensus_1_2_3":{"hits":exact_hits,"rate":exact_hits/races},
+            "by_year":{str(y):rows[y] for y in years},
+            "comparison_reference":{
+              "l15_each_king_top10_then_consensus_top10_rate":0.8122106481481481,
+              "l15_each_king_top10_union_rate":0.9022714120370371
+            }
+          }
+          (root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps(summary,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Existing Kaggle score/snapshot inputs are read-only."
+          echo "No Kaggle Dataset/Model creation or update."
+          echo "Full L1.6 race outputs remain runner-ephemeral; only compact JSON summaries are committed."
+          echo "No odds/popularity/payout. 2026 remains sealed."
+
+      - name: Commit compact evaluation
+        if: success()
+        run: |
+          set -euo pipefail
+          out="research-results/l16-full-rank-consensus-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out/summary.json" "$out"/y2022.json "$out"/y2023.json "$out"/y2024.json "$out"/y2025.json
+          git commit -m "research: L1.6 full-rank consensus run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
