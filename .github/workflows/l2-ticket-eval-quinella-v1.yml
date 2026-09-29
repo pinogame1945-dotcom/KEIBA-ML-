@@ -180,10 +180,13 @@ jobs:
             "$result/README.md" \
             "$result/summary.json" \
             "$result/model-fold-metrics.csv" \
-            "$result/ranking-coverage.csv" \
-            "$result/dev-policy-grid.csv" \
+            "$result/pure-ranking-policies.csv" \
+            "$result/dev-shortlist-market-grid.csv" \
+            "$result/holdout-shortlist-market-matrix-diagnostic.csv" \
             "$result/baseline-metrics.csv" \
             "$result/feature-importance.csv" \
+            "$result/holdout-selected-rank-pairs.csv" \
+            "$result/holdout-selected-rank-involvement.csv" \
             "$result/holdout-selected-tickets.csv.gz"
           git commit -m "research: archive quinella ticket-eval v1 run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
