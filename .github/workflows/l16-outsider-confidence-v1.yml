@@ -34,6 +34,7 @@ jobs:
             delay_seconds: 75
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
       GENERATION_ID: eb13d4096519167b
       OUTSIDER_RUN_ID: "36551650736"
       START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
