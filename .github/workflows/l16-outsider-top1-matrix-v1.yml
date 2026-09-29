@@ -1,0 +1,120 @@
+name: L1.6 Outsider Top1 Matrix V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-top1-matrix-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-top1-matrix-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        year: [2022,2023,2024,2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Setup
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l16_full_rank_consensus_v1.py research/analyze_l16_outsider_top1_matrix_v1.py
+          python -m pip install --disable-pip-version-check kaggle
+      - name: Restore inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          mkdir -p out/top1/snapshot out/top1/scores/$y
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/top1/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/top1/snapshot "$y"
+
+          get_score() {
+            alias="$1"; dst="out/top1/scores/$y/$alias"; mkdir -p "$dst"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            for remote in score.jsonl.gz score.jsonl; do
+              tmp="$dst/tmp"; rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >/dev/null 2>&1; then
+                p="$(find "$tmp" -type f -print -quit)"
+                if [[ -n "$p" && -s "$p" ]]; then cp "$p" "$dst/$remote"; rm -rf "$tmp"; return 0; fi
+              fi
+            done
+            return 1
+          }
+          for a in core4 pedlegacy condition full light pedv1 condrc; do get_score "$a"; sleep 2; done
+      - name: Analyze
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          score_path(){ a="$1"; [[ -s "out/top1/scores/$y/$a/score.jsonl.gz" ]] && echo "out/top1/scores/$y/$a/score.jsonl.gz" || echo "out/top1/scores/$y/$a/score.jsonl"; }
+          [[ -s "out/top1/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/top1/snapshot/snapshot-$y.jsonl.gz" || snap="out/top1/snapshot/snapshot-$y.jsonl"
+          mkdir -p out/top1/consensus "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID"
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/top1/consensus/l16-$y.jsonl.gz"
+          python research/analyze_l16_outsider_top1_matrix_v1.py             --consensus "out/top1/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"             --year "$y"             --output "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y$y.json"
+      - name: Commit year
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y${{ matrix.year }}.json"
+          git commit -m "research: L1.6 outsider Top1 y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for i in 1 2 3 4 5; do git push origin "HEAD:$GITHUB_REF_NAME" && exit 0; git pull --rebase origin "$GITHUB_REF_NAME"; done
+          exit 1
+
+  aggregate:
+    needs: [year]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["ROOT"]); ys=[2022,2023,2024,2025]
+          d=[json.loads((root/f"y{y}.json").read_text()) for y in ys]
+          races=sum(x["races"] for x in d)
+          hits=sum(x["all5_top1_union_full_hits"] for x in d)
+          base=sum(x["l16_top3_full_hits"] for x in d)
+          out={
+            "contract":"L16_OUTSIDER_TOP1_MATRIX_V1","years":ys,"races":races,
+            "l16_top3_full_hits":base,"l16_top3_full_rate":base/races,
+            "all5_top1_union_full_hits":hits,"all5_top1_union_full_rate":hits/races,
+            "all5_top1_union_avg_size":sum(x["all5_top1_union_avg_size"]*x["races"] for x in d)/races,
+            "l16_top3_plus_all5_top1_avg_size":sum(x["l16_top3_plus_all5_top1_avg_size"]*x["races"] for x in d)/races,
+            "by_year":d
+          }
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps(out,ensure_ascii=False))
+          PY
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate L1.6 outsider Top1 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
