@@ -315,7 +315,18 @@ def flatten(rows, feature_sets, prediction_phase, history_windows, small_sample_
         })
     df = pd.DataFrame.from_records(records)
     df["_race_date_dt"] = pd.to_datetime(df["_race_date"], errors="coerce")
-    return df[df["_race_id"].ne("") & df["_horse_id"].ne("") & df["_race_date_dt"].notna()].copy()
+    df = df[df["_race_id"].ne("") & df["_horse_id"].ne("") & df["_race_date_dt"].notna()].copy()
+
+    # Canonicalize row order using only pre-race identifiers.  Historical
+    # snapshot rows can inherit result-page order; no downstream learner or
+    # ranker may observe that order as an implicit tie-break signal.
+    sort_cols = ["_race_date_dt", "_race_id"]
+    if "horse_number" in df.columns:
+        df["_canonical_horse_number"] = pd.to_numeric(df["horse_number"], errors="coerce")
+        sort_cols.append("_canonical_horse_number")
+    sort_cols.append("_horse_id")
+    df = df.sort_values(sort_cols, kind="mergesort", na_position="last").reset_index(drop=True)
+    return df
 
 def complete_races(df):
     winners = df.groupby("_race_id")["_target"].sum()
