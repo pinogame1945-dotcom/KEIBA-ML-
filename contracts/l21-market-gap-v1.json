@@ -1,0 +1,88 @@
+{
+  "contract": "L21_MARKET_GAP_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_branch": "fixed/l15-v1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "arena_run": 36506877464,
+    "arena_result_sha": "260714befd0fb4ad39d411dfe98792e0b80bc9fa"
+  },
+  "scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "expected_races_per_year": 3456,
+    "expected_total_races": 13824,
+    "expected_gate_alerts": 1384,
+    "development_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "holdout_year": 2025,
+    "locked_years": [
+      2026
+    ]
+  },
+  "market": {
+    "source": "historical final WIN odds",
+    "market_rank_rule": "ascending final win odds; ties by horse_number",
+    "caveat": "Final odds are a historical closing-price proxy, not a live timestamp execution simulation."
+  },
+  "ai": {
+    "source": "Seven-King consensus derived only from seven L1 Top6 lists",
+    "order_rule": "Borda score 7-rank; ties by support, top1 votes, best rank, mean rank, horse_id",
+    "odds_used": false,
+    "popularity_used": false,
+    "payout_used": false
+  },
+  "preregistered_diagnostics": [
+    "seven_top1_vs_market_rank_bucket",
+    "market_favorite_vs_seven_rank_bucket",
+    "seven_top3_vs_market_top3_overlap",
+    "race_level_spearman_on_seven_union",
+    "rank_gap_buckets_for_seven_union",
+    "flat_win_roi_for_seven_top1_by_market_rank_bucket",
+    "flat_win_roi_for_market_favorite_by_seven_rank_bucket",
+    "gate_vs_non_gate_comparison",
+    "k2_novel_market_rank_and_flat_win_roi"
+  ],
+  "buckets": {
+    "market_rank_for_ai_top1": [
+      "1",
+      "2-3",
+      "4-6",
+      "7+"
+    ],
+    "ai_rank_for_market_favorite": [
+      "1",
+      "2-3",
+      "4-6",
+      "7+",
+      "OUTSIDE_UNION"
+    ],
+    "rank_gap": [
+      "AI_BULLISH_4PLUS",
+      "AI_BULLISH_2_3",
+      "NEAR_1",
+      "MARKET_BULLISH_2_3",
+      "MARKET_BULLISH_4PLUS"
+    ]
+  },
+  "selection_discipline": {
+    "tuning": false,
+    "claim_rule": "Use 2022-2024 only to formulate any actionable Market Gap hypothesis. 2025 is confirmation only and must not be used to tune bucket boundaries.",
+    "router_feature_promotion": "No Market Gap feature is promoted into Bet Router in this run."
+  },
+  "cost": {
+    "runner": "ubuntu-latest standard CPU",
+    "artifact_cache": false,
+    "external_paid_storage": false,
+    "outputs": "compact CSV/JSON/README committed to Git only"
+  }
+}
