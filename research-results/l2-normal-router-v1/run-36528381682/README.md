@@ -1,0 +1,3 @@
+# L2 Normal Router V1
+
+PASS_SEVEN_ONLY only. Every normal race is routed; V1 has no learned SKIP class. Two predeclared architectures are compared: DIRECT_TEMPLATE and HIERARCHICAL (bet type then template). Features come only from pre-race Seven-King structure and race metadata. Odds, payout, returns and results are not model inputs. The supervised target is the realized best/least-loss fixed template when historical price data exists. Races with no priced template are retained in the universe, never silently dropped, are routed normally, and are marked DATA_UNAVAILABLE for evaluation. Architecture selection uses only 2023-2024 walk-forward results; 2025 is holdout-only. 2026 remains sealed. No production promotion.
