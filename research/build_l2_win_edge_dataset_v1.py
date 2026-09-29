@@ -7,7 +7,7 @@ from pathlib import Path
 from build_l2_bet_kings_dataset_v1 import (
     YEARS,EXPECTED_PER_YEAR,EXPECTED_TOTAL,EXPECTED_ALERTS,
     load_fixed_ledgers,load_router,seven_stats,load_day,load_odds_day,
-    horse_number_map,decode_odds,payout_map,generate_templates,horse_feature,
+    horse_number_map,decode_odds,payout_map,horse_feature,
     finite,mean
 )
 
@@ -66,7 +66,13 @@ def main():
                 if any(h not in horse_no for h in candidates): raise SystemExit(f"horse number missing {rid}")
                 odds_map=decode_odds(oddsrec); payouts,present=payout_map(pack)
                 if "WIN" not in present: continue
-                templates=generate_templates(seven,novel,candidates)
+                # Fast path: this audit needs only the three WIN templates.
+                # Do not build QUINELLA/EXACTA/TRIO/TRIFECTA combinations.
+                templates={
+                    "WIN_ANCHOR1":[(a1,)],
+                    "WIN_ANCHORS2":[(a1,),(a2,)],
+                    "WIN_ALL_CANDIDATES":[(x,) for x in candidates],
+                }
                 seven_pos={h:i+1 for i,h in enumerate(seven)}
                 cand_pos={h:i+1 for i,h in enumerate(candidates)}
                 novel_pos={h:i+1 for i,h in enumerate(novel)}
