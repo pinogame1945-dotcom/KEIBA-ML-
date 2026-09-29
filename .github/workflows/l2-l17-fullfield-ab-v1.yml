@@ -91,25 +91,43 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          retry_download() {
-            local ref="$1" dest="$2" attempt delay log p
-            log="$(mktemp)"
-            for attempt in 1 2 3 4 5 6 7 8; do
-              rm -rf "$dest"; mkdir -p "$dest"; : > "$log"
-              if kaggle datasets download "$ref" -f score.jsonl.gz -p "$dest" --unzip --quiet --force >"$log" 2>&1; then
-                cat "$log"
-                p="$(find "$dest" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
-                if [[ -n "$p" && -s "$p" ]]; then rm -f "$log"; return 0; fi
+
+          download_once_classified() {
+            local ref="$1" remote="$2" dest="$3" err
+            err="$(mktemp)"
+            rm -rf "$dest"; mkdir -p "$dest"
+            if kaggle datasets download "$ref" -f "$remote" -p "$dest" --unzip --quiet --force 2>"$err"; then
+              rm -f "$err"
+              return 0
+            fi
+            cat "$err" >&2 || true
+            if grep -Eqi '(^|[^0-9])404([^0-9]|$)|not[[:space:]]+found' "$err"; then
+              rm -f "$err"
+              return 44
+            fi
+            rm -f "$err"
+            return 1
+          }
+
+          retry_remote() {
+            local label="$1" ref="$2" remote="$3" dest="$4" attempt delay rc
+            for attempt in 1 2 3 4 5 6; do
+              if download_once_classified "$ref" "$remote" "$dest"; then
+                return 0
               fi
-              cat "$log" >&2
-              if [[ "$attempt" -eq 8 ]]; then
-                echo "::error::score restore failed ref=$ref"
-                rm -f "$log"; return 1
+              rc=$?
+              if [[ "$rc" -eq 44 ]]; then
+                echo "::notice::Kaggle 404 label=$label remote=$remote; switching filename immediately" >&2
+                return 44
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle score restore failed label=$label after $attempt attempts" >&2
+                return 1
               fi
               case "$attempt" in
-                1) delay=10;; 2) delay=20;; 3) delay=40;; 4) delay=60;; 5) delay=90;; *) delay=120;;
+                1) delay=15;; 2) delay=30;; 3) delay=60;; 4) delay=90;; *) delay=120;;
               esac
-              echo "::warning::retry score restore ref=$ref attempt=$attempt/8 sleep=$delay"
+              echo "::warning::Kaggle retry label=$label attempt=$attempt/6 sleep=$delay" >&2
               sleep "$delay"
             done
           }
@@ -118,9 +136,24 @@ jobs:
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/l17-ab/scores/$y/$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
-              retry_download "$ref" "$d"
+
+              # Current Kaggle score datasets may expose either the uncompressed
+              # remote filename or the original .gz filename. A 404 is a name
+              # mismatch, so switch immediately instead of sleeping/retrying it.
+              if retry_remote "score:$alias:$y:jsonl" "$ref" score.jsonl "$d"; then
+                :
+              else
+                rc=$?
+                if [[ "$rc" -eq 44 ]]; then
+                  retry_remote "score:$alias:$y:gz" "$ref" score.jsonl.gz "$d"
+                else
+                  exit "$rc"
+                fi
+              fi
+
               p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
               test -n "$p"; test -s "$p"
+              echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
               sleep 2
             done
           done
