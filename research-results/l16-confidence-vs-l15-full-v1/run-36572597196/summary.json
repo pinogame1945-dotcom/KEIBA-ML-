@@ -1,0 +1,352 @@
+{
+  "contract": "L16_CONFIDENCE_VS_L15_FULL_OOS_V1",
+  "scope": "2023-2025 strict walk-forward OOS; all 10,368 races; identical effective candidate count per race",
+  "training": "2023 trained on 2022; 2024 on 2022-2023; 2025 on 2022-2024",
+  "locked_year": 2026,
+  "years": {
+    "2023": {
+      "all": {
+        "races": 3456,
+        "avg_candidate_n": 7.869502314814815,
+        "current": {
+          "full_podium_hits": 2217,
+          "full_podium_rate": 0.6414930555555556,
+          "winner_hits": 3172,
+          "winner_rate": 0.9178240740740741,
+          "podium_occurrence_hits": 8965,
+          "podium_occurrence_recall": 0.8640131071703933
+        },
+        "confidence": {
+          "full_podium_hits": 2230,
+          "full_podium_rate": 0.6452546296296297,
+          "winner_hits": 3183,
+          "winner_rate": 0.9210069444444444,
+          "podium_occurrence_hits": 8987,
+          "podium_occurrence_recall": 0.8661333847340016
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 178,
+          "current_more_podium_races": 158,
+          "ties": 3120,
+          "full_podium_gained": 141,
+          "full_podium_lost": 128,
+          "net_full_podium": 13
+        }
+      },
+      "alert": {
+        "races": 346,
+        "avg_candidate_n": 11.5,
+        "current": {
+          "full_podium_hits": 262,
+          "full_podium_rate": 0.7572254335260116,
+          "winner_hits": 325,
+          "winner_rate": 0.9393063583815029,
+          "podium_occurrence_hits": 949,
+          "podium_occurrence_recall": 0.9133782483156881
+        },
+        "confidence": {
+          "full_podium_hits": 275,
+          "full_podium_rate": 0.7947976878612717,
+          "winner_hits": 330,
+          "winner_rate": 0.953757225433526,
+          "podium_occurrence_hits": 966,
+          "podium_occurrence_recall": 0.9297401347449471
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 47,
+          "current_more_podium_races": 32,
+          "ties": 267,
+          "full_podium_gained": 45,
+          "full_podium_lost": 32,
+          "net_full_podium": 13
+        }
+      },
+      "non_alert": {
+        "races": 3110,
+        "avg_candidate_n": 7.465594855305466,
+        "current": {
+          "full_podium_hits": 1955,
+          "full_podium_rate": 0.6286173633440515,
+          "winner_hits": 2847,
+          "winner_rate": 0.9154340836012862,
+          "podium_occurrence_hits": 8016,
+          "podium_occurrence_recall": 0.8585198671950305
+        },
+        "confidence": {
+          "full_podium_hits": 1955,
+          "full_podium_rate": 0.6286173633440515,
+          "winner_hits": 2853,
+          "winner_rate": 0.9173633440514469,
+          "podium_occurrence_hits": 8021,
+          "podium_occurrence_recall": 0.859055371104209
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 131,
+          "current_more_podium_races": 126,
+          "ties": 2853,
+          "full_podium_gained": 96,
+          "full_podium_lost": 96,
+          "net_full_podium": 0
+        }
+      }
+    },
+    "2024": {
+      "all": {
+        "races": 3456,
+        "avg_candidate_n": 7.833912037037037,
+        "current": {
+          "full_podium_hits": 2213,
+          "full_podium_rate": 0.6403356481481481,
+          "winner_hits": 3154,
+          "winner_rate": 0.9126157407407407,
+          "podium_occurrence_hits": 8964,
+          "podium_occurrence_recall": 0.8638334778837814
+        },
+        "confidence": {
+          "full_podium_hits": 2212,
+          "full_podium_rate": 0.6400462962962963,
+          "winner_hits": 3150,
+          "winner_rate": 0.9114583333333334,
+          "podium_occurrence_hits": 8956,
+          "podium_occurrence_recall": 0.8630625421605473
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 128,
+          "current_more_podium_races": 135,
+          "ties": 3193,
+          "full_podium_gained": 110,
+          "full_podium_lost": 111,
+          "net_full_podium": -1
+        }
+      },
+      "alert": {
+        "races": 346,
+        "avg_candidate_n": 11.583815028901734,
+        "current": {
+          "full_podium_hits": 268,
+          "full_podium_rate": 0.7745664739884393,
+          "winner_hits": 327,
+          "winner_rate": 0.9450867052023122,
+          "podium_occurrence_hits": 956,
+          "podium_occurrence_recall": 0.9210019267822736
+        },
+        "confidence": {
+          "full_podium_hits": 275,
+          "full_podium_rate": 0.7947976878612717,
+          "winner_hits": 324,
+          "winner_rate": 0.9364161849710982,
+          "podium_occurrence_hits": 962,
+          "podium_occurrence_recall": 0.9267822736030829
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 49,
+          "current_more_podium_races": 42,
+          "ties": 255,
+          "full_podium_gained": 47,
+          "full_podium_lost": 40,
+          "net_full_podium": 7
+        }
+      },
+      "non_alert": {
+        "races": 3110,
+        "avg_candidate_n": 7.416720257234727,
+        "current": {
+          "full_podium_hits": 1945,
+          "full_podium_rate": 0.6254019292604501,
+          "winner_hits": 2827,
+          "winner_rate": 0.9090032154340836,
+          "podium_occurrence_hits": 8008,
+          "podium_occurrence_recall": 0.8574793875147232
+        },
+        "confidence": {
+          "full_podium_hits": 1937,
+          "full_podium_rate": 0.6228295819935691,
+          "winner_hits": 2826,
+          "winner_rate": 0.9086816720257235,
+          "podium_occurrence_hits": 7994,
+          "podium_occurrence_recall": 0.8559802976764107
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 79,
+          "current_more_podium_races": 93,
+          "ties": 2938,
+          "full_podium_gained": 63,
+          "full_podium_lost": 71,
+          "net_full_podium": -8
+        }
+      }
+    },
+    "2025": {
+      "all": {
+        "races": 3456,
+        "avg_candidate_n": 7.863715277777778,
+        "current": {
+          "full_podium_hits": 2198,
+          "full_podium_rate": 0.6359953703703703,
+          "winner_hits": 3129,
+          "winner_rate": 0.9053819444444444,
+          "podium_occurrence_hits": 8931,
+          "podium_occurrence_recall": 0.860487522882744
+        },
+        "confidence": {
+          "full_podium_hits": 2224,
+          "full_podium_rate": 0.6435185185185185,
+          "winner_hits": 3156,
+          "winner_rate": 0.9131944444444444,
+          "podium_occurrence_hits": 8971,
+          "podium_occurrence_recall": 0.8643414587147124
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 166,
+          "current_more_podium_races": 127,
+          "ties": 3163,
+          "full_podium_gained": 132,
+          "full_podium_lost": 106,
+          "net_full_podium": 26
+        }
+      },
+      "alert": {
+        "races": 346,
+        "avg_candidate_n": 11.647398843930636,
+        "current": {
+          "full_podium_hits": 248,
+          "full_podium_rate": 0.7167630057803468,
+          "winner_hits": 317,
+          "winner_rate": 0.9161849710982659,
+          "podium_occurrence_hits": 933,
+          "podium_occurrence_recall": 0.8971153846153846
+        },
+        "confidence": {
+          "full_podium_hits": 267,
+          "full_podium_rate": 0.7716763005780347,
+          "winner_hits": 327,
+          "winner_rate": 0.9450867052023122,
+          "podium_occurrence_hits": 957,
+          "podium_occurrence_recall": 0.9201923076923076
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 57,
+          "current_more_podium_races": 34,
+          "ties": 255,
+          "full_podium_gained": 52,
+          "full_podium_lost": 33,
+          "net_full_podium": 19
+        }
+      },
+      "non_alert": {
+        "races": 3110,
+        "avg_candidate_n": 7.442765273311897,
+        "current": {
+          "full_podium_hits": 1950,
+          "full_podium_rate": 0.6270096463022508,
+          "winner_hits": 2812,
+          "winner_rate": 0.9041800643086817,
+          "podium_occurrence_hits": 7998,
+          "podium_occurrence_recall": 0.8564086090587857
+        },
+        "confidence": {
+          "full_podium_hits": 1957,
+          "full_podium_rate": 0.6292604501607717,
+          "winner_hits": 2829,
+          "winner_rate": 0.9096463022508039,
+          "podium_occurrence_hits": 8014,
+          "podium_occurrence_recall": 0.8581218545882857
+        },
+        "head_to_head": {
+          "confidence_more_podium_races": 109,
+          "current_more_podium_races": 93,
+          "ties": 2908,
+          "full_podium_gained": 80,
+          "full_podium_lost": 73,
+          "net_full_podium": 7
+        }
+      }
+    }
+  },
+  "pooled": {
+    "all": {
+      "races": 10368,
+      "avg_candidate_n": 7.85570987654321,
+      "current": {
+        "full_podium_hits": 6628,
+        "full_podium_rate": 0.6392746913580247,
+        "winner_hits": 9455,
+        "winner_rate": 0.9119405864197531,
+        "podium_occurrence_hits": 26860,
+        "podium_occurrence_recall": 0.8627778491584221
+      },
+      "confidence": {
+        "full_podium_hits": 6666,
+        "full_podium_rate": 0.6429398148148148,
+        "winner_hits": 9489,
+        "winner_rate": 0.9152199074074074,
+        "podium_occurrence_hits": 26914,
+        "podium_occurrence_recall": 0.8645123988179365
+      },
+      "head_to_head": {
+        "confidence_more_podium_races": 472,
+        "current_more_podium_races": 420,
+        "ties": 9476,
+        "full_podium_gained": 383,
+        "full_podium_lost": 345,
+        "net_full_podium": 38
+      }
+    },
+    "alert": {
+      "races": 1038,
+      "avg_candidate_n": 11.577071290944124,
+      "current": {
+        "full_podium_hits": 778,
+        "full_podium_rate": 0.7495183044315993,
+        "winner_hits": 969,
+        "winner_rate": 0.9335260115606936,
+        "podium_occurrence_hits": 2838,
+        "podium_occurrence_recall": 0.9104908565928778
+      },
+      "confidence": {
+        "full_podium_hits": 817,
+        "full_podium_rate": 0.7870905587668593,
+        "winner_hits": 981,
+        "winner_rate": 0.9450867052023122,
+        "podium_occurrence_hits": 2885,
+        "podium_occurrence_recall": 0.9255694578119987
+      },
+      "head_to_head": {
+        "confidence_more_podium_races": 153,
+        "current_more_podium_races": 108,
+        "ties": 777,
+        "full_podium_gained": 144,
+        "full_podium_lost": 105,
+        "net_full_podium": 39
+      }
+    },
+    "non_alert": {
+      "races": 9330,
+      "avg_candidate_n": 7.441693461950696,
+      "current": {
+        "full_podium_hits": 5850,
+        "full_podium_rate": 0.6270096463022508,
+        "winner_hits": 8486,
+        "winner_rate": 0.9095391211146838,
+        "podium_occurrence_hits": 24022,
+        "podium_occurrence_recall": 0.8574692129216491
+      },
+      "confidence": {
+        "full_podium_hits": 5849,
+        "full_podium_rate": 0.6269024651661308,
+        "winner_hits": 8508,
+        "winner_rate": 0.9118971061093247,
+        "podium_occurrence_hits": 24029,
+        "podium_occurrence_recall": 0.8577190790647867
+      },
+      "head_to_head": {
+        "confidence_more_podium_races": 319,
+        "current_more_podium_races": 312,
+        "ties": 8699,
+        "full_podium_gained": 239,
+        "full_podium_lost": 240,
+        "net_full_podium": -1
+      }
+    }
+  }
+}
