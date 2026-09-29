@@ -9,7 +9,7 @@ from collections import defaultdict
 from pathlib import Path
 
 YEARS = (2022, 2023, 2024, 2025)
-TOP_NS = (3, 4, 5, 6, 7, 8)
+TOP_NS = (3, 4, 5, 6, 7, 8, 9, 10)
 
 
 def parse_args():
