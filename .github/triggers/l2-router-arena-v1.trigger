@@ -1,4 +1,4 @@
-launch=2026-09-29T11:02:00+09:00
+launch=2026-09-29T11:10:00+09:00
 experiment=L2-ROUTER-ARENA-V1
 upstream=L15_FIXED_V1
 templates=23
@@ -16,3 +16,4 @@ artifact_cache=false
 storage=git-small-ledger-only
 cost=standard-cpu-only
 relaunch_reason=fix-runner-guard-self-match
+relaunch_reason=fix-local-research-module-import
