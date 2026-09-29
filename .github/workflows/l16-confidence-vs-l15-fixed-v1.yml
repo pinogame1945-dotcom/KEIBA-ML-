@@ -1,0 +1,52 @@
+name: L1.6 Confidence vs L1.5 Fixed Arena V1
+
+on:
+  push:
+    branches:
+      - research/l16-confidence-vs-l15-fixed-v1-20260929
+    paths:
+      - .github/triggers/l16-confidence-vs-l15-fixed-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  arena:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      CONF_ROWS_RUN_ID: "36568903779"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Run same-K arena
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check scikit-learn
+          git fetch origin fixed/l15-v1
+          mkdir -p out/l15-fixed
+          for y in 2023 2024 2025; do
+            git show origin/fixed/l15-v1:research-results/l15-fixed-v1/y$y.jsonl > "out/l15-fixed/y$y.jsonl"
+          done
+
+          inroot="research-results/l16-outsider-confidence-v1/run-$CONF_ROWS_RUN_ID"
+          outroot="research-results/l16-confidence-vs-l15-fixed-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$outroot"
+          for y in 2022 2023 2024 2025; do test -s "$inroot/y$y-rows.csv.gz"; done
+
+          python research/analyze_l16_confidence_vs_l15_fixed_v1.py             --rows "$inroot/y2022-rows.csv.gz,$inroot/y2023-rows.csv.gz,$inroot/y2024-rows.csv.gz,$inroot/y2025-rows.csv.gz"             --fixed-root out/l15-fixed             --output "$outroot/summary.json"
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$outroot/summary.json"
+          git commit -m "research: confidence vs L15 fixed arena run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
