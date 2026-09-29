@@ -1,0 +1,15 @@
+launch=2026-09-29T09:09:00+09:00
+experiment=L2-CANDIDATE-PROFIT-001
+scope=consensus-world-gate-alerts
+policies=BASE,FULL_K2,FULL_K3
+train_years=2022+
+test_years=2023,2024,2025
+bet_types=WIN,QUINELLA,EXACTA,TRIO,TRIFECTA
+place=false
+wide=false
+odds=final-odds-proxy
+stake_yen=100
+edge_filters=ALL,GT0,GT5PCT,GT10PCT
+storage=git-small-ledger-only
+cost=standard-cpu-only
+locked_year=2026
