@@ -17,11 +17,19 @@
       "model": "DIRECT_TEMPLATE",
       "template_family": "same 14 normal templates"
     },
+    "L17_INFO_ONLY": {
+      "feature_source": "OLD_V1 features plus L1.7 full-field consensus/all-seven expert ranks and probabilities for every runner",
+      "ticket_candidate_source": "existing Seven-King union candidates",
+      "model": "DIRECT_TEMPLATE",
+      "template_family": "same 14 normal templates",
+      "purpose": "isolate the value of additional full-field information while keeping the old ticket universe"
+    },
     "L17_FULLFIELD": {
-      "feature_source": "L1.7 full-field consensus plus all seven expert ranks/probabilities for every runner",
+      "feature_source": "OLD_V1 features plus L1.7 full-field consensus/all-seven expert ranks and probabilities for every runner",
       "ticket_candidate_source": "all runners ordered by L1.7 consensus",
       "model": "DIRECT_TEMPLATE",
-      "template_family": "same 14 normal templates, applied to the full-field consensus/candidate list"
+      "template_family": "same 14 normal templates applied to the full-field consensus/candidate list",
+      "purpose": "measure the combined value of full-field information and removing the old candidate truncation"
     }
   },
   "invariants": {
