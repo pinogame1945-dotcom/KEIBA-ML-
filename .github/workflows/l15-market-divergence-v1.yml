@@ -1,0 +1,125 @@
+name: L1.5 Market Divergence V1
+
+on:
+  push:
+    branches:
+      - research/l15-market-divergence-v1-20260929
+    paths:
+      - .github/triggers/l15-market-divergence-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-market-divergence-v1
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    name: seven-consensus-vs-final-market
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - name: Checkout research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependency checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_market_divergence_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          bash -n scripts/kaggle-fetch-router-years.sh
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore 2022-2025 snapshots once in one runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-market-divergence/snapshots"
+          mkdir -p "$root"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$root" 2022 2023 2024 2025
+
+      - name: Restore 2022-2025 seven-king routers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" "out/l15-market-divergence/router"
+
+      - name: Analyze consensus-market divergence
+        shell: bash
+        run: |
+          set -euo pipefail
+          sroot="out/l15-market-divergence/snapshots"
+          rroot="out/l15-market-divergence/router"
+          out="research-results/l15-market-divergence-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$out"
+
+          snapshot_path() {
+            local y="$1"
+            if [[ -s "$sroot/snapshot-$y.jsonl.gz" ]]; then
+              printf '%s' "$sroot/snapshot-$y.jsonl.gz"
+            elif [[ -s "$sroot/snapshot-$y.jsonl" ]]; then
+              printf '%s' "$sroot/snapshot-$y.jsonl"
+            else
+              echo "::error::snapshot missing year=$y" >&2
+              return 1
+            fi
+          }
+          router_path() {
+            local y="$1"
+            local p
+            p="$(find "$rroot/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            printf '%s' "$p"
+          }
+
+          python research/analyze_l15_market_divergence_v1.py             --snapshot "2022=$(snapshot_path 2022)"             --snapshot "2023=$(snapshot_path 2023)"             --snapshot "2024=$(snapshot_path 2024)"             --snapshot "2025=$(snapshot_path 2025)"             --router "2022=$(router_path 2022)"             --router "2023=$(router_path 2023)"             --router "2024=$(router_path 2024)"             --router "2025=$(router_path 2025)"             --out-dir "$out"
+
+          cat "$out/summary.json"
+          echo "RESULT_DIR=$out" >> "$GITHUB_ENV"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "Single runner; no parallel lanes."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle read-only; no new Dataset/Model persistence."
+          echo "Only compact summary JSON/CSV files are committed to Git."
+          echo "Final odds/popularity are evaluation-only and never prediction inputs."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$RESULT_DIR"
+          if git diff --cached --quiet; then
+            echo "No result changes"
+            exit 0
+          fi
+          git commit -m "research: L1.5 market divergence run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
