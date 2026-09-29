@@ -69,15 +69,15 @@ def main():
     truth=load_truth(a.snapshot); cons=load_cons(a.consensus); outs=load_out(a.outsider_csv)
     if set(cons)!=set(truth): raise ValueError(f"coverage mismatch {len(cons)} {len(truth)}")
 
-    exact={str(rank):{str(wait):blank() for wait in range(6)} for rank in [1,2,3]}
-    rank_all={str(rank):blank() for rank in [1,2,3]}
+    exact={str(rank):{str(wait):blank() for wait in range(6)} for rank in [1,2,3,4,5,6]}
+    rank_all={str(rank):blank() for rank in [1,2,3,4,5,6]}
     wait_all={str(wait):blank() for wait in range(6)}
 
     for rid,ranks in cons.items():
         if any(c not in outs[rid] for c in CANDS):
             raise ValueError(f"missing outsider {rid}")
         for h,rank in ranks.items():
-            if rank not in (1,2,3): continue
+            if rank not in (1,2,3,4,5,6): continue
             pos=truth[rid].get(h)
             if pos is None: continue
             support=sum(h in outs[rid][c] for c in CANDS)
@@ -93,8 +93,8 @@ def main():
     # Expected podium rate for each wait bucket from rank composition only.
     expected={}
     for w in map(str,range(6)):
-        n=sum(exact_f[r][w]["n"] for r in ["1","2","3"])
-        exp_num=sum(exact_f[r][w]["n"]*rank_f[r]["podium_rate"] for r in ["1","2","3"])
+        n=sum(exact_f[r][w]["n"] for r in ["1","2","3","4","5","6"])
+        exp_num=sum(exact_f[r][w]["n"]*rank_f[r]["podium_rate"] for r in ["1","2","3","4","5","6"])
         actual=wait_f[w]["podium_rate"]
         exp=exp_num/n if n else None
         expected[w]={
@@ -109,10 +109,10 @@ def main():
       "year":a.year,
       "races":len(cons),
       "includes_chimera":False,
-      "definition":"wait_count = 5 - number of outsiders placing the same King Top3 horse in their own Top3",
+      "definition":"wait_count = 5 - number of outsiders placing the same King rank 1-6 horse in their own Top3",
       "exact_king_rank_by_wait":exact_f,
       "king_rank_baseline":rank_f,
-      "wait_all_king_top3":wait_f,
+      "wait_all_king_top6_ranks_by_outsider_top3":wait_f,
       "wait_vs_rank_only_expected":expected
     }
     p=Path(a.output); p.parent.mkdir(parents=True,exist_ok=True)
