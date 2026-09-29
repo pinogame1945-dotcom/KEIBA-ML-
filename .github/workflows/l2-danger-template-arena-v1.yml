@@ -112,7 +112,6 @@ jobs:
             while IFS= read -r d; do
               [[ -n "$d" ]] || continue
               echo "/data/daily/$d.jsonl.gz"
-              echo "/data/odds/daily/$d.jsonl.gz"
             done < out/l2-danger-template/dates.txt
           } > out/backfill/.git/info/sparse-checkout
           git -C out/backfill checkout "$BACKFILL_SHA"
@@ -141,6 +140,7 @@ jobs:
           echo "Standard ubuntu-latest CPU only."
           echo "No GPU / paid runner / Artifact / Cache."
           echo "No persistent raw race/ticket ledger stored."
+          echo "No ticket-level odds completeness filter in structural comparison."
           echo "Only compact aggregated CSV/JSON/README committed."
           echo "2026 remains sealed."
 
