@@ -1,1 +1,1 @@
-launch danger K2 third selector v1 2026-09-29 JST
+relaunch danger K2 third selector v1 after nonfinish-target fix 2026-09-29 JST
