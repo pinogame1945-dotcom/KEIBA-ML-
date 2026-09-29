@@ -9,6 +9,7 @@ from pathlib import Path
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
+from rank_utils import RANK_TIE_POLICY, deterministic_ranks, tie_diagnostics
 
 ROOT = Path(__file__).resolve().parents[1]
 FEATURE_CONTRACT = json.loads((ROOT / "contracts" / "l1-feature-set-contract-v1.json").read_text(encoding="utf-8"))
@@ -245,10 +246,13 @@ def main():
         probs = np.clip(probabilities[indices], 1e-15, 1.0)
         total = float(probs.sum())
         pn = probs / total if total > 0 else np.full(len(indices), 1.0 / len(indices))
-        order = np.argsort(-probabilities[indices], kind="stable")
-        local_rank = np.empty(len(indices), dtype=int)
-        for rank, pos in enumerate(order, start=1):
-            local_rank[pos] = rank
+        local_rank = np.asarray(
+            deterministic_ranks(
+                probabilities[indices].tolist(),
+                [ids[global_idx]["horse_id"] for global_idx in indices],
+            ),
+            dtype=int,
+        )
         for pos, global_idx in enumerate(indices):
             normalized[global_idx] = float(pn[pos])
             ranks[global_idx] = int(local_rank[pos])
@@ -256,8 +260,19 @@ def main():
         ordered = np.sort(pn)[::-1]
         field_size = len(ordered)
         entropy = float(-np.sum(np.clip(pn, 1e-15, 1.0) * np.log(np.clip(pn, 1e-15, 1.0))))
+        tie_info = tie_diagnostics(
+            probabilities[indices].tolist(),
+            [ids[global_idx]["horse_id"] for global_idx in indices],
+        )
         race_summaries[race_id] = {
             "field_size": field_size,
+            "rank_tie_policy": RANK_TIE_POLICY,
+            "rank_tie_group_count": tie_info["tie_group_count"],
+            "rank_tied_horse_count": tie_info["tied_horse_count"],
+            "rank_max_tie_group_size": tie_info["max_tie_group_size"],
+            "rank_top1_boundary_tie": tie_info["boundary_tie"]["1"],
+            "rank_top3_boundary_tie": tie_info["boundary_tie"]["3"],
+            "rank_top6_boundary_tie": tie_info["boundary_tie"]["6"],
             "top1_probability": float(ordered[0]),
             "top2_probability": float(ordered[1]) if field_size > 1 else None,
             "top1_top2_gap": float(ordered[0] - ordered[1]) if field_size > 1 else None,
