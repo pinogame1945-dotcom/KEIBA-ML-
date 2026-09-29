@@ -1,0 +1,14 @@
+launch=2026-09-29T10:31:00+09:00
+experiment=L21-MARKET-GAP-V1
+upstream=L15_FIXED_V1
+scope=2022-2025-all-races
+development=2022,2023,2024
+holdout=2025
+locked_year=2026
+market=final-win-odds
+ai_market_inputs=false
+gate_comparison=true
+k2_novel_analysis=true
+router_promotion=false
+storage=git-small-ledger-only
+cost=standard-cpu-only
