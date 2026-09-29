@@ -1,0 +1,4564 @@
+{
+  "contract": "L16_OUTSIDER_FIXEDN_RERANK_V1",
+  "year": 2025,
+  "races": 3456,
+  "includes_chimera": false,
+  "n_values": [
+    3,
+    4,
+    5,
+    6
+  ],
+  "policies": {
+    "king_baseline": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 641,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6235,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18547453703703703,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.600732247808074,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "internal_v3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 206,
+        "winner_hits": 1911,
+        "podium_occ_hits": 4827,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05960648148148148,
+        "winner_capture_rate": 0.5529513888888888,
+        "podium_occ_recall": 0.4650737065227864,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 558,
+        "winner_hits": 2295,
+        "podium_occ_hits": 5999,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16145833333333334,
+        "winner_capture_rate": 0.6640625,
+        "podium_occ_recall": 0.5779940263994604,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1004,
+        "winner_hits": 2627,
+        "podium_occ_hits": 7048,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29050925925925924,
+        "winner_capture_rate": 0.7601273148148148,
+        "podium_occ_recall": 0.6790634935928317,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "internal_v6": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 175,
+        "winner_hits": 1860,
+        "podium_occ_hits": 4678,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05063657407407408,
+        "winner_capture_rate": 0.5381944444444444,
+        "podium_occ_recall": 0.4507177955487041,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 504,
+        "winner_hits": 2269,
+        "podium_occ_hits": 5899,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.14583333333333334,
+        "winner_capture_rate": 0.6565393518518519,
+        "podium_occ_recall": 0.5683591868195395,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 957,
+        "winner_hits": 2605,
+        "podium_occ_hits": 6971,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2769097222222222,
+        "winner_capture_rate": 0.7537615740740741,
+        "podium_occ_recall": 0.6716446671162926,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 641,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6235,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18547453703703703,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.600732247808074,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 640,
+        "winner_hits": 2433,
+        "podium_occ_hits": 6235,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18518518518518517,
+        "winner_capture_rate": 0.7039930555555556,
+        "podium_occ_recall": 0.600732247808074,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1067,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30873842592592593,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1490,
+        "winner_hits": 2849,
+        "podium_occ_hits": 7871,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43113425925925924,
+        "winner_capture_rate": 0.8243634259259259,
+        "podium_occ_recall": 0.7583582233355814,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 641,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6235,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18547453703703703,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.600732247808074,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 641,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6235,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18547453703703703,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.600732247808074,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 227,
+        "winner_hits": 2095,
+        "podium_occ_hits": 5084,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06568287037037036,
+        "winner_capture_rate": 0.6061921296296297,
+        "podium_occ_recall": 0.48983524424318337,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 622,
+        "winner_hits": 2432,
+        "podium_occ_hits": 6209,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17997685185185186,
+        "winner_capture_rate": 0.7037037037037037,
+        "podium_occ_recall": 0.5982271895172946,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1060,
+        "winner_hits": 2684,
+        "podium_occ_hits": 7140,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30671296296296297,
+        "winner_capture_rate": 0.7766203703703703,
+        "podium_occ_recall": 0.687927546006359,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1468,
+        "winner_hits": 2855,
+        "podium_occ_hits": 7849,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42476851851851855,
+        "winner_capture_rate": 0.8260995370370371,
+        "podium_occ_recall": 0.7562385586279988,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5094,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.4907987282011754,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 637,
+        "winner_hits": 2440,
+        "podium_occ_hits": 6229,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18431712962962962,
+        "winner_capture_rate": 0.7060185185185185,
+        "podium_occ_recall": 0.6001541574332787,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1069,
+        "winner_hits": 2688,
+        "podium_occ_hits": 7159,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30931712962962965,
+        "winner_capture_rate": 0.7777777777777778,
+        "podium_occ_recall": 0.689758165526544,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1484,
+        "winner_hits": 2849,
+        "podium_occ_hits": 7866,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42939814814814814,
+        "winner_capture_rate": 0.8243634259259259,
+        "podium_occ_recall": 0.7578764813565854,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 232,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5103,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06712962962962964,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49166586376336835,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 641,
+        "winner_hits": 2437,
+        "podium_occ_hits": 6234,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18547453703703703,
+        "winner_capture_rate": 0.7051504629629629,
+        "podium_occ_recall": 0.6006358994122748,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1488,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7868,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4305555555555556,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7580691781481839,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 193,
+        "winner_hits": 2046,
+        "podium_occ_hits": 4979,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.055844907407407406,
+        "winner_capture_rate": 0.5920138888888888,
+        "podium_occ_recall": 0.47971866268426633,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 593,
+        "winner_hits": 2406,
+        "podium_occ_hits": 6145,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17158564814814814,
+        "winner_capture_rate": 0.6961805555555556,
+        "podium_occ_recall": 0.5920608921861451,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1011,
+        "winner_hits": 2667,
+        "podium_occ_hits": 7046,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2925347222222222,
+        "winner_capture_rate": 0.7717013888888888,
+        "podium_occ_recall": 0.6788707968012333,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1433,
+        "winner_hits": 2850,
+        "podium_occ_hits": 7799,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4146412037037037,
+        "winner_capture_rate": 0.8246527777777778,
+        "podium_occ_recall": 0.7514211388380383,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 219,
+        "winner_hits": 2106,
+        "podium_occ_hits": 5084,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06336805555555555,
+        "winner_capture_rate": 0.609375,
+        "podium_occ_recall": 0.48983524424318337,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 623,
+        "winner_hits": 2441,
+        "podium_occ_hits": 6222,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1802662037037037,
+        "winner_capture_rate": 0.7063078703703703,
+        "podium_occ_recall": 0.5994797186626842,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1058,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7150,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30613425925925924,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6888910299643511,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1479,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7865,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4279513888888889,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7577801329607862,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 236,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5110,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06828703703703703,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.4923403025339628,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 636,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6225,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1840277777777778,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.5997687638500819,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1062,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7154,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3072916666666667,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6892764235475479,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1486,
+        "winner_hits": 2855,
+        "podium_occ_hits": 7869,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42997685185185186,
+        "winner_capture_rate": 0.8260995370370371,
+        "podium_occ_recall": 0.7581655265439831,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 157,
+        "winner_hits": 1939,
+        "podium_occ_hits": 4750,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.04542824074074074,
+        "winner_capture_rate": 0.5610532407407407,
+        "podium_occ_recall": 0.4576548800462472,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 493,
+        "winner_hits": 2338,
+        "podium_occ_hits": 5958,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.14265046296296297,
+        "winner_capture_rate": 0.6765046296296297,
+        "podium_occ_recall": 0.5740437421716929,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 918,
+        "winner_hits": 2625,
+        "podium_occ_hits": 6900,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.265625,
+        "winner_capture_rate": 0.7595486111111112,
+        "podium_occ_recall": 0.6648039310145486,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1376,
+        "winner_hits": 2827,
+        "podium_occ_hits": 7727,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.39814814814814814,
+        "winner_capture_rate": 0.8179976851851852,
+        "podium_occ_recall": 0.7444840543404952,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 205,
+        "winner_hits": 2077,
+        "podium_occ_hits": 5046,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05931712962962963,
+        "winner_capture_rate": 0.6009837962962963,
+        "podium_occ_recall": 0.4861740052028134,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 602,
+        "winner_hits": 2436,
+        "podium_occ_hits": 6201,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17418981481481483,
+        "winner_capture_rate": 0.7048611111111112,
+        "podium_occ_recall": 0.5974564023509008,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1041,
+        "winner_hits": 2678,
+        "podium_occ_hits": 7122,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3012152777777778,
+        "winner_capture_rate": 0.7748842592592593,
+        "podium_occ_recall": 0.6861932748819732,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1468,
+        "winner_hits": 2859,
+        "podium_occ_hits": 7851,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42476851851851855,
+        "winner_capture_rate": 0.8272569444444444,
+        "podium_occ_recall": 0.7564312554195972,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 233,
+        "winner_hits": 2096,
+        "podium_occ_hits": 5103,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06741898148148148,
+        "winner_capture_rate": 0.6064814814814815,
+        "podium_occ_recall": 0.49166586376336835,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 637,
+        "winner_hits": 2432,
+        "podium_occ_hits": 6222,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18431712962962962,
+        "winner_capture_rate": 0.7037037037037037,
+        "podium_occ_recall": 0.5994797186626842,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1061,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7153,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3070023148148148,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6891800751517487,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1484,
+        "winner_hits": 2853,
+        "podium_occ_hits": 7865,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42939814814814814,
+        "winner_capture_rate": 0.8255208333333334,
+        "podium_occ_recall": 0.7577801329607862,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2085,
+        "podium_occ_hits": 5095,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6032986111111112,
+        "podium_occ_recall": 0.4908950765969747,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 628,
+        "winner_hits": 2443,
+        "podium_occ_hits": 6248,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18171296296296297,
+        "winner_capture_rate": 0.7068865740740741,
+        "podium_occ_recall": 0.6019847769534638,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2687,
+        "podium_occ_hits": 7173,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7774884259259259,
+        "podium_occ_recall": 0.691107043067733,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1493,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7883,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4320023148148148,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.759514404085172,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2085,
+        "podium_occ_hits": 5095,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6032986111111112,
+        "podium_occ_recall": 0.4908950765969747,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 628,
+        "winner_hits": 2443,
+        "podium_occ_hits": 6248,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18171296296296297,
+        "winner_capture_rate": 0.7068865740740741,
+        "podium_occ_recall": 0.6019847769534638,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2687,
+        "podium_occ_hits": 7173,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7774884259259259,
+        "podium_occ_recall": 0.691107043067733,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1493,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7883,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4320023148148148,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.759514404085172,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 232,
+        "winner_hits": 2097,
+        "podium_occ_hits": 5089,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06712962962962964,
+        "winner_capture_rate": 0.6067708333333334,
+        "podium_occ_recall": 0.4903169862221794,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 625,
+        "winner_hits": 2437,
+        "podium_occ_hits": 6225,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1808449074074074,
+        "winner_capture_rate": 0.7051504629629629,
+        "podium_occ_recall": 0.5997687638500819,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2681,
+        "podium_occ_hits": 7164,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7757523148148148,
+        "podium_occ_recall": 0.69023990750554,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1495,
+        "winner_hits": 2854,
+        "podium_occ_hits": 7881,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43258101851851855,
+        "winner_capture_rate": 0.8258101851851852,
+        "podium_occ_recall": 0.7593217072935735,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 236,
+        "winner_hits": 2102,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06828703703703703,
+        "winner_capture_rate": 0.6082175925925926,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 623,
+        "winner_hits": 2444,
+        "podium_occ_hits": 6229,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1802662037037037,
+        "winner_capture_rate": 0.7071759259259259,
+        "podium_occ_recall": 0.6001541574332787,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1067,
+        "winner_hits": 2688,
+        "podium_occ_hits": 7170,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30873842592592593,
+        "winner_capture_rate": 0.7777777777777778,
+        "podium_occ_recall": 0.6908179978803353,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1486,
+        "winner_hits": 2862,
+        "podium_occ_hits": 7878,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42997685185185186,
+        "winner_capture_rate": 0.828125,
+        "podium_occ_recall": 0.7590326621061759,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 235,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5104,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06799768518518519,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.49176221215916754,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 626,
+        "winner_hits": 2445,
+        "podium_occ_hits": 6233,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18113425925925927,
+        "winner_capture_rate": 0.7074652777777778,
+        "podium_occ_recall": 0.6005395510164756,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1068,
+        "winner_hits": 2690,
+        "podium_occ_hits": 7176,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3090277777777778,
+        "winner_capture_rate": 0.7783564814814815,
+        "podium_occ_recall": 0.6913960882551305,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1489,
+        "winner_hits": 2862,
+        "podium_occ_hits": 7880,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4308449074074074,
+        "winner_capture_rate": 0.828125,
+        "podium_occ_recall": 0.7592253588977743,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 232,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5099,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06712962962962964,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.4912804701801715,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 627,
+        "winner_hits": 2441,
+        "podium_occ_hits": 6227,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1814236111111111,
+        "winner_capture_rate": 0.7063078703703703,
+        "podium_occ_recall": 0.5999614606416803,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1065,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7162,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3081597222222222,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6900472107139416,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1492,
+        "winner_hits": 2854,
+        "podium_occ_hits": 7877,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43171296296296297,
+        "winner_capture_rate": 0.8258101851851852,
+        "podium_occ_recall": 0.7589363137103767,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 230,
+        "winner_hits": 2104,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06655092592592593,
+        "winner_capture_rate": 0.6087962962962963,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 624,
+        "winner_hits": 2447,
+        "podium_occ_hits": 6219,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18055555555555555,
+        "winner_capture_rate": 0.7080439814814815,
+        "podium_occ_recall": 0.5991906734752867,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1057,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7147,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3058449074074074,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6886019847769534,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1477,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7871,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4273726851851852,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.7583582233355814,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2102,
+        "podium_occ_hits": 5094,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6082175925925926,
+        "podium_occ_recall": 0.4907987282011754,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 622,
+        "winner_hits": 2444,
+        "podium_occ_hits": 6229,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17997685185185186,
+        "winner_capture_rate": 0.7071759259259259,
+        "podium_occ_recall": 0.6001541574332787,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1064,
+        "winner_hits": 2684,
+        "podium_occ_hits": 7167,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30787037037037035,
+        "winner_capture_rate": 0.7766203703703703,
+        "podium_occ_recall": 0.6905289526929377,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1490,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7888,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43113425925925924,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.759996146064168,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 236,
+        "winner_hits": 2099,
+        "podium_occ_hits": 5098,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06828703703703703,
+        "winner_capture_rate": 0.6073495370370371,
+        "podium_occ_recall": 0.49118412178437226,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 629,
+        "winner_hits": 2442,
+        "podium_occ_hits": 6229,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18200231481481483,
+        "winner_capture_rate": 0.7065972222222222,
+        "podium_occ_recall": 0.6001541574332787,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1062,
+        "winner_hits": 2679,
+        "podium_occ_hits": 7157,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3072916666666667,
+        "winner_capture_rate": 0.7751736111111112,
+        "podium_occ_recall": 0.6895654687349455,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1491,
+        "winner_hits": 2857,
+        "podium_occ_hits": 7882,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4314236111111111,
+        "winner_capture_rate": 0.8266782407407407,
+        "podium_occ_recall": 0.7594180556893728,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 225,
+        "winner_hits": 2072,
+        "podium_occ_hits": 5042,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06510416666666667,
+        "winner_capture_rate": 0.5995370370370371,
+        "podium_occ_recall": 0.4857886116196165,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 599,
+        "winner_hits": 2434,
+        "podium_occ_hits": 6173,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17332175925925927,
+        "winner_capture_rate": 0.7042824074074074,
+        "podium_occ_recall": 0.594758647268523,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1017,
+        "winner_hits": 2668,
+        "podium_occ_hits": 7076,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2942708333333333,
+        "winner_capture_rate": 0.7719907407407407,
+        "podium_occ_recall": 0.6817612486752096,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1447,
+        "winner_hits": 2861,
+        "podium_occ_hits": 7825,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.41869212962962965,
+        "winner_capture_rate": 0.8278356481481481,
+        "podium_occ_recall": 0.7539261971288178,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 228,
+        "winner_hits": 2098,
+        "podium_occ_hits": 5077,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06597222222222222,
+        "winner_capture_rate": 0.6070601851851852,
+        "podium_occ_recall": 0.4891608054725889,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 618,
+        "winner_hits": 2452,
+        "podium_occ_hits": 6226,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17881944444444445,
+        "winner_capture_rate": 0.7094907407407407,
+        "podium_occ_recall": 0.5998651122458811,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1054,
+        "winner_hits": 2685,
+        "podium_occ_hits": 7148,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30497685185185186,
+        "winner_capture_rate": 0.7769097222222222,
+        "podium_occ_recall": 0.6886983331727526,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1477,
+        "winner_hits": 2865,
+        "podium_occ_hits": 7872,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4273726851851852,
+        "winner_capture_rate": 0.8289930555555556,
+        "podium_occ_recall": 0.7584545717313806,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 239,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5102,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06915509259259259,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.49156951536756915,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 629,
+        "winner_hits": 2437,
+        "podium_occ_hits": 6222,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18200231481481483,
+        "winner_capture_rate": 0.7051504629629629,
+        "podium_occ_recall": 0.5994797186626842,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1057,
+        "winner_hits": 2680,
+        "podium_occ_hits": 7150,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3058449074074074,
+        "winner_capture_rate": 0.7754629629629629,
+        "podium_occ_recall": 0.6888910299643511,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1490,
+        "winner_hits": 2859,
+        "podium_occ_hits": 7879,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43113425925925924,
+        "winner_capture_rate": 0.8272569444444444,
+        "podium_occ_recall": 0.7591290105019751,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 185,
+        "winner_hits": 2012,
+        "podium_occ_hits": 4934,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.053530092592592594,
+        "winner_capture_rate": 0.5821759259259259,
+        "podium_occ_recall": 0.4753829848733019,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 552,
+        "winner_hits": 2388,
+        "podium_occ_hits": 6093,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1597222222222222,
+        "winner_capture_rate": 0.6909722222222222,
+        "podium_occ_recall": 0.5870507756045862,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 965,
+        "winner_hits": 2653,
+        "podium_occ_hits": 6997,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27922453703703703,
+        "winner_capture_rate": 0.7676504629629629,
+        "podium_occ_recall": 0.674149725407072,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1422,
+        "winner_hits": 2846,
+        "podium_occ_hits": 7788,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4114583333333333,
+        "winner_capture_rate": 0.8234953703703703,
+        "podium_occ_recall": 0.750361306484247,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 211,
+        "winner_hits": 2073,
+        "podium_occ_hits": 5047,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06105324074074074,
+        "winner_capture_rate": 0.5998263888888888,
+        "podium_occ_recall": 0.4862703535986126,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 608,
+        "winner_hits": 2433,
+        "podium_occ_hits": 6215,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17592592592592593,
+        "winner_capture_rate": 0.7039930555555556,
+        "podium_occ_recall": 0.5988052798920898,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1043,
+        "winner_hits": 2680,
+        "podium_occ_hits": 7135,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30179398148148145,
+        "winner_capture_rate": 0.7754629629629629,
+        "podium_occ_recall": 0.687445804027363,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1469,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7862,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42505787037037035,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.7574910877733886,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=0.5_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 234,
+        "winner_hits": 2093,
+        "podium_occ_hits": 5090,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06770833333333333,
+        "winner_capture_rate": 0.6056134259259259,
+        "podium_occ_recall": 0.4904133346179786,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 628,
+        "winner_hits": 2435,
+        "podium_occ_hits": 6228,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18171296296296297,
+        "winner_capture_rate": 0.7045717592592593,
+        "podium_occ_recall": 0.6000578090374795,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1059,
+        "winner_hits": 2680,
+        "podium_occ_hits": 7156,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3064236111111111,
+        "winner_capture_rate": 0.7754629629629629,
+        "podium_occ_recall": 0.6894691203391463,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1487,
+        "winner_hits": 2857,
+        "podium_occ_hits": 7875,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4302662037037037,
+        "winner_capture_rate": 0.8266782407407407,
+        "podium_occ_recall": 0.7587436169187783,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 235,
+        "winner_hits": 2070,
+        "podium_occ_hits": 5061,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06799768518518519,
+        "winner_capture_rate": 0.5989583333333334,
+        "podium_occ_recall": 0.48761923113980155,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 606,
+        "winner_hits": 2421,
+        "podium_occ_hits": 6203,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1753472222222222,
+        "winner_capture_rate": 0.7005208333333334,
+        "podium_occ_recall": 0.5976490991424993,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1041,
+        "winner_hits": 2680,
+        "podium_occ_hits": 7142,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3012152777777778,
+        "winner_capture_rate": 0.7754629629629629,
+        "podium_occ_recall": 0.6881202427979574,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1479,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7865,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4279513888888889,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.7577801329607862,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 233,
+        "winner_hits": 2069,
+        "podium_occ_hits": 5067,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06741898148148148,
+        "winner_capture_rate": 0.5986689814814815,
+        "podium_occ_recall": 0.48819732151459677,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 602,
+        "winner_hits": 2424,
+        "podium_occ_hits": 6201,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17418981481481483,
+        "winner_capture_rate": 0.7013888888888888,
+        "podium_occ_recall": 0.5974564023509008,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1039,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7149,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30063657407407407,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6887946815685518,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1476,
+        "winner_hits": 2867,
+        "podium_occ_hits": 7865,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4270833333333333,
+        "winner_capture_rate": 0.8295717592592593,
+        "podium_occ_recall": 0.7577801329607862,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 235,
+        "winner_hits": 2088,
+        "podium_occ_hits": 5085,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06799768518518519,
+        "winner_capture_rate": 0.6041666666666666,
+        "podium_occ_recall": 0.48993159263898256,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 610,
+        "winner_hits": 2421,
+        "podium_occ_hits": 6210,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17650462962962962,
+        "winner_capture_rate": 0.7005208333333334,
+        "podium_occ_recall": 0.5983235379130938,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1043,
+        "winner_hits": 2673,
+        "podium_occ_hits": 7140,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30179398148148145,
+        "winner_capture_rate": 0.7734375,
+        "podium_occ_recall": 0.687927546006359,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1497,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7889,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4331597222222222,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.7600924944599673,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 240,
+        "winner_hits": 2098,
+        "podium_occ_hits": 5087,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06944444444444445,
+        "winner_capture_rate": 0.6070601851851852,
+        "podium_occ_recall": 0.490124289430581,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 624,
+        "winner_hits": 2431,
+        "podium_occ_hits": 6220,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18055555555555555,
+        "winner_capture_rate": 0.7034143518518519,
+        "podium_occ_recall": 0.5992870218710858,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1047,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7151,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3029513888888889,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6889873783601503,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1476,
+        "winner_hits": 2870,
+        "podium_occ_hits": 7867,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4270833333333333,
+        "winner_capture_rate": 0.8304398148148148,
+        "podium_occ_recall": 0.7579728297523847,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 239,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5091,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06915509259259259,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.49050968301377784,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 623,
+        "winner_hits": 2429,
+        "podium_occ_hits": 6222,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1802662037037037,
+        "winner_capture_rate": 0.7028356481481481,
+        "podium_occ_recall": 0.5994797186626842,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1048,
+        "winner_hits": 2683,
+        "podium_occ_hits": 7158,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30324074074074076,
+        "winner_capture_rate": 0.7763310185185185,
+        "podium_occ_recall": 0.6896618171307448,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1482,
+        "winner_hits": 2870,
+        "podium_occ_hits": 7876,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4288194444444444,
+        "winner_capture_rate": 0.8304398148148148,
+        "podium_occ_recall": 0.7588399653145775,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 239,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5089,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06915509259259259,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.4903169862221794,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 619,
+        "winner_hits": 2424,
+        "podium_occ_hits": 6210,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1791087962962963,
+        "winner_capture_rate": 0.7013888888888888,
+        "podium_occ_recall": 0.5983235379130938,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1054,
+        "winner_hits": 2678,
+        "podium_occ_hits": 7151,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30497685185185186,
+        "winner_capture_rate": 0.7748842592592593,
+        "podium_occ_recall": 0.6889873783601503,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1495,
+        "winner_hits": 2865,
+        "podium_occ_hits": 7889,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43258101851851855,
+        "winner_capture_rate": 0.8289930555555556,
+        "podium_occ_recall": 0.7600924944599673,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 235,
+        "winner_hits": 2105,
+        "podium_occ_hits": 5089,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06799768518518519,
+        "winner_capture_rate": 0.6090856481481481,
+        "podium_occ_recall": 0.4903169862221794,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 630,
+        "winner_hits": 2441,
+        "podium_occ_hits": 6223,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.18229166666666666,
+        "winner_capture_rate": 0.7063078703703703,
+        "podium_occ_recall": 0.5995760670584834,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1035,
+        "winner_hits": 2681,
+        "podium_occ_hits": 7135,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2994791666666667,
+        "winner_capture_rate": 0.7757523148148148,
+        "podium_occ_recall": 0.687445804027363,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1453,
+        "winner_hits": 2875,
+        "podium_occ_hits": 7845,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42042824074074076,
+        "winner_capture_rate": 0.8318865740740741,
+        "podium_occ_recall": 0.755853165044802,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 234,
+        "winner_hits": 2102,
+        "podium_occ_hits": 5084,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06770833333333333,
+        "winner_capture_rate": 0.6082175925925926,
+        "podium_occ_recall": 0.48983524424318337,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 625,
+        "winner_hits": 2440,
+        "podium_occ_hits": 6226,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1808449074074074,
+        "winner_capture_rate": 0.7060185185185185,
+        "podium_occ_recall": 0.5998651122458811,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1042,
+        "winner_hits": 2682,
+        "podium_occ_hits": 7147,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30150462962962965,
+        "winner_capture_rate": 0.7760416666666666,
+        "podium_occ_recall": 0.6886019847769534,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1470,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7862,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4253472222222222,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.7574910877733886,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 243,
+        "winner_hits": 2108,
+        "podium_occ_hits": 5097,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0703125,
+        "winner_capture_rate": 0.6099537037037037,
+        "podium_occ_recall": 0.49108777338857307,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 623,
+        "winner_hits": 2427,
+        "podium_occ_hits": 6212,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1802662037037037,
+        "winner_capture_rate": 0.7022569444444444,
+        "podium_occ_recall": 0.5985162347046922,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1049,
+        "winner_hits": 2678,
+        "podium_occ_hits": 7148,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3035300925925926,
+        "winner_capture_rate": 0.7748842592592593,
+        "podium_occ_recall": 0.6886983331727526,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1489,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7883,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4308449074074074,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.759514404085172,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 240,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5049,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06944444444444445,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.486463050390211,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 600,
+        "winner_hits": 2415,
+        "podium_occ_hits": 6172,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1736111111111111,
+        "winner_capture_rate": 0.6987847222222222,
+        "podium_occ_recall": 0.5946622988727238,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1013,
+        "winner_hits": 2679,
+        "podium_occ_hits": 7098,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29311342592592593,
+        "winner_capture_rate": 0.7751736111111112,
+        "podium_occ_recall": 0.6838809133827922,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1440,
+        "winner_hits": 2871,
+        "podium_occ_hits": 7828,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4166666666666667,
+        "winner_capture_rate": 0.8307291666666666,
+        "podium_occ_recall": 0.7542152423162154,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2094,
+        "podium_occ_hits": 5054,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6059027777777778,
+        "podium_occ_recall": 0.48694479236920707,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 604,
+        "winner_hits": 2431,
+        "podium_occ_hits": 6208,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17476851851851852,
+        "winner_capture_rate": 0.7034143518518519,
+        "podium_occ_recall": 0.5981308411214953,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1036,
+        "winner_hits": 2685,
+        "podium_occ_hits": 7137,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29976851851851855,
+        "winner_capture_rate": 0.7769097222222222,
+        "podium_occ_recall": 0.6876385008189614,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1456,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7852,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4212962962962963,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.7565276038153965,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 241,
+        "winner_hits": 2102,
+        "podium_occ_hits": 5077,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0697337962962963,
+        "winner_capture_rate": 0.6082175925925926,
+        "podium_occ_recall": 0.4891608054725889,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 613,
+        "winner_hits": 2427,
+        "podium_occ_hits": 6205,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17737268518518517,
+        "winner_capture_rate": 0.7022569444444444,
+        "podium_occ_recall": 0.5978417959340977,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1049,
+        "winner_hits": 2681,
+        "podium_occ_hits": 7148,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3035300925925926,
+        "winner_capture_rate": 0.7757523148148148,
+        "podium_occ_recall": 0.6886983331727526,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1485,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7877,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4296875,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7589363137103767,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 217,
+        "winner_hits": 2056,
+        "podium_occ_hits": 4991,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06278935185185185,
+        "winner_capture_rate": 0.5949074074074074,
+        "podium_occ_recall": 0.48087484343385684,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 568,
+        "winner_hits": 2403,
+        "podium_occ_hits": 6106,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16435185185185186,
+        "winner_capture_rate": 0.6953125,
+        "podium_occ_recall": 0.5883033047499759,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 983,
+        "winner_hits": 2653,
+        "podium_occ_hits": 7040,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.28443287037037035,
+        "winner_capture_rate": 0.7676504629629629,
+        "podium_occ_recall": 0.678292706426438,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1423,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7795,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4117476851851852,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.7510357452548415,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 220,
+        "winner_hits": 2083,
+        "podium_occ_hits": 5036,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06365740740740741,
+        "winner_capture_rate": 0.6027199074074074,
+        "podium_occ_recall": 0.4852105212448213,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 605,
+        "winner_hits": 2430,
+        "podium_occ_hits": 6194,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17505787037037038,
+        "winner_capture_rate": 0.703125,
+        "podium_occ_recall": 0.5967819635803064,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1037,
+        "winner_hits": 2672,
+        "podium_occ_hits": 7122,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30005787037037035,
+        "winner_capture_rate": 0.7731481481481481,
+        "podium_occ_recall": 0.6861932748819732,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1459,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7851,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42216435185185186,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.7564312554195972,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 241,
+        "winner_hits": 2100,
+        "podium_occ_hits": 5085,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0697337962962963,
+        "winner_capture_rate": 0.6076388888888888,
+        "podium_occ_recall": 0.48993159263898256,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 620,
+        "winner_hits": 2432,
+        "podium_occ_hits": 6214,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17939814814814814,
+        "winner_capture_rate": 0.7037037037037037,
+        "podium_occ_recall": 0.5987089314962906,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1050,
+        "winner_hits": 2675,
+        "podium_occ_hits": 7146,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3038194444444444,
+        "winner_capture_rate": 0.7740162037037037,
+        "podium_occ_recall": 0.6885056363811543,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1484,
+        "winner_hits": 2861,
+        "podium_occ_hits": 7873,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42939814814814814,
+        "winner_capture_rate": 0.8278356481481481,
+        "podium_occ_recall": 0.7585509201271798,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 230,
+        "winner_hits": 2046,
+        "podium_occ_hits": 5022,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06655092592592593,
+        "winner_capture_rate": 0.5920138888888888,
+        "podium_occ_recall": 0.4838616437036323,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 587,
+        "winner_hits": 2403,
+        "podium_occ_hits": 6166,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16984953703703703,
+        "winner_capture_rate": 0.6953125,
+        "podium_occ_recall": 0.5940842084979285,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1033,
+        "winner_hits": 2670,
+        "podium_occ_hits": 7114,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29890046296296297,
+        "winner_capture_rate": 0.7725694444444444,
+        "podium_occ_recall": 0.6854224877155796,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1466,
+        "winner_hits": 2873,
+        "podium_occ_hits": 7852,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4241898148148148,
+        "winner_capture_rate": 0.8313078703703703,
+        "podium_occ_recall": 0.7565276038153965,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 228,
+        "winner_hits": 2042,
+        "podium_occ_hits": 5026,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06597222222222222,
+        "winner_capture_rate": 0.5908564814814815,
+        "podium_occ_recall": 0.48424703728682916,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 583,
+        "winner_hits": 2403,
+        "podium_occ_hits": 6162,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16869212962962962,
+        "winner_capture_rate": 0.6953125,
+        "podium_occ_recall": 0.5936988149147316,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1028,
+        "winner_hits": 2674,
+        "podium_occ_hits": 7112,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2974537037037037,
+        "winner_capture_rate": 0.7737268518518519,
+        "podium_occ_recall": 0.6852297909239811,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1454,
+        "winner_hits": 2875,
+        "podium_occ_hits": 7843,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4207175925925926,
+        "winner_capture_rate": 0.8318865740740741,
+        "podium_occ_recall": 0.7556604682532035,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 223,
+        "winner_hits": 2063,
+        "podium_occ_hits": 5047,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06452546296296297,
+        "winner_capture_rate": 0.5969328703703703,
+        "podium_occ_recall": 0.4862703535986126,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 596,
+        "winner_hits": 2403,
+        "podium_occ_hits": 6179,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1724537037037037,
+        "winner_capture_rate": 0.6953125,
+        "podium_occ_recall": 0.5953367376433183,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1044,
+        "winner_hits": 2675,
+        "podium_occ_hits": 7139,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3020833333333333,
+        "winner_capture_rate": 0.7740162037037037,
+        "podium_occ_recall": 0.6878311976105598,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1490,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7888,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.43113425925925924,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.759996146064168,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 233,
+        "winner_hits": 2060,
+        "podium_occ_hits": 5046,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06741898148148148,
+        "winner_capture_rate": 0.5960648148148148,
+        "podium_occ_recall": 0.4861740052028134,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 604,
+        "winner_hits": 2417,
+        "podium_occ_hits": 6186,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17476851851851852,
+        "winner_capture_rate": 0.6993634259259259,
+        "podium_occ_recall": 0.5960111764139127,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1038,
+        "winner_hits": 2672,
+        "podium_occ_hits": 7123,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3003472222222222,
+        "winner_capture_rate": 0.7731481481481481,
+        "podium_occ_recall": 0.6862896232777724,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1455,
+        "winner_hits": 2867,
+        "podium_occ_hits": 7843,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4210069444444444,
+        "winner_capture_rate": 0.8295717592592593,
+        "podium_occ_recall": 0.7556604682532035,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 229,
+        "winner_hits": 2060,
+        "podium_occ_hits": 5050,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06626157407407407,
+        "winner_capture_rate": 0.5960648148148148,
+        "podium_occ_recall": 0.48655939878601023,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 599,
+        "winner_hits": 2420,
+        "podium_occ_hits": 6186,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17332175925925927,
+        "winner_capture_rate": 0.7002314814814815,
+        "podium_occ_recall": 0.5960111764139127,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1040,
+        "winner_hits": 2677,
+        "podium_occ_hits": 7134,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30092592592592593,
+        "winner_capture_rate": 0.7745949074074074,
+        "podium_occ_recall": 0.6873494556315637,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1452,
+        "winner_hits": 2870,
+        "podium_occ_hits": 7839,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4201388888888889,
+        "winner_capture_rate": 0.8304398148148148,
+        "podium_occ_recall": 0.7552750746700068,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 230,
+        "winner_hits": 2075,
+        "podium_occ_hits": 5063,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06655092592592593,
+        "winner_capture_rate": 0.6004050925925926,
+        "podium_occ_recall": 0.48781192793139994,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 603,
+        "winner_hits": 2413,
+        "podium_occ_hits": 6190,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17447916666666666,
+        "winner_capture_rate": 0.6982060185185185,
+        "podium_occ_recall": 0.5963965699971095,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1042,
+        "winner_hits": 2671,
+        "podium_occ_hits": 7135,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30150462962962965,
+        "winner_capture_rate": 0.7728587962962963,
+        "podium_occ_recall": 0.687445804027363,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1486,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7879,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42997685185185186,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.7591290105019751,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 232,
+        "winner_hits": 2082,
+        "podium_occ_hits": 5056,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06712962962962964,
+        "winner_capture_rate": 0.6024305555555556,
+        "podium_occ_recall": 0.48713748916080546,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 616,
+        "winner_hits": 2419,
+        "podium_occ_hits": 6206,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17824074074074073,
+        "winner_capture_rate": 0.6999421296296297,
+        "podium_occ_recall": 0.5979381443298969,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1035,
+        "winner_hits": 2666,
+        "podium_occ_hits": 7123,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2994791666666667,
+        "winner_capture_rate": 0.7714120370370371,
+        "podium_occ_recall": 0.6862896232777724,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1438,
+        "winner_hits": 2885,
+        "podium_occ_hits": 7842,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.41608796296296297,
+        "winner_capture_rate": 0.8347800925925926,
+        "podium_occ_recall": 0.7555641198574043,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 228,
+        "winner_hits": 2077,
+        "podium_occ_hits": 5059,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06597222222222222,
+        "winner_capture_rate": 0.6009837962962963,
+        "podium_occ_recall": 0.4874265343482031,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 613,
+        "winner_hits": 2424,
+        "podium_occ_hits": 6210,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17737268518518517,
+        "winner_capture_rate": 0.7013888888888888,
+        "podium_occ_recall": 0.5983235379130938,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1034,
+        "winner_hits": 2672,
+        "podium_occ_hits": 7127,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2991898148148148,
+        "winner_capture_rate": 0.7731481481481481,
+        "podium_occ_recall": 0.6866750168609692,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1450,
+        "winner_hits": 2881,
+        "podium_occ_hits": 7850,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4195601851851852,
+        "winner_capture_rate": 0.8336226851851852,
+        "podium_occ_recall": 0.756334907023798,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 231,
+        "winner_hits": 2082,
+        "podium_occ_hits": 5062,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06684027777777778,
+        "winner_capture_rate": 0.6024305555555556,
+        "podium_occ_recall": 0.48771557953560074,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 611,
+        "winner_hits": 2420,
+        "podium_occ_hits": 6201,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17679398148148148,
+        "winner_capture_rate": 0.7002314814814815,
+        "podium_occ_recall": 0.5974564023509008,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1040,
+        "winner_hits": 2667,
+        "podium_occ_hits": 7129,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30092592592592593,
+        "winner_capture_rate": 0.7717013888888888,
+        "podium_occ_recall": 0.6868677136525677,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1481,
+        "winner_hits": 2867,
+        "podium_occ_hits": 7879,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4285300925925926,
+        "winner_capture_rate": 0.8295717592592593,
+        "podium_occ_recall": 0.7591290105019751,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 232,
+        "winner_hits": 2079,
+        "podium_occ_hits": 5035,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06712962962962964,
+        "winner_capture_rate": 0.6015625,
+        "podium_occ_recall": 0.4851141728490221,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 599,
+        "winner_hits": 2408,
+        "podium_occ_hits": 6158,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17332175925925927,
+        "winner_capture_rate": 0.6967592592592593,
+        "podium_occ_recall": 0.5933134213315349,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1003,
+        "winner_hits": 2660,
+        "podium_occ_hits": 7066,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2902199074074074,
+        "winner_capture_rate": 0.7696759259259259,
+        "podium_occ_recall": 0.6807977647172174,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1438,
+        "winner_hits": 2872,
+        "podium_occ_hits": 7818,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.41608796296296297,
+        "winner_capture_rate": 0.8310185185185185,
+        "podium_occ_recall": 0.7532517583582233,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 225,
+        "winner_hits": 2073,
+        "podium_occ_hits": 5040,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06510416666666667,
+        "winner_capture_rate": 0.5998263888888888,
+        "podium_occ_recall": 0.4855959148280181,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 602,
+        "winner_hits": 2427,
+        "podium_occ_hits": 6193,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17418981481481483,
+        "winner_capture_rate": 0.7022569444444444,
+        "podium_occ_recall": 0.5966856151845071,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1021,
+        "winner_hits": 2670,
+        "podium_occ_hits": 7101,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29542824074074076,
+        "winner_capture_rate": 0.7725694444444444,
+        "podium_occ_recall": 0.6841699585701898,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1449,
+        "winner_hits": 2872,
+        "podium_occ_hits": 7839,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4192708333333333,
+        "winner_capture_rate": 0.8310185185185185,
+        "podium_occ_recall": 0.7552750746700068,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 234,
+        "winner_hits": 2088,
+        "podium_occ_hits": 5067,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06770833333333333,
+        "winner_capture_rate": 0.6041666666666666,
+        "podium_occ_recall": 0.48819732151459677,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 614,
+        "winner_hits": 2423,
+        "podium_occ_hits": 6196,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17766203703703703,
+        "winner_capture_rate": 0.7010995370370371,
+        "podium_occ_recall": 0.5969746603719048,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1040,
+        "winner_hits": 2669,
+        "podium_occ_hits": 7128,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30092592592592593,
+        "winner_capture_rate": 0.7722800925925926,
+        "podium_occ_recall": 0.6867713652567685,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1482,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7874,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4288194444444444,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.7586472685229791,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 224,
+        "winner_hits": 2040,
+        "podium_occ_hits": 4976,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06481481481481481,
+        "winner_capture_rate": 0.5902777777777778,
+        "podium_occ_recall": 0.4794296174968687,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 577,
+        "winner_hits": 2387,
+        "podium_occ_hits": 6098,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16695601851851852,
+        "winner_capture_rate": 0.6906828703703703,
+        "podium_occ_recall": 0.5875325175835823,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 967,
+        "winner_hits": 2656,
+        "podium_occ_hits": 7016,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27980324074074076,
+        "winner_capture_rate": 0.7685185185185185,
+        "podium_occ_recall": 0.675980344927257,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1409,
+        "winner_hits": 2858,
+        "podium_occ_hits": 7777,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40769675925925924,
+        "winner_capture_rate": 0.8269675925925926,
+        "podium_occ_recall": 0.7493014741304558,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 220,
+        "winner_hits": 2054,
+        "podium_occ_hits": 5011,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06365740740740741,
+        "winner_capture_rate": 0.5943287037037037,
+        "podium_occ_recall": 0.482801811349841,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 592,
+        "winner_hits": 2414,
+        "podium_occ_hits": 6157,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1712962962962963,
+        "winner_capture_rate": 0.6984953703703703,
+        "podium_occ_recall": 0.5932170729357357,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1012,
+        "winner_hits": 2670,
+        "podium_occ_hits": 7083,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29282407407407407,
+        "winner_capture_rate": 0.7725694444444444,
+        "podium_occ_recall": 0.6824356874458041,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1445,
+        "winner_hits": 2866,
+        "podium_occ_hits": 7831,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.41811342592592593,
+        "winner_capture_rate": 0.8292824074074074,
+        "podium_occ_recall": 0.7545042875036131,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=1.5_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 237,
+        "winner_hits": 2081,
+        "podium_occ_hits": 5055,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0685763888888889,
+        "winner_capture_rate": 0.6021412037037037,
+        "podium_occ_recall": 0.48704114076500626,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 608,
+        "winner_hits": 2424,
+        "podium_occ_hits": 6190,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17592592592592593,
+        "winner_capture_rate": 0.7013888888888888,
+        "podium_occ_recall": 0.5963965699971095,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1033,
+        "winner_hits": 2676,
+        "podium_occ_hits": 7127,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29890046296296297,
+        "winner_capture_rate": 0.7743055555555556,
+        "podium_occ_recall": 0.6866750168609692,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1478,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7865,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42766203703703703,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7577801329607862,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 216,
+        "winner_hits": 1974,
+        "podium_occ_hits": 4912,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0625,
+        "winner_capture_rate": 0.5711805555555556,
+        "podium_occ_recall": 0.47326332016571926,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 573,
+        "winner_hits": 2362,
+        "podium_occ_hits": 6085,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1657986111111111,
+        "winner_capture_rate": 0.6834490740740741,
+        "podium_occ_recall": 0.5862799884381925,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 994,
+        "winner_hits": 2657,
+        "podium_occ_hits": 7038,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.28761574074074076,
+        "winner_capture_rate": 0.7688078703703703,
+        "podium_occ_recall": 0.6781000096348396,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1437,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7816,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4157986111111111,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7530590615666249,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 216,
+        "winner_hits": 1976,
+        "podium_occ_hits": 4916,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0625,
+        "winner_capture_rate": 0.5717592592592593,
+        "podium_occ_recall": 0.4736487137489161,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 566,
+        "winner_hits": 2362,
+        "podium_occ_hits": 6076,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16377314814814814,
+        "winner_capture_rate": 0.6834490740740741,
+        "podium_occ_recall": 0.5854128528759996,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 990,
+        "winner_hits": 2660,
+        "podium_occ_hits": 7045,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2864583333333333,
+        "winner_capture_rate": 0.7696759259259259,
+        "podium_occ_recall": 0.678774448405434,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1433,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7812,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4146412037037037,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.752673667983428,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 212,
+        "winner_hits": 2026,
+        "podium_occ_hits": 4978,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.061342592592592594,
+        "winner_capture_rate": 0.5862268518518519,
+        "podium_occ_recall": 0.4796223142884671,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 581,
+        "winner_hits": 2383,
+        "podium_occ_hits": 6126,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16811342592592593,
+        "winner_capture_rate": 0.6895254629629629,
+        "podium_occ_recall": 0.5902302726659601,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1037,
+        "winner_hits": 2659,
+        "podium_occ_hits": 7109,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.30005787037037035,
+        "winner_capture_rate": 0.7693865740740741,
+        "podium_occ_recall": 0.6849407457365835,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1481,
+        "winner_hits": 2861,
+        "podium_occ_hits": 7876,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4285300925925926,
+        "winner_capture_rate": 0.8278356481481481,
+        "podium_occ_recall": 0.7588399653145775,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 225,
+        "winner_hits": 2023,
+        "podium_occ_hits": 4984,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06510416666666667,
+        "winner_capture_rate": 0.5853587962962963,
+        "podium_occ_recall": 0.48020040466326236,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 579,
+        "winner_hits": 2381,
+        "podium_occ_hits": 6126,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1675347222222222,
+        "winner_capture_rate": 0.6889467592592593,
+        "podium_occ_recall": 0.5902302726659601,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1020,
+        "winner_hits": 2662,
+        "podium_occ_hits": 7086,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2951388888888889,
+        "winner_capture_rate": 0.7702546296296297,
+        "podium_occ_recall": 0.6827247326332017,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1437,
+        "winner_hits": 2858,
+        "podium_occ_hits": 7819,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4157986111111111,
+        "winner_capture_rate": 0.8269675925925926,
+        "podium_occ_recall": 0.7533481067540225,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 223,
+        "winner_hits": 2022,
+        "podium_occ_hits": 4990,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06452546296296297,
+        "winner_capture_rate": 0.5850694444444444,
+        "podium_occ_recall": 0.48077849503805764,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 573,
+        "winner_hits": 2386,
+        "podium_occ_hits": 6124,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1657986111111111,
+        "winner_capture_rate": 0.6903935185185185,
+        "podium_occ_recall": 0.5900375758743617,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1011,
+        "winner_hits": 2667,
+        "podium_occ_hits": 7082,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2925347222222222,
+        "winner_capture_rate": 0.7717013888888888,
+        "podium_occ_recall": 0.6823393390500048,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1438,
+        "winner_hits": 2865,
+        "podium_occ_hits": 7820,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.41608796296296297,
+        "winner_capture_rate": 0.8289930555555556,
+        "podium_occ_recall": 0.7534444551498217,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 213,
+        "winner_hits": 2044,
+        "podium_occ_hits": 5014,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06163194444444445,
+        "winner_capture_rate": 0.5914351851851852,
+        "podium_occ_recall": 0.48309085653723866,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 587,
+        "winner_hits": 2392,
+        "podium_occ_hits": 6156,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16984953703703703,
+        "winner_capture_rate": 0.6921296296296297,
+        "podium_occ_recall": 0.5931207245399364,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1036,
+        "winner_hits": 2665,
+        "podium_occ_hits": 7126,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29976851851851855,
+        "winner_capture_rate": 0.7711226851851852,
+        "podium_occ_recall": 0.68657866846517,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1480,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7873,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42824074074074076,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.7585509201271798,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 222,
+        "winner_hits": 2025,
+        "podium_occ_hits": 4984,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0642361111111111,
+        "winner_capture_rate": 0.5859375,
+        "podium_occ_recall": 0.48020040466326236,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 578,
+        "winner_hits": 2386,
+        "podium_occ_hits": 6114,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16724537037037038,
+        "winner_capture_rate": 0.6903935185185185,
+        "podium_occ_recall": 0.5890740919163696,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1016,
+        "winner_hits": 2660,
+        "podium_occ_hits": 7069,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29398148148148145,
+        "winner_capture_rate": 0.7696759259259259,
+        "podium_occ_recall": 0.6810868099046151,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1427,
+        "winner_hits": 2871,
+        "podium_occ_hits": 7814,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4129050925925926,
+        "winner_capture_rate": 0.8307291666666666,
+        "podium_occ_recall": 0.7528663647750264,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 221,
+        "winner_hits": 2022,
+        "podium_occ_hits": 4986,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06394675925925926,
+        "winner_capture_rate": 0.5850694444444444,
+        "podium_occ_recall": 0.48039310145486075,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 573,
+        "winner_hits": 2389,
+        "podium_occ_hits": 6119,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1657986111111111,
+        "winner_capture_rate": 0.6912615740740741,
+        "podium_occ_recall": 0.5895558338953656,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1014,
+        "winner_hits": 2666,
+        "podium_occ_hits": 7076,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2934027777777778,
+        "winner_capture_rate": 0.7714120370370371,
+        "podium_occ_recall": 0.6817612486752096,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1435,
+        "winner_hits": 2869,
+        "podium_occ_hits": 7820,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4152199074074074,
+        "winner_capture_rate": 0.8301504629629629,
+        "podium_occ_recall": 0.7534444551498217,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 215,
+        "winner_hits": 2042,
+        "podium_occ_hits": 5010,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06221064814814815,
+        "winner_capture_rate": 0.5908564814814815,
+        "podium_occ_recall": 0.4827054629540418,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 592,
+        "winner_hits": 2399,
+        "podium_occ_hits": 6163,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1712962962962963,
+        "winner_capture_rate": 0.6941550925925926,
+        "podium_occ_recall": 0.5937951633105308,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1038,
+        "winner_hits": 2664,
+        "podium_occ_hits": 7123,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3003472222222222,
+        "winner_capture_rate": 0.7708333333333334,
+        "podium_occ_recall": 0.6862896232777724,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1479,
+        "winner_hits": 2861,
+        "podium_occ_hits": 7871,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4279513888888889,
+        "winner_capture_rate": 0.8278356481481481,
+        "podium_occ_recall": 0.7583582233355814,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 224,
+        "winner_hits": 2040,
+        "podium_occ_hits": 4975,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06481481481481481,
+        "winner_capture_rate": 0.5902777777777778,
+        "podium_occ_recall": 0.4793332691010695,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 582,
+        "winner_hits": 2378,
+        "podium_occ_hits": 6089,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1684027777777778,
+        "winner_capture_rate": 0.6880787037037037,
+        "podium_occ_recall": 0.5866653820213893,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 993,
+        "winner_hits": 2652,
+        "podium_occ_hits": 7039,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2873263888888889,
+        "winner_capture_rate": 0.7673611111111112,
+        "podium_occ_recall": 0.6781963580306388,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1423,
+        "winner_hits": 2866,
+        "podium_occ_hits": 7804,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4117476851851852,
+        "winner_capture_rate": 0.8292824074074074,
+        "podium_occ_recall": 0.7519028808170344,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 222,
+        "winner_hits": 2042,
+        "podium_occ_hits": 4987,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0642361111111111,
+        "winner_capture_rate": 0.5908564814814815,
+        "podium_occ_recall": 0.48048944985066,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 583,
+        "winner_hits": 2391,
+        "podium_occ_hits": 6124,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16869212962962962,
+        "winner_capture_rate": 0.6918402777777778,
+        "podium_occ_recall": 0.5900375758743617,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1009,
+        "winner_hits": 2666,
+        "podium_occ_hits": 7070,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29195601851851855,
+        "winner_capture_rate": 0.7714120370370371,
+        "podium_occ_recall": 0.6811831583004143,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1427,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7803,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4129050925925926,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.7518065324212352,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 225,
+        "winner_hits": 2061,
+        "podium_occ_hits": 5021,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06510416666666667,
+        "winner_capture_rate": 0.5963541666666666,
+        "podium_occ_recall": 0.48376529530783313,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 605,
+        "winner_hits": 2410,
+        "podium_occ_hits": 6175,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17505787037037038,
+        "winner_capture_rate": 0.6973379629629629,
+        "podium_occ_recall": 0.5949513440601214,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1033,
+        "winner_hits": 2667,
+        "podium_occ_hits": 7115,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29890046296296297,
+        "winner_capture_rate": 0.7717013888888888,
+        "podium_occ_recall": 0.6855188361113788,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1476,
+        "winner_hits": 2863,
+        "podium_occ_hits": 7864,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4270833333333333,
+        "winner_capture_rate": 0.8284143518518519,
+        "podium_occ_recall": 0.757683784564987,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 214,
+        "winner_hits": 2032,
+        "podium_occ_hits": 4958,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.061921296296296294,
+        "winner_capture_rate": 0.5879629629629629,
+        "podium_occ_recall": 0.4776953463724829,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 571,
+        "winner_hits": 2373,
+        "podium_occ_hits": 6074,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1652199074074074,
+        "winner_capture_rate": 0.6866319444444444,
+        "podium_occ_recall": 0.5852201560844011,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 966,
+        "winner_hits": 2641,
+        "podium_occ_hits": 7000,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2795138888888889,
+        "winner_capture_rate": 0.7641782407407407,
+        "podium_occ_recall": 0.6744387705944695,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1402,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7757,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4056712962962963,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7473745062144715,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 213,
+        "winner_hits": 2043,
+        "podium_occ_hits": 4983,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06163194444444445,
+        "winner_capture_rate": 0.5911458333333334,
+        "podium_occ_recall": 0.48010405626746316,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 586,
+        "winner_hits": 2396,
+        "podium_occ_hits": 6131,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16956018518518517,
+        "winner_capture_rate": 0.6932870370370371,
+        "podium_occ_recall": 0.5907120146449562,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1001,
+        "winner_hits": 2656,
+        "podium_occ_hits": 7051,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2896412037037037,
+        "winner_capture_rate": 0.7685185185185185,
+        "podium_occ_recall": 0.6793525387802293,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1425,
+        "winner_hits": 2864,
+        "podium_occ_hits": 7795,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4123263888888889,
+        "winner_capture_rate": 0.8287037037037037,
+        "podium_occ_recall": 0.7510357452548415,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=2_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 228,
+        "winner_hits": 2074,
+        "podium_occ_hits": 5037,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06597222222222222,
+        "winner_capture_rate": 0.6001157407407407,
+        "podium_occ_recall": 0.4853068696406205,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 608,
+        "winner_hits": 2413,
+        "podium_occ_hits": 6173,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.17592592592592593,
+        "winner_capture_rate": 0.6982060185185185,
+        "podium_occ_recall": 0.594758647268523,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1038,
+        "winner_hits": 2666,
+        "podium_occ_hits": 7118,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.3003472222222222,
+        "winner_capture_rate": 0.7714120370370371,
+        "podium_occ_recall": 0.6858078812987763,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1478,
+        "winner_hits": 2865,
+        "podium_occ_hits": 7861,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42766203703703703,
+        "winner_capture_rate": 0.8289930555555556,
+        "podium_occ_recall": 0.7573947393775894,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 211,
+        "winner_hits": 1915,
+        "podium_occ_hits": 4818,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06105324074074074,
+        "winner_capture_rate": 0.5541087962962963,
+        "podium_occ_recall": 0.4642065709605935,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 534,
+        "winner_hits": 2316,
+        "podium_occ_hits": 5934,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1545138888888889,
+        "winner_capture_rate": 0.6701388888888888,
+        "podium_occ_recall": 0.5717313806725118,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 953,
+        "winner_hits": 2625,
+        "podium_occ_hits": 6925,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2757523148148148,
+        "winner_capture_rate": 0.7595486111111112,
+        "podium_occ_recall": 0.6672126409095288,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1376,
+        "winner_hits": 2820,
+        "podium_occ_hits": 7693,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.39814814814814814,
+        "winner_capture_rate": 0.8159722222222222,
+        "podium_occ_recall": 0.7412082088833221,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 212,
+        "winner_hits": 1916,
+        "podium_occ_hits": 4819,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.061342592592592594,
+        "winner_capture_rate": 0.5543981481481481,
+        "podium_occ_recall": 0.46430291935639273,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 530,
+        "winner_hits": 2316,
+        "podium_occ_hits": 5940,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.15335648148148148,
+        "winner_capture_rate": 0.6701388888888888,
+        "podium_occ_recall": 0.5723094710473071,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 949,
+        "winner_hits": 2626,
+        "podium_occ_hits": 6928,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2745949074074074,
+        "winner_capture_rate": 0.7598379629629629,
+        "podium_occ_recall": 0.6675016860969265,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1380,
+        "winner_hits": 2820,
+        "podium_occ_hits": 7698,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.3993055555555556,
+        "winner_capture_rate": 0.8159722222222222,
+        "podium_occ_recall": 0.7416899508623181,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 205,
+        "winner_hits": 1993,
+        "podium_occ_hits": 4901,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05931712962962963,
+        "winner_capture_rate": 0.5766782407407407,
+        "podium_occ_recall": 0.47220348781192795,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 560,
+        "winner_hits": 2367,
+        "podium_occ_hits": 6064,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16203703703703703,
+        "winner_capture_rate": 0.6848958333333334,
+        "podium_occ_recall": 0.5842566721264091,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1020,
+        "winner_hits": 2654,
+        "podium_occ_hits": 7074,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2951388888888889,
+        "winner_capture_rate": 0.7679398148148148,
+        "podium_occ_recall": 0.6815685518836111,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1473,
+        "winner_hits": 2857,
+        "podium_occ_hits": 7856,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4262152777777778,
+        "winner_capture_rate": 0.8266782407407407,
+        "podium_occ_recall": 0.7569129973985933,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.25_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 216,
+        "winner_hits": 1939,
+        "podium_occ_hits": 4851,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0625,
+        "winner_capture_rate": 0.5610532407407407,
+        "podium_occ_recall": 0.4673860680219674,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 540,
+        "winner_hits": 2331,
+        "podium_occ_hits": 5980,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.15625,
+        "winner_capture_rate": 0.6744791666666666,
+        "podium_occ_recall": 0.5761634068792755,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 977,
+        "winner_hits": 2643,
+        "podium_occ_hits": 6961,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.28269675925925924,
+        "winner_capture_rate": 0.7647569444444444,
+        "podium_occ_recall": 0.6706811831583004,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1396,
+        "winner_hits": 2839,
+        "podium_occ_hits": 7745,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4039351851851852,
+        "winner_capture_rate": 0.8214699074074074,
+        "podium_occ_recall": 0.746218325464881,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.25_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 216,
+        "winner_hits": 1940,
+        "podium_occ_hits": 4851,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0625,
+        "winner_capture_rate": 0.5613425925925926,
+        "podium_occ_recall": 0.4673860680219674,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 536,
+        "winner_hits": 2332,
+        "podium_occ_hits": 5978,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1550925925925926,
+        "winner_capture_rate": 0.6747685185185185,
+        "podium_occ_recall": 0.5759707100876771,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 967,
+        "winner_hits": 2643,
+        "podium_occ_hits": 6963,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27980324074074076,
+        "winner_capture_rate": 0.7647569444444444,
+        "podium_occ_recall": 0.6708738799498989,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1397,
+        "winner_hits": 2836,
+        "podium_occ_hits": 7743,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40422453703703703,
+        "winner_capture_rate": 0.8206018518518519,
+        "podium_occ_recall": 0.7460256286732826,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.25_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 207,
+        "winner_hits": 2005,
+        "podium_occ_hits": 4921,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.059895833333333336,
+        "winner_capture_rate": 0.5801504629629629,
+        "podium_occ_recall": 0.4741304557279121,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 561,
+        "winner_hits": 2375,
+        "podium_occ_hits": 6084,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1623263888888889,
+        "winner_capture_rate": 0.6872106481481481,
+        "podium_occ_recall": 0.5861836400423933,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1025,
+        "winner_hits": 2658,
+        "podium_occ_hits": 7079,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29658564814814814,
+        "winner_capture_rate": 0.7690972222222222,
+        "podium_occ_recall": 0.6820502938626072,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1481,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7868,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4285300925925926,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7580691781481839,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 215,
+        "winner_hits": 1939,
+        "podium_occ_hits": 4846,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06221064814814815,
+        "winner_capture_rate": 0.5610532407407407,
+        "podium_occ_recall": 0.4669043260429714,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 538,
+        "winner_hits": 2332,
+        "podium_occ_hits": 5984,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1556712962962963,
+        "winner_capture_rate": 0.6747685185185185,
+        "podium_occ_recall": 0.5765488004624723,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 975,
+        "winner_hits": 2646,
+        "podium_occ_hits": 6962,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2821180555555556,
+        "winner_capture_rate": 0.765625,
+        "podium_occ_recall": 0.6707775315540996,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1391,
+        "winner_hits": 2845,
+        "podium_occ_hits": 7739,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40248842592592593,
+        "winner_capture_rate": 0.8232060185185185,
+        "podium_occ_recall": 0.7456402350900857,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 216,
+        "winner_hits": 1942,
+        "podium_occ_hits": 4847,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.0625,
+        "winner_capture_rate": 0.5619212962962963,
+        "podium_occ_recall": 0.4670006744387706,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 536,
+        "winner_hits": 2337,
+        "podium_occ_hits": 5989,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1550925925925926,
+        "winner_capture_rate": 0.6762152777777778,
+        "podium_occ_recall": 0.5770305424414683,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 970,
+        "winner_hits": 2645,
+        "podium_occ_hits": 6970,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2806712962962963,
+        "winner_capture_rate": 0.7653356481481481,
+        "podium_occ_recall": 0.6715483187204933,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1393,
+        "winner_hits": 2838,
+        "podium_occ_hits": 7739,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40306712962962965,
+        "winner_capture_rate": 0.8211805555555556,
+        "podium_occ_recall": 0.7456402350900857,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=0.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 208,
+        "winner_hits": 2002,
+        "podium_occ_hits": 4928,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06018518518518518,
+        "winner_capture_rate": 0.5792824074074074,
+        "podium_occ_recall": 0.4748048944985066,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 565,
+        "winner_hits": 2381,
+        "podium_occ_hits": 6098,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1634837962962963,
+        "winner_capture_rate": 0.6889467592592593,
+        "podium_occ_recall": 0.5875325175835823,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1022,
+        "winner_hits": 2660,
+        "podium_occ_hits": 7083,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2957175925925926,
+        "winner_capture_rate": 0.7696759259259259,
+        "podium_occ_recall": 0.6824356874458041,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1479,
+        "winner_hits": 2860,
+        "podium_occ_hits": 7867,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4279513888888889,
+        "winner_capture_rate": 0.8275462962962963,
+        "podium_occ_recall": 0.7579728297523847,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 208,
+        "winner_hits": 1957,
+        "podium_occ_hits": 4848,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06018518518518518,
+        "winner_capture_rate": 0.5662615740740741,
+        "podium_occ_recall": 0.46709702283456983,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 535,
+        "winner_hits": 2328,
+        "podium_occ_hits": 5964,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.15480324074074073,
+        "winner_capture_rate": 0.6736111111111112,
+        "podium_occ_recall": 0.5746218325464881,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 947,
+        "winner_hits": 2639,
+        "podium_occ_hits": 6931,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2740162037037037,
+        "winner_capture_rate": 0.7635995370370371,
+        "podium_occ_recall": 0.6677907312843241,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1388,
+        "winner_hits": 2837,
+        "podium_occ_hits": 7736,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40162037037037035,
+        "winner_capture_rate": 0.8208912037037037,
+        "podium_occ_recall": 0.7453511899026881,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 208,
+        "winner_hits": 1953,
+        "podium_occ_hits": 4844,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.06018518518518518,
+        "winner_capture_rate": 0.5651041666666666,
+        "podium_occ_recall": 0.46671162925137294,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 536,
+        "winner_hits": 2340,
+        "podium_occ_hits": 5988,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1550925925925926,
+        "winner_capture_rate": 0.6770833333333334,
+        "podium_occ_recall": 0.5769341940456691,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 965,
+        "winner_hits": 2651,
+        "podium_occ_hits": 6972,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27922453703703703,
+        "winner_capture_rate": 0.7670717592592593,
+        "podium_occ_recall": 0.6717410155120918,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1387,
+        "winner_hits": 2834,
+        "podium_occ_hits": 7736,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.40133101851851855,
+        "winner_capture_rate": 0.8200231481481481,
+        "podium_occ_recall": 0.7453511899026881,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 205,
+        "winner_hits": 2010,
+        "podium_occ_hits": 4922,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05931712962962963,
+        "winner_capture_rate": 0.5815972222222222,
+        "podium_occ_recall": 0.4742268041237113,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 567,
+        "winner_hits": 2388,
+        "podium_occ_hits": 6099,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1640625,
+        "winner_capture_rate": 0.6909722222222222,
+        "podium_occ_recall": 0.5876288659793815,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1011,
+        "winner_hits": 2661,
+        "podium_occ_hits": 7078,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.2925347222222222,
+        "winner_capture_rate": 0.7699652777777778,
+        "podium_occ_recall": 0.681953945466808,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1474,
+        "winner_hits": 2853,
+        "podium_occ_hits": 7853,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42650462962962965,
+        "winner_capture_rate": 0.8255208333333334,
+        "podium_occ_recall": 0.7566239522111957,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1.5_minv3=0": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 200,
+        "winner_hits": 1983,
+        "podium_occ_hits": 4872,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05787037037037037,
+        "winner_capture_rate": 0.5737847222222222,
+        "podium_occ_recall": 0.46940938433375085,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 531,
+        "winner_hits": 2350,
+        "podium_occ_hits": 5987,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.15364583333333334,
+        "winner_capture_rate": 0.6799768518518519,
+        "podium_occ_recall": 0.57683784564987,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 944,
+        "winner_hits": 2633,
+        "podium_occ_hits": 6952,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27314814814814814,
+        "winner_capture_rate": 0.7618634259259259,
+        "podium_occ_recall": 0.6698140475961075,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1362,
+        "winner_hits": 2847,
+        "podium_occ_hits": 7728,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.3940972222222222,
+        "winner_capture_rate": 0.8237847222222222,
+        "podium_occ_recall": 0.7445804027362944,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1.5_minv3=2": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 203,
+        "winner_hits": 1983,
+        "podium_occ_hits": 4885,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.05873842592592592,
+        "winner_capture_rate": 0.5737847222222222,
+        "podium_occ_recall": 0.47066191347914055,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 544,
+        "winner_hits": 2368,
+        "podium_occ_hits": 6026,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.1574074074074074,
+        "winner_capture_rate": 0.6851851851851852,
+        "podium_occ_recall": 0.5805954330860391,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 967,
+        "winner_hits": 2651,
+        "podium_occ_hits": 6993,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.27980324074074076,
+        "winner_capture_rate": 0.7670717592592593,
+        "podium_occ_recall": 0.6737643318238752,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1383,
+        "winner_hits": 2848,
+        "podium_occ_hits": 7741,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.4001736111111111,
+        "winner_capture_rate": 0.8240740740740741,
+        "podium_occ_recall": 0.7458329318816842,
+        "avg_selected": 5.995949074074074
+      }
+    },
+    "weighted_a3=3_b6extra=1.5_minv3=3": {
+      "3": {
+        "races": 3456,
+        "full_podium_hits": 209,
+        "winner_hits": 2028,
+        "podium_occ_hits": 4951,
+        "podium_occ_total": 10379,
+        "selected_total": 10368,
+        "full_podium_rate": 0.060474537037037035,
+        "winner_capture_rate": 0.5868055555555556,
+        "podium_occ_recall": 0.4770209076018884,
+        "avg_selected": 3.0
+      },
+      "4": {
+        "races": 3456,
+        "full_podium_hits": 577,
+        "winner_hits": 2405,
+        "podium_occ_hits": 6121,
+        "podium_occ_total": 10379,
+        "selected_total": 13824,
+        "full_podium_rate": 0.16695601851851852,
+        "winner_capture_rate": 0.6958912037037037,
+        "podium_occ_recall": 0.5897485306869641,
+        "avg_selected": 4.0
+      },
+      "5": {
+        "races": 3456,
+        "full_podium_hits": 1016,
+        "winner_hits": 2660,
+        "podium_occ_hits": 7091,
+        "podium_occ_total": 10379,
+        "selected_total": 17280,
+        "full_podium_rate": 0.29398148148148145,
+        "winner_capture_rate": 0.7696759259259259,
+        "podium_occ_recall": 0.6832064746121977,
+        "avg_selected": 5.0
+      },
+      "6": {
+        "races": 3456,
+        "full_podium_hits": 1469,
+        "winner_hits": 2857,
+        "podium_occ_hits": 7850,
+        "podium_occ_total": 10379,
+        "selected_total": 20722,
+        "full_podium_rate": 0.42505787037037035,
+        "winner_capture_rate": 0.8266782407407407,
+        "podium_occ_recall": 0.756334907023798,
+        "avg_selected": 5.995949074074074
+      }
+    }
+  }
+}
