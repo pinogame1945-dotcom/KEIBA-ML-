@@ -1,0 +1,90 @@
+name: L1.6 Confidence vs L1.5 Full OOS V1
+
+on:
+  push:
+    branches:
+      - research/l16-confidence-vs-l15-full-v1-20260929
+    paths:
+      - .github/triggers/l16-confidence-vs-l15-full-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  arena:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      CONF_ROWS_RUN_ID: "36568903779"
+      CANDIDATE_ROOT: research-results/l15-candidate-inflation-v1/run-36452274400
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle scikit-learn
+          git fetch origin fixed/l15-v1
+
+      - name: Restore frozen L1.5 routers
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2023,2024,2025" out/l15-full/router
+          for y in 2023 2024 2025; do
+            p="$(find "out/l15-full/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Materialize full current L1.5 behavior
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l15-full/current out/l15-full/fixed
+          git show origin/fixed/l15-v1:research/materialize_l15_fixed_v1.py > out/l15-full/fixed/materialize.py
+          git show origin/fixed/l15-v1:contracts/l15-fixed-v1.json > out/l15-full/fixed/contract.json
+          for y in 2023 2024 2025; do
+            rv="ROUTER_$y"
+            python out/l15-full/fixed/materialize.py               --year "$y"               --router-seven "${!rv}"               --candidate-root "$CANDIDATE_ROOT"               --contract out/l15-full/fixed/contract.json               --output "out/l15-full/current/y$y.jsonl"
+          done
+
+      - name: Run strict OOS full arena
+        shell: bash
+        run: |
+          set -euo pipefail
+          inroot="research-results/l16-outsider-confidence-v1/run-$CONF_ROWS_RUN_ID"
+          for y in 2022 2023 2024 2025; do test -s "$inroot/y$y-rows.csv.gz"; done
+          outroot="research-results/l16-confidence-vs-l15-full-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$outroot"
+
+          python research/analyze_l16_confidence_vs_l15_full_v1.py             --rows "$inroot/y2022-rows.csv.gz,$inroot/y2023-rows.csv.gz,$inroot/y2024-rows.csv.gz,$inroot/y2025-rows.csv.gz"             --fixed-root out/l15-full/current             --output "$outroot/summary.json"
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$outroot/summary.json"
+          git commit -m "research: full OOS L1.6 vs L1.5 arena run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle is read-only."
+          echo "Only compact summary.json is committed."
+          echo "2026 remains sealed."
