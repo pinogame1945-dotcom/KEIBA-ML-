@@ -11,7 +11,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from research.run_l2_bet_kings_arena_v1 import (
+from run_l2_bet_kings_arena_v1 import (
     BET_TYPES,
     calibrate,
     chronological_split,
