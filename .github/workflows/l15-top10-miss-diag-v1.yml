@@ -1,0 +1,76 @@
+name: L1.5 Top10 Miss Diagnostics V1
+
+on:
+  push:
+    branches:
+      - research/l15-podium-containment-v1-20260929
+    paths:
+      - .github/triggers/l15-top10-miss-diag-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-top10-miss-diag-v1
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate and install Kaggle
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_top10_miss_diag_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          bash -n scripts/kaggle-fetch-router-years.sh
+          python -m pip install --disable-pip-version-check kaggle
+      - name: Restore frozen inputs read-only
+        run: |
+          set -euo pipefail
+          mkdir -p out/top10miss/snapshot out/top10miss/router
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/top10miss/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/top10miss/snapshot 2022 2023 2024 2025
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/top10miss/router
+      - name: Diagnose Top10 misses
+        run: |
+          set -euo pipefail
+          out="research-results/l15-top10-miss-diag-v1/run-$GITHUB_RUN_ID"
+          python research/analyze_l15_top10_miss_diag_v1.py \
+            --snapshot-root out/top10miss/snapshot \
+            --router-root out/top10miss/router \
+            --out-dir "$out"
+          cat "$out/summary.json"
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle inputs read-only; no Dataset/Model persistence."
+          echo "Only compact summary JSON is committed."
+          echo "2026 remains sealed; no odds/popularity/payout."
+      - name: Commit compact result
+        if: success()
+        run: |
+          set -euo pipefail
+          out="research-results/l15-top10-miss-diag-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out/summary.json"
+          git commit -m "research: Top10 miss diagnostics run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
