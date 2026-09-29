@@ -1,4 +1,4 @@
-launch=2026-09-29T10:31:00+09:00
+launch=2026-09-29T10:38:00+09:00
 experiment=L21-MARKET-GAP-V1
 upstream=L15_FIXED_V1
 scope=2022-2025-all-races
@@ -12,3 +12,4 @@ k2_novel_analysis=true
 router_promotion=false
 storage=git-small-ledger-only
 cost=standard-cpu-only
+relaunch_reason=audit-three-races-with-insufficient-final-win-market
