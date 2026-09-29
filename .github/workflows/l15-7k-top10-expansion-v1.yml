@@ -37,7 +37,7 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile research/analyze_l15_7k_top10_expansion_v1.py
-          bash -n scripts/kaggle-fetch-snapshot.sh
+          bash -n scripts/kaggle-snapshot-session.sh
           python -m pip install --disable-pip-version-check kaggle
 
       - name: Restore frozen horse-level scores and truth read-only
@@ -95,8 +95,10 @@ jobs:
             fi
           }
 
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/top10exp/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/top10exp/snapshot 2022 2023 2024 2025
+
           for y in 2022 2023 2024 2025; do
-            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" out/top10exp/snapshot
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               dst="out/top10exp/scores/$y/$alias"
               mkdir -p "$dst"
