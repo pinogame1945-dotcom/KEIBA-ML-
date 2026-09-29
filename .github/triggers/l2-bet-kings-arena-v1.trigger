@@ -1,4 +1,4 @@
-launch=2026-09-29T10:05:00+09:00
+launch=2026-09-29T10:16:00+09:00
 experiment=L2-BET-KINGS-ARENA-V1
 upstream=L15_FIXED_V1
 scope=2022-2025-all-races
@@ -14,3 +14,4 @@ storage=git-small-ledger-only
 cost=standard-cpu-only
 router=false
 l3=false
+relaunch_reason=fix-static-odds-guard-false-positive
