@@ -1,0 +1,99 @@
+name: L2 Oracle Funnel V1
+
+on:
+  push:
+    branches:
+      - research/l2-oracle-funnel-v1-20260929
+    paths:
+      - .github/triggers/l2-oracle-funnel-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-oracle-funnel-v1
+  cancel-in-progress: true
+
+jobs:
+  oracle-funnel:
+    name: oracle-funnel
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DIAGNOSTICS: research-results/l2-loss-anatomy-v1/run-36518374493/race-diagnostics.csv.gz
+
+    steps:
+      - name: Checkout oracle branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Fast path guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_oracle_funnel_v1.py
+          test -s "$DIAGNOSTICS"
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path(".github/workflows/l2-oracle-funnel-v1.yml").read_text(encoding="utf-8").splitlines()
+          runners=[line.strip().split(":",1)[1].strip() for line in lines if line.strip().startswith("runs-on:")]
+          if runners != ["ubuntu-latest"]:
+              raise SystemExit(f"Non-standard runner guard: {runners}")
+          uses=[line.strip().split(":",1)[1].strip() for line in lines if line.strip().startswith("uses:")]
+          forbidden=[u for u in uses if u.startswith("actions/upload-artifact") or u.startswith("actions/cache")]
+          if forbidden:
+              raise SystemExit(f"Artifact/Cache forbidden: {forbidden}")
+          print("ORACLE_FAST_PATH_OK")
+          PY
+
+      - name: Run oracle funnel
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-oracle-funnel-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_oracle_funnel_v1.py \
+            --diagnostics "$DIAGNOSTICS" \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== DIRECT COMBINED ====="
+          cat "$result/direct-combined.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No Artifact / Cache."
+          echo "No external data restore."
+          echo "No P(hit) retraining."
+          echo "No Router rerun."
+          echo "2026 remains sealed."
+
+      - name: Commit compact oracle audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-oracle-funnel-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/oracle-funnel.csv" \
+            "$result/oracle-funnel-by-template.csv" \
+            "$result/direct-recovery-potential.csv" \
+            "$result/direct-combined.csv"
+          git commit -m "research: archive L2 oracle funnel run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
