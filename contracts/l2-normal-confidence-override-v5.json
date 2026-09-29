@@ -1,0 +1,82 @@
+{
+  "contract": "L2_NORMAL_CONFIDENCE_OVERRIDE_V5",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_router_v1_run": 36528381682,
+    "pairwise_router_v4_run": 36540670228
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "skip_class": false
+  },
+  "base_router": {
+    "architecture": "V1_TOP1",
+    "rule": "Use V1 top1 by default on every normal race."
+  },
+  "override": {
+    "candidates": [
+      "V1 Top2 shortlist",
+      "V1 Top3 shortlist"
+    ],
+    "mechanism": "Pairwise model may replace V1 top1 only when its preferred alternative beats V1 top1 with confidence at or above a development-selected threshold.",
+    "confidence": "direct pairwise probability that the alternative is better than V1 top1",
+    "threshold_grid": [
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "allowed_market_features": false
+  },
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "baseline_candidate": "V1_NO_OVERRIDE",
+    "primary": "maximum combined realized profit_yen on development years",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "lower summed max drawdown",
+      "fewer overrides",
+      "fewer tickets"
+    ],
+    "holdout_used_for_selection": false
+  },
+  "evaluation": {
+    "metrics": [
+      "ROI",
+      "profit_yen",
+      "hit_rate",
+      "avg_tickets_per_race",
+      "max_drawdown",
+      "override_rate",
+      "override_profit_delta_vs_v1",
+      "top1_return_share",
+      "top5_return_share"
+    ],
+    "production_promotion": false
+  },
+  "promotion": false
+}
