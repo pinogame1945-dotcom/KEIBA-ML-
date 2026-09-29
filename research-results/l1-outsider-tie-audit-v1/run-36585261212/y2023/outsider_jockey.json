@@ -1,0 +1,156 @@
+{
+  "contract": "L1_OUTSIDER_TIE_AUDIT_V1",
+  "candidate": "outsider_jockey",
+  "year": 2023,
+  "races": 3456,
+  "rows": 47493,
+  "any_tie_races": 14,
+  "any_rank_changed_races": 9,
+  "any_tie_rate": 0.004050925925925926,
+  "any_rank_changed_rate": 0.0026041666666666665,
+  "shuffle_trials": 5,
+  "safe_tie_breaker": "raw_margin_logit desc, horse_number asc, horse_id asc",
+  "old_tie_breaker": "stable score order / original row order",
+  "topn": {
+    "1": {
+      "boundary_tie_races": 1,
+      "topn_set_changed_races": 1,
+      "old_capture": 703,
+      "safe_capture": 703,
+      "old_only_hits": 0,
+      "safe_only_hits": 0,
+      "old_rescues": 189,
+      "safe_rescues": 189,
+      "shuffle_sensitive_races": 1,
+      "boundary_tie_races_rate": 0.00028935185185185184,
+      "topn_set_changed_races_rate": 0.00028935185185185184,
+      "old_capture_rate": 0.20341435185185186,
+      "safe_capture_rate": 0.20341435185185186,
+      "old_only_hits_rate": 0.0,
+      "safe_only_hits_rate": 0.0,
+      "old_rescues_rate": 0.0546875,
+      "safe_rescues_rate": 0.0546875,
+      "shuffle_sensitive_races_rate": 0.00028935185185185184,
+      "capture_delta": 0,
+      "rescue_delta": 0
+    },
+    "3": {
+      "boundary_tie_races": 4,
+      "topn_set_changed_races": 2,
+      "old_capture": 1545,
+      "safe_capture": 1545,
+      "old_only_hits": 0,
+      "safe_only_hits": 0,
+      "old_rescues": 174,
+      "safe_rescues": 174,
+      "shuffle_sensitive_races": 4,
+      "boundary_tie_races_rate": 0.0011574074074074073,
+      "topn_set_changed_races_rate": 0.0005787037037037037,
+      "old_capture_rate": 0.4470486111111111,
+      "safe_capture_rate": 0.4470486111111111,
+      "old_only_hits_rate": 0.0,
+      "safe_only_hits_rate": 0.0,
+      "old_rescues_rate": 0.050347222222222224,
+      "safe_rescues_rate": 0.050347222222222224,
+      "shuffle_sensitive_races_rate": 0.0011574074074074073,
+      "capture_delta": 0,
+      "rescue_delta": 0
+    },
+    "6": {
+      "boundary_tie_races": 3,
+      "topn_set_changed_races": 1,
+      "old_capture": 2366,
+      "safe_capture": 2366,
+      "old_only_hits": 0,
+      "safe_only_hits": 0,
+      "old_rescues": 81,
+      "safe_rescues": 81,
+      "shuffle_sensitive_races": 3,
+      "boundary_tie_races_rate": 0.0008680555555555555,
+      "topn_set_changed_races_rate": 0.00028935185185185184,
+      "old_capture_rate": 0.6846064814814815,
+      "safe_capture_rate": 0.6846064814814815,
+      "old_only_hits_rate": 0.0,
+      "safe_only_hits_rate": 0.0,
+      "old_rescues_rate": 0.0234375,
+      "safe_rescues_rate": 0.0234375,
+      "shuffle_sensitive_races_rate": 0.0008680555555555555,
+      "capture_delta": 0,
+      "rescue_delta": 0
+    }
+  },
+  "changed_examples": [
+    {
+      "race_id": "202306020307",
+      "topn": 6,
+      "winner": [
+        "2020106756"
+      ],
+      "old_top": [
+        "2020100639",
+        "2020102140",
+        "2020102849",
+        "2020104125",
+        "2020107199",
+        "2020110034"
+      ],
+      "safe_top": [
+        "2020100639",
+        "2020102140",
+        "2020102821",
+        "2020102849",
+        "2020107199",
+        "2020110034"
+      ]
+    },
+    {
+      "race_id": "202306050507",
+      "topn": 3,
+      "winner": [
+        "2019106851"
+      ],
+      "old_top": [
+        "2018102917",
+        "2020100742",
+        "2020105496"
+      ],
+      "safe_top": [
+        "2018102917",
+        "2019105643",
+        "2020105496"
+      ]
+    },
+    {
+      "race_id": "202306050509",
+      "topn": 1,
+      "winner": [
+        "2019106414"
+      ],
+      "old_top": [
+        "2018106220"
+      ],
+      "safe_top": [
+        "2017105720"
+      ]
+    },
+    {
+      "race_id": "202306050509",
+      "topn": 3,
+      "winner": [
+        "2019106414"
+      ],
+      "old_top": [
+        "2018105908",
+        "2018106220",
+        "2019101325"
+      ],
+      "safe_top": [
+        "2017105720",
+        "2018101232",
+        "2018105908"
+      ]
+    }
+  ],
+  "label_ja": "騎手型",
+  "mode": "JOCKEY"
+}
