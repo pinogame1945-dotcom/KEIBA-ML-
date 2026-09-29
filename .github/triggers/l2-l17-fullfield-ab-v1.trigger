@@ -1,1 +1,1 @@
-relaunch after Kaggle 404 filename-switch fix 2026-09-29 JST
+relaunch after fullfield NOVEL-empty contract fix + metadata-first Kaggle restore 2026-09-30 JST
