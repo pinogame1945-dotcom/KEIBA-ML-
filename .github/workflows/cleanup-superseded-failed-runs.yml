@@ -1,0 +1,40 @@
+name: Cleanup superseded failed workflow runs
+
+on:
+  push:
+    branches:
+      - ops/cleanup-failed-runs-20260929
+    paths:
+      - ".github/workflows/cleanup-superseded-failed-runs.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+    steps:
+      - name: Delete exact approved superseded failed runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          ids=(36538389657 36534082578 36527531519 36527064310 36527042653 36525839180 36525788251 36523199362 36523057726 36519290114 36518331535 36510431616 36510370192 36508351291 36506821332 36448888899 36442310512 36437258588)
+          deleted=0
+          for id in "${ids[@]}"; do
+            echo "Deleting failed run $id"
+            gh api --method DELETE "repos/$REPO/actions/runs/$id"
+            deleted=$((deleted+1))
+          done
+          echo "DELETED_FAILED_RUNS=$deleted"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest only."
+          echo "No GPU, Artifact, Cache, dataset/model storage, or paid resource."
+          echo "Deletes only the exact listed completed failed workflow runs."
