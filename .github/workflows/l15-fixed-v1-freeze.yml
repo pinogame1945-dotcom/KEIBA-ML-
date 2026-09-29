@@ -1,0 +1,140 @@
+name: Freeze L1.5 FIX V1
+
+on:
+  push:
+    branches:
+      - freeze/l15-fixed-v1-20260929
+    paths:
+      - .github/triggers/l15-fixed-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-fixed-v1-freeze
+  cancel-in-progress: true
+
+jobs:
+  freeze:
+    name: validate-and-freeze
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      CANDIDATE_ROOT: research-results/l15-candidate-inflation-v1/run-36452274400
+
+    steps:
+      - name: Checkout freeze branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and freeze contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/materialize_l15_fixed_v1.py \
+            research/validate_l15_fixed_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("contracts/l15-fixed-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L15_FIXED_V1"
+          assert c["status"]=="FROZEN"
+          assert c["immutability"]["mutate_v1"] is False
+          assert c["historical_scope"]["locked_years"]==[2026]
+          assert c["architecture"]["outsider_router"]["policy"]=="FULL_COMBO_K2"
+          assert c["architecture"]["outsider_router"]["selected_outsider_count"]==2
+          assert c["architecture"]["seven_king_consensus"]["odds_used"] is False
+          print("L15_FIXED_V1_CONTRACT_OK")
+          PY
+          if grep -E "uses:[[:space:]]*actions/(upload-artifact|cache)" .github/workflows/l15-fixed-v1-freeze.yml; then
+            echo "Artifact/Cache use is forbidden for fixed V1" >&2
+            exit 1
+          fi
+
+      - name: Install Kaggle client
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore seven-king routers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/l15-fixed/router
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l15-fixed/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Materialize canonical frozen alert ledgers
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l15-fixed-v1"
+          mkdir -p "$out"
+          python research/materialize_l15_fixed_v1.py \
+            --year 2022 --router-seven "$ROUTER_2022" --candidate-root "$CANDIDATE_ROOT" \
+            --alerts-only --output "$out/y2022.jsonl"
+          python research/materialize_l15_fixed_v1.py \
+            --year 2023 --router-seven "$ROUTER_2023" --candidate-root "$CANDIDATE_ROOT" \
+            --alerts-only --output "$out/y2023.jsonl"
+          python research/materialize_l15_fixed_v1.py \
+            --year 2024 --router-seven "$ROUTER_2024" --candidate-root "$CANDIDATE_ROOT" \
+            --alerts-only --output "$out/y2024.jsonl"
+          python research/materialize_l15_fixed_v1.py \
+            --year 2025 --router-seven "$ROUTER_2025" --candidate-root "$CANDIDATE_ROOT" \
+            --alerts-only --output "$out/y2025.jsonl"
+
+      - name: Validate frozen ledger and write manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/validate_l15_fixed_v1.py \
+            --ledger-dir research-results/l15-fixed-v1 \
+            --manifest-out research-results/l15-fixed-v1/manifest.json
+          cat research-results/l15-fixed-v1/manifest.json
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle is read-only; router years restored once."
+          echo "Only 1,384 fixed alert rows plus a small manifest are committed to Git."
+          echo "No external paid persistence."
+          echo "2026 remains sealed."
+
+      - name: Commit L1.5 FIX V1 source of truth
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            contracts/l15-fixed-v1.json \
+            docs/L15_FIXED_V1.md \
+            research/materialize_l15_fixed_v1.py \
+            research/validate_l15_fixed_v1.py \
+            research-results/l15-fixed-v1
+          if git diff --cached --quiet; then
+            echo "L1.5 FIX V1 already materialized identically"
+            exit 0
+          fi
+          git commit -m "freeze: materialize L1.5 FIX V1 source of truth"
+          git push origin "HEAD:$GITHUB_REF_NAME"
