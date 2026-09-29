@@ -1,0 +1,188 @@
+name: L1.6 Outsider Weighted Wait V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-weighted-wait-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-weighted-wait-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-weighted-wait-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - year: 2022
+            delay_seconds: 0
+          - year: 2023
+            delay_seconds: 25
+          - year: 2024
+            delay_seconds: 50
+          - year: 2025
+            delay_seconds: 75
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION_ID: eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l16_full_rank_consensus_v1.py research/analyze_l16_outsider_weighted_wait_v1.py
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+          y="${{ matrix.year }}"
+          mkdir -p out/wwait/snapshot out/wwait/scores/$y
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/wwait/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/wwait/snapshot "$y"
+
+          retry_score() {
+            alias="$1"
+            dst="out/wwait/scores/$y/$alias"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            mkdir -p "$dst"
+            for remote in score.jsonl.gz score.jsonl; do
+              for attempt in 1 2 3 4 5 6; do
+                tmp="$dst/tmp"; rm -rf "$tmp"; mkdir -p "$tmp"
+                if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                  p="$(find "$tmp" -type f ! -name log -print -quit)"
+                  if [[ -n "$p" && -s "$p" ]]; then
+                    cp "$p" "$dst/$remote"; rm -rf "$tmp"; return 0
+                  fi
+                fi
+                if grep -Eqi '404|not found' "$tmp/log"; then break; fi
+                [[ "$attempt" -eq 6 ]] && break
+                sleep $((attempt*15))
+              done
+            done
+            return 1
+          }
+
+          for a in core4 pedlegacy condition full light pedv1 condrc; do
+            retry_score "$a"
+            sleep 2
+          done
+
+      - name: Analyze weighted wait
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          score_path(){ a="$1"; [[ -s "out/wwait/scores/$y/$a/score.jsonl.gz" ]] && echo "out/wwait/scores/$y/$a/score.jsonl.gz" || echo "out/wwait/scores/$y/$a/score.jsonl"; }
+          [[ -s "out/wwait/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/wwait/snapshot/snapshot-$y.jsonl.gz" || snap="out/wwait/snapshot/snapshot-$y.jsonl"
+          mkdir -p out/wwait/consensus "research-results/l16-outsider-weighted-wait-v1/run-$GITHUB_RUN_ID"
+
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/wwait/consensus/l16-$y.jsonl.gz"
+
+          outsider="research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"
+          test -s "$outsider"
+
+          python research/analyze_l16_outsider_weighted_wait_v1.py             --consensus "out/wwait/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "$outsider"             --year "$y"             --output "research-results/l16-outsider-weighted-wait-v1/run-$GITHUB_RUN_ID/y$y.json"
+
+      - name: Commit year
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          f="research-results/l16-outsider-weighted-wait-v1/run-$GITHUB_RUN_ID/y${{ matrix.year }}.json"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$f"
+          git commit -m "research: weighted wait y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for i in 1 2 3 4 5; do
+            git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    if: always()
+    needs: [year]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l16-outsider-weighted-wait-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["ROOT"]); years=[2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in years}
+
+          def sumstat(xs):
+              n=sum(x["n"] for x in xs); w=sum(x["win"] for x in xs); p=sum(x["podium"] for x in xs)
+              return {"n":n,"win":w,"podium":p,"win_rate":w/n if n else None,"podium_rate":p/n if n else None}
+
+          pairs={}
+          for wc in map(str,range(6)):
+              keys=sorted({ww for y in years for ww in rows[y]["by_wait_count_and_weighted_wait"].get(wc,{})},key=int)
+              pairs[wc]={ww:sumstat([rows[y]["by_wait_count_and_weighted_wait"].get(wc,{}).get(ww,{"n":0,"win":0,"podium":0}) for y in years]) for ww in keys}
+
+          ranks=sorted({r for y in years for r in rows[y]["by_king_rank_wait_count_and_weighted_wait"]},key=int)
+          rp={}
+          for r in ranks:
+              rp[r]={}
+              wcs=sorted({wc for y in years for wc in rows[y]["by_king_rank_wait_count_and_weighted_wait"].get(r,{})},key=int)
+              for wc in wcs:
+                  keys=sorted({ww for y in years for ww in rows[y]["by_king_rank_wait_count_and_weighted_wait"].get(r,{}).get(wc,{})},key=int)
+                  rp[r][wc]={ww:sumstat([rows[y]["by_king_rank_wait_count_and_weighted_wait"].get(r,{}).get(wc,{}).get(ww,{"n":0,"win":0,"podium":0}) for y in years]) for ww in keys}
+
+          weights={}
+          keys=sorted({ww for y in years for ww in rows[y]["by_weighted_wait"]},key=int)
+          for ww in keys:
+              weights[ww]=sumstat([rows[y]["by_weighted_wait"].get(ww,{"n":0,"win":0,"podium":0}) for y in years])
+
+          out={
+            "contract":"L16_OUTSIDER_WEIGHTED_WAIT_V1",
+            "years":years,
+            "races":sum(rows[y]["races"] for y in years),
+            "includes_chimera":False,
+            "definition":rows[2022]["definition"],
+            "by_wait_count_and_weighted_wait":pairs,
+            "by_king_rank_wait_count_and_weighted_wait":rp,
+            "by_weighted_wait":weights
+          }
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate weighted wait run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
