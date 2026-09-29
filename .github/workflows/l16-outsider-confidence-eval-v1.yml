@@ -1,0 +1,46 @@
+name: L1.6 Outsider Confidence Eval V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-confidence-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-confidence-eval-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      INPUT_RUN_ID: "36568903779"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Evaluate saved rows only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check scikit-learn
+          inroot="research-results/l16-outsider-confidence-v1/run-$INPUT_RUN_ID"
+          outroot="research-results/l16-outsider-confidence-v1/eval-$GITHUB_RUN_ID"
+          mkdir -p "$outroot"
+          for y in 2022 2023 2024 2025; do test -s "$inroot/y$y-rows.csv.gz"; done
+
+          python research/analyze_l16_outsider_confidence_v1.py evaluate             --inputs "$inroot/y2022-rows.csv.gz,$inroot/y2023-rows.csv.gz,$inroot/y2024-rows.csv.gz,$inroot/y2025-rows.csv.gz"             --output "$outroot/summary.json"
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$outroot/summary.json"
+          git commit -m "research: confidence eval-only run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
