@@ -1,0 +1,73 @@
+{
+  "contract": "L2_NORMAL_QUALITY_ROUTER_V3",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_router_v1_run": 36528381682,
+    "normal_value_router_v2_run": 36535409314
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "skip_class": false,
+    "bet_types": [
+      "QUINELLA",
+      "EXACTA",
+      "TRIO",
+      "TRIFECTA"
+    ]
+  },
+  "labels": {
+    "GOOD": "template race profit > 0",
+    "NEUTRAL": "template hits but realized race profit <= 0",
+    "BAD": "template has no hit",
+    "note": "labels use historical results only as supervised targets; never as prediction features"
+  },
+  "models": {
+    "good_probability": "binary GOOD vs not-GOOD per template",
+    "bad_probability": "binary BAD vs not-BAD per template",
+    "allowed_market_features": false,
+    "calibration": "chronological last 20% of prior-year training races, sigmoid calibration"
+  },
+  "routing": [
+    {
+      "name": "MAX_GOOD_PROB",
+      "score": "P(GOOD)"
+    },
+    {
+      "name": "GOOD_MINUS_BAD",
+      "score": "P(GOOD)-P(BAD)"
+    }
+  ],
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "primary": "maximum combined realized profit_yen",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "lower summed max drawdown",
+      "fewer tickets"
+    ],
+    "holdout_used_for_selection": false
+  },
+  "baselines": [
+    "L2_NORMAL_ROUTER_V1_DIRECT_TEMPLATE",
+    "QUINELLA_KING_TOP4_BOX"
+  ],
+  "promotion": false
+}
