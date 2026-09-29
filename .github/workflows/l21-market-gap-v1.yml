@@ -1,0 +1,173 @@
+name: L2.1 Market Gap V1
+
+on:
+  push:
+    branches:
+      - research/l21-market-gap-v1-20260929
+    paths:
+      - .github/triggers/l21-market-gap-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l21-market-gap-v1
+  cancel-in-progress: true
+
+jobs:
+  market-gap:
+    name: seven-vs-market-gap
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      FIXED_LEDGER_DIR: research-results/l15-fixed-v1
+
+    steps:
+      - name: Checkout Market Gap branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Contract syntax and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/extract_l2_bet_kings_dates_v1.py \
+            research/run_l21_market_gap_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("contracts/l21-market-gap-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L21_MARKET_GAP_V1"
+          assert c["upstream"]["l15_contract"]=="L15_FIXED_V1"
+          assert c["upstream"]["l15_sha"]=="2db82c3ca3cfab6cf35c33cdf7a70d9972eced04"
+          assert c["ai"]["odds_used"] is False
+          assert c["ai"]["popularity_used"] is False
+          assert c["ai"]["payout_used"] is False
+          assert c["scope"]["development_years"]==[2022,2023,2024]
+          assert c["scope"]["holdout_year"]==2025
+          assert c["scope"]["locked_years"]==[2026]
+          assert c["selection_discipline"]["tuning"] is False
+          print("L21_MARKET_GAP_CONTRACT_OK")
+          PY
+          if grep -E "uses:[[:space:]]*actions/(upload-artifact|cache)" .github/workflows/l21-market-gap-v1.yml; then
+            echo "Artifact/Cache use is forbidden" >&2
+            exit 1
+          fi
+
+      - name: Install Kaggle client
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore 2022-2025 seven-king routers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/l21-gap/router
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l21-gap/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve all race dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/extract_l2_bet_kings_dates_v1.py \
+            --router-year "2022:$ROUTER_2022" \
+            --router-year "2023:$ROUTER_2023" \
+            --router-year "2024:$ROUTER_2024" \
+            --router-year "2025:$ROUTER_2025" \
+            --dates-out out/l21-gap/all-dates.txt \
+            --race-dates-out out/l21-gap/all-race-dates.csv
+
+      - name: Sparse restore required BACKFILL market packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone \
+            --depth 1 \
+            --filter=blob:none \
+            --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            echo "/data/odds/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l21-gap/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run Market Gap diagnostic
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l21-market-gap-v1/run-$GITHUB_RUN_ID"
+          python research/run_l21_market_gap_v1.py \
+            --contract contracts/l21-market-gap-v1.json \
+            --fixed-ledger-dir "$FIXED_LEDGER_DIR" \
+            --router-year "2022:$ROUTER_2022" \
+            --router-year "2023:$ROUTER_2023" \
+            --router-year "2024:$ROUTER_2024" \
+            --router-year "2025:$ROUTER_2025" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          echo "===== OVERVIEW ====="
+          cat "$result/overview.csv"
+          echo "===== SIGNALS ====="
+          cat "$result/signals.csv"
+
+      - name: Research cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle router datasets are read-only."
+          echo "BACKFILL is sparse-cloned read-only at a pinned commit."
+          echo "No Kaggle Dataset/Model is created or updated."
+          echo "Only compact diagnostic CSV/JSON/README is committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact Market Gap ledger
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l21-market-gap-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/overview.csv" \
+            "$result/ai-top1-market-rank.csv" \
+            "$result/market-favorite-ai-rank.csv" \
+            "$result/rank-gap.csv" \
+            "$result/signals.csv" \
+            "$result/k2-novel-market-rank.csv" \
+            "$result/race-summary.csv"
+          git commit -m "research: archive L2.1 Market Gap run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
