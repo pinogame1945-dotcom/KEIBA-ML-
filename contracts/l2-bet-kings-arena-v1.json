@@ -1,0 +1,147 @@
+{
+  "contract": "L2_BET_KINGS_ARENA_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "contract": "L15_FIXED_V1",
+    "branch": "fixed/l15-v1",
+    "sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "ledger_dir": "research-results/l15-fixed-v1",
+    "immutable": true
+  },
+  "scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "expected_races_per_year": 3456,
+    "expected_total_races": 13824,
+    "expected_gate_alerts": 1384,
+    "locked_years": [
+      2026
+    ],
+    "place_bets": false,
+    "wide_bets": false
+  },
+  "probability_model": {
+    "target": "ticket_hit",
+    "allowed_market_features": false,
+    "forbidden_feature_names": [
+      "odds",
+      "log_odds",
+      "implied_probability",
+      "payout",
+      "return_yen_per100",
+      "profit",
+      "roi",
+      "hit",
+      "finish",
+      "winner",
+      "blind",
+      "popularity"
+    ],
+    "rule": "P(hit) is learned without odds/popularity/payout/result-derived inputs. Final odds are joined only after prediction to calculate edge."
+  },
+  "market_stage": {
+    "price": "NETKEIBA_FINAL",
+    "edge_formula": "predicted_probability * final_odds - 1",
+    "caveat": "Final odds are a historical execution-price proxy, not a live timestamp simulation.",
+    "stake_yen_per_ticket": 100
+  },
+  "bet_kings": {
+    "WIN": [
+      "WIN_ANCHOR1",
+      "WIN_ANCHORS2",
+      "WIN_ALL_CANDIDATES"
+    ],
+    "QUINELLA": [
+      "QUINELLA_CORE12",
+      "QUINELLA_AXIS1_KING",
+      "QUINELLA_AXIS1_NOVEL",
+      "QUINELLA_AXIS1_ALL",
+      "QUINELLA_KING_TOP4_BOX"
+    ],
+    "EXACTA": [
+      "EXACTA_CORE12_MULTI",
+      "EXACTA_AXIS1_FORWARD",
+      "EXACTA_AXIS1_REVERSE",
+      "EXACTA_AXIS1_MULTI",
+      "EXACTA_AXIS1_NOVEL_MULTI"
+    ],
+    "TRIO": [
+      "TRIO_AXIS12_ALL",
+      "TRIO_AXIS12_NOVEL",
+      "TRIO_AXIS1_ALL",
+      "TRIO_KING_TOP6_BOX",
+      "TRIO_A1_KING_NOVEL"
+    ],
+    "TRIFECTA": [
+      "TRIFECTA_ANCHOR12_MULTI",
+      "TRIFECTA_ANCHOR12_NOVEL_MULTI",
+      "TRIFECTA_A1_FIRST_ANCHOR2_MATE",
+      "TRIFECTA_ANCHORS_TOP2_MATE",
+      "TRIFECTA_KING_TOP4_BOX"
+    ]
+  },
+  "walk_forward": {
+    "folds": [
+      {
+        "test_year": 2023,
+        "train_years": [
+          2022
+        ]
+      },
+      {
+        "test_year": 2024,
+        "train_years": [
+          2022,
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2022,
+          2023,
+          2024
+        ]
+      }
+    ],
+    "calibration": "last 20% of training races by chronological race_date",
+    "development_selection_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "holdout_rule": "Template and edge threshold are selected without looking at 2025 metrics."
+  },
+  "edge_thresholds": [
+    0,
+    0.05,
+    0.1,
+    0.15,
+    0.2
+  ],
+  "king_selection": {
+    "qualification": {
+      "min_roi_pct_each_development_year": 100,
+      "min_bought_tickets_each_development_year": 50,
+      "min_bought_races_each_development_year": 20
+    },
+    "primary_objective": "maximum combined profit_yen over 2023-2024 among qualified candidates",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "lower sum of yearly max drawdown",
+      "fewer bought tickets",
+      "template name lexical"
+    ],
+    "no_qualified_candidate": "NO_QUALIFIED_KING; record the best unqualified research leader but do not crown it."
+  },
+  "output": {
+    "router_created": false,
+    "l3_money_created": false,
+    "promotion": "No king is promoted to production automatically. This arena only identifies holdout-tested candidates."
+  }
+}
