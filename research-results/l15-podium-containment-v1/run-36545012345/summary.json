@@ -1,0 +1,440 @@
+{
+  "contract": "L15_PODIUM_CONTAINMENT_V1",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "ability_uses_odds": false,
+  "method": {
+    "ranking": "Frozen L15 seven_order Borda/support consensus reconstructed from each seven expert Top6.",
+    "truth": "Official finish positions from same-generation yearly snapshot; dead heats count as success if any valid ordered 1-2-3 outcome is fully contained.",
+    "l15_pool": "Non-alert races use seven consensus union; alert races use frozen L15_FIXED_V1 candidate_horse_ids including selected outsider novel horses.",
+    "note": "This measures podium containment only, not ROI/EV or trifecta order accuracy."
+  },
+  "overall": {
+    "races": 13824,
+    "alerts": 1384,
+    "dead_heat_races": 76,
+    "consensus_podium_capture": {
+      "top3": {
+        "hits": 939,
+        "rate": 0.06792534722222222,
+        "trifecta_box_points": 6
+      },
+      "top4": {
+        "hits": 2457,
+        "rate": 0.177734375,
+        "trifecta_box_points": 24
+      },
+      "top5": {
+        "hits": 4174,
+        "rate": 0.3019386574074074,
+        "trifecta_box_points": 60
+      },
+      "top6": {
+        "hits": 5975,
+        "rate": 0.4322193287037037,
+        "trifecta_box_points": 120
+      },
+      "top7": {
+        "hits": 7332,
+        "rate": 0.5303819444444444,
+        "trifecta_box_points": 210
+      },
+      "top8": {
+        "hits": 8069,
+        "rate": 0.5836950231481481,
+        "trifecta_box_points": 336
+      },
+      "top9": {
+        "hits": 8360,
+        "rate": 0.6047453703703703,
+        "trifecta_box_points": 504
+      },
+      "top10": {
+        "hits": 8426,
+        "rate": 0.6095196759259259,
+        "trifecta_box_points": 720
+      }
+    },
+    "seven_union_podium_capture": {
+      "hits": 8435,
+      "rate": 0.6101707175925926,
+      "avg_candidate_count": 7.517795138888889,
+      "candidate_count_p50": 7.0,
+      "candidate_count_p90": 9.0
+    },
+    "l15_fixed_candidate_pool_podium_capture": {
+      "hits": 8916,
+      "rate": 0.6449652777777778,
+      "avg_candidate_count": 7.921223958333333,
+      "candidate_count_p50": 8.0,
+      "candidate_count_p90": 10.0
+    },
+    "alert_only": {
+      "races": 1384,
+      "seven_union_hits": 558,
+      "seven_union_rate": 0.4031791907514451,
+      "l15_fixed_hits": 1039,
+      "l15_fixed_rate": 0.7507225433526011,
+      "podium_rescues_added_by_outsiders": 481,
+      "podium_rescue_rate_per_alert": 0.3475433526011561
+    },
+    "minimum_consensus_cutoff_when_union_can_capture": {
+      "capturable_races": 8435,
+      "p50": 6.0,
+      "p75": 7.0,
+      "p90": 8.0,
+      "mean": 5.578304682868998
+    }
+  },
+  "by_year": {
+    "2022": {
+      "races": 3456,
+      "alerts": 346,
+      "dead_heat_races": 12,
+      "consensus_podium_capture": {
+        "top3": {
+          "hits": 248,
+          "rate": 0.07175925925925926,
+          "trifecta_box_points": 6
+        },
+        "top4": {
+          "hits": 611,
+          "rate": 0.17679398148148148,
+          "trifecta_box_points": 24
+        },
+        "top5": {
+          "hits": 1026,
+          "rate": 0.296875,
+          "trifecta_box_points": 60
+        },
+        "top6": {
+          "hits": 1493,
+          "rate": 0.4320023148148148,
+          "trifecta_box_points": 120
+        },
+        "top7": {
+          "hits": 1848,
+          "rate": 0.5347222222222222,
+          "trifecta_box_points": 210
+        },
+        "top8": {
+          "hits": 2077,
+          "rate": 0.6009837962962963,
+          "trifecta_box_points": 336
+        },
+        "top9": {
+          "hits": 2153,
+          "rate": 0.6229745370370371,
+          "trifecta_box_points": 504
+        },
+        "top10": {
+          "hits": 2172,
+          "rate": 0.6284722222222222,
+          "trifecta_box_points": 720
+        }
+      },
+      "seven_union_podium_capture": {
+        "hits": 2175,
+        "rate": 0.6293402777777778,
+        "avg_candidate_count": 7.631076388888889,
+        "candidate_count_p50": 8.0,
+        "candidate_count_p90": 9.0
+      },
+      "l15_fixed_candidate_pool_podium_capture": {
+        "hits": 2284,
+        "rate": 0.6608796296296297,
+        "avg_candidate_count": 8.011284722222221,
+        "candidate_count_p50": 8.0,
+        "candidate_count_p90": 10.0
+      },
+      "alert_only": {
+        "races": 346,
+        "seven_union_hits": 152,
+        "seven_union_rate": 0.4393063583815029,
+        "l15_fixed_hits": 261,
+        "l15_fixed_rate": 0.7543352601156069,
+        "podium_rescues_added_by_outsiders": 109,
+        "podium_rescue_rate_per_alert": 0.315028901734104
+      },
+      "minimum_consensus_cutoff_when_union_can_capture": {
+        "capturable_races": 2175,
+        "p50": 6.0,
+        "p75": 7.0,
+        "p90": 8.0,
+        "mean": 5.653793103448276
+      }
+    },
+    "2023": {
+      "races": 3456,
+      "alerts": 346,
+      "dead_heat_races": 14,
+      "consensus_podium_capture": {
+        "top3": {
+          "hits": 237,
+          "rate": 0.0685763888888889,
+          "trifecta_box_points": 6
+        },
+        "top4": {
+          "hits": 594,
+          "rate": 0.171875,
+          "trifecta_box_points": 24
+        },
+        "top5": {
+          "hits": 1013,
+          "rate": 0.29311342592592593,
+          "trifecta_box_points": 60
+        },
+        "top6": {
+          "hits": 1468,
+          "rate": 0.42476851851851855,
+          "trifecta_box_points": 120
+        },
+        "top7": {
+          "hits": 1808,
+          "rate": 0.5231481481481481,
+          "trifecta_box_points": 210
+        },
+        "top8": {
+          "hits": 1983,
+          "rate": 0.5737847222222222,
+          "trifecta_box_points": 336
+        },
+        "top9": {
+          "hits": 2067,
+          "rate": 0.5980902777777778,
+          "trifecta_box_points": 504
+        },
+        "top10": {
+          "hits": 2090,
+          "rate": 0.6047453703703703,
+          "trifecta_box_points": 720
+        }
+      },
+      "seven_union_podium_capture": {
+        "hits": 2092,
+        "rate": 0.6053240740740741,
+        "avg_candidate_count": 7.5078125,
+        "candidate_count_p50": 7.0,
+        "candidate_count_p90": 9.0
+      },
+      "l15_fixed_candidate_pool_podium_capture": {
+        "hits": 2219,
+        "rate": 0.6420717592592593,
+        "avg_candidate_count": 7.905960648148148,
+        "candidate_count_p50": 8.0,
+        "candidate_count_p90": 10.0
+      },
+      "alert_only": {
+        "races": 346,
+        "seven_union_hits": 135,
+        "seven_union_rate": 0.3901734104046243,
+        "l15_fixed_hits": 262,
+        "l15_fixed_rate": 0.7572254335260116,
+        "podium_rescues_added_by_outsiders": 127,
+        "podium_rescue_rate_per_alert": 0.3670520231213873
+      },
+      "minimum_consensus_cutoff_when_union_can_capture": {
+        "capturable_races": 2092,
+        "p50": 6.0,
+        "p75": 7.0,
+        "p90": 8.0,
+        "mean": 5.617590822179732
+      }
+    },
+    "2024": {
+      "races": 3456,
+      "alerts": 346,
+      "dead_heat_races": 22,
+      "consensus_podium_capture": {
+        "top3": {
+          "hits": 224,
+          "rate": 0.06481481481481481,
+          "trifecta_box_points": 6
+        },
+        "top4": {
+          "hits": 612,
+          "rate": 0.17708333333333334,
+          "trifecta_box_points": 24
+        },
+        "top5": {
+          "hits": 1075,
+          "rate": 0.31105324074074076,
+          "trifecta_box_points": 60
+        },
+        "top6": {
+          "hits": 1525,
+          "rate": 0.44126157407407407,
+          "trifecta_box_points": 120
+        },
+        "top7": {
+          "hits": 1844,
+          "rate": 0.5335648148148148,
+          "trifecta_box_points": 210
+        },
+        "top8": {
+          "hits": 2008,
+          "rate": 0.5810185185185185,
+          "trifecta_box_points": 336
+        },
+        "top9": {
+          "hits": 2071,
+          "rate": 0.5992476851851852,
+          "trifecta_box_points": 504
+        },
+        "top10": {
+          "hits": 2085,
+          "rate": 0.6032986111111112,
+          "trifecta_box_points": 720
+        }
+      },
+      "seven_union_podium_capture": {
+        "hits": 2086,
+        "rate": 0.6035879629629629,
+        "avg_candidate_count": 7.455439814814815,
+        "candidate_count_p50": 7.0,
+        "candidate_count_p90": 9.0
+      },
+      "l15_fixed_candidate_pool_podium_capture": {
+        "hits": 2213,
+        "rate": 0.6403356481481481,
+        "avg_candidate_count": 7.870659722222222,
+        "candidate_count_p50": 7.0,
+        "candidate_count_p90": 10.0
+      },
+      "alert_only": {
+        "races": 346,
+        "seven_union_hits": 141,
+        "seven_union_rate": 0.407514450867052,
+        "l15_fixed_hits": 268,
+        "l15_fixed_rate": 0.7745664739884393,
+        "podium_rescues_added_by_outsiders": 127,
+        "podium_rescue_rate_per_alert": 0.3670520231213873
+      },
+      "minimum_consensus_cutoff_when_union_can_capture": {
+        "capturable_races": 2086,
+        "p50": 5.0,
+        "p75": 7.0,
+        "p90": 8.0,
+        "mean": 5.513902205177373
+      }
+    },
+    "2025": {
+      "races": 3456,
+      "alerts": 346,
+      "dead_heat_races": 28,
+      "consensus_podium_capture": {
+        "top3": {
+          "hits": 230,
+          "rate": 0.06655092592592593,
+          "trifecta_box_points": 6
+        },
+        "top4": {
+          "hits": 640,
+          "rate": 0.18518518518518517,
+          "trifecta_box_points": 24
+        },
+        "top5": {
+          "hits": 1060,
+          "rate": 0.30671296296296297,
+          "trifecta_box_points": 60
+        },
+        "top6": {
+          "hits": 1489,
+          "rate": 0.4308449074074074,
+          "trifecta_box_points": 120
+        },
+        "top7": {
+          "hits": 1832,
+          "rate": 0.5300925925925926,
+          "trifecta_box_points": 210
+        },
+        "top8": {
+          "hits": 2001,
+          "rate": 0.5789930555555556,
+          "trifecta_box_points": 336
+        },
+        "top9": {
+          "hits": 2069,
+          "rate": 0.5986689814814815,
+          "trifecta_box_points": 504
+        },
+        "top10": {
+          "hits": 2079,
+          "rate": 0.6015625,
+          "trifecta_box_points": 720
+        }
+      },
+      "seven_union_podium_capture": {
+        "hits": 2082,
+        "rate": 0.6024305555555556,
+        "avg_candidate_count": 7.476851851851852,
+        "candidate_count_p50": 7.0,
+        "candidate_count_p90": 9.0
+      },
+      "l15_fixed_candidate_pool_podium_capture": {
+        "hits": 2200,
+        "rate": 0.6365740740740741,
+        "avg_candidate_count": 7.8969907407407405,
+        "candidate_count_p50": 8.0,
+        "candidate_count_p90": 10.0
+      },
+      "alert_only": {
+        "races": 346,
+        "seven_union_hits": 130,
+        "seven_union_rate": 0.37572254335260113,
+        "l15_fixed_hits": 248,
+        "l15_fixed_rate": 0.7167630057803468,
+        "podium_rescues_added_by_outsiders": 118,
+        "podium_rescue_rate_per_alert": 0.34104046242774566
+      },
+      "minimum_consensus_cutoff_when_union_can_capture": {
+        "capturable_races": 2082,
+        "p50": 5.0,
+        "p75": 7.0,
+        "p90": 8.0,
+        "mean": 5.524495677233429
+      }
+    }
+  },
+  "validation": {
+    "2022": {
+      "router_races": 3456,
+      "truth_races": 3456,
+      "fixed_alerts": 346,
+      "dead_heat_truth_races": 12,
+      "snapshot": "snapshot-2022.jsonl",
+      "router": "router-7k.jsonl"
+    },
+    "2023": {
+      "router_races": 3456,
+      "truth_races": 3456,
+      "fixed_alerts": 346,
+      "dead_heat_truth_races": 14,
+      "snapshot": "snapshot-2023.jsonl",
+      "router": "router-7k.jsonl"
+    },
+    "2024": {
+      "router_races": 3456,
+      "truth_races": 3456,
+      "fixed_alerts": 346,
+      "dead_heat_truth_races": 22,
+      "snapshot": "snapshot-2024.jsonl",
+      "router": "router-7k.jsonl"
+    },
+    "2025": {
+      "router_races": 3456,
+      "truth_races": 3456,
+      "fixed_alerts": 346,
+      "dead_heat_truth_races": 28,
+      "snapshot": "snapshot-2025.jsonl",
+      "router": "router-7k.jsonl"
+    }
+  }
+}
