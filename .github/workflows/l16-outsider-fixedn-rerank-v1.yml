@@ -1,0 +1,241 @@
+name: L1.6 Outsider Fixed-N Rerank V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-fixedn-rerank-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-fixedn-rerank-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-fixedn-rerank-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - year: 2022
+            delay_seconds: 0
+          - year: 2023
+            delay_seconds: 25
+          - year: 2024
+            delay_seconds: 50
+          - year: 2025
+            delay_seconds: 75
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION_ID: eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l16_full_rank_consensus_v1.py research/analyze_l16_outsider_fixedn_rerank_v1.py
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+          y="${{ matrix.year }}"
+          mkdir -p out/fixedn/snapshot out/fixedn/scores/$y
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/fixedn/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/fixedn/snapshot "$y"
+
+          retry_score() {
+            alias="$1"
+            dst="out/fixedn/scores/$y/$alias"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            mkdir -p "$dst"
+            for remote in score.jsonl.gz score.jsonl; do
+              for attempt in 1 2 3 4 5 6; do
+                tmp="$dst/tmp"; rm -rf "$tmp"; mkdir -p "$tmp"
+                if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                  p="$(find "$tmp" -type f ! -name log -print -quit)"
+                  if [[ -n "$p" && -s "$p" ]]; then
+                    cp "$p" "$dst/$remote"; rm -rf "$tmp"; return 0
+                  fi
+                fi
+                if grep -Eqi '404|not found' "$tmp/log"; then break; fi
+                [[ "$attempt" -eq 6 ]] && break
+                sleep $((attempt*15))
+              done
+            done
+            return 1
+          }
+
+          for a in core4 pedlegacy condition full light pedv1 condrc; do
+            retry_score "$a"
+            sleep 2
+          done
+
+      - name: Analyze fixed-N rerank
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          score_path(){ a="$1"; [[ -s "out/fixedn/scores/$y/$a/score.jsonl.gz" ]] && echo "out/fixedn/scores/$y/$a/score.jsonl.gz" || echo "out/fixedn/scores/$y/$a/score.jsonl"; }
+          [[ -s "out/fixedn/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/fixedn/snapshot/snapshot-$y.jsonl.gz" || snap="out/fixedn/snapshot/snapshot-$y.jsonl"
+          mkdir -p out/fixedn/consensus "research-results/l16-outsider-fixedn-rerank-v1/run-$GITHUB_RUN_ID"
+
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/fixedn/consensus/l16-$y.jsonl.gz"
+
+          outsider="research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"
+          test -s "$outsider"
+
+          python research/analyze_l16_outsider_fixedn_rerank_v1.py             --consensus "out/fixedn/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "$outsider"             --year "$y"             --output "research-results/l16-outsider-fixedn-rerank-v1/run-$GITHUB_RUN_ID/y$y.json"
+
+      - name: Commit year
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          f="research-results/l16-outsider-fixedn-rerank-v1/run-$GITHUB_RUN_ID/y${{ matrix.year }}.json"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$f"
+          git commit -m "research: fixed-N outsider rerank y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for i in 1 2 3 4 5; do
+            git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    if: always()
+    needs: [year]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Aggregate and walk-forward
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l16-outsider-fixedn-rerank-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from pathlib import Path
+
+          root=Path(os.environ["ROOT"])
+          years=[2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in years}
+          ns=["3","4","5","6"]
+          policies=list(rows[2022]["policies"])
+
+          def merge(ms):
+              keys=["races","full_podium_hits","winner_hits","podium_occ_hits","podium_occ_total","selected_total"]
+              z={k:sum(m[k] for m in ms) for k in keys}
+              r=z["races"]
+              z.update({
+                "full_podium_rate":z["full_podium_hits"]/r if r else None,
+                "winner_capture_rate":z["winner_hits"]/r if r else None,
+                "podium_occ_recall":z["podium_occ_hits"]/z["podium_occ_total"] if z["podium_occ_total"] else None,
+                "avg_selected":z["selected_total"]/r if r else None,
+              })
+              return z
+
+          pooled={p:{n:merge([rows[y]["policies"][p][n] for y in years]) for n in ns} for p in policies}
+          pooled_best={}
+          for n in ns:
+              base=pooled["king_baseline"][n]
+              candidates=[p for p in policies if p!="king_baseline"]
+              best=max(candidates,key=lambda p:(pooled[p][n]["full_podium_hits"],pooled[p][n]["podium_occ_hits"],pooled[p][n]["winner_hits"],p))
+              b=pooled[best][n]
+              pooled_best[n]={
+                "policy":best,
+                "metrics":b,
+                "baseline":base,
+                "full_podium_delta_pp":(b["full_podium_rate"]-base["full_podium_rate"])*100,
+                "full_podium_hit_delta":b["full_podium_hits"]-base["full_podium_hits"],
+              }
+
+          wf={}
+          for n in ns:
+              legs=[]
+              chosen_hits=chosen_races=base_hits=base_races=0
+              for test in [2023,2024,2025]:
+                  train=[y for y in years if y<test]
+                  def train_metric(p):
+                      m=merge([rows[y]["policies"][p][n] for y in train])
+                      return (m["full_podium_hits"],m["podium_occ_hits"],m["winner_hits"],p)
+                  best=max(policies,key=train_metric)
+                  tm=rows[test]["policies"][best][n]
+                  bm=rows[test]["policies"]["king_baseline"][n]
+                  legs.append({
+                    "test_year":test,
+                    "train_years":train,
+                    "chosen_policy":best,
+                    "test_metrics":tm,
+                    "baseline_test_metrics":bm,
+                    "delta_pp":(tm["full_podium_rate"]-bm["full_podium_rate"])*100,
+                    "hit_delta":tm["full_podium_hits"]-bm["full_podium_hits"],
+                  })
+                  chosen_hits+=tm["full_podium_hits"]; chosen_races+=tm["races"]
+                  base_hits+=bm["full_podium_hits"]; base_races+=bm["races"]
+              wf[n]={
+                "legs":legs,
+                "chosen_full_podium_hits":chosen_hits,
+                "chosen_full_podium_rate":chosen_hits/chosen_races,
+                "baseline_full_podium_hits":base_hits,
+                "baseline_full_podium_rate":base_hits/base_races,
+                "delta_pp":(chosen_hits/chosen_races-base_hits/base_races)*100,
+                "hit_delta":chosen_hits-base_hits,
+              }
+
+          out={
+            "contract":"L16_OUTSIDER_FIXEDN_RERANK_V1",
+            "years":years,
+            "races":sum(rows[y]["races"] for y in years),
+            "includes_chimera":False,
+            "ability_uses_odds":False,
+            "pooled_best_in_sample":pooled_best,
+            "walk_forward":wf,
+            "baseline":{n:pooled["king_baseline"][n] for n in ns},
+            "pooled_policies":pooled,
+            "by_year":rows,
+            "notes":[
+              "pooled_best_in_sample is exploratory and selected on the same 2022-2025 period.",
+              "walk_forward selects a policy only from prior years, then evaluates the next year.",
+              "All policies keep candidate count fixed at N (subject only to races with fewer than N runners).",
+              "No odds, popularity, payout, or 2026 data are used."
+            ]
+          }
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps({"contract":out["contract"],"pooled_best_in_sample":pooled_best,"walk_forward":wf},ensure_ascii=False,separators=(",",":")))
+          PY
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate fixed-N outsider rerank run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
