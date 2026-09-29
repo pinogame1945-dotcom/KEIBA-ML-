@@ -143,8 +143,11 @@ def evaluate(a):
         Xte=[{"king_rank":str(r["king_rank"]),"vote1":r["vote1"],"vote2":r["vote2"],"vote3":r["vote3"]} for r in test]
         from sklearn.feature_extraction import DictVectorizer
         vec=DictVectorizer(sparse=True)
-        A=vec.fit_transform(Xtr); B=vec.transform(Xte)
-        model=LogisticRegression(C=1.0,penalty="l2",solver="liblinear",max_iter=1000)
+        A=vec.fit_transform(Xtr).tocsr(); B=vec.transform(Xte).tocsr()
+        # scikit-learn 1.9 requires 32-bit CSR index arrays for this solver.
+        A.indices=A.indices.astype(np.int32,copy=False); A.indptr=A.indptr.astype(np.int32,copy=False)
+        B.indices=B.indices.astype(np.int32,copy=False); B.indptr=B.indptr.astype(np.int32,copy=False)
+        model=LogisticRegression(C=1.0,solver="liblinear",max_iter=1000)
         model.fit(A,[r["y"] for r in train])
         pred=model.predict_proba(B)[:,1].tolist()
         y=[r["y"] for r in test]
