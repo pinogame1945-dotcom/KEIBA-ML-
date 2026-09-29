@@ -150,9 +150,9 @@ def main():
         raise SystemExit("2026 lock violated")
     fixed=load_fixed_ledgers(a.fixed_ledger_dir)
     routers={y:load_router(paths[y],y) for y in YEARS}
-    source_counts={y:len(fixed[y]) for y in YEARS}
-    if not all(source_counts[y]>0 for y in YEARS):
-        raise SystemExit(f"missing fixed alert rows {source_counts}")
+    danger_counts={y:len(fixed[y]) for y in YEARS}
+    if not all(danger_counts[y]>0 for y in YEARS):
+        raise SystemExit(f"missing fixed alert rows {danger_counts}")
 
     date_races=defaultdict(list)
     for y in YEARS:
@@ -165,6 +165,7 @@ def main():
 
     root=Path(a.backfill_root)
     race_results=defaultdict(list); incomplete=defaultdict(int); k2_counts=defaultdict(list)
+    eligible_counts=defaultdict(int); no_k2_counts=defaultdict(int)
     processed=0
     for di,date in enumerate(sorted(date_races),1):
         pairs=date_races[date]; wanted={rid for _,rid in pairs}
@@ -176,7 +177,11 @@ def main():
             anchors=[str(x) for x in (fr.get("seven_anchor_horse_ids") or [])]
             novel=[str(x) for x in (fr.get("novel_horse_ids") or [])]
             if len(anchors)!=2: raise SystemExit(f"anchor cardinality race={rid} anchors={anchors}")
-            if not novel: raise SystemExit(f"no K2 novel in fixed danger race={rid}")
+            if not novel:
+                no_k2_counts[year]+=1
+                processed+=1
+                continue
+            eligible_counts[year]+=1
             horse_no=horse_number_map(pack); needed=set(anchors+novel); miss=needed-set(horse_no)
             if miss: raise SystemExit(f"horse number missing race={rid} sample={sorted(miss)[:5]}")
             a1,a2=(horse_no[anchors[0]],horse_no[anchors[1]])
@@ -202,13 +207,15 @@ def main():
     year_rows=[]
     for year in YEARS:
         for template in TEMPLATES:
-            year_rows.append(summarize_year(year,template,source_counts[year],race_results[(year,template)]))
+            year_rows.append(summarize_year(year,template,eligible_counts[year],race_results[(year,template)]))
     stable=combine(year_rows)
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
     write_csv(out/"template-year.csv",year_rows)
     write_csv(out/"template-stability.csv",stable)
     write_csv(out/"coverage-audit.csv",[
-        {"year":y,"template":t,"source_danger_races":source_counts[y],
+        {"year":y,"template":t,"all_danger_races":danger_counts[y],
+         "k2_eligible_danger_races":eligible_counts[y],
+         "danger_races_without_k2_novel":no_k2_counts[y],
          "incomplete_or_unpriced_races":incomplete[(y,t)],
          "evaluated_races":len(race_results[(y,t)])}
         for y in YEARS for t in TEMPLATES
@@ -218,7 +225,7 @@ def main():
         "source_l15":"L15_FIXED_V1",
         "analysis_years":list(YEARS),
         "locked_years":list(LOCKED_YEARS),
-        "scope":"CONSENSUS_WORLD_GATE alert races only; use every K2 novel horse; no odds/popularity filter and no ML selector",
+        "scope":"CONSENSUS_WORLD_GATE alert races with at least one K2 novel horse; use every K2 novel horse; no odds/popularity filter and no ML selector",
         "templates":{
             "QUINELLA_KING_K2":"A1-K2 and A2-K2",
             "EXACTA_KING_TO_K2":"A1/A2 -> K2",
@@ -228,7 +235,9 @@ def main():
             "TRIFECTA_KING_K2_KING":"A1/A2 1st, K2 2nd, other anchor 3rd",
             "TRIFECTA_K2_KING_KING":"K2 1st, A1/A2 occupy 2nd-3rd",
         },
-        "source_danger_races":source_counts,
+        "all_danger_races":danger_counts,
+        "k2_eligible_danger_races":dict(eligible_counts),
+        "danger_races_without_k2_novel":dict(no_k2_counts),
         "avg_k2_novel_per_race":{str(y):sum(k2_counts[y])/len(k2_counts[y]) for y in YEARS},
         "ticket_price_yen":100,
         "market_usage":"final odds are used only to verify ticket availability; realized payout is used for deterministic ROI evaluation",
@@ -240,8 +249,9 @@ def main():
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     (out/"README.md").write_text(
         "# L2 Danger Template Arena V1\n\n"
-        "Coarse structural tournament for CONSENSUS_WORLD_GATE alert races. "
-        "Every frozen K2 novel horse is used; there is no race filtering, odds filter, popularity filter, or ML selection. "
+        "Coarse structural tournament for CONSENSUS_WORLD_GATE alert races that contain at least one K2 novel horse. "
+        "Danger races with zero K2 novel horses are audited separately and are not silently counted as failed K2 coverage. "
+        "Every frozen K2 novel horse is used; there is no odds filter, popularity filter, or ML selection. "
         "The seven ticket structures isolate where K2 sits relative to the frozen A1/A2 anchors across quinella, exacta, trio and trifecta. "
         "Metrics include ROI, profit, hit rate, race coverage, tickets per race, max drawdown and return concentration. "
         "2026 remains sealed and no production rule is promoted by this run.\n",
