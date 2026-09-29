@@ -1,0 +1,41 @@
+{
+  "contract": "L1_OUTSIDER_WEIGHTCHANGE_TIESAFE_V1",
+  "experiment_id": "OUTSIDER-WEIGHTCHANGE-TIESAFE-001",
+  "snapshot_generation": "eb13d4096519167b",
+  "training_window_years": 2,
+  "validation_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "candidates": [
+    {
+      "name": "outsider_weightchange",
+      "label_ja": "斤量変化型",
+      "mode": "WEIGHT_CHANGE",
+      "feature_sets": [
+        "BASE"
+      ]
+    }
+  ],
+  "policy": {
+    "odds_or_popularity": false,
+    "pedigree_features": false,
+    "horse_speed_features": false,
+    "ordinary_finish_form_features": false,
+    "transition_history_only": true,
+    "same_day_future_results": false,
+    "strict_prior_date_for_horse_state": true
+  },
+  "research_goal": "Revalidate weight-change outsider after removing source-row-order tie leakage.",
+  "promotion_policy": "No promotion from this run; compare post-fix metrics with the tainted pre-fix reference only.",
+  "rank_tie_policy": "score_desc_then_horse_id_asc_v1"
+}
