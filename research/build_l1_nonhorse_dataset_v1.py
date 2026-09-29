@@ -3,7 +3,7 @@ import argparse,gzip,json,math,statistics
 from collections import defaultdict
 from pathlib import Path
 
-MODES={"DAY_TREND","RACE_SHAPE","GATE_COURSE","JOCKEY","FIELD_COMPOSITION","CHIMERA"}
+MODES={"DAY_TREND","RACE_SHAPE","GATE_COURSE","JOCKEY","FIELD_COMPOSITION","CHIMERA","ROTATION","CLASS_MOVE","WEIGHT_CHANGE","BODY_CHANGE","DISTANCE_TRANSITION","COURSE_TRANSITION","OPPONENT_GAP"}
 STYLE_KEYS=[
     "style_recent_avg_first_ratio",
     "style_recent_avg_last_ratio",
@@ -157,6 +157,166 @@ def add_field_composition(out,row,field_rows):
         out[f"nh_field_{name}_share"]=sum(s==label for s in sexes)/n if n else None
         out[f"nh_field_is_{name}"]=1.0 if str(f.get("sex") or "")==label else 0.0
 
+def add_rotation(out,f):
+    days=finite(f.get("days_since_last_start"))
+    starts=finite(f.get("prior_starts"))
+    recent=finite(f.get("recent_window_starts"))
+    out["nh_rotation_days_since_last_start"]=days
+    out["nh_rotation_prior_starts"]=starts
+    out["nh_rotation_recent_window_starts"]=recent
+    out["nh_rotation_within_14d"]=1.0 if days is not None and days<=14 else 0.0 if days is not None else None
+    out["nh_rotation_within_28d"]=1.0 if days is not None and days<=28 else 0.0 if days is not None else None
+    out["nh_rotation_29_60d"]=1.0 if days is not None and 29<=days<=60 else 0.0 if days is not None else None
+    out["nh_rotation_61_89d"]=1.0 if days is not None and 61<=days<=89 else 0.0 if days is not None else None
+    out["nh_rotation_90d_plus"]=1.0 if days is not None and days>=90 else 0.0 if days is not None else None
+    out["nh_rotation_180d_plus"]=1.0 if days is not None and days>=180 else 0.0 if days is not None else None
+
+def _class_code_from_features(f):
+    return CLASS_CODE.get(str(f.get("backfill_race_class_normalized") or "").upper())
+
+def _grade_code_from_features(f):
+    return GRADE_CODE.get(str(f.get("backfill_grade") or "").upper())
+
+def _history_last(history):
+    return history[-1] if history else None
+
+def _history_prev(history):
+    return history[-2] if len(history)>=2 else None
+
+def add_class_move(out,f,history):
+    prev=_history_last(history)
+    cur_class=_class_code_from_features(f)
+    cur_grade=_grade_code_from_features(f)
+    prev_class=prev.get("class_code") if prev else None
+    prev_grade=prev.get("grade_code") if prev else None
+    out["nh_class_current"]=cur_class
+    out["nh_class_previous"]=prev_class
+    out["nh_class_delta"]=cur_class-prev_class if cur_class is not None and prev_class is not None else None
+    out["nh_class_up"]=1.0 if cur_class is not None and prev_class is not None and cur_class>prev_class else 0.0 if cur_class is not None and prev_class is not None else None
+    out["nh_class_down"]=1.0 if cur_class is not None and prev_class is not None and cur_class<prev_class else 0.0 if cur_class is not None and prev_class is not None else None
+    out["nh_class_same"]=1.0 if cur_class is not None and prev_class is not None and cur_class==prev_class else 0.0 if cur_class is not None and prev_class is not None else None
+    out["nh_grade_current"]=cur_grade
+    out["nh_grade_previous"]=prev_grade
+    out["nh_grade_delta"]=cur_grade-prev_grade if cur_grade is not None and prev_grade is not None else None
+
+def _field_numeric(field_rows,key):
+    return [finite((x.get("features") or {}).get(key)) for x in field_rows]
+
+def add_weight_change(out,f,field_rows,history):
+    prev=_history_last(history)
+    cur=finite(f.get("carried_weight"))
+    prv=prev.get("carried_weight") if prev else None
+    vals=_field_numeric(field_rows,"carried_weight")
+    m=mean(vals); sd=std(vals)
+    out["nh_weight_current"]=cur
+    out["nh_weight_previous"]=prv
+    out["nh_weight_delta"]=cur-prv if cur is not None and prv is not None else None
+    out["nh_weight_field_mean"]=m
+    out["nh_weight_field_std"]=sd
+    out["nh_weight_vs_field"]=cur-m if cur is not None and m is not None else None
+    out["nh_weight_field_z"]=(cur-m)/sd if cur is not None and m is not None and sd not in (None,0) else None
+    rule=WEIGHT_CODE.get(str(f.get("backfill_weight_rule") or "").upper())
+    out["nh_weight_rule_code"]=rule
+
+def add_body_change(out,f,field_rows,history):
+    prev=_history_last(history)
+    cur=finite(f.get("body_weight"))
+    src_diff=finite(f.get("body_weight_diff"))
+    prv=prev.get("body_weight") if prev else None
+    delta=cur-prv if cur is not None and prv is not None else src_diff
+    vals=_field_numeric(field_rows,"body_weight")
+    m=mean(vals); sd=std(vals)
+    out["nh_body_current"]=cur
+    out["nh_body_previous"]=prv
+    out["nh_body_delta"]=delta
+    out["nh_body_source_diff"]=src_diff
+    out["nh_body_delta_pct"]=delta/prv if delta is not None and prv not in (None,0) else None
+    out["nh_body_field_mean"]=m
+    out["nh_body_field_std"]=sd
+    out["nh_body_vs_field"]=cur-m if cur is not None and m is not None else None
+    out["nh_body_field_z"]=(cur-m)/sd if cur is not None and m is not None and sd not in (None,0) else None
+
+def add_distance_transition(out,f,history):
+    prev=_history_last(history)
+    prev2=_history_prev(history)
+    cur=finite(f.get("distance_m"))
+    prv=finite(f.get("previous_distance_m"))
+    if prv is None and prev:
+        prv=prev.get("distance_m")
+    prv2=prev2.get("distance_m") if prev2 else None
+    delta=finite(f.get("distance_change_m"))
+    if delta is None and cur is not None and prv is not None:
+        delta=cur-prv
+    prev_delta=(prv-prv2) if prv is not None and prv2 is not None else None
+    out["nh_dist_current"]=cur
+    out["nh_dist_previous"]=prv
+    out["nh_dist_previous2"]=prv2
+    out["nh_dist_delta"]=delta
+    out["nh_dist_abs_delta"]=abs(delta) if delta is not None else None
+    out["nh_dist_extended"]=1.0 if delta is not None and delta>0 else 0.0 if delta is not None else None
+    out["nh_dist_shortened"]=1.0 if delta is not None and delta<0 else 0.0 if delta is not None else None
+    out["nh_dist_same"]=1.0 if delta is not None and delta==0 else 0.0 if delta is not None else None
+    out["nh_dist_consecutive_extension"]=1.0 if delta is not None and prev_delta is not None and delta>0 and prev_delta>0 else 0.0 if delta is not None and prev_delta is not None else None
+    out["nh_dist_consecutive_shortening"]=1.0 if delta is not None and prev_delta is not None and delta<0 and prev_delta<0 else 0.0 if delta is not None and prev_delta is not None else None
+    out["nh_dist_return_to_two_back"]=1.0 if cur is not None and prv2 is not None and cur==prv2 else 0.0 if cur is not None and prv2 is not None else None
+
+def add_course_transition(out,f,history):
+    prev=_history_last(history)
+    if not prev:
+        for key in ("venue_changed","surface_changed","direction_changed","layout_changed","same_venue","same_surface","same_direction","same_layout"):
+            out["nh_course_"+key]=None
+        return
+    cur_venue=str(f.get("venue_code") or "")
+    cur_surface=str(f.get("surface") or "")
+    cur_direction=str(f.get("direction") or "")
+    cur_layout=str(f.get("backfill_course_layout") or "").upper()
+    pvenue=str(prev.get("venue") or "")
+    psurface=str(prev.get("surface") or "")
+    pdirection=str(prev.get("direction") or "")
+    playout=str(prev.get("layout") or "")
+    def changed(a,b):
+        return 1.0 if a and b and a!=b else 0.0 if a and b else None
+    def same(a,b):
+        return 1.0 if a and b and a==b else 0.0 if a and b else None
+    out["nh_course_venue_changed"]=changed(cur_venue,pvenue)
+    out["nh_course_surface_changed"]=changed(cur_surface,psurface)
+    out["nh_course_direction_changed"]=changed(cur_direction,pdirection)
+    out["nh_course_layout_changed"]=changed(cur_layout,playout)
+    out["nh_course_same_venue"]=same(cur_venue,pvenue)
+    out["nh_course_same_surface"]=same(cur_surface,psurface)
+    out["nh_course_same_direction"]=same(cur_direction,pdirection)
+    out["nh_course_same_layout"]=same(cur_layout,playout)
+
+def add_opponent_gap(out,row,field_rows):
+    f=row.get("features") or {}
+    keys=sorted(k for k in f if str(k).startswith("opponent_"))
+    for key in keys:
+        own=finite(f.get(key))
+        if own is None: continue
+        vals=[finite((x.get("features") or {}).get(key)) for x in field_rows]
+        m=mean(vals); sd=std(vals)
+        stem="nh_opp_"+str(key)[len("opponent_"):]
+        out[stem+"_own"]=own
+        out[stem+"_field_mean"]=m
+        out[stem+"_field_std"]=sd
+        out[stem+"_diff"]=own-m if m is not None else None
+        out[stem+"_z"]=(own-m)/sd if m is not None and sd not in (None,0) else None
+
+def horse_signature(row):
+    f=row.get("features") or {}
+    return {
+        "race_date":str(f.get("race_date") or "")[:10],
+        "venue":str(f.get("venue_code") or ""),
+        "surface":str(f.get("surface") or ""),
+        "direction":str(f.get("direction") or ""),
+        "layout":str(f.get("backfill_course_layout") or "").upper(),
+        "distance_m":finite(f.get("distance_m")),
+        "class_code":_class_code_from_features(f),
+        "grade_code":_grade_code_from_features(f),
+        "carried_weight":finite(f.get("carried_weight")),
+        "body_weight":finite(f.get("body_weight")),
+    }
+
 def day_features(row,field_rows,prior_winners):
     f=row.get("features") or {}
     out={}
@@ -186,8 +346,10 @@ def winner_signature(row,field_size):
         out[key]=finite(f.get(key))
     return out
 
-def build_features(mode,row,field_rows,prior_winners):
+def build_features(mode,row,field_rows,prior_winners,horse_history):
     f=row.get("features") or {}
+    hid=str(row.get("horse_id") or "")
+    history=horse_history.get(hid,[])
     out=race_context(f)
     if mode in {"DAY_TREND","CHIMERA"}:
         add_gate_course(out,f,len(field_rows))
@@ -200,6 +362,20 @@ def build_features(mode,row,field_rows,prior_winners):
         add_jockey(out,f)
     if mode in {"FIELD_COMPOSITION","CHIMERA"}:
         add_field_composition(out,row,field_rows)
+    if mode=="ROTATION":
+        add_rotation(out,f)
+    if mode=="CLASS_MOVE":
+        add_class_move(out,f,history)
+    if mode=="WEIGHT_CHANGE":
+        add_weight_change(out,f,field_rows,history)
+    if mode=="BODY_CHANGE":
+        add_body_change(out,f,field_rows,history)
+    if mode=="DISTANCE_TRANSITION":
+        add_distance_transition(out,f,history)
+    if mode=="COURSE_TRANSITION":
+        add_course_transition(out,f,history)
+    if mode=="OPPONENT_GAP":
+        add_opponent_gap(out,row,field_rows)
     return out
 
 def validate_safe(features):
@@ -214,7 +390,7 @@ def validate_safe(features):
         merged=sorted(set(bad+market))
         raise ValueError("forbidden/unexpected feature leaked: "+",".join(merged[:20]))
 
-def process_day(day_rows,mode,writer,meta):
+def process_day(day_rows,mode,writer,meta,horse_history):
     races=defaultdict(list)
     for row in day_rows:
         races[str(row.get("race_id") or "")].append(row)
@@ -230,7 +406,7 @@ def process_day(day_rows,mode,writer,meta):
     for venue,_race_no,rid,rows in ordered:
         prior=state[venue]
         for row in rows:
-            features=build_features(mode,row,rows,prior)
+            features=build_features(mode,row,rows,prior,horse_history)
             validate_safe(features)
             record={
                 "ml_dataset_version":int(row.get("ml_dataset_version") or 0),
@@ -250,6 +426,18 @@ def process_day(day_rows,mode,writer,meta):
         winners=[r for r in rows if target_win(r)]
         for w in winners:
             prior.append(winner_signature(w,len(rows)))
+    # Transition state is committed only after every row from the date has been built.
+    # This preserves STRICT_PRIOR_DATE_ONLY even in the unlikely case that a horse
+    # appears more than once on the same calendar date.
+    seen=set()
+    for row in day_rows:
+        hid=str(row.get("horse_id") or "")
+        if not hid or hid in seen: continue
+        seen.add(hid)
+        history=horse_history[hid]
+        history.append(horse_signature(row))
+        if len(history)>3:
+            del history[:-3]
     return count
 
 def main():
@@ -280,6 +468,7 @@ def main():
     rows_written=0
     last_date=None
     day=[]
+    horse_history=defaultdict(list)
     try:
         for path in inputs:
             with open_text(path) as fh:
@@ -291,11 +480,11 @@ def main():
                     if last_date is not None and date<last_date:
                         raise ValueError(f"input date order regressed: {date} < {last_date}")
                     if last_date is not None and date!=last_date:
-                        rows_written+=process_day(day,mode,writer,meta)
+                        rows_written+=process_day(day,mode,writer,meta,horse_history)
                         day=[]
                     day.append(row); last_date=date
         if day:
-            rows_written+=process_day(day,mode,writer,meta)
+            rows_written+=process_day(day,mode,writer,meta,horse_history)
     finally:
         writer.close()
     print("L1_NONHORSE_DATASET_OK")
