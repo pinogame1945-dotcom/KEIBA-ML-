@@ -165,13 +165,17 @@ jobs:
             "years":years,
             "races":sum(rows[y]["races"] for y in years),
             "horses":sum(rows[y]["horses"] for y in years),
+            "evaluated_horses":sum(rows[y]["evaluated_horses"] for y in years),
+            "missing_finish_horses":sum(rows[y]["missing_finish_horses"] for y in years),
             "includes_chimera":False,
             "definition":rows[2022]["definition"],
             "by_wait":waits,
             "by_king_rank_wait":rw
           }
           (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-          print(json.dumps({"races":out["races"],"horses":out["horses"],"by_wait":out["by_wait"]},ensure_ascii=False))
+          if out["horses"] != out["evaluated_horses"] + out["missing_finish_horses"]:
+              raise ValueError("horse accounting mismatch")
+          print(json.dumps({"races":out["races"],"horses":out["horses"],"evaluated_horses":out["evaluated_horses"],"missing_finish_horses":out["missing_finish_horses"],"by_wait":out["by_wait"]},ensure_ascii=False))
           PY
 
           git config user.name "keiba-ml-research-bot"
