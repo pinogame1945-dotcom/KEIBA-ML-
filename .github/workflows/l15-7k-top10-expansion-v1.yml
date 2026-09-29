@@ -86,14 +86,21 @@ jobs:
           restore_score() {
             local ref="$1" dst="$2" rc
             if retry_file "$ref" "score.jsonl.gz" "$dst/score.jsonl.gz"; then
+              test -s "$dst/score.jsonl.gz"
               return 0
-            fi
-            rc=$?
-            if [[ "$rc" -eq 44 ]]; then
-              retry_file "$ref" "score.jsonl" "$dst/score.jsonl"
             else
-              return "$rc"
+              rc=$?
             fi
+            if [[ "$rc" -eq 44 ]]; then
+              if retry_file "$ref" "score.jsonl" "$dst/score.jsonl"; then
+                test -s "$dst/score.jsonl"
+                return 0
+              else
+                rc=$?
+                return "$rc"
+              fi
+            fi
+            return "$rc"
           }
 
           bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/top10exp/snapshot
@@ -105,6 +112,7 @@ jobs:
               mkdir -p "$dst"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
               restore_score "$ref" "$dst"
+              test -s "$dst/score.jsonl.gz" || test -s "$dst/score.jsonl"
               echo "SCORE_RESTORED year=$y alias=$alias"
               sleep 2
             done
