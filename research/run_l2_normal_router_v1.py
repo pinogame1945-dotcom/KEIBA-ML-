@@ -205,7 +205,7 @@ def better(a,b):
 
 def attach_targets(features,perf):
     rows=[]
-    zero_perf=0
+    zero_perf=[]
     for r in features.to_dict("records"):
         y=int(r["year"]); rid=str(r["race_id"])
         best_all=None
@@ -228,28 +228,36 @@ def attach_targets(features,perf):
             if better(item,best_all): best_all=item
             bet=item["bet_type"]
             if better(item,best_by_bet.get(bet)): best_by_bet[bet]=item
-        if best_all is None:
-            zero_perf+=1
-            continue
         z=dict(r)
-        z["target_template"]=best_all["template"]
-        z["target_bet_type"]=best_all["bet_type"]
-        z["target_best_profit_yen"]=best_all["profit"]
         z["available_template_count"]=available
-        for bet in BET_TYPES:
-            b=best_by_bet.get(bet)
-            z[f"target_{bet}_template"]=b["template"] if b else ""
-            z[f"target_{bet}_best_profit_yen"]=b["profit"] if b else None
+        if best_all is None:
+            zero_perf.append({"year":y,"race_id":rid,"race_date":r["race_date"]})
+            z["target_label_available"]=0
+            z["target_template"]=""
+            z["target_bet_type"]=""
+            z["target_best_profit_yen"]=None
+            for bet in BET_TYPES:
+                z[f"target_{bet}_template"]=""
+                z[f"target_{bet}_best_profit_yen"]=None
+        else:
+            z["target_label_available"]=1
+            z["target_template"]=best_all["template"]
+            z["target_bet_type"]=best_all["bet_type"]
+            z["target_best_profit_yen"]=best_all["profit"]
+            for bet in BET_TYPES:
+                b=best_by_bet.get(bet)
+                z[f"target_{bet}_template"]=b["template"] if b else ""
+                z[f"target_{bet}_best_profit_yen"]=b["profit"] if b else None
         rows.append(z)
     if zero_perf:
-        raise SystemExit(f"normal races without any priced strategy={zero_perf}; refusing silent exclusion")
+        print("DATA_UNAVAILABLE_NORMAL_RACES="+json.dumps(zero_perf,ensure_ascii=False,separators=(",",":")),flush=True)
     return pd.DataFrame(rows)
 
 
 def feature_columns(df):
     identity={
         "year","race_id","race_date","target_template","target_bet_type",
-        "target_best_profit_yen","available_template_count"
+        "target_best_profit_yen","available_template_count","target_label_available"
     }
     identity|={f"target_{b}_template" for b in BET_TYPES}
     identity|={f"target_{b}_best_profit_yen" for b in BET_TYPES}
@@ -374,8 +382,9 @@ def evaluate(test,pred_templates,architecture,perf):
             stake=ret=0.0; tickets=0; hit=0
         else:
             stake=float(z["stake"]); ret=float(z["ret"]); tickets=int(z["tickets"]); hit=int(z["hit"])
-        exact.append(int(chosen==r["target_template"]))
-        bet_ok.append(int(TEMPLATE_TO_BET.get(chosen)==r["target_bet_type"]))
+        if int(r.get("target_label_available") or 0)==1:
+            exact.append(int(chosen==r["target_template"]))
+            bet_ok.append(int(TEMPLATE_TO_BET.get(chosen)==r["target_bet_type"]))
         out.append({
             "race_id":rid,"race_date":r["race_date"],
             "stake":stake,"ret":ret,"tickets":tickets,"hit":hit,
@@ -402,8 +411,10 @@ def evaluate(test,pred_templates,architecture,perf):
         "profit_yen":ret-stake,
         "roi_pct":100*ret/stake if stake else None,
         "max_drawdown_yen":max_drawdown(out),
-        "target_template_accuracy_pct":100*sum(exact)/n if n else None,
-        "target_bet_type_accuracy_pct":100*sum(bet_ok)/n if n else None,
+        "labeled_races":len(exact),
+        "unlabeled_data_unavailable_races":n-len(exact),
+        "target_template_accuracy_pct":100*sum(exact)/len(exact) if exact else None,
+        "target_bet_type_accuracy_pct":100*sum(bet_ok)/len(bet_ok) if bet_ok else None,
         **concentration(out),
     }
 
@@ -463,15 +474,18 @@ def main():
         test=data[data["year"]==test_year].copy().sort_values(["race_date","race_id"]).reset_index(drop=True)
 
         direct_pred,meta=train_predict(train,test,"target_template",cols,81000+test_year)
-        q=multiclass_quality(test["target_template"].astype(str),direct_pred,"template_")
+        labeled=test["target_label_available"].astype(int)==1
+        q=multiclass_quality(test.loc[labeled,"target_template"].astype(str),np.asarray(direct_pred)[labeled.to_numpy()],"template_")
         quality_rows.append({
             "architecture":"DIRECT_TEMPLATE","test_year":test_year,
             "train_years":"|".join(map(str,sorted(train["year"].unique()))),
             "train_races":len(train),"test_races":len(test),
             **meta,**q,
+            "labeled_test_races":int(labeled.sum()),
+            "unlabeled_data_unavailable_test_races":int((~labeled).sum()),
             **multiclass_quality(
-                test["target_bet_type"].astype(str),
-                [TEMPLATE_TO_BET.get(x,"") for x in direct_pred],
+                test.loc[labeled,"target_bet_type"].astype(str),
+                np.asarray([TEMPLATE_TO_BET.get(x,"") for x in direct_pred])[labeled.to_numpy()],
                 "bet_"
             ),
         })
@@ -498,7 +512,7 @@ def main():
                 b=str(bet_pred[i])
                 final_sorted[i]=next(t for t in TEMPLATES if TEMPLATE_TO_BET[t]==b)
 
-        hq=multiclass_quality(test["target_template"].astype(str),final_sorted,"template_")
+        hq=multiclass_quality(test.loc[labeled,"target_template"].astype(str),np.asarray(final_sorted)[labeled.to_numpy()],"template_")
         quality_rows.append({
             "architecture":"HIERARCHICAL","test_year":test_year,
             "train_years":"|".join(map(str,sorted(train["year"].unique()))),
@@ -506,7 +520,9 @@ def main():
             "classes":bet_meta["classes"],
             "feature_count":bet_meta["feature_count"],
             **hq,
-            **multiclass_quality(test["target_bet_type"].astype(str),bet_pred,"bet_"),
+            "labeled_test_races":int(labeled.sum()),
+            "unlabeled_data_unavailable_test_races":int((~labeled).sum()),
+            **multiclass_quality(test.loc[labeled,"target_bet_type"].astype(str),np.asarray(bet_pred)[labeled.to_numpy()],"bet_"),
             "stage2_models":"|".join(sorted(stage2_meta)),
         })
         metric_rows.append(evaluate(test,final_sorted,"HIERARCHICAL",perf))
@@ -517,6 +533,8 @@ def main():
         for r,dp,hp,bp in zip(test.to_dict("records"),direct_pred,final_sorted,bet_pred):
             decision_rows.append({
                 "year":test_year,"race_id":r["race_id"],"race_date":r["race_date"],
+                "target_label_available":int(r.get("target_label_available") or 0),
+                "available_template_count":int(r.get("available_template_count") or 0),
                 "target_template":r["target_template"],
                 "target_bet_type":r["target_bet_type"],
                 "direct_template":str(dp),
@@ -556,11 +574,12 @@ def main():
     class_rows=[]
     for year in ANALYSIS_YEARS:
         d=data[data["year"]==year]
+        labeled_d=d[d["target_label_available"].astype(int)==1]
         for col in ("target_bet_type","target_template"):
-            for label,count in d[col].astype(str).value_counts().items():
+            for label,count in labeled_d[col].astype(str).value_counts().items():
                 class_rows.append({
                     "year":year,"target":col,"label":label,
-                    "races":int(count),"share_pct":100*count/len(d)
+                    "races":int(count),"share_pct":100*count/len(labeled_d) if len(labeled_d) else None
                 })
 
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
@@ -587,6 +606,7 @@ def main():
         "selected_architecture_holdout_2025":holdout,
         "fixed_baseline_holdout_2025":fixed_holdout,
         "feature_market_leakage":False,
+        "data_unavailable_races":{str(y):int(((data["year"]==y)&(data["target_label_available"].astype(int)==0)).sum()) for y in ANALYSIS_YEARS},
         "target_uses_realized_profit":True,
         "race_filtering":False,
         "route_every_normal_race":True,
@@ -600,7 +620,8 @@ def main():
         "PASS_SEVEN_ONLY only. Every normal race is routed; V1 has no learned SKIP class. "
         "Two predeclared architectures are compared: DIRECT_TEMPLATE and HIERARCHICAL (bet type then template). "
         "Features come only from pre-race Seven-King structure and race metadata. Odds, payout, returns and results are not model inputs. "
-        "The supervised target is the realized best/least-loss fixed template for each historical race. "
+        "The supervised target is the realized best/least-loss fixed template when historical price data exists. "
+        "Races with no priced template are retained in the universe, never silently dropped, are routed normally, and are marked DATA_UNAVAILABLE for evaluation. "
         "Architecture selection uses only 2023-2024 walk-forward results; 2025 is holdout-only. "
         "2026 remains sealed. No production promotion.\n",
         encoding="utf-8",
