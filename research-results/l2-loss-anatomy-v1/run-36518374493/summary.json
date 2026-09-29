@@ -1,0 +1,81 @@
+{
+  "contract": "L2_LOSS_ANATOMY_RESULT_V1",
+  "source_router_run": 36511322402,
+  "source_router_commit": "8bd55e406685372c471a179e38c5b17418987fdf",
+  "analysis_years": [
+    2024,
+    2025
+  ],
+  "selected_actions": 17870,
+  "retrained_phit": false,
+  "rerun_router": false,
+  "2026_locked": true,
+  "direct_bet_type_loss_causes": {
+    "2024": {
+      "EDGE_OR_PRICE_FILTER_MISS": {
+        "losing_races": 639,
+        "share_of_losing_races_pct": 37.81065088757396,
+        "loss_yen": 232800.0,
+        "share_of_loss_yen_pct": 31.655811044179437,
+        "avg_podium_coverage": 0.9216223265519039
+      },
+      "HIT_BUT_NEGATIVE": {
+        "losing_races": 2,
+        "share_of_losing_races_pct": 0.11834319526627218,
+        "loss_yen": 210.0,
+        "share_of_loss_yen_pct": 0.028555499653254646,
+        "avg_podium_coverage": 1.0
+      },
+      "HORSE_SELECTION_MISS": {
+        "losing_races": 410,
+        "share_of_losing_races_pct": 24.2603550295858,
+        "loss_yen": 225600.0,
+        "share_of_loss_yen_pct": 30.676765341782136,
+        "avg_podium_coverage": 0.5991869918699186
+      },
+      "TICKET_TEMPLATE_MISS": {
+        "losing_races": 639,
+        "share_of_losing_races_pct": 37.81065088757396,
+        "loss_yen": 276800.0,
+        "share_of_loss_yen_pct": 37.638868114385176,
+        "avg_podium_coverage": 0.9640062597809077
+      }
+    },
+    "2025": {
+      "EDGE_OR_PRICE_FILTER_MISS": {
+        "losing_races": 850,
+        "share_of_losing_races_pct": 38.20224719101124,
+        "loss_yen": 328200.0,
+        "share_of_loss_yen_pct": 32.58959158747654,
+        "avg_podium_coverage": 0.9342156862745098
+      },
+      "HIT_BUT_NEGATIVE": {
+        "losing_races": 1,
+        "share_of_losing_races_pct": 0.0449438202247191,
+        "loss_yen": 170.0,
+        "share_of_loss_yen_pct": 0.016880653777791018,
+        "avg_podium_coverage": 1.0
+      },
+      "HORSE_SELECTION_MISS": {
+        "losing_races": 548,
+        "share_of_losing_races_pct": 24.629213483146067,
+        "loss_yen": 314800.0,
+        "share_of_loss_yen_pct": 31.258998877933013,
+        "avg_podium_coverage": 0.593521897810219
+      },
+      "TICKET_TEMPLATE_MISS": {
+        "losing_races": 826,
+        "share_of_losing_races_pct": 37.12359550561798,
+        "loss_yen": 363900.0,
+        "share_of_loss_yen_pct": 36.13452888081265,
+        "avg_podium_coverage": 0.9549031476997578
+      }
+    }
+  },
+  "cause_definitions": {
+    "HORSE_SELECTION_MISS": "Candidate pool cannot form any official winning combination for the selected bet type.",
+    "TICKET_TEMPLATE_MISS": "Candidate pool can form a winner, but the raw selected template does not contain an official winning combination.",
+    "EDGE_OR_PRICE_FILTER_MISS": "Raw template contains an official winner, but the purchased edge-filtered action missed it.",
+    "HIT_BUT_NEGATIVE": "Purchased action hit but total return was below total stake."
+  }
+}
