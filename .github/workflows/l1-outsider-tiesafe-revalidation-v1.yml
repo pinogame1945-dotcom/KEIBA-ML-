@@ -1,0 +1,135 @@
+name: L1 Outsider Tie-Safe Revalidation V1
+
+on:
+  push:
+    branches:
+      - research/rank-tie-safe-v1-20260929
+    paths:
+      - .github/triggers/l1-outsider-tiesafe-revalidation-v1.trigger
+  workflow_dispatch:
+    inputs:
+      scope:
+        description: "Run scope"
+        required: true
+        default: "smoke_2022"
+        type: choice
+        options:
+          - smoke_2022
+          - full_2021_2025
+
+permissions:
+  contents: read
+
+concurrency:
+  group: l1-outsider-tiesafe-revalidation-v1
+  cancel-in-progress: true
+
+jobs:
+  smoke:
+    if: ${{ github.event_name == 'workflow_dispatch' && inputs.scope == 'smoke_2022' }}
+    uses: ./.github/workflows/l1-outsider-tiesafe-one-year-v1.yml
+    with:
+      validation_year: 2022
+      start_delay_seconds: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  full_year:
+    if: ${{ github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.scope == 'full_2021_2025') }}
+    strategy:
+      fail-fast: false
+      max-parallel: 3
+      matrix:
+        include:
+          - validation_year: 2021
+            delay_seconds: 0
+          - validation_year: 2022
+            delay_seconds: 45
+          - validation_year: 2023
+            delay_seconds: 90
+          - validation_year: 2024
+            delay_seconds: 135
+          - validation_year: 2025
+            delay_seconds: 180
+    uses: ./.github/workflows/l1-outsider-tiesafe-one-year-v1.yml
+    with:
+      validation_year: ${{ matrix.validation_year }}
+      start_delay_seconds: ${{ matrix.delay_seconds }}
+    secrets:
+      KEIBA_ML_SNAPSHOTS: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+  ledger:
+    if: ${{ always() && (github.event_name == 'push' || (github.event_name == 'workflow_dispatch' && inputs.scope == 'full_2021_2025')) }}
+    needs:
+      - full_year
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      actions: read
+      contents: write
+    env:
+      GH_TOKEN: ${{ github.token }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Fast-forward branch
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+
+      - name: Archive first-wave five
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-arena-tiesafe-v1.json             --out-root research-results/l1-outsider-tiesafe-v1/first
+
+      - name: Archive second-wave five
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-nonhorse-tiesafe-v1.json             --out-root research-results/l1-outsider-tiesafe-v1/second
+
+      - name: Archive new transition seven
+        run: |
+          set -euo pipefail
+          python research/archive_l1_outsider_arena_v1.py             --repo "$GITHUB_REPOSITORY"             --run-id "$GITHUB_RUN_ID"             --config research/l1-outsider-transition-tiesafe-v1.json             --out-root research-results/l1-outsider-tiesafe-v1/transition
+
+      - name: Aggregate legacy10 vs new7 vs all17
+        shell: bash
+        run: |
+          set -euo pipefail
+          rid="$GITHUB_RUN_ID"
+          first="research-results/l1-outsider-tiesafe-v1/first/OUTSIDER-ARENA-TIESAFE-001/attempts/run-$rid/scorecard.json"
+          second="research-results/l1-outsider-tiesafe-v1/second/OUTSIDER-NONHORSE-TIESAFE-001/attempts/run-$rid/scorecard.json"
+          transition="research-results/l1-outsider-tiesafe-v1/transition/OUTSIDER-TRANSITION-TIESAFE-001/attempts/run-$rid/scorecard.json"
+          output="research-results/l1-outsider-tiesafe-v1/run-$rid/union-summary.json"
+          python research/aggregate_tiesafe_outsider_union_v1.py             --first "$first"             --second "$second"             --transition "$transition"             --output "$output"
+
+      - name: Commit compact research ledger
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add research-results/l1-outsider-tiesafe-v1
+          if git diff --cached --quiet; then
+            echo "No ledger changes"
+            exit 0
+          fi
+          git commit -m "research: archive tie-safe outsider revalidation run $GITHUB_RUN_ID"
+          for attempt in 1 2 3; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact/Cache."
+          echo "No new Kaggle dataset/model persistence."
+          echo "Only compact JSON/Markdown/CSV ledgers are committed."
+          echo "2026 remains sealed."
