@@ -1,0 +1,11 @@
+launch=2026-09-29T13:35:00+09:00
+experiment=L2-ROLE-VALUE-LAB-V1
+source_win_calibration_run=36520915593
+analysis_years=2023,2024,2025
+roles=quinella,exacta,trio,trifecta
+focus=popular-negative-edge,k2-novel
+locked_year=2026
+runner=ubuntu-latest
+gpu=false
+artifact_cache=false
+production_promotion=false
