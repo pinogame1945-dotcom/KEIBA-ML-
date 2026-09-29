@@ -1,0 +1,635 @@
+{
+  "contract": "L16_OUTSIDER_AGREEMENT_V1",
+  "year": 2025,
+  "races": 3456,
+  "thresholds": {
+    "3": {
+      "per_candidate": {
+        "outsider_daytrend": {
+          "agreement": {
+            "n": 3005,
+            "win": 652,
+            "podium": 1565,
+            "win_rate": 0.21697171381031613,
+            "podium_rate": 0.5207986688851913
+          },
+          "outsider_only": {
+            "n": 7308,
+            "win": 366,
+            "podium": 1257,
+            "win_rate": 0.05008210180623974,
+            "podium_rate": 0.1720032840722496
+          },
+          "king_only": {
+            "n": 7330,
+            "win": 1443,
+            "podium": 3537,
+            "win_rate": 0.19686221009549795,
+            "podium_rate": 0.482537517053206
+          },
+          "intersection_total": 3015,
+          "outsider_total": 10368,
+          "king_total": 10368,
+          "races": 3456,
+          "avg_intersection_per_race": 0.8723958333333334,
+          "overlap_share_of_outsider_selections": 0.2907986111111111,
+          "mean_jaccard": 0.1971932870370392
+        },
+        "outsider_raceshape": {
+          "agreement": {
+            "n": 4492,
+            "win": 1123,
+            "podium": 2637,
+            "win_rate": 0.25,
+            "podium_rate": 0.5870436331255565
+          },
+          "outsider_only": {
+            "n": 5827,
+            "win": 444,
+            "podium": 1614,
+            "win_rate": 0.07619701390080659,
+            "podium_rate": 0.27698644242320236
+          },
+          "king_only": {
+            "n": 5843,
+            "win": 972,
+            "podium": 2465,
+            "win_rate": 0.16635290090706828,
+            "podium_rate": 0.42187232586000345
+          },
+          "intersection_total": 4505,
+          "outsider_total": 10368,
+          "king_total": 10368,
+          "races": 3456,
+          "avg_intersection_per_race": 1.3035300925925926,
+          "overlap_share_of_outsider_selections": 0.43451003086419754,
+          "mean_jaccard": 0.31432291666667556
+        },
+        "outsider_gatecourse": {
+          "agreement": {
+            "n": 2528,
+            "win": 570,
+            "podium": 1368,
+            "win_rate": 0.2254746835443038,
+            "podium_rate": 0.5411392405063291
+          },
+          "outsider_only": {
+            "n": 7790,
+            "win": 342,
+            "podium": 1310,
+            "win_rate": 0.04390243902439024,
+            "podium_rate": 0.1681643132220796
+          },
+          "king_only": {
+            "n": 7807,
+            "win": 1525,
+            "podium": 3734,
+            "win_rate": 0.19533751761239912,
+            "podium_rate": 0.4782887152555399
+          },
+          "intersection_total": 2542,
+          "outsider_total": 10368,
+          "king_total": 10368,
+          "races": 3456,
+          "avg_intersection_per_race": 0.7355324074074074,
+          "overlap_share_of_outsider_selections": 0.24517746913580246,
+          "mean_jaccard": 0.16137152777777594
+        },
+        "outsider_field": {
+          "agreement": {
+            "n": 4112,
+            "win": 975,
+            "podium": 2186,
+            "win_rate": 0.23711089494163423,
+            "podium_rate": 0.5316147859922179
+          },
+          "outsider_only": {
+            "n": 6217,
+            "win": 322,
+            "podium": 1200,
+            "win_rate": 0.05179346951906064,
+            "podium_rate": 0.19301914106482226
+          },
+          "king_only": {
+            "n": 6223,
+            "win": 1120,
+            "podium": 2916,
+            "win_rate": 0.17997750281214847,
+            "podium_rate": 0.4685842841073437
+          },
+          "intersection_total": 4124,
+          "outsider_total": 10368,
+          "king_total": 10368,
+          "races": 3456,
+          "avg_intersection_per_race": 1.193287037037037,
+          "overlap_share_of_outsider_selections": 0.39776234567901236,
+          "mean_jaccard": 0.2861979166666744
+        },
+        "outsider_jockey": {
+          "agreement": {
+            "n": 5736,
+            "win": 1272,
+            "podium": 3000,
+            "win_rate": 0.2217573221757322,
+            "podium_rate": 0.5230125523012552
+          },
+          "outsider_only": {
+            "n": 4591,
+            "win": 306,
+            "podium": 989,
+            "win_rate": 0.06665214550206927,
+            "podium_rate": 0.21542147680243956
+          },
+          "king_only": {
+            "n": 4599,
+            "win": 823,
+            "podium": 2102,
+            "win_rate": 0.17895194607523374,
+            "podium_rate": 0.45705588171341593
+          },
+          "intersection_total": 5752,
+          "outsider_total": 10368,
+          "king_total": 10368,
+          "races": 3456,
+          "avg_intersection_per_race": 1.6643518518518519,
+          "overlap_share_of_outsider_selections": 0.5547839506172839,
+          "mean_jaccard": 0.4306134259259347
+        }
+      },
+      "vote_groups": {
+        "0": {
+          "king_topk": {
+            "n": 1141,
+            "win": 165,
+            "podium": 465,
+            "win_rate": 0.1446099912357581,
+            "podium_rate": 0.4075372480280456
+          },
+          "king_outside": {
+            "n": 16233,
+            "win": 364,
+            "podium": 1509,
+            "win_rate": 0.02242345838723588,
+            "podium_rate": 0.0929587876547773
+          }
+        },
+        "1": {
+          "king_topk": {
+            "n": 2845,
+            "win": 457,
+            "podium": 1165,
+            "win_rate": 0.16063268892794377,
+            "podium_rate": 0.4094903339191564
+          },
+          "king_outside": {
+            "n": 12804,
+            "win": 482,
+            "podium": 1946,
+            "win_rate": 0.03764448609809434,
+            "podium_rate": 0.15198375507653858
+          }
+        },
+        "2": {
+          "king_topk": {
+            "n": 3250,
+            "win": 645,
+            "podium": 1628,
+            "win_rate": 0.19846153846153847,
+            "podium_rate": 0.5009230769230769
+          },
+          "king_outside": {
+            "n": 5942,
+            "win": 326,
+            "podium": 1205,
+            "win_rate": 0.054863682261864694,
+            "podium_rate": 0.20279367216425445
+          }
+        },
+        "3": {
+          "king_topk": {
+            "n": 2063,
+            "win": 540,
+            "podium": 1187,
+            "win_rate": 0.2617547261269995,
+            "podium_rate": 0.5753756665050896
+          },
+          "king_outside": {
+            "n": 1793,
+            "win": 143,
+            "podium": 472,
+            "win_rate": 0.07975460122699386,
+            "podium_rate": 0.2632459564974902
+          }
+        },
+        "4": {
+          "king_topk": {
+            "n": 841,
+            "win": 215,
+            "podium": 511,
+            "win_rate": 0.2556480380499406,
+            "podium_rate": 0.6076099881093936
+          },
+          "king_outside": {
+            "n": 364,
+            "win": 43,
+            "podium": 127,
+            "win_rate": 0.11813186813186813,
+            "podium_rate": 0.3489010989010989
+          }
+        },
+        "5": {
+          "king_topk": {
+            "n": 195,
+            "win": 73,
+            "podium": 146,
+            "win_rate": 0.37435897435897436,
+            "podium_rate": 0.7487179487179487
+          },
+          "king_outside": {
+            "n": 42,
+            "win": 9,
+            "podium": 18,
+            "win_rate": 0.21428571428571427,
+            "podium_rate": 0.42857142857142855
+          }
+        },
+        "6": {
+          "king_topk": {
+            "n": 0,
+            "win": 0,
+            "podium": 0,
+            "win_rate": null,
+            "podium_rate": null
+          },
+          "king_outside": {
+            "n": 0,
+            "win": 0,
+            "podium": 0,
+            "win_rate": null,
+            "podium_rate": null
+          }
+        }
+      },
+      "any_outsider_groups": {
+        "king_topk_outsider_any": {
+          "n": 9194,
+          "win": 1930,
+          "podium": 4637,
+          "win_rate": 0.20991951272569068,
+          "podium_rate": 0.5043506634761801
+        },
+        "king_topk_outsider_none": {
+          "n": 1141,
+          "win": 165,
+          "podium": 465,
+          "win_rate": 0.1446099912357581,
+          "podium_rate": 0.4075372480280456
+        },
+        "king_outside_outsider_any": {
+          "n": 20945,
+          "win": 1003,
+          "podium": 3768,
+          "win_rate": 0.04788732394366197,
+          "podium_rate": 0.17989973740749582
+        }
+      },
+      "outsider_only_l16_rank_buckets": {
+        "4-6": {
+          "n": 7667,
+          "win": 613,
+          "podium": 2194,
+          "win_rate": 0.07995304551976001,
+          "podium_rate": 0.2861614712403808
+        },
+        "7-10": {
+          "n": 7525,
+          "win": 306,
+          "podium": 1165,
+          "win_rate": 0.04066445182724252,
+          "podium_rate": 0.1548172757475083
+        },
+        "11+": {
+          "n": 5753,
+          "win": 84,
+          "podium": 409,
+          "win_rate": 0.014601077698592039,
+          "podium_rate": 0.07109334260385886
+        }
+      }
+    },
+    "6": {
+      "per_candidate": {
+        "outsider_daytrend": {
+          "agreement": {
+            "n": 10774,
+            "win": 1620,
+            "podium": 4294,
+            "win_rate": 0.15036198255058475,
+            "podium_rate": 0.39855206979766106
+          },
+          "outsider_only": {
+            "n": 9850,
+            "win": 284,
+            "podium": 1044,
+            "win_rate": 0.02883248730964467,
+            "podium_rate": 0.10598984771573604
+          },
+          "king_only": {
+            "n": 9869,
+            "win": 1233,
+            "podium": 3578,
+            "win_rate": 0.12493667038200426,
+            "podium_rate": 0.3625493971020367
+          },
+          "intersection_total": 10814,
+          "outsider_total": 20722,
+          "king_total": 20722,
+          "races": 3456,
+          "avg_intersection_per_race": 3.129050925925926,
+          "overlap_share_of_outsider_selections": 0.521860824244764,
+          "mean_jaccard": 0.37794500060125313
+        },
+        "outsider_raceshape": {
+          "agreement": {
+            "n": 13090,
+            "win": 2106,
+            "podium": 5656,
+            "win_rate": 0.16088617265087854,
+            "podium_rate": 0.4320855614973262
+          },
+          "outsider_only": {
+            "n": 7541,
+            "win": 275,
+            "podium": 1088,
+            "win_rate": 0.03646731202758255,
+            "podium_rate": 0.14427794722185386
+          },
+          "king_only": {
+            "n": 7553,
+            "win": 747,
+            "podium": 2216,
+            "win_rate": 0.0989010989010989,
+            "podium_rate": 0.2933933536343175
+          },
+          "intersection_total": 13135,
+          "outsider_total": 20722,
+          "king_total": 20722,
+          "races": 3456,
+          "avg_intersection_per_race": 3.800636574074074,
+          "overlap_share_of_outsider_selections": 0.6338673873178264,
+          "mean_jaccard": 0.48891970298220333
+        },
+        "outsider_gatecourse": {
+          "agreement": {
+            "n": 9712,
+            "win": 1437,
+            "podium": 3924,
+            "win_rate": 0.14796128500823724,
+            "podium_rate": 0.40403624382207576
+          },
+          "outsider_only": {
+            "n": 10920,
+            "win": 270,
+            "podium": 1095,
+            "win_rate": 0.024725274725274724,
+            "podium_rate": 0.10027472527472528
+          },
+          "king_only": {
+            "n": 10931,
+            "win": 1416,
+            "podium": 3948,
+            "win_rate": 0.12953984081968714,
+            "podium_rate": 0.36117464092946666
+          },
+          "intersection_total": 9749,
+          "outsider_total": 20722,
+          "king_total": 20722,
+          "races": 3456,
+          "avg_intersection_per_race": 2.8208912037037037,
+          "overlap_share_of_outsider_selections": 0.4704661712189943,
+          "mean_jaccard": 0.33142511423761917
+        },
+        "outsider_field": {
+          "agreement": {
+            "n": 12567,
+            "win": 1980,
+            "podium": 5187,
+            "win_rate": 0.1575555025065648,
+            "podium_rate": 0.4127476724755312
+          },
+          "outsider_only": {
+            "n": 8064,
+            "win": 245,
+            "podium": 916,
+            "win_rate": 0.030381944444444444,
+            "podium_rate": 0.11359126984126984
+          },
+          "king_only": {
+            "n": 8076,
+            "win": 873,
+            "podium": 2685,
+            "win_rate": 0.10809806835066865,
+            "podium_rate": 0.3324665676077266
+          },
+          "intersection_total": 12618,
+          "outsider_total": 20722,
+          "king_total": 20722,
+          "races": 3456,
+          "avg_intersection_per_race": 3.6510416666666665,
+          "overlap_share_of_outsider_selections": 0.6089180581024998,
+          "mean_jaccard": 0.46421243686868785
+        },
+        "outsider_jockey": {
+          "agreement": {
+            "n": 14265,
+            "win": 2209,
+            "podium": 5780,
+            "win_rate": 0.1548545390816684,
+            "podium_rate": 0.4051875219067648
+          },
+          "outsider_only": {
+            "n": 6361,
+            "win": 224,
+            "podium": 822,
+            "win_rate": 0.03521458890111618,
+            "podium_rate": 0.12922496462820313
+          },
+          "king_only": {
+            "n": 6378,
+            "win": 644,
+            "podium": 2092,
+            "win_rate": 0.10097209156475384,
+            "podium_rate": 0.3280025086233929
+          },
+          "intersection_total": 14313,
+          "outsider_total": 20722,
+          "king_total": 20722,
+          "races": 3456,
+          "avg_intersection_per_race": 4.141493055555555,
+          "overlap_share_of_outsider_selections": 0.6907151819322459,
+          "mean_jaccard": 0.5526086760461768
+        }
+      },
+      "vote_groups": {
+        "0": {
+          "king_topk": {
+            "n": 584,
+            "win": 35,
+            "podium": 159,
+            "win_rate": 0.059931506849315065,
+            "podium_rate": 0.2722602739726027
+          },
+          "king_outside": {
+            "n": 5360,
+            "win": 61,
+            "podium": 300,
+            "win_rate": 0.011380597014925373,
+            "podium_rate": 0.055970149253731345
+          }
+        },
+        "1": {
+          "king_topk": {
+            "n": 2344,
+            "win": 192,
+            "podium": 669,
+            "win_rate": 0.08191126279863481,
+            "podium_rate": 0.2854095563139932
+          },
+          "king_outside": {
+            "n": 8258,
+            "win": 145,
+            "podium": 649,
+            "win_rate": 0.01755873092758537,
+            "podium_rate": 0.07859045773795108
+          }
+        },
+        "2": {
+          "king_topk": {
+            "n": 4740,
+            "win": 532,
+            "podium": 1530,
+            "win_rate": 0.11223628691983123,
+            "podium_rate": 0.3227848101265823
+          },
+          "king_outside": {
+            "n": 7355,
+            "win": 177,
+            "podium": 727,
+            "win_rate": 0.024065261726716518,
+            "podium_rate": 0.09884432358939498
+          }
+        },
+        "3": {
+          "king_topk": {
+            "n": 5886,
+            "win": 823,
+            "podium": 2260,
+            "win_rate": 0.1398233095480802,
+            "podium_rate": 0.3839619435949711
+          },
+          "king_outside": {
+            "n": 4099,
+            "win": 128,
+            "podium": 523,
+            "win_rate": 0.0312271285679434,
+            "podium_rate": 0.12759209563308124
+          }
+        },
+        "4": {
+          "king_topk": {
+            "n": 4519,
+            "win": 728,
+            "podium": 1938,
+            "win_rate": 0.1610975879619385,
+            "podium_rate": 0.42885594157999557
+          },
+          "king_outside": {
+            "n": 1519,
+            "win": 75,
+            "podium": 247,
+            "win_rate": 0.04937458854509546,
+            "podium_rate": 0.16260697827518103
+          }
+        },
+        "5": {
+          "king_topk": {
+            "n": 2570,
+            "win": 543,
+            "podium": 1316,
+            "win_rate": 0.211284046692607,
+            "podium_rate": 0.5120622568093385
+          },
+          "king_outside": {
+            "n": 279,
+            "win": 23,
+            "podium": 61,
+            "win_rate": 0.08243727598566308,
+            "podium_rate": 0.21863799283154123
+          }
+        },
+        "6": {
+          "king_topk": {
+            "n": 0,
+            "win": 0,
+            "podium": 0,
+            "win_rate": null,
+            "podium_rate": null
+          },
+          "king_outside": {
+            "n": 0,
+            "win": 0,
+            "podium": 0,
+            "win_rate": null,
+            "podium_rate": null
+          }
+        }
+      },
+      "any_outsider_groups": {
+        "king_topk_outsider_any": {
+          "n": 20059,
+          "win": 2818,
+          "podium": 7713,
+          "win_rate": 0.14048556757565184,
+          "podium_rate": 0.3845156787476943
+        },
+        "king_topk_outsider_none": {
+          "n": 584,
+          "win": 35,
+          "podium": 159,
+          "win_rate": 0.059931506849315065,
+          "podium_rate": 0.2722602739726027
+        },
+        "king_outside_outsider_any": {
+          "n": 21510,
+          "win": 548,
+          "podium": 2207,
+          "win_rate": 0.025476522547652255,
+          "podium_rate": 0.10260344026034403
+        }
+      },
+      "outsider_only_l16_rank_buckets": {
+        "4-6": {
+          "n": 0,
+          "win": 0,
+          "podium": 0,
+          "win_rate": null,
+          "podium_rate": null
+        },
+        "7-10": {
+          "n": 11480,
+          "win": 416,
+          "podium": 1584,
+          "win_rate": 0.03623693379790941,
+          "podium_rate": 0.13797909407665504
+        },
+        "11+": {
+          "n": 10030,
+          "win": 132,
+          "podium": 623,
+          "win_rate": 0.013160518444666001,
+          "podium_rate": 0.06211365902293121
+        }
+      }
+    }
+  }
+}
