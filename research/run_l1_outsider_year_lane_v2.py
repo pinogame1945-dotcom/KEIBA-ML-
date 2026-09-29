@@ -28,6 +28,7 @@ def parse_args():
     p.add_argument("--gate-race-ids", default="", help="CSV containing race_id for compact Top6 export")
     p.add_argument("--top6-output", default="", help="Append compact outsider Top6 rows here")
     p.add_argument("--seven-union-output", default="", help="Write seven-king Top6 union rows here")
+    p.add_argument("--all-races-topk-output", default="", help="Append compact Top3/Top6 rows for every scored race")
     return p.parse_args()
 
 
@@ -137,6 +138,60 @@ def append_candidate_top6(score_path, gate_ids, candidate, label_ja, year, outpu
                 "top6_horse_numbers": "|".join("" if x["horse_number"] is None else str(x["horse_number"]) for x in z),
                 "top6_probabilities": "|".join("" if x["prob"] is None else f'{float(x["prob"]):.12g}' for x in z),
                 "top6_count": len(z),
+            })
+
+
+
+def append_candidate_all_topk(score_path, candidate, label_ja, year, output_path):
+    import csv
+    rows = {}
+    opener = gzip.open if str(score_path).endswith(".gz") else open
+    with opener(score_path, "rt", encoding="utf-8") as fh:
+        for line in fh:
+            if not line.strip():
+                continue
+            rec = json.loads(line)
+            rid = str(rec.get("race_id") or "")
+            if not rid:
+                continue
+            rank = int(rec.get("predicted_rank") or 999)
+            if rank > 6:
+                continue
+            rows.setdefault(rid, []).append({
+                "rank": rank,
+                "horse_id": str(rec.get("horse_id") or ""),
+                "horse_number": rec.get("horse_number"),
+                "prob": rec.get("race_normalized_win_probability"),
+            })
+    if not rows:
+        raise RuntimeError(f"candidate all-races TopK empty candidate={candidate}")
+    out = Path(output_path)
+    out.parent.mkdir(parents=True, exist_ok=True)
+    exists = out.exists() and out.stat().st_size > 0
+    fields = [
+        "year","race_id","candidate","label_ja",
+        "top3_horse_ids","top3_horse_numbers","top3_probabilities",
+        "top6_horse_ids","top6_horse_numbers","top6_probabilities","field_top6_count",
+    ]
+    with open(out, "a", newline="", encoding="utf-8") as fh:
+        w = csv.DictWriter(fh, fieldnames=fields)
+        if not exists:
+            w.writeheader()
+        for rid in sorted(rows):
+            z = sorted(rows[rid], key=lambda x: (x["rank"], x["horse_id"]))
+            z3 = z[:3]
+            w.writerow({
+                "year": year,
+                "race_id": rid,
+                "candidate": candidate,
+                "label_ja": label_ja,
+                "top3_horse_ids": "|".join(x["horse_id"] for x in z3),
+                "top3_horse_numbers": "|".join("" if x["horse_number"] is None else str(x["horse_number"]) for x in z3),
+                "top3_probabilities": "|".join("" if x["prob"] is None else f'{float(x["prob"]):.12g}' for x in z3),
+                "top6_horse_ids": "|".join(x["horse_id"] for x in z),
+                "top6_horse_numbers": "|".join("" if x["horse_number"] is None else str(x["horse_number"]) for x in z),
+                "top6_probabilities": "|".join("" if x["prob"] is None else f'{float(x["prob"]):.12g}' for x in z),
+                "field_top6_count": len(z),
             })
 
 
@@ -281,6 +336,11 @@ def run_candidate(args, row, family, inputs, valid_snapshot, router, gate_ids):
     if gate_ids and args.top6_output:
         append_candidate_top6(
             score, gate_ids, candidate, label_ja, year, args.top6_output
+        )
+
+    if args.all_races_topk_output:
+        append_candidate_all_topk(
+            score, candidate, label_ja, year, args.all_races_topk_output
         )
 
     run([
