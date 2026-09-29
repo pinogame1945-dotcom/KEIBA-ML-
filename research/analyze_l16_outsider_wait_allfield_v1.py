@@ -74,22 +74,27 @@ def main():
     by_wait={str(w):blank() for w in range(6)}
     by_rank_wait=defaultdict(lambda:{str(w):blank() for w in range(6)})
     total_horses=0
+    evaluated_horses=0
+    missing_finish_horses=0
 
     op=Path(a.output_horses); op.parent.mkdir(parents=True,exist_ok=True)
     with gzip.open(op,"wt",encoding="utf-8",newline="") as gz:
         wr=csv.writer(gz)
-        wr.writerow(["year","race_id","horse_id","king_rank","outsider_top3_support","wait_count","finish_position","is_win","is_podium"])
+        wr.writerow(["year","race_id","horse_id","king_rank","outsider_top3_support","wait_count","finish_position","has_finish_position","is_win","is_podium"])
         for rid,rows in cons.items():
             if any(c not in outs[rid] for c in CANDS):
                 raise ValueError(f"missing outsider rows {rid}")
             for hid,rank in rows:
-                if hid not in truth[rid]:
-                    raise ValueError(f"truth missing horse {rid} {hid}")
-                pos=truth[rid][hid]
+                pos=truth[rid].get(hid)
                 support=sum(hid in outs[rid][c] for c in CANDS)
                 wait=5-support
-                wr.writerow([a.year,rid,hid,rank,support,wait,pos,int(pos==1),int(pos<=3)])
                 total_horses+=1
+                if pos is None:
+                    missing_finish_horses+=1
+                    wr.writerow([a.year,rid,hid,rank,support,wait,"",0,"",""])
+                    continue
+                evaluated_horses+=1
+                wr.writerow([a.year,rid,hid,rank,support,wait,pos,1,int(pos==1),int(pos<=3)])
                 add(by_wait[str(wait)],pos)
                 add(by_rank_wait[str(rank)][str(wait)],pos)
 
@@ -98,6 +103,8 @@ def main():
       "year":a.year,
       "races":len(cons),
       "horses":total_horses,
+      "evaluated_horses":evaluated_horses,
+      "missing_finish_horses":missing_finish_horses,
       "includes_chimera":False,
       "definition":"For every horse in every race: wait_count = 5 - number of formal Outsiders placing that horse in their own Top3.",
       "by_wait":{w:finish(s) for w,s in by_wait.items()},
@@ -105,6 +112,6 @@ def main():
     }
     sp=Path(a.output_summary); sp.parent.mkdir(parents=True,exist_ok=True)
     sp.write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-    print("L16_OUTSIDER_WAIT_ALLFIELD_OK",a.year,len(cons),total_horses)
+    print("L16_OUTSIDER_WAIT_ALLFIELD_OK",a.year,len(cons),total_horses,evaluated_horses,missing_finish_horses)
 
 if __name__=="__main__": main()
