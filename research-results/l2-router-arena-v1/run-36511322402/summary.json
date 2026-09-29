@@ -1,0 +1,35 @@
+{
+  "contract": "L2_ROUTER_ARENA_RESULT_V1",
+  "upstream": "L15_FIXED_V1",
+  "templates": 23,
+  "edge_thresholds": [
+    0.0,
+    0.05,
+    0.1,
+    0.15,
+    0.2
+  ],
+  "strategy_action_rows": 775140,
+  "strategy_oos_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "router_eval_years": [
+    2024,
+    2025
+  ],
+  "2025_is_holdout": false,
+  "locked_years": [
+    2026
+  ],
+  "routers": [
+    "SIMPLE_EXPECTED_ROI",
+    "STRATEGY_UTILITY",
+    "DIRECT_BET_TYPE"
+  ],
+  "research_leader": {
+    "status": "NO_QUALIFIED_ROUTER"
+  },
+  "promotion": "RESEARCH_ONLY_NOT_L2_FIX"
+}
