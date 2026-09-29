@@ -18,10 +18,20 @@ jobs:
       fail-fast: false
       max-parallel: 4
       matrix:
-        year: [2022,2023,2024,2025]
+        include:
+          - year: 2022
+            delay_seconds: 0
+          - year: 2023
+            delay_seconds: 25
+          - year: 2024
+            delay_seconds: 50
+          - year: 2025
+            delay_seconds: 75
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
       GENERATION_ID: eb13d4096519167b
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
       OUTSIDER_RUN_ID: "36551650736"
     steps:
       - uses: actions/checkout@v4
@@ -40,6 +50,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
           y="${{ matrix.year }}"
           mkdir -p out/top1/snapshot out/top1/scores/$y
           bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/top1/snapshot
