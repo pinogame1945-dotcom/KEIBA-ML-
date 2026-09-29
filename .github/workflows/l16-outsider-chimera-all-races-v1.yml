@@ -217,7 +217,7 @@ jobs:
               summary["by_year"][str(y)]={"races":3456,"candidate_rows":len(rows),"candidates":sorted(expected)}
               total+=3456
           summary["races"]=total
-          summary["candidate_race_rows"]=total*5
+          summary["candidate_race_rows"]=total
           (root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
           print(json.dumps(summary,ensure_ascii=False,separators=(",",":")))
           PY
