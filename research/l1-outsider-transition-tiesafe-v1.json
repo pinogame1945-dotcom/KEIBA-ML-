@@ -1,0 +1,89 @@
+{
+  "contract": "L1_OUTSIDER_TRANSITION_TIESAFE_V1",
+  "experiment_id": "OUTSIDER-TRANSITION-TIESAFE-001",
+  "snapshot_generation": "eb13d4096519167b",
+  "training_window_years": 2,
+  "validation_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "prediction_phase": "FINAL",
+  "feature_selection": "none",
+  "ability_uses_odds": false,
+  "locked_years": [
+    2026
+  ],
+  "candidates": [
+    {
+      "name": "outsider_rotation",
+      "label_ja": "ローテーション型",
+      "mode": "ROTATION",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_classmove",
+      "label_ja": "クラス移動型",
+      "mode": "CLASS_MOVE",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_weightchange",
+      "label_ja": "斤量変化型",
+      "mode": "WEIGHT_CHANGE",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_bodychange",
+      "label_ja": "馬体変動型",
+      "mode": "BODY_CHANGE",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_disttransition",
+      "label_ja": "距離遷移型",
+      "mode": "DISTANCE_TRANSITION",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_coursetransition",
+      "label_ja": "コース遷移型",
+      "mode": "COURSE_TRANSITION",
+      "feature_sets": [
+        "BASE"
+      ]
+    },
+    {
+      "name": "outsider_opponentgap",
+      "label_ja": "相手格差型",
+      "mode": "OPPONENT_GAP",
+      "feature_sets": [
+        "BASE"
+      ]
+    }
+  ],
+  "policy": {
+    "odds_or_popularity": false,
+    "pedigree_features": false,
+    "horse_speed_features": false,
+    "ordinary_finish_form_features": false,
+    "transition_history_only": true,
+    "same_day_future_results": false,
+    "strict_prior_date_for_horse_state": true
+  },
+  "research_goal": "Find new outsider families that explain changes between a horse's prior environment and the current race, without re-running the existing nonhorse outsider families.",
+  "promotion_policy": "Research-only tie-safe revalidation. No automatic promotion.",
+  "rank_tie_policy": "score_desc_then_horse_id_asc_v1"
+}
