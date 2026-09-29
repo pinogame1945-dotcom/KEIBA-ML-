@@ -1,0 +1,104 @@
+{
+  "contract": "L15_FIXED_V1",
+  "status": "FROZEN",
+  "version": "1.0.0",
+  "frozen_at": "2026-09-29",
+  "purpose": "Reusable L1.5 interface between the seven L1 experts and downstream L2.",
+  "architecture": {
+    "seven_king_consensus": {
+      "expert_count": 7,
+      "input": "ROUTER_FEATURE_SNAPSHOT_V1 experts[*].top6_horse_ids",
+      "horse_order": "Top6 Borda: each expert rank r contributes 7-r points; ties use support, top1 votes, best rank, mean rank, horse_id.",
+      "anchors": "First two horses of the seven-king consensus order.",
+      "odds_used": false
+    },
+    "gate": {
+      "name": "CONSENSUS_WORLD_GATE",
+      "action_policy": "TOP_10_PERCENT_RISK",
+      "historical_alerts": 1384,
+      "historical_caught_blind": 277,
+      "historical_gate_precision": 0.2001,
+      "historical_gate_recall": 0.2028,
+      "historical_auc": 0.6641748191933682,
+      "historical_pr_auc": 0.16513105799767716,
+      "non_alert_action": "PASS_SEVEN_ONLY"
+    },
+    "outsider_router": {
+      "policy": "FULL_COMBO_K2",
+      "selected_outsider_count": 2,
+      "candidate_pool": [
+        "当日傾向型",
+        "レース構造型",
+        "枠・コース型",
+        "メンバー構成型",
+        "騎手型"
+      ],
+      "action": "On Gate alert, choose exactly two outsiders and add only Top6 horse IDs absent from the seven-king union.",
+      "odds_used": false
+    }
+  },
+  "output_contract": {
+    "contract": "L15_FIXED_OUTPUT_V1",
+    "required_fields": [
+      "year",
+      "race_id",
+      "gate_alert",
+      "gate_score",
+      "gate_action",
+      "seven_consensus_order",
+      "seven_anchor_horse_ids",
+      "seven_union_horse_ids",
+      "selected_outsiders",
+      "novel_horse_ids",
+      "candidate_horse_ids"
+    ],
+    "rules": [
+      "candidate_horse_ids begins with seven_consensus_order and appends only novel outsider horses.",
+      "Outsider horses do not replace or re-rank seven-king anchors inside L1.5.",
+      "If gate_alert is false, selected_outsiders and novel_horse_ids are empty.",
+      "Odds, popularity and payout are forbidden inputs in L1/L1.5."
+    ]
+  },
+  "frozen_sources": {
+    "candidate_inflation_commit": "e232d6bb83f789e9ebb44cc9786dcce32beddbb1",
+    "candidate_inflation_run": 36452274400,
+    "candidate_root": "research-results/l15-candidate-inflation-v1/run-36452274400",
+    "router31_commit": "97b4e3225f643d3ee5a8f72476678b16f5a7d95e",
+    "router31_run": 36448207055,
+    "l2_evidence_commit": "673c6d55b8d1fb297e58f7fbf81a02ddc2c39fc4",
+    "l2_evidence_run": 36502921728
+  },
+  "historical_scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "alert_rows": 1384
+  },
+  "acceptance_evidence": {
+    "candidate_inflation": {
+      "rescued_blind": 192,
+      "novel_horses_total": 5577,
+      "avg_novel_horses_per_alert": 4.029624277456647,
+      "avg_novel_horses_per_false_alert": 3.94,
+      "rescued_blind_per_100_novel_horses": 3.442710238479469
+    },
+    "l2_walk_forward_2023_2025": {
+      "edge_filter": 0.1,
+      "roi_pct": 109.38397701883179,
+      "profit_yen": 264600,
+      "stake_yen": 2819700,
+      "note": "Evidence for freezing K2 over BASE/K3; final odds are a historical execution-price proxy."
+    }
+  },
+  "immutability": {
+    "mutate_v1": false,
+    "change_policy": "Any Gate, consensus, outsider, ranking or output-schema change creates L15_FIXED_V2 or later.",
+    "production_note": "2026 remains sealed; this V1 is for historical replay/downstream research until the sealed-year policy changes."
+  }
+}
