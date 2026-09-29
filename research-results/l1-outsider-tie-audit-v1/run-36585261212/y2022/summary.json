@@ -1,0 +1,26 @@
+{
+  "contract": "L1_OUTSIDER_TIE_AUDIT_YEAR_V1",
+  "year": 2022,
+  "candidate_count": 13,
+  "candidates": [
+    "outsider_daytrend",
+    "outsider_raceshape",
+    "outsider_gatecourse",
+    "outsider_jockey",
+    "outsider_field",
+    "outsider_chimera",
+    "outsider_rotation",
+    "outsider_classmove",
+    "outsider_weightchange",
+    "outsider_bodychange",
+    "outsider_disttransition",
+    "outsider_coursetransition",
+    "outsider_opponentgap"
+  ],
+  "races_per_candidate": [
+    3456
+  ],
+  "safe_tie_breaker": "raw_margin_logit desc, horse_number asc, horse_id asc",
+  "shuffle_trials": 5,
+  "2026_sealed": true
+}
