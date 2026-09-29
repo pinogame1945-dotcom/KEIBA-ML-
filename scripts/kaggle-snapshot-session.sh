@@ -9,6 +9,7 @@ shift 3
 slug="keiba-ml-snapshot-${generation_id}"
 manifest="$out_dir/manifest.json"
 dataset_ref_file="$out_dir/.dataset-ref"
+files_json="$out_dir/.files.json"
 
 if [[ -z "${KAGGLE_API_TOKEN:-}" ]]; then
   echo "KAGGLE_API_TOKEN is required" >&2
@@ -110,6 +111,7 @@ case "$cmd" in
   init)
     dataset_ref="$(resolve_ref)"
     retry_kaggle "session-manifest" kaggle datasets download "$dataset_ref" -f manifest.json -p "$out_dir" --unzip --quiet --force
+    retry_kaggle "session-files" bash -c 'kaggle datasets files "$1" --page-size 500 --format "json(name,size)" >"$2"' _ "$dataset_ref" "$files_json"
     python - "$manifest" "$generation_id" <<'PY'
 import json,sys
 m=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -121,7 +123,7 @@ PY
     echo "KAGGLE_SNAPSHOT_SESSION_INIT_OK"
     ;;
   fetch)
-    [[ -s "$manifest" && -s "$dataset_ref_file" ]] || {
+    [[ -s "$manifest" && -s "$dataset_ref_file" && -s "$files_json" ]] || {
       echo "session not initialized" >&2
       exit 4
     }
@@ -146,13 +148,23 @@ PY
         continue
       fi
 
-      if retry_kaggle "session-snapshot:$year" kaggle datasets download "$dataset_ref" -f "$manifest_name" -p "$out_dir" --unzip --quiet --force; then
-        :
-      elif [[ "$plain_name" != "$manifest_name" ]]; then
-        retry_kaggle "session-snapshot:$year:fallback" kaggle datasets download "$dataset_ref" -f "$plain_name" -p "$out_dir" --unzip --quiet --force
-      else
-        exit 1
-      fi
+      remote_name="$(python - "$files_json" "$manifest_name" "$plain_name" <<'PY'
+import json,sys
+files_path,manifest_name,plain_name=sys.argv[1:]
+rows=json.load(open(files_path,encoding="utf-8"))
+names=[str(x.get("name") or "") for x in rows]
+if manifest_name in names:
+    print(manifest_name); raise SystemExit
+if plain_name != manifest_name and plain_name in names:
+    print(plain_name); raise SystemExit
+nested=[x for x in names if x.endswith("/"+manifest_name) or (plain_name!=manifest_name and x.endswith("/"+plain_name))]
+if len(nested)==1:
+    print(nested[0]); raise SystemExit
+raise SystemExit(f"snapshot file missing/ambiguous manifest={manifest_name} plain={plain_name}")
+PY
+)"
+      echo "SESSION_REMOTE_RESOLVED year=$year file=$remote_name"
+      retry_kaggle "session-snapshot:$year" kaggle datasets download "$dataset_ref" -f "$remote_name" -p "$out_dir" --unzip --quiet --force
 
       if [[ -s "$gz_path" ]]; then
         validate_one "$gz_path" "$manifest_name"
