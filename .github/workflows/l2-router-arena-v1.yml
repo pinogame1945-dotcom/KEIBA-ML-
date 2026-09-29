@@ -71,10 +71,18 @@ jobs:
             echo "Artifact/Cache use is forbidden" >&2
             exit 1
           fi
-          if grep -E "runs-on:.*(gpu|large|xlarge|[0-9]+-core)" .github/workflows/l2-router-arena-v1.yml; then
-            echo "Paid/non-standard runner guard triggered" >&2
-            exit 1
-          fi
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path(".github/workflows/l2-router-arena-v1.yml").read_text(encoding="utf-8").splitlines()
+          runners=[]
+          for line in lines:
+              stripped=line.strip()
+              if stripped.startswith("runs-on:"):
+                  runners.append(stripped.split(":",1)[1].strip())
+          if runners != ["ubuntu-latest"]:
+              raise SystemExit(f"Non-standard runner guard: {runners}")
+          print("STANDARD_RUNNER_OK", runners)
+          PY
 
       - name: Install standard CPU dependencies
         shell: bash
