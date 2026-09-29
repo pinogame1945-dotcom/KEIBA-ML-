@@ -40,7 +40,9 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/rank_utils.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/build_l1_nonhorse_dataset_v1.py             research/run_l1_outsider_year_lane_v2.py             research/analyze_l1_outsider_rescue_v1.py             research/archive_l1_outsider_arena_v1.py
+          python -m py_compile             research/rank_utils.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/build_l1_nonhorse_dataset_v1.py             research/run_l1_outsider_year_lane_v2.py             research/analyze_l1_outsider_rescue_v1.py             research/archive_l1_outsider_arena_v1.py \
+            research/build_router_feature_snapshot_v1.py \
+            research/rerank_l1_score_v1.py
           python research/test_rank_utils_v1.py
           bash -n scripts/kaggle-dataset-session-v2.sh
           grep -q '_canonical_horse_number' research/train-staged-lightgbm.py
@@ -91,20 +93,72 @@ jobs:
           echo "SNAP_MANIFEST=$manifest" >> "$GITHUB_ENV"
           echo "SHARED_SNAPSHOTS_READY count=${#logicals[@]}"
 
-      - name: Restore five seven-king routers by metadata-resolved names
+      - name: Rebuild five seven-king routers from persisted king scores
         shell: bash
         run: |
           set -euo pipefail
           root="out/weightchange-v2/routers"
-          mkdir -p "$root"
-          for y in 2021 2022 2023 2024 2025; do
-            d="$root/$y"
-            ref="pino1945/keiba-l15-rolecmp-y${y}-v1"
-            bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
-            bash scripts/kaggle-dataset-session-v2.sh fetch "$d" router-7k.jsonl
-            p="$(find "$d" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+          scoreroot="out/weightchange-v2/king-scores"
+          mkdir -p "$root" "$scoreroot"
+
+          snapshot_for_year() {
+            local y="$1"
+            local logical
+            logical="$(YEAR="$y" MANIFEST="$SNAP_MANIFEST" python - <<'PY'
+          import json,os
+          y=int(os.environ["YEAR"])
+          m=json.load(open(os.environ["MANIFEST"],encoding="utf-8"))
+          matches=[str(x["file"]) for x in m.get("years",[]) if int(x.get("year") or 0)==y]
+          if len(matches)!=1:
+              raise SystemExit(f"snapshot logical missing/ambiguous year={y}: {matches}")
+          print(matches[0])
+          PY
+            )"
+            local base plain p
+            base="$(basename "$logical")"
+            plain="${base%.gz}"
+            p="$(find "$SNAP_ROOT" -type f \( -name "$base" -o -name "$plain" \) -print -quit)"
             test -n "$p"; test -s "$p"
-            echo "ROUTER_EXACT_READY year=$y path=$p"
+            printf '%s' "$p"
+          }
+
+          for y in 2021 2022 2023 2024 2025; do
+            yroot="$scoreroot/$y"
+            mkdir -p "$yroot"
+            args=()
+
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              case "$alias" in
+                core4) expert="core4_no_pedigree" ;;
+                pedlegacy) expert="no_auto_full_pedigree_legacy" ;;
+                condition) expert="jockey_trainer_condition" ;;
+                full) expert="no_auto_full" ;;
+                light) expert="no_auto_jockey" ;;
+                pedv1) expert="no_auto_full_pedigree_v1" ;;
+                condrc) expert="jockey_trainer_condition_plus_raceclass" ;;
+                *) echo "::error::unknown alias=$alias"; exit 1 ;;
+              esac
+
+              d="$yroot/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y${y}-v1"
+              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
+              bash scripts/kaggle-dataset-session-v2.sh fetch "$d" score.jsonl.gz
+              p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+
+              safe="$d/score-safe.jsonl.gz"
+              python research/rerank_l1_score_v1.py                 --input "$p"                 --output "$safe"                 --summary "$d/rerank-summary.json"
+              args+=(--expert "$expert=$safe")
+            done
+
+            snap="$(snapshot_for_year "$y")"
+            router="$root/$y/router-7k.jsonl.gz"
+            mkdir -p "$root/$y"
+            python research/build_router_feature_snapshot_v1.py               --snapshot "$snap"               "${args[@]}"               --output "$router"
+            test -s "$router"
+            echo "ROUTER_REBUILT_FROM_KING_SCORES year=$y path=$router"
+
+            rm -rf "$yroot"
           done
           echo "ROUTER_ROOT=$root" >> "$GITHUB_ENV"
 
@@ -155,6 +209,7 @@ jobs:
           echo "Standard GitHub-hosted ubuntu-latest CPU only."
           echo "Single runner reuses 2019-2025 snapshots across all five folds."
           echo "Kaggle filenames are resolved from metadata before download; no jsonl/gz 404 guessing."
+          echo "Seven-king routers are rebuilt locally from persisted king score datasets; rolecmp router datasets are not used."
           echo "No GPU. No paid runner."
           echo "No GitHub Artifact/Cache."
           echo "Kaggle read-only; no Dataset/Model creation or update."
