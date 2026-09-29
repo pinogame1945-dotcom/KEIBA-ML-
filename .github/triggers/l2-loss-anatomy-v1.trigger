@@ -1,4 +1,4 @@
-launch=2026-09-29T12:35:00+09:00
+launch=2026-09-29T12:44:00+09:00
 experiment=L2-LOSS-ANATOMY-V1
 source_router_run=36511322402
 analysis_years=2024,2025
@@ -10,3 +10,4 @@ locked_year=2026
 runner=ubuntu-latest
 artifact_cache=false
 gpu=false
+relaunch_reason=fix-cost-guard-self-match
