@@ -1,0 +1,56 @@
+{
+  "contract": "L2_TICKET_EVAL_QUINELLA_V0_RESULT",
+  "architecture": "ticket_level_binary_hit_probability_then_market_edge",
+  "bet_type": "QUINELLA",
+  "all_runners_considered": true,
+  "candidate_horse_selection": false,
+  "template_router": false,
+  "model_input_odds": false,
+  "odds_stage": "post_prediction_edge_only",
+  "stake_per_ticket_yen": 100,
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "policy_selection_objective": "maximize development profit subject to minimum execution coverage",
+  "minimum_dev_execution_coverage_pct": 20.0,
+  "selected_policy": {
+    "label": "EDGE_1.00_MAX1",
+    "source_races": 6910,
+    "executed_races": 6617,
+    "execution_coverage_pct": 95.75976845151953,
+    "tickets": 6617,
+    "hit_races": 21,
+    "race_hit_rate_pct": 0.30390738060781475,
+    "stake_yen": 661700.0,
+    "return_yen": 316940.0,
+    "profit_yen": -344760.0,
+    "roi_pct": 47.89783889980354,
+    "max_drawdown_yen": 363850.0,
+    "min_edge": 1.0,
+    "max_tickets_per_race": 1
+  },
+  "holdout": {
+    "label": "SELECTED_EDGE_1.00_MAX1",
+    "source_races": 3455,
+    "executed_races": 3280,
+    "execution_coverage_pct": 94.93487698986975,
+    "tickets": 3280,
+    "hit_races": 5,
+    "race_hit_rate_pct": 0.1447178002894356,
+    "stake_yen": 328000.0,
+    "return_yen": 66690.0,
+    "profit_yen": -261310.0,
+    "roi_pct": 20.33231707317073,
+    "max_drawdown_yen": 267360.0,
+    "selected_from_dev_years": [
+      2023,
+      2024
+    ],
+    "min_edge": 1.0,
+    "max_tickets_per_race": 1
+  },
+  "2026_locked": true
+}
