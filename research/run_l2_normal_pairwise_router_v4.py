@@ -121,8 +121,9 @@ def build_pair_training(train,xtrain,perf,templates):
     return x,y
 
 
-def train_pairwise(train,cols,perf,templates,seed):
-    xtrain,_=encode_fit_other(train,[],cols)
+def train_pairwise(train,test,cols,perf,templates,seed):
+    # Pairwise train/test must share the exact same dummy-column basis.
+    xtrain,(xtest_pair,)=encode_fit_other(train,[test],cols)
     xpair,ypair=build_pair_training(train,np.asarray(xtrain,dtype=np.float32),perf,templates)
     model=lgb.LGBMClassifier(
         objective="binary",n_estimators=240,learning_rate=0.03,num_leaves=31,
@@ -131,10 +132,11 @@ def train_pairwise(train,cols,perf,templates,seed):
         deterministic=True,force_col_wise=True,verbosity=-1,
     )
     model.fit(xpair,ypair)
-    return model,{
+    return model,np.asarray(xtest_pair,dtype=np.float32),{
         "pair_rows":int(len(ypair)),
         "pair_positive_rate":float(ypair.mean()),
         "pair_feature_count":int(xpair.shape[1]),
+        "pair_base_feature_count":int(xtest_pair.shape[1]),
     }
 
 
@@ -261,8 +263,12 @@ def main():
         test=data[data["year"]==test_year].copy().sort_values(["race_date","race_id"]).reset_index(drop=True)
 
         labels,probs,xtest=train_v1_shortlist(train,test,cols,81000+test_year)
-        pair_model,pmeta=train_pairwise(train,cols,perf,TEMPLATES,121000+yi)
-        p1,p2,p3,rows=route_year(test,labels,probs,xtest,pair_model,perf,TEMPLATES)
+        pair_model,xtest_pair,pmeta=train_pairwise(train,test,cols,perf,TEMPLATES,121000+yi)
+        expected_pair_features=int(pair_model.n_features_in_)
+        actual_pair_features=int(xtest_pair.shape[1]+2*len(TEMPLATES)+4)
+        if expected_pair_features!=actual_pair_features:
+            raise SystemExit(f"pairwise feature drift year={test_year} expected={expected_pair_features} actual={actual_pair_features}")
+        p1,p2,p3,rows=route_year(test,labels,probs,xtest_pair,pair_model,perf,TEMPLATES)
         decisions.extend(rows)
 
         m1=evaluate(test,p1,"V1_TOP1",perf)
