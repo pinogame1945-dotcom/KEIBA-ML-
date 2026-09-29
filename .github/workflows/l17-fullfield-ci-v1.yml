@@ -1,0 +1,94 @@
+name: L1.7 Full-Field CI V1
+
+on:
+  push:
+    branches:
+      - research/l17-seven-king-fullfield-v1-20260929
+    paths:
+      - .github/triggers/l17-fullfield-ci-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l17_seven_king_fullfield_v1.py
+
+      - name: Row-order invariance and contract smoke
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/a out/b
+          python - <<'PY'
+          import gzip,json,random
+          experts=["core4","pedlegacy","condition","full","light","pedv1","condrc"]
+          base=[
+            ("H01",1,0.70),("H02",2,0.70),("H03",3,0.55),("H04",4,0.40),
+            ("H05",5,0.30),("H06",6,0.25),("H07",7,0.25),("H08",8,0.10),
+          ]
+          for ei,e in enumerate(experts):
+              rows=[]
+              for hid,num,p in base:
+                  pp=p+(ei*0.0001 if hid in ("H03","H04") else 0)
+                  rows.append({
+                      "contract":"L1_TO_L2_OUTPUT_CONTRACT_V1",
+                      "race_id":"R001","race_date":"2025-01-01","horse_id":hid,"horse_number":num,
+                      "expert_id":e,"raw_margin_logit":pp,
+                      "raw_win_probability":pp,
+                      "race_normalized_win_probability":pp/sum(x[2]+(ei*0.0001 if x[0] in ("H03","H04") else 0) for x in base),
+                      "predicted_rank":1
+                  })
+              with gzip.open(f"out/a/{e}.jsonl.gz","wt",encoding="utf-8") as f:
+                  for r in rows: f.write(json.dumps(r,separators=(",",":"))+"\n")
+              random.Random(1945+ei).shuffle(rows)
+              with gzip.open(f"out/b/{e}.jsonl.gz","wt",encoding="utf-8") as f:
+                  for r in rows: f.write(json.dumps(r,separators=(",",":"))+"\n")
+          PY
+
+          args=()
+          for e in core4 pedlegacy condition full light pedv1 condrc; do
+            args+=(--expert "$e=out/a/$e.jsonl.gz")
+          done
+          python research/materialize_l17_seven_king_fullfield_v1.py --year 2025 "${args[@]}" --output out/l17-a.jsonl.gz
+
+          args=()
+          for e in core4 pedlegacy condition full light pedv1 condrc; do
+            args+=(--expert "$e=out/b/$e.jsonl.gz")
+          done
+          python research/materialize_l17_seven_king_fullfield_v1.py --year 2025 "${args[@]}" --output out/l17-b.jsonl.gz
+
+          python - <<'PY'
+          import gzip,json
+          def load(p):
+              with gzip.open(p,"rt",encoding="utf-8") as f:
+                  return [json.loads(x) for x in f if x.strip()]
+          a,b=load("out/l17-a.jsonl.gz"),load("out/l17-b.jsonl.gz")
+          assert a==b,(a,b)
+          row=a[0]
+          assert row["contract"]=="L17_SEVEN_KING_FULLFIELD_OUTPUT_V1"
+          assert row["expert_count"]==7
+          assert row["field_size"]==8
+          assert len(row["horses"])==8
+          assert row["consensus_order"][0]=="H01"
+          assert row["consensus_order"][1]=="H02"
+          print("L17_ROW_ORDER_INVARIANCE_OK",row["consensus_order"])
+          PY
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner. No Kaggle."
+          echo "No Artifact/Cache. No persistent dataset/model storage."
