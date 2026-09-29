@@ -1,0 +1,157 @@
+name: L1.6 Outsider Confidence V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-confidence-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-confidence-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-confidence-v1
+  cancel-in-progress: true
+
+jobs:
+  materialize:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - year: 2022
+            delay_seconds: 0
+          - year: 2023
+            delay_seconds: 25
+          - year: 2024
+            delay_seconds: 50
+          - year: 2025
+            delay_seconds: 75
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l16_full_rank_consensus_v1.py research/analyze_l16_outsider_confidence_v1.py
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+          y="${{ matrix.year }}"
+          mkdir -p out/conf/snapshot out/conf/scores/$y
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/conf/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/conf/snapshot "$y"
+
+          retry_score() {
+            alias="$1"
+            dst="out/conf/scores/$y/$alias"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            mkdir -p "$dst"
+            for remote in score.jsonl.gz score.jsonl; do
+              for attempt in 1 2 3 4 5 6; do
+                tmp="$dst/tmp"; rm -rf "$tmp"; mkdir -p "$tmp"
+                if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                  p="$(find "$tmp" -type f ! -name log -print -quit)"
+                  if [[ -n "$p" && -s "$p" ]]; then
+                    cp "$p" "$dst/$remote"; rm -rf "$tmp"; return 0
+                  fi
+                fi
+                if grep -Eqi '404|not found' "$tmp/log"; then break; fi
+                [[ "$attempt" -eq 6 ]] && break
+                sleep $((attempt*15))
+              done
+            done
+            return 1
+          }
+
+          for a in core4 pedlegacy condition full light pedv1 condrc; do
+            retry_score "$a"
+            sleep 2
+          done
+
+      - name: Materialize confidence rows
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          score_path(){ a="$1"; [[ -s "out/conf/scores/$y/$a/score.jsonl.gz" ]] && echo "out/conf/scores/$y/$a/score.jsonl.gz" || echo "out/conf/scores/$y/$a/score.jsonl"; }
+          [[ -s "out/conf/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/conf/snapshot/snapshot-$y.jsonl.gz" || snap="out/conf/snapshot/snapshot-$y.jsonl"
+          root="research-results/l16-outsider-confidence-v1/run-$GITHUB_RUN_ID"
+          mkdir -p out/conf/consensus "$root"
+
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/conf/consensus/l16-$y.jsonl.gz"
+
+          outsider="research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"
+          test -s "$outsider"
+
+          python research/analyze_l16_outsider_confidence_v1.py materialize             --year "$y"             --consensus "out/conf/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "$outsider"             --output "$root/y$y-rows.csv.gz"
+
+      - name: Commit year rows
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          f="research-results/l16-outsider-confidence-v1/run-$GITHUB_RUN_ID/y${{ matrix.year }}-rows.csv.gz"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$f"
+          git commit -m "research: confidence rows y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for i in 1 2 3 4 5; do
+            git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  evaluate:
+    if: always()
+    needs: [materialize]
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Evaluate walk-forward
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          python -m pip install --disable-pip-version-check scikit-learn
+          root="research-results/l16-outsider-confidence-v1/run-$GITHUB_RUN_ID"
+          for y in 2022 2023 2024 2025; do test -s "$root/y$y-rows.csv.gz"; done
+
+          python research/analyze_l16_outsider_confidence_v1.py evaluate             --inputs "$root/y2022-rows.csv.gz,$root/y2023-rows.csv.gz,$root/y2024-rows.csv.gz,$root/y2025-rows.csv.gz"             --output "$root/summary.json"
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: evaluate confidence walk-forward run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
