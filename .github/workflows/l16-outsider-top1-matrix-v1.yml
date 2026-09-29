@@ -11,6 +11,10 @@ on:
 permissions:
   contents: write
 
+concurrency:
+  group: l16-outsider-top1-matrix-v1
+  cancel-in-progress: true
+
 jobs:
   year:
     runs-on: ubuntu-latest
@@ -33,6 +37,7 @@ jobs:
       GENERATION_ID: eb13d4096519167b
       START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
       OUTSIDER_RUN_ID: "36551650736"
+      CHIMERA_RUN_ID: "36555473362"
     steps:
       - uses: actions/checkout@v4
         with:
@@ -78,7 +83,7 @@ jobs:
           [[ -s "out/top1/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/top1/snapshot/snapshot-$y.jsonl.gz" || snap="out/top1/snapshot/snapshot-$y.jsonl"
           mkdir -p out/top1/consensus "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID"
           python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/top1/consensus/l16-$y.jsonl.gz"
-          python research/analyze_l16_outsider_top1_matrix_v1.py             --consensus "out/top1/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"             --year "$y"             --output "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y$y.json"
+          python research/analyze_l16_outsider_top1_matrix_v1.py             --consensus "out/top1/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"             --outsider-csv "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"             --year "$y"             --output "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y$y.json"
       - name: Commit year
         run: |
           set -euo pipefail
@@ -111,14 +116,14 @@ jobs:
           root=Path(os.environ["ROOT"]); ys=[2022,2023,2024,2025]
           d=[json.loads((root/f"y{y}.json").read_text()) for y in ys]
           races=sum(x["races"] for x in d)
-          hits=sum(x["all5_top1_union_full_hits"] for x in d)
+          hits=sum(x["all6_top1_union_full_hits"] for x in d)
           base=sum(x["l16_top3_full_hits"] for x in d)
           out={
-            "contract":"L16_OUTSIDER_TOP1_MATRIX_V1","years":ys,"races":races,
+            "contract":"L16_OUTSIDER_TOP1_MATRIX_V1","outsider_count":6,"includes_chimera":True,"years":ys,"races":races,
             "l16_top3_full_hits":base,"l16_top3_full_rate":base/races,
-            "all5_top1_union_full_hits":hits,"all5_top1_union_full_rate":hits/races,
-            "all5_top1_union_avg_size":sum(x["all5_top1_union_avg_size"]*x["races"] for x in d)/races,
-            "l16_top3_plus_all5_top1_avg_size":sum(x["l16_top3_plus_all5_top1_avg_size"]*x["races"] for x in d)/races,
+            "all6_top1_union_full_hits":hits,"all6_top1_union_full_rate":hits/races,
+            "all6_top1_union_avg_size":sum(x["all6_top1_union_avg_size"]*x["races"] for x in d)/races,
+            "l16_top3_plus_all6_top1_avg_size":sum(x["l16_top3_plus_all6_top1_avg_size"]*x["races"] for x in d)/races,
             "by_year":d
           }
           (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
