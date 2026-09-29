@@ -1,0 +1,21 @@
+name: Stop Stale L1 Outsider Transition V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-transition-v1-20260929
+    paths:
+      - .github/triggers/stop-stale-l1-outsider-transition-v1.trigger
+
+concurrency:
+  group: l1-outsider-transition-v1
+  cancel-in-progress: true
+
+jobs:
+  stop:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - run: |
+          echo "Superseding stale L1 outsider transition run."
+          echo "Standard GitHub-hosted CPU only. No GPU / paid runner / storage."
