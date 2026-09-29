@@ -79,6 +79,9 @@ jobs:
         run: |
           set -euo pipefail
           y="${{ matrix.year }}"
+          git fetch origin research/l16-outsider-chimera-all-races-v1-20260929
+          git checkout FETCH_HEAD -- "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"
+          test -s "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"
           score_path(){ a="$1"; [[ -s "out/top1/scores/$y/$a/score.jsonl.gz" ]] && echo "out/top1/scores/$y/$a/score.jsonl.gz" || echo "out/top1/scores/$y/$a/score.jsonl"; }
           [[ -s "out/top1/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/top1/snapshot/snapshot-$y.jsonl.gz" || snap="out/top1/snapshot/snapshot-$y.jsonl"
           mkdir -p out/top1/consensus "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID"
