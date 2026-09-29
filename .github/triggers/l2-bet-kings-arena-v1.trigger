@@ -1,0 +1,16 @@
+launch=2026-09-29T10:05:00+09:00
+experiment=L2-BET-KINGS-ARENA-V1
+upstream=L15_FIXED_V1
+scope=2022-2025-all-races
+development=2023,2024
+holdout=2025
+locked_year=2026
+bet_types=WIN,QUINELLA,EXACTA,TRIO,TRIFECTA
+place=false
+wide=false
+probability_model_odds=false
+edge_market_price=final-odds-proxy
+storage=git-small-ledger-only
+cost=standard-cpu-only
+router=false
+l3=false
