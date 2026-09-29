@@ -1,0 +1,4485 @@
+{
+  "contract": "L16_OUTSIDER_WAIT_BREAKDOWN_V1",
+  "year": 2024,
+  "races": 3456,
+  "includes_chimera": false,
+  "definition": "For each horse across formal5 Outsiders, count how many rank it 1st, 2nd, 3rd, or outside Top3.",
+  "by_pattern": {
+    "1st=1|2nd=1|3rd=0|out=3": {
+      "n": 1990,
+      "win": 251,
+      "podium": 653,
+      "win_rate": 0.12613065326633166,
+      "podium_rate": 0.32814070351758795
+    },
+    "1st=2|2nd=2|3rd=1|out=0": {
+      "n": 27,
+      "win": 6,
+      "podium": 17,
+      "win_rate": 0.2222222222222222,
+      "podium_rate": 0.6296296296296297
+    },
+    "1st=0|2nd=0|3rd=2|out=3": {
+      "n": 1079,
+      "win": 66,
+      "podium": 277,
+      "win_rate": 0.061167747914735865,
+      "podium_rate": 0.2567191844300278
+    },
+    "1st=0|2nd=1|3rd=2|out=2": {
+      "n": 384,
+      "win": 46,
+      "podium": 140,
+      "win_rate": 0.11979166666666667,
+      "podium_rate": 0.3645833333333333
+    },
+    "1st=2|2nd=1|3rd=0|out=2": {
+      "n": 504,
+      "win": 105,
+      "podium": 233,
+      "win_rate": 0.20833333333333334,
+      "podium_rate": 0.4623015873015873
+    },
+    "1st=0|2nd=0|3rd=0|out=5": {
+      "n": 16586,
+      "win": 517,
+      "podium": 1943,
+      "win_rate": 0.031170866996261908,
+      "podium_rate": 0.11714699143856264
+    },
+    "1st=0|2nd=0|3rd=1|out=4": {
+      "n": 5635,
+      "win": 276,
+      "podium": 1055,
+      "win_rate": 0.04897959183673469,
+      "podium_rate": 0.18722271517302574
+    },
+    "1st=2|2nd=1|3rd=1|out=1": {
+      "n": 193,
+      "win": 37,
+      "podium": 97,
+      "win_rate": 0.19170984455958548,
+      "podium_rate": 0.5025906735751295
+    },
+    "1st=0|2nd=2|3rd=1|out=2": {
+      "n": 408,
+      "win": 65,
+      "podium": 180,
+      "win_rate": 0.15931372549019607,
+      "podium_rate": 0.4411764705882353
+    },
+    "1st=1|2nd=0|3rd=0|out=4": {
+      "n": 4804,
+      "win": 367,
+      "podium": 1043,
+      "win_rate": 0.0763946711074105,
+      "podium_rate": 0.21711074104912573
+    },
+    "1st=2|2nd=0|3rd=0|out=3": {
+      "n": 1056,
+      "win": 175,
+      "podium": 363,
+      "win_rate": 0.16571969696969696,
+      "podium_rate": 0.34375
+    },
+    "1st=1|2nd=2|3rd=1|out=1": {
+      "n": 169,
+      "win": 41,
+      "podium": 88,
+      "win_rate": 0.24260355029585798,
+      "podium_rate": 0.5207100591715976
+    },
+    "1st=0|2nd=0|3rd=3|out=2": {
+      "n": 134,
+      "win": 16,
+      "podium": 46,
+      "win_rate": 0.11940298507462686,
+      "podium_rate": 0.34328358208955223
+    },
+    "1st=0|2nd=1|3rd=0|out=4": {
+      "n": 5202,
+      "win": 305,
+      "podium": 1062,
+      "win_rate": 0.058631295655517106,
+      "podium_rate": 0.2041522491349481
+    },
+    "1st=1|2nd=2|3rd=0|out=2": {
+      "n": 446,
+      "win": 89,
+      "podium": 190,
+      "win_rate": 0.19955156950672645,
+      "podium_rate": 0.4260089686098655
+    },
+    "1st=0|2nd=1|3rd=1|out=3": {
+      "n": 2126,
+      "win": 163,
+      "podium": 608,
+      "win_rate": 0.0766698024459078,
+      "podium_rate": 0.28598306679209784
+    },
+    "1st=1|2nd=0|3rd=1|out=3": {
+      "n": 1939,
+      "win": 197,
+      "podium": 612,
+      "win_rate": 0.10159876224858175,
+      "podium_rate": 0.3156266116554925
+    },
+    "1st=2|2nd=0|3rd=1|out=2": {
+      "n": 449,
+      "win": 96,
+      "podium": 206,
+      "win_rate": 0.21380846325167038,
+      "podium_rate": 0.45879732739420936
+    },
+    "1st=1|2nd=1|3rd=1|out=2": {
+      "n": 891,
+      "win": 143,
+      "podium": 375,
+      "win_rate": 0.16049382716049382,
+      "podium_rate": 0.4208754208754209
+    },
+    "1st=1|2nd=0|3rd=2|out=2": {
+      "n": 412,
+      "win": 64,
+      "podium": 171,
+      "win_rate": 0.1553398058252427,
+      "podium_rate": 0.41504854368932037
+    },
+    "1st=3|2nd=0|3rd=1|out=1": {
+      "n": 80,
+      "win": 26,
+      "podium": 50,
+      "win_rate": 0.325,
+      "podium_rate": 0.625
+    },
+    "1st=0|2nd=3|3rd=1|out=1": {
+      "n": 47,
+      "win": 11,
+      "podium": 25,
+      "win_rate": 0.23404255319148937,
+      "podium_rate": 0.5319148936170213
+    },
+    "1st=2|2nd=1|3rd=2|out=0": {
+      "n": 14,
+      "win": 3,
+      "podium": 9,
+      "win_rate": 0.21428571428571427,
+      "podium_rate": 0.6428571428571429
+    },
+    "1st=3|2nd=0|3rd=0|out=2": {
+      "n": 192,
+      "win": 54,
+      "podium": 108,
+      "win_rate": 0.28125,
+      "podium_rate": 0.5625
+    },
+    "1st=2|2nd=0|3rd=2|out=1": {
+      "n": 84,
+      "win": 28,
+      "podium": 49,
+      "win_rate": 0.3333333333333333,
+      "podium_rate": 0.5833333333333334
+    },
+    "1st=0|2nd=2|3rd=0|out=3": {
+      "n": 1015,
+      "win": 107,
+      "podium": 307,
+      "win_rate": 0.10541871921182266,
+      "podium_rate": 0.3024630541871921
+    },
+    "1st=0|2nd=3|3rd=2|out=0": {
+      "n": 4,
+      "win": 2,
+      "podium": 2,
+      "win_rate": 0.5,
+      "podium_rate": 0.5
+    },
+    "1st=0|2nd=3|3rd=0|out=2": {
+      "n": 152,
+      "win": 17,
+      "podium": 60,
+      "win_rate": 0.1118421052631579,
+      "podium_rate": 0.39473684210526316
+    },
+    "1st=4|2nd=1|3rd=0|out=0": {
+      "n": 9,
+      "win": 7,
+      "podium": 8,
+      "win_rate": 0.7777777777777778,
+      "podium_rate": 0.8888888888888888
+    },
+    "1st=4|2nd=0|3rd=0|out=1": {
+      "n": 22,
+      "win": 8,
+      "podium": 13,
+      "win_rate": 0.36363636363636365,
+      "podium_rate": 0.5909090909090909
+    },
+    "1st=0|2nd=2|3rd=2|out=1": {
+      "n": 61,
+      "win": 6,
+      "podium": 27,
+      "win_rate": 0.09836065573770492,
+      "podium_rate": 0.4426229508196721
+    },
+    "1st=1|2nd=1|3rd=2|out=1": {
+      "n": 158,
+      "win": 29,
+      "podium": 73,
+      "win_rate": 0.18354430379746836,
+      "podium_rate": 0.4620253164556962
+    },
+    "1st=2|2nd=2|3rd=0|out=1": {
+      "n": 121,
+      "win": 46,
+      "podium": 82,
+      "win_rate": 0.38016528925619836,
+      "podium_rate": 0.6776859504132231
+    },
+    "1st=0|2nd=1|3rd=3|out=1": {
+      "n": 48,
+      "win": 6,
+      "podium": 18,
+      "win_rate": 0.125,
+      "podium_rate": 0.375
+    },
+    "1st=3|2nd=1|3rd=0|out=1": {
+      "n": 80,
+      "win": 18,
+      "podium": 45,
+      "win_rate": 0.225,
+      "podium_rate": 0.5625
+    },
+    "1st=3|2nd=0|3rd=2|out=0": {
+      "n": 4,
+      "win": 1,
+      "podium": 1,
+      "win_rate": 0.25,
+      "podium_rate": 0.25
+    },
+    "1st=1|2nd=3|3rd=0|out=1": {
+      "n": 75,
+      "win": 18,
+      "podium": 39,
+      "win_rate": 0.24,
+      "podium_rate": 0.52
+    },
+    "1st=1|2nd=0|3rd=3|out=1": {
+      "n": 43,
+      "win": 6,
+      "podium": 28,
+      "win_rate": 0.13953488372093023,
+      "podium_rate": 0.6511627906976745
+    },
+    "1st=5|2nd=0|3rd=0|out=0": {
+      "n": 3,
+      "win": 3,
+      "podium": 3,
+      "win_rate": 1.0,
+      "podium_rate": 1.0
+    },
+    "1st=1|2nd=2|3rd=2|out=0": {
+      "n": 13,
+      "win": 4,
+      "podium": 10,
+      "win_rate": 0.3076923076923077,
+      "podium_rate": 0.7692307692307693
+    },
+    "1st=0|2nd=4|3rd=0|out=1": {
+      "n": 16,
+      "win": 4,
+      "podium": 5,
+      "win_rate": 0.25,
+      "podium_rate": 0.3125
+    },
+    "1st=1|2nd=3|3rd=1|out=0": {
+      "n": 15,
+      "win": 3,
+      "podium": 9,
+      "win_rate": 0.2,
+      "podium_rate": 0.6
+    },
+    "1st=3|2nd=1|3rd=1|out=0": {
+      "n": 20,
+      "win": 12,
+      "podium": 13,
+      "win_rate": 0.6,
+      "podium_rate": 0.65
+    },
+    "1st=1|2nd=1|3rd=3|out=0": {
+      "n": 5,
+      "win": 2,
+      "podium": 3,
+      "win_rate": 0.4,
+      "podium_rate": 0.6
+    },
+    "1st=3|2nd=2|3rd=0|out=0": {
+      "n": 9,
+      "win": 3,
+      "podium": 6,
+      "win_rate": 0.3333333333333333,
+      "podium_rate": 0.6666666666666666
+    },
+    "1st=0|2nd=4|3rd=1|out=0": {
+      "n": 7,
+      "win": 1,
+      "podium": 4,
+      "win_rate": 0.14285714285714285,
+      "podium_rate": 0.5714285714285714
+    },
+    "1st=2|2nd=3|3rd=0|out=0": {
+      "n": 9,
+      "win": 5,
+      "podium": 5,
+      "win_rate": 0.5555555555555556,
+      "podium_rate": 0.5555555555555556
+    },
+    "1st=4|2nd=0|3rd=1|out=0": {
+      "n": 4,
+      "win": 1,
+      "podium": 1,
+      "win_rate": 0.25,
+      "podium_rate": 0.25
+    },
+    "1st=2|2nd=0|3rd=3|out=0": {
+      "n": 5,
+      "win": 3,
+      "podium": 5,
+      "win_rate": 0.6,
+      "podium_rate": 1.0
+    },
+    "1st=0|2nd=0|3rd=4|out=1": {
+      "n": 8,
+      "win": 2,
+      "podium": 5,
+      "win_rate": 0.25,
+      "podium_rate": 0.625
+    },
+    "1st=0|2nd=2|3rd=3|out=0": {
+      "n": 3,
+      "win": 1,
+      "podium": 1,
+      "win_rate": 0.3333333333333333,
+      "podium_rate": 0.3333333333333333
+    },
+    "1st=1|2nd=4|3rd=0|out=0": {
+      "n": 3,
+      "win": 0,
+      "podium": 3,
+      "win_rate": 0.0,
+      "podium_rate": 1.0
+    },
+    "1st=0|2nd=1|3rd=4|out=0": {
+      "n": 2,
+      "win": 0,
+      "podium": 1,
+      "win_rate": 0.0,
+      "podium_rate": 0.5
+    },
+    "1st=1|2nd=0|3rd=4|out=0": {
+      "n": 2,
+      "win": 0,
+      "podium": 0,
+      "win_rate": 0.0,
+      "podium_rate": 0.0
+    }
+  },
+  "by_king_rank_pattern": {
+    "1": {
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 300,
+        "win": 99,
+        "podium": 187,
+        "win_rate": 0.33,
+        "podium_rate": 0.6233333333333333
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 210,
+        "win": 44,
+        "podium": 114,
+        "win_rate": 0.20952380952380953,
+        "podium_rate": 0.5428571428571428
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 201,
+        "win": 75,
+        "podium": 127,
+        "win_rate": 0.373134328358209,
+        "podium_rate": 0.6318407960199005
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 203,
+        "win": 47,
+        "podium": 100,
+        "win_rate": 0.2315270935960591,
+        "podium_rate": 0.49261083743842365
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 179,
+        "win": 34,
+        "podium": 99,
+        "win_rate": 0.18994413407821228,
+        "podium_rate": 0.553072625698324
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 225,
+        "win": 54,
+        "podium": 127,
+        "win_rate": 0.24,
+        "podium_rate": 0.5644444444444444
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 256,
+        "win": 69,
+        "podium": 146,
+        "win_rate": 0.26953125,
+        "podium_rate": 0.5703125
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 111,
+        "win": 38,
+        "podium": 72,
+        "win_rate": 0.34234234234234234,
+        "podium_rate": 0.6486486486486487
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 75,
+        "win": 26,
+        "podium": 48,
+        "win_rate": 0.3466666666666667,
+        "podium_rate": 0.64
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 79,
+        "win": 16,
+        "podium": 51,
+        "win_rate": 0.20253164556962025,
+        "podium_rate": 0.6455696202531646
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 109,
+        "win": 28,
+        "podium": 57,
+        "win_rate": 0.25688073394495414,
+        "podium_rate": 0.5229357798165137
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 82,
+        "win": 31,
+        "podium": 61,
+        "win_rate": 0.3780487804878049,
+        "podium_rate": 0.7439024390243902
+      },
+      "1st=0|2nd=3|3rd=2|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 368,
+        "win": 70,
+        "podium": 188,
+        "win_rate": 0.19021739130434784,
+        "podium_rate": 0.5108695652173914
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 13,
+        "win": 6,
+        "podium": 10,
+        "win_rate": 0.46153846153846156,
+        "podium_rate": 0.7692307692307693
+      },
+      "1st=4|2nd=1|3rd=0|out=0": {
+        "n": 6,
+        "win": 5,
+        "podium": 6,
+        "win_rate": 0.8333333333333334,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 24,
+        "win": 7,
+        "podium": 17,
+        "win_rate": 0.2916666666666667,
+        "podium_rate": 0.7083333333333334
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 14,
+        "win": 7,
+        "podium": 10,
+        "win_rate": 0.5,
+        "podium_rate": 0.7142857142857143
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 30,
+        "win": 13,
+        "podium": 23,
+        "win_rate": 0.43333333333333335,
+        "podium_rate": 0.7666666666666667
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 46,
+        "win": 13,
+        "podium": 26,
+        "win_rate": 0.2826086956521739,
+        "podium_rate": 0.5652173913043478
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 54,
+        "win": 26,
+        "podium": 41,
+        "win_rate": 0.48148148148148145,
+        "podium_rate": 0.7592592592592593
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 141,
+        "win": 49,
+        "podium": 98,
+        "win_rate": 0.3475177304964539,
+        "podium_rate": 0.6950354609929078
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 197,
+        "win": 62,
+        "podium": 121,
+        "win_rate": 0.3147208121827411,
+        "podium_rate": 0.6142131979695431
+      },
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 13,
+        "win": 5,
+        "podium": 10,
+        "win_rate": 0.38461538461538464,
+        "podium_rate": 0.7692307692307693
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 68,
+        "win": 18,
+        "podium": 42,
+        "win_rate": 0.2647058823529412,
+        "podium_rate": 0.6176470588235294
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 11,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.2727272727272727,
+        "podium_rate": 0.5454545454545454
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 70,
+        "win": 23,
+        "podium": 42,
+        "win_rate": 0.32857142857142857,
+        "podium_rate": 0.6
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 28,
+        "win": 14,
+        "podium": 20,
+        "win_rate": 0.5,
+        "podium_rate": 0.7142857142857143
+      },
+      "1st=5|2nd=0|3rd=0|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 112,
+        "win": 39,
+        "podium": 75,
+        "win_rate": 0.3482142857142857,
+        "podium_rate": 0.6696428571428571
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 34,
+        "win": 12,
+        "podium": 24,
+        "win_rate": 0.35294117647058826,
+        "podium_rate": 0.7058823529411765
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 42,
+        "win": 14,
+        "podium": 26,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6190476190476191
+      },
+      "1st=2|2nd=1|3rd=2|out=0": {
+        "n": 5,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.4,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 6,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 23,
+        "win": 6,
+        "podium": 14,
+        "win_rate": 0.2608695652173913,
+        "podium_rate": 0.6086956521739131
+      },
+      "1st=3|2nd=2|3rd=0|out=0": {
+        "n": 6,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.8333333333333334
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 14,
+        "win": 2,
+        "podium": 8,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.5714285714285714
+      },
+      "1st=3|2nd=1|3rd=1|out=0": {
+        "n": 14,
+        "win": 10,
+        "podium": 11,
+        "win_rate": 0.7142857142857143,
+        "podium_rate": 0.7857142857142857
+      },
+      "1st=0|2nd=4|3rd=1|out=0": {
+        "n": 2,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 40,
+        "win": 13,
+        "podium": 27,
+        "win_rate": 0.325,
+        "podium_rate": 0.675
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 13,
+        "win": 4,
+        "podium": 7,
+        "win_rate": 0.3076923076923077,
+        "podium_rate": 0.5384615384615384
+      },
+      "1st=1|2nd=3|3rd=1|out=0": {
+        "n": 6,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.8333333333333334
+      },
+      "1st=0|2nd=2|3rd=3|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=4|2nd=0|3rd=1|out=0": {
+        "n": 2,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=2|3rd=2|out=0": {
+        "n": 3,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 1.0
+      },
+      "1st=2|2nd=3|3rd=0|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 3,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.6666666666666666,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=2|2nd=0|3rd=3|out=0": {
+        "n": 2,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=0|3rd=4|out=1": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      }
+    },
+    "2": {
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 7,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.7142857142857143
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 277,
+        "win": 41,
+        "podium": 108,
+        "win_rate": 0.148014440433213,
+        "podium_rate": 0.3898916967509025
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 46,
+        "win": 15,
+        "podium": 30,
+        "win_rate": 0.32608695652173914,
+        "podium_rate": 0.6521739130434783
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 251,
+        "win": 50,
+        "podium": 122,
+        "win_rate": 0.199203187250996,
+        "podium_rate": 0.4860557768924303
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 371,
+        "win": 51,
+        "podium": 148,
+        "win_rate": 0.13746630727762804,
+        "podium_rate": 0.39892183288409705
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 367,
+        "win": 68,
+        "podium": 171,
+        "win_rate": 0.18528610354223432,
+        "podium_rate": 0.4659400544959128
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 353,
+        "win": 65,
+        "podium": 159,
+        "win_rate": 0.18413597733711048,
+        "podium_rate": 0.45042492917847027
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 232,
+        "win": 37,
+        "podium": 110,
+        "win_rate": 0.15948275862068967,
+        "podium_rate": 0.47413793103448276
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 13,
+        "win": 2,
+        "podium": 9,
+        "win_rate": 0.15384615384615385,
+        "podium_rate": 0.6923076923076923
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 214,
+        "win": 36,
+        "podium": 104,
+        "win_rate": 0.16822429906542055,
+        "podium_rate": 0.48598130841121495
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 12,
+        "win": 8,
+        "podium": 9,
+        "win_rate": 0.6666666666666666,
+        "podium_rate": 0.75
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 78,
+        "win": 23,
+        "podium": 47,
+        "win_rate": 0.2948717948717949,
+        "podium_rate": 0.6025641025641025
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 20,
+        "win": 6,
+        "podium": 16,
+        "win_rate": 0.3,
+        "podium_rate": 0.8
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 143,
+        "win": 28,
+        "podium": 73,
+        "win_rate": 0.1958041958041958,
+        "podium_rate": 0.5104895104895105
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 93,
+        "win": 19,
+        "podium": 49,
+        "win_rate": 0.20430107526881722,
+        "podium_rate": 0.5268817204301075
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 168,
+        "win": 31,
+        "podium": 81,
+        "win_rate": 0.18452380952380953,
+        "podium_rate": 0.48214285714285715
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 18,
+        "win": 6,
+        "podium": 11,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6111111111111112
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 65,
+        "win": 10,
+        "podium": 34,
+        "win_rate": 0.15384615384615385,
+        "podium_rate": 0.5230769230769231
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 10,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.1,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 67,
+        "win": 15,
+        "podium": 40,
+        "win_rate": 0.22388059701492538,
+        "podium_rate": 0.5970149253731343
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 112,
+        "win": 10,
+        "podium": 42,
+        "win_rate": 0.08928571428571429,
+        "podium_rate": 0.375
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 38,
+        "win": 7,
+        "podium": 18,
+        "win_rate": 0.18421052631578946,
+        "podium_rate": 0.47368421052631576
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 33,
+        "win": 8,
+        "podium": 14,
+        "win_rate": 0.24242424242424243,
+        "podium_rate": 0.42424242424242425
+      },
+      "1st=3|2nd=0|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 77,
+        "win": 17,
+        "podium": 46,
+        "win_rate": 0.22077922077922077,
+        "podium_rate": 0.5974025974025974
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 24,
+        "win": 10,
+        "podium": 19,
+        "win_rate": 0.4166666666666667,
+        "podium_rate": 0.7916666666666666
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 25,
+        "win": 8,
+        "podium": 15,
+        "win_rate": 0.32,
+        "podium_rate": 0.6
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 9,
+        "win": 0,
+        "podium": 5,
+        "win_rate": 0.0,
+        "podium_rate": 0.5555555555555556
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 129,
+        "win": 27,
+        "podium": 61,
+        "win_rate": 0.20930232558139536,
+        "podium_rate": 0.4728682170542636
+      },
+      "1st=1|2nd=2|3rd=2|out=0": {
+        "n": 7,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.42857142857142855,
+        "podium_rate": 0.8571428571428571
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 4,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.25,
+        "podium_rate": 0.5
+      },
+      "1st=3|2nd=1|3rd=1|out=0": {
+        "n": 4,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.25,
+        "podium_rate": 0.25
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 25,
+        "win": 2,
+        "podium": 15,
+        "win_rate": 0.08,
+        "podium_rate": 0.6
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 80,
+        "win": 20,
+        "podium": 41,
+        "win_rate": 0.25,
+        "podium_rate": 0.5125
+      },
+      "1st=2|2nd=1|3rd=2|out=0": {
+        "n": 3,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 15,
+        "win": 4,
+        "podium": 10,
+        "win_rate": 0.26666666666666666,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 12,
+        "win": 3,
+        "podium": 10,
+        "win_rate": 0.25,
+        "podium_rate": 0.8333333333333334
+      },
+      "1st=4|2nd=1|3rd=0|out=0": {
+        "n": 3,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.6666666666666666,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=5|2nd=0|3rd=0|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=2|2nd=0|3rd=3|out=0": {
+        "n": 2,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 1.0
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=3|3rd=1|out=0": {
+        "n": 5,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.2,
+        "podium_rate": 0.4
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 13,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.23076923076923078,
+        "podium_rate": 0.6923076923076923
+      },
+      "1st=0|2nd=3|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=3|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=4|3rd=1|out=0": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=4|3rd=0|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=3|2nd=2|3rd=0|out=0": {
+        "n": 3,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=2|3rd=3|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=3|3rd=0|out=0": {
+        "n": 5,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.4,
+        "podium_rate": 0.4
+      },
+      "1st=0|2nd=1|3rd=4|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      }
+    },
+    "3": {
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 140,
+        "win": 14,
+        "podium": 50,
+        "win_rate": 0.1,
+        "podium_rate": 0.35714285714285715
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 30,
+        "win": 2,
+        "podium": 12,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.4
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 329,
+        "win": 43,
+        "podium": 104,
+        "win_rate": 0.13069908814589665,
+        "podium_rate": 0.3161094224924012
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 223,
+        "win": 31,
+        "podium": 84,
+        "win_rate": 0.13901345291479822,
+        "podium_rate": 0.37668161434977576
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 62,
+        "win": 8,
+        "podium": 28,
+        "win_rate": 0.12903225806451613,
+        "podium_rate": 0.45161290322580644
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 380,
+        "win": 47,
+        "podium": 136,
+        "win_rate": 0.12368421052631579,
+        "podium_rate": 0.35789473684210527
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 58,
+        "win": 14,
+        "podium": 27,
+        "win_rate": 0.2413793103448276,
+        "podium_rate": 0.46551724137931033
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 228,
+        "win": 22,
+        "podium": 84,
+        "win_rate": 0.09649122807017543,
+        "podium_rate": 0.3684210526315789
+      },
+      "1st=2|2nd=1|3rd=2|out=0": {
+        "n": 5,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.4
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 222,
+        "win": 33,
+        "podium": 100,
+        "win_rate": 0.14864864864864866,
+        "podium_rate": 0.45045045045045046
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 378,
+        "win": 46,
+        "podium": 138,
+        "win_rate": 0.12169312169312169,
+        "podium_rate": 0.36507936507936506
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 114,
+        "win": 16,
+        "podium": 51,
+        "win_rate": 0.14035087719298245,
+        "podium_rate": 0.4473684210526316
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 112,
+        "win": 19,
+        "podium": 41,
+        "win_rate": 0.16964285714285715,
+        "podium_rate": 0.36607142857142855
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 67,
+        "win": 13,
+        "podium": 31,
+        "win_rate": 0.19402985074626866,
+        "podium_rate": 0.4626865671641791
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 19,
+        "win": 1,
+        "podium": 11,
+        "win_rate": 0.05263157894736842,
+        "podium_rate": 0.5789473684210527
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 105,
+        "win": 8,
+        "podium": 51,
+        "win_rate": 0.0761904761904762,
+        "podium_rate": 0.4857142857142857
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 28,
+        "win": 5,
+        "podium": 17,
+        "win_rate": 0.17857142857142858,
+        "podium_rate": 0.6071428571428571
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 563,
+        "win": 64,
+        "podium": 185,
+        "win_rate": 0.11367673179396093,
+        "podium_rate": 0.3285968028419183
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 15,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 12,
+        "win": 4,
+        "podium": 6,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 13,
+        "win": 6,
+        "podium": 9,
+        "win_rate": 0.46153846153846156,
+        "podium_rate": 0.6923076923076923
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 60,
+        "win": 14,
+        "podium": 28,
+        "win_rate": 0.23333333333333334,
+        "podium_rate": 0.4666666666666667
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 10,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.4
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 25,
+        "win": 9,
+        "podium": 14,
+        "win_rate": 0.36,
+        "podium_rate": 0.56
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 15,
+        "win": 5,
+        "podium": 12,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.8
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 24,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.125,
+        "podium_rate": 0.375
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 52,
+        "win": 6,
+        "podium": 18,
+        "win_rate": 0.11538461538461539,
+        "podium_rate": 0.34615384615384615
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 54,
+        "win": 11,
+        "podium": 25,
+        "win_rate": 0.2037037037037037,
+        "podium_rate": 0.46296296296296297
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 9,
+        "win": 1,
+        "podium": 4,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.4444444444444444
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 24,
+        "win": 3,
+        "podium": 12,
+        "win_rate": 0.125,
+        "podium_rate": 0.5
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 15,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.2,
+        "podium_rate": 0.6
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 9,
+        "win": 2,
+        "podium": 3,
+        "win_rate": 0.2222222222222222,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=3|2nd=1|3rd=1|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=2|2nd=3|3rd=0|out=0": {
+        "n": 2,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=4|2nd=0|3rd=1|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=4|3rd=1|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=3|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 7,
+        "win": 3,
+        "podium": 4,
+        "win_rate": 0.42857142857142855,
+        "podium_rate": 0.5714285714285714
+      },
+      "1st=0|2nd=0|3rd=4|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 5,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.2
+      },
+      "1st=1|2nd=3|3rd=1|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=4|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=4|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "4": {
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 54,
+        "win": 9,
+        "podium": 25,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.46296296296296297
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 52,
+        "win": 8,
+        "podium": 24,
+        "win_rate": 0.15384615384615385,
+        "podium_rate": 0.46153846153846156
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 19,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.05263157894736842,
+        "podium_rate": 0.3157894736842105
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 46,
+        "win": 7,
+        "podium": 18,
+        "win_rate": 0.15217391304347827,
+        "podium_rate": 0.391304347826087
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 15,
+        "win": 1,
+        "podium": 7,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.4666666666666667
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 198,
+        "win": 26,
+        "podium": 64,
+        "win_rate": 0.13131313131313133,
+        "podium_rate": 0.32323232323232326
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 52,
+        "win": 8,
+        "podium": 25,
+        "win_rate": 0.15384615384615385,
+        "podium_rate": 0.4807692307692308
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 204,
+        "win": 15,
+        "podium": 69,
+        "win_rate": 0.07352941176470588,
+        "podium_rate": 0.3382352941176471
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 667,
+        "win": 45,
+        "podium": 186,
+        "win_rate": 0.06746626686656672,
+        "podium_rate": 0.27886056971514245
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 354,
+        "win": 36,
+        "podium": 116,
+        "win_rate": 0.1016949152542373,
+        "podium_rate": 0.327683615819209
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 468,
+        "win": 36,
+        "podium": 146,
+        "win_rate": 0.07692307692307693,
+        "podium_rate": 0.31196581196581197
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 428,
+        "win": 25,
+        "podium": 137,
+        "win_rate": 0.05841121495327103,
+        "podium_rate": 0.32009345794392524
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 204,
+        "win": 16,
+        "podium": 62,
+        "win_rate": 0.0784313725490196,
+        "podium_rate": 0.30392156862745096
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 6,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 95,
+        "win": 18,
+        "podium": 43,
+        "win_rate": 0.18947368421052632,
+        "podium_rate": 0.45263157894736844
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 103,
+        "win": 11,
+        "podium": 35,
+        "win_rate": 0.10679611650485436,
+        "podium_rate": 0.33980582524271846
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 21,
+        "win": 4,
+        "podium": 9,
+        "win_rate": 0.19047619047619047,
+        "podium_rate": 0.42857142857142855
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 57,
+        "win": 12,
+        "podium": 23,
+        "win_rate": 0.21052631578947367,
+        "podium_rate": 0.40350877192982454
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 94,
+        "win": 16,
+        "podium": 37,
+        "win_rate": 0.1702127659574468,
+        "podium_rate": 0.39361702127659576
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 5,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.4,
+        "podium_rate": 0.4
+      },
+      "1st=0|2nd=3|3rd=2|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 123,
+        "win": 6,
+        "podium": 33,
+        "win_rate": 0.04878048780487805,
+        "podium_rate": 0.2682926829268293
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 58,
+        "win": 8,
+        "podium": 26,
+        "win_rate": 0.13793103448275862,
+        "podium_rate": 0.4482758620689655
+      },
+      "1st=1|2nd=3|3rd=1|out=0": {
+        "n": 2,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 1.0
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 15,
+        "win": 1,
+        "podium": 8,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.5333333333333333
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 6,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 15,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.4
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 10,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.2,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=2|3rd=2|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 12,
+        "win": 0,
+        "podium": 6,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 3,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 11,
+        "win": 3,
+        "podium": 7,
+        "win_rate": 0.2727272727272727,
+        "podium_rate": 0.6363636363636364
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 19,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.15789473684210525,
+        "podium_rate": 0.3157894736842105
+      },
+      "1st=3|2nd=1|3rd=1|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 7,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.2857142857142857,
+        "podium_rate": 0.2857142857142857
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=0|2nd=0|3rd=4|out=1": {
+        "n": 3,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=1|2nd=1|3rd=3|out=0": {
+        "n": 2,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=2|3rd=3|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=4|3rd=0|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      }
+    },
+    "5": {
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 43,
+        "win": 5,
+        "podium": 13,
+        "win_rate": 0.11627906976744186,
+        "podium_rate": 0.3023255813953488
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 382,
+        "win": 43,
+        "podium": 115,
+        "win_rate": 0.112565445026178,
+        "podium_rate": 0.3010471204188482
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 875,
+        "win": 55,
+        "podium": 206,
+        "win_rate": 0.06285714285714286,
+        "podium_rate": 0.23542857142857143
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 477,
+        "win": 25,
+        "podium": 119,
+        "win_rate": 0.05241090146750524,
+        "podium_rate": 0.24947589098532494
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 218,
+        "win": 21,
+        "podium": 62,
+        "win_rate": 0.0963302752293578,
+        "podium_rate": 0.28440366972477066
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 93,
+        "win": 10,
+        "podium": 25,
+        "win_rate": 0.10752688172043011,
+        "podium_rate": 0.26881720430107525
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 433,
+        "win": 27,
+        "podium": 108,
+        "win_rate": 0.06235565819861432,
+        "podium_rate": 0.24942263279445728
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 42,
+        "win": 6,
+        "podium": 15,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.35714285714285715
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 8,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 153,
+        "win": 17,
+        "podium": 51,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 33,
+        "win": 5,
+        "podium": 9,
+        "win_rate": 0.15151515151515152,
+        "podium_rate": 0.2727272727272727
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 181,
+        "win": 15,
+        "podium": 60,
+        "win_rate": 0.08287292817679558,
+        "podium_rate": 0.3314917127071823
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 13,
+        "win": 1,
+        "podium": 4,
+        "win_rate": 0.07692307692307693,
+        "podium_rate": 0.3076923076923077
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 94,
+        "win": 8,
+        "podium": 24,
+        "win_rate": 0.0851063829787234,
+        "podium_rate": 0.2553191489361702
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 97,
+        "win": 8,
+        "podium": 27,
+        "win_rate": 0.08247422680412371,
+        "podium_rate": 0.27835051546391754
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 3,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=3|2nd=0|3rd=2|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 12,
+        "win": 2,
+        "podium": 3,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.25
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 35,
+        "win": 2,
+        "podium": 9,
+        "win_rate": 0.05714285714285714,
+        "podium_rate": 0.2571428571428571
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 27,
+        "win": 3,
+        "podium": 14,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.5185185185185185
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 19,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.21052631578947367
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 79,
+        "win": 6,
+        "podium": 20,
+        "win_rate": 0.0759493670886076,
+        "podium_rate": 0.25316455696202533
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 12,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.08333333333333333,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=1|2nd=1|3rd=3|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 20,
+        "win": 2,
+        "podium": 8,
+        "win_rate": 0.1,
+        "podium_rate": 0.4
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 14,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.07142857142857142,
+        "podium_rate": 0.42857142857142855
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 29,
+        "win": 3,
+        "podium": 14,
+        "win_rate": 0.10344827586206896,
+        "podium_rate": 0.4827586206896552
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 7,
+        "win": 3,
+        "podium": 4,
+        "win_rate": 0.42857142857142855,
+        "podium_rate": 0.5714285714285714
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 7,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.42857142857142855
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 7,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 5,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.2
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=0|3rd=4|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "6": {
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 515,
+        "win": 19,
+        "podium": 96,
+        "win_rate": 0.036893203883495145,
+        "podium_rate": 0.18640776699029127
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 138,
+        "win": 8,
+        "podium": 37,
+        "win_rate": 0.057971014492753624,
+        "podium_rate": 0.26811594202898553
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1082,
+        "win": 56,
+        "podium": 196,
+        "win_rate": 0.051756007393715345,
+        "podium_rate": 0.18114602587800369
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 77,
+        "win": 11,
+        "podium": 19,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.24675324675324675
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 93,
+        "win": 2,
+        "podium": 23,
+        "win_rate": 0.021505376344086023,
+        "podium_rate": 0.24731182795698925
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 33,
+        "win": 2,
+        "podium": 11,
+        "win_rate": 0.06060606060606061,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 203,
+        "win": 12,
+        "podium": 56,
+        "win_rate": 0.059113300492610835,
+        "podium_rate": 0.27586206896551724
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 32,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.03125,
+        "podium_rate": 0.15625
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 408,
+        "win": 27,
+        "podium": 95,
+        "win_rate": 0.0661764705882353,
+        "podium_rate": 0.23284313725490197
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 9,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.2222222222222222
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 346,
+        "win": 33,
+        "podium": 88,
+        "win_rate": 0.0953757225433526,
+        "podium_rate": 0.2543352601156069
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 90,
+        "win": 5,
+        "podium": 17,
+        "win_rate": 0.05555555555555555,
+        "podium_rate": 0.18888888888888888
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 28,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.10714285714285714,
+        "podium_rate": 0.21428571428571427
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 36,
+        "win": 2,
+        "podium": 8,
+        "win_rate": 0.05555555555555555,
+        "podium_rate": 0.2222222222222222
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 59,
+        "win": 5,
+        "podium": 17,
+        "win_rate": 0.0847457627118644,
+        "podium_rate": 0.288135593220339
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 156,
+        "win": 10,
+        "podium": 37,
+        "win_rate": 0.0641025641025641,
+        "podium_rate": 0.23717948717948717
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.25
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 32,
+        "win": 5,
+        "podium": 11,
+        "win_rate": 0.15625,
+        "podium_rate": 0.34375
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 28,
+        "win": 2,
+        "podium": 9,
+        "win_rate": 0.07142857142857142,
+        "podium_rate": 0.32142857142857145
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 8,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.125
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 8,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.375
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 9,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.2222222222222222
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 13,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.07692307692307693
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 5,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.2,
+        "podium_rate": 0.4
+      },
+      "1st=5|2nd=0|3rd=0|out=0": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 4,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.25,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=2|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 2,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      }
+    },
+    "7": {
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 130,
+        "win": 3,
+        "podium": 23,
+        "win_rate": 0.023076923076923078,
+        "podium_rate": 0.17692307692307693
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 425,
+        "win": 8,
+        "podium": 66,
+        "win_rate": 0.018823529411764704,
+        "podium_rate": 0.15529411764705883
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 332,
+        "win": 21,
+        "podium": 76,
+        "win_rate": 0.06325301204819277,
+        "podium_rate": 0.2289156626506024
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1216,
+        "win": 43,
+        "podium": 176,
+        "win_rate": 0.03536184210526316,
+        "podium_rate": 0.14473684210526316
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 72,
+        "win": 8,
+        "podium": 17,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.2361111111111111
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 139,
+        "win": 5,
+        "podium": 29,
+        "win_rate": 0.03597122302158273,
+        "podium_rate": 0.20863309352517986
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 8,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.25
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 480,
+        "win": 9,
+        "podium": 74,
+        "win_rate": 0.01875,
+        "podium_rate": 0.15416666666666667
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 185,
+        "win": 7,
+        "podium": 41,
+        "win_rate": 0.03783783783783784,
+        "podium_rate": 0.22162162162162163
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 27,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.2222222222222222
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 19,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.10526315789473684,
+        "podium_rate": 0.21052631578947367
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 36,
+        "win": 4,
+        "podium": 11,
+        "win_rate": 0.1111111111111111,
+        "podium_rate": 0.3055555555555556
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 44,
+        "win": 2,
+        "podium": 10,
+        "win_rate": 0.045454545454545456,
+        "podium_rate": 0.22727272727272727
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 81,
+        "win": 4,
+        "podium": 14,
+        "win_rate": 0.04938271604938271,
+        "podium_rate": 0.1728395061728395
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 24,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 9,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.4444444444444444
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 86,
+        "win": 3,
+        "podium": 14,
+        "win_rate": 0.03488372093023256,
+        "podium_rate": 0.16279069767441862
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 24,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.08333333333333333
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 24,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.041666666666666664,
+        "podium_rate": 0.25
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 3,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.6666666666666666,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 7,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 5,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.4
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 5,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.2,
+        "podium_rate": 0.4
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 4,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=2|2nd=3|3rd=0|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=0|3rd=4|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "8": {
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 493,
+        "win": 20,
+        "podium": 83,
+        "win_rate": 0.04056795131845842,
+        "podium_rate": 0.16835699797160245
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1273,
+        "win": 31,
+        "podium": 161,
+        "win_rate": 0.024351924587588374,
+        "podium_rate": 0.12647289866457187
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 140,
+        "win": 4,
+        "podium": 32,
+        "win_rate": 0.02857142857142857,
+        "podium_rate": 0.22857142857142856
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 362,
+        "win": 11,
+        "podium": 59,
+        "win_rate": 0.03038674033149171,
+        "podium_rate": 0.16298342541436464
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 16,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.1875
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 434,
+        "win": 14,
+        "podium": 70,
+        "win_rate": 0.03225806451612903,
+        "podium_rate": 0.16129032258064516
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 13,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.23076923076923078
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 120,
+        "win": 7,
+        "podium": 23,
+        "win_rate": 0.058333333333333334,
+        "podium_rate": 0.19166666666666668
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 7,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 26,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.07692307692307693,
+        "podium_rate": 0.15384615384615385
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 102,
+        "win": 1,
+        "podium": 17,
+        "win_rate": 0.00980392156862745,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 50,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.04,
+        "podium_rate": 0.08
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 5,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.2
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 17,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.058823529411764705,
+        "podium_rate": 0.35294117647058826
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 7,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 67,
+        "win": 2,
+        "podium": 15,
+        "win_rate": 0.029850746268656716,
+        "podium_rate": 0.22388059701492538
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 89,
+        "win": 2,
+        "podium": 13,
+        "win_rate": 0.02247191011235955,
+        "podium_rate": 0.14606741573033707
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 40,
+        "win": 3,
+        "podium": 5,
+        "win_rate": 0.075,
+        "podium_rate": 0.125
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 21,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.047619047619047616
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 5,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 11,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.18181818181818182,
+        "podium_rate": 0.18181818181818182
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 2,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 6,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 2,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "9": {
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 108,
+        "win": 1,
+        "podium": 13,
+        "win_rate": 0.009259259259259259,
+        "podium_rate": 0.12037037037037036
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 415,
+        "win": 12,
+        "podium": 52,
+        "win_rate": 0.02891566265060241,
+        "podium_rate": 0.12530120481927712
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1320,
+        "win": 32,
+        "podium": 138,
+        "win_rate": 0.024242424242424242,
+        "podium_rate": 0.10454545454545454
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 450,
+        "win": 14,
+        "podium": 63,
+        "win_rate": 0.03111111111111111,
+        "podium_rate": 0.14
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 376,
+        "win": 7,
+        "podium": 37,
+        "win_rate": 0.018617021276595744,
+        "podium_rate": 0.09840425531914894
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 116,
+        "win": 1,
+        "podium": 14,
+        "win_rate": 0.008620689655172414,
+        "podium_rate": 0.1206896551724138
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 53,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.05660377358490566,
+        "podium_rate": 0.16981132075471697
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 99,
+        "win": 3,
+        "podium": 20,
+        "win_rate": 0.030303030303030304,
+        "podium_rate": 0.20202020202020202
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 73,
+        "win": 4,
+        "podium": 11,
+        "win_rate": 0.0547945205479452,
+        "podium_rate": 0.1506849315068493
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 67,
+        "win": 3,
+        "podium": 15,
+        "win_rate": 0.04477611940298507,
+        "podium_rate": 0.22388059701492538
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 10,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.3
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 17,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.11764705882352941
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 31,
+        "win": 2,
+        "podium": 9,
+        "win_rate": 0.06451612903225806,
+        "podium_rate": 0.2903225806451613
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 10,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.1,
+        "podium_rate": 0.3
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 10,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.2
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 16,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.0625
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 7,
+        "win": 1,
+        "podium": 4,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.5714285714285714
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 14,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "10": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1436,
+        "win": 31,
+        "podium": 123,
+        "win_rate": 0.02158774373259053,
+        "podium_rate": 0.08565459610027855
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 397,
+        "win": 5,
+        "podium": 34,
+        "win_rate": 0.012594458438287154,
+        "podium_rate": 0.08564231738035265
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 113,
+        "win": 4,
+        "podium": 11,
+        "win_rate": 0.035398230088495575,
+        "podium_rate": 0.09734513274336283
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 50,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.02,
+        "podium_rate": 0.1
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 96,
+        "win": 4,
+        "podium": 15,
+        "win_rate": 0.041666666666666664,
+        "podium_rate": 0.15625
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 362,
+        "win": 8,
+        "podium": 25,
+        "win_rate": 0.022099447513812154,
+        "podium_rate": 0.06906077348066299
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 316,
+        "win": 10,
+        "podium": 28,
+        "win_rate": 0.03164556962025317,
+        "podium_rate": 0.08860759493670886
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 98,
+        "win": 3,
+        "podium": 12,
+        "win_rate": 0.030612244897959183,
+        "podium_rate": 0.12244897959183673
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 17,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.17647058823529413
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 49,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.02040816326530612,
+        "podium_rate": 0.10204081632653061
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 9,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.2222222222222222,
+        "podium_rate": 0.2222222222222222
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 9,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.1111111111111111
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 15,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.06666666666666667,
+        "podium_rate": 0.2
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 28,
+        "win": 1,
+        "podium": 4,
+        "win_rate": 0.03571428571428571,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 16,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.0625,
+        "podium_rate": 0.125
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 6,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 10,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.1,
+        "podium_rate": 0.1
+      },
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 2,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 3,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 1,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "11": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1439,
+        "win": 22,
+        "podium": 93,
+        "win_rate": 0.015288394718554551,
+        "podium_rate": 0.06462821403752605
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 359,
+        "win": 4,
+        "podium": 31,
+        "win_rate": 0.011142061281337047,
+        "podium_rate": 0.08635097493036212
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 329,
+        "win": 6,
+        "podium": 28,
+        "win_rate": 0.0182370820668693,
+        "podium_rate": 0.0851063829787234
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 74,
+        "win": 3,
+        "podium": 11,
+        "win_rate": 0.04054054054054054,
+        "podium_rate": 0.14864864864864866
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 12,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 286,
+        "win": 8,
+        "podium": 24,
+        "win_rate": 0.027972027972027972,
+        "podium_rate": 0.08391608391608392
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 71,
+        "win": 2,
+        "podium": 8,
+        "win_rate": 0.028169014084507043,
+        "podium_rate": 0.11267605633802817
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 36,
+        "win": 0,
+        "podium": 5,
+        "win_rate": 0.0,
+        "podium_rate": 0.1388888888888889
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 42,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.047619047619047616
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 40,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.05,
+        "podium_rate": 0.1
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 8,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.125,
+        "podium_rate": 0.25
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 11,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.09090909090909091
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 7,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.2857142857142857
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 7,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 68,
+        "win": 0,
+        "podium": 13,
+        "win_rate": 0.0,
+        "podium_rate": 0.19117647058823528
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.25
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 5,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.2
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 9,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "12": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1396,
+        "win": 15,
+        "podium": 57,
+        "win_rate": 0.010744985673352435,
+        "podium_rate": 0.04083094555873926
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 325,
+        "win": 4,
+        "podium": 26,
+        "win_rate": 0.012307692307692308,
+        "podium_rate": 0.08
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 249,
+        "win": 2,
+        "podium": 13,
+        "win_rate": 0.008032128514056224,
+        "podium_rate": 0.05220883534136546
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 58,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.034482758620689655,
+        "podium_rate": 0.08620689655172414
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 261,
+        "win": 8,
+        "podium": 18,
+        "win_rate": 0.03065134099616858,
+        "podium_rate": 0.06896551724137931
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 87,
+        "win": 2,
+        "podium": 13,
+        "win_rate": 0.022988505747126436,
+        "podium_rate": 0.14942528735632185
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 10,
+        "win": 0,
+        "podium": 4,
+        "win_rate": 0.0,
+        "podium_rate": 0.4
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 51,
+        "win": 2,
+        "podium": 7,
+        "win_rate": 0.0392156862745098,
+        "podium_rate": 0.13725490196078433
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 26,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.07692307692307693,
+        "podium_rate": 0.15384615384615385
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.25
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 34,
+        "win": 1,
+        "podium": 5,
+        "win_rate": 0.029411764705882353,
+        "podium_rate": 0.14705882352941177
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 32,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.09375
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.16666666666666666
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 5,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.2,
+        "podium_rate": 0.2
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=3|out=0": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      }
+    },
+    "13": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1244,
+        "win": 15,
+        "podium": 59,
+        "win_rate": 0.012057877813504822,
+        "podium_rate": 0.04742765273311897
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 54,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.037037037037037035
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 56,
+        "win": 1,
+        "podium": 7,
+        "win_rate": 0.017857142857142856,
+        "podium_rate": 0.125
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 274,
+        "win": 4,
+        "podium": 15,
+        "win_rate": 0.014598540145985401,
+        "podium_rate": 0.05474452554744526
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 224,
+        "win": 2,
+        "podium": 10,
+        "win_rate": 0.008928571428571428,
+        "podium_rate": 0.044642857142857144
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 246,
+        "win": 5,
+        "podium": 14,
+        "win_rate": 0.02032520325203252,
+        "podium_rate": 0.056910569105691054
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 21,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 66,
+        "win": 1,
+        "podium": 8,
+        "win_rate": 0.015151515151515152,
+        "podium_rate": 0.12121212121212122
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 29,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.034482758620689655,
+        "podium_rate": 0.06896551724137931
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 20,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 6,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 5,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.2,
+        "podium_rate": 0.2
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 5,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "14": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1219,
+        "win": 6,
+        "podium": 47,
+        "win_rate": 0.004922067268252666,
+        "podium_rate": 0.03855619360131255
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 191,
+        "win": 2,
+        "podium": 7,
+        "win_rate": 0.010471204188481676,
+        "podium_rate": 0.03664921465968586
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 227,
+        "win": 0,
+        "podium": 11,
+        "win_rate": 0.0,
+        "podium_rate": 0.048458149779735685
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 27,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.037037037037037035,
+        "podium_rate": 0.1111111111111111
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 198,
+        "win": 3,
+        "podium": 7,
+        "win_rate": 0.015151515151515152,
+        "podium_rate": 0.03535353535353535
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 17,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.058823529411764705,
+        "podium_rate": 0.058823529411764705
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 42,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.023809523809523808,
+        "podium_rate": 0.07142857142857142
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 42,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.023809523809523808,
+        "podium_rate": 0.07142857142857142
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 14,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.07142857142857142
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 9,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 6,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 22,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.09090909090909091
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "15": {
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 132,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.015151515151515152,
+        "podium_rate": 0.030303030303030304
+      },
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 1086,
+        "win": 1,
+        "podium": 24,
+        "win_rate": 0.0009208103130755065,
+        "podium_rate": 0.022099447513812154
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 180,
+        "win": 1,
+        "podium": 12,
+        "win_rate": 0.005555555555555556,
+        "podium_rate": 0.06666666666666667
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 150,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.006666666666666667,
+        "podium_rate": 0.02
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 29,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 23,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 16,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.125
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 32,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.03125,
+        "podium_rate": 0.0625
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 5,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 7,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.14285714285714285
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "16": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 840,
+        "win": 4,
+        "podium": 21,
+        "win_rate": 0.004761904761904762,
+        "podium_rate": 0.025
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 118,
+        "win": 1,
+        "podium": 7,
+        "win_rate": 0.00847457627118644,
+        "podium_rate": 0.059322033898305086
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 114,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.017543859649122806,
+        "podium_rate": 0.043859649122807015
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 122,
+        "win": 2,
+        "podium": 4,
+        "win_rate": 0.01639344262295082,
+        "podium_rate": 0.03278688524590164
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 21,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 8,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 10,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 16,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.0625
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 15,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 3,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "17": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 189,
+        "win": 1,
+        "podium": 6,
+        "win_rate": 0.005291005291005291,
+        "podium_rate": 0.031746031746031744
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 6,
+        "win": 1,
+        "podium": 2,
+        "win_rate": 0.16666666666666666,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 27,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.037037037037037035
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 30,
+        "win": 0,
+        "podium": 2,
+        "win_rate": 0.0,
+        "podium_rate": 0.06666666666666667
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 4,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 23,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 5,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 3,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 5,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "18": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 160,
+        "win": 1,
+        "podium": 3,
+        "win_rate": 0.00625,
+        "podium_rate": 0.01875
+      },
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 17,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 11,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 15,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 3,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 1,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    }
+  },
+  "by_wait_count_pattern": {
+    "3": {
+      "1st=1|2nd=1|3rd=0|out=3": {
+        "n": 1990,
+        "win": 251,
+        "podium": 653,
+        "win_rate": 0.12613065326633166,
+        "podium_rate": 0.32814070351758795
+      },
+      "1st=0|2nd=0|3rd=2|out=3": {
+        "n": 1079,
+        "win": 66,
+        "podium": 277,
+        "win_rate": 0.061167747914735865,
+        "podium_rate": 0.2567191844300278
+      },
+      "1st=2|2nd=0|3rd=0|out=3": {
+        "n": 1056,
+        "win": 175,
+        "podium": 363,
+        "win_rate": 0.16571969696969696,
+        "podium_rate": 0.34375
+      },
+      "1st=0|2nd=1|3rd=1|out=3": {
+        "n": 2126,
+        "win": 163,
+        "podium": 608,
+        "win_rate": 0.0766698024459078,
+        "podium_rate": 0.28598306679209784
+      },
+      "1st=1|2nd=0|3rd=1|out=3": {
+        "n": 1939,
+        "win": 197,
+        "podium": 612,
+        "win_rate": 0.10159876224858175,
+        "podium_rate": 0.3156266116554925
+      },
+      "1st=0|2nd=2|3rd=0|out=3": {
+        "n": 1015,
+        "win": 107,
+        "podium": 307,
+        "win_rate": 0.10541871921182266,
+        "podium_rate": 0.3024630541871921
+      }
+    },
+    "0": {
+      "1st=2|2nd=2|3rd=1|out=0": {
+        "n": 27,
+        "win": 6,
+        "podium": 17,
+        "win_rate": 0.2222222222222222,
+        "podium_rate": 0.6296296296296297
+      },
+      "1st=2|2nd=1|3rd=2|out=0": {
+        "n": 14,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.21428571428571427,
+        "podium_rate": 0.6428571428571429
+      },
+      "1st=0|2nd=3|3rd=2|out=0": {
+        "n": 4,
+        "win": 2,
+        "podium": 2,
+        "win_rate": 0.5,
+        "podium_rate": 0.5
+      },
+      "1st=4|2nd=1|3rd=0|out=0": {
+        "n": 9,
+        "win": 7,
+        "podium": 8,
+        "win_rate": 0.7777777777777778,
+        "podium_rate": 0.8888888888888888
+      },
+      "1st=3|2nd=0|3rd=2|out=0": {
+        "n": 4,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.25,
+        "podium_rate": 0.25
+      },
+      "1st=5|2nd=0|3rd=0|out=0": {
+        "n": 3,
+        "win": 3,
+        "podium": 3,
+        "win_rate": 1.0,
+        "podium_rate": 1.0
+      },
+      "1st=1|2nd=2|3rd=2|out=0": {
+        "n": 13,
+        "win": 4,
+        "podium": 10,
+        "win_rate": 0.3076923076923077,
+        "podium_rate": 0.7692307692307693
+      },
+      "1st=1|2nd=3|3rd=1|out=0": {
+        "n": 15,
+        "win": 3,
+        "podium": 9,
+        "win_rate": 0.2,
+        "podium_rate": 0.6
+      },
+      "1st=3|2nd=1|3rd=1|out=0": {
+        "n": 20,
+        "win": 12,
+        "podium": 13,
+        "win_rate": 0.6,
+        "podium_rate": 0.65
+      },
+      "1st=1|2nd=1|3rd=3|out=0": {
+        "n": 5,
+        "win": 2,
+        "podium": 3,
+        "win_rate": 0.4,
+        "podium_rate": 0.6
+      },
+      "1st=3|2nd=2|3rd=0|out=0": {
+        "n": 9,
+        "win": 3,
+        "podium": 6,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.6666666666666666
+      },
+      "1st=0|2nd=4|3rd=1|out=0": {
+        "n": 7,
+        "win": 1,
+        "podium": 4,
+        "win_rate": 0.14285714285714285,
+        "podium_rate": 0.5714285714285714
+      },
+      "1st=2|2nd=3|3rd=0|out=0": {
+        "n": 9,
+        "win": 5,
+        "podium": 5,
+        "win_rate": 0.5555555555555556,
+        "podium_rate": 0.5555555555555556
+      },
+      "1st=4|2nd=0|3rd=1|out=0": {
+        "n": 4,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.25,
+        "podium_rate": 0.25
+      },
+      "1st=2|2nd=0|3rd=3|out=0": {
+        "n": 5,
+        "win": 3,
+        "podium": 5,
+        "win_rate": 0.6,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=2|3rd=3|out=0": {
+        "n": 3,
+        "win": 1,
+        "podium": 1,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.3333333333333333
+      },
+      "1st=1|2nd=4|3rd=0|out=0": {
+        "n": 3,
+        "win": 0,
+        "podium": 3,
+        "win_rate": 0.0,
+        "podium_rate": 1.0
+      },
+      "1st=0|2nd=1|3rd=4|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 1,
+        "win_rate": 0.0,
+        "podium_rate": 0.5
+      },
+      "1st=1|2nd=0|3rd=4|out=0": {
+        "n": 2,
+        "win": 0,
+        "podium": 0,
+        "win_rate": 0.0,
+        "podium_rate": 0.0
+      }
+    },
+    "2": {
+      "1st=0|2nd=1|3rd=2|out=2": {
+        "n": 384,
+        "win": 46,
+        "podium": 140,
+        "win_rate": 0.11979166666666667,
+        "podium_rate": 0.3645833333333333
+      },
+      "1st=2|2nd=1|3rd=0|out=2": {
+        "n": 504,
+        "win": 105,
+        "podium": 233,
+        "win_rate": 0.20833333333333334,
+        "podium_rate": 0.4623015873015873
+      },
+      "1st=0|2nd=2|3rd=1|out=2": {
+        "n": 408,
+        "win": 65,
+        "podium": 180,
+        "win_rate": 0.15931372549019607,
+        "podium_rate": 0.4411764705882353
+      },
+      "1st=0|2nd=0|3rd=3|out=2": {
+        "n": 134,
+        "win": 16,
+        "podium": 46,
+        "win_rate": 0.11940298507462686,
+        "podium_rate": 0.34328358208955223
+      },
+      "1st=1|2nd=2|3rd=0|out=2": {
+        "n": 446,
+        "win": 89,
+        "podium": 190,
+        "win_rate": 0.19955156950672645,
+        "podium_rate": 0.4260089686098655
+      },
+      "1st=2|2nd=0|3rd=1|out=2": {
+        "n": 449,
+        "win": 96,
+        "podium": 206,
+        "win_rate": 0.21380846325167038,
+        "podium_rate": 0.45879732739420936
+      },
+      "1st=1|2nd=1|3rd=1|out=2": {
+        "n": 891,
+        "win": 143,
+        "podium": 375,
+        "win_rate": 0.16049382716049382,
+        "podium_rate": 0.4208754208754209
+      },
+      "1st=1|2nd=0|3rd=2|out=2": {
+        "n": 412,
+        "win": 64,
+        "podium": 171,
+        "win_rate": 0.1553398058252427,
+        "podium_rate": 0.41504854368932037
+      },
+      "1st=3|2nd=0|3rd=0|out=2": {
+        "n": 192,
+        "win": 54,
+        "podium": 108,
+        "win_rate": 0.28125,
+        "podium_rate": 0.5625
+      },
+      "1st=0|2nd=3|3rd=0|out=2": {
+        "n": 152,
+        "win": 17,
+        "podium": 60,
+        "win_rate": 0.1118421052631579,
+        "podium_rate": 0.39473684210526316
+      }
+    },
+    "5": {
+      "1st=0|2nd=0|3rd=0|out=5": {
+        "n": 16586,
+        "win": 517,
+        "podium": 1943,
+        "win_rate": 0.031170866996261908,
+        "podium_rate": 0.11714699143856264
+      }
+    },
+    "4": {
+      "1st=0|2nd=0|3rd=1|out=4": {
+        "n": 5635,
+        "win": 276,
+        "podium": 1055,
+        "win_rate": 0.04897959183673469,
+        "podium_rate": 0.18722271517302574
+      },
+      "1st=1|2nd=0|3rd=0|out=4": {
+        "n": 4804,
+        "win": 367,
+        "podium": 1043,
+        "win_rate": 0.0763946711074105,
+        "podium_rate": 0.21711074104912573
+      },
+      "1st=0|2nd=1|3rd=0|out=4": {
+        "n": 5202,
+        "win": 305,
+        "podium": 1062,
+        "win_rate": 0.058631295655517106,
+        "podium_rate": 0.2041522491349481
+      }
+    },
+    "1": {
+      "1st=2|2nd=1|3rd=1|out=1": {
+        "n": 193,
+        "win": 37,
+        "podium": 97,
+        "win_rate": 0.19170984455958548,
+        "podium_rate": 0.5025906735751295
+      },
+      "1st=1|2nd=2|3rd=1|out=1": {
+        "n": 169,
+        "win": 41,
+        "podium": 88,
+        "win_rate": 0.24260355029585798,
+        "podium_rate": 0.5207100591715976
+      },
+      "1st=3|2nd=0|3rd=1|out=1": {
+        "n": 80,
+        "win": 26,
+        "podium": 50,
+        "win_rate": 0.325,
+        "podium_rate": 0.625
+      },
+      "1st=0|2nd=3|3rd=1|out=1": {
+        "n": 47,
+        "win": 11,
+        "podium": 25,
+        "win_rate": 0.23404255319148937,
+        "podium_rate": 0.5319148936170213
+      },
+      "1st=2|2nd=0|3rd=2|out=1": {
+        "n": 84,
+        "win": 28,
+        "podium": 49,
+        "win_rate": 0.3333333333333333,
+        "podium_rate": 0.5833333333333334
+      },
+      "1st=4|2nd=0|3rd=0|out=1": {
+        "n": 22,
+        "win": 8,
+        "podium": 13,
+        "win_rate": 0.36363636363636365,
+        "podium_rate": 0.5909090909090909
+      },
+      "1st=0|2nd=2|3rd=2|out=1": {
+        "n": 61,
+        "win": 6,
+        "podium": 27,
+        "win_rate": 0.09836065573770492,
+        "podium_rate": 0.4426229508196721
+      },
+      "1st=1|2nd=1|3rd=2|out=1": {
+        "n": 158,
+        "win": 29,
+        "podium": 73,
+        "win_rate": 0.18354430379746836,
+        "podium_rate": 0.4620253164556962
+      },
+      "1st=2|2nd=2|3rd=0|out=1": {
+        "n": 121,
+        "win": 46,
+        "podium": 82,
+        "win_rate": 0.38016528925619836,
+        "podium_rate": 0.6776859504132231
+      },
+      "1st=0|2nd=1|3rd=3|out=1": {
+        "n": 48,
+        "win": 6,
+        "podium": 18,
+        "win_rate": 0.125,
+        "podium_rate": 0.375
+      },
+      "1st=3|2nd=1|3rd=0|out=1": {
+        "n": 80,
+        "win": 18,
+        "podium": 45,
+        "win_rate": 0.225,
+        "podium_rate": 0.5625
+      },
+      "1st=1|2nd=3|3rd=0|out=1": {
+        "n": 75,
+        "win": 18,
+        "podium": 39,
+        "win_rate": 0.24,
+        "podium_rate": 0.52
+      },
+      "1st=1|2nd=0|3rd=3|out=1": {
+        "n": 43,
+        "win": 6,
+        "podium": 28,
+        "win_rate": 0.13953488372093023,
+        "podium_rate": 0.6511627906976745
+      },
+      "1st=0|2nd=4|3rd=0|out=1": {
+        "n": 16,
+        "win": 4,
+        "podium": 5,
+        "win_rate": 0.25,
+        "podium_rate": 0.3125
+      },
+      "1st=0|2nd=0|3rd=4|out=1": {
+        "n": 8,
+        "win": 2,
+        "podium": 5,
+        "win_rate": 0.25,
+        "podium_rate": 0.625
+      }
+    }
+  }
+}
