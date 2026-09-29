@@ -1,0 +1,137 @@
+name: L1 Outsider Tie-Safe One Year V1
+
+on:
+  workflow_call:
+    inputs:
+      validation_year:
+        required: true
+        type: number
+      start_delay_seconds:
+        required: false
+        type: number
+        default: 0
+    secrets:
+      KEIBA_ML_SNAPSHOTS:
+        required: true
+
+permissions:
+  contents: read
+
+jobs:
+  run:
+    name: outsider-tiesafe-y${{ inputs.validation_year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      VALIDATION_YEAR: ${{ inputs.validation_year }}
+      START_DELAY_SECONDS: ${{ inputs.start_delay_seconds }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and tie-safe regression
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/rank_utils.py             research/rerank_l1_score_v1.py             research/test_rank_utils_v1.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py             research/build_router_feature_snapshot_v1.py             research/build_l1_nonhorse_dataset_v1.py             research/run_l1_outsider_year_lane_v2.py             research/analyze_l1_outsider_rescue_v1.py
+          python research/test_rank_utils_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+
+      - name: Install dependencies once
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore rolling fold once
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+          y="$VALIDATION_YEAR"
+          test "$y" -ge 2021
+          test "$y" -le 2025
+          train1=$((y-2))
+          train2=$((y-1))
+          root="out/tiesafe-y$y"
+          snaproot="$root/snapshots"
+          mkdir -p "$snaproot" "$root/king-scores" "$root/safe-scores"
+
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$snaproot"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$snaproot" "$train1" "$train2" "$y"
+
+          snapshot_path() {
+            local yy="$1"
+            if [[ -s "$snaproot/snapshot-$yy.jsonl.gz" ]]; then printf '%s' "$snaproot/snapshot-$yy.jsonl.gz"
+            elif [[ -s "$snaproot/snapshot-$yy.jsonl" ]]; then printf '%s' "$snaproot/snapshot-$yy.jsonl"
+            else echo "::error::snapshot missing $yy" >&2; return 1
+            fi
+          }
+          p1="$(snapshot_path "$train1")"
+          p2="$(snapshot_path "$train2")"
+          pv="$(snapshot_path "$y")"
+          echo "INPUTS=$p1,$p2,$pv" >> "$GITHUB_ENV"
+          echo "VALID_SNAPSHOT=$pv" >> "$GITHUB_ENV"
+          echo "WORK_ROOT=$root" >> "$GITHUB_ENV"
+
+      - name: Restore and re-rank seven persisted king scores
+        shell: bash
+        run: |
+          set -euo pipefail
+          download_score() {
+            local ref="$1" dest="$2"
+            mkdir -p "$dest"
+            for attempt in 1 2 3 4 5; do
+              if kaggle datasets download "$ref" -p "$dest" --unzip --quiet --force; then return 0; fi
+              sleep $((attempt*20))
+            done
+            return 1
+          }
+
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            d="$WORK_ROOT/king-scores/$alias"
+            ref="pino1945/keiba-l15-7k-$alias-y$VALIDATION_YEAR-v1"
+            download_score "$ref" "$d"
+            p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            safe="$WORK_ROOT/safe-scores/$alias.jsonl.gz"
+            summary="$WORK_ROOT/safe-scores/$alias-summary.json"
+            python research/rerank_l1_score_v1.py --input "$p" --output "$safe" --summary "$summary"
+            key="SAFE_${alias^^}"
+            echo "$key=$safe" >> "$GITHUB_ENV"
+            sleep 3
+          done
+
+      - name: Build tie-safe seven-king router
+        shell: bash
+        run: |
+          set -euo pipefail
+          router="$WORK_ROOT/router-7k-tiesafe.jsonl.gz"
+          python research/build_router_feature_snapshot_v1.py             --snapshot "$VALID_SNAPSHOT"             --expert core4_no_pedigree="$SAFE_CORE4"             --expert no_auto_full_pedigree_legacy="$SAFE_PEDLEGACY"             --expert jockey_trainer_condition="$SAFE_CONDITION"             --expert no_auto_full="$SAFE_FULL"             --expert no_auto_jockey="$SAFE_LIGHT"             --expert no_auto_full_pedigree_v1="$SAFE_PEDV1"             --expert jockey_trainer_condition_plus_raceclass="$SAFE_CONDRC"             --output "$router"
+          test -s "$router"
+          echo "SAFE_ROUTER=$router" >> "$GITHUB_ENV"
+
+      - name: Run 17 outsiders against tie-safe kings
+        shell: bash
+        run: |
+          set -euo pipefail
+          only="outsider_style,outsider_lap,outsider_network,outsider_distance,outsider_backfill,outsider_daytrend,outsider_raceshape,outsider_gatecourse,outsider_jockey,outsider_field,outsider_rotation,outsider_classmove,outsider_weightchange,outsider_bodychange,outsider_disttransition,outsider_coursetransition,outsider_opponentgap"
+          python research/run_l1_outsider_year_lane_v2.py             --year "$VALIDATION_YEAR"             --inputs "$INPUTS"             --validation-snapshot "$VALID_SNAPSHOT"             --router-seven "$SAFE_ROUTER"             --horse-config research/l1-outsider-arena-tiesafe-v1.json             --nonhorse-config research/l1-outsider-nonhorse-tiesafe-v1.json             --transition-config research/l1-outsider-transition-tiesafe-v1.json             --only-candidates "$only"             --out-root "$WORK_ROOT/outsiders"             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact/Cache."
+          echo "No new Kaggle dataset/model persistence."
+          echo "Existing snapshots and seven-king scores are read-only."
+          echo "All 17 outsider models are ephemeral."
+          echo "2026 remains sealed."
