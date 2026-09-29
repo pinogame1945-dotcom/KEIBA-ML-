@@ -30,6 +30,7 @@ jobs:
       YEAR: ${{ matrix.year }}
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
 
     steps:
       - uses: actions/checkout@v4
