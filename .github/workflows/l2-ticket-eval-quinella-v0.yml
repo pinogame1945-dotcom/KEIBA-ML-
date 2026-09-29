@@ -57,9 +57,12 @@ jobs:
           assert c["cost"]["github_cache"] is False
           assert c["cost"]["persistent_kaggle_upload"] is False
           wf=Path(".github/workflows/l2-ticket-eval-quinella-v0.yml").read_text()
-          assert "runs-on: ubuntu-latest" in wf
-          assert "actions/upload-artifact" not in wf
-          assert "actions/cache" not in wf
+          lines=wf.splitlines()
+          runners=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
+          assert not any(u.startswith("actions/cache") for u in uses),uses
           print("L2_TICKET_EVAL_QUINELLA_V0_GUARDS_OK")
           PY
 
