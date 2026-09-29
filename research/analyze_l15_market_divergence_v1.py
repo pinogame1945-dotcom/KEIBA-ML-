@@ -190,7 +190,7 @@ def summarize(items, races):
 
 def rank_summary(items):
     out = []
-    for rank in range(1, 7):
+    for rank in range(1, 11):
         rows = [x for x in items if x["consensus_rank"] == rank and x["popularity"] is not None]
         pops = [x["popularity"] for x in rows]
         odds = [x["odds"] for x in rows if x["odds"] is not None]
@@ -225,6 +225,7 @@ def main():
         raise SystemExit(f"expected years {EXPECTED_YEARS}; snapshots={sorted(snapshots)} routers={sorted(routers)}")
 
     all_items = []
+    all_rank_items = []
     all_races = []
     year_summaries = []
 
@@ -234,6 +235,7 @@ def main():
         if len(router_rows) != EXPECTED_RACES_PER_YEAR:
             raise SystemExit(f"router race count regression year={year}: {len(router_rows)} != {EXPECTED_RACES_PER_YEAR}")
         year_items = []
+        year_rank_items = []
         year_races = []
         for row in router_rows:
             rid = str(row.get("race_id") or "")
@@ -241,7 +243,7 @@ def main():
             if not order:
                 raise ValueError(f"consensus has no horses year={year} race_id={rid}")
             items = []
-            for rank, hid in enumerate(order[:6], 1):
+            for rank, hid in enumerate(order[:10], 1):
                 m = market.get((rid, hid), {})
                 rec = {
                     "year": year,
@@ -251,9 +253,12 @@ def main():
                     "popularity": m.get("popularity"),
                     "odds": m.get("odds"),
                 }
-                items.append(rec)
-                year_items.append(rec)
-                all_items.append(rec)
+                year_rank_items.append(rec)
+                all_rank_items.append(rec)
+                if rank <= 6:
+                    items.append(rec)
+                    year_items.append(rec)
+                    all_items.append(rec)
             race = {"year": year, "race_id": rid, "items": items}
             year_races.append(race)
             all_races.append(race)
@@ -269,12 +274,12 @@ def main():
     out_dir.mkdir(parents=True, exist_ok=True)
     payload = {
         "contract": "L15_MARKET_DIVERGENCE_V1",
-        "scope": "Seven-King consensus Top6 vs final single-win market, post-hoc evaluation only",
+        "scope": "Seven-King consensus Top6 overlap metrics plus consensus ranks 1-10 vs final single-win market, post-hoc evaluation only",
         "odds_used_for_prediction": False,
         "years": EXPECTED_YEARS,
         "overall": overall,
         "by_year": year_summaries,
-        "by_consensus_rank": rank_summary(all_items),
+        "by_consensus_rank": rank_summary(all_rank_items),
         "definitions": {
             "rank_gap": "final_popularity - consensus_rank; positive means consensus rates the horse more highly than the market",
             "top6_overlap": "share of consensus Top6 horses whose final popularity is 1..6",
