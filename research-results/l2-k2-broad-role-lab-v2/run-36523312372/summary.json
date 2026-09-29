@@ -1,0 +1,62 @@
+{
+  "contract": "L2_K2_BROAD_ROLE_LAB_V2",
+  "source_role_lab_run": 36521825849,
+  "routes": {
+    "FIRST": "K2 novel fixed 1st in exacta, all other L1/L1.5 candidates as 2nd",
+    "A12_THIRD": "A1/A2 occupy top2 in either order, K2 novel fixed 3rd (2 trifecta tickets)"
+  },
+  "walk_forward": {
+    "2023": "train 2022",
+    "2024": "train 2022-2023",
+    "2025": "train 2022-2024"
+  },
+  "selection": "score thresholds come only from the prior-period chronological calibration split",
+  "coverage_targets": [
+    100,
+    75,
+    50,
+    25
+  ],
+  "anti_overfilter_guard": "No target below 25%; broad candidates require >=50% race coverage in every OOS year.",
+  "probability_features_use_market": false,
+  "market_used_for_diagnostics_only": true,
+  "2026_locked": true,
+  "production_promotion": false,
+  "interpretation_guard": "All 2023-2025 metrics are walk-forward OOS research evidence. No production rule is promoted here.",
+  "broad_stable_candidates": [
+    {
+      "route": "A12_THIRD",
+      "target_coverage": 1.0,
+      "roi_2023": 153.64553314121036,
+      "roi_2024": 186.58073270013568,
+      "roi_2025": 160.3028263795424,
+      "race_coverage_2023": 100.0,
+      "race_coverage_2024": 100.0,
+      "race_coverage_2025": 100.0,
+      "combined_roi_pct": 167.08601655933762,
+      "combined_profit_yen": 291690.0,
+      "min_year_roi_pct": 153.64553314121036,
+      "min_year_race_coverage_pct": 100.0,
+      "all_years_100plus": 1,
+      "broad_coverage_50plus": 1,
+      "broad_stable_candidate": 1
+    },
+    {
+      "route": "A12_THIRD",
+      "target_coverage": 0.75,
+      "roi_2023": 201.30165289256198,
+      "roi_2024": 136.42605633802816,
+      "roi_2025": 160.86472602739727,
+      "race_coverage_2023": 73.03754266211604,
+      "race_coverage_2024": 80.56537102473499,
+      "race_coverage_2025": 86.5979381443299,
+      "combined_roi_pct": 164.34290953545232,
+      "combined_profit_yen": 210530.0,
+      "min_year_roi_pct": 136.42605633802816,
+      "min_year_race_coverage_pct": 73.03754266211604,
+      "all_years_100plus": 1,
+      "broad_coverage_50plus": 1,
+      "broad_stable_candidate": 1
+    }
+  ]
+}
