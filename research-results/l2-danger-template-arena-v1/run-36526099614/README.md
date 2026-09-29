@@ -1,0 +1,3 @@
+# L2 Danger Template Arena V1
+
+Coarse structural tournament for CONSENSUS_WORLD_GATE alert races that contain at least one K2 novel horse. Danger races with zero K2 novel horses are audited separately and are not silently counted as failed K2 coverage. Every frozen K2 novel horse is used; there is no odds filter, popularity filter, or ML selection. The seven ticket structures isolate where K2 sits relative to the frozen A1/A2 anchors across quinella, exacta, trio and trifecta. Metrics include ROI, profit, hit rate, race coverage, tickets per race, max drawdown and return concentration. 2026 remains sealed and no production rule is promoted by this run.
