@@ -80,13 +80,14 @@ jobs:
           set -euo pipefail
           y="${{ matrix.year }}"
           git fetch origin research/l16-outsider-chimera-all-races-v1-20260929
-          git checkout FETCH_HEAD -- "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"
-          test -s "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"
+          chimera_path="research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"
+          git show "FETCH_HEAD:$chimera_path" > "/tmp/chimera-$y.csv"
+          test -s "/tmp/chimera-$y.csv"
           score_path(){ a="$1"; [[ -s "out/top1/scores/$y/$a/score.jsonl.gz" ]] && echo "out/top1/scores/$y/$a/score.jsonl.gz" || echo "out/top1/scores/$y/$a/score.jsonl"; }
           [[ -s "out/top1/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/top1/snapshot/snapshot-$y.jsonl.gz" || snap="out/top1/snapshot/snapshot-$y.jsonl"
           mkdir -p out/top1/consensus "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID"
           python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/top1/consensus/l16-$y.jsonl.gz"
-          python research/analyze_l16_outsider_top1_matrix_v1.py             --consensus "out/top1/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"             --outsider-csv "research-results/l16-outsider-chimera-all-races-v1/run-$CHIMERA_RUN_ID/y$y/chimera-all-topk.csv"             --year "$y"             --output "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y$y.json"
+          python research/analyze_l16_outsider_top1_matrix_v1.py             --consensus "out/top1/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"             --outsider-csv "/tmp/chimera-$y.csv"             --year "$y"             --output "research-results/l16-outsider-top1-matrix-v1/run-$GITHUB_RUN_ID/y$y.json"
       - name: Commit year
         run: |
           set -euo pipefail
