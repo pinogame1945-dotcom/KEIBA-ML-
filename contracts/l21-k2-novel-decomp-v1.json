@@ -1,0 +1,107 @@
+{
+  "contract": "L21_K2_NOVEL_DECOMP_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "market_gap_run": 36508670081,
+    "market_gap_result_sha": "eb544dc12c104ed73b4966916716335b2aff3887",
+    "market_gap_race_summary": "research-results/l21-market-gap-v1/run-36508670081/race-summary.csv",
+    "candidate_inflation_root": "research-results/l15-candidate-inflation-v1/run-36452274400"
+  },
+  "scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "expected_gate_alerts": 1384,
+    "expected_novel_horses": 5577,
+    "development_years": [
+      2022,
+      2023,
+      2024
+    ],
+    "holdout_year": 2025,
+    "locked_years": [
+      2026
+    ]
+  },
+  "market": {
+    "source": "historical final WIN odds",
+    "flat_stake_yen": 100,
+    "market_rank_rule": "ascending final win odds; ties by horse_number"
+  },
+  "preregistered_buckets": {
+    "market_rank": [
+      "1",
+      "2-3",
+      "4-6",
+      "7+"
+    ],
+    "final_win_odds": [
+      "LT10",
+      "10-20",
+      "20-50",
+      "50-100",
+      "100-200",
+      "200+"
+    ],
+    "gate_score": [
+      "LT0.60",
+      "0.60-0.65",
+      "0.65-0.70",
+      "0.70+"
+    ],
+    "novel_position": [
+      "1",
+      "2",
+      "3",
+      "4+"
+    ]
+  },
+  "concentration_tests": {
+    "scopes": [
+      "ALL_NOVEL",
+      "MARKET_RANK_7PLUS"
+    ],
+    "remove_highest_return_wins": [
+      0,
+      1,
+      3,
+      5,
+      10
+    ],
+    "metrics": [
+      "roi_pct",
+      "profit_yen",
+      "wins",
+      "top1_return_share_pct",
+      "top3_return_share_pct",
+      "top5_return_share_pct",
+      "top10_return_share_pct"
+    ]
+  },
+  "outsider_attribution": {
+    "source": "selected FULL_COMBO_K2 outsider Top6 membership",
+    "views": [
+      "source_set_exact",
+      "fractional_label_attribution"
+    ],
+    "fractional_rule": "For a novel horse contributed by N selected outsiders, split stake, return, win and top3 credit by 1/N across those labels."
+  },
+  "claim_discipline": {
+    "tuning": false,
+    "rule": "2022-2024 describe development behavior; 2025 confirms or rejects it. Do not tune bucket boundaries after seeing 2025.",
+    "production_promotion": false
+  },
+  "cost": {
+    "runner": "ubuntu-latest standard CPU",
+    "artifact_cache": false,
+    "kaggle_restore": false,
+    "backfill": "read-only sparse clone at pinned commit",
+    "outputs": "compact CSV/JSON/README only"
+  }
+}
