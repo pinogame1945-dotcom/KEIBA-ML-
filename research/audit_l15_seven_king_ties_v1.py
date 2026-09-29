@@ -16,7 +16,7 @@ def finite(v):
         return None
 
 def read_winners(path):
-    winners={}
+    winners=defaultdict(set)
     with open_text(path) as fh:
         for line in fh:
             if not line.strip(): continue
@@ -28,12 +28,10 @@ def read_winners(path):
             if win is None:
                 try: win=int(float(t.get("finish_position")))==1
                 except (TypeError,ValueError): win=False
-            if win:
-                if rid in winners and winners[rid]!=hid:
-                    raise ValueError(f"multiple winners race={rid}")
-                winners[rid]=hid
+            if win and rid and hid:
+                winners[rid].add(hid)
     if not winners: raise ValueError("snapshot winners empty")
-    return winners
+    return dict(winners)
 
 def read_scores(path):
     by=defaultdict(list)
@@ -131,11 +129,11 @@ def main():
                 bt=tie_info(rows,n)
                 if bt: x["boundary_tie_races"]+=1
                 old=top_set(rows,n,"old_rank"); new=top_set(sr,n,"safe_rank")
-                oh=winner in old; nh=winner in new
+                oh=bool(winner & old); nh=bool(winner & new)
                 x["old_capture"]+=int(oh); x["safe_capture"]+=int(nh)
                 if old!=new:
                     x["topn_set_changed_races"]+=1
-                    changed.append({"year":a.year,"race_id":rid,"scope":alias,"topn":n,"winner":winner,
+                    changed.append({"year":a.year,"race_id":rid,"scope":alias,"topn":n,"winner":"|".join(sorted(winner)),
                                     "old_top":"|".join(sorted(old)),"safe_top":"|".join(sorted(new)),
                                     "old_hit":int(oh),"safe_hit":int(nh),"boundary_tie":int(bt)})
                 x["old_only_hits"]+=int(oh and not nh)
@@ -157,7 +155,7 @@ def main():
         old_union=set().union(*(top_set(rows,6,"old_rank") for rows in old_rows.values()))
         safe_union=set().union(*(top_set(rows,6,"safe_rank") for rows in safe_rows_map.values()))
         winner=winners[rid]
-        ob=winner not in old_union; sb=winner not in safe_union
+        ob=not bool(winner & old_union); sb=not bool(winner & safe_union)
         seven["old_blind"]+=int(ob); seven["safe_blind"]+=int(sb)
         seven["old_blind_to_safe_hit"]+=int(ob and not sb)
         seven["old_hit_to_safe_blind"]+=int((not ob) and sb)
@@ -169,7 +167,7 @@ def main():
         seven["consensus_anchor_top2_changed_races"]+=int(anchor_changed)
         if old_union!=safe_union:
             seven["top6_union_changed_races"]+=1
-            changed.append({"year":a.year,"race_id":rid,"scope":"SEVEN_UNION","topn":6,"winner":winner,
+            changed.append({"year":a.year,"race_id":rid,"scope":"SEVEN_UNION","topn":6,"winner":"|".join(sorted(winner)),
                             "old_top":"|".join(sorted(old_union)),"safe_top":"|".join(sorted(safe_union)),
                             "old_hit":int(not ob),"safe_hit":int(not sb),"boundary_tie":1})
     for k in list(seven):
