@@ -1,0 +1,70 @@
+{
+  "contract": "L15_FIXED_LEDGER_MANIFEST_V1",
+  "l15_contract": "L15_FIXED_V1",
+  "l15_version": "1.0.0",
+  "status": "FROZEN",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "files": [
+    {
+      "year": 2022,
+      "file": "y2022.jsonl",
+      "rows": 346,
+      "novel_horses": 1314,
+      "bytes": 274621,
+      "sha256": "454bd4d5ec8c149f8e84bdf98aa24a4bcb7abf56f9bc3d96572ab7eacdb792e5"
+    },
+    {
+      "year": 2023,
+      "file": "y2023.jsonl",
+      "rows": 346,
+      "novel_horses": 1376,
+      "bytes": 272930,
+      "sha256": "d61bce96a3030baa3bb805ec3b33fb2746599bf42473d1009ee82bbe1733acdb"
+    },
+    {
+      "year": 2024,
+      "file": "y2024.jsonl",
+      "rows": 346,
+      "novel_horses": 1435,
+      "bytes": 273163,
+      "sha256": "da72edf0588e313d4bf47ffe69e149413e52db4586990ae7c8a4a2a8421219ff"
+    },
+    {
+      "year": 2025,
+      "file": "y2025.jsonl",
+      "rows": 346,
+      "novel_horses": 1452,
+      "bytes": 273938,
+      "sha256": "d89801f24b4b7b91af1d63af0570aa85c201f9f370e09101a0afc5747bfd5323"
+    }
+  ],
+  "total_alert_rows": 1384,
+  "total_novel_horses": 5577,
+  "selected_outsider_calls": 2768,
+  "outsider_usage": {
+    "メンバー構成型": 578,
+    "レース構造型": 767,
+    "当日傾向型": 545,
+    "枠・コース型": 659,
+    "騎手型": 219
+  },
+  "non_alert_semantics": "Race IDs absent from the yearly alert ledger are PASS_SEVEN_ONLY.",
+  "downstream_semantics": "L2 must consume candidate_horse_ids plus seven_anchor_horse_ids; L1.5 must not use odds/popularity/payout.",
+  "frozen_sources": {
+    "candidate_inflation_commit": "e232d6bb83f789e9ebb44cc9786dcce32beddbb1",
+    "candidate_inflation_run": 36452274400,
+    "candidate_root": "research-results/l15-candidate-inflation-v1/run-36452274400",
+    "router31_commit": "97b4e3225f643d3ee5a8f72476678b16f5a7d95e",
+    "router31_run": 36448207055,
+    "l2_evidence_commit": "673c6d55b8d1fb297e58f7fbf81a02ddc2c39fc4",
+    "l2_evidence_run": 36502921728
+  }
+}
