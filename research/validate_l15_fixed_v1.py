@@ -64,7 +64,7 @@ def main():
     outsider_usage={name:0 for name in sorted(ALLOWED_OUTSIDERS)}
 
     for year in YEARS:
-        path=root/f"y{year}.jsonl.gz"
+        path=root/f"y{year}.jsonl"
         if not path.exists():
             raise SystemExit(f"missing fixed ledger: {path}")
         count=0
