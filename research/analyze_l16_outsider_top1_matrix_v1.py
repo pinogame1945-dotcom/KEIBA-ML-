@@ -3,13 +3,13 @@ import argparse,csv,gzip,itertools,json
 from collections import defaultdict
 from pathlib import Path
 
-CANDS=["outsider_daytrend","outsider_raceshape","outsider_gatecourse","outsider_field","outsider_jockey"]
+CANDS=["outsider_daytrend","outsider_raceshape","outsider_gatecourse","outsider_field","outsider_jockey","outsider_chimera"]
 
 def ap():
     p=argparse.ArgumentParser()
     p.add_argument("--consensus",required=True)
     p.add_argument("--snapshot",required=True)
-    p.add_argument("--outsider-csv",required=True)
+    p.add_argument("--outsider-csv",required=True,action="append")
     p.add_argument("--year",type=int,required=True)
     p.add_argument("--output",required=True)
     return p.parse_args()
@@ -48,13 +48,17 @@ def consensus(path):
             out[str(x["race_id"])]=[str(z["horse_id"]) for z in rows]
     return out
 
-def outsiders(path):
+def outsiders(paths):
     out=defaultdict(dict)
-    with open(path,newline="",encoding="utf-8-sig") as f:
-        for r in csv.DictReader(f):
-            ids=[x for x in r["top3_horse_ids"].split("|") if x]
-            if not ids: raise ValueError("empty top3")
-            out[str(r["race_id"])][r["candidate"]]=ids[0]
+    for path in paths:
+        with open(path,newline="",encoding="utf-8-sig") as f:
+            for r in csv.DictReader(f):
+                ids=[x for x in r["top3_horse_ids"].split("|") if x]
+                if not ids: raise ValueError("empty top3")
+                rid=str(r["race_id"]); cand=r["candidate"]
+                if cand in out[rid] and out[rid][cand] != ids[0]:
+                    raise ValueError(f"duplicate mismatch {rid} {cand}")
+                out[rid][cand]=ids[0]
     return out
 
 def full_hit(sel,outcomes):
@@ -85,9 +89,9 @@ def main():
     res={
       "contract":"L16_OUTSIDER_TOP1_MATRIX_V1","year":a.year,"races":n,
       "l16_top3_full_hits":base_hits,"l16_top3_full_rate":base_hits/n,
-      "all5_top1_union_full_hits":union_hits,"all5_top1_union_full_rate":union_hits/n,
-      "all5_top1_union_avg_size":union_size/n,
-      "l16_top3_plus_all5_top1_avg_size":combined_size/n,
+      "all6_top1_union_full_hits":union_hits,"all6_top1_union_full_rate":union_hits/n,
+      "all6_top1_union_avg_size":union_size/n,
+      "l16_top3_plus_all6_top1_avg_size":combined_size/n,
       "candidates":{k:{
         "full_hits":v["full_hits"],
         "full_rate":v["full_hits"]/n,
