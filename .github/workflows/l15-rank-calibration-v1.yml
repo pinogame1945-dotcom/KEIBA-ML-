@@ -1,0 +1,269 @@
+name: L1.5 Rank Calibration V1
+
+on:
+  push:
+    branches:
+      - research/l15-rank-calibration-v1-20260929
+    paths:
+      - .github/triggers/l15-rank-calibration-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-rank-calibration-v1
+  cancel-in-progress: true
+
+jobs:
+  calibrate:
+    name: l15-rank-calibration
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION_ID: eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Cost guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${RUNNER_ENVIRONMENT}" = "github-hosted"
+          echo "Standard GitHub-hosted CPU runner only."
+          echo "No GPU, no Artifact/Cache, no new Kaggle Dataset/Model persistence."
+
+      - name: Install Kaggle client
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore frozen source inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l15-rank-calibration"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$root/snapshots"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$root/snapshots" 2022 2023 2024 2025
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" "$root/router"
+
+      - name: Calculate rank calibration
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv, gzip, json, math
+          from collections import Counter, defaultdict
+          from pathlib import Path
+          from research.materialize_l15_fixed_v1 import seven_order, open_text
+
+          YEARS=(2022,2023,2024,2025)
+          ROOT=Path("out/l15-rank-calibration")
+          OUT=Path("research-results/l15-rank-calibration-v1")
+          OUT.mkdir(parents=True,exist_ok=True)
+
+          def snapshot_path(year):
+              for p in (ROOT/"snapshots"/f"snapshot-{year}.jsonl.gz", ROOT/"snapshots"/f"snapshot-{year}.jsonl"):
+                  if p.exists() and p.stat().st_size:
+                      return p
+              raise SystemExit(f"snapshot missing {year}")
+
+          def router_path(year):
+              for name in ("router-7k.jsonl.gz","router-7k.jsonl"):
+                  p=ROOT/"router"/str(year)/name
+                  if p.exists() and p.stat().st_size:
+                      return p
+              raise SystemExit(f"router missing {year}")
+
+          def load_router(path):
+              out={}
+              with open_text(path) as fh:
+                  for line in fh:
+                      if line.strip():
+                          row=json.loads(line); out[str(row["race_id"])]=row
+              return out
+
+          def load_alerts(year):
+              p=Path(f"research-results/l15-fixed-v1/y{year}.jsonl")
+              out={}
+              with open(p,encoding="utf-8") as fh:
+                  for line in fh:
+                      if line.strip():
+                          row=json.loads(line); out[str(row["race_id"])]=row
+              return out
+
+          def load_truth(path):
+              out=defaultdict(dict)
+              with open_text(path) as fh:
+                  for line in fh:
+                      if not line.strip(): continue
+                      row=json.loads(line)
+                      rid=str(row.get("race_id") or "")
+                      hid=str(row.get("horse_id") or "")
+                      target=row.get("target") or {}
+                      raw=target.get("finish_position")
+                      try:
+                          f=int(float(raw))
+                      except (TypeError,ValueError):
+                          continue
+                      if rid and hid and f>=1:
+                          out[rid][hid]=f
+              return out
+
+          rank_stats={r:{"n":0,"wins":0,"top2":0,"top3":0,"finish_sum":0,"missing":0} for r in range(1,11)}
+          by_year={y:{r:{"n":0,"wins":0,"top2":0,"top3":0,"finish_sum":0,"missing":0} for r in range(1,11)} for y in YEARS}
+          by_gate={g:{r:{"n":0,"wins":0,"top2":0,"top3":0,"finish_sum":0,"missing":0} for r in range(1,11)} for g in ("alert","pass")}
+          winner_pred_rank=Counter()
+          winner_pred_rank_by_year={y:Counter() for y in YEARS}
+          race_counts={}
+          missing_truth_races=0
+          all_rows=[]
+
+          for year in YEARS:
+              router=load_router(router_path(year))
+              alerts=load_alerts(year)
+              truth=load_truth(snapshot_path(year))
+              if len(router)!=3456:
+                  raise SystemExit(f"router race regression year={year} got={len(router)}")
+              if len(alerts)!=346:
+                  raise SystemExit(f"alert race regression year={year} got={len(alerts)}")
+              resolved=0
+              for rid,row in sorted(router.items()):
+                  gate="alert" if rid in alerts else "pass"
+                  order=list(alerts[rid]["candidate_horse_ids"]) if rid in alerts else seven_order(row)
+                  actual=truth.get(rid,{})
+                  if not actual:
+                      missing_truth_races+=1
+                      continue
+                  resolved+=1
+                  winners={hid for hid,f in actual.items() if f==1}
+                  wr=None
+                  for i,hid in enumerate(order[:10],1):
+                      if hid in winners:
+                          wr=i
+                          break
+                  winner_pred_rank[wr if wr is not None else "MISS_TOP10"]+=1
+                  winner_pred_rank_by_year[year][wr if wr is not None else "MISS_TOP10"]+=1
+
+                  for r,hid in enumerate(order[:10],1):
+                      s=rank_stats[r]; sy=by_year[year][r]; sg=by_gate[gate][r]
+                      f=actual.get(str(hid))
+                      if f is None:
+                          for z in (s,sy,sg): z["missing"]+=1
+                          continue
+                      for z in (s,sy,sg):
+                          z["n"]+=1
+                          z["wins"]+=int(f==1)
+                          z["top2"]+=int(f<=2)
+                          z["top3"]+=int(f<=3)
+                          z["finish_sum"]+=f
+              race_counts[year]={"router":len(router),"alerts":len(alerts),"resolved_truth":resolved}
+
+          def pct(a,b): return None if not b else round(100*a/b,4)
+          def finalize(stats):
+              rows=[]
+              for r in range(1,11):
+                  s=stats[r]
+                  rows.append({
+                      "predicted_rank":r,
+                      "n":s["n"],
+                      "win_count":s["wins"],
+                      "win_rate_pct":pct(s["wins"],s["n"]),
+                      "top2_count":s["top2"],
+                      "top2_rate_pct":pct(s["top2"],s["n"]),
+                      "top3_count":s["top3"],
+                      "top3_rate_pct":pct(s["top3"],s["n"]),
+                      "mean_finish":None if not s["n"] else round(s["finish_sum"]/s["n"],4),
+                      "missing_finish":s["missing"],
+                  })
+              return rows
+
+          overall=finalize(rank_stats)
+          with open(OUT/"rank-calibration.csv","w",newline="",encoding="utf-8") as fh:
+              w=csv.DictWriter(fh,fieldnames=list(overall[0]))
+              w.writeheader(); w.writerows(overall)
+
+          year_rows=[]
+          for y in YEARS:
+              for row in finalize(by_year[y]):
+                  year_rows.append({"year":y,**row})
+          with open(OUT/"rank-calibration-by-year.csv","w",newline="",encoding="utf-8") as fh:
+              w=csv.DictWriter(fh,fieldnames=list(year_rows[0]))
+              w.writeheader(); w.writerows(year_rows)
+
+          gate_rows=[]
+          for g in ("alert","pass"):
+              for row in finalize(by_gate[g]):
+                  gate_rows.append({"gate":g,**row})
+          with open(OUT/"rank-calibration-by-gate.csv","w",newline="",encoding="utf-8") as fh:
+              w=csv.DictWriter(fh,fieldnames=list(gate_rows[0]))
+              w.writeheader(); w.writerows(gate_rows)
+
+          total=sum(winner_pred_rank.values())
+          cumulative={}
+          for k in (1,3,6,10):
+              hit=sum(v for rk,v in winner_pred_rank.items() if isinstance(rk,int) and rk<=k)
+              cumulative[f"top{k}_winner_capture_pct"]=pct(hit,total)
+              cumulative[f"top{k}_winner_capture_count"]=hit
+
+          summary={
+              "contract":"L15_RANK_CALIBRATION_V1",
+              "source_contract":"L15_FIXED_V1",
+              "fixed_sha":"2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+              "years":list(YEARS),
+              "race_counts":race_counts,
+              "missing_truth_races":missing_truth_races,
+              "overall_rank_metrics":overall,
+              "winner_predicted_rank_distribution":{str(k):v for k,v in sorted(winner_pred_rank.items(),key=lambda kv:(999 if isinstance(kv[0],str) else kv[0]))},
+              "winner_capture":cumulative,
+              "rank1_by_year":{
+                  str(y):next(x for x in finalize(by_year[y]) if x["predicted_rank"]==1)
+                  for y in YEARS
+              },
+              "rank1_by_gate":{
+                  g:next(x for x in finalize(by_gate[g]) if x["predicted_rank"]==1)
+                  for g in ("alert","pass")
+              },
+          }
+          (OUT/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+
+          print("L15_RANK_CALIBRATION_V1_OK")
+          print(json.dumps({
+              "rank1":overall[0],
+              "winner_capture":cumulative,
+              "race_counts":race_counts,
+              "missing_truth_races":missing_truth_races,
+          },ensure_ascii=False))
+          PY
+
+      - name: Validate and commit compact results
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json
+          p="research-results/l15-rank-calibration-v1/summary.json"
+          x=json.load(open(p,encoding="utf-8"))
+          assert x["contract"]=="L15_RANK_CALIBRATION_V1"
+          assert x["source_contract"]=="L15_FIXED_V1"
+          assert x["fixed_sha"]=="2db82c3ca3cfab6cf35c33cdf7a70d9972eced04"
+          assert sum(v["router"] for v in x["race_counts"].values())==13824
+          print("CALIBRATION_RESULT_VALID")
+          PY
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l15-rank-calibration-v1
+          if git diff --cached --quiet; then
+            echo "No result changes"
+            exit 0
+          fi
+          git commit -m "research: L1.5 rank calibration v1"
+          git push origin "HEAD:$GITHUB_REF_NAME"
