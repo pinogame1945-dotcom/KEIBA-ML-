@@ -1,0 +1,195 @@
+name: L1.5 Seven-King Tie Audit V1
+
+on:
+  push:
+    branches:
+      - research/l15-seven-king-tie-audit-v1-20260929
+    paths:
+      - .github/triggers/l15-seven-king-tie-audit-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-seven-king-tie-audit-v1
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and dependencies
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_l15_seven_king_ties_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Audit persisted seven-king scores
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/tie-audit"
+          result="research-results/l15-seven-king-tie-audit-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$root" "$result"
+
+          download_score() {
+            local ref="$1" dest="$2"
+            mkdir -p "$dest"
+            for attempt in 1 2 3 4 5; do
+              if kaggle datasets download "$ref" -p "$dest" --unzip --quiet --force; then
+                return 0
+              fi
+              sleep $((attempt*20))
+            done
+            return 1
+          }
+
+          for year in 2021 2022 2023 2024 2025; do
+            yroot="$root/y$year"
+            mkdir -p "$yroot/scores" "$yroot/snapshot"
+            args=()
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="$yroot/scores/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$year-v1"
+              download_score "$ref" "$d"
+              p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--score "$alias=$p")
+              sleep 3
+            done
+
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$year" "$yroot/snapshot"
+            if [[ -s "$yroot/snapshot/snapshot-$year.jsonl" ]]; then snap="$yroot/snapshot/snapshot-$year.jsonl"
+            elif [[ -s "$yroot/snapshot/snapshot-$year.jsonl.gz" ]]; then snap="$yroot/snapshot/snapshot-$year.jsonl.gz"
+            else echo "::error::snapshot missing year=$year"; exit 1; fi
+
+            python research/audit_l15_seven_king_ties_v1.py               --year "$year"               --snapshot "$snap"               "${args[@]}"               --out-dir "$result/y$year"
+
+            rm -rf "$yroot"
+            sleep 5
+          done
+
+      - name: Aggregate audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l15-seven-king-tie-audit-v1/run-$GITHUB_RUN_ID"
+          RESULT="$result" python - <<'PY'
+          import json,os
+          from pathlib import Path
+
+          root=Path(os.environ["RESULT"])
+          rows=[]
+          for p in sorted(root.glob("y*/summary.json")):
+              rows.append(json.loads(p.read_text(encoding="utf-8")))
+          if len(rows)!=5:
+              raise SystemExit(f"expected 5 yearly summaries, got {len(rows)}")
+
+          aliases=list(rows[0]["kings"])
+          out={
+              "contract":"L15_SEVEN_KING_TIE_AUDIT_ALL_YEARS_V1",
+              "years":[x["year"] for x in rows],
+              "races":sum(x["races"] for x in rows),
+              "kings":{},
+              "seven":{},
+              "tie_breaker":"raw_margin_logit desc, then horse_id asc",
+              "old_tie_breaker":"pandas rank(method=first)",
+              "2026_sealed":True,
+          }
+          total=out["races"]
+          for alias in aliases:
+              k={"races":total,"any_tie_races":sum(x["kings"][alias]["any_tie_races"] for x in rows),"topn":{}}
+              k["any_tie_rate"]=k["any_tie_races"]/total
+              for n in ("1","3","6"):
+                  keys=("boundary_tie_races","topn_set_changed_races","old_capture","safe_capture","old_only_hits","safe_only_hits")
+                  q={key:sum(x["kings"][alias]["topn"][n][key] for x in rows) for key in keys}
+                  for key in keys: q[key+"_rate"]=q[key]/total
+                  q["capture_delta"]=q["safe_capture"]-q["old_capture"]
+                  k["topn"][n]=q
+              out["kings"][alias]=k
+
+          seven_keys=("top6_union_changed_races","old_blind","safe_blind","old_blind_to_safe_hit","old_hit_to_safe_blind",
+                      "consensus_top1_changed_races","consensus_anchor_top2_changed_races")
+          s={"races":total}
+          for key in seven_keys:
+              s[key]=sum(x["seven"][key] for x in rows)
+              s[key+"_rate"]=s[key]/total
+          s["blind_delta"]=s["safe_blind"]-s["old_blind"]
+          out["seven"]=s
+          (root/"all-years-summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+
+          lines=[
+              "# L1.5 Seven-King Tie Audit V1","",
+              f"- Races: {total}",
+              "- Years: 2021-2025",
+              "- 2026: sealed",
+              "- No retraining; persisted horse-level scores only",
+              "- Safe tie-break: raw_margin_logit desc, horse_id asc",
+              "",
+              "## King-level Top6 impact","",
+              "| King | Any tie | Top6 boundary tie | Top6 set changed | Old capture | Safe capture | Delta |",
+              "|---|---:|---:|---:|---:|---:|---:|",
+          ]
+          for alias in aliases:
+              k=out["kings"][alias]; q=k["topn"]["6"]
+              lines.append(
+                  f"| {alias} | {k['any_tie_races']} ({k['any_tie_rate']:.2%}) | "
+                  f"{q['boundary_tie_races']} ({q['boundary_tie_races_rate']:.2%}) | "
+                  f"{q['topn_set_changed_races']} ({q['topn_set_changed_races_rate']:.2%}) | "
+                  f"{q['old_capture']} | {q['safe_capture']} | {q['capture_delta']:+d} |"
+              )
+          lines += [
+              "",
+              "## Seven-king union impact","",
+              f"- Top6 union changed races: {s['top6_union_changed_races']} ({s['top6_union_changed_races_rate']:.2%})",
+              f"- Old blind spots: {s['old_blind']}",
+              f"- Safe blind spots: {s['safe_blind']}",
+              f"- Blind-spot delta: {s['blind_delta']:+d}",
+              f"- Old blind -> safe hit: {s['old_blind_to_safe_hit']}",
+              f"- Old hit -> safe blind: {s['old_hit_to_safe_blind']}",
+              f"- Consensus Top1 changed: {s['consensus_top1_changed_races']} ({s['consensus_top1_changed_races_rate']:.2%})",
+              f"- Consensus anchor Top2 changed: {s['consensus_anchor_top2_changed_races']} ({s['consensus_anchor_top2_changed_races_rate']:.2%})",
+              "",
+              "This audit does not mutate fixed/l15-v1.",
+          ]
+          (root/"README.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
+          print("SEVEN_KING_TIE_AUDIT_AGGREGATED")
+          print(json.dumps(out["seven"],separators=(",",":")))
+          PY
+
+      - name: Commit compact audit ledger
+        run: |
+          set -euo pipefail
+          result="research-results/l15-seven-king-tie-audit-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$result"
+          git commit -m "research: archive seven-king tie audit run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact/Cache."
+          echo "No new Kaggle dataset/model storage."
+          echo "Existing persisted scores and snapshots are read-only."
+          echo "Only compact JSON/CSV/Markdown audit results are committed to git."
+          echo "2026 remains sealed."
