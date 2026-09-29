@@ -1,0 +1,154 @@
+name: L2 Normal Router V1
+
+on:
+  push:
+    branches:
+      - research/l2-normal-router-v1-20260929
+    paths:
+      - .github/triggers/l2-normal-router-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-normal-router-v1
+  cancel-in-progress: true
+
+jobs:
+  normal-router:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      FIXED_LEDGER_DIR: research-results/l15-fixed-v1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/build_l2_bet_kings_dataset_v1.py             research/run_l2_normal_router_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-normal-router-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_NORMAL_ROUTER_V1"
+          assert c["upstream"]["l15_sha"]=="2db82c3ca3cfab6cf35c33cdf7a70d9972eced04"
+          assert c["scope"]["battlefield"]=="PASS_SEVEN_ONLY"
+          assert c["scope"]["race_filtering"] is False
+          assert c["scope"]["force_route_every_normal_race"] is True
+          assert c["scope"]["locked_years"]==[2026]
+          assert c["target"]["outcome_or_market_allowed_as_feature"] is False
+          assert c["target"]["skip_class"] is False
+          assert c["walk_forward"]["development_selection_years"]==[2023,2024]
+          assert c["walk_forward"]["final_holdout_year"]==2025
+          assert c["promotion"] is False
+          p=Path(".github/workflows/l2-normal-router-v1.yml")
+          lines=p.read_text().splitlines()
+          runners=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"], runners
+          uses=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("uses:")]
+          forbidden=[u for u in uses if u.startswith("actions/cache") or u.startswith("actions/upload-artifact")]
+          assert not forbidden, forbidden
+          print("L2_NORMAL_ROUTER_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2022-2025 seven-king routers once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/l2-normal-router/router
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-normal-router/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve race dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-normal-router
+          python research/extract_l2_bet_kings_dates_v1.py             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --dates-out out/l2-normal-router/all-dates.txt             --race-dates-out out/l2-normal-router/all-race-dates.csv
+
+      - name: Sparse restore market packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout             https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            echo "/data/odds/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-normal-router/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build deterministic ticket dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/l2-normal-router/dataset
+          python research/build_l2_bet_kings_dataset_v1.py             --fixed-ledger-dir "$FIXED_LEDGER_DIR"             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --backfill-root out/backfill             --out-dir out/l2-normal-router/dataset
+
+      - name: Run forced normal router
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-normal-router-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_normal_router_v1.py             --contract contracts/l2-normal-router-v1.json             --fixed-ledger-dir "$FIXED_LEDGER_DIR"             --router-year "2022:$ROUTER_2022"             --router-year "2023:$ROUTER_2023"             --router-year "2024:$ROUTER_2024"             --router-year "2025:$ROUTER_2025"             --dataset-dir out/l2-normal-router/dataset             --out-dir "$result"
+          echo "===== ROUTER METRICS ====="
+          cat "$result/router-metrics.csv"
+          echo "===== DEVELOPMENT SELECTION ====="
+          cat "$result/development-selection.csv"
+          echo "===== MODEL QUALITY ====="
+          cat "$result/model-quality.csv"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache and no upload-artifact."
+          echo "Kaggle router datasets are read-only."
+          echo "BACKFILL is sparse-cloned read-only at a pinned commit."
+          echo "Large ticket datasets stay ephemeral on the runner."
+          echo "Only compact CSV/JSON/README and compressed route decisions are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact router results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-normal-router-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add             "$result/README.md"             "$result/summary.json"             "$result/model-quality.csv"             "$result/router-metrics.csv"             "$result/development-selection.csv"             "$result/class-distribution.csv"             "$result/route-decisions.csv.gz"
+          git commit -m "research: archive normal L2 router v1 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
