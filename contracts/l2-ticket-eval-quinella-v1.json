@@ -1,0 +1,81 @@
+{
+  "contract": "L2_TICKET_EVAL_QUINELLA_V1",
+  "purpose": "Separate pre-market ticket ranking from market-value filtering.",
+  "upstream": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+  "bet_type": "QUINELLA",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "locked_years": [
+    2026
+  ],
+  "stages": {
+    "A": {
+      "role": "rank every quinella ticket before seeing market price",
+      "rankers": [
+        "MODEL",
+        "L17_PRODUCT"
+      ],
+      "model_input_odds": false
+    },
+    "B": {
+      "role": "apply market value only inside Stage-A shortlist",
+      "shortlist_k": [
+        1,
+        3,
+        5,
+        10,
+        15
+      ],
+      "min_edge": [
+        0,
+        0.1,
+        0.2,
+        0.5,
+        1
+      ],
+      "max_tickets_per_race": [
+        1,
+        2,
+        3,
+        5
+      ],
+      "market_can_promote_outside_shortlist": false
+    }
+  },
+  "policy_selection": {
+    "development_only": true,
+    "minimum_execution_coverage_pct": 20,
+    "objective": "maximize development ROI; tie-break profit, lower drawdown, higher coverage"
+  },
+  "diagnostics": [
+    "pure ranking policies without market",
+    "holdout selected rank-pair distribution",
+    "holdout consensus-rank involvement"
+  ],
+  "invariants": {
+    "candidate_horse_selection": false,
+    "template_router": false,
+    "outsider_used": false,
+    "popularity_as_model_feature": false,
+    "odds_as_model_feature": false,
+    "payout_as_model_feature": false,
+    "finish_result_as_model_feature": false,
+    "holdout_used_for_policy_selection": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
