@@ -11,6 +11,13 @@ from run_l2_bet_kings_arena_v1 import (
 )
 
 WIN_TEMPLATES=("WIN_ALL_CANDIDATES","WIN_ANCHOR1","WIN_ANCHORS2")
+# Router Arena enumerates all 23 templates globally in sorted order.
+# WIN templates occupy indices 20, 21, 22 respectively.
+ROUTER_GLOBAL_TEMPLATE_INDEX={
+    "WIN_ALL_CANDIDATES":20,
+    "WIN_ANCHOR1":21,
+    "WIN_ANCHORS2":22,
+}
 EVAL_YEARS=(2024,2025)
 CF_THRESHOLDS=(-0.25,0.0,0.05,0.10,0.15,0.20)
 
@@ -53,7 +60,7 @@ def selected_map(path):
         out[(y,r["race_id"])]=r
     return out
 
-def predict_template(df,template_index):
+def predict_template(df,template):
     preds={}
     df["hit"]=df["hit"].astype(bool)
     df["odds"]=pd.to_numeric(df["odds"],errors="coerce")
@@ -69,8 +76,9 @@ def predict_template(df,template_index):
         yfit=fit["hit"].astype(int).to_numpy(); ycal=cal["hit"].astype(int).to_numpy()
         if len(set(yfit.tolist()))<2: continue
         xfit,(xcal,xtest)=encode_fit_other(fit,[cal,test],cols)
-        # exact seed parity with original WIN arena: bet_index=0
-        model=make_model(71000+template_index*100+year_index)
+        # Exact seed parity with L2 Router Arena V1.
+        ti=ROUTER_GLOBAL_TEMPLATE_INDEX[template]
+        model=make_model(91000+ti*100+year_index)
         model.fit(xfit,yfit)
         pcal=model.predict_proba(xcal)[:,1]
         ptest0=model.predict_proba(xtest)[:,1]
@@ -103,11 +111,10 @@ def main():
     smap=selected_map(a.selections)
     manifest=json.loads((Path(a.dataset_dir)/"manifest.json").read_text(encoding="utf-8"))
     details=[]; counter=[]
-    # keep original template_index ordering exactly as arena: sorted WIN templates
-    for ti,template in enumerate(sorted(WIN_TEMPLATES)):
+    for template in sorted(WIN_TEMPLATES):
         info=manifest["templates"][template]
         df=load_template(Path(a.dataset_dir)/info["file"])
-        pred_by_year=predict_template(df,ti)
+        pred_by_year=predict_template(df,template)
         for y in EVAL_YEARS:
             pred=pred_by_year.get(y)
             if pred is None: continue
