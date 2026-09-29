@@ -1,0 +1,384 @@
+{
+  "contract": "L15_7K_TOP10_EXPANSION_V1",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "ability_uses_odds": false,
+  "method": {
+    "old": "Each king contributes Top6; Borda points=7-rank; final consensus Top10.",
+    "new": "Each king contributes Top10; Borda points=11-rank; final consensus Top10.",
+    "union": "Union contains every horse appearing in any king TopN; not a final 10-horse betting set.",
+    "truth": "Official 1st-3rd from same-generation snapshot; dead heats accepted if any valid podium outcome is contained."
+  },
+  "overall": {
+    "races": 13824,
+    "old_top6_consensus_top10_hits": 8426,
+    "old_top6_union_hits": 8435,
+    "new_top10_consensus_top10_hits": 11228,
+    "new_top10_union_hits": 12473,
+    "new_top10_union_candidates_total": 152740,
+    "old_top6_union_candidates_total": 103926,
+    "king_top10": {
+      "core4": {
+        "hits": 11159,
+        "rate": 0.8072193287037037
+      },
+      "pedlegacy": {
+        "hits": 11129,
+        "rate": 0.8050491898148148
+      },
+      "condition": {
+        "hits": 11190,
+        "rate": 0.8094618055555556
+      },
+      "full": {
+        "hits": 11140,
+        "rate": 0.8058449074074074
+      },
+      "light": {
+        "hits": 11105,
+        "rate": 0.8033130787037037
+      },
+      "pedv1": {
+        "hits": 11141,
+        "rate": 0.8059172453703703
+      },
+      "condrc": {
+        "hits": 11182,
+        "rate": 0.8088831018518519
+      }
+    },
+    "old_top6_consensus_top10_rate": 0.6095196759259259,
+    "new_top10_consensus_top10_rate": 0.8122106481481481,
+    "old_top6_union_rate": 0.6101707175925926,
+    "new_top10_union_rate": 0.9022714120370371,
+    "old_top6_union_avg_candidates": 7.517795138888889,
+    "new_top10_union_avg_candidates": 11.048900462962964,
+    "consensus_top10_gain_pp": 20.26909722222222
+  },
+  "by_year": {
+    "2022": {
+      "races": 3456,
+      "old_hits": 2172,
+      "new_hits": 2824,
+      "old_union_hits": 2175,
+      "new_union_hits": 3162,
+      "old_union_candidates_total": 26373,
+      "new_union_candidates_total": 38460,
+      "king_top10": {
+        "core4": {
+          "hits": 2820,
+          "rate": 0.8159722222222222
+        },
+        "pedlegacy": {
+          "hits": 2788,
+          "rate": 0.8067129629629629
+        },
+        "condition": {
+          "hits": 2829,
+          "rate": 0.8185763888888888
+        },
+        "full": {
+          "hits": 2789,
+          "rate": 0.8070023148148148
+        },
+        "light": {
+          "hits": 2781,
+          "rate": 0.8046875
+        },
+        "pedv1": {
+          "hits": 2794,
+          "rate": 0.8084490740740741
+        },
+        "condrc": {
+          "hits": 2816,
+          "rate": 0.8148148148148148
+        }
+      },
+      "old_rate": 0.6284722222222222,
+      "new_rate": 0.8171296296296297,
+      "old_union_rate": 0.6293402777777778,
+      "new_union_rate": 0.9149305555555556,
+      "old_union_avg_candidates": 7.631076388888889,
+      "new_union_avg_candidates": 11.128472222222221
+    },
+    "2023": {
+      "races": 3456,
+      "old_hits": 2090,
+      "new_hits": 2820,
+      "old_union_hits": 2092,
+      "new_union_hits": 3113,
+      "old_union_candidates_total": 25947,
+      "new_union_candidates_total": 38262,
+      "king_top10": {
+        "core4": {
+          "hits": 2786,
+          "rate": 0.8061342592592593
+        },
+        "pedlegacy": {
+          "hits": 2797,
+          "rate": 0.8093171296296297
+        },
+        "condition": {
+          "hits": 2809,
+          "rate": 0.8127893518518519
+        },
+        "full": {
+          "hits": 2782,
+          "rate": 0.8049768518518519
+        },
+        "light": {
+          "hits": 2800,
+          "rate": 0.8101851851851852
+        },
+        "pedv1": {
+          "hits": 2769,
+          "rate": 0.8012152777777778
+        },
+        "condrc": {
+          "hits": 2803,
+          "rate": 0.8110532407407407
+        }
+      },
+      "old_rate": 0.6047453703703703,
+      "new_rate": 0.8159722222222222,
+      "old_union_rate": 0.6053240740740741,
+      "new_union_rate": 0.9007523148148148,
+      "old_union_avg_candidates": 7.5078125,
+      "new_union_avg_candidates": 11.071180555555555
+    },
+    "2024": {
+      "races": 3456,
+      "old_hits": 2085,
+      "new_hits": 2817,
+      "old_union_hits": 2086,
+      "new_union_hits": 3104,
+      "old_union_candidates_total": 25766,
+      "new_union_candidates_total": 37949,
+      "king_top10": {
+        "core4": {
+          "hits": 2813,
+          "rate": 0.8139467592592593
+        },
+        "pedlegacy": {
+          "hits": 2785,
+          "rate": 0.8058449074074074
+        },
+        "condition": {
+          "hits": 2801,
+          "rate": 0.8104745370370371
+        },
+        "full": {
+          "hits": 2816,
+          "rate": 0.8148148148148148
+        },
+        "light": {
+          "hits": 2770,
+          "rate": 0.8015046296296297
+        },
+        "pedv1": {
+          "hits": 2809,
+          "rate": 0.8127893518518519
+        },
+        "condrc": {
+          "hits": 2795,
+          "rate": 0.8087384259259259
+        }
+      },
+      "old_rate": 0.6032986111111112,
+      "new_rate": 0.8151041666666666,
+      "old_union_rate": 0.6035879629629629,
+      "new_union_rate": 0.8981481481481481,
+      "old_union_avg_candidates": 7.455439814814815,
+      "new_union_avg_candidates": 10.980613425925926
+    },
+    "2025": {
+      "races": 3456,
+      "old_hits": 2079,
+      "new_hits": 2767,
+      "old_union_hits": 2082,
+      "new_union_hits": 3094,
+      "old_union_candidates_total": 25840,
+      "new_union_candidates_total": 38069,
+      "king_top10": {
+        "core4": {
+          "hits": 2740,
+          "rate": 0.7928240740740741
+        },
+        "pedlegacy": {
+          "hits": 2759,
+          "rate": 0.7983217592592593
+        },
+        "condition": {
+          "hits": 2751,
+          "rate": 0.7960069444444444
+        },
+        "full": {
+          "hits": 2753,
+          "rate": 0.7965856481481481
+        },
+        "light": {
+          "hits": 2754,
+          "rate": 0.796875
+        },
+        "pedv1": {
+          "hits": 2769,
+          "rate": 0.8012152777777778
+        },
+        "condrc": {
+          "hits": 2768,
+          "rate": 0.8009259259259259
+        }
+      },
+      "old_rate": 0.6015625,
+      "new_rate": 0.8006365740740741,
+      "old_union_rate": 0.6024305555555556,
+      "new_union_rate": 0.8952546296296297,
+      "old_union_avg_candidates": 7.476851851851852,
+      "new_union_avg_candidates": 11.015335648148149
+    }
+  },
+  "by_field_size": {
+    "4": {
+      "races": 1,
+      "old_hits": 1,
+      "new_hits": 1,
+      "union_hits": 1,
+      "old_rate": 1.0,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "5": {
+      "races": 38,
+      "old_hits": 38,
+      "new_hits": 38,
+      "union_hits": 38,
+      "old_rate": 1.0,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "6": {
+      "races": 88,
+      "old_hits": 88,
+      "new_hits": 88,
+      "union_hits": 88,
+      "old_rate": 1.0,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "7": {
+      "races": 238,
+      "old_hits": 227,
+      "new_hits": 238,
+      "union_hits": 238,
+      "old_rate": 0.9537815126050421,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "8": {
+      "races": 457,
+      "old_hits": 408,
+      "new_hits": 457,
+      "union_hits": 457,
+      "old_rate": 0.8927789934354485,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "9": {
+      "races": 658,
+      "old_hits": 546,
+      "new_hits": 658,
+      "union_hits": 658,
+      "old_rate": 0.8297872340425532,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "10": {
+      "races": 835,
+      "old_hits": 619,
+      "new_hits": 835,
+      "union_hits": 835,
+      "old_rate": 0.7413173652694611,
+      "new_rate": 1.0,
+      "union_rate": 1.0
+    },
+    "11": {
+      "races": 967,
+      "old_hits": 675,
+      "new_hits": 923,
+      "union_hits": 951,
+      "old_rate": 0.6980351602895554,
+      "new_rate": 0.954498448810755,
+      "union_rate": 0.983453981385729
+    },
+    "12": {
+      "races": 1158,
+      "old_hits": 768,
+      "new_hits": 1040,
+      "union_hits": 1111,
+      "old_rate": 0.6632124352331606,
+      "new_rate": 0.8981001727115717,
+      "union_rate": 0.959412780656304
+    },
+    "13": {
+      "races": 1085,
+      "old_hits": 650,
+      "new_hits": 915,
+      "union_hits": 1018,
+      "old_rate": 0.5990783410138248,
+      "new_rate": 0.8433179723502304,
+      "union_rate": 0.9382488479262673
+    },
+    "14": {
+      "races": 1451,
+      "old_hits": 844,
+      "new_hits": 1136,
+      "union_hits": 1311,
+      "old_rate": 0.5816678152997933,
+      "new_rate": 0.7829083390764989,
+      "union_rate": 0.9035148173673329
+    },
+    "15": {
+      "races": 1548,
+      "old_hits": 816,
+      "new_hits": 1144,
+      "union_hits": 1342,
+      "old_rate": 0.5271317829457365,
+      "new_rate": 0.7390180878552972,
+      "union_rate": 0.8669250645994832
+    },
+    "16": {
+      "races": 4159,
+      "old_hits": 2195,
+      "new_hits": 3011,
+      "union_hits": 3516,
+      "old_rate": 0.5277710988218322,
+      "new_rate": 0.7239721086799712,
+      "union_rate": 0.8453955277710988
+    },
+    "17": {
+      "races": 283,
+      "old_hits": 136,
+      "new_hits": 190,
+      "union_hits": 232,
+      "old_rate": 0.48056537102473496,
+      "new_rate": 0.6713780918727915,
+      "union_rate": 0.8197879858657244
+    },
+    "18": {
+      "races": 858,
+      "old_hits": 415,
+      "new_hits": 554,
+      "union_hits": 677,
+      "old_rate": 0.4836829836829837,
+      "new_rate": 0.6456876456876457,
+      "union_rate": 0.789044289044289
+    }
+  }
+}
