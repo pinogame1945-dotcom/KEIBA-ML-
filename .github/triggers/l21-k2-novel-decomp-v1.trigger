@@ -1,0 +1,17 @@
+launch=2026-09-29T10:46:00+09:00
+experiment=L21-K2-NOVEL-DECOMP-V1
+upstream=L15_FIXED_V1
+market_gap_run=36508670081
+scope=k2-novel-5577
+development=2022,2023,2024
+holdout=2025
+locked_year=2026
+jackpot_concentration=true
+odds_buckets=true
+market_rank_buckets=true
+gate_score_buckets=true
+novel_position_buckets=true
+outsider_attribution=true
+kaggle_restore=false
+storage=git-small-ledger-only
+cost=standard-cpu-only
