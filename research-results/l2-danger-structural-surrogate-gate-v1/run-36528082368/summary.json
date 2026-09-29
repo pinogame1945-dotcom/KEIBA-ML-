@@ -1,0 +1,267 @@
+{
+  "contract": "L2_DANGER_STRUCTURAL_SURROGATE_GATE_V1",
+  "analysis_years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "ticket_rule": "For each selected danger race, buy A1->A2->every K2 novel and A2->A1->every K2 novel, 100 yen each.",
+  "target": "old_all_eligible is diagnostic training target only; no odds/missingness is an input feature.",
+  "models": {
+    "COHESION_EQUAL": "Fixed-sign equal-weight standardized structural cohesion score; no target fitting.",
+    "SURROGATE_LOGIT": "Logistic regression predicting old_all_eligible from pre-race structural features only."
+  },
+  "threshold_rule": "Test-year cutoff is computed from TRAIN score quantiles only; no test-year quantile or outcome tuning.",
+  "fractions": [
+    0.1,
+    0.2,
+    0.3,
+    0.4,
+    0.5
+  ],
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "train_races": 344,
+      "test_races": 346,
+      "train_positive_races": 67,
+      "test_positive_races": 65
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "train_races": 690,
+      "test_races": 342,
+      "train_positive_races": 132,
+      "test_positive_races": 70
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "train_races": 1032,
+      "test_races": 346,
+      "train_positive_races": 202,
+      "test_positive_races": 55
+    }
+  ],
+  "membership_quality": [
+    {
+      "model": "COHESION_EQUAL",
+      "test_year": 2023,
+      "races": 346,
+      "positive_races": 65,
+      "positive_rate_pct": 18.786127167630056,
+      "roc_auc": 0.6985491376950452,
+      "pr_auc": 0.3835399391362163
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "test_year": 2023,
+      "races": 346,
+      "positive_races": 65,
+      "positive_rate_pct": 18.786127167630056,
+      "roc_auc": 0.7260333972077744,
+      "pr_auc": 0.4414848905385561
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "test_year": 2024,
+      "races": 342,
+      "positive_races": 70,
+      "positive_rate_pct": 20.46783625730994,
+      "roc_auc": 0.6709033613445379,
+      "pr_auc": 0.39290662033619617
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "test_year": 2024,
+      "races": 342,
+      "positive_races": 70,
+      "positive_rate_pct": 20.46783625730994,
+      "roc_auc": 0.7154936974789916,
+      "pr_auc": 0.3772662379616708
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "test_year": 2025,
+      "races": 346,
+      "positive_races": 55,
+      "positive_rate_pct": 15.895953757225435,
+      "roc_auc": 0.6157450796626055,
+      "pr_auc": 0.2551895797037727
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "test_year": 2025,
+      "races": 346,
+      "positive_races": 55,
+      "positive_rate_pct": 15.895953757225435,
+      "roc_auc": 0.6967197750702905,
+      "pr_auc": 0.3183017056616153
+    }
+  ],
+  "stability": [
+    {
+      "model": "SURROGATE_LOGIT",
+      "target_train_top_fraction": 0.4,
+      "roi_2023": 158.16964285714286,
+      "roi_2024": 64.8489932885906,
+      "roi_2025": 61.69776119402985,
+      "min_year_roi_pct": 61.69776119402985,
+      "combined_roi_pct": 98.67516629711751,
+      "combined_profit_yen": -2390.0,
+      "selected_races": 299,
+      "min_selected_races": 88,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "target_train_top_fraction": 0.3,
+      "roi_2023": 152.2716346153846,
+      "roi_2024": 85.55555555555556,
+      "roi_2025": 48.20699708454811,
+      "min_year_roi_pct": 48.20699708454811,
+      "combined_roi_pct": 98.59511343804537,
+      "combined_profit_yen": -3220.0,
+      "selected_races": 315,
+      "min_selected_races": 91,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "target_train_top_fraction": 0.5,
+      "roi_2023": 141.3718820861678,
+      "roi_2024": 45.79383886255924,
+      "roi_2025": 38.81455399061033,
+      "min_year_roi_pct": 38.81455399061033,
+      "combined_roi_pct": 76.18696664080683,
+      "combined_profit_yen": -61390.0,
+      "selected_races": 407,
+      "min_selected_races": 130,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "target_train_top_fraction": 0.4,
+      "roi_2023": 132.14025500910748,
+      "roi_2024": 68.1275720164609,
+      "roi_2025": 33.81390593047035,
+      "min_year_roi_pct": 33.81390593047035,
+      "combined_roi_pct": 80.17716535433071,
+      "combined_profit_yen": -60420.0,
+      "selected_races": 410,
+      "min_selected_races": 126,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "target_train_top_fraction": 0.3,
+      "roi_2023": 210.0592885375494,
+      "roi_2024": 26.63594470046083,
+      "roi_2025": 97.26470588235294,
+      "min_year_roi_pct": 26.63594470046083,
+      "combined_roi_pct": 117.90625,
+      "combined_profit_yen": 22920.0,
+      "selected_races": 221,
+      "min_selected_races": 58,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "target_train_top_fraction": 0.5,
+      "roi_2023": 111.43625192012288,
+      "roi_2024": 110.39115646258503,
+      "roi_2025": 26.1216429699842,
+      "min_year_roi_pct": 26.1216429699842,
+      "combined_roi_pct": 82.25961538461539,
+      "combined_profit_yen": -66420.0,
+      "selected_races": 492,
+      "min_selected_races": 157,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "target_train_top_fraction": 0.1,
+      "roi_2023": 1130.7446808510638,
+      "roi_2024": 0.0,
+      "roi_2025": 0.0,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 425.16,
+      "combined_profit_yen": 81290.0,
+      "selected_races": 55,
+      "min_selected_races": 17,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 88.7759902154483,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "SURROGATE_LOGIT",
+      "target_train_top_fraction": 0.2,
+      "roi_2023": 338.5031847133758,
+      "roi_2024": 0.0,
+      "roi_2025": 187.89772727272728,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 195.18207282913164,
+      "combined_profit_yen": 67960.0,
+      "selected_races": 137,
+      "min_selected_races": 34,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "target_train_top_fraction": 0.1,
+      "roi_2023": 392.04,
+      "roi_2024": 0.0,
+      "roi_2025": 0.0,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 176.91335740072202,
+      "combined_profit_yen": 42610.0,
+      "selected_races": 90,
+      "min_selected_races": 23,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 96.27589021528415,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "COHESION_EQUAL",
+      "target_train_top_fraction": 0.2,
+      "roi_2023": 170.74912891986062,
+      "roi_2024": 26.036036036036037,
+      "roi_2025": 0.0,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 79.16907514450867,
+      "combined_profit_yen": -28830.0,
+      "selected_races": 202,
+      "min_selected_races": 51,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    }
+  ],
+  "interpretation_guard": "Diagnostic search only. Market-data completeness is not a production betting feature.",
+  "production_promotion": false
+}
