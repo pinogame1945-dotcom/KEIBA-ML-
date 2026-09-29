@@ -1,0 +1,141 @@
+name: L1.5 Seven-King Top10 Expansion V1
+
+on:
+  push:
+    branches:
+      - research/l15-podium-containment-v1-20260929
+    paths:
+      - .github/triggers/l15-7k-top10-expansion-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l15-7k-top10-expansion-v1
+  cancel-in-progress: true
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate and install Kaggle
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l15_7k_top10_expansion_v1.py
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore frozen horse-level scores and truth read-only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/top10exp/snapshot out/top10exp/scores
+
+          retry_file() {
+            local ref="$1" remote="$2" dst="$3"
+            local attempt delay tmp p
+            tmp="$dst.tmpdir"
+            for attempt in 1 2 3 4 5 6; do
+              rm -rf "$tmp"; mkdir -p "$tmp"
+              if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                p="$(find "$tmp" -type f ! -name log -print -quit)"
+                if [[ -n "$p" && -s "$p" ]]; then
+                  mkdir -p "$(dirname "$dst")"
+                  cp "$p" "$dst"
+                  rm -rf "$tmp"
+                  return 0
+                fi
+              fi
+              cat "$tmp/log" >&2 || true
+              if grep -Eqi '404|not found' "$tmp/log"; then
+                rm -rf "$tmp"
+                return 44
+              fi
+              if [[ "$attempt" -eq 6 ]]; then
+                rm -rf "$tmp"
+                return 1
+              fi
+              case "$attempt" in
+                1) delay=10 ;;
+                2) delay=20 ;;
+                3) delay=40 ;;
+                4) delay=60 ;;
+                *) delay=90 ;;
+              esac
+              echo "::warning::retry ref=$ref remote=$remote attempt=$attempt/6 sleep=${delay}s"
+              sleep "$delay"
+            done
+          }
+
+          restore_score() {
+            local ref="$1" dst="$2" rc
+            if retry_file "$ref" "score.jsonl.gz" "$dst/score.jsonl.gz"; then
+              return 0
+            fi
+            rc=$?
+            if [[ "$rc" -eq 44 ]]; then
+              retry_file "$ref" "score.jsonl" "$dst/score.jsonl"
+            else
+              return "$rc"
+            fi
+          }
+
+          for y in 2022 2023 2024 2025; do
+            bash scripts/kaggle-fetch-snapshot.sh "$GENERATION_ID" "$y" out/top10exp/snapshot
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              dst="out/top10exp/scores/$y/$alias"
+              mkdir -p "$dst"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              restore_score "$ref" "$dst"
+              echo "SCORE_RESTORED year=$y alias=$alias"
+              sleep 2
+            done
+          done
+
+      - name: Analyze Top10 expansion
+        run: |
+          set -euo pipefail
+          out="research-results/l15-7k-top10-expansion-v1/run-$GITHUB_RUN_ID"
+          python research/analyze_l15_7k_top10_expansion_v1.py \
+            --snapshot-root out/top10exp/snapshot \
+            --scores-root out/top10exp/scores \
+            --out-dir "$out"
+          cat "$out/summary.json"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Existing Kaggle score/snapshot inputs are read-only."
+          echo "No Kaggle Dataset/Model creation or update."
+          echo "Only small JSON/CSV summaries are committed to Git."
+          echo "2026 remains sealed; odds/popularity/payout are unused."
+
+      - name: Commit compact result
+        if: success()
+        run: |
+          set -euo pipefail
+          out="research-results/l15-7k-top10-expansion-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out/summary.json" "$out/king-top10.csv"
+          git commit -m "research: seven-king Top10 expansion run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
