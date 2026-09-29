@@ -168,6 +168,7 @@ jobs:
             "$result/rank-gap.csv" \
             "$result/signals.csv" \
             "$result/k2-novel-market-rank.csv" \
-            "$result/race-summary.csv"
+            "$result/race-summary.csv" \
+            "$result/excluded-races.csv"
           git commit -m "research: archive L2.1 Market Gap run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
