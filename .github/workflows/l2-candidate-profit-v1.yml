@@ -1,0 +1,169 @@
+name: L2 Candidate Profit V1
+
+on:
+  push:
+    branches:
+      - research/l2-candidate-profit-v1-20260929
+    paths:
+      - .github/triggers/l2-candidate-profit-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-candidate-profit-v1
+  cancel-in-progress: true
+
+jobs:
+  profit_test:
+    name: BASE-vs-K2-vs-K3-profit
+    runs-on: ubuntu-latest
+    timeout-minutes: 150
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      CANDIDATE_ROOT: research-results/l15-candidate-inflation-v1/run-36452274400
+
+    steps:
+      - name: Checkout L2 research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Syntax and cost-contract checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/extract_l2_gate_dates_v1.py \
+            research/build_l2_candidate_profit_dataset_v1.py \
+            research/train_l2_candidate_profit_v1.py
+          bash -n scripts/kaggle-fetch-router-years.sh
+          if grep -E "uses:[[:space:]]*actions/(upload-artifact|cache)" .github/workflows/l2-candidate-profit-v1.yml; then
+            echo "Artifact/Cache use is forbidden for this research run" >&2
+            exit 1
+          fi
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2022-2025 seven-king router snapshots once
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-fetch-router-years.sh "2022,2023,2024,2025" out/l2-profit/router
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-profit/router/$y" -type f \( -name 'router-7k.jsonl' -o -name 'router-7k.jsonl.gz' \) -print -quit)"
+            test -n "$p"
+            test -s "$p"
+            echo "ROUTER_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve Gate alert dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/extract_l2_gate_dates_v1.py \
+            --candidate-root "$CANDIDATE_ROOT" \
+            --router-year "2022:$ROUTER_2022" \
+            --router-year "2023:$ROUTER_2023" \
+            --router-year "2024:$ROUTER_2024" \
+            --router-year "2025:$ROUTER_2025" \
+            --dates-out out/l2-profit/gate-dates.txt \
+            --map-out out/l2-profit/gate-race-dates.csv
+
+      - name: Sparse restore only required BACKFILL market packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone \
+            --depth 1 \
+            --filter=blob:none \
+            --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            echo "/data/manifest.json"
+            echo "/data/odds/manifest.json"
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-profit/gate-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "BACKFILL_SPARSE_READY files=$(find out/backfill/data -type f | wc -l)"
+
+      - name: Build ticket-level BASE K2 K3 comparison dataset
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_candidate_profit_dataset_v1.py \
+            --candidate-root "$CANDIDATE_ROOT" \
+            --router-year "2022:$ROUTER_2022" \
+            --router-year "2023:$ROUTER_2023" \
+            --router-year "2024:$ROUTER_2024" \
+            --router-year "2025:$ROUTER_2025" \
+            --backfill-root out/backfill \
+            --output out/l2-profit/tickets.jsonl.gz \
+            --coverage-out out/l2-profit/coverage.json
+          cat out/l2-profit/coverage.json
+
+      - name: Walk-forward L2 edge and ROI test
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-candidate-profit-v1/run-$GITHUB_RUN_ID"
+          python research/train_l2_candidate_profit_v1.py \
+            --tickets out/l2-profit/tickets.jsonl.gz \
+            --coverage out/l2-profit/coverage.json \
+            --out-dir "$result"
+          cp out/l2-profit/coverage.json "$result/coverage.json"
+          cat "$result/comparison.csv"
+
+      - name: Research cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle router datasets are read-only."
+          echo "BACKFILL is sparse-cloned read-only at a pinned commit."
+          echo "No new Kaggle Dataset/Model persistence."
+          echo "Only compact CSV/JSON/README research summaries are committed."
+          echo "2026 sealed. PLACE excluded. L1/L1.5 odds remain forbidden."
+
+      - name: Commit compact L2 research ledger
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-candidate-profit-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/coverage.json" \
+            "$result/model-quality.csv" \
+            "$result/strategy-summary.csv" \
+            "$result/policy-summary.csv" \
+            "$result/comparison.csv"
+          git commit -m "research: archive L2 candidate profit run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
