@@ -86,8 +86,10 @@ def load_market(path):
             if not rid or not hid:
                 continue
             m = row.get("market_outcome") or {}
+            t = row.get("target") or {}
             pop = integer(m.get("final_popularity"))
             odds = finite(m.get("final_win_odds"))
+            finish = integer(t.get("finish_position"))
             if pop is None:
                 pop = integer(row.get("final_popularity"))
             if odds is None:
@@ -97,7 +99,7 @@ def load_market(path):
                 pop = integer(row.get("popularity"))
             if odds is None:
                 odds = finite(row.get("win_odds"))
-            market[(rid, hid)] = {"popularity": pop, "odds": odds}
+            market[(rid, hid)] = {"popularity": pop, "odds": odds, "finish": finish}
     return market
 
 def load_router(path):
@@ -195,6 +197,7 @@ def rank_summary(items):
         pops = [x["popularity"] for x in rows]
         odds = [x["odds"] for x in rows if x["odds"] is not None]
         gaps = [x["popularity"] - rank for x in rows]
+        finish_rows = [x for x in rows if x.get("finish") is not None]
         out.append({
             "consensus_rank": rank,
             "n": len(rows),
@@ -209,6 +212,10 @@ def rank_summary(items):
             "market_10plus_pct": pct(sum(1 for x in rows if x["popularity"] >= 10), len(rows)),
             "gap_mean_market_minus_consensus": safe_mean(gaps),
             "abs_gap_mean": safe_mean([abs(x) for x in gaps]),
+            "finish_known_n": len(finish_rows),
+            "win_pct": pct(sum(1 for x in finish_rows if x["finish"] == 1), len(finish_rows)),
+            "top3_pct": pct(sum(1 for x in finish_rows if x["finish"] <= 3), len(finish_rows)),
+            "top6_finish_pct": pct(sum(1 for x in finish_rows if x["finish"] <= 6), len(finish_rows)),
         })
     return out
 
@@ -252,6 +259,7 @@ def main():
                     "consensus_rank": rank,
                     "popularity": m.get("popularity"),
                     "odds": m.get("odds"),
+                    "finish": m.get("finish"),
                 }
                 year_rank_items.append(rec)
                 all_rank_items.append(rec)
