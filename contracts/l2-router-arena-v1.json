@@ -1,0 +1,238 @@
+{
+  "contract": "L2_ROUTER_ARENA_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "bet_kings_contract": "L2_BET_KINGS_ARENA_V1",
+    "bet_kings_run": 36506877464,
+    "market_gap_contract": "L21_MARKET_GAP_RESULT_V1",
+    "market_gap_run": 36508670081,
+    "k2_decomp_contract": "L21_K2_NOVEL_DECOMP_RESULT_V1",
+    "k2_decomp_run": 36509430674
+  },
+  "scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "expected_races_per_year": 3456,
+    "expected_total_races": 13824,
+    "expected_gate_alerts": 1384,
+    "place_bets": false,
+    "wide_bets": false,
+    "locked_years": [
+      2026
+    ]
+  },
+  "ticket_generation": {
+    "source": "Frozen 23 templates from L2_BET_KINGS_ARENA_V1",
+    "template_count": 23,
+    "edge_thresholds": [
+      0,
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "stake_yen_per_ticket": 100,
+    "one_action_per_race": true,
+    "action_definition": "template + edge threshold; buy every priced ticket in that template whose odds-free P(hit) * final_odds - 1 clears threshold"
+  },
+  "probability_model": {
+    "target": "ticket_hit",
+    "market_features_allowed": false,
+    "final_odds_join_stage": "after P(hit) prediction only",
+    "calibration": "chronological last 20% of each training window",
+    "folds": [
+      {
+        "test_year": 2023,
+        "train_years": [
+          2022
+        ]
+      },
+      {
+        "test_year": 2024,
+        "train_years": [
+          2022,
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2022,
+          2023,
+          2024
+        ]
+      }
+    ]
+  },
+  "strategy_ledger": {
+    "oos_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "action_features": [
+      "bet_type",
+      "template",
+      "edge_threshold",
+      "ticket_count",
+      "predicted_probability_mean",
+      "predicted_probability_min",
+      "predicted_probability_max",
+      "final_odds_mean",
+      "final_odds_min",
+      "final_odds_max",
+      "edge_mean",
+      "edge_min",
+      "edge_max",
+      "expected_roi",
+      "expected_profit_per_100_ticketscale",
+      "novel_ticket_share",
+      "gate_alert",
+      "gate_score"
+    ],
+    "market_gap_features": [
+      "seven_top1_market_rank",
+      "seven_top1_final_odds",
+      "market_favorite_seven_rank",
+      "market_favorite_in_seven_union",
+      "top1_agreement",
+      "top3_overlap_count",
+      "top3_jaccard",
+      "seven_market_spearman",
+      "k2_novel_count",
+      "k2_novel_rank7plus_count",
+      "k2_novel_50_100_count",
+      "k2_novel_odds_mean",
+      "k2_novel_market_rank_mean"
+    ],
+    "target_only_not_features": [
+      "actual_return_yen",
+      "actual_profit_yen",
+      "actual_roi_pct",
+      "actual_positive_profit",
+      "actual_hit"
+    ]
+  },
+  "router_walk_forward": {
+    "warmup_year": 2023,
+    "evaluation_folds": [
+      {
+        "test_year": 2024,
+        "router_train_years": [
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "router_train_years": [
+          2023,
+          2024
+        ]
+      }
+    ],
+    "development_evaluation_years": [
+      2024,
+      2025
+    ],
+    "note": "2025 is development evidence, not an untouched holdout. 2026 remains the only sealed final unknown period."
+  },
+  "routers": {
+    "SIMPLE_EXPECTED_ROI": {
+      "type": "deterministic",
+      "rule": "Choose available action with highest expected_roi if expected_roi > 1.0, otherwise SKIP.",
+      "tie_breakers": [
+        "higher expected_profit_per_100_ticketscale",
+        "fewer tickets",
+        "lexical action key"
+      ]
+    },
+    "STRATEGY_UTILITY": {
+      "type": "LightGBM binary classifier",
+      "target": "actual_positive_profit",
+      "rule": "Predict P(strategy profit > 0) for each candidate action; score = probability * expected_roi; choose best action only when probability >= 0.50, else SKIP."
+    },
+    "DIRECT_BET_TYPE": {
+      "type": "LightGBM multiclass",
+      "classes": [
+        "SKIP",
+        "WIN",
+        "QUINELLA",
+        "EXACTA",
+        "TRIO",
+        "TRIFECTA"
+      ],
+      "train_label": "SKIP when no candidate action has actual_roi_pct > 100; otherwise bet_type of the candidate with highest actual_roi_pct, tie by actual_profit then fewer tickets.",
+      "inference": "Predict bet type from race/market-gap and per-bet-type candidate summaries. If non-SKIP, choose highest expected_roi action within predicted bet type."
+    }
+  },
+  "evaluation": {
+    "stake": "100 yen per selected ticket; no L3 bankroll sizing",
+    "primary": [
+      "profit_yen",
+      "roi_pct",
+      "bought_races",
+      "bought_tickets",
+      "max_drawdown_yen",
+      "positive_race_rate",
+      "race_hit_rate"
+    ],
+    "concentration": [
+      "top1_return_share_pct",
+      "top3_return_share_pct",
+      "top5_return_share_pct",
+      "top10_return_share_pct",
+      "roi_zero_top1_pct",
+      "roi_zero_top3_pct",
+      "roi_zero_top5_pct"
+    ],
+    "diagnostics": [
+      "bet_type_mix",
+      "gate_vs_non_gate",
+      "k2_used_vs_not_used"
+    ]
+  },
+  "research_leader_selection": {
+    "qualification": {
+      "min_roi_pct_each_eval_year": 100,
+      "min_bought_races_each_eval_year": 100
+    },
+    "primary_objective": "maximum combined 2024-2025 profit among qualified routers",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "higher combined roi_zero_top1_pct",
+      "lower top5_return_share_pct",
+      "lower max_drawdown_yen"
+    ],
+    "no_qualified_router": "NO_QUALIFIED_ROUTER; keep diagnostics, do not force a winner.",
+    "promotion": "No production FIX. A research leader may be frozen only as a candidate. 2026 remains sealed for final validation."
+  },
+  "leakage_guards": {
+    "router_features_forbid": [
+      "actual_return_yen",
+      "actual_profit_yen",
+      "actual_roi_pct",
+      "actual_positive_profit",
+      "actual_hit",
+      "finish",
+      "winner",
+      "payout"
+    ],
+    "market_gap_allowed_at_router": true,
+    "l1_l15_market_inputs_forbidden": true
+  },
+  "cost": {
+    "runner": "ubuntu-latest standard CPU",
+    "gpu": false,
+    "artifact_cache": false,
+    "paid_storage": false,
+    "kaggle": "read-only restore only",
+    "outputs": "compact CSV/JSON/README ledgers committed to Git"
+  }
+}
