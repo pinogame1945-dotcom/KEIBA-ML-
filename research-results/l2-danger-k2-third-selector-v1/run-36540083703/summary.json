@@ -1,0 +1,255 @@
+{
+  "contract": "L2_DANGER_K2_THIRD_SELECTOR_V1",
+  "analysis_years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "base_ticket": "A1->A2->selected K2 and A2->A1->selected K2, 100 yen each.",
+  "target": "Per-K2 exact official third-place label.",
+  "policies": [
+    "ALL",
+    "TOP1",
+    "TOP2",
+    "NOVEL_ORDER_TOP1",
+    "NOVEL_ORDER_TOP2"
+  ],
+  "models": {
+    "STRUCT_THIRD": {
+      "market": false
+    },
+    "MARKET_THIRD": {
+      "market": true
+    }
+  },
+  "market_rule": "MARKET_THIRD uses final WIN odds proxy only. No trifecta odds, payouts, result fields, popularity, or odds missingness is an input.",
+  "market_caveat": "Historical final WIN odds proxy; live use requires pre-bet timestamp policy.",
+  "selection_rule": "Always buy each danger race; only K2 count changes. No buy/skip is mixed into this experiment.",
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "train_k2_rows": 1314,
+      "train_third_rows": 67,
+      "test_k2_rows": 1376,
+      "test_third_rows": 64,
+      "test_races": 346
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "train_k2_rows": 2690,
+      "train_third_rows": 131,
+      "test_k2_rows": 1435,
+      "test_third_rows": 72,
+      "test_races": 342
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "train_k2_rows": 4125,
+      "train_third_rows": 203,
+      "test_k2_rows": 1452,
+      "test_third_rows": 67,
+      "test_races": 346
+    }
+  ],
+  "quality": [
+    {
+      "model": "STRUCT_THIRD",
+      "test_year": 2023,
+      "train_k2_rows": 1314,
+      "train_third_rows": 67,
+      "test_k2_rows": 1376,
+      "test_third_rows": 64,
+      "roc_auc": 0.48592320884146345,
+      "pr_auc": 0.04383580333576598,
+      "feature_count_input": 26
+    },
+    {
+      "model": "MARKET_THIRD",
+      "test_year": 2023,
+      "train_k2_rows": 1314,
+      "train_third_rows": 67,
+      "test_k2_rows": 1376,
+      "test_third_rows": 64,
+      "roc_auc": 0.6259646532012195,
+      "pr_auc": 0.07213182192984595,
+      "feature_count_input": 36
+    },
+    {
+      "model": "STRUCT_THIRD",
+      "test_year": 2024,
+      "train_k2_rows": 2690,
+      "train_third_rows": 131,
+      "test_k2_rows": 1435,
+      "test_third_rows": 72,
+      "roc_auc": 0.5783912121953207,
+      "pr_auc": 0.0697463753843291,
+      "feature_count_input": 26
+    },
+    {
+      "model": "MARKET_THIRD",
+      "test_year": 2024,
+      "train_k2_rows": 2690,
+      "train_third_rows": 131,
+      "test_k2_rows": 1435,
+      "test_third_rows": 72,
+      "roc_auc": 0.6965537621260292,
+      "pr_auc": 0.10721773515304939,
+      "feature_count_input": 36
+    },
+    {
+      "model": "STRUCT_THIRD",
+      "test_year": 2025,
+      "train_k2_rows": 4125,
+      "train_third_rows": 203,
+      "test_k2_rows": 1452,
+      "test_third_rows": 67,
+      "roc_auc": 0.5262352497440594,
+      "pr_auc": 0.06985865536949193,
+      "feature_count_input": 26
+    },
+    {
+      "model": "MARKET_THIRD",
+      "test_year": 2025,
+      "train_k2_rows": 4125,
+      "train_third_rows": 203,
+      "test_k2_rows": 1452,
+      "test_third_rows": 67,
+      "roc_auc": 0.6749501589525297,
+      "pr_auc": 0.09159800397238435,
+      "feature_count_input": 36
+    }
+  ],
+  "stability": [
+    {
+      "model": "STRUCT_THIRD",
+      "policy": "TOP2",
+      "roi_2023": 118.98243045387994,
+      "roi_2024": 97.70029673590504,
+      "roi_2025": 110.58951965065502,
+      "min_year_roi_pct": 97.70029673590504,
+      "combined_roi_pct": 109.14383561643835,
+      "combined_profit_yen": 37380.0,
+      "combined_tickets": 4088,
+      "avg_tickets_per_race": 3.95357833655706,
+      "min_hit_retention_pct": 33.333333333333336,
+      "min_roi_without_top1_pct": 28.672106824925816,
+      "max_top1_return_share_pct": 70.65299924069856,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "BASELINE",
+      "policy": "ALL",
+      "roi_2023": 77.49273255813954,
+      "roi_2024": 171.17770034843207,
+      "roi_2025": 82.02823691460055,
+      "min_year_roi_pct": 77.49273255813954,
+      "combined_roi_pct": 110.57353976073188,
+      "combined_profit_yen": 90150.0,
+      "combined_tickets": 8526,
+      "avg_tickets_per_race": 8.245647969052225,
+      "min_hit_retention_pct": 100.0,
+      "min_roi_without_top1_pct": 43.20494186046512,
+      "max_top1_return_share_pct": 44.24645972052893,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "ORDER_CONTROL",
+      "policy": "NOVEL_ORDER_TOP2",
+      "roi_2023": 34.465592972181554,
+      "roi_2024": 258.80563798219583,
+      "roi_2025": 124.75254730713246,
+      "min_year_roi_pct": 34.465592972181554,
+      "combined_roi_pct": 138.7866927592955,
+      "combined_profit_yen": 158560.0,
+      "combined_tickets": 4088,
+      "avg_tickets_per_race": 3.95357833655706,
+      "min_hit_retention_pct": 33.333333333333336,
+      "min_roi_without_top1_pct": 13.469985358711567,
+      "max_top1_return_share_pct": 61.98870639493221,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "MARKET_THIRD",
+      "policy": "TOP1",
+      "roi_2023": 63.959537572254334,
+      "roi_2024": 60.58479532163743,
+      "roi_2025": 23.815028901734102,
+      "min_year_roi_pct": 23.815028901734102,
+      "combined_roi_pct": 49.4100580270793,
+      "combined_profit_yen": -104620.0,
+      "combined_tickets": 2068,
+      "avg_tickets_per_race": 2.0,
+      "min_hit_retention_pct": 22.22222222222222,
+      "min_roi_without_top1_pct": 9.653179190751445,
+      "max_top1_return_share_pct": 65.13030888030887,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "MARKET_THIRD",
+      "policy": "TOP2",
+      "roi_2023": 101.4787701317716,
+      "roi_2024": 136.38724035608308,
+      "roi_2025": 11.994177583697235,
+      "min_year_roi_pct": 11.994177583697235,
+      "combined_roi_pct": 82.91340508806262,
+      "combined_profit_yen": -69850.0,
+      "combined_tickets": 4088,
+      "avg_tickets_per_race": 3.95357833655706,
+      "min_hit_retention_pct": 33.333333333333336,
+      "min_roi_without_top1_pct": 4.861717612809316,
+      "max_top1_return_share_pct": 68.0709854277882,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "ORDER_CONTROL",
+      "policy": "NOVEL_ORDER_TOP1",
+      "roi_2023": 0.0,
+      "roi_2024": 448.6111111111111,
+      "roi_2025": 75.26011560693641,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 173.56382978723406,
+      "combined_profit_yen": 152130.0,
+      "combined_tickets": 2068,
+      "avg_tickets_per_race": 2.0,
+      "min_hit_retention_pct": 0.0,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    },
+    {
+      "model": "STRUCT_THIRD",
+      "policy": "TOP1",
+      "roi_2023": 153.59826589595374,
+      "roi_2024": 0.0,
+      "roi_2025": 23.815028901734102,
+      "min_year_roi_pct": 0.0,
+      "combined_roi_pct": 59.366537717601545,
+      "combined_profit_yen": -84030.0,
+      "combined_tickets": 2068,
+      "avg_tickets_per_race": 2.0,
+      "min_hit_retention_pct": 0.0,
+      "min_roi_without_top1_pct": 0.0,
+      "max_top1_return_share_pct": 100.0,
+      "all_years_roi_100plus": 0
+    }
+  ],
+  "counters": {
+    "result_status_dnf": 73,
+    "result_status_excluded": 39,
+    "result_status_scratched": 25,
+    "no_k2_races": 6
+  },
+  "production_promotion": false
+}
