@@ -1,4 +1,4 @@
-launch=2026-09-29T13:12:00+09:00
+launch=2026-09-29T13:24:00+09:00
 experiment=L2-WIN-EDGE-AUDIT-V1
 source_router_run=36511322402
 analysis_years=2024,2025
@@ -9,3 +9,4 @@ runner=ubuntu-latest
 gpu=false
 artifact_cache=false
 production_promotion=false
+relaunch_reason=exact-router-seed-parity-plus-win-only-fast-path
