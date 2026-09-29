@@ -1,0 +1,99 @@
+{
+  "contract": "L2_ORACLE_FUNNEL_RESULT_V1",
+  "source_loss_anatomy_run": 36518374493,
+  "source_loss_anatomy_commit": "8132d30d9175850441dea0ebc8a8ab32ac339e1d",
+  "analysis_years": [
+    2024,
+    2025
+  ],
+  "retrained_phit": false,
+  "rerun_router": false,
+  "restored_external_data": false,
+  "2026_locked": true,
+  "direct_combined_all": {
+    "router": "DIRECT_BET_TYPE",
+    "test_year": "2024-2025",
+    "bet_type": "ALL",
+    "segment": "ALL",
+    "selected_races": 4213,
+    "candidate_oracle_hits": 3255,
+    "candidate_oracle_rate_pct": 77.26085924519344,
+    "raw_template_oracle_hits": 1790,
+    "raw_template_rate_pct": 42.48753857108949,
+    "template_retention_given_candidate_pct": 54.99231950844854,
+    "purchased_action_hits": 301,
+    "purchased_action_hit_rate_pct": 7.144552575361975,
+    "edge_retention_given_template_pct": 16.81564245810056,
+    "positive_profit_races": 297,
+    "positive_profit_rate_pct": 7.049608355091384,
+    "profit_retention_given_hit_pct": 98.67109634551495,
+    "horse_selection_miss_races": 958,
+    "horse_selection_miss_pct": 22.739140754806552,
+    "template_miss_races": 1465,
+    "template_miss_pct": 34.773320674103964,
+    "edge_filter_miss_races": 1489,
+    "edge_filter_miss_pct": 35.34298599572751,
+    "hit_but_not_positive_races": 4,
+    "hit_but_not_positive_pct": 0.09494422027059103,
+    "l2_recoverable_miss_races": 2954,
+    "l2_recoverable_miss_pct": 70.11630666983147
+  },
+  "direct_bet_type_priority": [
+    {
+      "bet_type": "WIN",
+      "selected_races": 1255,
+      "candidate_oracle_rate_pct": 89.800796812749,
+      "raw_template_rate_pct": 79.44223107569721,
+      "purchased_action_hit_rate_pct": 12.98804780876494,
+      "horse_selection_miss_races": 128,
+      "template_miss_races": 130,
+      "edge_filter_miss_races": 834,
+      "l2_recoverable_miss_races": 964
+    },
+    {
+      "bet_type": "EXACTA",
+      "selected_races": 830,
+      "candidate_oracle_rate_pct": 77.2289156626506,
+      "raw_template_rate_pct": 20.96385542168675,
+      "purchased_action_hit_rate_pct": 3.253012048192771,
+      "horse_selection_miss_races": 189,
+      "template_miss_races": 467,
+      "edge_filter_miss_races": 147,
+      "l2_recoverable_miss_races": 614
+    },
+    {
+      "bet_type": "QUINELLA",
+      "selected_races": 664,
+      "candidate_oracle_rate_pct": 78.6144578313253,
+      "raw_template_rate_pct": 33.734939759036145,
+      "purchased_action_hit_rate_pct": 6.626506024096385,
+      "horse_selection_miss_races": 142,
+      "template_miss_races": 298,
+      "edge_filter_miss_races": 180,
+      "l2_recoverable_miss_races": 478
+    },
+    {
+      "bet_type": "TRIO",
+      "selected_races": 784,
+      "candidate_oracle_rate_pct": 66.45408163265306,
+      "raw_template_rate_pct": 37.755102040816325,
+      "purchased_action_hit_rate_pct": 5.86734693877551,
+      "horse_selection_miss_races": 263,
+      "template_miss_races": 225,
+      "edge_filter_miss_races": 250,
+      "l2_recoverable_miss_races": 475
+    },
+    {
+      "bet_type": "TRIFECTA",
+      "selected_races": 680,
+      "candidate_oracle_rate_pct": 65.29411764705883,
+      "raw_template_rate_pct": 14.558823529411764,
+      "purchased_action_hit_rate_pct": 3.088235294117647,
+      "horse_selection_miss_races": 236,
+      "template_miss_races": 345,
+      "edge_filter_miss_races": 78,
+      "l2_recoverable_miss_races": 423
+    }
+  ],
+  "interpretation_guard": "Oracle rates are hindsight feasibility diagnostics, not deployable hit rates or ROI estimates."
+}
