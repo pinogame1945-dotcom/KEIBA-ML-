@@ -1,0 +1,115 @@
+{
+  "contract": "L2_NORMAL_ROUTER_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_loss_anatomy_run": 36526102078,
+    "normal_structure_run": 36524917751
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "bet_types": [
+      "QUINELLA",
+      "EXACTA",
+      "TRIO",
+      "TRIFECTA"
+    ],
+    "place_bets": false
+  },
+  "target": {
+    "rule": "For each race choose the available fixed template with maximum realized race profit; if all templates lose, choose the least-loss template. This is a training label only.",
+    "uses_outcome_for_label": true,
+    "outcome_or_market_allowed_as_feature": false,
+    "skip_class": false
+  },
+  "architectures": [
+    {
+      "name": "DIRECT_TEMPLATE",
+      "description": "Predict one of the fixed templates directly."
+    },
+    {
+      "name": "HIERARCHICAL",
+      "description": "Predict bet type first, then predict the template within that bet type."
+    }
+  ],
+  "walk_forward": {
+    "folds": [
+      {
+        "test_year": 2023,
+        "train_years": [
+          2022
+        ]
+      },
+      {
+        "test_year": 2024,
+        "train_years": [
+          2022,
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2022,
+          2023,
+          2024
+        ]
+      }
+    ],
+    "development_selection_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "selection_rule": "Choose architecture using only combined 2023-2024 routed profit; 2025 is reported only after selection."
+  },
+  "features": {
+    "source": "Seven-King router pre-race structure only",
+    "allowed_market_features": false,
+    "forbidden": [
+      "odds",
+      "popularity",
+      "payout",
+      "return",
+      "profit",
+      "roi",
+      "hit",
+      "finish",
+      "winner",
+      "result"
+    ],
+    "race_metadata": true,
+    "consensus_disagreement": true,
+    "Seven_King_position_features": true
+  },
+  "evaluation": {
+    "primary": "100% race routing; no learned skip/filter in V1",
+    "diagnostics": [
+      "ROI",
+      "profit_yen",
+      "hit_rate",
+      "avg_tickets_per_race",
+      "max_drawdown",
+      "top1_return_share",
+      "top5_return_share",
+      "classification_accuracy",
+      "macro_f1"
+    ],
+    "fixed_baseline": "QUINELLA_KING_TOP4_BOX",
+    "oracle": "diagnostic only; realized best template per race"
+  },
+  "promotion": false
+}
