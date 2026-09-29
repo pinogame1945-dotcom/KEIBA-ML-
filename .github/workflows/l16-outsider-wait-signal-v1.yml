@@ -154,16 +154,16 @@ jobs:
               return {"n":n,"win":w,"podium":p,"win_rate":w/n if n else None,"podium_rate":p/n if n else None}
 
           exact={}
-          for rank in ["1","2","3"]:
+          for rank in ["1","2","3","4","5","6"]:
               exact[rank]={}
               for wait in map(str,range(6)):
                   exact[rank][wait]=sumstat([rows[y]["exact_king_rank_by_wait"][rank][wait] for y in years])
 
-          rankbase={r:sumstat([rows[y]["king_rank_baseline"][r] for y in years]) for r in ["1","2","3"]}
-          waitall={w:sumstat([rows[y]["wait_all_king_top3"][w] for y in years]) for w in map(str,range(6))}
+          rankbase={r:sumstat([rows[y]["king_rank_baseline"][r] for y in years]) for r in ["1","2","3","4","5","6"]}
+          waitall={w:sumstat([rows[y]["wait_all_king_top6_ranks_by_outsider_top3"][w] for y in years]) for w in map(str,range(6))}
           expected={}
           for w in map(str,range(6)):
-              n=sum(exact[r][w]["n"] for r in ["1","2","3"])
+              n=sum(exact[r][w]["n"] for r in ["1","2","3","4","5","6"])
               exp=sum(exact[r][w]["n"]*rankbase[r]["podium_rate"] for r in ["1","2","3"])/n if n else None
               actual=waitall[w]["podium_rate"]
               expected[w]={
