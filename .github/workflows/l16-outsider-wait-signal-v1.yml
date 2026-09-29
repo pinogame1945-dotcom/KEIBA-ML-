@@ -1,0 +1,195 @@
+name: L1.6 Outsider Wait Signal V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-wait-signal-v1-20260929
+    paths:
+      - .github/triggers/l16-outsider-wait-signal-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-wait-signal-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include:
+          - year: 2022
+            delay_seconds: 0
+          - year: 2023
+            delay_seconds: 25
+          - year: 2024
+            delay_seconds: 50
+          - year: 2025
+            delay_seconds: 75
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION_ID: eb13d4096519167b
+      OUTSIDER_RUN_ID: "36551650736"
+      START_DELAY_SECONDS: ${{ matrix.delay_seconds }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Setup
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_l16_full_rank_consensus_v1.py research/analyze_l16_outsider_wait_signal_v1.py
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [[ "$START_DELAY_SECONDS" -gt 0 ]]; then sleep "$START_DELAY_SECONDS"; fi
+          y="${{ matrix.year }}"
+          mkdir -p out/wait/snapshot out/wait/scores/$y
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" out/wait/snapshot
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" out/wait/snapshot "$y"
+
+          retry_score() {
+            alias="$1"
+            dst="out/wait/scores/$y/$alias"
+            ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+            mkdir -p "$dst"
+            for remote in score.jsonl.gz score.jsonl; do
+              for attempt in 1 2 3 4 5 6; do
+                tmp="$dst/tmp"; rm -rf "$tmp"; mkdir -p "$tmp"
+                if kaggle datasets download "$ref" -f "$remote" -p "$tmp" --unzip --quiet --force >"$tmp/log" 2>&1; then
+                  p="$(find "$tmp" -type f ! -name log -print -quit)"
+                  if [[ -n "$p" && -s "$p" ]]; then
+                    cp "$p" "$dst/$remote"; rm -rf "$tmp"; return 0
+                  fi
+                fi
+                if grep -Eqi '404|not found' "$tmp/log"; then break; fi
+                [[ "$attempt" -eq 6 ]] && break
+                sleep $((attempt*15))
+              done
+            done
+            return 1
+          }
+
+          for a in core4 pedlegacy condition full light pedv1 condrc; do
+            retry_score "$a"
+            sleep 2
+          done
+
+      - name: Analyze wait signal
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="${{ matrix.year }}"
+          score_path(){ a="$1"; [[ -s "out/wait/scores/$y/$a/score.jsonl.gz" ]] && echo "out/wait/scores/$y/$a/score.jsonl.gz" || echo "out/wait/scores/$y/$a/score.jsonl"; }
+          [[ -s "out/wait/snapshot/snapshot-$y.jsonl.gz" ]] && snap="out/wait/snapshot/snapshot-$y.jsonl.gz" || snap="out/wait/snapshot/snapshot-$y.jsonl"
+          mkdir -p out/wait/consensus "research-results/l16-outsider-wait-signal-v1/run-$GITHUB_RUN_ID"
+
+          python research/materialize_l16_full_rank_consensus_v1.py             --expert "core4=$(score_path core4)"             --expert "pedlegacy=$(score_path pedlegacy)"             --expert "condition=$(score_path condition)"             --expert "full=$(score_path full)"             --expert "light=$(score_path light)"             --expert "pedv1=$(score_path pedv1)"             --expert "condrc=$(score_path condrc)"             --output "out/wait/consensus/l16-$y.jsonl.gz"
+
+          outsider="research-results/l16-outsider-all-races-v1/run-$OUTSIDER_RUN_ID/y$y/outsider-all-topk.csv"
+          test -s "$outsider"
+
+          python research/analyze_l16_outsider_wait_signal_v1.py             --consensus "out/wait/consensus/l16-$y.jsonl.gz"             --snapshot "$snap"             --outsider-csv "$outsider"             --year "$y"             --output "research-results/l16-outsider-wait-signal-v1/run-$GITHUB_RUN_ID/y$y.json"
+
+      - name: Commit year
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          f="research-results/l16-outsider-wait-signal-v1/run-$GITHUB_RUN_ID/y${{ matrix.year }}.json"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$f"
+          git commit -m "research: outsider wait signal y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for i in 1 2 3 4 5; do
+            git push origin "HEAD:$GITHUB_REF_NAME" && exit 0
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    if: always()
+    needs: [year]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l16-outsider-wait-signal-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["ROOT"])
+          years=[2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in years}
+
+          def sumstat(items):
+              n=sum(x["n"] for x in items); w=sum(x["win"] for x in items); p=sum(x["podium"] for x in items)
+              return {"n":n,"win":w,"podium":p,"win_rate":w/n if n else None,"podium_rate":p/n if n else None}
+
+          exact={}
+          for rank in ["1","2","3"]:
+              exact[rank]={}
+              for wait in map(str,range(6)):
+                  exact[rank][wait]=sumstat([rows[y]["exact_king_rank_by_wait"][rank][wait] for y in years])
+
+          rankbase={r:sumstat([rows[y]["king_rank_baseline"][r] for y in years]) for r in ["1","2","3"]}
+          waitall={w:sumstat([rows[y]["wait_all_king_top3"][w] for y in years]) for w in map(str,range(6))}
+          expected={}
+          for w in map(str,range(6)):
+              n=sum(exact[r][w]["n"] for r in ["1","2","3"])
+              exp=sum(exact[r][w]["n"]*rankbase[r]["podium_rate"] for r in ["1","2","3"])/n if n else None
+              actual=waitall[w]["podium_rate"]
+              expected[w]={
+                "n":n,
+                "actual_podium_rate":actual,
+                "rank_only_expected_podium_rate":exp,
+                "delta_pp_vs_rank_only":(actual-exp)*100 if exp is not None and actual is not None else None
+              }
+
+          out={
+            "contract":"L16_OUTSIDER_WAIT_SIGNAL_V1",
+            "years":years,
+            "races":sum(rows[y]["races"] for y in years),
+            "includes_chimera":False,
+            "exact_king_rank_by_wait":exact,
+            "king_rank_baseline":rankbase,
+            "wait_all_king_top3":waitall,
+            "wait_vs_rank_only_expected":expected,
+            "by_year":rows
+          }
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate outsider wait signal run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
