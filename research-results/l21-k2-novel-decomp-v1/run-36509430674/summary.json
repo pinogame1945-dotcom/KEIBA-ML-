@@ -1,0 +1,87 @@
+{
+  "contract": "L21_K2_NOVEL_DECOMP_RESULT_V1",
+  "upstream": "L15_FIXED_V1",
+  "novel_horses": 5577,
+  "development_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_tuning": false,
+  "locked_years": [
+    2026
+  ],
+  "all_novel_dev": {
+    "bets": 4125,
+    "wins": 143,
+    "top3": 488,
+    "win_rate": 0.034666666666666665,
+    "top3_rate": 0.1183030303030303,
+    "avg_final_odds": 84.75621818181818,
+    "avg_market_rank": 10.879515151515152,
+    "avg_normalized_market_probability": 0.02437606291437376,
+    "win_rate_minus_market_probability_pp": 1.0290603752292904,
+    "stake_yen": 412500.0,
+    "return_yen": 479500.0,
+    "profit_yen": 67000.0,
+    "roi_pct": 116.24242424242425
+  },
+  "all_novel_holdout_2025": {
+    "bets": 1452,
+    "wins": 50,
+    "top3": 172,
+    "win_rate": 0.03443526170798898,
+    "top3_rate": 0.1184573002754821,
+    "avg_final_odds": 81.93918732782369,
+    "avg_market_rank": 10.920798898071626,
+    "avg_normalized_market_probability": 0.02587079692314173,
+    "win_rate_minus_market_probability_pp": 0.856446478484725,
+    "stake_yen": 145200.0,
+    "return_yen": 179980.0,
+    "profit_yen": 34780.0,
+    "roi_pct": 123.95316804407713
+  },
+  "market_rank_7plus_dev": {
+    "bets": 3635,
+    "wins": 91,
+    "top3": 321,
+    "win_rate": 0.025034387895460797,
+    "top3_rate": 0.08830811554332875,
+    "avg_final_odds": 94.56313617606602,
+    "avg_market_rank": 11.707840440165063,
+    "avg_normalized_market_probability": 0.016690554339122622,
+    "win_rate_minus_market_probability_pp": 0.8343833556338175,
+    "stake_yen": 363500.0,
+    "return_yen": 427830.0,
+    "profit_yen": 64330.0,
+    "roi_pct": 117.69738651994498
+  },
+  "market_rank_7plus_holdout_2025": {
+    "bets": 1268,
+    "wins": 30,
+    "top3": 115,
+    "win_rate": 0.02365930599369085,
+    "top3_rate": 0.09069400630914827,
+    "avg_final_odds": 92.19305993690853,
+    "avg_market_rank": 11.843848580441641,
+    "avg_normalized_market_probability": 0.017119745325073283,
+    "win_rate_minus_market_probability_pp": 0.6539560668617568,
+    "stake_yen": 126800.0,
+    "return_yen": 159280.0,
+    "profit_yen": 32480.0,
+    "roi_pct": 125.61514195583597
+  },
+  "concentration_removal_semantics": {
+    "drop_ticket": "Remove the highest-return winning ticket(s) entirely from both stake and return.",
+    "zero_return": "Keep all stake but set the selected highest-return winning ticket(s) return to zero."
+  },
+  "outputs": [
+    "novel-ledger.csv",
+    "bucket-summary.csv",
+    "outsider-source-set.csv",
+    "outsider-label-fractional.csv",
+    "concentration.csv",
+    "jackpot-winners.csv"
+  ]
+}
