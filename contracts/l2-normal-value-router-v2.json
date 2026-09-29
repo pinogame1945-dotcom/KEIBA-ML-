@@ -1,0 +1,88 @@
+{
+  "contract": "L2_NORMAL_VALUE_ROUTER_V2",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_router_v1_run": 36528381682,
+    "normal_loss_anatomy_run": 36526102078
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "bet_types": [
+      "QUINELLA",
+      "EXACTA",
+      "TRIO",
+      "TRIFECTA"
+    ],
+    "place_bets": false
+  },
+  "probability_model": {
+    "target": "ticket_hit",
+    "allowed_market_features": false,
+    "rule": "Estimate P(hit) from pre-race Seven-King/race structural features only. Odds/popularity/payout/result-derived inputs are forbidden."
+  },
+  "market_stage": {
+    "price": "NETKEIBA_FINAL",
+    "historical_proxy_caveat": "Final odds are used as a historical market-price proxy, not live timestamp simulation.",
+    "expected_return_formula": "sum(ticket_P_hit * ticket_final_odds * 100)",
+    "expected_roi_formula": "expected_return_yen / stake_yen * 100",
+    "expected_profit_formula": "expected_return_yen - stake_yen"
+  },
+  "architectures": [
+    {
+      "name": "MAX_EXPECTED_ROI",
+      "description": "Route each race to the available template with highest predicted expected ROI."
+    },
+    {
+      "name": "MAX_EXPECTED_PROFIT",
+      "description": "Route each race to the available template with highest predicted expected profit yen."
+    }
+  ],
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "primary": "maximum combined realized profit_yen on development years",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "lower summed max drawdown",
+      "fewer tickets"
+    ],
+    "holdout_used_for_selection": false
+  },
+  "evaluation": {
+    "forced_routing": true,
+    "no_skip_class": true,
+    "baselines": [
+      "QUINELLA_KING_TOP4_BOX",
+      "L2_NORMAL_ROUTER_V1_DIRECT_TEMPLATE"
+    ],
+    "oracle": "realized best template per race; diagnostic only",
+    "metrics": [
+      "ROI",
+      "profit_yen",
+      "hit_rate",
+      "avg_tickets_per_race",
+      "max_drawdown",
+      "top1_return_share",
+      "top5_return_share",
+      "route_coverage"
+    ]
+  },
+  "promotion": false
+}
