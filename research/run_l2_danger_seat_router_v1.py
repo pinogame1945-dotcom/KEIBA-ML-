@@ -23,6 +23,7 @@ YEARS=(2022,2023,2024,2025)
 TEST_YEARS=(2023,2024,2025)
 LOCKED_YEARS=(2026,)
 ACTIONS=("BASE","K2_SECOND")
+ACTION_PREFIX={"BASE":"base","K2_SECOND":"second"}
 OBJECTIVES=("EVENT","VALUE")
 FRACTIONS=(0.05,0.10,0.15,0.20,0.25,0.30,0.40,0.50)
 TICKET_PRICE=100.0
@@ -90,12 +91,19 @@ def make_model():
     )
     return Pipeline([("prep",prep),("clf",clf)])
 
+def action_prefix(action):
+    try:
+        return ACTION_PREFIX[action]
+    except KeyError as exc:
+        raise ValueError(f"unknown action: {action}") from exc
+
 def training_weights(frame,objective,action):
     w=np.ones(len(frame),dtype=float)
     if objective=="EVENT":
         return w
-    label=frame[f"{action.lower()}_profit_label"].astype(int).to_numpy()==1
-    rr=pd.to_numeric(frame[f"{action.lower()}_return_ratio"],errors="coerce").fillna(0.0).to_numpy(dtype=float)
+    p=action_prefix(action)
+    label=frame[f"{p}_profit_label"].astype(int).to_numpy()==1
+    rr=pd.to_numeric(frame[f"{p}_return_ratio"],errors="coerce").fillna(0.0).to_numpy(dtype=float)
     bonus=np.minimum(3.0,np.log1p(np.maximum(rr,0.0)))
     w[label]=1.0+bonus[label]
     return w
@@ -240,7 +248,7 @@ def build_rows(fixed,routers,root):
     return pd.DataFrame(rows),dict(counters)
 
 def action_view(frame,action):
-    p=action.lower()
+    p=action_prefix(action)
     out=frame.copy()
     out["stake_yen"]=out[f"{p}_stake_yen"]
     out["return_yen"]=out[f"{p}_return_yen"]
@@ -310,7 +318,7 @@ def choose_policy(test,percentiles,objective,frac,mode):
 
         if action is None:
             continue
-        p=action.lower()
+        p=action_prefix(action)
         rows.append({
             **r.to_dict(),
             "chosen_action":action,
@@ -321,7 +329,17 @@ def choose_policy(test,percentiles,objective,frac,mode):
             "profit_label":int(r[f"{p}_profit_label"]),
             "hit_label":int(r[f"{p}_hit_label"]),
         })
-    return pd.DataFrame(rows)
+    if rows:
+        return pd.DataFrame(rows)
+    out=test.iloc[0:0].copy()
+    out["chosen_action"]=pd.Series(dtype="object")
+    out["action_percentile"]=pd.Series(dtype="float64")
+    out["stake_yen"]=pd.Series(dtype="float64")
+    out["return_yen"]=pd.Series(dtype="float64")
+    out["profit_yen"]=pd.Series(dtype="float64")
+    out["profit_label"]=pd.Series(dtype="int64")
+    out["hit_label"]=pd.Series(dtype="int64")
+    return out
 
 def baseline_rows(test,action):
     v=action_view(test,action)
@@ -360,8 +378,9 @@ def main():
         percentiles={}
         for objective in OBJECTIVES:
             for action in ACTIONS:
-                ytr=train[f"{action.lower()}_profit_label"].astype(int)
-                yte=test[f"{action.lower()}_profit_label"].astype(int)
+                p=action_prefix(action)
+                ytr=train[f"{p}_profit_label"].astype(int)
+                yte=test[f"{p}_profit_label"].astype(int)
                 if ytr.nunique()<2:
                     raise SystemExit(f"single class action={action} objective={objective} test={test_year}")
                 model=make_model()
