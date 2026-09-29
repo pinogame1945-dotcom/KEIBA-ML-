@@ -2,3 +2,4 @@
 2026-09-29 retry with snapshot session
 2026-09-29 retry fixed snapshot session v2
 2026-09-29 retry dataset-ref fix
+2026-09-29 retry score fallback fix
