@@ -1,0 +1,10 @@
+launch=2026-09-29T13:06:00+09:00
+experiment=L2-COMBO-TEMPLATE-LAB-V1
+source_router_run=36511322402
+analysis_years=2024,2025
+bets=EXACTA,TRIFECTA
+locked_year=2026
+runner=ubuntu-latest
+gpu=false
+artifact_cache=false
+production_promotion=false
