@@ -22,7 +22,8 @@ def opent(path):
     return gzip.open(path,"rt",encoding="utf-8") if str(path).endswith(".gz") else open(path,"rt",encoding="utf-8")
 
 def load_truth(path):
-    out=defaultdict(dict)
+    groups=defaultdict(lambda:defaultdict(list))
+    positions=defaultdict(dict)
     with opent(path) as f:
         for line in f:
             if not line.strip(): continue
@@ -31,7 +32,22 @@ def load_truth(path):
             if not rid or not hid: continue
             try: pos=int(float((x.get("target") or {}).get("finish_position")))
             except Exception: continue
-            out[rid][hid]=pos
+            positions[rid][hid]=pos
+            if pos<=3:
+                groups[rid][pos].append(hid)
+    out={}
+    for rid,posmap in positions.items():
+        g=groups[rid]
+        pieces=[()]
+        for rank in sorted(g):
+            if rank>3: continue
+            hs=list(g[rank]); occupied=min(len(hs),3-rank+1)
+            perms=list(itertools.permutations(hs,occupied))
+            pieces=[a+b for a in pieces for b in perms]
+        outcomes=sorted(set(x for x in pieces if len(x)==3))
+        if not outcomes:
+            raise ValueError(f"truth outcomes missing {rid}")
+        out[rid]={"positions":posmap,"outcomes":outcomes}
     return out
 
 def load_cons(path):
@@ -63,12 +79,14 @@ def metric():
 def upd(m,sel,truth):
     m["races"]+=1
     m["selected_total"]+=len(sel)
-    podium={h for h,p in truth.items() if p<=3}
-    winner={h for h,p in truth.items() if p==1}
+    positions=truth["positions"]
+    podium={h for h,p in positions.items() if p<=3}
+    winner={h for h,p in positions.items() if p==1}
+    selected=set(sel)
     m["podium_occ_total"]+=len(podium)
-    m["podium_occ_hits"]+=len(podium & set(sel))
-    if podium and podium.issubset(set(sel)): m["full_podium_hits"]+=1
-    if winner & set(sel): m["winner_hits"]+=1
+    m["podium_occ_hits"]+=len(podium & selected)
+    if any(set(o).issubset(selected) for o in truth["outcomes"]): m["full_podium_hits"]+=1
+    if winner & selected: m["winner_hits"]+=1
 
 def fin(m):
     r=m["races"]
@@ -142,7 +160,7 @@ def main():
                 nm=policy_name(a3,b6,t)
                 upd(metrics[(nm,n)],choose_weighted(rr,outs,rid,n,a3,b6,t),tr)
 
-    out={"contract":"L16_OUTSIDER_FIXEDN_RERANK_V1","year":a.year,"races":len(ranks),"includes_chimera":False,"n_values":NS,"policies":{}}
+    out={"contract":"L16_OUTSIDER_FIXEDN_RERANK_V1","year":a.year,"races":len(ranks),"includes_chimera":False,"truth_semantics":"official_l16_dead_heat_outcomes","n_values":NS,"policies":{}}
     for (p,n),m in metrics.items():
         out["policies"].setdefault(p,{})[str(n)]=fin(m)
 
