@@ -1,0 +1,72 @@
+{
+  "contract": "L2_L17_FULLFIELD_AB_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "purpose": "Measure the effect of replacing the normal L2 Top6/Seven-union view with leak-safe L1.7 full-field Seven-King consensus while keeping the Direct Template router and template family concept fixed.",
+  "upstream": {
+    "l17_contract": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+    "l17_branch": "research/l17-seven-king-fullfield-v1-20260929",
+    "l17_smoke_run": 36583135148,
+    "normal_router_v1_run": 36528381682,
+    "fixed_l15_contract": "L15_FIXED_V1"
+  },
+  "arms": {
+    "OLD_V1": {
+      "feature_source": "existing Seven-King router summary/top6-position features",
+      "ticket_candidate_source": "existing Seven-King union candidates",
+      "model": "DIRECT_TEMPLATE",
+      "template_family": "same 14 normal templates"
+    },
+    "L17_FULLFIELD": {
+      "feature_source": "L1.7 full-field consensus plus all seven expert ranks/probabilities for every runner",
+      "ticket_candidate_source": "all runners ordered by L1.7 consensus",
+      "model": "DIRECT_TEMPLATE",
+      "template_family": "same 14 normal templates, applied to the full-field consensus/candidate list"
+    }
+  },
+  "invariants": {
+    "odds_as_model_feature": false,
+    "popularity_as_model_feature": false,
+    "payout_as_model_feature": false,
+    "result_as_model_feature": false,
+    "outsider_used": false,
+    "gate_used_in_l17": false,
+    "race_filtering": false,
+    "skip_class": false,
+    "force_route_every_normal_race": true,
+    "same_direct_template_hyperparameters": true,
+    "same_walk_forward_years": true
+  },
+  "evaluation": {
+    "years": [
+      2023,
+      2024,
+      2025
+    ],
+    "development_years": [
+      2023,
+      2024
+    ],
+    "holdout_year": 2025,
+    "primary_metrics": [
+      "roi_pct",
+      "profit_yen",
+      "hit_rate",
+      "avg_tickets_per_race",
+      "max_drawdown_yen"
+    ],
+    "candidate_impossibility_diagnostic": true,
+    "promotion": false
+  },
+  "locked_years": [
+    2026
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "kaggle_existing_datasets_read_only": true,
+    "persistent_kaggle_upload": false
+  }
+}
