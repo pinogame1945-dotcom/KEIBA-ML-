@@ -1,0 +1,11 @@
+launch=2026-09-29T12:55:00+09:00
+experiment=L2-ORACLE-FUNNEL-V1
+source_loss_anatomy_run=36518374493
+analysis_years=2024,2025
+retrain_phit=false
+rerun_router=false
+restore_external_data=false
+locked_year=2026
+runner=ubuntu-latest
+artifact_cache=false
+gpu=false
