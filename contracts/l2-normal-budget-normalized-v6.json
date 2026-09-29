@@ -1,0 +1,74 @@
+{
+  "contract": "L2_NORMAL_BUDGET_NORMALIZED_V6",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_router_v1_run": 36528381682,
+    "confidence_override_v5_run": 36543887770
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "skip_class": false
+  },
+  "normalization": {
+    "rule": "Each executed race receives exactly 1.0 research budget unit regardless of ticket count.",
+    "normalized_return_units": "realized return_yen / realized stake_yen",
+    "normalized_profit_units": "normalized_return_units - 1.0",
+    "note": "Research normalization only; fractional per-ticket stakes are not a production staking recommendation."
+  },
+  "candidates": {
+    "base": "V1_NO_OVERRIDE",
+    "override_shortlists": [
+      2,
+      3
+    ],
+    "threshold_grid": [
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "pairwise_allowed_market_features": false
+  },
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "primary": "maximum summed normalized_profit_units on development years",
+    "tie_breakers": [
+      "higher minimum yearly normalized ROI",
+      "lower summed normalized max drawdown",
+      "fewer overrides",
+      "fewer tickets"
+    ],
+    "raw_profit_not_used_for_selection": true,
+    "holdout_used_for_selection": false
+  },
+  "evaluation": {
+    "retain_raw_metrics": true,
+    "retain_normalized_metrics": true,
+    "production_promotion": false
+  },
+  "promotion": false
+}
