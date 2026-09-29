@@ -8,6 +8,7 @@ NS=[3,4,5,6]
 A3=[0.0,0.5,1.0,1.5,2.0,3.0]
 B6=[0.0,0.25,0.5,1.0,1.5]
 PROMOTE_MIN=[0,2,3]
+EXPECTED_BASELINE={2022:{3:246,4:608,5:1028,6:1499},2023:{3:233,4:606,5:1013,6:1469},2024:{3:223,4:610,5:1067,6:1514},2025:{3:232,4:642,5:1067,6:1492}}
 
 def ap():
     p=argparse.ArgumentParser()
@@ -160,7 +161,13 @@ def main():
                 nm=policy_name(a3,b6,t)
                 upd(metrics[(nm,n)],choose_weighted(rr,outs,rid,n,a3,b6,t),tr)
 
-    out={"contract":"L16_OUTSIDER_FIXEDN_RERANK_V1","year":a.year,"races":len(ranks),"includes_chimera":False,"truth_semantics":"official_l16_dead_heat_outcomes","n_values":NS,"policies":{}}
+    for n in NS:
+        got=metrics[("king_baseline",n)]["full_podium_hits"]
+        exp=EXPECTED_BASELINE[a.year][n]
+        if got!=exp:
+            raise ValueError(f"baseline regression year={a.year} top{n}: got={got} expected={exp}")
+
+    out={"contract":"L16_OUTSIDER_FIXEDN_RERANK_V1","year":a.year,"races":len(ranks),"includes_chimera":False,"truth_semantics":"official_l16_dead_heat_outcomes","baseline_regression":"PASS","n_values":NS,"policies":{}}
     for (p,n),m in metrics.items():
         out["policies"].setdefault(p,{})[str(n)]=fin(m)
 
