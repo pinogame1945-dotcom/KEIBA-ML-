@@ -13,6 +13,7 @@ from pathlib import Path
 import lightgbm as lgb
 import numpy as np
 import pandas as pd
+from rank_utils import RANK_TIE_POLICY, deterministic_ranks, tie_diagnostics
 from sklearn.metrics import brier_score_loss, log_loss, roc_auc_score
 
 EXPECTED_DATASET_VERSION = 3
@@ -512,7 +513,16 @@ def predictions(frame, raw):
     sums = out.groupby("_race_id")["p"].transform("sum")
     sizes = out.groupby("_race_id")["p"].transform("size")
     out["pn"] = np.where(sums > 0, out["p"] / sums, 1.0 / sizes)
-    out["rank"] = out.groupby("_race_id")["p"].rank(method="first", ascending=False).astype(int)
+
+    ranks = np.empty(len(out), dtype=int)
+    for _race_id, positions in out.groupby("_race_id", sort=False).indices.items():
+        pos = list(positions)
+        scores = out.iloc[pos]["p"].tolist()
+        horse_ids = out.iloc[pos]["_horse_id"].astype(str).tolist()
+        local = deterministic_ranks(scores, horse_ids)
+        for i, global_pos in enumerate(pos):
+            ranks[global_pos] = int(local[i])
+    out["rank"] = ranks
     return out
 
 def metrics(pred, y, raw):
