@@ -1,0 +1,61 @@
+{
+  "contract": "L2_NORMAL_PAIRWISE_ROUTER_V4",
+  "status": "RESEARCH",
+  "created_at": "2026-09-29",
+  "upstream": {
+    "l15_contract": "L15_FIXED_V1",
+    "l15_sha": "2db82c3ca3cfab6cf35c33cdf7a70d9972eced04",
+    "normal_router_v1_run": 36528381682,
+    "normal_quality_router_v3_run": 36537521625
+  },
+  "scope": {
+    "battlefield": "PASS_SEVEN_ONLY",
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "race_filtering": false,
+    "force_route_every_normal_race": true,
+    "skip_class": false
+  },
+  "stage1": {
+    "model": "V1 DIRECT_TEMPLATE multiclass",
+    "output": "ranked template shortlist with probabilities",
+    "immutable_direction": true
+  },
+  "pairwise": {
+    "target": "which of two templates has higher realized race profit; ties prefer lower stake/tickets then lexical",
+    "features": [
+      "pre-race Seven-King/race structure",
+      "template A/B identity",
+      "deterministic ticket counts"
+    ],
+    "allowed_market_features": false,
+    "candidates": "only V1 Top2 or Top3"
+  },
+  "architectures": [
+    "V1_TOP1",
+    "TOP2_PAIRWISE",
+    "TOP3_PAIRWISE"
+  ],
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "final_holdout_year": 2025,
+    "primary": "maximum combined realized profit_yen",
+    "tie_breakers": [
+      "higher minimum yearly ROI",
+      "lower summed max drawdown",
+      "fewer tickets"
+    ],
+    "holdout_used_for_selection": false
+  },
+  "promotion": false
+}
