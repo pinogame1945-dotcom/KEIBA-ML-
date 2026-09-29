@@ -1,0 +1,11 @@
+launch=2026-09-29T13:12:00+09:00
+experiment=L2-WIN-EDGE-AUDIT-V1
+source_router_run=36511322402
+analysis_years=2024,2025
+rebuild_templates=WIN_ONLY
+phit_market_features=false
+locked_year=2026
+runner=ubuntu-latest
+gpu=false
+artifact_cache=false
+production_promotion=false
