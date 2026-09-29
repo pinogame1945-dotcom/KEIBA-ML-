@@ -1,0 +1,73 @@
+{
+  "contract": "L2_TICKET_EVAL_QUINELLA_V0",
+  "purpose": "Rebuild L2 as direct ticket-level evaluation using every priced quinella pair from the L1.7 full field.",
+  "upstream": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+  "bet_type": "QUINELLA",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "locked_years": [
+    2026
+  ],
+  "architecture": {
+    "candidate_horse_selection": false,
+    "template_router": false,
+    "all_runners_considered": true,
+    "target": "quinella_ticket_hit",
+    "model": "LightGBM binary classifier",
+    "market_edge_formula": "predicted_hit_probability * final_odds - 1",
+    "stake_per_ticket_yen": 100
+  },
+  "invariants": {
+    "odds_as_model_feature": false,
+    "popularity_as_model_feature": false,
+    "payout_as_model_feature": false,
+    "finish_result_as_model_feature": false,
+    "outsider_used": false,
+    "holdout_used_for_policy_selection": false
+  },
+  "policy_search": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "min_edge": [
+      0,
+      0.05,
+      0.1,
+      0.2,
+      0.3,
+      0.5,
+      0.75,
+      1
+    ],
+    "max_tickets_per_race": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "min_execution_coverage_pct": 20,
+    "objective": "maximize development profit; tie-break ROI, drawdown, ticket count"
+  },
+  "baselines": [
+    "TOP4_BOX",
+    "TOP1_TO6",
+    "TOP6_BOX"
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
