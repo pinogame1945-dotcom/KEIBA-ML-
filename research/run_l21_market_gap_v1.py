@@ -376,6 +376,7 @@ def main():
         "spearman_sum":0.0,"spearman_n":0,"ai_top1_market_rank_sum":0.0,
     })
     race_rows=[]
+    excluded_rows=[]
     coverage=defaultdict(int)
     backfill=Path(a.backfill_root)
 
@@ -419,6 +420,14 @@ def main():
             market.sort(key=lambda x:(x[0],x[1]))
             if len(market)<3:
                 coverage["market_lt3"]+=1
+                excluded_rows.append({
+                    "year":year,
+                    "race_id":rid,
+                    "race_date":date,
+                    "gate_alert":gate_alert,
+                    "reason":"MARKET_LT3_FINAL_WIN_ODDS",
+                    "valid_final_win_odds_horses":len(market),
+                })
                 continue
             market_rank={hid:i+1 for i,(_,_,hid) in enumerate(market)}
             market_odds={hid:odds for odds,_,hid in market}
@@ -572,11 +581,15 @@ def main():
             })
             coverage["races_processed"]+=1
 
-    if coverage["races_processed"]!=EXPECTED_TOTAL:
+    accounted=coverage["races_processed"]+len(excluded_rows)
+    if accounted!=EXPECTED_TOTAL:
         raise SystemExit(
-            f"race coverage regression: {coverage['races_processed']} != {EXPECTED_TOTAL}; "
+            f"race coverage accounting regression: processed={coverage['races_processed']} "
+            f"excluded={len(excluded_rows)} total={accounted} expected={EXPECTED_TOTAL}; "
             f"coverage={dict(coverage)}"
         )
+    if len(excluded_rows)>10:
+        raise SystemExit(f"too many Market Gap exclusions: {len(excluded_rows)}")
 
     overview_rows=[]
     for (period,segment),s in sorted(overview.items()):
@@ -601,11 +614,14 @@ def main():
     write_csv(out/"signals.csv",finalize_horse_agg(signal_agg,"PREREGISTERED_SIGNAL"))
     write_csv(out/"k2-novel-market-rank.csv",finalize_horse_agg(novel_agg,"K2_NOVEL_BY_MARKET_RANK"))
     write_csv(out/"race-summary.csv",race_rows)
+    write_csv(out/"excluded-races.csv",excluded_rows)
 
     summary={
         "contract":"L21_MARKET_GAP_RESULT_V1",
         "upstream":"L15_FIXED_V1",
-        "races":coverage["races_processed"],
+        "expected_races":EXPECTED_TOTAL,
+        "market_eligible_races":coverage["races_processed"],
+        "excluded_races":len(excluded_rows),
         "gate_alerts":EXPECTED_ALERTS,
         "development_years":sorted(DEV_YEARS),
         "holdout_year":HOLDOUT_YEAR,
@@ -618,7 +634,8 @@ def main():
         "coverage":dict(coverage),
         "outputs":[
             "overview.csv","ai-top1-market-rank.csv","market-favorite-ai-rank.csv",
-            "rank-gap.csv","signals.csv","k2-novel-market-rank.csv","race-summary.csv"
+            "rank-gap.csv","signals.csv","k2-novel-market-rank.csv","race-summary.csv",
+            "excluded-races.csv"
         ],
     }
     (out/"summary.json").write_text(
@@ -637,13 +654,15 @@ def main():
         "- rank-gap.csv: all Seven-union horses grouped by AI-vs-market rank gap\n"
         "- signals.csv: preregistered treasure/danger signal summaries\n"
         "- k2-novel-market-rank.csv: K2 novel horses versus market rank\n"
-        "- race-summary.csv: compact per-race audit ledger\n\n"
+        "- race-summary.csv: compact per-race audit ledger\n"
+        "- excluded-races.csv: races excluded only because usable final WIN market had fewer than 3 horses\n\n"
         "No Market Gap feature is promoted to Bet Router by this run.\n",
         encoding="utf-8",
     )
     print("L21_MARKET_GAP_V1_READY")
     print(json.dumps({
-        "races":coverage["races_processed"],
+        "market_eligible_races":coverage["races_processed"],
+        "excluded_races":len(excluded_rows),
         "gate_alerts":EXPECTED_ALERTS,
         "race_rows":len(race_rows),
         "out_dir":str(out),
