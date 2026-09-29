@@ -1,0 +1,88 @@
+{
+  "contract": "L16_FULL_RANK_CONSENSUS_V1",
+  "version": "1.0.0",
+  "status": "RESEARCH_CANDIDATE",
+  "purpose": "Re-rank every horse in each race using the complete rankings from all seven frozen L1 experts without pre-consensus TopN truncation.",
+  "historical_scope": {
+    "years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ]
+  },
+  "inputs": {
+    "expert_contract": "L1_TO_L2_OUTPUT_CONTRACT_V1",
+    "expert_count": 7,
+    "experts": [
+      "core4",
+      "pedlegacy",
+      "condition",
+      "full",
+      "light",
+      "pedv1",
+      "condrc"
+    ],
+    "required_fields": [
+      "race_id",
+      "horse_id",
+      "predicted_rank",
+      "race_normalized_win_probability"
+    ],
+    "forbidden_inputs": [
+      "odds",
+      "win_odds",
+      "final_win_odds",
+      "popularity",
+      "final_popularity",
+      "payout",
+      "payouts",
+      "return_yen",
+      "profit_yen",
+      "roi"
+    ]
+  },
+  "consensus": {
+    "candidate_policy": "ALL_HORSES",
+    "truncation_before_consensus": false,
+    "field_size_symbol": "N",
+    "per_expert_borda": "N + 1 - predicted_rank",
+    "total_borda": "sum across seven experts",
+    "normalized_borda": "total_borda / (7 * N)",
+    "tie_breakers": [
+      "top1_votes DESC",
+      "best_rank ASC",
+      "mean_rank ASC",
+      "probability_mean DESC",
+      "horse_id ASC"
+    ]
+  },
+  "output": {
+    "preserves_all_horses": true,
+    "fields": [
+      "race_id",
+      "horse_id",
+      "consensus_rank",
+      "borda_score",
+      "normalized_borda",
+      "mean_rank",
+      "rank_std",
+      "best_rank",
+      "worst_rank",
+      "top1_votes",
+      "probability_mean",
+      "probability_std",
+      "expert_ranks"
+    ]
+  },
+  "invariants": [
+    "Every horse in the race must appear in every expert score table.",
+    "Consensus output horse count must equal race field size.",
+    "Consensus ranks are contiguous 1..N.",
+    "No horse is removed before L2.",
+    "No odds, popularity, payout, result, or target field enters L1.6 consensus."
+  ]
+}
