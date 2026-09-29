@@ -1,0 +1,28 @@
+{
+  "contract": "L2_NORMAL_LOSS_ANATOMY_V1",
+  "source_structure_run": 36524917751,
+  "scope": "PASS_SEVEN_ONLY only",
+  "analysis_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "normal_races": {
+    "2023": 3110,
+    "2024": 3110,
+    "2025": 3110
+  },
+  "race_filtering": false,
+  "all_normal_races_used": true,
+  "categories": {
+    "L1_WINNER_OUTSIDE": "Winning horse is outside Seven-King candidate pool.",
+    "L1_TOP2_PARTIAL": "Winner is visible, but the winning top-two pair is not fully inside Seven-King pool.",
+    "L1_TOP3_PARTIAL": "Top two are visible, but the podium trio is not fully inside Seven-King pool.",
+    "L2_ROLE_MISS": "Podium trio is fully visible, but none of the coarse role templates hits.",
+    "L2_HIT_BUT_PRICE_POINTS_LOSS": "At least one coarse template hits, but every hitting template still loses money after ticket count/price.",
+    "L2_ROUTING_OPPORTUNITY": "At least one existing coarse template would have been profitable on the race in hindsight."
+  },
+  "hindsight_guard": "Best-template and routing-opportunity fields are diagnostic upper bounds only, never a deployable selector.",
+  "2026_locked": true,
+  "production_promotion": false
+}
