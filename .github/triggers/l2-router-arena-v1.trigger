@@ -1,0 +1,17 @@
+launch=2026-09-29T10:58:00+09:00
+experiment=L2-ROUTER-ARENA-V1
+upstream=L15_FIXED_V1
+templates=23
+edge_thresholds=0,0.05,0.10,0.15,0.20
+routers=SIMPLE_EXPECTED_ROI,STRATEGY_UTILITY,DIRECT_BET_TYPE
+router_warmup=2023
+router_eval=2024,2025
+holdout_2025=false
+locked_year=2026
+market_gap=true
+k2_novel=true
+one_action_per_race=true
+l3_money=false
+artifact_cache=false
+storage=git-small-ledger-only
+cost=standard-cpu-only
