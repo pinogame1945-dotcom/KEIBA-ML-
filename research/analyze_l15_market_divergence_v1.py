@@ -139,10 +139,14 @@ def summarize(items, races):
     race_exact6 = 0
     race_has_market1 = 0
     race_corrs = []
+    six_horse_box_eligible_races = 0
+    small_field_or_short_consensus_races = 0
     for r in races:
         vals = [x for x in r["items"] if x["popularity"] is not None]
         if len(vals) != 6:
+            small_field_or_short_consensus_races += 1
             continue
+        six_horse_box_eligible_races += 1
         overlap = sum(1 for x in vals if x["popularity"] <= 6)
         race_overlap.append(overlap / 6.0)
         race_exact6 += int(overlap == 6)
@@ -176,6 +180,8 @@ def summarize(items, races):
         "market_rates_horse_3plus_ranks_above_consensus_pct": pct(sum(1 for g in gaps if g <= -3), len(gaps)),
         "final_odds_mean_top6_members": safe_mean(odds),
         "final_odds_median_top6_members": safe_median(odds),
+        "six_horse_box_eligible_races": six_horse_box_eligible_races,
+        "small_field_or_short_consensus_races": small_field_or_short_consensus_races,
         "race_top6_overlap_with_market_top6_mean_pct": 100.0*safe_mean(race_overlap) if race_overlap else None,
         "race_exact_same_top6_set_pct": pct(race_exact6, len(race_overlap)),
         "race_consensus_top6_contains_market_favorite_pct": pct(race_has_market1, len(race_overlap)),
@@ -232,8 +238,8 @@ def main():
         for row in router_rows:
             rid = str(row.get("race_id") or "")
             order = seven_order(row)
-            if len(order) < 6:
-                raise ValueError(f"consensus has <6 horses year={year} race_id={rid}")
+            if not order:
+                raise ValueError(f"consensus has no horses year={year} race_id={rid}")
             items = []
             for rank, hid in enumerate(order[:6], 1):
                 m = market.get((rid, hid), {})
