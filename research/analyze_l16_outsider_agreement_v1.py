@@ -3,7 +3,7 @@ import argparse,csv,gzip,json
 from collections import defaultdict
 from pathlib import Path
 
-CANDS=["outsider_daytrend","outsider_raceshape","outsider_gatecourse","outsider_field","outsider_jockey","outsider_chimera"]
+CANDS=["outsider_daytrend","outsider_raceshape","outsider_gatecourse","outsider_field","outsider_jockey"]
 KS=[3,6]
 
 def ap():
