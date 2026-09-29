@@ -1,0 +1,3 @@
+# V1 Loss Decomposition V2
+
+This diagnostic reproduces the frozen Normal Router V1 DIRECT_TEMPLATE walk-forward outputs and then assigns each race a responsibility layer. Candidate impossibility is evaluated against the bet actually selected by V1: exact/quinella need the winning top-two horses inside Seven-King; trio/trifecta need the podium trio inside Seven-King. Only losses that remain feasible upstream are assigned to same-bet routing miss, cross-bet routing miss, role/template miss, or hit-but-price/points loss. Hindsight alternatives are diagnostic upper bounds only. No race filtering, no production promotion, and 2026 remains sealed.

@@ -1,0 +1,32 @@
+{
+  "contract": "L2_V1_LOSS_DECOMPOSITION_RESULT_V2",
+  "scope": "PASS_SEVEN_ONLY / V1 DIRECT_TEMPLATE",
+  "analysis_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "normal_races": {
+    "2023": 3110,
+    "2024": 3110,
+    "2025": 3110
+  },
+  "v1_reproduction_passed": true,
+  "root_categories": [
+    "V1_PROFITABLE",
+    "L1_CANDIDATE_IMPOSSIBLE",
+    "L2_ROUTING_MISS_SAME_BET",
+    "L2_ROUTING_MISS_CROSS_BET",
+    "L2_ROLE_TEMPLATE_MISS",
+    "L2_HIT_BUT_PRICE_POINTS_LOSS",
+    "PAYOUT_INCOMPLETE",
+    "DATA_UNAVAILABLE"
+  ],
+  "candidate_feasibility_is_bet_specific": true,
+  "recent_priority_period": "2024-2025",
+  "race_filtering": false,
+  "all_normal_races_used": true,
+  "hindsight_guard": "Best-alternative and gain fields are diagnostic upper bounds only and are never prediction features.",
+  "2026_locked": true,
+  "production_promotion": false
+}
