@@ -1,1 +1,1 @@
-launch 2026-09-29 JST
+relaunch after guard fix 2026-09-29 JST
