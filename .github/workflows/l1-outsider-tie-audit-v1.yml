@@ -1,0 +1,271 @@
+name: L1 Outsider Tie Audit V1
+
+on:
+  push:
+    branches:
+      - research/l1-outsider-tie-audit-v1-20260929
+    paths:
+      - .github/triggers/l1-outsider-tie-audit-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-outsider-tie-audit-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    name: outsider-tie-audit-y${{ matrix.year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    strategy:
+      fail-fast: false
+      max-parallel: 2
+      matrix:
+        year: [2021, 2022, 2023, 2024, 2025]
+
+    env:
+      YEAR: ${{ matrix.year }}
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate code
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l1_outsider_tie_audit_year_v1.py             research/build_l1_nonhorse_dataset_v1.py             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          bash -n scripts/kaggle-fetch-router-years.sh
+
+      - name: Install dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore rolling snapshots and seven-king router once
+        shell: bash
+        run: |
+          set -euo pipefail
+          y="$YEAR"
+          t1=$((y-2))
+          t2=$((y-1))
+          root="out/tie-audit-source/$GENERATION_ID/y$y"
+          router_root="out/tie-audit-router"
+          mkdir -p "$root" "$router_root"
+
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$root" "$t1" "$t2" "$y"
+          bash scripts/kaggle-fetch-router-years.sh "$y" "$router_root"
+
+          snap() {
+            local yy="$1"
+            if [[ -s "$root/snapshot-$yy.jsonl.gz" ]]; then
+              printf '%s' "$root/snapshot-$yy.jsonl.gz"
+            elif [[ -s "$root/snapshot-$yy.jsonl" ]]; then
+              printf '%s' "$root/snapshot-$yy.jsonl"
+            else
+              echo "::error::missing snapshot year=$yy" >&2
+              exit 1
+            fi
+          }
+
+          p1="$(snap "$t1")"
+          p2="$(snap "$t2")"
+          pv="$(snap "$y")"
+          router="$(find "$router_root/$y" -type f \( -name 'router-7k.jsonl.gz' -o -name 'router-7k.jsonl' \) -print -quit)"
+          test -n "$router"
+          test -s "$router"
+
+          echo "INPUTS=$p1,$p2,$pv" >> "$GITHUB_ENV"
+          echo "VALID_SNAPSHOT=$pv" >> "$GITHUB_ENV"
+          echo "ROUTER_SEVEN=$router" >> "$GITHUB_ENV"
+          echo "YEAR_OUT=research-results/l1-outsider-tie-audit-v1/run-$GITHUB_RUN_ID/y$y" >> "$GITHUB_ENV"
+
+      - name: Audit all 13 outsiders
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$YEAR_OUT"
+          python research/run_l1_outsider_tie_audit_year_v1.py             --year "$YEAR"             --inputs "$INPUTS"             --validation-snapshot "$VALID_SNAPSHOT"             --router-seven "$ROUTER_SEVEN"             --out-dir "$YEAR_OUT"             --ml-source-sha "$GITHUB_SHA"
+
+      - name: Validate year output
+        shell: bash
+        run: |
+          set -euo pipefail
+          YEAR_OUT="$YEAR_OUT" python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root=Path(os.environ["YEAR_OUT"])
+          s=json.loads((root/"summary.json").read_text(encoding="utf-8"))
+          assert s["candidate_count"]==13, s
+          files=[p for p in root.glob("outsider_*.json")]
+          assert len(files)==13, len(files)
+          for p in files:
+              x=json.loads(p.read_text(encoding="utf-8"))
+              assert x["races"]>0
+              assert x["shuffle_trials"]==5
+              assert x["safe_tie_breaker"]=="raw_margin_logit desc, horse_number asc, horse_id asc"
+          print("OUTSIDER_TIE_AUDIT_YEAR_VALID", s["year"], len(files))
+          PY
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU runners only."
+          echo "No GPU. No paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "Kaggle inputs are read-only; no Dataset/Model creation or update."
+          echo "Only compact JSON audit summaries are committed to git."
+          echo "2026 remains sealed."
+
+      - name: Commit compact year audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$YEAR_OUT"
+          git commit -m "research: outsider tie audit y$YEAR run $GITHUB_RUN_ID"
+          for attempt in 1 2 3 4 5; do
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            git pull --rebase origin "$GITHUB_REF_NAME"
+          done
+          exit 1
+
+  aggregate:
+    name: aggregate-outsider-tie-audit
+    if: always()
+    needs: [year]
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --ff-only origin "$GITHUB_REF_NAME"
+          root="research-results/l1-outsider-tie-audit-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json, os
+          from collections import defaultdict
+          from pathlib import Path
+
+          root=Path(os.environ["ROOT"])
+          years=[2021,2022,2023,2024,2025]
+          rows=[]
+          for y in years:
+              d=root/f"y{y}"
+              if not (d/"summary.json").exists():
+                  raise SystemExit(f"missing year summary {y}")
+              for p in sorted(d.glob("outsider_*.json")):
+                  rows.append(json.loads(p.read_text(encoding="utf-8")))
+          if len(rows)!=65:
+              raise SystemExit(f"expected 65 candidate-year audits, got {len(rows)}")
+
+          grouped=defaultdict(list)
+          for x in rows:
+              grouped[x["candidate"]].append(x)
+          if len(grouped)!=13:
+              raise SystemExit(f"expected 13 candidates, got {len(grouped)}")
+
+          out={
+              "contract":"L1_OUTSIDER_TIE_AUDIT_ALL_YEARS_V1",
+              "years":years,
+              "candidate_count":13,
+              "candidate_year_rows":65,
+              "safe_tie_breaker":"raw_margin_logit desc, horse_number asc, horse_id asc",
+              "old_tie_breaker":"stable score order / original row order",
+              "shuffle_trials":5,
+              "2026_sealed":True,
+              "candidates":{},
+          }
+          for cand,xs in sorted(grouped.items()):
+              total=sum(x["races"] for x in xs)
+              c={
+                  "races":total,
+                  "any_tie_races":sum(x["any_tie_races"] for x in xs),
+                  "any_rank_changed_races":sum(x["any_rank_changed_races"] for x in xs),
+                  "topn":{},
+              }
+              c["any_tie_rate"]=c["any_tie_races"]/total
+              c["any_rank_changed_rate"]=c["any_rank_changed_races"]/total
+              for n in ("1","3","6"):
+                  keys=[
+                      "boundary_tie_races","topn_set_changed_races","old_capture","safe_capture",
+                      "old_only_hits","safe_only_hits","old_rescues","safe_rescues","shuffle_sensitive_races"
+                  ]
+                  q={k:sum(x["topn"][n][k] for x in xs) for k in keys}
+                  for k in keys:
+                      q[k+"_rate"]=q[k]/total
+                  q["capture_delta"]=q["safe_capture"]-q["old_capture"]
+                  q["rescue_delta"]=q["safe_rescues"]-q["old_rescues"]
+                  c["topn"][n]=q
+              out["candidates"][cand]=c
+
+          (root/"all-years-summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+
+          lines=[
+              "# L1 Outsider Tie Audit V1","",
+              "- Years: 2021-2025",
+              "- 2026: sealed",
+              "- Candidates: 13",
+              "- Safe tie-break: raw_margin_logit desc, horse_number asc, horse_id asc",
+              "- Five deterministic row-order shuffle trials per race",
+              "",
+              "| Candidate | Any tie | Rank changed | Top1 changed | Top1 capture old→safe | Top6 changed | Top6 rescue old→safe |",
+              "|---|---:|---:|---:|---:|---:|---:|",
+          ]
+          for cand,c in out["candidates"].items():
+              t1=c["topn"]["1"]; t6=c["topn"]["6"]
+              lines.append(
+                  f"| {cand} | {c['any_tie_races']} ({c['any_tie_rate']:.2%}) | "
+                  f"{c['any_rank_changed_races']} ({c['any_rank_changed_rate']:.2%}) | "
+                  f"{t1['topn_set_changed_races']} ({t1['topn_set_changed_races_rate']:.2%}) | "
+                  f"{t1['old_capture']}→{t1['safe_capture']} ({t1['capture_delta']:+d}) | "
+                  f"{t6['topn_set_changed_races']} ({t6['topn_set_changed_races_rate']:.2%}) | "
+                  f"{t6['old_rescues']}→{t6['safe_rescues']} ({t6['rescue_delta']:+d}) |"
+              )
+          (root/"README.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
+          print("OUTSIDER_TIE_AUDIT_AGGREGATED")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
+
+      - name: Commit aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l1-outsider-tie-audit-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/all-years-summary.json" "$root/README.md"
+          git commit -m "research: aggregate outsider tie audit run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No paid persistent storage created."
