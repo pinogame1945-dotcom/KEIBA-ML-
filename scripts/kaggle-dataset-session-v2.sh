@@ -149,10 +149,7 @@ PY
       logical_base="$(basename "$logical")"
       plain_logical="${logical_base%.gz}"
 
-      existing=""
-      for p in "$out_dir/$remote_base" "$out_dir/$logical_base" "$out_dir/$plain_logical"; do
-        if [[ -s "$p" ]]; then existing="$p"; break; fi
-      done
+      existing="$(find "$out_dir" -type f \( -name "$remote_base" -o -name "$logical_base" -o -name "$plain_logical" \) -print -quit)"
       if [[ -n "$existing" ]]; then
         echo "KAGGLE_EXACT_REUSE logical=$logical remote=$remote path=$existing"
         continue
@@ -161,10 +158,7 @@ PY
       echo "KAGGLE_EXACT_FETCH logical=$logical remote=$remote"
       retry_exact_download "$ref" "$remote" "$out_dir"
 
-      downloaded=""
-      for p in "$out_dir/$remote_base" "$out_dir/$logical_base" "$out_dir/$plain_logical"; do
-        if [[ -s "$p" ]]; then downloaded="$p"; break; fi
-      done
+      downloaded="$(find "$out_dir" -type f \( -name "$remote_base" -o -name "$logical_base" -o -name "$plain_logical" \) -print -quit)"
       [[ -n "$downloaded" ]] || {
         echo "::error::exact download returned no local file logical=$logical remote=$remote" >&2
         exit 5
