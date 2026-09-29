@@ -11,6 +11,13 @@ from build_l2_bet_kings_dataset_v1 import (
 
 BET_TYPES=("QUINELLA","EXACTA","TRIO","TRIFECTA")
 TEMPLATES=tuple(t for t,b in TEMPLATE_TO_BET.items() if b in BET_TYPES)
+STRUCTURALLY_EMPTY_TEMPLATES=frozenset({
+    "QUINELLA_AXIS1_NOVEL",
+    "EXACTA_AXIS1_NOVEL_MULTI",
+    "TRIO_AXIS12_NOVEL",
+    "TRIO_A1_KING_NOVEL",
+    "TRIFECTA_ANCHOR12_NOVEL_MULTI",
+})
 
 def parse_args():
     p=argparse.ArgumentParser(description="Build L2 ticket dataset from L1.7 full-field consensus.")
@@ -175,14 +182,18 @@ def main():
         "races":len(processed),
         "templates":{},
         "field_size_histogram":{str(k):v for k,v in sorted(field_hist.items())},
+        "structurally_empty_templates":sorted(STRUCTURALLY_EMPTY_TEMPLATES),
         "missing_odds_by_template":dict(sorted(missing_odds.items())),
         "odds_used_as_model_feature":False,
         "market_price_stage":"FINAL_ODDS_AFTER_PREDICTION",
         "locked_years":[2026],
     }
     for t in TEMPLATES:
-        if template_rows[t]==0:
-            raise SystemExit(f"empty fullfield template={t}")
+        if t in STRUCTURALLY_EMPTY_TEMPLATES:
+            if template_rows[t]!=0:
+                raise SystemExit(f"structurally-empty fullfield template unexpectedly populated={t}")
+        elif template_rows[t]==0:
+            raise SystemExit(f"empty non-NOVEL fullfield template={t}")
         manifest["templates"][t]={
             "bet_type":TEMPLATE_TO_BET[t],
             "priced_rows":template_rows[t],
