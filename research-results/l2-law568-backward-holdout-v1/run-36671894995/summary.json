@@ -1,0 +1,197 @@
+{
+  "contract": "L2_LAW568_BACKWARD_HOLDOUT_V1_RESULT",
+  "holdout_year": 2021,
+  "l2_training_years": [
+    2020
+  ],
+  "rules_tuned_on_2021": false,
+  "law_metrics": {
+    "LAW1": {
+      "label": "LAW1",
+      "tickets": 162,
+      "hits": 1,
+      "hit_rate_pct": 0.6172839506172839,
+      "stake_yen": 16200.0,
+      "return_yen": 9900.0,
+      "profit_yen": -6300.0,
+      "roi_pct": 61.111111111111114,
+      "largest_single_return_yen": 9900.0,
+      "largest_return_share_pct": 100.0,
+      "roi_after_remove_largest_win_pct": 0.0,
+      "median_odds": 73.95,
+      "roi_after_remove_largest_2_wins_pct": 0.0,
+      "largest_2_return_share_pct": 100.0,
+      "law_id": "LAW1"
+    },
+    "LAW2": {
+      "label": "LAW2",
+      "tickets": 260,
+      "hits": 10,
+      "hit_rate_pct": 3.8461538461538463,
+      "stake_yen": 26000.0,
+      "return_yen": 37150.0,
+      "profit_yen": 11150.0,
+      "roi_pct": 142.8846153846154,
+      "largest_single_return_yen": 6640.0,
+      "largest_return_share_pct": 17.87348586810229,
+      "roi_after_remove_largest_win_pct": 117.34615384615384,
+      "median_odds": 43.150000000000006,
+      "roi_after_remove_largest_2_wins_pct": 99.65384615384616,
+      "largest_2_return_share_pct": 30.2557200538358,
+      "law_id": "LAW2"
+    },
+    "LAW5": {
+      "label": "LAW5",
+      "tickets": 188,
+      "hits": 1,
+      "hit_rate_pct": 0.5319148936170213,
+      "stake_yen": 18800.0,
+      "return_yen": 2880.0,
+      "profit_yen": -15920.0,
+      "roi_pct": 15.319148936170214,
+      "largest_single_return_yen": 2880.0,
+      "largest_return_share_pct": 100.0,
+      "roi_after_remove_largest_win_pct": 0.0,
+      "median_odds": 46.3,
+      "roi_after_remove_largest_2_wins_pct": 0.0,
+      "largest_2_return_share_pct": 100.0,
+      "law_id": "LAW5"
+    },
+    "LAW6": {
+      "label": "LAW6",
+      "tickets": 122,
+      "hits": 1,
+      "hit_rate_pct": 0.819672131147541,
+      "stake_yen": 12200.0,
+      "return_yen": 3330.0,
+      "profit_yen": -8870.0,
+      "roi_pct": 27.295081967213115,
+      "largest_single_return_yen": 3330.0,
+      "largest_return_share_pct": 100.0,
+      "roi_after_remove_largest_win_pct": 0.0,
+      "median_odds": 36.1,
+      "roi_after_remove_largest_2_wins_pct": 0.0,
+      "largest_2_return_share_pct": 100.0,
+      "law_id": "LAW6"
+    },
+    "LAW8": {
+      "label": "LAW8",
+      "tickets": 164,
+      "hits": 5,
+      "hit_rate_pct": 3.048780487804878,
+      "stake_yen": 16400.0,
+      "return_yen": 18230.0,
+      "profit_yen": 1830.0,
+      "roi_pct": 111.15853658536585,
+      "largest_single_return_yen": 5020.0,
+      "largest_return_share_pct": 27.537026878771258,
+      "roi_after_remove_largest_win_pct": 80.54878048780488,
+      "median_odds": 43.4,
+      "roi_after_remove_largest_2_wins_pct": 54.9390243902439,
+      "largest_2_return_share_pct": 50.575973669775095,
+      "law_id": "LAW8"
+    }
+  },
+  "bootstrap": {
+    "LAW1": {
+      "tickets": 162,
+      "median_roi_pct": 61.111111111111114,
+      "p_roi_gt_100": 0.2581,
+      "p2_5_roi_pct": 0.0,
+      "p97_5_roi_pct": 183.33333333333331,
+      "law_id": "LAW1"
+    },
+    "LAW2": {
+      "tickets": 260,
+      "median_roi_pct": 140.40384615384613,
+      "p_roi_gt_100": 0.8194,
+      "p2_5_roi_pct": 60.88365384615384,
+      "p97_5_roi_pct": 239.65384615384616,
+      "law_id": "LAW2"
+    },
+    "LAW5": {
+      "tickets": 188,
+      "median_roi_pct": 15.319148936170212,
+      "p_roi_gt_100": 0.0001,
+      "p2_5_roi_pct": 0.0,
+      "p97_5_roi_pct": 45.95744680851064,
+      "law_id": "LAW5"
+    },
+    "LAW6": {
+      "tickets": 122,
+      "median_roi_pct": 27.295081967213115,
+      "p_roi_gt_100": 0.018,
+      "p2_5_roi_pct": 0.0,
+      "p97_5_roi_pct": 81.88524590163935,
+      "law_id": "LAW6"
+    },
+    "LAW8": {
+      "tickets": 164,
+      "median_roi_pct": 108.47560975609755,
+      "p_roi_gt_100": 0.5639,
+      "p2_5_roi_pct": 25.609756097560975,
+      "p97_5_roi_pct": 217.6829268292683,
+      "law_id": "LAW8"
+    }
+  },
+  "month_summary": {
+    "LAW5": {
+      "law_id": "LAW5",
+      "months_with_tickets": 12,
+      "profitable_months": 1,
+      "months_roi_ge_90": 1,
+      "zero_hit_months": 11
+    },
+    "LAW6": {
+      "law_id": "LAW6",
+      "months_with_tickets": 12,
+      "profitable_months": 1,
+      "months_roi_ge_90": 1,
+      "zero_hit_months": 11
+    },
+    "LAW8": {
+      "law_id": "LAW8",
+      "months_with_tickets": 12,
+      "profitable_months": 5,
+      "months_roi_ge_90": 5,
+      "zero_hit_months": 7
+    }
+  },
+  "portfolios": {
+    "LAW1_LAW2": {
+      "label": "LAW1_LAW2",
+      "tickets": 389,
+      "hits": 11,
+      "hit_rate_pct": 2.827763496143959,
+      "stake_yen": 38900.0,
+      "return_yen": 47050.0,
+      "profit_yen": 8150.0,
+      "roi_pct": 120.95115681233933,
+      "largest_single_return_yen": 9900.0,
+      "largest_return_share_pct": 21.04144527098831,
+      "roi_after_remove_largest_win_pct": 95.5012853470437,
+      "median_odds": 48.0,
+      "roi_after_remove_largest_2_wins_pct": 78.4318766066838,
+      "largest_2_return_share_pct": 35.154091392136024,
+      "portfolio_id": "LAW1_LAW2"
+    },
+    "LAW1_LAW2_LAW5_LAW6_LAW8": {
+      "label": "LAW1_LAW2_LAW5_LAW6_LAW8",
+      "tickets": 842,
+      "hits": 18,
+      "hit_rate_pct": 2.137767220902613,
+      "stake_yen": 84200.0,
+      "return_yen": 71490.0,
+      "profit_yen": -12710.0,
+      "roi_pct": 84.90498812351544,
+      "largest_single_return_yen": 9900.0,
+      "largest_return_share_pct": 13.848090642047838,
+      "roi_after_remove_largest_win_pct": 73.14726840855107,
+      "median_odds": 45.5,
+      "roi_after_remove_largest_2_wins_pct": 65.26128266033254,
+      "largest_2_return_share_pct": 23.136102951461744,
+      "portfolio_id": "LAW1_LAW2_LAW5_LAW6_LAW8"
+    }
+  },
+  "2026_locked": true
+}
