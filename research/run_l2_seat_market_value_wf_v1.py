@@ -201,34 +201,38 @@ def main():
     counters=defaultdict(int)
     seen=set()
 
-    by_date=defaultdict(list)
-    for rid,rec in l17.items():
-        date=str(rec.get("race_date") or "")[:10]
-        if len(date)!=10:
-            raise ValueError(f"bad l17 race_date race={rid}")
-        by_date[date].append(rid)
-
-    for date in sorted(by_date):
-        wanted=set(by_date[date])
-        day_path=daily_root/f"{date}.jsonl.gz"
-        odds_path=odds_root/f"{date}.jsonl.gz"
-        if not day_path.exists():
-            counters["missing_daily_file"]+=1
+    # L1.7 intentionally carries race_id/rank output, not calendar race_date.
+    # Pair the fixed BACKFILL daily and odds files by their canonical filename,
+    # then select rows whose race_id exists in L1.7. This avoids reconstructing
+    # or guessing a date from the race_id.
+    for day_path in sorted(daily_root.glob("20??-??-??.jsonl.gz")):
+        date=day_path.name.removesuffix(".jsonl.gz")
+        try:
+            year=int(date[:4])
+        except ValueError:
             continue
+        if year not in YEARS:
+            continue
+        odds_path=odds_root/day_path.name
         daily_files+=1
+        if not odds_path.exists():
+            counters["missing_odds_file"]+=1
+            continue
+        odds_files+=1
+
         day={}
+        wanted=set()
         with gzip.open(day_path,"rt",encoding="utf-8") as fh:
             for line in fh:
                 if not line.strip():
                     continue
                 pack=json.loads(line)
                 rid=str((pack.get("race") or {}).get("race_id") or "")
-                if rid in wanted:
+                if rid in l17 and int(l17[rid]["year"])==year:
                     day[rid]=pack
-        if not odds_path.exists():
-            counters["missing_odds_file"]+=1
+                    wanted.add(rid)
+        if not wanted:
             continue
-        odds_files+=1
         odds_day=load_odds_day(odds_path,wanted)
 
         for rid in sorted(wanted):
