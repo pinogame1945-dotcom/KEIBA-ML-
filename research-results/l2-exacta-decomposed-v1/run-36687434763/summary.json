@@ -1,0 +1,41 @@
+{
+  "contract": "L2_EXACTA_DECOMPOSED_V1_RESULT",
+  "bet_type": "EXACTA",
+  "design": "unordered pair ranker + one orientation classifier",
+  "speed_design": {
+    "ordered_pairs_not_retrained": true,
+    "prior_direct_v0_reused_as_frozen_baseline": true,
+    "all_bet_decoder_audit_not_repeated": true,
+    "unordered_pair_rows": "N*(N-1)/2",
+    "direction_training_rows": "only unique winning first-two pairs",
+    "pair_models_per_fold": 2,
+    "direction_models_per_fold": 2,
+    "build_seconds": 332.7477656220001,
+    "model_training_seconds": 231.75170761599998,
+    "script_total_seconds": 568.691170696
+  },
+  "variants": [
+    "DIRECT_MARKET",
+    "DIRECT_L17_ONLY",
+    "DIRECT_MARKET_AWARE",
+    "DECOMP_MARKET",
+    "DECOMP_L17_ONLY",
+    "DECOMP_MARKET_AWARE"
+  ],
+  "primary_metrics": [
+    "pair_capture_pct",
+    "direction_correct_pct_of_captured",
+    "exact_hit_coverage_pct"
+  ],
+  "walk_forward": {
+    "test_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "training": "all prior years only"
+  },
+  "law_search": false,
+  "roi_policy_search": false,
+  "2026_locked": true
+}
