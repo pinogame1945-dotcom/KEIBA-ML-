@@ -1,0 +1,71 @@
+{
+  "contract": "L2_SEAT_MARKET_VALUE_WF_V1",
+  "idea": "Choose the trifecta seat using only prior-year formation hit probability and current final trifecta market odds; compare probability-only and market-cheapest controls.",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "l17_races_by_year": {
+    "2022": 3456,
+    "2023": 3456,
+    "2024": 3456,
+    "2025": 3456
+  },
+  "focal_ranks": [
+    1,
+    2,
+    3
+  ],
+  "pools": [
+    3,
+    6
+  ],
+  "variants": [
+    "RANK_ONLY",
+    "DIRECTION",
+    "BUCKET"
+  ],
+  "policies": {
+    "PROB_ONLY": "max prior-year formation hit probability",
+    "VALUE_RATIO": "max prior hit probability / current summed implied probability of the seat formation",
+    "MARKET_CHEAPEST": "min current summed implied probability, ignoring prior hit probability"
+  },
+  "market_mass": "sum(1/final_trifecta_odds) over all tickets in the seat formation",
+  "selection_uses_current_market_odds": true,
+  "selection_uses_current_popularity_for_group": true,
+  "selection_uses_test_outcome": false,
+  "selection_uses_payout": false,
+  "payout_evaluation_only": true,
+  "rerank_l1": false,
+  "threshold_filtering": false,
+  "2026_locked": true,
+  "daily_files_scanned": 430,
+  "odds_files_scanned": 430,
+  "counters": {
+    "pool_6_ineligible": 117,
+    "trifecta_odds_missing": 3
+  },
+  "best_oos_combined": {
+    "variant": "BUCKET",
+    "policy": "VALUE_RATIO",
+    "focal_rank": 1,
+    "pool_k": 6,
+    "test_years": "2023-2025",
+    "races": 10332,
+    "tickets": 206640,
+    "avg_tickets_per_race": 20.0,
+    "hit_races": 990,
+    "hit_rate_pct": 9.581881533101045,
+    "stake_yen": 20664000.0,
+    "return_yen": 14508130.0,
+    "profit_yen": -6155870.0,
+    "roi_pct": 70.20968834688347
+  }
+}
