@@ -11,6 +11,7 @@ def ap():
     p.add_argument("--root",required=True,help="Root containing yYYYY/{consensus.jsonl.gz,snapshot.jsonl[.gz],outsider-top3/*.csv}")
     p.add_argument("--output-json",required=True)
     p.add_argument("--output-csv",required=True)
+    p.add_argument("--years",default="2021,2022,2023,2024,2025")
     return p.parse_args()
 
 def opent(path):
@@ -114,9 +115,12 @@ def build_scope(rows):
 
 def main():
     a=ap(); root=Path(a.root)
+    years=tuple(int(x) for x in a.years.split(",") if x.strip())
+    if not years or any(y not in YEARS for y in years):
+        raise ValueError(f"invalid years: {years}")
     all_rows=[]; by_year={}; candidates_ref=None
 
-    for year in YEARS:
+    for year in years:
         yroot=root/f"y{year}"
         cons_path=yroot/"consensus.jsonl.gz"
         snap_gz=yroot/"snapshot.jsonl.gz"
@@ -177,12 +181,12 @@ def main():
 
     out={
         "contract":"L16_OUTSIDER_SUPPORT_SAFE_V1",
-        "years":list(YEARS),
-        "races":sum(by_year[str(y)]["races"] for y in YEARS),
+        "years":list(years),
+        "races":sum(by_year[str(y)]["races"] for y in years),
         "candidate_count":len(candidates_ref),
-        "expected_king_top3_rows":sum(by_year[str(y)]["expected_king_top3_rows"] for y in YEARS),
+        "expected_king_top3_rows":sum(by_year[str(y)]["expected_king_top3_rows"] for y in years),
         "evaluable_king_top3_rows":len(all_rows),
-        "missing_finish_rows":sum(by_year[str(y)]["missing_finish_rows"] for y in YEARS),
+        "missing_finish_rows":sum(by_year[str(y)]["missing_finish_rows"] for y in years),
         "candidates":candidates_ref,
         "definition":{
             "support_count":"number of tie-safe outsiders placing horse in Top3",
@@ -211,7 +215,7 @@ def main():
                     w.writerow({"scope":scope,"year":year,"king_rank":king_rank,"dimension":dim,"value":value,**s})
         emit("overall_top3","ALL","1-3",out["overall"]["king_top3"])
         for k in ("1","2","3"): emit("overall_rank","ALL",k,out["overall"]["by_king_rank"][k])
-        for y in map(str,YEARS):
+        for y in map(str,years):
             emit("year_top3",y,"1-3",out["by_year"][y]["king_top3"])
             for k in ("1","2","3"): emit("year_rank",y,k,out["by_year"][y]["by_king_rank"][k])
 
