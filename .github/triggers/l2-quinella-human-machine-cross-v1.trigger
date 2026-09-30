@@ -3,3 +3,4 @@ mode=frozen-human-vs-learned-machine
 human_rules=RULE5,RULE7
 machine_signal=p_model_gt_market_q
 parallelism=2
+retrigger=merge-suffix-fix-v2
