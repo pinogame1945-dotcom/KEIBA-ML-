@@ -83,7 +83,18 @@ jobs:
               d="out/ticket-eval/scores/$y/$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
               bash "$session_script" init "$ref" "$d"
-              bash "$session_script" fetch "$d" score.jsonl
+              if bash "$session_script" fetch "$d" score.jsonl; then
+                :
+              else
+                rc=$?
+                if [[ "$rc" -ne 44 ]]; then
+                  exit "$rc"
+                fi
+                echo "::warning::refreshing Kaggle metadata after exact-download 404 ref=$ref"
+                sleep 15
+                bash "$session_script" init "$ref" "$d"
+                bash "$session_script" fetch "$d" score.jsonl
+              fi
               p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
               test -n "$p"; test -s "$p"
               echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
