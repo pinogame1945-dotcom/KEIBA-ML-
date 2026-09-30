@@ -1,0 +1,3 @@
+# L2 Ticket Market Gap — QUINELLA V2
+
+This version removes raw predicted-probability × odds EV selection. For each race, inverse quinella odds are normalized into a market probability distribution. A LightGBM LambdaRank model sees market probability/rank plus L1.7 and race structure, and learns the winning-pair ranking. The value signal is rank upgrade versus market: market_rank - model_rank. Tickets are selected only when the model upgrades them relative to the market. 2023-2024 choose the policy; 2025 is a frozen holdout; 2026 stays sealed. Payout/result fields are evaluation labels only, not model features.

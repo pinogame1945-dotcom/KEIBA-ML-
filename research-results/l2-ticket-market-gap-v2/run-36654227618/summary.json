@@ -1,0 +1,61 @@
+{
+  "contract": "L2_TICKET_MARKET_GAP_V2_RESULT",
+  "architecture": "market_aware_lambdarank_then_rank_upgrade_selection",
+  "bet_type": "QUINELLA",
+  "all_runners_scored": true,
+  "candidate_horse_selection": false,
+  "template_router": false,
+  "raw_ev_multiplication": false,
+  "market_probability": "normalized inverse quinella odds within race",
+  "market_features": [
+    "market_q_norm",
+    "market_log_q",
+    "market_rank"
+  ],
+  "value_signal": "market_rank - market_aware_model_rank",
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "selected_policy": {
+    "label": "MODEL_TOP15_UP5_MAX1",
+    "source_races": 6910,
+    "executed_races": 3929,
+    "execution_coverage_pct": 56.859623733719246,
+    "tickets": 3929,
+    "hit_races": 86,
+    "race_hit_rate_pct": 1.244573082489146,
+    "stake_yen": 392900.0,
+    "return_yen": 360190.0,
+    "profit_yen": -32710.0,
+    "roi_pct": 91.67472639348435,
+    "max_drawdown_yen": 54320.0,
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "holdout": {
+    "label": "FROZEN_DEV_CHAMPION",
+    "source_races": 3455,
+    "executed_races": 1236,
+    "execution_coverage_pct": 35.77424023154848,
+    "tickets": 1236,
+    "hit_races": 30,
+    "race_hit_rate_pct": 0.8683068017366136,
+    "stake_yen": 123600.0,
+    "return_yen": 125600.0,
+    "profit_yen": 2000.0,
+    "roi_pct": 101.61812297734627,
+    "max_drawdown_yen": 14990.0,
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1,
+    "selected_from_dev_years": [
+      2023,
+      2024
+    ]
+  },
+  "2026_locked": true
+}
