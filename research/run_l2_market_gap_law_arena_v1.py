@@ -138,12 +138,18 @@ def key_series(g):
     return g["year"].astype(str)+"|"+g["race_id"].astype(str)+"|"+g["pair_numbers"].astype(str)
 
 def pick_law1(pred):
-    z=pred[
+    # Reproduce the previously audited frozen V2 policy exactly:
+    # first select at most one ticket/race from MODEL_TOP15 + UPGRADE>=5,
+    # then classify that frozen ticket into law1 (GAP15-24 x field 15-16).
+    base=pred[
         (pred["model_rank"]<=15)&
-        (pred["rank_upgrade"]>=15)&(pred["rank_upgrade"]<25)&
-        (pred["field_size"]>=15)&(pred["field_size"]<=16)
+        (pred["rank_upgrade"]>=5)
     ].copy()
-    return sort_for_pick(z).groupby(["year","race_id"],sort=False).head(1).copy()
+    base=sort_for_pick(base).groupby(["year","race_id"],sort=False).head(1).copy()
+    return base[
+        (base["rank_upgrade"]>=15)&(base["rank_upgrade"]<25)&
+        (base["field_size"]>=15)&(base["field_size"]<=16)
+    ].copy()
 
 def candidate_group_tables(pred):
     tables={}
@@ -245,6 +251,10 @@ def main():
 
     pred_all=pd.concat([predictions[y] for y in TEST_YEARS],ignore_index=True)
     law1=pick_law1(pred_all)
+    expected_law1_counts={2022:105,2023:102,2024:84,2025:68}
+    got_law1_counts={y:int((law1["year"]==y).sum()) for y in TEST_YEARS}
+    if got_law1_counts!=expected_law1_counts:
+        raise SystemExit(f"law1 reproduction drift got={got_law1_counts} expected={expected_law1_counts}")
     law1_dev=subset_years(law1,DEV_YEARS)
     law1_confirm=subset_years(law1,[CONFIRM_YEAR])
 
