@@ -196,7 +196,6 @@ jobs:
           git pull --rebase origin "$GITHUB_REF_NAME"
           git add "$result/summary.json" "$result/pretarget-union-replay.csv" \
                   "$result/pretarget-selected-segments.csv" "$result/best-segment-by-dimension.csv" \
-                  "$result/selection-audit.csv" "$result/selection-audit.csv" \
                   "$result/selection-audit.csv"
           git commit -m "research: archive quinella battlefield replay run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
