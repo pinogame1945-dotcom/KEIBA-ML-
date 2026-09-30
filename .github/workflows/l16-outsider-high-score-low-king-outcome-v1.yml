@@ -193,11 +193,22 @@ jobs:
           focus={k:merge([rows[y]["focus"][k] for y in years]) for k in focus_keys}
           exact_keys=sorted({int(k) for y in years for k in rows[y]["exact_score_king7plus"]})
           exact={str(s):merge([rows[y]["exact_score_king7plus"].get(str(s),blank()) for y in years]) for s in exact_keys}
+          k456_overall={str(k):merge([rows[y]["king456"]["overall"][str(k)] for y in years]) for k in (4,5,6)}
+          k456_bucket={}
+          for k in (4,5,6):
+              k456_bucket[str(k)]={}
+              for b in ("0","1-5","6-10","11-15","16-20","21-25","26+"):
+                  k456_bucket[str(k)][b]=merge([rows[y]["king456"]["score_bucket"][str(k)][b] for y in years])
+          k456_exact={}
+          for k in (4,5,6):
+              ss=sorted({int(s) for y in years for s in rows[y]["king456"]["score_exact"][str(k)]})
+              k456_exact[str(k)]={str(s):merge([rows[y]["king456"]["score_exact"][str(k)].get(str(s),blank()) for y in years]) for s in ss}
+          king456={"overall":k456_overall,"score_bucket":k456_bucket,"score_exact":k456_exact}
           out={"contract":"L16_OUTSIDER_HIGH_SCORE_LOW_KING_OUTCOME_ALL_YEARS_V1",
-               "years":years,"cross":cross,"focus":focus,"exact_score_king7plus":exact,
+               "years":years,"cross":cross,"focus":focus,"exact_score_king7plus":exact,"king456":king456,
                "by_year":{str(y):rows[y] for y in years},"2026_sealed":True,"odds_used":False}
           (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
-          print(json.dumps({"focus":focus,"cross":{"16-20":cross["16-20"],"21-25":cross["21-25"],"26+":cross["26+"]}},ensure_ascii=False,separators=(",",":")))
+          print(json.dumps({"focus":focus,"king456":king456},ensure_ascii=False,separators=(",",":")))
           PY
 
           git config user.name "keiba-ml-research-bot"
