@@ -1,0 +1,60 @@
+{
+  "contract": "L2_TRIFECTA_FULLFIELD_RANKER_V1",
+  "purpose": "Remove the Seven-King Top6 candidate-universe limit and score every priced full-field trifecta ticket.",
+  "years": [2022, 2023, 2024, 2025],
+  "development_years": [2023, 2024],
+  "holdout_year": 2025,
+  "locked_years": [2026],
+  "candidate_universe": {
+    "active_horses": "all active horses represented by L1.7 and priced in trifecta odds",
+    "bet_type": "TRIFECTA",
+    "all_ordered_candidates_scored_at_evaluation": true,
+    "top6_limit": false
+  },
+  "training_sampling": {
+    "reason": "Fit within free standard GitHub CPU runner memory while preserving full-field evaluation",
+    "market_top": 40,
+    "l17_top": 40,
+    "deterministic_hash_negatives": 40,
+    "all_positive_tickets_included": true
+  },
+  "models": {
+    "ABILITY_MODEL": {
+      "family": "LightGBM LambdaRank",
+      "market_features": false
+    },
+    "MARKET_AWARE_MODEL": {
+      "family": "LightGBM LambdaRank",
+      "market_features": true,
+      "market_representation": "normalized inverse final trifecta odds + within-race market rank",
+      "raw_odds_as_model_feature": false
+    }
+  },
+  "policy": {
+    "manual_seat_rules": false,
+    "manual_market_gap_rules": false,
+    "race_skip_rules": false,
+    "topn_grid": [1, 2, 3, 5, 10, 20, 30, 60, 120],
+    "selection_rule": "Each model selects one global Top-N using only 2023-2024 development results, then freezes that N for 2025."
+  },
+  "invariants": {
+    "rerank_l1": false,
+    "outsider_used": false,
+    "gate_used": false,
+    "payout_as_model_feature": false,
+    "finish_result_as_model_feature": false,
+    "holdout_used_for_policy_selection": false,
+    "2026_used": false,
+    "production_promotion": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true,
+    "full_candidate_matrices_ephemeral": true
+  }
+}
