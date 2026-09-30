@@ -1,0 +1,41 @@
+{
+  "contract": "L2_EXACTA_DIRECTION_SPECIALIST_V1",
+  "question": "Can a dedicated direction model close the gap between stable pair selection and exacta profitability?",
+  "pair_candidate_generator": "walk-forward decomposed market-aware unordered-pair rank; frozen within each fold",
+  "direction_models": {
+    "DIR_STANDARD": "market-aware binary direction classifier; uniform training weights",
+    "DIR_VALUE": "same architecture; winning exacta payout weighted with log compression and training-only q95 cap"
+  },
+  "baselines": [
+    "MARKET_ONE",
+    "L17_VOTE_ONE"
+  ],
+  "no_skip": true,
+  "one_ticket_per_selected_pair": true,
+  "top_k": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "walk_forward": "all prior years only",
+  "test_outcomes_used_for_model_selection": false,
+  "2026_locked": true,
+  "script_total_seconds": 503.614714384
+}
