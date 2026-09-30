@@ -1,0 +1,123 @@
+{
+  "contract": "L2_UNIVERSAL_TICKET_CALIBRATION_V2",
+  "parent": "L2_UNIVERSAL_TICKET_EV_V1",
+  "diagnosis": "V1 produces severe positive-EV hallucination; V2 recalibrates each ticket distribution without using market prices.",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "calibration": {
+    "horse_level": "same strictly-prior-year temperature calibration as V1",
+    "ticket_level": "per-bet power calibration p' = p^gamma / sum(p^gamma) within each race",
+    "gamma_candidates": [
+      0.6,
+      0.75,
+      0.9,
+      1.0,
+      1.15,
+      1.35,
+      1.6,
+      2.0,
+      2.5,
+      3.0
+    ],
+    "gamma_selection_metric": "minimum prior-year winning-ticket negative log likelihood",
+    "roi_used_for_gamma_selection": false,
+    "odds_used_for_gamma_selection": false,
+    "market_used_for_gamma_selection": false,
+    "test_year_used_for_gamma_selection": false
+  },
+  "buy_rule": "calibrated_ticket_probability * odds > 1.0",
+  "manual_edge_threshold": false,
+  "manual_top_k": false,
+  "manual_ticket_cap": false,
+  "manual_odds_band": false,
+  "manual_race_skip_rule": false,
+  "stake_policy": "flat 100 yen research stake; L3 remains separate",
+  "market_price_stage": "historical FINAL odds proxy",
+  "market_price_caveat": "FINAL odds are not live timestamp execution prices",
+  "folds": [
+    {
+      "test_year": 2022,
+      "train_years": "2021",
+      "temperature": 0.9871317587398659,
+      "temperature_train_races": 3435,
+      "win_gamma": 1.15,
+      "quinella_gamma": 1.0,
+      "exacta_gamma": 1.0,
+      "trio_gamma": 1.0,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2021|2022",
+      "temperature": 0.9686945317294738,
+      "temperature_train_races": 6879,
+      "win_gamma": 1.15,
+      "quinella_gamma": 1.0,
+      "exacta_gamma": 1.15,
+      "trio_gamma": 1.0,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2021|2022|2023",
+      "temperature": 0.9788660319978552,
+      "temperature_train_races": 10321,
+      "win_gamma": 1.15,
+      "quinella_gamma": 1.0,
+      "exacta_gamma": 1.15,
+      "trio_gamma": 1.0,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2021|2022|2023|2024",
+      "temperature": 0.9855541206488536,
+      "temperature_train_races": 13755,
+      "win_gamma": 1.15,
+      "quinella_gamma": 1.15,
+      "exacta_gamma": 1.15,
+      "trio_gamma": 1.0,
+      "trifecta_gamma": 1.0
+    }
+  ],
+  "calibration_data_counts": {
+    "2021": {
+      "seen": 3456,
+      "usable_top3": 3435,
+      "excluded_ties_or_missing": 21
+    },
+    "2022": {
+      "seen": 3456,
+      "usable_top3": 3444,
+      "excluded_ties_or_missing": 12
+    },
+    "2023": {
+      "seen": 3456,
+      "usable_top3": 3442,
+      "excluded_ties_or_missing": 14
+    },
+    "2024": {
+      "seen": 3456,
+      "usable_top3": 3434,
+      "excluded_ties_or_missing": 22
+    },
+    "2025": {
+      "seen": 3456,
+      "usable_top3": 3428,
+      "excluded_ties_or_missing": 28
+    }
+  },
+  "race_summary_files": [
+    "race-ticket-summary-2022.csv.gz",
+    "race-ticket-summary-2023.csv.gz",
+    "race-ticket-summary-2024.csv.gz",
+    "race-ticket-summary-2025.csv.gz"
+  ],
+  "large_ticket_matrices_persisted": false,
+  "2026_locked": true
+}
