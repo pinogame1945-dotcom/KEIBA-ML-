@@ -1,0 +1,25 @@
+{
+  "contract": "L2_EXACTA_AUTO_V0_RESULT",
+  "bet_type": "EXACTA",
+  "meaning_of_ruleless": "no human-tuned TopK, confidence floor, odds band, LAW, ticket-count cap, or skip-rate target",
+  "irreducible_decision_principle": "select any orientation whose calibrated predicted hit probability times final odds exceeds 1.0",
+  "probability_model": "unordered pair hit probability x conditional direction probability",
+  "calibration": "out-of-time Platt scaling using latest prior year; chronological tail split when only 2022 is available",
+  "variants": [
+    "AUTO_L17_EV",
+    "AUTO_MARKET_AWARE_EV"
+  ],
+  "stakes": "evaluation only at flat 100 yen per selected ticket; L3 stake sizing remains separate",
+  "walk_forward": {
+    "test_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "training": "prior years only"
+  },
+  "law_search": false,
+  "manual_boundaries": false,
+  "2026_locked": true,
+  "script_total_seconds": 446.021539211
+}

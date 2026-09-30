@@ -1,0 +1,3 @@
+# L2 EXACTA AUTO V0 — No Hand-Tuned Rules
+
+This is the no-human-fixed-rule comparison lane. The model estimates the probability that an unordered pair is the first-two pair, then the conditional probability of A->B versus B->A. Probabilities are calibrated only with prior out-of-time data. No TopK, confidence floor, odds band, LAW, ticket-count cap, or forced skip rate is specified. An orientation is selected only when calibrated probability multiplied by final odds is greater than 1.0, i.e. positive model-implied expected value. Flat 100-yen staking is used only to evaluate the ticket-selection layer; stake sizing remains L3. 2026 is sealed.
