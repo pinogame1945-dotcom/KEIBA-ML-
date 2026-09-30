@@ -1,3 +1,4 @@
 launch=2026-09-30\npurpose=confirm_source_payload_vs_decoder\n
 retry=inspect_rejected_key_formats
 retry=canonical_collision_audit
+retry=comma_price_audit
