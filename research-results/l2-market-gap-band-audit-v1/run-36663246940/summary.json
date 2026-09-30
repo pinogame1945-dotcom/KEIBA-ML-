@@ -1,0 +1,68 @@
+{
+  "contract": "L2_MARKET_GAP_BAND_AUDIT_V1_RESULT",
+  "frozen_policy": {
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "policy_reselected": false,
+  "test_years": [
+    2023,
+    2024
+  ],
+  "target_band": "15-24",
+  "target_band_by_year": [
+    {
+      "label": "15-24",
+      "tickets": 213,
+      "hits": 4,
+      "ticket_hit_rate_pct": 1.8779342723004695,
+      "stake_yen": 21300.0,
+      "return_yen": 31050.0,
+      "profit_yen": 9750.0,
+      "roi_pct": 145.77464788732394,
+      "largest_single_return_yen": 9340.0,
+      "largest_return_share_pct": 30.0805152979066,
+      "roi_after_remove_largest_win_pct": 101.92488262910798,
+      "median_odds": 62.8,
+      "median_market_rank": 26.0,
+      "median_model_rank": 8.0,
+      "median_l17_rank": 42.0,
+      "year": 2023,
+      "band": "15-24"
+    },
+    {
+      "label": "15-24",
+      "tickets": 155,
+      "hits": 2,
+      "ticket_hit_rate_pct": 1.2903225806451613,
+      "stake_yen": 15500.0,
+      "return_yen": 10030.0,
+      "profit_yen": -5470.0,
+      "roi_pct": 64.70967741935483,
+      "largest_single_return_yen": 5960.0,
+      "largest_return_share_pct": 59.42173479561316,
+      "roi_after_remove_largest_win_pct": 26.258064516129032,
+      "median_odds": 63.6,
+      "median_market_rank": 28.0,
+      "median_model_rank": 9.0,
+      "median_l17_rank": 24.0,
+      "year": 2024,
+      "band": "15-24"
+    }
+  ],
+  "target_band_month_stats": {
+    "2023": {
+      "months_with_tickets": 12,
+      "positive_roi_months": 4,
+      "profitable_yen_months": 4
+    },
+    "2024": {
+      "months_with_tickets": 12,
+      "positive_roi_months": 2,
+      "profitable_yen_months": 2
+    }
+  },
+  "interpretation_rule": "Do not promote the 15-24 band from this audit alone; it was identified after inspecting 2025 and then checked retrospectively.",
+  "2026_locked": true
+}
