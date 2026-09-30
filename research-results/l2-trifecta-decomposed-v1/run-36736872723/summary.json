@@ -1,0 +1,261 @@
+{
+  "contract": "L2_TRIFECTA_DECOMPOSED_V1_RESULT",
+  "architecture": {
+    "stage1": "binary podium-set model over every unordered 3-horse set",
+    "stage2": "binary conditional-order model trained on all 6 permutations of each true podium set",
+    "final_score": "normalized P(set) * normalized P(order | set)",
+    "market_model_features": false,
+    "market_usage": "hard-negative sampling for stage1 only",
+    "manual_seat_rules": false,
+    "manual_gap_rules": false,
+    "race_skip_rules": false
+  },
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "selected_dev_policy": {
+    "top_n": 120,
+    "years": "2023|2024",
+    "source_races": 6912,
+    "tickets": 828300,
+    "hit_races": 3244,
+    "race_hit_rate_pct": 46.932870370370374,
+    "stake_yen": 82830000.0,
+    "return_yen": 56804630.0,
+    "profit_yen": -26025370.0,
+    "roi_pct": 68.57977785826391
+  },
+  "holdout": {
+    "year": 2025,
+    "top_n": 120,
+    "source_races": 3456,
+    "tickets": 413880,
+    "avg_tickets_per_race": 119.75694444444444,
+    "hit_races": 1665,
+    "race_hit_rate_pct": 48.177083333333336,
+    "stake_yen": 41388000.0,
+    "return_yen": 26156050.0,
+    "profit_yen": -15231950.0,
+    "roi_pct": 63.197182758287425
+  },
+  "diagnostics": {
+    "2023": {
+      "year": 2023,
+      "races": 3456,
+      "mean_unordered_sets": 390.71064814814815,
+      "mean_ordered_tickets": 2344.2638888888887,
+      "set_reach": {
+        "1": {
+          "races": 226,
+          "rate_pct": 6.539351851851852
+        },
+        "3": {
+          "races": 500,
+          "rate_pct": 14.467592592592593
+        },
+        "5": {
+          "races": 743,
+          "rate_pct": 21.49884259259259
+        },
+        "10": {
+          "races": 1098,
+          "rate_pct": 31.770833333333332
+        },
+        "20": {
+          "races": 1544,
+          "rate_pct": 44.675925925925924
+        },
+        "50": {
+          "races": 2120,
+          "rate_pct": 61.342592592592595
+        },
+        "100": {
+          "races": 2595,
+          "rate_pct": 75.08680555555556
+        },
+        "200": {
+          "races": 3130,
+          "rate_pct": 90.56712962962963
+        }
+      },
+      "conditional_order_rank": {
+        "1": {
+          "races": 842,
+          "rate_pct": 24.363425925925927
+        },
+        "2": {
+          "races": 727,
+          "rate_pct": 21.03587962962963
+        },
+        "3": {
+          "races": 603,
+          "rate_pct": 17.447916666666668
+        },
+        "4": {
+          "races": 509,
+          "rate_pct": 14.72800925925926
+        },
+        "5": {
+          "races": 391,
+          "rate_pct": 11.313657407407407
+        },
+        "6": {
+          "races": 384,
+          "rate_pct": 11.11111111111111
+        }
+      },
+      "counters": {
+        "ok_races": 3456
+      }
+    },
+    "2024": {
+      "year": 2024,
+      "races": 3456,
+      "mean_unordered_sets": 382.67042824074076,
+      "mean_ordered_tickets": 2296.0225694444443,
+      "set_reach": {
+        "1": {
+          "races": 225,
+          "rate_pct": 6.510416666666667
+        },
+        "3": {
+          "races": 548,
+          "rate_pct": 15.856481481481481
+        },
+        "5": {
+          "races": 786,
+          "rate_pct": 22.743055555555557
+        },
+        "10": {
+          "races": 1193,
+          "rate_pct": 34.519675925925924
+        },
+        "20": {
+          "races": 1647,
+          "rate_pct": 47.65625
+        },
+        "50": {
+          "races": 2208,
+          "rate_pct": 63.888888888888886
+        },
+        "100": {
+          "races": 2639,
+          "rate_pct": 76.35995370370371
+        },
+        "200": {
+          "races": 3140,
+          "rate_pct": 90.85648148148148
+        }
+      },
+      "conditional_order_rank": {
+        "1": {
+          "races": 866,
+          "rate_pct": 25.05787037037037
+        },
+        "2": {
+          "races": 759,
+          "rate_pct": 21.961805555555557
+        },
+        "3": {
+          "races": 613,
+          "rate_pct": 17.73726851851852
+        },
+        "4": {
+          "races": 465,
+          "rate_pct": 13.45486111111111
+        },
+        "5": {
+          "races": 389,
+          "rate_pct": 11.255787037037036
+        },
+        "6": {
+          "races": 364,
+          "rate_pct": 10.532407407407407
+        }
+      },
+      "counters": {
+        "ok_races": 3456
+      }
+    },
+    "2025": {
+      "year": 2025,
+      "races": 3456,
+      "mean_unordered_sets": 399.787037037037,
+      "mean_ordered_tickets": 2398.722222222222,
+      "set_reach": {
+        "1": {
+          "races": 226,
+          "rate_pct": 6.539351851851852
+        },
+        "3": {
+          "races": 567,
+          "rate_pct": 16.40625
+        },
+        "5": {
+          "races": 794,
+          "rate_pct": 22.974537037037038
+        },
+        "10": {
+          "races": 1198,
+          "rate_pct": 34.664351851851855
+        },
+        "20": {
+          "races": 1639,
+          "rate_pct": 47.42476851851852
+        },
+        "50": {
+          "races": 2189,
+          "rate_pct": 63.339120370370374
+        },
+        "100": {
+          "races": 2635,
+          "rate_pct": 76.24421296296296
+        },
+        "200": {
+          "races": 3147,
+          "rate_pct": 91.05902777777777
+        }
+      },
+      "conditional_order_rank": {
+        "1": {
+          "races": 838,
+          "rate_pct": 24.247685185185187
+        },
+        "2": {
+          "races": 782,
+          "rate_pct": 22.627314814814813
+        },
+        "3": {
+          "races": 640,
+          "rate_pct": 18.51851851851852
+        },
+        "4": {
+          "races": 422,
+          "rate_pct": 12.210648148148149
+        },
+        "5": {
+          "races": 404,
+          "rate_pct": 11.689814814814815
+        },
+        "6": {
+          "races": 370,
+          "rate_pct": 10.706018518518519
+        }
+      },
+      "counters": {
+        "ok_races": 3456
+      }
+    }
+  },
+  "comparison_reference_2025_one_stage_compat": {
+    "top_n": 5,
+    "roi_pct": 96.22337962962963,
+    "hit_races": 78,
+    "source_races": 3456
+  },
+  "2026_locked": true,
+  "production_promotion": false
+}
