@@ -342,17 +342,14 @@ def main():
 
         score = work / "score.jsonl.gz"
         run([
-            sys.executable, "research/emit_l1_to_l2.py",
+            sys.executable, "research/score_l1_raw_light_v1.py",
             "--dataset", projection,
             "--model", model,
             "--schema", schema,
             "--meta", meta,
             "--output", score,
-            "--candidate-name", candidate,
-            "--feature-sets-json", '["BASE"]',
             "--valid-start", valid_start,
             "--valid-end", valid_end,
-            "--chunk-size", "64",
         ])
 
         audit = audit_score(score, truth, router, candidate, a.year)
