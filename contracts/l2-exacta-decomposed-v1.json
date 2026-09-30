@@ -1,0 +1,47 @@
+{
+  "contract": "L2_EXACTA_DECOMPOSED_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Compare frozen corrected direct V0 against a faster decomposed unordered-pair ranker plus direction classifier.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "walk_forward": "all prior years only",
+  "baseline": {
+    "direct_v0_run": 36679351117,
+    "retrain_direct": false,
+    "reuse_committed_metrics": true
+  },
+  "decomposed": {
+    "pair_universe": "all priced unordered first-two pairs",
+    "pair_count_formula": "N*(N-1)/2",
+    "direction_training": "unique winning first-two pair only",
+    "direction_output": "one chosen orientation per pair",
+    "market_variant": true,
+    "l17_only_variant": true,
+    "market_aware_variant": true
+  },
+  "primary_metrics": [
+    "pair_capture_pct",
+    "direction_correct_pct_of_captured",
+    "exact_hit_coverage_pct"
+  ],
+  "speed": {
+    "repeat_all_bet_decoder_audit": false,
+    "repeat_direct_ranker_training": false,
+    "materialize_l17_once_per_year": true,
+    "same_runner_reuse": true,
+    "artifact_cache": false
+  },
+  "research": {
+    "law_search": false,
+    "roi_policy_search": false,
+    "cross_market_search": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
