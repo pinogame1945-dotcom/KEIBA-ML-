@@ -1,0 +1,47 @@
+{
+  "contract": "L2_MARKET_GAP_V2_ROBUST_AUDIT",
+  "source_run_id": 36654227618,
+  "frozen_policy": {
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "rule": "2025 is diagnostic only; no policy may be selected or changed from holdout results",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "tests": [
+    "exact 2025 reproduction",
+    "2023/2024/2025 frozen-policy year metrics",
+    "monthly/quarterly/half-year/cumulative holdout stability",
+    "top-win removal and return caps",
+    "race-bootstrap ROI uncertainty",
+    "odds/market-gap/model-rank/market-rank/L1.7-pair bands",
+    "surface/venue/distance/field-size/race-class splits",
+    "same-race MARKET Top1 / MODEL Top1 / L1.7 Top1 controls",
+    "random MODEL Top15 same-race simulation",
+    "all policy-grid performance by year",
+    "policy ROI Spearman stability across years",
+    "frozen policy rank by year",
+    "2023-only champion transfer to 2024/2025",
+    "2024-only champion transfer to 2025",
+    "neighbor-policy stability"
+  ],
+  "persistence": {
+    "large_prediction_matrix": false,
+    "compact_csv_json_only": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
