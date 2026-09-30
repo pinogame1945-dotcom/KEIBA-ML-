@@ -215,11 +215,19 @@ jobs:
               ss=sorted({int(s) for y in years for s in rows[y]["king7to10"]["score_exact"][str(k)]})
               k7to10_exact[str(k)]={str(s):merge([rows[y]["king7to10"]["score_exact"][str(k)].get(str(s),blank()) for y in years]) for s in ss}
           king7to10={"overall":k7to10_overall,"score_bucket":k7to10_bucket,"score_exact":k7to10_exact}
+          all_ranks=sorted({int(k) for y in years for k in rows[y]["all_king_ranks"]["overall"]})
+          all_overall={str(k):merge([rows[y]["all_king_ranks"]["overall"].get(str(k),blank()) for y in years]) for k in all_ranks}
+          all_exact={}
+          for k in all_ranks:
+              ss=sorted({int(s) for y in years for s in rows[y]["all_king_ranks"]["score_exact"].get(str(k),{})})
+              all_exact[str(k)]={str(s):merge([rows[y]["all_king_ranks"]["score_exact"].get(str(k),{}).get(str(s),blank()) for y in years]) for s in ss}
+          all_king_ranks={"overall":all_overall,"score_exact":all_exact}
           out={"contract":"L16_OUTSIDER_HIGH_SCORE_LOW_KING_OUTCOME_ALL_YEARS_V1",
                "years":years,"cross":cross,"focus":focus,"exact_score_king7plus":exact,"king456":king456,"king7to10":king7to10,
+               "all_king_ranks":all_king_ranks,
                "by_year":{str(y):rows[y] for y in years},"2026_sealed":True,"odds_used":False}
           (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
-          print(json.dumps({"focus":focus,"king456":king456,"king7to10":king7to10},ensure_ascii=False,separators=(",",":")))
+          print(json.dumps({"focus":focus,"king456":king456,"king7to10":king7to10,"all_king_ranks":all_king_ranks},ensure_ascii=False,separators=(",",":")))
           PY
 
           git config user.name "keiba-ml-research-bot"
