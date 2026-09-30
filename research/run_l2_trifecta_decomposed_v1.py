@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse,csv,hashlib,itertools,json,math
-from collections import defaultdict
+from collections import Counter,defaultdict
 from pathlib import Path
 
 import lightgbm as lgb
