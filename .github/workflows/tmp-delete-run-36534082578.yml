@@ -1,4 +1,4 @@
-name: Remove obsolete failed run 36534082578
+name: Remove superseded failed runs
 
 on:
   push:
@@ -14,16 +14,63 @@ permissions:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    timeout-minutes: 5
+    timeout-minutes: 10
     env:
       GH_TOKEN: ${{ github.token }}
     steps:
-      - name: Delete exact obsolete failed run
+      - name: Delete exact superseded failed runs
+        shell: bash
         run: |
-          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36534082578"
-          echo "deleted run 36534082578"
+          set -euo pipefail
+          deleted=0
+          missing=0
+          for id in \
+            36663849067
+            36661913567
+            36659781047
+            36659616651
+            36659491678
+            36658037330
+            36657433247
+            36653856457
+            36653196856
+            36592413282
+            36586197610
+            36585345997
+            36585317952
+            36584925980
+            36578281478
+            36564384418
+            36558089948
+            36557312118
+            36556958478
+            36555271560
+            36548159938
+            36548035610
+            36547759954
+            36547671496
+            36539670941
+            36539549100
+          do
+            if gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$id" >/dev/null 2>&1; then
+              echo "DELETED=$id"
+              deleted=$((deleted+1))
+            else
+              status="$(gh api -i "repos/$GITHUB_REPOSITORY/actions/runs/$id" 2>/dev/null | head -n1 || true)"
+              if [[ "$status" == *"404"* || -z "$status" ]]; then
+                echo "ALREADY_GONE=$id"
+                missing=$((missing+1))
+              else
+                echo "FAILED_DELETE=$id status=$status" >&2
+                exit 1
+              fi
+            fi
+          done
+          echo "DELETED_COUNT=$deleted"
+          echo "ALREADY_GONE_COUNT=$missing"
+
       - name: Cost guard
         if: always()
         run: |
           echo "standard ubuntu-latest only"
-          echo "no artifacts, cache, gpu, or paid storage"
+          echo "no gpu, artifact, cache, paid compute, or paid storage"
