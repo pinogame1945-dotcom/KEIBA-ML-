@@ -1,14 +1,14 @@
 {
   "contract": "L2_MARKET_GAP_V2_ROBUST_AUDIT",
   "source_run_id": 36654227618,
+  "source_path": "research-results/l2-ticket-market-gap-v2/run-36654227618",
   "frozen_policy": {
     "model_top_k": 15,
     "min_market_rank_upgrade": 5,
     "max_tickets_per_race": 1
   },
-  "rule": "2025 is diagnostic only; no policy may be selected or changed from holdout results",
+  "rule": "Audit persisted frozen outputs only. Do not recompute L1.7 or model. 2025 is diagnostic only.",
   "years": [
-    2022,
     2023,
     2024,
     2025
@@ -17,22 +17,26 @@
     2026
   ],
   "tests": [
-    "exact 2025 reproduction",
-    "2023/2024/2025 frozen-policy year metrics",
+    "exact 2025 frozen ticket reproduction",
     "monthly/quarterly/half-year/cumulative holdout stability",
-    "top-win removal and return caps",
-    "race-bootstrap ROI uncertainty",
+    "top-win removal and payout caps",
+    "ticket bootstrap and month-block bootstrap",
+    "leave-one-month-out",
     "odds/market-gap/model-rank/market-rank/L1.7-pair bands",
     "surface/venue/distance/field-size/race-class splits",
-    "same-race MARKET Top1 / MODEL Top1 / L1.7 Top1 controls",
-    "random MODEL Top15 same-race simulation",
-    "all policy-grid performance by year",
-    "policy ROI Spearman stability across years",
-    "frozen policy rank by year",
-    "2023-only champion transfer to 2024/2025",
-    "2024-only champion transfer to 2025",
-    "neighbor-policy stability"
+    "development-vs-holdout full policy-surface correlation",
+    "neighbor-policy stability",
+    "2025 global pure-ranking controls"
   ],
+  "limitations": [
+    "same-race alternative-ticket controls require non-persisted full pair matrix",
+    "2023-only/2024-only transfer requires non-persisted full pair matrix"
+  ],
+  "inputs": {
+    "kaggle": false,
+    "upstream_recompute": false,
+    "backfill_2025_daily_only": true
+  },
   "persistence": {
     "large_prediction_matrix": false,
     "compact_csv_json_only": true
