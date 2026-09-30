@@ -1,0 +1,53 @@
+{
+  "contract": "L2_EXACTA_AUTO_V0",
+  "bet_type": "EXACTA",
+  "purpose": "No-human-fixed-rule comparison lane for exacta ticket selection.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "walk_forward": "prior years only",
+  "human_fixed_selection_rules": {
+    "top_k": false,
+    "confidence_floor": false,
+    "odds_band": false,
+    "law": false,
+    "ticket_count_cap": false,
+    "forced_skip_rate": false
+  },
+  "model": {
+    "pair_probability": "binary classifier over all priced unordered pairs",
+    "direction_probability": "binary classifier on strict unique winning first-two pairs",
+    "calibration": "out-of-time Platt scaling",
+    "exacta_probability": "P(pair first-two) * P(direction | pair first-two)"
+  },
+  "decision": {
+    "criterion": "calibrated_exacta_probability * final_odds > 1",
+    "interpretation": "positive model-implied expected value",
+    "both_directions_allowed": true,
+    "variable_ticket_count": true,
+    "race_skip_allowed": true
+  },
+  "variants": [
+    "AUTO_L17_EV",
+    "AUTO_MARKET_AWARE_EV"
+  ],
+  "evaluation": {
+    "flat_stake_yen_per_ticket": 100,
+    "flat_stake_is_l2_evaluation_only": true,
+    "l3_stake_sizing_separate": true
+  },
+  "speed": {
+    "all_bet_decoder_audit_repeated": false,
+    "ordered_pair_matrix_replaced_by_unordered_pairs": true,
+    "l17_materialized_once_per_year": true,
+    "same_runner_reuse": true,
+    "persistent_cache": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
