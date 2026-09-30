@@ -246,8 +246,15 @@ def policy_stability(dev,hold):
     m=d[cols].merge(h[cols],on="policy_key",suffixes=("_dev","_hold"))
     for c in [x for x in m.columns if x!="policy_key"]:
         m[c]=pd.to_numeric(m[c],errors="coerce")
-    spearman=float(m["roi_pct_dev"].corr(m["roi_pct_hold"],method="spearman"))
-    pearson=float(m["roi_pct_dev"].corr(m["roi_pct_hold"],method="pearson"))
+    dev_roi=pd.to_numeric(m["roi_pct_dev"],errors="coerce")
+    hold_roi=pd.to_numeric(m["roi_pct_hold"],errors="coerce")
+    valid=dev_roi.notna() & hold_roi.notna()
+    dev_valid=dev_roi[valid]
+    hold_valid=hold_roi[valid]
+    pearson=float(dev_valid.corr(hold_valid,method="pearson")) if len(dev_valid)>=2 else float("nan")
+    dev_rank=dev_valid.rank(method="average")
+    hold_rank=hold_valid.rank(method="average")
+    spearman=float(dev_rank.corr(hold_rank,method="pearson")) if len(dev_rank)>=2 else float("nan")
     m["roi_rank_dev"]=m["roi_pct_dev"].rank(method="min",ascending=False)
     m["roi_rank_hold"]=m["roi_pct_hold"].rank(method="min",ascending=False)
     fk="15|5|1"
