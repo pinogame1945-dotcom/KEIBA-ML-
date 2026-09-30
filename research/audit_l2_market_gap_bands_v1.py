@@ -99,6 +99,7 @@ def main():
     month_all=[]
     bootstrap_rows=[]
     full_selected=[]
+    target_selected=[]
 
     for y in TEST_YEARS:
         train=pd.concat([frames[t] for t in YEARS if t<y],ignore_index=True)
@@ -110,6 +111,7 @@ def main():
         selected["year"]=y
         full_selected.append(selected)
 
+        target_selected.append(selected[(selected["rank_upgrade"]>=15)&(selected["rank_upgrade"]<25)].copy())
         for band,lo,hi in BANDS:
             g=selected[(selected["rank_upgrade"]>=lo)&(selected["rank_upgrade"]<hi)].copy()
             r=metrics(g,band)
@@ -133,6 +135,60 @@ def main():
     write_csv(out/"gap-band-bootstrap.csv",bootstrap_rows)
     write_csv(out/"gap-band-monthly.csv",month_all)
     write_csv(out/"gap-band-pooled-dev.csv",pooled_rows)
+
+    target_df=pd.concat(target_selected,ignore_index=True)
+    target_df["distance_band"]=pd.cut(
+        target_df["distance_m"],
+        [-1,1400,1800,2200,2600,10**9],
+        labels=["<=1400","1401-1800","1801-2200","2201-2600","2601+"],
+        right=True
+    ).astype(str)
+    target_df["field_size_band"]=pd.cut(
+        target_df["field_size"],
+        [-1,10,12,14,16,10**9],
+        labels=["<=10","11-12","13-14","15-16","17+"],
+        right=True
+    ).astype(str)
+    target_df["odds_band"]=pd.cut(
+        target_df["odds"],
+        [-1,20,40,60,80,100,10**9],
+        labels=["<20","20-40","40-60","60-80","80-100","100+"],
+        right=False
+    ).astype(str)
+    target_df["market_rank_band"]=pd.cut(
+        target_df["market_rank"],
+        [-1,15,20,25,30,40,10**9],
+        labels=["<=15","16-20","21-25","26-30","31-40","41+"],
+        right=True
+    ).astype(str)
+    target_df["model_rank_band"]=pd.cut(
+        target_df["model_rank"],
+        [-1,3,5,8,10,15],
+        labels=["1-3","4-5","6-8","9-10","11-15"],
+        right=True
+    ).astype(str)
+    target_df["l17_rank_band"]=pd.cut(
+        target_df["l17_rank_score"],
+        [-1,10,20,30,40,60,10**9],
+        labels=["<=10","11-20","21-30","31-40","41-60","61+"],
+        right=True
+    ).astype(str)
+
+    context_rows=[]
+    for y in TEST_YEARS:
+        yy=target_df[target_df["year"]==y]
+        for col in ["surface","distance_band","field_size_band","odds_band","market_rank_band","model_rank_band","l17_rank_band"]:
+            for val,g in yy.groupby(col,dropna=False,sort=True):
+                r=metrics(g,f"{y}:{col}:{val}")
+                r.update({"year":y,"dimension":col,"value":str(val)})
+                context_rows.append(r)
+    write_csv(out/"target-15-24-context.csv",context_rows)
+    keep=[
+        "year","race_id","race_date","pair_numbers","rank_upgrade","odds",
+        "market_rank","model_rank","l17_rank_score","a_consensus_rank","b_consensus_rank",
+        "surface","distance_m","field_size","hit","return_yen_per100"
+    ]
+    target_df[keep].to_csv(out/"target-15-24-tickets.csv",index=False)
 
     target=[r for r in summary_rows if r["band"]=="15-24"]
     target_month=[r for r in month_all if r["band"]=="15-24"]
