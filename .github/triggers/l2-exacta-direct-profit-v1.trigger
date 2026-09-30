@@ -1,1 +1,1 @@
-2026-09-30 launch exacta direct-profit V1; predict ticket return directly, no hit-probability EV multiplication
+2026-09-30 relaunch exacta direct-profit V1 after vectorized ordered-ticket expansion
