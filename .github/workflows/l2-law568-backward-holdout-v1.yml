@@ -20,25 +20,31 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 360
     env:
-      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
 
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: ${{ github.ref_name }}
+          ref: \${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
       - name: Guards
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_l2_law568_backward_holdout_v1.py             research/run_l2_market_gap_law_arena_v1.py             research/materialize_l17_seven_king_fullfield_v1.py
-          bash -n scripts/kaggle-dataset-session-v2.sh
+          python -m py_compile \
+            research/run_l2_law568_backward_holdout_v1.py \
+            research/run_l2_market_gap_law_arena_v1.py \
+            research/materialize_l17_seven_king_fullfield_v1.py
+          node --check research/build-yearly-superset-snapshots.mjs
           bash -n scripts/rebuild-seven-score-local-v1.sh
           python - <<'PY'
           import json
@@ -65,34 +71,74 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --disable-pip-version-check kaggle
           python -m pip install --disable-pip-version-check -r ml/requirements.txt
 
-      - name: Restore 2020-2021 seven scores metadata-first
+      - name: Sparse restore historical BACKFILL source
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2016-*.jsonl.gz
+          /data/daily/2017-*.jsonl.gz
+          /data/daily/2018-*.jsonl.gz
+          /data/daily/2019-*.jsonl.gz
+          /data/daily/2020-*.jsonl.gz
+          /data/daily/2021-*.jsonl.gz
+          /data/horses/*
+          /data/odds/daily/2020-*.jsonl.gz
+          /data/odds/daily/2021-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          du -sh out/backfill/data/daily out/backfill/data/horses out/backfill/data/odds || true
+
+      - name: Build runner-local 2018-2021 snapshots
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/local-old-snapshots
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root out/backfill \
+            --out-dir out/local-old-snapshots \
+            --source-start 2016-01-01 \
+            --source-end 2021-12-31 \
+            --emit-start 2018-01-01 \
+            --emit-end 2021-12-31 \
+            --first-model-ready-year 2018 \
+            --prediction-phase FINAL \
+            --source-sha "$BACKFILL_SHA" \
+            --ml-source-sha "$GITHUB_SHA"
+          manifest="$(find out/local-old-snapshots -type f -name manifest.json -print -quit)"
+          test -n "$manifest"; test -s "$manifest"
+          root="$(dirname "$manifest")"
+          python - "$manifest" <<'PY'
+          import json,sys
+          m=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert m["contract"]=="L1_YEARLY_SUPERSET_SNAPSHOT_V1"
+          years={int(x["year"]):x for x in m["years"]}
+          assert set(range(2018,2022)).issubset(years),sorted(years)
+          for y in range(2018,2022):
+              assert int(years[y]["rows"])>0
+          print("LOCAL_OLD_SNAPSHOT_READY",[(y,years[y]["rows"]) for y in range(2018,2022)])
+          PY
+          echo "LOCAL_SNAPSHOT_ROOT=$root" >> "$GITHUB_ENV"
+          du -sh "$root"
+
+      - name: Rebuild 2020-2021 seven scores from local snapshots
         shell: bash
         run: |
           set -euo pipefail
           for y in 2020 2021; do
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/scores/$y/$alias"
-              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
               mkdir -p "$d"
-              set +e
-              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
-              rc=$?
-              if [[ "$rc" -eq 0 ]]; then
-                bash scripts/kaggle-dataset-session-v2.sh fetch "$d" score.jsonl
-                rc=$?
-              fi
-              set -e
-              if [[ "$rc" -eq 43 || "$rc" -eq 44 ]]; then
-                echo "::warning::score source unavailable; local rebuild year=$y alias=$alias rc=$rc"
-                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+              rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+              SEVEN_SCORE_LOCAL_SNAPSHOT_ROOT="$LOCAL_SNAPSHOT_ROOT" \
                 bash scripts/rebuild-seven-score-local-v1.sh "$alias" "$y" "$d"
-              elif [[ "$rc" -ne 0 ]]; then
-                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
-                exit "$rc"
-              fi
               p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
               test -n "$p"; test -s "$p"
             done
@@ -105,40 +151,36 @@ jobs:
           mkdir -p out/l17
           for y in 2020 2021; do
             args=()
-            for spec in               core4_no_pedigree=core4               no_auto_full_pedigree_legacy=pedlegacy               jockey_trainer_condition=condition               no_auto_full=full               no_auto_jockey=light               no_auto_full_pedigree_v1=pedv1               jockey_trainer_condition_plus_raceclass=condrc; do
-              name="${spec%%=*}"; alias="${spec##*=}"
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="\${spec%%=*}"; alias="\${spec##*=}"
               p="$(find "out/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
               test -n "$p"; test -s "$p"
               args+=(--expert "$name=$p")
             done
             out="out/l17/l17-$y.jsonl.gz"
-            python research/materialize_l17_seven_king_fullfield_v1.py               --year "$y" "${args[@]}" --output "$out"
+            python research/materialize_l17_seven_king_fullfield_v1.py \
+              --year "$y" "\${args[@]}" --output "$out"
             test -s "$out"
             echo "L17_$y=$out" >> "$GITHUB_ENV"
           done
-
-      - name: Sparse restore 2020-2021 race and odds packs
-        shell: bash
-        run: |
-          set -euo pipefail
-          rm -rf out/backfill
-          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
-          git -C out/backfill sparse-checkout init --no-cone
-          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
-          /data/daily/2020-*.jsonl.gz
-          /data/daily/2021-*.jsonl.gz
-          /data/odds/daily/2020-*.jsonl.gz
-          /data/odds/daily/2021-*.jsonl.gz
-          EOF
-          git -C out/backfill checkout "$BACKFILL_SHA"
-          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
 
       - name: Run frozen 2021 backward holdout
         shell: bash
         run: |
           set -euo pipefail
           result="research-results/l2-law568-backward-holdout-v1/run-$GITHUB_RUN_ID"
-          python research/run_l2_law568_backward_holdout_v1.py             --l17-2020 "$L17_2020"             --l17-2021 "$L17_2021"             --backfill-root out/backfill             --out-dir "$result"
+          python research/run_l2_law568_backward_holdout_v1.py \
+            --l17-2020 "$L17_2020" \
+            --l17-2021 "$L17_2021" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
           echo "===== SUMMARY ====="
           cat "$result/summary.json"
           echo "===== LAW METRICS ====="
@@ -153,8 +195,9 @@ jobs:
           echo "Standard GitHub-hosted ubuntu-latest CPU only."
           echo "No GPU / paid runner."
           echo "No actions/cache or upload-artifact."
-          echo "Kaggle read-only; no dataset/model upload."
-          echo "Compact CSV/JSON results only."
+          echo "No Kaggle/model/dataset persistence."
+          echo "Historical snapshots and scores are runner-local and ephemeral."
+          echo "Expected BACKFILL sparse source is well below 1 GiB."
           echo "2026 remains sealed."
 
       - name: Commit compact results
