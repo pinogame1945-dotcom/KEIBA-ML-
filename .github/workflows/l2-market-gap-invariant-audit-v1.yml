@@ -17,8 +17,7 @@ concurrency:
 
 jobs:
   evaluate:
-    if: ${{ false }}
-    if: ${{ false }}
+    if: false
     runs-on: ubuntu-latest
     timeout-minutes: 300
     env:
