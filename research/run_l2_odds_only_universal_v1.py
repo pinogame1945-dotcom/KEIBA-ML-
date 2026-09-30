@@ -7,6 +7,8 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
+import numpy as np
+
 from build_l2_bet_kings_dataset_v1 import decode_odds, payout_map, horse_number_map
 
 YEARS=(2021,2022,2023,2024,2025)
@@ -93,17 +95,16 @@ def read_year_pairs(root,year):
             yield date,rid,pack,row
 
 def market_distribution(tickets):
-    raw=[1.0/max(EPS,float(odd)) for _,odd in tickets]
-    s=sum(raw)
+    raw=np.fromiter((1.0/max(EPS,float(odd)) for _,odd in tickets),dtype=float,count=len(tickets))
+    s=float(raw.sum())
     if not math.isfinite(s) or s<=0:
         raise ValueError("invalid market inverse-odds sum")
-    p=[x/s for x in raw]
-    return p,s
+    return raw/s,s
 
 def logsumexp_scaled(logps,gamma):
-    vals=[gamma*x for x in logps]
-    m=max(vals)
-    return m+math.log(sum(math.exp(x-m) for x in vals))
+    vals=gamma*logps
+    m=float(np.max(vals))
+    return m+math.log(float(np.exp(vals-m).sum()))
 
 def collect_calibration_stats(root):
     stats={
@@ -137,7 +138,7 @@ def collect_calibration_stats(root):
                 if wk not in idx:
                     continue
                 pw=max(EPS,probs[idx[wk]])
-                logps=[math.log(max(EPS,p)) for p in probs]
+                logps=np.log(np.clip(probs,EPS,None))
                 lpw=math.log(pw)
                 for g in GAMMA_GRID:
                     logz=logsumexp_scaled(logps,g)
@@ -261,9 +262,9 @@ def evaluate_year(root,year,gammas,out_race):
                     continue
                 probs,overround=market_distribution(tickets)
                 gamma=float(gammas[bet])
-                powered=[p**gamma for p in probs]
-                z=sum(powered)
-                cal=[x/z for x in powered]
+                powered=np.power(probs,gamma)
+                z=float(powered.sum())
+                cal=powered/z
 
                 for variant,ps,g in (
                     ("RAW_MARKET",probs,1.0),
@@ -272,7 +273,7 @@ def evaluate_year(root,year,gammas,out_race):
                     m=metrics[(variant,bet)]
                     m["source_races"]+=1
                     m["priced_tickets"]+=len(tickets)
-                    m["probability_mass_priced"]+=sum(ps)
+                    m["probability_mass_priced"]+=float(np.sum(ps))
                     m["overround_sum"]+=overround
                     m["overround_min"]=min(m["overround_min"],overround)
                     m["overround_max"]=max(m["overround_max"],overround)
