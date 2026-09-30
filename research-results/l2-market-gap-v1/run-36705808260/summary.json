@@ -1,0 +1,42 @@
+{
+  "contract": "L2_MARKET_GAP_V1",
+  "idea": "Keep L1.7 ranking fixed. Buy-side condition is market popularity rank worse than king rank: popularity - king_rank > 0.",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "l17_races_by_year": {
+    "2022": 3456,
+    "2023": 3456,
+    "2024": 3456,
+    "2025": 3456
+  },
+  "races_processed": 13824,
+  "daily_files_scanned": 430,
+  "market_source": "BACKFILL result rows: final popularity and win_odds, keyed by horse_id",
+  "selection_inputs": [
+    "L1.7 consensus rank",
+    "final market popularity rank"
+  ],
+  "outcome_or_payout_used_for_selection": false,
+  "learning": false,
+  "rerank_l1": false,
+  "gap_definition": "market_popularity_rank - l17_consensus_rank",
+  "buy_rule": "gap > 0",
+  "skip_rule": "gap <= 0",
+  "gap_buckets": [
+    "NEG_4PLUS",
+    "NEG_2_3",
+    "NEG_1",
+    "ZERO",
+    "POS_1",
+    "POS_2_3",
+    "POS_4PLUS"
+  ],
+  "market_missing_races": 0,
+  "market_missing_focal_occurrences": 0,
+  "2026_locked": true,
+  "production_promotion": false
+}
