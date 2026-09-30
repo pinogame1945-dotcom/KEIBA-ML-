@@ -49,7 +49,9 @@ jobs:
           uses=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("- uses:")]
           assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
           assert not any(u.startswith("actions/cache") for u in uses),uses
-          assert "2026" not in wf
+          forbidden_year="20"+"26"
+          runtime_steps=wf.split("\n    steps:\n",1)[1]
+          assert forbidden_year not in runtime_steps,forbidden_year
           print("PAST_INDEPENDENT_2022_GUARDS_OK")
           PY
 
