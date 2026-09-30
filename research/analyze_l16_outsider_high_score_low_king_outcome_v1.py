@@ -97,9 +97,9 @@ def main():
     exact456=defaultdict(blank)
     bucket456=defaultdict(blank)
     overall456=defaultdict(blank)
-    exact7=defaultdict(blank)
-    bucket7=defaultdict(blank)
-    overall7=blank()
+    exact7to10=defaultdict(blank)
+    bucket7to10=defaultdict(blank)
+    overall7to10=defaultdict(blank)
 
     for rid,hs in pts.items():
         for hid,s in hs.items():
@@ -115,10 +115,10 @@ def main():
             if s>=21 and 4<=kr<=6:add(focus["score21plus_king4to6"],pos)
             if kr>=7:add(exact_score_lowrank[s],pos)
 
-    # Exact King ranks 4/5/6 and King rank 7, including zero Outsider points.
+    # Exact King ranks 4/5/6/7/8/9/10, including zero Outsider points.
     for rid,hs in ranks.items():
         for hid,kr in hs.items():
-            if kr not in (4,5,6,7): continue
+            if kr not in (4,5,6,7,8,9,10): continue
             s=pts[rid].get(hid,0)
             pos=truth[rid].get(hid)
             b="0" if s==0 else score_bucket(s)
@@ -127,9 +127,9 @@ def main():
                 add(exact456[(kr,s)],pos)
                 add(bucket456[(kr,b)],pos)
             else:
-                add(overall7,pos)
-                add(exact7[s],pos)
-                add(bucket7[b],pos)
+                add(overall7to10[kr],pos)
+                add(exact7to10[(kr,s)],pos)
+                add(bucket7to10[(kr,b)],pos)
 
     order_s=("1-5","6-10","11-15","16-20","21-25","26+")
     order_k=("1","2","3","4-6","7-10","11+")
@@ -140,10 +140,10 @@ def main():
       "cross":{sb:{kb:fin(cross[(sb,kb)]) for kb in order_k} for sb in order_s},
       "focus":{k:fin(v) for k,v in focus.items()},
       "exact_score_king7plus":{str(s):fin(v) for s,v in sorted(exact_score_lowrank.items())},
-      "king7":{
-        "overall":fin(overall7),
-        "score_bucket":{b:fin(bucket7[b]) for b in ("0","1-5","6-10","11-15","16-20","21-25","26+")},
-        "score_exact":{str(s):fin(exact7[s]) for s in range(40) if exact7[s]["n"]>0}
+      "king7to10":{
+        "overall":{str(k):fin(overall7to10[k]) for k in (7,8,9,10)},
+        "score_bucket":{str(k):{b:fin(bucket7to10[(k,b)]) for b in ("0","1-5","6-10","11-15","16-20","21-25","26+")} for k in (7,8,9,10)},
+        "score_exact":{str(k):{str(s):fin(exact7to10[(k,s)]) for s in range(40) if exact7to10[(k,s)]["n"]>0} for k in (7,8,9,10)}
       },
       "king456":{
         "overall":{str(k):fin(overall456[k]) for k in (4,5,6)},
