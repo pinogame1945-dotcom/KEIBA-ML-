@@ -28,7 +28,7 @@ TEST_YEARS=(2023,2024,2025)
 ID_COLS={
     "year","race_id","race_date","pair_horse_ids","pair_numbers",
     "a_horse_id","b_horse_id","a_horse_number","b_horse_number",
-    "pair_hit","hit_a_to_b","hit_b_to_a","direction_label","direction_eligible",
+    "pair_hit","hit_a_to_b","hit_b_to_a","return_a_to_b","return_b_to_a","direction_label","direction_eligible",
     "strict_direction_eligible","multi_direction_hit",
     "odds_a_to_b","odds_b_to_a","market_q_a_to_b","market_q_b_to_a",
     "pair_market_q","pair_market_log_q","pair_market_rank",
@@ -168,6 +168,8 @@ def build_pair_year_frame(year,l17_rows,backfill_root):
                         "pair_hit":pair_hit,
                         "hit_a_to_b":hab,
                         "hit_b_to_a":hba,
+                        "return_a_to_b":rab,
+                        "return_b_to_a":rba,
                         "direction_label":label,
                         "direction_eligible":direction_eligible,
                         "strict_direction_eligible":0,
