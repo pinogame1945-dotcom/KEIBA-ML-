@@ -1,0 +1,89 @@
+{
+  "contract": "L2_UNIVERSAL_TICKET_EV_V1",
+  "candidate_universe": "all priced tickets present in historical odds for every L1.7 full-field runner",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "probability_model": {
+    "family": "temperature-calibrated Plackett-Luce decomposition",
+    "horse_strength_source": "L1.7 seven-king mean_probability only",
+    "odds_used_in_probability_model": false,
+    "market_used_in_probability_model": false,
+    "payout_used_in_probability_model": false,
+    "finish_results_used_for_temperature_training": "strictly prior years only",
+    "temperature_bounds": [
+      0.2,
+      5.0
+    ]
+  },
+  "buy_rule": "ticket_probability * odds > 1.0",
+  "manual_edge_threshold": false,
+  "manual_top_k": false,
+  "manual_ticket_cap": false,
+  "manual_odds_band": false,
+  "manual_race_skip_rule": false,
+  "stake_policy": "research evaluation uses flat 100 yen per EV-positive ticket; L3 stake optimization remains separate",
+  "market_price_stage": "historical FINAL odds proxy",
+  "market_price_caveat": "FINAL odds are not a live timestamp execution price and must not be treated as production-realistic backtest pricing",
+  "walk_forward": {
+    "calibration_test_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "each_test_year_temperature_uses": "all prior years only"
+  },
+  "calibration_data_counts": {
+    "2021": {
+      "seen": 3456,
+      "usable_top3": 3435,
+      "excluded_ties_or_missing": 21
+    },
+    "2022": {
+      "seen": 3456,
+      "usable_top3": 3444,
+      "excluded_ties_or_missing": 12
+    },
+    "2023": {
+      "seen": 3456,
+      "usable_top3": 3442,
+      "excluded_ties_or_missing": 14
+    },
+    "2024": {
+      "seen": 3456,
+      "usable_top3": 3434,
+      "excluded_ties_or_missing": 22
+    },
+    "2025": {
+      "seen": 3456,
+      "usable_top3": 3428,
+      "excluded_ties_or_missing": 28
+    }
+  },
+  "temperature_by_test_year": {
+    "2022": 0.9871317587398659,
+    "2023": 0.9686945317294738,
+    "2024": 0.9788660319978552,
+    "2025": 0.9855541206488536
+  },
+  "probability_self_test": {
+    "WIN": 1.0,
+    "QUINELLA": 1.0,
+    "EXACTA": 1.0000000000000002,
+    "TRIO": 1.0000000000000002,
+    "TRIFECTA": 1.0000000000000002
+  },
+  "race_summary_files": [
+    "race-ticket-summary-2022.csv.gz",
+    "race-ticket-summary-2023.csv.gz",
+    "race-ticket-summary-2024.csv.gz",
+    "race-ticket-summary-2025.csv.gz"
+  ],
+  "large_ticket_matrices_persisted": false,
+  "2026_locked": true
+}
