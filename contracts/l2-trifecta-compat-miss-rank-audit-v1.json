@@ -1,0 +1,28 @@
+{
+  "contract": "L2_TRIFECTA_COMPAT_MISS_RANK_AUDIT_V1",
+  "purpose": "Diagnose where the true 2025 trifecta ranks under the frozen full-field COMPAT model.",
+  "training_years": [2022, 2023, 2024],
+  "audit_year": 2025,
+  "locked_years": [2026],
+  "model_recipe": "Exact Ability V2 COMPAT 2025 fold reproduction",
+  "bands": ["01-05", "06-10", "11-20", "21-50", "51-100", "101-200", "201+"],
+  "reproduction_guard": {
+    "top5_hits": 78,
+    "top5_return_yen": 1662740
+  },
+  "policy": {
+    "new_betting_rule_created": false,
+    "race_filter_added": false,
+    "model_features_changed": false,
+    "training_recipe_changed": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
