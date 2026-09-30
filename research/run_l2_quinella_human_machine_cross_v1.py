@@ -102,8 +102,10 @@ def main():
     machine=add_machine_signal(frames,cols)
     human_frame,rules=add_human_rules(frames,cols)
 
+    # market_q_norm already exists in human_frame. Do not merge a duplicate
+    # copy or pandas will suffix it to market_q_norm_x/_y and break exports.
     machine_cols=[
-        "year","race_id","pair_numbers","p_model","market_q_norm",
+        "year","race_id","pair_numbers","p_model",
         "machine_ratio_to_market","machine_agree"
     ]
     z=human_frame.merge(
@@ -114,6 +116,8 @@ def main():
     )
     if z["machine_agree"].isna().any():
         raise SystemExit("machine/human ticket universe merge drift")
+    if "market_q_norm" not in z.columns:
+        raise SystemExit("market_q_norm lost after machine/human merge")
 
     z["_key"]=key_col(z)
     rule_keys={}
