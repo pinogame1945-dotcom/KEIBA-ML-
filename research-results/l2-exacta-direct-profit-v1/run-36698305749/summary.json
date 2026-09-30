@@ -1,0 +1,44 @@
+{
+  "contract": "L2_EXACTA_DIRECT_PROFIT_V1",
+  "bet_type": "EXACTA",
+  "objective": "predict realized monetary return per 100-yen ticket directly",
+  "target": "return_yen_per100; predicted_profit = predicted_return - 100",
+  "models": [
+    {
+      "label": "DIRECT_TWEEDIE_1_2",
+      "objective": "tweedie",
+      "variance_power": 1.2
+    },
+    {
+      "label": "DIRECT_TWEEDIE_1_5",
+      "objective": "tweedie",
+      "variance_power": 1.5
+    },
+    {
+      "label": "DIRECT_TWEEDIE_1_8",
+      "objective": "tweedie",
+      "variance_power": 1.8
+    }
+  ],
+  "selection_rule": "predicted_return_yen > 100",
+  "selection_rule_reason": "mathematical positive predicted profit only",
+  "manual_topk": false,
+  "manual_confidence_floor": false,
+  "manual_odds_band": false,
+  "manual_ticket_cap": false,
+  "manual_skip_rate": false,
+  "probability_model_used_for_selection": false,
+  "final_odds_feature_used": true,
+  "final_odds_caveat": "historical final odds are an execution-price proxy, not live timestamp odds",
+  "walk_forward": {
+    "test_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "training": "all prior years only"
+  },
+  "tail_robustness": "reported by zeroing top 1/3/10/25 selected winning payouts while retaining stakes",
+  "2026_locked": true,
+  "script_total_seconds": 667.54937094
+}

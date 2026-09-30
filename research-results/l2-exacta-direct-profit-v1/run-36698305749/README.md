@@ -1,0 +1,3 @@
+# L2 EXACTA Direct Profit V1
+
+This experiment stops estimating hit probability for ticket selection. Each ordered exacta ticket is trained directly against its realized monetary return per 100 yen. LightGBM Tweedie regressors model the zero-heavy, positive-skew return target. A ticket is bought only when predicted monetary return exceeds the 100-yen stake. There is no Top-K, confidence floor, odds band, ticket cap, forced skip rate, or legacy LAW. Three Tweedie variance powers are reported side-by-side; none is selected using the test year. Tail-removal diagnostics test jackpot dependence. Final odds are historical execution-price proxies. 2026 remains sealed.
