@@ -170,7 +170,6 @@ jobs:
           set -euo pipefail
           result="research-results/l2-trio-residual-gate-v1/run-$GITHUB_RUN_ID"
           python research/run_l2_trio_residual_gate_v1.py \
-            research/run_l2_trio_market_residual_v1.py \
             --l17-2021 "$L17_2021" \
             --l17-2022 "$L17_2022" \
             --l17-2023 "$L17_2023" \
