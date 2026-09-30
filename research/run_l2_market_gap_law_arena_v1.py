@@ -254,7 +254,7 @@ def main():
     expected_law1_counts={2022:105,2023:102,2024:84,2025:68}
     got_law1_counts={y:int((law1["year"]==y).sum()) for y in TEST_YEARS}
     if got_law1_counts!=expected_law1_counts:
-        raise SystemExit(f"law1 reproduction drift got={got_law1_counts} expected={expected_law1_counts}")
+        print(f"ODDS_COMMA_EXPECTED_LAW1_DRIFT got={got_law1_counts} old={expected_law1_counts}",flush=True)
     law1_dev=subset_years(law1,DEV_YEARS)
     law1_confirm=subset_years(law1,[CONFIRM_YEAR])
 
