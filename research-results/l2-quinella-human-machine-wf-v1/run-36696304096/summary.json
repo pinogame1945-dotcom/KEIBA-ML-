@@ -1,0 +1,126 @@
+{
+  "contract": "L2_QUINELLA_HUMAN_MACHINE_WALKFORWARD_V1",
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "design": "human rule portfolio rediscovered only from prior OOF years; machine learned only from prior years; intersection tested on next year",
+  "human_candidate_space": "same corrected-odds zero-base candidate space",
+  "human_threshold_scaling": {
+    "min_unique_dev_tickets": "40 * number_of_prior_dev_years",
+    "min_unique_each_dev_year": 30,
+    "min_incremental_pooled_roi_pct": 105.0,
+    "min_incremental_ex_max_roi_pct": 95.0,
+    "min_years_roi_ge_90": "ceil(2/3 * number_of_prior_dev_years), minimum 1",
+    "min_worst_year_roi_pct": 70.0,
+    "max_steps": 8
+  },
+  "machine_signal": "within-race normalized p_model > normalized market probability",
+  "machine_ratio_threshold": 1.0,
+  "manual_machine_threshold_tuning": false,
+  "2023_note": "low-confidence early fold because human rule discovery has only 2022 as prior OOF year",
+  "2025_zero_base_sequence_reproduced": true,
+  "year_results": [
+    {
+      "test_year": 2023,
+      "human_rule_dev_years": "2022",
+      "human_rank_model_train_years": "2022",
+      "machine_train_years": "2021|2022",
+      "selected_rule_count": 8,
+      "min_unique_dev_tickets": 40,
+      "min_years_roi_ge_90": 1,
+      "human_tickets": 3040,
+      "both_tickets": 2039,
+      "human_only_tickets": 1001,
+      "human_roi_pct": 95.32894736842105,
+      "both_roi_pct": 99.76459048553212,
+      "human_only_roi_pct": 86.2937062937063,
+      "both_minus_human_roi_points": 4.43564311711107,
+      "both_minus_human_only_roi_points": 13.470884191825832
+    },
+    {
+      "test_year": 2024,
+      "human_rule_dev_years": "2022|2023",
+      "human_rank_model_train_years": "2022|2023",
+      "machine_train_years": "2021|2022|2023",
+      "selected_rule_count": 8,
+      "min_unique_dev_tickets": 80,
+      "min_years_roi_ge_90": 2,
+      "human_tickets": 1567,
+      "both_tickets": 1084,
+      "human_only_tickets": 483,
+      "human_roi_pct": 78.95341416719847,
+      "both_roi_pct": 79.45571955719558,
+      "human_only_roi_pct": 77.82608695652173,
+      "both_minus_human_roi_points": 0.5023053899971046,
+      "both_minus_human_only_roi_points": 1.629632600673844
+    },
+    {
+      "test_year": 2025,
+      "human_rule_dev_years": "2022|2023|2024",
+      "human_rank_model_train_years": "2022|2023|2024",
+      "machine_train_years": "2021|2022|2023|2024",
+      "selected_rule_count": 8,
+      "min_unique_dev_tickets": 120,
+      "min_years_roi_ge_90": 2,
+      "human_tickets": 907,
+      "both_tickets": 686,
+      "human_only_tickets": 221,
+      "human_roi_pct": 99.82359426681367,
+      "both_roi_pct": 102.82798833819243,
+      "human_only_roi_pct": 90.49773755656109,
+      "both_minus_human_roi_points": 3.004394071378755,
+      "both_minus_human_only_roi_points": 12.330250781631335
+    }
+  ],
+  "pooled_results": [
+    {
+      "label": "HUMAN_ALL",
+      "years": "2023|2024|2025",
+      "tickets": 5514,
+      "hits": 168,
+      "hit_rate_pct": 3.046789989118607,
+      "stake_yen": 551400.0,
+      "return_yen": 504060.0,
+      "profit_yen": -47340.0,
+      "roi_pct": 91.4145810663765
+    },
+    {
+      "label": "BOTH",
+      "years": "2023|2024|2025",
+      "tickets": 3809,
+      "hits": 115,
+      "hit_rate_pct": 3.019165135206091,
+      "stake_yen": 380900.0,
+      "return_yen": 360090.0,
+      "profit_yen": -20810.0,
+      "roi_pct": 94.53662378577054
+    },
+    {
+      "label": "HUMAN_ONLY",
+      "years": "2023|2024|2025",
+      "tickets": 1705,
+      "hits": 53,
+      "hit_rate_pct": 3.1085043988269794,
+      "stake_yen": 170500.0,
+      "return_yen": 143970.0,
+      "profit_yen": -26530.0,
+      "roi_pct": 84.43988269794721
+    },
+    {
+      "label": "MACHINE_ONLY",
+      "years": "2023|2024|2025",
+      "tickets": 242162,
+      "hits": 5277,
+      "hit_rate_pct": 2.1791197628034125,
+      "stake_yen": 24216200.0,
+      "return_yen": 17741330.0,
+      "profit_yen": -6474870.0,
+      "roi_pct": 73.26223767560559
+    }
+  ],
+  "both_beats_human_all_years": 3,
+  "both_beats_human_only_years": 3,
+  "2026_locked": true
+}
