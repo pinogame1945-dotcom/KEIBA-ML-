@@ -1,0 +1,30 @@
+{
+  "contract": "L2_MARKET_GAP_BAND_AUDIT_V1",
+  "source_architecture": "L2_TICKET_MARKET_GAP_V2",
+  "frozen_policy": {
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "years": {
+    "train_sources": [2022, 2023],
+    "test": [2023, 2024],
+    "locked": [2026]
+  },
+  "target_band": "15-24",
+  "policy_reselected": false,
+  "diagnostics": [
+    "gap-band ROI by year",
+    "ticket bootstrap by band/year",
+    "largest-win removal sensitivity",
+    "monthly dispersion",
+    "market/model/L1.7 rank medians"
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
