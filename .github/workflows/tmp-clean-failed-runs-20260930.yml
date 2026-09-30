@@ -1,0 +1,50 @@
+name: Clean exact failed runs 20260930
+
+on:
+  push:
+    branches:
+      - research/l2-market-gap-band-audit-v1-20260930
+    paths:
+      - ".github/workflows/tmp-clean-failed-runs-20260930.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Delete exact failed workflow runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36679471881"
+          echo "deleted 36679471881"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36679468337"
+          echo "deleted 36679468337"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36677810694"
+          echo "deleted 36677810694"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36676985473"
+          echo "deleted 36676985473"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36676981597"
+          echo "deleted 36676981597"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36676760838"
+          echo "deleted 36676760838"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36675379078"
+          echo "deleted 36675379078"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36675298381"
+          echo "deleted 36675298381"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36671764292"
+          echo "deleted 36671764292"
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36671338569"
+          echo "deleted 36671338569"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "standard ubuntu-latest only"
+          echo "no gpu, artifact, cache, upload, or paid storage"
