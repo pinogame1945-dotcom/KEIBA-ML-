@@ -221,38 +221,38 @@ jobs:
           done
 
           RESULT="$result" python - <<'PY'
-import json,os
-from pathlib import Path
-root=Path(os.environ["RESULT"])
-years=[2021,2022,2023,2024,2025]
-rows={y:json.loads((root/f"council-y{y}.json").read_text()) for y in years}
-def agg_metric(path):
-    hits=races=0
-    for y in years:
-        x=rows[y]
-        for key in path:
-            x=x[key]
-        hits+=x["hits"]; races+=x["races"]
-    return {"hits":hits,"races":races,"rate":hits/races if races else None}
-out={
-  "contract":"L16_OUTSIDER_COUNCIL_SAFE_ALL_YEARS_V1",
-  "years":years,
-  "races":sum(rows[y]["races"] for y in years),
-  "candidate_count":13,
-  "metrics":{},
-  "seven_top3_blind":{"count":sum(rows[y]["seven_top3_blind"]["count"] for y in years),"council":{}},
-  "seven_top6_blind":{"count":sum(rows[y]["seven_top6_blind"]["count"] for y in years),"council":{}},
-  "by_year":{str(y):rows[y] for y in years},
-  "2026_sealed":True,
-  "odds_used":False,
-}
-for scheme in ("weighted","count"):
-    out["metrics"][scheme]={str(k):agg_metric(["metrics",scheme,str(k)]) for k in (1,3,6)}
-    out["seven_top3_blind"]["council"][scheme]={str(k):agg_metric(["seven_top3_blind","council",scheme,str(k)]) for k in (1,3,6)}
-    out["seven_top6_blind"]["council"][scheme]={str(k):agg_metric(["seven_top6_blind","council",scheme,str(k)]) for k in (1,3,6)}
-(root/"council-summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
-print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
-PY
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RESULT"])
+          years=[2021,2022,2023,2024,2025]
+          rows={y:json.loads((root/f"council-y{y}.json").read_text()) for y in years}
+          def agg_metric(path):
+              hits=races=0
+              for y in years:
+                  x=rows[y]
+                  for key in path:
+                      x=x[key]
+                  hits+=x["hits"]; races+=x["races"]
+              return {"hits":hits,"races":races,"rate":hits/races if races else None}
+          out={
+            "contract":"L16_OUTSIDER_COUNCIL_SAFE_ALL_YEARS_V1",
+            "years":years,
+            "races":sum(rows[y]["races"] for y in years),
+            "candidate_count":13,
+            "metrics":{},
+            "seven_top3_blind":{"count":sum(rows[y]["seven_top3_blind"]["count"] for y in years),"council":{}},
+            "seven_top6_blind":{"count":sum(rows[y]["seven_top6_blind"]["count"] for y in years),"council":{}},
+            "by_year":{str(y):rows[y] for y in years},
+            "2026_sealed":True,
+            "odds_used":False,
+          }
+          for scheme in ("weighted","count"):
+              out["metrics"][scheme]={str(k):agg_metric(["metrics",scheme,str(k)]) for k in (1,3,6)}
+              out["seven_top3_blind"]["council"][scheme]={str(k):agg_metric(["seven_top3_blind","council",scheme,str(k)]) for k in (1,3,6)}
+              out["seven_top6_blind"]["council"][scheme]={str(k):agg_metric(["seven_top6_blind","council",scheme,str(k)]) for k in (1,3,6)}
+          (root/"council-summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps(out,ensure_ascii=False,separators=(",",":")))
+          PY
 
           test -s "$result/council-summary.json"
           echo "RESULT_ROOT=$result" >> "$GITHUB_ENV"
