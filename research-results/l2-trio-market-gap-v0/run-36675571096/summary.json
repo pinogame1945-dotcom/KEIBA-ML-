@@ -1,0 +1,285 @@
+{
+  "contract": "L2_TRIO_MARKET_GAP_V0_RESULT",
+  "bet_type": "TRIO",
+  "architecture": "all_trio_combinations_market_aware_lambdarank_diagnostic_only",
+  "all_runners_considered": true,
+  "top6_prefilter": false,
+  "law_search_enabled": false,
+  "ticket_selection_enabled": false,
+  "raw_ev_multiplication": false,
+  "market_probability": "normalized inverse final TRIO odds within each complete-priced race",
+  "value_signal_diagnostic": "market_rank - model_rank",
+  "rankings_compared": [
+    "MARKET",
+    "L17_TRIO_PRODUCT",
+    "L17_TRIO_SUM",
+    "MARKET_AWARE_MODEL"
+  ],
+  "top_k": [
+    1,
+    3,
+    5,
+    10,
+    20
+  ],
+  "folds": [
+    {
+      "test_year": 2022,
+      "train_years": "2021",
+      "train_trios": 10776,
+      "test_trios": 8381,
+      "source_races": 174,
+      "positive_trios": 174,
+      "feature_count": 75,
+      "mean_abs_rank_upgrade_all_tickets": 8.250089488127909,
+      "mean_rank_upgrade_winning_tickets": -1.6551724137931034,
+      "median_rank_upgrade_winning_tickets": -0.5
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "train_trios": 8381,
+      "test_trios": 6747,
+      "source_races": 149,
+      "positive_trios": 149,
+      "feature_count": 75,
+      "mean_abs_rank_upgrade_all_tickets": 7.977767896843042,
+      "mean_rank_upgrade_winning_tickets": -1.7583892617449663,
+      "median_rank_upgrade_winning_tickets": 0.0
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "train_trios": 15128,
+      "test_trios": 7865,
+      "source_races": 181,
+      "positive_trios": 182,
+      "feature_count": 75,
+      "mean_abs_rank_upgrade_all_tickets": 7.182708200890019,
+      "mean_rank_upgrade_winning_tickets": -1.4285714285714286,
+      "median_rank_upgrade_winning_tickets": 0.0
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "train_trios": 22993,
+      "test_trios": 8837,
+      "source_races": 200,
+      "positive_trios": 201,
+      "feature_count": 75,
+      "mean_abs_rank_upgrade_all_tickets": 6.0712911621591035,
+      "mean_rank_upgrade_winning_tickets": -1.2537313432835822,
+      "median_rank_upgrade_winning_tickets": 0.0
+    }
+  ],
+  "pooled_ranking": [
+    {
+      "ranking": "MARKET",
+      "top_k": 1,
+      "hit_races": 155,
+      "source_races": 704,
+      "coverage_pct": 22.017045454545453
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 3,
+      "hit_races": 318,
+      "source_races": 704,
+      "coverage_pct": 45.17045454545455
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 5,
+      "hit_races": 409,
+      "source_races": 704,
+      "coverage_pct": 58.09659090909091
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 10,
+      "hit_races": 537,
+      "source_races": 704,
+      "coverage_pct": 76.2784090909091
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 20,
+      "hit_races": 637,
+      "source_races": 704,
+      "coverage_pct": 90.48295454545455
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 50,
+      "hit_races": 698,
+      "source_races": 704,
+      "coverage_pct": 99.14772727272727
+    },
+    {
+      "ranking": "MARKET",
+      "top_k": 100,
+      "hit_races": 703,
+      "source_races": 704,
+      "coverage_pct": 99.85795454545455
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 1,
+      "hit_races": 118,
+      "source_races": 704,
+      "coverage_pct": 16.761363636363637
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 3,
+      "hit_races": 251,
+      "source_races": 704,
+      "coverage_pct": 35.65340909090909
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 5,
+      "hit_races": 337,
+      "source_races": 704,
+      "coverage_pct": 47.86931818181818
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 10,
+      "hit_races": 483,
+      "source_races": 704,
+      "coverage_pct": 68.60795454545455
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 20,
+      "hit_races": 604,
+      "source_races": 704,
+      "coverage_pct": 85.79545454545455
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 50,
+      "hit_races": 693,
+      "source_races": 704,
+      "coverage_pct": 98.4375
+    },
+    {
+      "ranking": "L17_TRIO_PRODUCT",
+      "top_k": 100,
+      "hit_races": 704,
+      "source_races": 704,
+      "coverage_pct": 100.0
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 1,
+      "hit_races": 118,
+      "source_races": 704,
+      "coverage_pct": 16.761363636363637
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 3,
+      "hit_races": 254,
+      "source_races": 704,
+      "coverage_pct": 36.07954545454545
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 5,
+      "hit_races": 322,
+      "source_races": 704,
+      "coverage_pct": 45.73863636363637
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 10,
+      "hit_races": 466,
+      "source_races": 704,
+      "coverage_pct": 66.19318181818181
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 20,
+      "hit_races": 594,
+      "source_races": 704,
+      "coverage_pct": 84.375
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 50,
+      "hit_races": 691,
+      "source_races": 704,
+      "coverage_pct": 98.1534090909091
+    },
+    {
+      "ranking": "L17_TRIO_SUM",
+      "top_k": 100,
+      "hit_races": 704,
+      "source_races": 704,
+      "coverage_pct": 100.0
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 1,
+      "hit_races": 133,
+      "source_races": 704,
+      "coverage_pct": 18.892045454545453
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 3,
+      "hit_races": 285,
+      "source_races": 704,
+      "coverage_pct": 40.48295454545455
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 5,
+      "hit_races": 364,
+      "source_races": 704,
+      "coverage_pct": 51.70454545454545
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 10,
+      "hit_races": 500,
+      "source_races": 704,
+      "coverage_pct": 71.02272727272727
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 20,
+      "hit_races": 612,
+      "source_races": 704,
+      "coverage_pct": 86.93181818181819
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 50,
+      "hit_races": 692,
+      "source_races": 704,
+      "coverage_pct": 98.29545454545455
+    },
+    {
+      "ranking": "MARKET_AWARE_MODEL",
+      "top_k": 100,
+      "hit_races": 704,
+      "source_races": 704,
+      "coverage_pct": 100.0
+    }
+  ],
+  "winning_ticket_rank_upgrade": {
+    "mean": -1.5042492917847026,
+    "median": 0.0,
+    "pct_positive": 27.620396600566572,
+    "pct_ge_5": 7.365439093484419,
+    "pct_ge_10": 2.26628895184136,
+    "pct_ge_20": 0.56657223796034
+  },
+  "dead_heat_policy": "official payout-positive TRIO tickets are positives; a dead-heat race may have multiple positives",
+  "incomplete_market_policy": "skip entire race if any TRIO combination lacks a final market price",
+  "roi_used_for_selection": false,
+  "2026_locked": true
+}
