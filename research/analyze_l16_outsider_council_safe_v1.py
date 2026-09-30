@@ -24,10 +24,10 @@ def load_truth(path):
             x=json.loads(line)
             rid=str(x.get("race_id") or ""); hid=str(x.get("horse_id") or "")
             if not rid or not hid: continue
+            horse_num[rid][hid]=x.get("horse_number")
             try: pos=int(float((x.get("target") or {}).get("finish_position")))
             except (TypeError,ValueError): continue
             out[rid][hid]=pos
-            horse_num[rid][hid]=x.get("horse_number")
     return out,horse_num
 
 def load_consensus(path):
