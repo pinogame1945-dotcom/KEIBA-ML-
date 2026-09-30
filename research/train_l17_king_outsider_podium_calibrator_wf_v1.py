@@ -99,12 +99,17 @@ def eval_fold(train,test,year):
     y=np.asarray([x["y3"] for x in train],dtype=int)
     model=LogisticRegression(C=0.5,max_iter=1000,solver="lbfgs")
     model.fit(X,y)
+    rank_baseline={}
+    for r in range(1,11):
+        vals=[x["y3"] for x in train if x["rank"]==r]
+        if not vals: raise ValueError(f"missing training rank {r}")
+        rank_baseline[r]=sum(vals)/len(vals)
     Xt=np.asarray([features(x["rank"],x["score"]) for x in test],dtype=float)
     p=model.predict_proba(Xt)[:,1]
     yy=np.asarray([x["y3"] for x in test],dtype=int)
     scored=[]
     for x,pr in zip(test,p):
-        z=dict(x); z["p3"]=float(pr); z["baseline_score"]=-float(z["rank"]); scored.append(z)
+        z=dict(x); z["p3"]=float(pr); z["p3_rank_baseline"]=float(rank_baseline[z["rank"]]); z["p3_delta"]=float(pr-rank_baseline[z["rank"]]); z["baseline_score"]=-float(z["rank"]); scored.append(z)
     baseline=race_metrics(scored,"baseline_score")
     ml=race_metrics(scored,"p3")
     by=defaultdict(list)
@@ -126,6 +131,7 @@ def eval_fold(train,test,year):
                "winner_capture_at6":ml["winner_capture_at6"]-baseline["winner_capture_at6"],
                "podium_recall_at3":ml["podium_recall_at3"]-baseline["podium_recall_at3"],
                "podium_recall_at6":ml["podium_recall_at6"]-baseline["podium_recall_at6"]},
+      "rank_baseline_p3":{str(k):float(v) for k,v in rank_baseline.items()},
       "coefficients":{"intercept":float(model.intercept_[0]),"coef":[float(v) for v in model.coef_[0]]}
     },scored
 
@@ -139,6 +145,29 @@ def aggregate(folds):
         out["metrics"][k]={"baseline":b,"ml":m,"delta":m-b}
     out["reordered_races"]=sum(f["reordered_races"] for f in folds)
     return out
+
+def fit_deployment(rows):
+    X=np.asarray([features(x["rank"],x["score"]) for x in rows],dtype=float)
+    y=np.asarray([x["y3"] for x in rows],dtype=int)
+    model=LogisticRegression(C=0.5,max_iter=1000,solver="lbfgs")
+    model.fit(X,y)
+    rb={}
+    for r in range(1,11):
+        vals=[x["y3"] for x in rows if x["rank"]==r]
+        rb[str(r)]=sum(vals)/len(vals)
+    return {
+      "contract":"L17_KING_OUTSIDER_PODIUM_CALIBRATOR_MODEL_V1",
+      "training_years":[2021,2022,2023,2024,2025],
+      "feature_spec":"31 features: global score/10; rank1..10 one-hot; rank-specific score/10; rank-specific (score/10)^2",
+      "target":"finish_position <= 3",
+      "model":"sklearn.linear_model.LogisticRegression",
+      "C":0.5,
+      "intercept":float(model.intercept_[0]),
+      "coef":[float(v) for v in model.coef_[0]],
+      "rank_baseline_p3":rb,
+      "2026_sealed":True,
+      "odds_used":False
+    }
 
 def main():
     a=argparse.ArgumentParser()
@@ -156,7 +185,7 @@ def main():
         train=[x for yy in YEARS if yy<y for x in data[yy]]
         fold,scored=eval_fold(train,data[y],y); folds.append(fold)
         for z in scored:
-            prediction_rows.append({k:z[k] for k in ("year","race_id","horse_id","rank","score","finish","y3","p3")})
+            prediction_rows.append({k:z[k] for k in ("year","race_id","horse_id","rank","score","finish","y3","p3","p3_rank_baseline","p3_delta")})
     out={"contract":"L17_KING_OUTSIDER_PODIUM_CALIBRATOR_WF_V1",
          "policy":"King ranks 1-10 only; logistic regression with rank-specific linear/quadratic Outsider-score correction; train past years only; rank by predicted podium probability.",
          "target":"finish_position <= 3","years_eval":[2022,2023,2024,2025],"2026_sealed":True,"odds_used":False,
@@ -165,8 +194,10 @@ def main():
     p.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     pred=p.with_name("predictions.csv.gz")
     with gzip.open(pred,"wt",encoding="utf-8",newline="") as fh:
-        w=csv.DictWriter(fh,fieldnames=["year","race_id","horse_id","rank","score","finish","y3","p3"])
+        w=csv.DictWriter(fh,fieldnames=["year","race_id","horse_id","rank","score","finish","y3","p3","p3_rank_baseline","p3_delta"])
         w.writeheader(); w.writerows(prediction_rows)
+    deploy=fit_deployment([x for y in YEARS for x in data[y]])
+    p.with_name("deployment-model.json").write_text(json.dumps(deploy,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("L17_PODIUM_CALIBRATOR_OK",json.dumps(out["aggregate"],separators=(",",":")))
 
 if __name__=="__main__":
