@@ -1,0 +1,3 @@
+# L2 Trifecta Full-Field Ranker V1
+
+This experiment removes the Seven-King Top6 candidate-universe limit. At evaluation time, every priced ordered trifecta among all active L1.7 horses is scored. To remain on the free standard GitHub CPU runner, training uses deterministic negative sampling (market top40 + L1.7 top40 + 40 hash negatives + every positive ticket), while no candidate is sampled away at evaluation. Two single models are compared: ability-only and market-aware. There are no hand-authored seat rules, gap buckets, or race skip rules. 2023-2024 select a global Top-N independently for each model; 2025 is frozen holdout; 2026 stays sealed.

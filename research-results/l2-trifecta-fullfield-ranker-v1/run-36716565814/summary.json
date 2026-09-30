@@ -1,0 +1,162 @@
+{
+  "contract": "L2_TRIFECTA_FULLFIELD_RANKER_V1_RESULT",
+  "candidate_universe": "all priced ordered trifecta tickets among all active L1.7 horses",
+  "top6_candidate_limit": false,
+  "all_candidates_scored_at_evaluation": true,
+  "training_negative_sampling": {
+    "reason": "fit within free standard CPU runner memory",
+    "market_top": 40,
+    "l17_top": 40,
+    "deterministic_hash_negatives": 40,
+    "all_positive_tickets_included": true
+  },
+  "models": {
+    "ABILITY_MODEL": "L1.7 seat/order features only; no market inputs",
+    "MARKET_AWARE_MODEL": "same plus normalized within-race trifecta market probability/rank"
+  },
+  "raw_odds_as_model_feature": false,
+  "manual_seat_rules": false,
+  "manual_gap_rules": false,
+  "race_skip_rules": false,
+  "topn_grid": [
+    1,
+    2,
+    3,
+    5,
+    10,
+    20,
+    30,
+    60,
+    120
+  ],
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "ability_selected_dev_policy": {
+    "ranking": "ABILITY_MODEL",
+    "top_n": 3,
+    "development_years": "2023-2024",
+    "source_races": 5324,
+    "tickets": 15972,
+    "hit_races": 77,
+    "race_hit_rate_pct": 1.4462809917355373,
+    "stake_yen": 1597200.0,
+    "return_yen": 1691210.0,
+    "profit_yen": 94010.0,
+    "roi_pct": 105.88592536939645
+  },
+  "ability_holdout": {
+    "year": 2025,
+    "ranking": "ABILITY_MODEL",
+    "top_n": 3,
+    "source_races": 2342,
+    "tickets": 7026,
+    "avg_tickets_per_race": 3.0,
+    "hit_races": 50,
+    "race_hit_rate_pct": 2.134927412467976,
+    "stake_yen": 702600.0,
+    "return_yen": 1417200.0,
+    "profit_yen": 714600.0,
+    "roi_pct": 201.70794192997437
+  },
+  "ability_holdout_market_baseline_same_n": {
+    "year": 2025,
+    "ranking": "MARKET",
+    "top_n": 3,
+    "source_races": 2342,
+    "tickets": 7026,
+    "avg_tickets_per_race": 3.0,
+    "hit_races": 170,
+    "race_hit_rate_pct": 7.2587532023911185,
+    "stake_yen": 702600.0,
+    "return_yen": 489080.0,
+    "profit_yen": -213520.0,
+    "roi_pct": 69.61001992598918
+  },
+  "market_aware_selected_dev_policy": {
+    "ranking": "MARKET_AWARE_MODEL",
+    "top_n": 10,
+    "development_years": "2023-2024",
+    "source_races": 5324,
+    "tickets": 53240,
+    "hit_races": 315,
+    "race_hit_rate_pct": 5.916604057099925,
+    "stake_yen": 5324000.0,
+    "return_yen": 4091710.0,
+    "profit_yen": -1232290.0,
+    "roi_pct": 76.85405709992487
+  },
+  "market_aware_holdout": {
+    "year": 2025,
+    "ranking": "MARKET_AWARE_MODEL",
+    "top_n": 10,
+    "source_races": 2342,
+    "tickets": 23420,
+    "avg_tickets_per_race": 10.0,
+    "hit_races": 169,
+    "race_hit_rate_pct": 7.216054654141759,
+    "stake_yen": 2342000.0,
+    "return_yen": 2002020.0,
+    "profit_yen": -339980.0,
+    "roi_pct": 85.48334756618274
+  },
+  "market_aware_holdout_market_baseline_same_n": {
+    "year": 2025,
+    "ranking": "MARKET",
+    "top_n": 10,
+    "source_races": 2342,
+    "tickets": 23420,
+    "avg_tickets_per_race": 10.0,
+    "hit_races": 426,
+    "race_hit_rate_pct": 18.189581554227157,
+    "stake_yen": 2342000.0,
+    "return_yen": 1586240.0,
+    "profit_yen": -755760.0,
+    "roi_pct": 67.73014517506405
+  },
+  "year_meta": {
+    "2023": {
+      "year": 2023,
+      "races": 2830,
+      "mean_candidates": 2138.4212014134278,
+      "median_candidates": 2184.0,
+      "max_candidates": 4896,
+      "mean_field_size": 13.29505300353357,
+      "counters": {
+        "incomplete_odds_universe": 626,
+        "ok_races": 2830
+      }
+    },
+    "2024": {
+      "year": 2024,
+      "races": 2494,
+      "mean_candidates": 1909.8909382518043,
+      "median_candidates": 1716.0,
+      "max_candidates": 4896,
+      "mean_field_size": 12.757818765036086,
+      "counters": {
+        "incomplete_odds_universe": 960,
+        "ok_races": 2494,
+        "no_trifecta_odds": 2
+      }
+    },
+    "2025": {
+      "year": 2025,
+      "races": 2342,
+      "mean_candidates": 1950.5738684884714,
+      "median_candidates": 1716.0,
+      "max_candidates": 4896,
+      "mean_field_size": 12.832194705380017,
+      "counters": {
+        "incomplete_odds_universe": 1113,
+        "ok_races": 2342,
+        "no_trifecta_odds": 1
+      }
+    }
+  },
+  "2026_locked": true,
+  "production_promotion": false
+}
