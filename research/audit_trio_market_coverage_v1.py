@@ -32,8 +32,15 @@ def main():
                 n=len(nums)
                 if n<3: continue
                 expected=math.comb(n,3)
-                om=decode_odds(odb[rid])
+                odds_row=odb[rid]
+                om=decode_odds(odds_row)
                 quoted=sum(1 for c in itertools.combinations(nums,3) if ("TRIO",canonical_numbers("TRIO",c)) in om)
+                g7=((odds_row.get("odds") or {}).get("7") or {})
+                source_payload_rows=len(g7) if isinstance(g7,dict) else 0
+                g7_summary=((odds_row.get("group_summary") or {}).get("7") or {})
+                source_summary_rows=int(g7_summary.get("rows") or 0)
+                source_summary_priced_rows=int(g7_summary.get("priced_rows") or 0)
+                decoder_trio_rows=sum(1 for k in om if k[0]=="TRIO")
                 winning=[k for k,v in pm.items() if k[0]=="TRIO" and float(v)>0]
                 winner_quoted=sum(1 for k in winning if k in om)
                 cov=100.0*quoted/expected if expected else 0.0
@@ -43,6 +50,13 @@ def main():
                     "quote_coverage_pct":cov,"winning_trios":len(winning),
                     "winning_trios_quoted":winner_quoted,
                     "all_winning_trios_quoted":int(winner_quoted==len(winning) and len(winning)>0),
+                    "source_payload_rows":source_payload_rows,
+                    "source_summary_rows":source_summary_rows,
+                    "source_summary_priced_rows":source_summary_priced_rows,
+                    "decoder_trio_rows":decoder_trio_rows,
+                    "payload_minus_decoder":source_payload_rows-decoder_trio_rows,
+                    "summary_minus_payload":source_summary_rows-source_payload_rows,
+                    "summary_priced_minus_decoder":source_summary_priced_rows-decoder_trio_rows,
                 })
     d=pd.DataFrame(rows)
     if d.empty: raise SystemExit("no TRIO audit rows")
@@ -63,20 +77,44 @@ def main():
     )
     by_year["overall_quote_coverage_pct"]=100.0*by_year.quoted_trios/by_year.expected_trios
     by_year["winner_quote_coverage_pct"]=100.0*by_year.winner_fully_quoted_races/by_year.races
+    source_year=d.groupby("year",as_index=False).agg(
+        source_payload_rows=("source_payload_rows","sum"),
+        source_summary_rows=("source_summary_rows","sum"),
+        source_summary_priced_rows=("source_summary_priced_rows","sum"),
+        decoder_trio_rows=("decoder_trio_rows","sum"),
+        payload_decoder_equal_races=("payload_minus_decoder",lambda x:int((x==0).sum())),
+        summary_payload_equal_races=("summary_minus_payload",lambda x:int((x==0).sum())),
+        summary_priced_decoder_equal_races=("summary_priced_minus_decoder",lambda x:int((x==0).sum())),
+        max_abs_payload_minus_decoder=("payload_minus_decoder",lambda x:int(x.abs().max())),
+    )
+    by_year=by_year.merge(source_year,on="year",how="left")
     by_year.to_csv(out/"by-year.csv",index=False)
     bands=d.groupby(["year","coverage_band"],observed=True).size().reset_index(name="races")
     bands.to_csv(out/"coverage-bands.csv",index=False)
     field=d.groupby(["year","field_size"],as_index=False).agg(
         races=("race_id","nunique"),
         median_quote_coverage_pct=("quote_coverage_pct","median"),
+        median_source_payload_rows=("source_payload_rows","median"),
+        median_decoder_trio_rows=("decoder_trio_rows","median"),
         complete_market_races=("missing_trios",lambda s:int((s==0).sum())),
         winner_fully_quoted_races=("all_winning_trios_quoted","sum"),
+        payload_decoder_equal_races=("payload_minus_decoder",lambda s:int((s==0).sum())),
     )
     field.to_csv(out/"by-field-size.csv",index=False)
     summary={
       "contract":"L2_TRIO_MARKET_COVERAGE_AUDIT_V1_RESULT",
       "years":list(YEARS),
       "races":int(d.race_id.nunique()),
+      "source_vs_decoder":{
+        "payload_rows":int(d.source_payload_rows.sum()),
+        "summary_rows":int(d.source_summary_rows.sum()),
+        "summary_priced_rows":int(d.source_summary_priced_rows.sum()),
+        "decoder_trio_rows":int(d.decoder_trio_rows.sum()),
+        "payload_decoder_equal_races":int((d.payload_minus_decoder==0).sum()),
+        "summary_payload_equal_races":int((d.summary_minus_payload==0).sum()),
+        "summary_priced_decoder_equal_races":int((d.summary_priced_minus_decoder==0).sum()),
+        "max_abs_payload_minus_decoder":int(d.payload_minus_decoder.abs().max()),
+      },
       "by_year":by_year.to_dict(orient="records"),
       "2026_locked":True
     }
