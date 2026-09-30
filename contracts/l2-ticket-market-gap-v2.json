@@ -1,0 +1,86 @@
+{
+  "contract": "L2_TICKET_MARKET_GAP_V2",
+  "purpose": "Learn market-relative quinella ticket ranking without raw EV multiplication.",
+  "upstream": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+  "bet_type": "QUINELLA",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "locked_years": [
+    2026
+  ],
+  "market_representation": {
+    "normalized_inverse_odds": true,
+    "formula": "q_i=(1/odds_i)/sum_j(1/odds_j) within race",
+    "features": [
+      "market_q_norm",
+      "market_log_q",
+      "market_rank"
+    ],
+    "raw_odds_as_model_feature": false
+  },
+  "model": {
+    "type": "LightGBM LambdaRank",
+    "target": "winning quinella pair rank",
+    "features": "L1.7/race structure + normalized market probability/rank",
+    "value_signal": "market_rank - model_rank",
+    "raw_ev_multiplication": false
+  },
+  "policy_grid": {
+    "model_top_k": [
+      1,
+      3,
+      5,
+      10,
+      15
+    ],
+    "min_market_rank_upgrade": [
+      0,
+      1,
+      2,
+      3,
+      5,
+      10
+    ],
+    "max_tickets_per_race": [
+      1,
+      2,
+      3,
+      5
+    ],
+    "min_execution_coverage_pct": 20,
+    "selection_objective": "highest development ROI; tie-break profit, lower DD, higher coverage"
+  },
+  "diagnostics": [
+    "market vs L1.7 vs market-aware ranking coverage",
+    "pure ranking economics",
+    "holdout market-gap matrix",
+    "selected rank-pair distribution",
+    "selected rank involvement",
+    "selected rank-upgrade distribution"
+  ],
+  "invariants": {
+    "candidate_horse_selection": false,
+    "template_router": false,
+    "outsider_used": false,
+    "raw_ev_multiplication": false,
+    "payout_as_model_feature": false,
+    "finish_result_as_model_feature": false,
+    "holdout_used_for_policy_selection": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
