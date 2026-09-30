@@ -100,6 +100,8 @@ def main():
     exact7to10=defaultdict(blank)
     bucket7to10=defaultdict(blank)
     overall7to10=defaultdict(blank)
+    allrank_overall=defaultdict(blank)
+    allrank_exact=defaultdict(blank)
 
     for rid,hs in pts.items():
         for hid,s in hs.items():
@@ -115,12 +117,14 @@ def main():
             if s>=21 and 4<=kr<=6:add(focus["score21plus_king4to6"],pos)
             if kr>=7:add(exact_score_lowrank[s],pos)
 
-    # Exact King ranks 4/5/6/7/8/9/10, including zero Outsider points.
+    # Exact King ranks for every available rank, including zero Outsider points.
     for rid,hs in ranks.items():
         for hid,kr in hs.items():
-            if kr not in (4,5,6,7,8,9,10): continue
             s=pts[rid].get(hid,0)
             pos=truth[rid].get(hid)
+            add(allrank_overall[kr],pos)
+            add(allrank_exact[(kr,s)],pos)
+            if kr not in (4,5,6,7,8,9,10): continue
             b="0" if s==0 else score_bucket(s)
             if kr in (4,5,6):
                 add(overall456[kr],pos)
@@ -144,6 +148,10 @@ def main():
         "overall":{str(k):fin(overall7to10[k]) for k in (7,8,9,10)},
         "score_bucket":{str(k):{b:fin(bucket7to10[(k,b)]) for b in ("0","1-5","6-10","11-15","16-20","21-25","26+")} for k in (7,8,9,10)},
         "score_exact":{str(k):{str(s):fin(exact7to10[(k,s)]) for s in range(40) if exact7to10[(k,s)]["n"]>0} for k in (7,8,9,10)}
+      },
+      "all_king_ranks":{
+        "overall":{str(k):fin(allrank_overall[k]) for k in sorted(allrank_overall)},
+        "score_exact":{str(k):{str(s):fin(allrank_exact[(k,s)]) for s in range(40) if allrank_exact[(k,s)]["n"]>0} for k in sorted(allrank_overall)}
       },
       "king456":{
         "overall":{str(k):fin(overall456[k]) for k in (4,5,6)},
