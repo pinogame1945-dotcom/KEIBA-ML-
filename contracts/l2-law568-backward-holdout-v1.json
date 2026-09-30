@@ -1,0 +1,36 @@
+{
+  "contract": "L2_LAW568_BACKWARD_HOLDOUT_V1",
+  "purpose": "Revalidate frozen LAW5, LAW6 and LAW8 without tuning on a previously unused backward holdout year.",
+  "bet_type": "QUINELLA",
+  "backward_holdout_year": 2021,
+  "l2_training_years": [
+    2019,
+    2020
+  ],
+  "locked_years": [
+    2026
+  ],
+  "no_rule_tuning_after_holdout_open": true,
+  "frozen_laws": {
+    "LAW1": "Apply frozen V2 race pick MODEL_TOP15 + rank_upgrade>=5 + max1, then keep rank_upgrade 15-24 and field_size 15-16.",
+    "LAW2": "GAP10P with model_rank_band=1-3, max1/race using frozen candidate sort.",
+    "LAW5": "GAP7_9 with field_size_band=15-16 and model_rank_band=9-10, max1/race using frozen candidate sort.",
+    "LAW6": "GAP7_9 with market_rank_band=11-15 and l17_rank_band=21-30, max1/race using frozen candidate sort.",
+    "LAW8": "GAP5P with field_size_band=<=12 and l17_rank_band=21-30, max1/race using frozen candidate sort."
+  },
+  "required_outputs": [
+    "2021 tickets/hits/ROI/profit for LAW1/2/5/6/8",
+    "largest-win share and ROI after removing largest 1 and largest 2 wins",
+    "monthly stability for LAW5/6/8",
+    "bootstrap distribution for LAW5/6/8",
+    "LAW1+LAW2 baseline portfolio",
+    "LAW1+LAW2+LAW5+LAW6+LAW8 portfolio"
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
