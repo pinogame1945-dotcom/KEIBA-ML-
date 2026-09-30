@@ -1,0 +1,209 @@
+name: L2 TRIO LAW Arena V1
+
+on:
+  push:
+    branches:
+      - research/l2-trio-law-arena-v1-20260930
+    paths:
+      - .github/triggers/l2-trio-law-arena-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-trio-law-arena-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_l2_trio_law_arena_v1.py \
+            research/run_l2_ticket_market_gap_trio_v0.py \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/build_l2_bet_kings_dataset_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          bash -n scripts/rebuild-seven-score-local-v1.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-trio-law-arena-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_TRIO_LAW_ARENA_V1"
+          assert c["discovery_years"]==[2022,2023,2024]
+          assert c["confirmation_year"]==2025
+          assert c["confirmation_used_for_selection"] is False
+          assert c["locked_years"]==[2026]
+          assert c["candidate_grid"]["rank_upgrade_min"]==[5,10,20]
+          assert c["candidate_grid"]["model_rank_bands"]==["1-3","4-5","6-10","11-20"]
+          assert c["candidate_grid"]["candidate_count"]==12
+          assert c["session_reuse"]["one_runner"] is True
+          assert c["session_reuse"]["reuse_predictions_for_all_12_candidates"] is True
+          assert c["cost"]["standard_github_cpu_only"] is True
+          assert c["cost"]["gpu"] is False
+          assert c["cost"]["paid_runner"] is False
+          assert c["cost"]["github_artifact"] is False
+          assert c["cost"]["github_cache"] is False
+          assert c["cost"]["persistent_external_storage_write"] is False
+          wf=Path(".github/workflows/l2-trio-law-arena-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          forbidden=("/data/daily/"+"2026-","/data/odds/daily/"+"2026-","--l17-"+"2026")
+          assert not any(x in wf for x in forbidden)
+          print("L2_TRIO_LAW_ARENA_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2021-2025 seven scores metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          for y in 2021 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              mkdir -p "$d"
+              set +e
+              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
+              rc=$?
+              if [[ "$rc" -eq 0 ]]; then
+                bash scripts/kaggle-dataset-session-v2.sh fetch "$d" score.jsonl
+                rc=$?
+              fi
+              set -e
+              if [[ "$rc" -eq 43 || "$rc" -eq 44 ]]; then
+                echo "::warning::score source unavailable; local rebuild year=$y alias=$alias rc=$rc"
+                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+                bash scripts/rebuild-seven-score-local-v1.sh "$alias" "$y" "$d"
+              elif [[ "$rc" -ne 0 ]]; then
+                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
+                exit "$rc"
+              fi
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          done
+
+      - name: Materialize L1.7 2021-2025
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l17
+          for y in 2021 2022 2023 2024 2025; do
+            args=()
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--expert "$name=$p")
+            done
+            out="out/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py \
+              --year "$y" "${args[@]}" --output "$out"
+            test -s "$out"
+            echo "L17_$y=$out" >> "$GITHUB_ENV"
+          done
+
+      - name: Sparse restore 2021-2025 race and odds packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2021-*.jsonl.gz
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2021-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run TRIO LAW Arena V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-law-arena-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_trio_law_arena_v1.py \
+            --l17-2021 "$L17_2021" \
+            --l17-2022 "$L17_2022" \
+            --l17-2023 "$L17_2023" \
+            --l17-2024 "$L17_2024" \
+            --l17-2025 "$L17_2025" \
+            --backfill-root out/backfill \
+            --work-dir out/trio-law-session \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== CANDIDATE ARENA ====="
+          cat "$result/candidate-arena.csv"
+          echo "===== TOP5 DISCOVERY ====="
+          cat "$result/top5-discovery-candidates.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle is read-only; no dataset/model upload."
+          echo "All large TRIO base/prediction tables are runner-local and ephemeral."
+          echo "Only compact CSV/JSON research outputs are committed."
+          echo "2025 is confirmation-only; 2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-law-arena-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive TRIO LAW arena run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
