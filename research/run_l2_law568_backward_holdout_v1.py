@@ -16,7 +16,7 @@ from run_l2_market_gap_law_arena_v1 import (
     union_frame
 )
 
-YEARS=(2019,2020,2021)
+YEARS=(2020,2021)
 HOLDOUT=2021
 BOOTSTRAPS=10000
 
@@ -87,7 +87,7 @@ def main():
     frames={y:add_market_features(build_year_frame(y,l17[y],a.backfill_root)) for y in YEARS}
     cols=market_feature_columns(frames[2020])
 
-    train=pd.concat([frames[2019],frames[2020]],ignore_index=True)
+    train=frames[2020].copy().reset_index(drop=True)
     test=frames[2021].copy().reset_index(drop=True)
     score,_=train_rank_predict(train,test,cols,95021)
     test["market_aware_score"]=score
@@ -155,7 +155,7 @@ def main():
     summary={
         "contract":"L2_LAW568_BACKWARD_HOLDOUT_V1_RESULT",
         "holdout_year":2021,
-        "l2_training_years":[2019,2020],
+        "l2_training_years":[2020],
         "rules_tuned_on_2021":False,
         "law_metrics":{r["law_id"]:r for r in rows},
         "bootstrap":{r["law_id"]:r for r in boot},
