@@ -1,0 +1,132 @@
+{
+  "contract": "L2_QUINELLA_LEARNED_BOUNDARIES_V1",
+  "source_variant": "ODDS_COMMA_CORRECTED",
+  "manual_bins_used": false,
+  "legacy_laws_seeded": false,
+  "manual_rule_grid_used": false,
+  "ticket_cap_used": false,
+  "selection_threshold": "predicted_probability * final_odds > 1.0",
+  "selection_threshold_reason": "mathematical break-even only",
+  "probability_normalization": "within-race sum-to-one",
+  "model": "LightGBM binary classifier; tree split boundaries learned from prior years only",
+  "walk_forward": {
+    "2022": [
+      2021
+    ],
+    "2023": [
+      2021,
+      2022
+    ],
+    "2024": [
+      2021,
+      2022,
+      2023
+    ],
+    "2025": [
+      2021,
+      2022,
+      2023,
+      2024
+    ]
+  },
+  "metrics_by_year": [
+    {
+      "label": "LEARNED_BREAK_EVEN_2022",
+      "source_races": 3456,
+      "executed_races": 3393,
+      "execution_coverage_pct": 98.17708333333333,
+      "tickets": 32643,
+      "hit_races": 383,
+      "race_hit_rate_pct": 11.082175925925926,
+      "stake_yen": 3264300.0,
+      "return_yen": 2163050.0,
+      "profit_yen": -1101250.0,
+      "roi_pct": 66.26382379070552,
+      "max_drawdown_yen": 1280300.0,
+      "mean_edge": 0.2856746971743385,
+      "median_edge": 0.16756722495381404,
+      "median_odds": 218.7,
+      "mean_tickets_per_executed_race": 9.620689655172415,
+      "year": 2022
+    },
+    {
+      "label": "LEARNED_BREAK_EVEN_2023",
+      "source_races": 3456,
+      "executed_races": 3071,
+      "execution_coverage_pct": 88.85995370370371,
+      "tickets": 18144,
+      "hit_races": 205,
+      "race_hit_rate_pct": 5.931712962962963,
+      "stake_yen": 1814400.0,
+      "return_yen": 1300200.0,
+      "profit_yen": -514200.0,
+      "roi_pct": 71.66005291005291,
+      "max_drawdown_yen": 610890.0,
+      "mean_edge": 0.22921613975727678,
+      "median_edge": 0.12540630352648297,
+      "median_odds": 202.1,
+      "mean_tickets_per_executed_race": 5.908173233474439,
+      "year": 2023
+    },
+    {
+      "label": "LEARNED_BREAK_EVEN_2024",
+      "source_races": 3454,
+      "executed_races": 2848,
+      "execution_coverage_pct": 82.45512449334106,
+      "tickets": 12639,
+      "hit_races": 146,
+      "race_hit_rate_pct": 4.226983207874928,
+      "stake_yen": 1263900.0,
+      "return_yen": 858890.0,
+      "profit_yen": -405010.0,
+      "roi_pct": 67.95553445683994,
+      "max_drawdown_yen": 461820.0,
+      "mean_edge": 0.200291291654509,
+      "median_edge": 0.10361515308099456,
+      "median_odds": 231.6,
+      "mean_tickets_per_executed_race": 4.437851123595506,
+      "year": 2024
+    },
+    {
+      "label": "LEARNED_BREAK_EVEN_2025",
+      "source_races": 3455,
+      "executed_races": 2519,
+      "execution_coverage_pct": 72.90882778581765,
+      "tickets": 8617,
+      "hit_races": 112,
+      "race_hit_rate_pct": 3.2416787264833573,
+      "stake_yen": 861700.0,
+      "return_yen": 584830.0,
+      "profit_yen": -276870.0,
+      "roi_pct": 67.86932807241499,
+      "max_drawdown_yen": 296410.0,
+      "mean_edge": 0.1792088866503445,
+      "median_edge": 0.09569432239881515,
+      "median_odds": 187.1,
+      "mean_tickets_per_executed_race": 3.4208019055180627,
+      "year": 2025
+    }
+  ],
+  "overall_2022_2025": {
+    "label": "LEARNED_BREAK_EVEN_ALL",
+    "source_races": 13821,
+    "executed_races": 11831,
+    "execution_coverage_pct": 85.60162072208958,
+    "tickets": 72043,
+    "hit_races": 846,
+    "race_hit_rate_pct": 6.121120034729759,
+    "stake_yen": 7204300.0,
+    "return_yen": 4906970.0,
+    "profit_yen": -2297330.0,
+    "roi_pct": 68.11168330025124,
+    "max_drawdown_yen": 2494990.0,
+    "mean_edge": 0.2437419512111561,
+    "median_edge": 0.1336118100024064,
+    "median_odds": 211.5,
+    "mean_tickets_per_executed_race": 6.089341560307666
+  },
+  "learned_split_count": 38400,
+  "feature_count": 82,
+  "2025_used_for_selection": false,
+  "2026_locked": true
+}
