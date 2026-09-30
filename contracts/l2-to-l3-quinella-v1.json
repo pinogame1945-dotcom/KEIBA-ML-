@@ -1,0 +1,141 @@
+{
+  "contract": "L2_TO_L3_QUINELLA_V1",
+  "version": 1,
+  "purpose": "Canonical pre-race QUINELLA ticket handoff from L2 selection to L3 bankroll/stake allocation.",
+  "row_granularity": "ONE_RACE_X_ONE_CANONICAL_UNORDERED_QUINELLA_PAIR_X_ONE_MARKET_DECISION_SNAPSHOT",
+  "upstream": {
+    "ability_layer": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+    "l2_family": "market-gap law engine",
+    "law_catalog": "L2_QUINELLA_LAW_CATALOG_V1"
+  },
+  "ownership": {
+    "L1_7": "horse/full-field ability and structural ranking",
+    "L2": "ticket selection and market-relative signal",
+    "L3": "stake size, bankroll allocation, exposure limits and final execution decision"
+  },
+  "invariants": {
+    "pre_race_only": true,
+    "unordered_pair": true,
+    "one_row_per_ticket_key_per_market_snapshot": true,
+    "duplicate_laws_are_merged": true,
+    "l2_must_not_set_stake": true,
+    "payout_not_allowed": true,
+    "finish_result_not_allowed": true,
+    "market_snapshot_provenance_required": true,
+    "live_snapshot_timestamp_required": true,
+    "historical_unknown_time_must_be_explicit": true,
+    "research_2026_outcomes_locked": true
+  },
+  "canonical_ticket_identity": {
+    "bet_type": "QUINELLA",
+    "horse_id_order": "ascending lexical string order",
+    "horse_number_order": "ascending numeric order",
+    "ticket_key_format": "QUINELLA:<race_id>:<horse_id_low>:<horse_id_high>",
+    "duplicate_merge_key": [
+      "race_id",
+      "market_snapshot_id",
+      "ticket_key"
+    ]
+  },
+  "required_fields": [
+    "contract",
+    "version",
+    "generated_at_utc",
+    "race_id",
+    "race_date",
+    "market_snapshot_id",
+    "market_snapshot_kind",
+    "bet_type",
+    "ticket_key",
+    "horses",
+    "selected_by_laws",
+    "law_count",
+    "odds",
+    "market_rank",
+    "model_rank",
+    "rank_upgrade",
+    "l17_rank_score",
+    "field_size",
+    "l2_model_version",
+    "law_catalog_version"
+  ],
+  "optional_fields": [
+    "market_observed_at_utc",
+    "seconds_to_post",
+    "market_q_norm",
+    "market_aware_score",
+    "pair_prob_product",
+    "surface",
+    "distance_m",
+    "venue",
+    "race_number",
+    "scheduled_post_time_utc",
+    "source_ref",
+    "source_sha"
+  ],
+  "forbidden_fields": [
+    "stake_yen",
+    "recommended_stake_yen",
+    "bet_amount_yen",
+    "budget_share",
+    "kelly_fraction",
+    "finish_position",
+    "winner",
+    "hit",
+    "target",
+    "return_yen",
+    "return_yen_per100",
+    "payout",
+    "payouts",
+    "profit_yen",
+    "roi_pct"
+  ],
+  "market_snapshot_policy": {
+    "allowed_kinds": [
+      "LIVE",
+      "HISTORICAL_FINAL",
+      "HISTORICAL_UNKNOWN_TIME"
+    ],
+    "LIVE": {
+      "market_observed_at_utc": "required",
+      "note": "L3 may reject stale market snapshots using its own execution policy."
+    },
+    "HISTORICAL_FINAL": {
+      "market_observed_at_utc": "optional",
+      "note": "Backtest/research only; must not be presented as a known live decision timestamp."
+    },
+    "HISTORICAL_UNKNOWN_TIME": {
+      "market_observed_at_utc": "null_or_absent",
+      "note": "Explicitly marks timing uncertainty."
+    }
+  },
+  "selected_by_laws_policy": {
+    "type": "array of unique law IDs",
+    "sort": "ascending numeric LAW order when standard LAW IDs are used",
+    "primary_law": "not required; L3 consumes all supporting laws",
+    "rejected_laws": "must never appear"
+  },
+  "l3_expectation": {
+    "consumes": "selected ticket rows only",
+    "decides": [
+      "final_buy_or_skip",
+      "stake_yen",
+      "race_exposure",
+      "day_exposure",
+      "cross_ticket_budget"
+    ],
+    "may_use": [
+      "law_count",
+      "selected_by_laws",
+      "odds",
+      "market_rank",
+      "model_rank",
+      "rank_upgrade",
+      "l17_rank_score",
+      "field_size",
+      "seconds_to_post"
+    ],
+    "must_not_rescore_horse_ability": true
+  },
+  "research_note": "Historical ROI/profit is evaluation metadata and is intentionally absent from the live L2->L3 payload."
+}
