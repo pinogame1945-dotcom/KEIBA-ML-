@@ -1,0 +1,178 @@
+{
+  "contract": "L2_CORE_V1",
+  "status": "DESIGN_FROZEN",
+  "created_at": "2026-10-01",
+  "purpose": "Convert leak-safe L1.7 full-field horse diagnostics into calibrated finish-order probabilities, derive probabilities for all supported ticket types from one shared order model, then join market prices for valuation. Stake sizing and portfolio allocation belong to L3.",
+  "upstream": {
+    "required_contract": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+    "reference_branch": "research/l17-seven-king-fullfield-v1-20260929",
+    "reference_ci_run": 36583135148,
+    "required_horse_fields": [
+      "horse_id",
+      "horse_number",
+      "consensus_rank",
+      "mean_rank",
+      "rank_std",
+      "best_rank",
+      "worst_rank",
+      "top1_votes",
+      "top3_support",
+      "top6_support",
+      "mean_probability",
+      "probability_std",
+      "experts"
+    ]
+  },
+  "responsibility_boundary": {
+    "l17": "Horse diagnosis only. No odds, payout, ROI, result labels, Gate, Outsider, or ticket decisions.",
+    "l2": "Estimate finish-order and ticket-hit probabilities, join market prices after probability estimation, and emit ranked ticket candidates with valuation metadata.",
+    "l3": "Choose final portfolio, stake sizes, bankroll exposure, cross-ticket diversification, and race-level spend."
+  },
+  "core_stages": [
+    {
+      "stage": "ORDER_MODEL",
+      "description": "Learn one race-normalized latent strength per horse from L1.7 full-field information and allowed pre-race context. Odds, popularity, payout, and post-race fields are forbidden model inputs."
+    },
+    {
+      "stage": "TICKET_PROBABILITY",
+      "description": "Derive ticket-hit probabilities from the shared finish-order model instead of training unrelated hard-coded ticket templates."
+    },
+    {
+      "stage": "MARKET_VALUATION",
+      "description": "Join timestamp-governed market prices only after probability prediction. Compute fair_odds, edge, and expected_return_index."
+    },
+    {
+      "stage": "CANDIDATE_OUTPUT",
+      "description": "Emit all races and a reconstructable/full candidate ranking. Do not drop races because they fail a handcrafted rule. L3 decides bankroll allocation."
+    }
+  ],
+  "order_model_v1": {
+    "family": "PLACKETT_LUCE_STYLE_SHARED_STRENGTH",
+    "reason": "A single finish-order distribution can generate WIN, QUINELLA, EXACTA, TRIO, and TRIFECTA probabilities coherently without five separate rule systems.",
+    "probability_rules": {
+      "win": "P(i first)",
+      "exacta": "P(i first, j second)",
+      "quinella": "P(i first, j second) + P(j first, i second)",
+      "trifecta": "P(i first, j second, k third)",
+      "trio": "sum of the six ordered top-three permutations for {i,j,k}"
+    },
+    "all_runners_scored": true,
+    "manual_topn_truncation_before_probability": false,
+    "manual_anchor_roles_required": false,
+    "manual_ticket_templates_required": false
+  },
+  "allowed_probability_features": {
+    "l17_fullfield": true,
+    "race_level_features_derived_from_l17": [
+      "field_size",
+      "consensus_concentration",
+      "king_agreement",
+      "rank_dispersion_structure",
+      "probability_entropy"
+    ],
+    "pre_race_context_optional": [
+      "surface",
+      "distance",
+      "course",
+      "race_class",
+      "track_condition",
+      "weather"
+    ],
+    "market_features": false,
+    "post_race_features": false
+  },
+  "forbidden_probability_features": [
+    "odds",
+    "final_odds",
+    "popularity",
+    "implied_probability",
+    "payout",
+    "return_yen",
+    "profit_yen",
+    "roi",
+    "finish_position",
+    "winner",
+    "ticket_hit",
+    "post_race_result_fields"
+  ],
+  "market_stage": {
+    "probability_model_is_frozen_before_join": true,
+    "timestamp_policy_required": true,
+    "historical_final_odds": "Allowed only as historical valuation/evaluation proxy and must be labeled as such.",
+    "fields": [
+      "market_odds",
+      "fair_odds",
+      "edge",
+      "expected_return_index"
+    ],
+    "formulas": {
+      "fair_odds": "1 / p_hit",
+      "edge": "p_hit * market_odds - 1",
+      "expected_return_index": "p_hit * market_odds"
+    }
+  },
+  "supported_bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "output_principles": {
+    "all_races_preserved": true,
+    "skip_is_not_a_training_class": true,
+    "no_forced_purchase": true,
+    "ticket_probability_reconstructable_for_full_field": true,
+    "candidate_ranking_available": true,
+    "stake_yen": "L3_ONLY",
+    "budget": "L3_ONLY",
+    "portfolio_optimization": "L3_ONLY"
+  },
+  "evaluation": {
+    "walk_forward": true,
+    "historical_years": [
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "locked_years": [
+      2026
+    ],
+    "required_probability_metrics": [
+      "log_loss",
+      "brier_score",
+      "calibration_error",
+      "top1_accuracy",
+      "top3_coverage"
+    ],
+    "required_ticket_metrics": [
+      "ticket_log_loss_or_equivalent",
+      "calibration_by_bet_type",
+      "race_hit_rate",
+      "ticket_hit_rate",
+      "roi_pct_for_diagnostic_price_thresholds",
+      "max_drawdown_yen_for_diagnostic_price_thresholds"
+    ],
+    "promotion_rule": "No production promotion from ROI alone. Probability calibration and stability across walk-forward years are mandatory."
+  },
+  "dead_heat_policy": {
+    "training": "Must be tie-aware or explicitly isolate dead-heat races; input row order must never break ties.",
+    "ticket_evaluation": "Official winning ticket/payout records are the source of truth for hit evaluation."
+  },
+  "legacy_status": {
+    "direct_template_router": "RESEARCH_BRANCH_ONLY",
+    "role_laws": "RESEARCH_BRANCH_ONLY",
+    "k2_kari_fix": "RESEARCH_BRANCH_ONLY",
+    "normal_router_series": "RESEARCH_BRANCH_ONLY",
+    "rule": "Legacy findings may be compared against L2_CORE_V1 but are not part of the core definition unless later revalidated as features or policies."
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "execution_requires_paid_resource": false
+  }
+}
