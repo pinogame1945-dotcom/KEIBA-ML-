@@ -1,0 +1,37 @@
+{
+  "contract": "L2_ODDS_ONLY_UNIVERSAL_V1",
+  "version": 1,
+  "purpose": "Five-bet odds-only control experiment with Seven-King/L1.7 fully removed.",
+  "bet_types": ["WIN","QUINELLA","EXACTA","TRIO","TRIFECTA"],
+  "inputs": {
+    "l17": false,
+    "seven_king": false,
+    "odds": true,
+    "results_for_evaluation": true
+  },
+  "raw_market_probability": "(1/odds) normalized within race and bet type",
+  "calibration": {
+    "method": "POWER_CALIBRATION",
+    "formula": "p_cal=p_market^gamma/sum(p_market^gamma)",
+    "gamma_selection_metric": "STRICTLY_PRIOR_YEAR_WINNING_TICKET_NLL",
+    "roi_used_for_selection": false,
+    "test_year_used_for_selection": false
+  },
+  "selection": {
+    "rule": "probability * same_final_odds > 1.0",
+    "manual_edge_threshold": false,
+    "manual_top_k": false,
+    "manual_ticket_cap": false,
+    "manual_odds_band": false,
+    "manual_race_skip_rule": false
+  },
+  "locked_years": [2026],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}
