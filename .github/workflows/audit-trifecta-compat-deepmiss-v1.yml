@@ -1,0 +1,172 @@
+name: Audit TRIFECTA COMPAT Deep Miss V1
+
+on:
+  push:
+    branches:
+      - research/audit-trifecta-compat-deepmiss-v1-20260930
+    paths:
+      - .github/triggers/audit-trifecta-compat-deepmiss-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-trifecta-compat-deepmiss-v1
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/materialize_l17_seven_king_fullfield_v1.py             research/build_l2_bet_kings_dataset_v1.py             research/run_l2_trifecta_fullfield_ability_v2.py             research/audit_l2_trifecta_compat_deepmiss_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          bash -n scripts/rebuild-seven-score-local-v1.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-trifecta-compat-deepmiss-audit-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_TRIFECTA_COMPAT_DEEPMISS_AUDIT_V1"
+          assert c["training_years"]==[2022,2023,2024]
+          assert c["audit_year"]==2025
+          assert c["locked_years"]==[2026]
+          assert c["policy"]["new_betting_rule_created"] is False
+          assert c["policy"]["model_features_changed"] is False
+          assert c["policy"]["training_recipe_changed"] is False
+          cost=c["cost"]
+          assert cost["standard_github_cpu_only"] is True
+          for k in ("gpu","paid_runner","github_artifact","github_cache","persistent_kaggle_upload"):
+              assert cost[k] is False,(k,cost[k])
+          wf=Path(".github/workflows/audit-trifecta-compat-deepmiss-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
+          assert not any(u.startswith("actions/cache") for u in uses),uses
+          print("DEEPMISS_AUDIT_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven horse-level score tables metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          session_script="scripts/kaggle-dataset-session-v2.sh"
+          rebuild_script="scripts/rebuild-seven-score-local-v1.sh"
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/deepmiss/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              mkdir -p "$d"
+              set +e
+              bash "$session_script" init "$ref" "$d"
+              rc=$?
+              if [[ "$rc" -eq 0 ]]; then
+                bash "$session_script" fetch "$d" score.jsonl
+                rc=$?
+              fi
+              set -e
+              if [[ "$rc" -eq 44 ]]; then
+                echo "::warning::score metadata drift; no alternate-name guessing. rebuilding locally year=$y alias=$alias"
+                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+                bash "$rebuild_script" "$alias" "$y" "$d"
+              elif [[ "$rc" -ne 0 ]]; then
+                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
+                exit "$rc"
+              fi
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          done
+
+      - name: Materialize leak-safe L1.7 full-field consensus
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/deepmiss/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              p="$(find "out/deepmiss/scores/$y/$alias" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--expert "$alias=$p")
+            done
+            python research/materialize_l17_seven_king_fullfield_v1.py               --year "$y" "${args[@]}"               --output "out/deepmiss/l17/l17-$y.jsonl.gz"
+            echo "L17_$y=out/deepmiss/l17/l17-$y.jsonl.gz" >> "$GITHUB_ENV"
+          done
+
+      - name: Sparse restore fixed BACKFILL
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run deep-miss decomposition
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/audit-trifecta-compat-deepmiss-v1/run-$GITHUB_RUN_ID"
+          python research/audit_l2_trifecta_compat_deepmiss_v1.py             --l17-year "2022:$L17_2022"             --l17-year "2023:$L17_2023"             --l17-year "2024:$L17_2024"             --l17-year "2025:$L17_2025"             --backfill-root out/backfill             --out-dir "$result"
+          cat "$result/summary.json"
+          cat "$result/seat-outside-summary.csv"
+          cat "$result/outside-top6-count.csv"
+          cat "$result/best-permutation-bands.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / cache / artifact."
+          echo "Existing Kaggle inputs are read-only; no persistence."
+          echo "2026 remains sealed."
+
+      - name: Commit compact audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/audit-trifecta-compat-deepmiss-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add             "$result/README.md"             "$result/summary.json"             "$result/seat-outside-summary.csv"             "$result/outside-top6-count.csv"             "$result/outside-top10-count.csv"             "$result/best-permutation-bands.csv"             "$result/top-consensus-rank-patterns.csv"             "$result/deepmiss-severe-sample.csv"             "$result/feature-importance.csv"
+          git commit -m "audit: archive COMPAT deep-miss run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
