@@ -20,7 +20,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 240
     env:
-      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
 
     steps:
@@ -37,14 +36,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile \
-            research/materialize_l17_seven_king_fullfield_v1.py \
-            research/run_l2_ticket_market_gap_v2.py \
-            research/audit_l2_market_gap_v2_robustness.py \
-            research/run_feature_arena.py \
-            research/emit_l1_to_l2.py
-          bash -n scripts/kaggle-dataset-session-v2.sh
-          bash -n scripts/rebuild-seven-score-local-v1.sh
+          python -m py_compile research/audit_l2_market_gap_v2_robustness.py
           python - <<'PY'
           import json
           from pathlib import Path
@@ -53,12 +45,21 @@ jobs:
           assert c["source_run_id"]==36654227618
           assert c["frozen_policy"]=={"model_top_k":15,"min_market_rank_upgrade":5,"max_tickets_per_race":1}
           assert c["locked_years"]==[2026]
+          assert c["inputs"]["kaggle"] is False
+          assert c["inputs"]["upstream_recompute"] is False
           assert c["persistence"]["large_prediction_matrix"] is False
           assert c["cost"]["standard_github_cpu_only"] is True
           assert c["cost"]["gpu"] is False
           assert c["cost"]["github_artifact"] is False
           assert c["cost"]["github_cache"] is False
           assert c["cost"]["persistent_kaggle_upload"] is False
+          source=Path(c["source_path"])
+          for name in (
+              "summary.json","holdout-selected-tickets.csv.gz",
+              "dev-market-gap-grid.csv","holdout-market-gap-matrix-diagnostic.csv",
+              "pure-ranking-policies.csv"
+          ):
+              assert (source/name).is_file(),name
           wf=Path(".github/workflows/l2-market-gap-v2-robust-audit.yml").read_text()
           lines=wf.splitlines()
           runners=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("runs-on:")]
@@ -66,75 +67,17 @@ jobs:
           uses=[x.strip().split(":",1)[1].strip() for x in lines if x.strip().startswith("- uses:")]
           assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
           assert not any(u.startswith("actions/cache") for u in uses),uses
-          print("L2_MARKET_GAP_V2_ROBUST_AUDIT_GUARDS_OK")
+          assert "KAGGLE_API_TOKEN" not in wf
+          print("L2_MARKET_GAP_V2_PERSISTED_AUDIT_GUARDS_OK")
           PY
 
       - name: Install standard CPU dependencies
         shell: bash
         run: |
           set -euo pipefail
-          python -m pip install --disable-pip-version-check kaggle
-          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python -m pip install --disable-pip-version-check pandas numpy
 
-      - name: Restore seven horse-level score tables metadata-first
-        shell: bash
-        run: |
-          set -euo pipefail
-          session_script="scripts/kaggle-dataset-session-v2.sh"
-          rebuild_script="scripts/rebuild-seven-score-local-v1.sh"
-          test -s "$session_script"
-          test -s "$rebuild_script"
-
-          for y in 2022 2023 2024 2025; do
-            for alias in core4 pedlegacy condition full light pedv1 condrc; do
-              d="out/ticket-eval/scores/$y/$alias"
-              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
-              mkdir -p "$d"
-
-              set +e
-              bash "$session_script" init "$ref" "$d"
-              rc=$?
-              if [[ "$rc" -eq 0 ]]; then
-                bash "$session_script" fetch "$d" score.jsonl
-                rc=$?
-              fi
-              set -e
-
-              if [[ "$rc" -eq 44 ]]; then
-                echo "::warning::score metadata drift; no retry/no alternate filename. local rebuild year=$y alias=$alias"
-                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
-                bash "$rebuild_script" "$alias" "$y" "$d"
-              elif [[ "$rc" -ne 0 ]]; then
-                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
-                exit "$rc"
-              fi
-
-              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
-              test -n "$p"; test -s "$p"
-              echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
-            done
-          done
-
-      - name: Materialize leak-safe L1.7 full-field consensus
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p out/ticket-eval/l17
-          for y in 2022 2023 2024 2025; do
-            args=()
-            for alias in core4 pedlegacy condition full light pedv1 condrc; do
-              p="$(find "out/ticket-eval/scores/$y/$alias" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
-              test -n "$p"; test -s "$p"
-              args+=(--expert "$alias=$p")
-            done
-            python research/materialize_l17_seven_king_fullfield_v1.py \
-              --year "$y" "${args[@]}" \
-              --output "out/ticket-eval/l17/l17-$y.jsonl.gz"
-            test -s "out/ticket-eval/l17/l17-$y.jsonl.gz"
-            echo "L17_$y=out/ticket-eval/l17/l17-$y.jsonl.gz" >> "$GITHUB_ENV"
-          done
-
-      - name: Sparse restore 2022-2025 race and odds packs
+      - name: Sparse restore 2025 race packs
         shell: bash
         run: |
           set -euo pipefail
@@ -142,19 +85,11 @@ jobs:
           git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
           git -C out/backfill sparse-checkout init --no-cone
           cat > out/backfill/.git/info/sparse-checkout <<'EOF'
-          /data/daily/2022-*.jsonl.gz
-          /data/daily/2023-*.jsonl.gz
-          /data/daily/2024-*.jsonl.gz
           /data/daily/2025-*.jsonl.gz
-          /data/odds/daily/2022-*.jsonl.gz
-          /data/odds/daily/2023-*.jsonl.gz
-          /data/odds/daily/2024-*.jsonl.gz
-          /data/odds/daily/2025-*.jsonl.gz
           EOF
           git -C out/backfill checkout "$BACKFILL_SHA"
           test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
-          echo "daily=$(find out/backfill/data/daily -type f -name '*.jsonl.gz' | wc -l)"
-          echo "odds=$(find out/backfill/data/odds/daily -type f -name '*.jsonl.gz' | wc -l)"
+          echo "daily2025=$(find out/backfill/data/daily -type f -name '2025-*.jsonl.gz' | wc -l)"
 
       - name: Run comprehensive robustness audit
         shell: bash
@@ -162,27 +97,19 @@ jobs:
           set -euo pipefail
           result="research-results/l2-market-gap-v2-robust-audit/run-$GITHUB_RUN_ID"
           python research/audit_l2_market_gap_v2_robustness.py \
-            --l17-year "2022:$L17_2022" \
-            --l17-year "2023:$L17_2023" \
-            --l17-year "2024:$L17_2024" \
-            --l17-year "2025:$L17_2025" \
+            --source-dir research-results/l2-ticket-market-gap-v2/run-36654227618 \
             --backfill-root out/backfill \
-            --frozen-summary research-results/l2-ticket-market-gap-v2/run-36654227618/summary.json \
             --out-dir "$result"
           echo "===== SUMMARY ====="
           cat "$result/summary.json"
-          echo "===== YEARLY ====="
-          cat "$result/frozen-policy-yearly.csv"
           echo "===== BOOTSTRAP ====="
           cat "$result/bootstrap-roi.csv"
           echo "===== RETURN CONCENTRATION ====="
           cat "$result/holdout-return-concentration.csv"
-          echo "===== SAME-RACE CONTROLS ====="
-          cat "$result/same-race-controls.csv"
-          echo "===== RANDOM CONTROL ====="
-          cat "$result/random-top15-control.csv"
-          echo "===== TRANSFER ====="
-          cat "$result/single-year-champion-transfer.csv"
+          echo "===== POLICY STABILITY ====="
+          cat "$result/policy-stability-summary.csv"
+          echo "===== LEAVE ONE MONTH OUT ====="
+          cat "$result/leave-one-month-out.csv"
 
       - name: Cost guard
         if: always()
@@ -191,11 +118,10 @@ jobs:
           echo "Standard GitHub-hosted ubuntu-latest CPU only."
           echo "No GPU / paid runner."
           echo "No actions/cache and no upload-artifact."
-          echo "Kaggle inputs are existing datasets, read-only."
-          echo "404 exact-score downloads are not retried or guessed under alternate names."
-          echo "Metadata-drift scores are rebuilt locally from manifest-resolved snapshots."
-          echo "No Kaggle dataset/model persistence."
-          echo "Pair matrices remain ephemeral on the runner."
+          echo "No Kaggle access in this audit."
+          echo "No L1.7 / Seven-King / model recomputation."
+          echo "Frozen persisted V2 outputs are the audit source of truth."
+          echo "Only 2025 BACKFILL race metadata is restored for context splits."
           echo "No holdout-driven policy promotion; 2025 diagnostics only."
           echo "Only compact robustness diagnostics are committed."
           echo "2026 remains sealed."
