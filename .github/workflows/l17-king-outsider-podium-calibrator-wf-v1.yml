@@ -43,6 +43,7 @@ jobs:
             research/train_l17_king_outsider_podium_calibrator_wf_v1.py \
             research/rerank_l1_score_safe_v1.py \
             research/materialize_l16_full_rank_consensus_v1.py \
+            research/materialize_l17_to_l2_signal_v1.py \
             research/resolve_kaggle_file_v1.py
           bash -n scripts/kaggle-snapshot-session.sh
 
@@ -124,7 +125,64 @@ jobs:
           mkdir -p "$(dirname "$result")"
           cmd+=(--output "$result")
           "${cmd[@]}"
+
+          pred="$(dirname "$result")/predictions.csv.gz"
+          deploy="$(dirname "$result")/deployment-model.json"
+          [[ -s "$pred" && -s "$deploy" ]] || { echo "::error::calibrator outputs missing"; exit 1; }
+
+          final_root="research-results/l17-to-l2-signal-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$final_root"
+          for year in 2021 2022 2023 2024 2025; do
+            ballots="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$year/ballots.csv.gz"
+            python research/materialize_l17_to_l2_signal_v1.py \
+              --year "$year" \
+              --consensus "$root/y$year/consensus.jsonl.gz" \
+              --ballots "$ballots" \
+              --predictions "$pred" \
+              --output "$final_root/l17-to-l2-y$year.jsonl.gz"
+          done
+
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          run_id=os.environ["GITHUB_RUN_ID"]
+          cal=Path(f"research-results/l17-king-outsider-podium-calibrator-wf-v1/run-{run_id}")
+          root=Path(f"research-results/l17-to-l2-signal-v1/run-{run_id}")
+          summary=json.loads((cal/"summary.json").read_text())
+          files=[]
+          total=0
+          for p in sorted(root.glob("*.jsonl.gz")):
+              b=p.read_bytes(); total+=len(b)
+              files.append({"name":p.name,"bytes":len(b),"sha256":hashlib.sha256(b).hexdigest()})
+          max_bytes=50*1024*1024
+          if total>max_bytes:
+              raise SystemExit(f"refusing repository storage: compact L1.7 outputs exceed {max_bytes} bytes: {total}")
+          manifest={
+            "contract":"L17_TO_L2_SIGNAL_MANIFEST_V1",
+            "run_id":int(run_id),
+            "years":[2021,2022,2023,2024,2025],
+            "ranking_policy":"SEVEN_KING_UNCHANGED",
+            "outsider_policy":"SIGNAL_ONLY_NO_RERANK",
+            "calibration_scope":"KING_RANK_1_TO_10",
+            "calibration_policy":"walk-forward; past years only",
+            "target_used_for_calibration_only":"finish_position <= 3",
+            "target_fields_exported_to_l2":False,
+            "source_outsider_ballots_run":36724124925,
+            "benchmark":summary["aggregate"],
+            "deployment_model":"deployment-model.json",
+            "files":files,
+            "total_bytes":total,
+            "repository_storage_guard_bytes":max_bytes,
+            "2026_sealed":True,
+            "odds_used":False
+          }
+          (root/"manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n")
+          (root/"deployment-model.json").write_bytes((cal/"deployment-model.json").read_bytes())
+          print(json.dumps({"final_root":str(root),"total_bytes":total,"files":files},ensure_ascii=False))
+          PY
+
           echo "RESULT=$result" >> "$GITHUB_ENV"
+          echo "FINAL_ROOT=$final_root" >> "$GITHUB_ENV"
 
       - name: Commit compact research outputs
         shell: bash
@@ -133,8 +191,8 @@ jobs:
           root="$(dirname "$RESULT")"
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add "$root/summary.json" "$root/predictions.csv.gz"
-          git commit -m "research: L1.7 podium calibrator walk-forward run $GITHUB_RUN_ID"
+          git add "$root/summary.json" "$root/predictions.csv.gz" "$root/deployment-model.json" "$FINAL_ROOT"
+          git commit -m "research: finalize L1.7 to L2 signal run $GITHUB_RUN_ID"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git push origin "HEAD:$GITHUB_REF_NAME"
 
