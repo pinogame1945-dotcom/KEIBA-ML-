@@ -1,0 +1,67 @@
+{
+  "contract": "L2_QUINELLA_LAW_CATALOG_V1",
+  "version": 1,
+  "bet_type": "QUINELLA",
+  "laws": [
+    {
+      "law_id": "LAW1",
+      "status": "BASE_CANDIDATE",
+      "enabled_for_handoff": true,
+      "definition": "Apply frozen V2 race pick MODEL_TOP15 + rank_upgrade>=5 + max1; keep rank_upgrade 15-24 and field_size 15-16.",
+      "role": "rare large market-gap structural candidate"
+    },
+    {
+      "law_id": "LAW2",
+      "status": "PRIMARY_CANDIDATE",
+      "enabled_for_handoff": true,
+      "definition": "GAP10P with model_rank 1-3; select max1 ticket/race using frozen candidate ordering.",
+      "role": "model-top3 strongly upgraded versus market"
+    },
+    {
+      "law_id": "LAW3",
+      "status": "REJECTED_2025",
+      "enabled_for_handoff": false,
+      "definition": "GAP5_6 with model_rank 11-15 and l17_rank 21-30.",
+      "reason": "2025 incremental ROI collapse"
+    },
+    {
+      "law_id": "LAW4",
+      "status": "REJECTED_2025",
+      "enabled_for_handoff": false,
+      "definition": "GAP10P with pair_worse_rank 11-14.",
+      "reason": "2025 incremental zero-hit collapse"
+    },
+    {
+      "law_id": "LAW5",
+      "status": "REVALIDATION_PENDING",
+      "enabled_for_handoff": false,
+      "definition": "GAP7_9 with field_size 15-16 and model_rank 9-10.",
+      "note": "2025 survived; backward 2021 holdout in progress."
+    },
+    {
+      "law_id": "LAW6",
+      "status": "REVALIDATION_PENDING",
+      "enabled_for_handoff": false,
+      "definition": "GAP7_9 with market_rank 11-15 and l17_rank 21-30.",
+      "note": "2025 survived; backward 2021 holdout in progress."
+    },
+    {
+      "law_id": "LAW7",
+      "status": "WATCHLIST",
+      "enabled_for_handoff": false,
+      "definition": "GAP3_4 with odds 40-60 and field_size 13-14.",
+      "reason": "2025 incremental ROI below 100."
+    },
+    {
+      "law_id": "LAW8",
+      "status": "REVALIDATION_PENDING",
+      "enabled_for_handoff": false,
+      "definition": "GAP5P with field_size <=12 and l17_rank 21-30.",
+      "note": "2025 survived; backward 2021 holdout in progress."
+    }
+  ],
+  "activation_rule": "Only enabled_for_handoff=true laws may appear in selected_by_laws. Promotion requires a separate explicit catalog revision; never auto-enable from a research run.",
+  "locked_research_years": [
+    2026
+  ]
+}
