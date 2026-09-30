@@ -1,0 +1,116 @@
+{
+  "contract": "L2_TRIFECTA_TICKET_RANKER_V1_RESULT",
+  "architecture": "single market-aware LambdaRank over every Seven-King Top6 trifecta candidate",
+  "candidate_universe": "all ordered permutations of Seven-King Top6 = 120 tickets per eligible race",
+  "manual_seat_rules": false,
+  "manual_market_gap_rules": false,
+  "race_skip_rules": false,
+  "bet_type": "TRIFECTA",
+  "model": "LightGBM LambdaRank standard CPU",
+  "model_features": "L1.7 seat-specific Seven-King features + race context + normalized final trifecta market probability/rank",
+  "raw_odds_as_model_feature": false,
+  "market_representation": "normalized inverse odds within the 120-ticket race universe",
+  "training_rule": "strict walk-forward; each test year uses only prior years; un-coverable training races omitted from ranking loss",
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "policy": "buy the same global top-N model-ranked tickets in every eligible race",
+  "topn_grid": [
+    1,
+    2,
+    3,
+    5,
+    10,
+    20,
+    30,
+    60,
+    120
+  ],
+  "selected_dev_policy": {
+    "label": "MODEL_TOP2",
+    "source_races": 6891,
+    "executed_races": 6891,
+    "tickets": 13782,
+    "avg_tickets_per_race": 2.0,
+    "hit_races": 241,
+    "race_hit_rate_pct": 3.4973153388477725,
+    "stake_yen": 1378200.0,
+    "return_yen": 977870.0,
+    "profit_yen": -400330.0,
+    "roi_pct": 70.95269191699317,
+    "avg_return_per_hit_yen": 4057.551867219917,
+    "max_drawdown_yen": 425460.0,
+    "top_n": 2
+  },
+  "holdout": {
+    "label": "FROZEN_MODEL_TOP2",
+    "source_races": 3441,
+    "executed_races": 3441,
+    "tickets": 6882,
+    "avg_tickets_per_race": 2.0,
+    "hit_races": 149,
+    "race_hit_rate_pct": 4.330136588201104,
+    "stake_yen": 688200.0,
+    "return_yen": 560880.0,
+    "profit_yen": -127320.0,
+    "roi_pct": 81.49956408020924,
+    "avg_return_per_hit_yen": 3764.2953020134228,
+    "max_drawdown_yen": 155590.0,
+    "selected_from_dev_years": [
+      2023,
+      2024
+    ],
+    "top_n": 2
+  },
+  "year_coverage": {
+    "2022": {
+      "daily_files": 108,
+      "odds_files": 108,
+      "l17_races_seen": 3456,
+      "full120_races": 3450,
+      "missing_odds_day": 0,
+      "missing_odds_row": 0,
+      "missing_trifecta_payout": 0,
+      "incomplete_top6": 6,
+      "incomplete_120_odds": 0
+    },
+    "2023": {
+      "daily_files": 107,
+      "odds_files": 107,
+      "l17_races_seen": 3456,
+      "full120_races": 3446,
+      "missing_odds_day": 0,
+      "missing_odds_row": 0,
+      "missing_trifecta_payout": 0,
+      "incomplete_top6": 10,
+      "incomplete_120_odds": 0
+    },
+    "2024": {
+      "daily_files": 106,
+      "odds_files": 106,
+      "l17_races_seen": 3456,
+      "full120_races": 3445,
+      "missing_odds_day": 0,
+      "missing_odds_row": 0,
+      "missing_trifecta_payout": 0,
+      "incomplete_top6": 9,
+      "incomplete_120_odds": 2
+    },
+    "2025": {
+      "daily_files": 109,
+      "odds_files": 109,
+      "l17_races_seen": 3456,
+      "full120_races": 3441,
+      "missing_odds_day": 0,
+      "missing_odds_row": 0,
+      "missing_trifecta_payout": 0,
+      "incomplete_top6": 14,
+      "incomplete_120_odds": 1
+    }
+  },
+  "2026_locked": true,
+  "production_promotion": false
+}
