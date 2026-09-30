@@ -1,3 +1,5 @@
-launch=2026-09-30T05:57:00Z
+launch=2026-09-30T05:56:00Z
 purpose=TRIO_V0_ALL_COMBINATIONS_RANKING_ONLY
-retry=guard_newline_fixed
+resume=after_user_stop
+guard=syntax_fixed
+memory=year_local_cache
