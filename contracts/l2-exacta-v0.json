@@ -1,0 +1,66 @@
+{
+  "contract": "L2_EXACTA_V0",
+  "status": "RESEARCH",
+  "created_at": "2026-09-30",
+  "purpose": "Establish the independent L2 EXACTA market baseline using all ordered pairs, then measure whether the model identifies the correct direction once the actual first-two horses are captured.",
+  "upstream": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1",
+  "bet_type": "EXACTA",
+  "years": [2022, 2023, 2024, 2025],
+  "walk_forward_test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "candidate_universe": {
+    "all_runners": true,
+    "ordered_pairs": true,
+    "formula": "N*(N-1)",
+    "candidate_horse_filter": false,
+    "template_router": false,
+    "outsider_used": false
+  },
+  "rankers": {
+    "MARKET": {
+      "score": "normalized inverse EXACTA odds",
+      "market_q": "(1/odds)/sum(1/odds) within race"
+    },
+    "L17_ONLY_MODEL": {
+      "model": "LightGBM LambdaRank",
+      "features": "race structure plus symmetric L1.7 pair features and signed direction features",
+      "market_features": false
+    },
+    "MARKET_AWARE_MODEL": {
+      "model": "LightGBM LambdaRank",
+      "features": "L17_ONLY_MODEL features plus market_q, market_log_q, market_rank"
+    }
+  },
+  "direction_audit": {
+    "reverse_pair_test": true,
+    "premarket_symmetric_features_same_under_reversal": true,
+    "premarket_direction_features_sign_flip_under_reversal": true,
+    "strict_direction_population": "races with exactly one winning EXACTA ticket",
+    "multi_winning_ticket_races": "exclude from strict direction judgment; keep in ranking coverage",
+    "primary_metric": "direction_correct_pct_of_captured",
+    "miss_classes": ["PAIR_MISS", "REVERSE_MISS", "HIT"]
+  },
+  "rank_upgrade": "market_rank - market_aware_model_rank",
+  "not_in_v0": {
+    "law_search": true,
+    "roi_policy_search": true,
+    "direct_vs_decomposed_comparison": true,
+    "cross_market_quinella_exacta_distortion": true
+  },
+  "invariants": {
+    "2026_used": false,
+    "result_as_model_feature": false,
+    "payout_as_model_feature": false,
+    "popularity_as_model_feature": false,
+    "raw_horse_number_as_model_feature": false,
+    "tie_break_by_source_row_order": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "kaggle_existing_datasets_read_only": true,
+    "persistent_kaggle_upload": false
+  }
+}
