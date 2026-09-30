@@ -1,4 +1,1 @@
-launch: 2026-09-30T19:30:00+09:00
-purpose: simple L1.7 rank 1-3 axis/himo audit
-retry: guard-fix-1
-retry: small-field-fix
+2026-09-30 relaunch simple rank-role after valid 3-5 horse field guard fix
