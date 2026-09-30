@@ -1,0 +1,80 @@
+{
+  "contract": "L2_QUINELLA_BATTLEFIELD_REPLAY_V1",
+  "primary_candidate": "GAP10P__odds_band=40-60__field_size_band=13-14",
+  "machine_filter": "machine_agree only",
+  "selection_protocol": "for each target year, rank fixed single/pair categorical segments using prior years only; Wilson-80 lower hit bound x prior median odds; then choose up to 5 with >=25% novelty",
+  "segment_dimensions": [
+    "surface",
+    "distance_band",
+    "race_class_normalized",
+    "weight_rule",
+    "venue_code",
+    "track_condition",
+    "month_band",
+    "direction"
+  ],
+  "target_years": [
+    2024,
+    2025
+  ],
+  "top_k": 5,
+  "selected_2024": [
+    "weight_rule=WEIGHT_FOR_AGE__track_condition=良",
+    "weight_rule=WEIGHT_FOR_AGE",
+    "distance_band=2500+__track_condition=良",
+    "race_class_normalized=ONE_WIN__direction=LEFT",
+    "venue_code=09__direction=RIGHT"
+  ],
+  "selected_2025": [
+    "venue_code=09",
+    "weight_rule=WEIGHT_FOR_AGE__track_condition=良",
+    "distance_band=1400-1599",
+    "weight_rule=WEIGHT_FOR_AGE",
+    "surface=DIRT__track_condition=良"
+  ],
+  "reselected_in_both_targets": [
+    "weight_rule=WEIGHT_FOR_AGE",
+    "weight_rule=WEIGHT_FOR_AGE__track_condition=良"
+  ],
+  "union_replay": [
+    {
+      "target_year": 2024,
+      "prior_years": "2023",
+      "selected_segments": "weight_rule=WEIGHT_FOR_AGE__track_condition=良|weight_rule=WEIGHT_FOR_AGE|distance_band=2500+__track_condition=良|race_class_normalized=ONE_WIN__direction=LEFT|venue_code=09__direction=RIGHT",
+      "prior_tickets": 34,
+      "prior_hits": 3,
+      "prior_roi_pct": 479.11764705882354,
+      "prior_ex_max_roi_pct": 304.70588235294116,
+      "baseline_target_tickets": 40,
+      "baseline_target_hits": 2,
+      "baseline_target_roi_pct": 267.0,
+      "target_tickets": 14,
+      "target_hits": 1,
+      "target_roi_pct": 412.85714285714283,
+      "target_ex_max_roi_pct": 0.0,
+      "target_profit_yen": 4380.0,
+      "target_retention_pct": 35.0
+    },
+    {
+      "target_year": 2025,
+      "prior_years": "2023|2024",
+      "selected_segments": "venue_code=09|weight_rule=WEIGHT_FOR_AGE__track_condition=良|distance_band=1400-1599|weight_rule=WEIGHT_FOR_AGE|surface=DIRT__track_condition=良",
+      "prior_tickets": 58,
+      "prior_hits": 4,
+      "prior_roi_pct": 368.1034482758621,
+      "prior_ex_max_roi_pct": 265.86206896551727,
+      "baseline_target_tickets": 22,
+      "baseline_target_hits": 0,
+      "baseline_target_roi_pct": 0.0,
+      "target_tickets": 12,
+      "target_hits": 0,
+      "target_roi_pct": 0.0,
+      "target_ex_max_roi_pct": 0.0,
+      "target_profit_yen": -1200.0,
+      "target_retention_pct": 54.54545454545455
+    }
+  ],
+  "diagnostic_exploratory": true,
+  "target_year_never_used_for_segment_selection": true,
+  "2026_locked": true
+}
