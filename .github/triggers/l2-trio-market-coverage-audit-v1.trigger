@@ -1,3 +1,4 @@
 launch=2026-09-30T06:08:00Z
 purpose=TRIO_MARKET_COVERAGE_AUDIT_BEFORE_LAWS
 retry=guard_self_match_fixed
+retry=yaml_guard_fixed
