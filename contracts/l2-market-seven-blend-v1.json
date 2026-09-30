@@ -1,0 +1,40 @@
+{
+  "contract": "L2_MARKET_SEVEN_BLEND_V1",
+  "version": 1,
+  "purpose": "Compare market-only, Seven-only, and market+Seven ticket probabilities across all five bet types.",
+  "bet_types": ["WIN","QUINELLA","EXACTA","TRIO","TRIFECTA"],
+  "probability_models": {
+    "market": "normalized inverse final odds",
+    "seven": "L1.7 mean_probability -> Plackett-Luce ticket distribution",
+    "blend": "p proportional to market^(1-alpha) * seven^alpha"
+  },
+  "alpha": {
+    "selection_metric": "STRICTLY_PRIOR_YEAR_WINNING_TICKET_NEGATIVE_LOG_LIKELIHOOD",
+    "grid": [0.0,0.05,0.10,0.20,0.35,0.50,0.70,1.00,1.30],
+    "roi_used_for_selection": false,
+    "payout_used_for_selection": false,
+    "test_year_used_for_selection": false
+  },
+  "selection": {
+    "rule": "variant_probability * historical_final_odds > 1.0",
+    "manual_edge_threshold": false,
+    "manual_top_k": false,
+    "manual_ticket_cap": false,
+    "manual_odds_band": false,
+    "manual_race_skip_rule": false
+  },
+  "data": {
+    "years": [2021,2022,2023,2024,2025],
+    "locked_years": [2026],
+    "seven_score_restore": "metadata-first exact-name Kaggle session",
+    "legacy_rolecmp_router_dataset": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}
