@@ -194,6 +194,8 @@ jobs:
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
-          git add "$result/summary.json" "$result/repeat-rule-stability.csv"                   "$result/rule-machine-by-year.csv" "$result/rule-machine-pooled.csv"
+          git add "$result/summary.json" "$result/repeat-rule-stability.csv" \
+                  "$result/rule-machine-by-year.csv" "$result/rule-machine-pooled.csv" \
+                  "$result/selected-rules-by-year.csv"
           git commit -m "research: archive rule-machine stability run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
