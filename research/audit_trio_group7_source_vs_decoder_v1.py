@@ -40,6 +40,9 @@ def main():
     ordering_counts={"ascending":0,"not_ascending":0}
     nonascending_examples=[]
     canonical_collisions=0
+    priced_with_comma=0
+    priced_without_comma=0
+    comma_examples=[]
     for race_path in sorted((root/"data/daily").glob("2025-*.jsonl.gz")):
         odds_path=root/"data/odds/daily"/race_path.name
         if not odds_path.exists():
@@ -99,9 +102,16 @@ def main():
                 if not t:
                     invalid_shapes+=1
                     continue
-                p=num(t[0])
+                raw_price=t[0]
+                p=num(raw_price)
                 if p is not None and p>0:
                     priced+=1
+                    if "," in str(raw_price):
+                        priced_with_comma+=1
+                        if len(comma_examples)<20:
+                            comma_examples.append({"race_id":rid,"key":ks,"raw_price":raw_price,"raw":raw})
+                    else:
+                        priced_without_comma+=1
 
             detail.append({
                 "race_id":rid,
@@ -159,6 +169,10 @@ def main():
       "ordering_counts":ordering_counts,
       "canonical_collisions":canonical_collisions,
       "nonascending_examples":nonascending_examples,
+      "priced_with_comma":priced_with_comma,
+      "priced_without_comma":priced_without_comma,
+      "legacy_float_parse_expected_rows":priced_without_comma,
+      "comma_examples":comma_examples,
       "2026_locked":True
     }
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
