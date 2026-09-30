@@ -1,5 +1,1 @@
-launch=2026-09-30T05:56:00Z
-purpose=TRIO_V0_ALL_COMBINATIONS_RANKING_ONLY
-resume=after_user_stop
-guard=syntax_fixed
-memory=year_local_cache
+rerun TRIO V0 after comma odds decoder fix 2026-09-30 JST
