@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import argparse,csv,gzip,json
-from collections import defaultdict
+from collections import Counter, defaultdict
 from pathlib import Path
 
 YEARS=(2021,2022,2023,2024,2025)
@@ -19,18 +19,21 @@ def opent(path):
 
 def load_truth(path):
     out=defaultdict(dict)
+    raw_finish=defaultdict(dict)
     with opent(path) as fh:
         for line in fh:
             if not line.strip(): continue
             x=json.loads(line)
             rid=str(x.get("race_id") or ""); hid=str(x.get("horse_id") or "")
             if not rid or not hid: continue
+            raw=(x.get("target") or {}).get("finish_position")
+            raw_finish[rid][hid]=raw
             try:
-                pos=int(float((x.get("target") or {}).get("finish_position")))
+                pos=int(float(raw))
             except (TypeError,ValueError):
                 continue
             out[rid][hid]=pos
-    return out
+    return out,raw_finish
 
 def load_consensus(path):
     out={}
@@ -130,7 +133,7 @@ def main():
         if not cons_path.exists() or not snap_path.exists() or not top3_dir.exists():
             raise ValueError(f"missing year inputs y{year}")
 
-        truth=load_truth(snap_path)
+        truth,raw_finish=load_truth(snap_path)
         cons=load_consensus(cons_path)
         outs,candidates=load_outsider_top3(top3_dir)
         if candidates_ref is None: candidates_ref=candidates
@@ -142,11 +145,14 @@ def main():
             if missing: raise ValueError(f"missing outsider top3 y{year} race={rid}: {missing}")
 
         rows=[]
+        missing_values=Counter()
         for rid,ranks in cons.items():
             for hid,krank in ranks.items():
                 if krank>3: continue
                 pos=truth[rid].get(hid)
-                if pos is None: continue
+                if pos is None:
+                    missing_values[str(raw_finish[rid].get(hid))]+=1
+                    continue
                 support_count=0; support_score=0
                 for cand in candidates:
                     orank=outs[rid][cand].get(hid)
@@ -175,6 +181,7 @@ def main():
             "expected_king_top3_rows":expected,
             "evaluable_king_top3_rows":len(rows),
             "missing_finish_rows":missing_finish_rows,
+            "missing_finish_values":dict(sorted(missing_values.items())),
             "king_top3":build_scope(rows),
             "by_king_rank":{str(k):build_scope([r for r in rows if r["king_rank"]==k]) for k in (1,2,3)},
         }
