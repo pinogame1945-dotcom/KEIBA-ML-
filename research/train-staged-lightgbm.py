@@ -4,6 +4,7 @@ import gc
 import gzip
 import hashlib
 import json
+import os
 import platform
 import re
 from datetime import datetime, timezone
@@ -19,6 +20,7 @@ EXPECTED_DATASET_VERSION = 3
 EXPECTED_FEATURE_SCHEMA_VERSION = 8
 EXPECTED_LEAKAGE_POLICY = "STRICT_PRIOR_DATE_ONLY"
 LOCKED_RESEARCH_YEAR = 2026
+LGBM_N_JOBS = int(os.environ.get("KEIBA_LGBM_N_JOBS", "-1"))
 
 DEFAULT_FEATURE_CONTRACT_PATH = Path(__file__).resolve().parents[1] / "contracts" / "l1-feature-set-contract-v1.json"
 DEFAULT_FEATURE_CONTRACT = json.loads(DEFAULT_FEATURE_CONTRACT_PATH.read_text(encoding="utf-8"))
@@ -463,7 +465,7 @@ def feature_selection_train_v1(train, a):
                 colsample_bytree=0.9,
                 reg_lambda=1.0,
                 random_state=42,
-                n_jobs=-1,
+                n_jobs=LGBM_N_JOBS,
                 verbosity=-1,
                 deterministic=True,
                 force_col_wise=True,
@@ -800,7 +802,7 @@ def main():
         "colsample_bytree": 0.9,
         "reg_lambda": 1.0,
         "random_state": 42,
-        "n_jobs": -1,
+        "n_jobs": LGBM_N_JOBS,
         "verbosity": -1,
         "deterministic": True,
         "force_col_wise": True,
