@@ -1,1 +1,1 @@
-launch frozen LAW5 LAW6 LAW8 backward holdout v1 2026-09-30 JST
+relaunch LAW568 backward holdout with runner-local old snapshots 2026-09-30 JST
