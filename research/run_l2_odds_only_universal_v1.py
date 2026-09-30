@@ -266,6 +266,12 @@ def evaluate_year(root,year,gammas,out_race):
                 z=float(powered.sum())
                 cal=powered/z
 
+                odds_arr=np.fromiter((odd for _,odd in tickets),dtype=float,count=len(tickets))
+                payout_items=[
+                    (key,float(ret))
+                    for (pbet,key),ret in payouts.items()
+                    if pbet==bet
+                ]
                 for variant,ps,g in (
                     ("RAW_MARKET",probs,1.0),
                     ("POWER_CALIBRATED_MARKET",cal,gamma),
@@ -277,37 +283,44 @@ def evaluate_year(root,year,gammas,out_race):
                     m["overround_sum"]+=overround
                     m["overround_min"]=min(m["overround_min"],overround)
                     m["overround_max"]=max(m["overround_max"],overround)
-                    selected=0
+
+                    ev=ps*odds_arr
+                    mask=ev>1.0
+                    selected=int(np.count_nonzero(mask))
+                    race_pred=STAKE*float(ev[mask].sum()) if selected else 0.0
+                    edge_sum=float((ev[mask]-1.0).sum()) if selected else 0.0
                     race_return=0.0
-                    race_pred=0.0
-                    race_hit=0
-                    for (key,odd),p in zip(tickets,ps):
-                        ev=p*odd
-                        edge=ev-1.0
-                        if edge<=0.0:
+                    hit_tickets=0
+                    for pkey,ret in payout_items:
+                        odd=odds_map.get((bet,pkey))
+                        if odd is None:
                             continue
-                        ret=float(payouts.get((bet,key),0.0))
-                        hit=int(ret>0)
-                        selected+=1
-                        race_return+=ret
-                        race_pred+=STAKE*ev
-                        race_hit=max(race_hit,hit)
-                        m["selected_tickets"]+=1
-                        m["hit_tickets"]+=hit
-                        m["stake_yen"]+=STAKE
-                        m["actual_return_yen"]+=ret
-                        m["predicted_return_yen"]+=STAKE*ev
-                        m["edge_sum"]+=edge
+                        p0=(1.0/float(odd))/overround
+                        psel=p0 if variant=="RAW_MARKET" else (p0**gamma)/z
+                        if psel*float(odd)>1.0:
+                            race_return+=ret
+                            hit_tickets+=1
+                    race_hit=int(hit_tickets>0)
+
+                    m["selected_tickets"]+=selected
+                    m["hit_tickets"]+=hit_tickets
+                    m["stake_yen"]+=selected*STAKE
+                    m["actual_return_yen"]+=race_return
+                    m["predicted_return_yen"]+=race_pred
+                    m["edge_sum"]+=edge_sum
                     if selected:
                         m["selected_races"]+=1
                         m["hit_races"]+=race_hit
+
                     if top3 is not None:
                         wk=winner_key(bet,top3)
-                        idx={key:i for i,(key,_) in enumerate(tickets)}
-                        if wk in idx:
-                            pwin=max(EPS,ps[idx[wk]])
-                            m["winner_nll_sum"]-=math.log(pwin)
+                        odd=odds_map.get((bet,wk))
+                        if odd is not None:
+                            p0=(1.0/float(odd))/overround
+                            pwin=p0 if variant=="RAW_MARKET" else (p0**gamma)/z
+                            m["winner_nll_sum"]-=math.log(max(EPS,pwin))
                             m["winner_nll_races"]+=1
+
                     w.writerow({
                         "year":year,"race_id":rid,"race_date":date,"bet_type":bet,
                         "variant":variant,"gamma":g,"market_overround":overround,
