@@ -1,0 +1,49 @@
+{
+  "contract": "L2_TRIFECTA_FULLFIELD_ABILITY_V2",
+  "purpose": "Reevaluate the full-field trifecta ability ranker after removing the positive-odds-completeness gate.",
+  "years": [2022, 2023, 2024, 2025],
+  "development_years": [2023, 2024],
+  "holdout_year": 2025,
+  "locked_years": [2026],
+  "candidate_universe": {
+    "source": "all STARTED horses represented by L1.7",
+    "bet_type": "TRIFECTA",
+    "all_ordered_candidates_scored": true,
+    "top6_limit": false,
+    "positive_odds_completeness_required": false
+  },
+  "modes": {
+    "COMPAT": {
+      "market_model_features": false,
+      "negative_sampling": "all positives + market top40 + L1.7 top40 + deterministic hash40"
+    },
+    "PURE": {
+      "market_model_features": false,
+      "negative_sampling": "all positives + L1.7 top60 + deterministic hash60",
+      "market_dependency": false
+    }
+  },
+  "policy": {
+    "manual_seat_rules": false,
+    "manual_market_gap_rules": false,
+    "race_skip_rules": false,
+    "topn_grid": [1, 2, 3, 5, 10, 20, 30, 60, 120],
+    "selection": "2023-2024 select one global Top-N per mode; freeze for 2025"
+  },
+  "invariants": {
+    "payout_as_model_feature": false,
+    "odds_as_model_feature": false,
+    "holdout_used_for_policy_selection": false,
+    "2026_used": false,
+    "production_promotion": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
