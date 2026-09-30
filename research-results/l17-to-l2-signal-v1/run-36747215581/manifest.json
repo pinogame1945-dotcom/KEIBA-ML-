@@ -1,0 +1,87 @@
+{
+  "contract": "L17_TO_L2_SIGNAL_MANIFEST_V1",
+  "run_id": 36747215581,
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "ranking_policy": "SEVEN_KING_UNCHANGED",
+  "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
+  "calibration_scope": "KING_RANK_1_TO_10",
+  "calibration_policy": "walk-forward; past years only",
+  "target_used_for_calibration_only": "finish_position <= 3",
+  "target_fields_exported_to_l2": false,
+  "source_outsider_ballots_run": 36724124925,
+  "benchmark": {
+    "races": 13236,
+    "folds": 4,
+    "metrics": {
+      "rank1_top3_rate": {
+        "baseline": 0.6032033847083711,
+        "ml": 0.5985191900876398,
+        "delta": -0.00468419462073133
+      },
+      "winner_capture_at1": {
+        "baseline": 0.29563312178906015,
+        "ml": 0.2927621637957087,
+        "delta": -0.002870957993351464
+      },
+      "winner_capture_at3": {
+        "baseline": 0.6319129646418857,
+        "ml": 0.6318374131157449,
+        "delta": -7.555152614080463e-05
+      },
+      "winner_capture_at6": {
+        "baseline": 0.8720912662435781,
+        "ml": 0.8703535811423391,
+        "delta": -0.0017376851012390615
+      },
+      "podium_recall_at3": {
+        "baseline": 0.5269360298950628,
+        "ml": 0.5265113871700632,
+        "delta": -0.0004246427249996465
+      },
+      "podium_recall_at6": {
+        "baseline": 0.8195689191882646,
+        "ml": 0.8187461193148388,
+        "delta": -0.0008227998734258168
+      }
+    },
+    "reordered_races": 8522
+  },
+  "deployment_model": "deployment-model.json",
+  "files": [
+    {
+      "name": "l17-to-l2-y2021.jsonl.gz",
+      "bytes": 2388872,
+      "sha256": "f80612615133333ad09ff2e154f21bed0fad18119e0b82176c0ca53c8703e62f"
+    },
+    {
+      "name": "l17-to-l2-y2022.jsonl.gz",
+      "bytes": 3038728,
+      "sha256": "c0f29fc05e1657a88b875b85c276e0b4cff5eef157290cf64f6eb367a7f8b504"
+    },
+    {
+      "name": "l17-to-l2-y2023.jsonl.gz",
+      "bytes": 3052694,
+      "sha256": "5f915f2ebd1369142558a24c6b5ed2778a2614176e696b66a777b63b7cef73fe"
+    },
+    {
+      "name": "l17-to-l2-y2024.jsonl.gz",
+      "bytes": 3020145,
+      "sha256": "eddcf3a0477e530fefdf5cc59379195f526c2e75b4f82b60ee0feed24146fcdf"
+    },
+    {
+      "name": "l17-to-l2-y2025.jsonl.gz",
+      "bytes": 3059406,
+      "sha256": "fbcc425e7f28a982ef288cdbee48b9dcf620ca407cd645759549515414862c73"
+    }
+  ],
+  "total_bytes": 14559845,
+  "repository_storage_guard_bytes": 52428800,
+  "2026_sealed": true,
+  "odds_used": false
+}
