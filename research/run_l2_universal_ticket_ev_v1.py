@@ -9,8 +9,6 @@ import math
 from collections import defaultdict
 from pathlib import Path
 
-from scipy.optimize import minimize_scalar
-
 from build_l2_bet_kings_dataset_v1 import decode_odds, payout_map, horse_number_map
 from build_l2_l17_fullfield_dataset_v1 import load_l17
 
@@ -201,6 +199,7 @@ def top3_nll_for_temperature(rows, temperature):
 
 
 def fit_temperature(rows):
+    from scipy.optimize import minimize_scalar
     if not rows:
         raise SystemExit("no prior calibration races")
     baseline=top3_nll_for_temperature(rows,1.0)
