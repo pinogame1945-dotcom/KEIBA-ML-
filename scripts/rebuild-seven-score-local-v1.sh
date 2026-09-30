@@ -28,25 +28,36 @@ fi
 generation_id="eb13d4096519167b"
 snapshot_ref="pino1945/keiba-ml-snapshot-${generation_id}"
 session_script="scripts/kaggle-dataset-session-v2.sh"
-session_dir="out/local-rebuild/snapshot-session-${generation_id}"
+local_snapshot_root="${SEVEN_SCORE_LOCAL_SNAPSHOT_ROOT:-}"
+if [[ -n "$local_snapshot_root" ]]; then
+  session_dir="$local_snapshot_root"
+  expected_generation=""
+else
+  session_dir="out/local-rebuild/snapshot-session-${generation_id}"
+  expected_generation="$generation_id"
+fi
 work="out/local-rebuild/${alias_name}-y${year}"
 mkdir -p "$session_dir" "$work" "$out_dir"
 
-if [[ ! -s "$session_dir/.files.json" || ! -s "$session_dir/.dataset-ref" ]]; then
-  bash "$session_script" init "$snapshot_ref" "$session_dir"
+if [[ -z "$local_snapshot_root" ]]; then
+  if [[ ! -s "$session_dir/.files.json" || ! -s "$session_dir/.dataset-ref" ]]; then
+    bash "$session_script" init "$snapshot_ref" "$session_dir"
+  fi
+  bash "$session_script" fetch "$session_dir" manifest.json
 fi
-bash "$session_script" fetch "$session_dir" manifest.json
 
-manifest="$(find "$session_dir" -type f -name 'manifest.json' -print -quit)"
+manifest="$(find "$session_dir" -maxdepth 2 -type f -name 'manifest.json' -print -quit)"
 test -n "$manifest"; test -s "$manifest"
 
-python - "$manifest" "$generation_id" "$year" "$work/requested-files.txt" <<'PY'
+python - "$manifest" "$expected_generation" "$year" "$work/requested-files.txt" <<'PY'
 import json,sys
 manifest,generation,year,out=sys.argv[1:]
 m=json.load(open(manifest,encoding="utf-8"))
 actual=(m.get("generation") or {}).get("generation_id")
-if actual!=generation:
+if generation and actual!=generation:
     raise SystemExit(f"snapshot generation mismatch expected={generation} actual={actual}")
+if m.get("contract")!="L1_YEARLY_SUPERSET_SNAPSHOT_V1":
+    raise SystemExit(f"bad snapshot contract={m.get('contract')}")
 wanted={int(year)-2,int(year)-1,int(year)}
 rows={int(x["year"]):x for x in m.get("years",[]) if "year" in x and "file" in x}
 missing=sorted(wanted-set(rows))
@@ -58,7 +69,17 @@ with open(out,"w",encoding="utf-8") as f:
 PY
 
 mapfile -t snapshot_files < "$work/requested-files.txt"
-bash "$session_script" fetch "$session_dir" "${snapshot_files[@]}"
+if [[ -z "$local_snapshot_root" ]]; then
+  bash "$session_script" fetch "$session_dir" "${snapshot_files[@]}"
+else
+  for logical in "${snapshot_files[@]}"; do
+    test -s "$session_dir/$logical" || {
+      echo "::error::local snapshot file missing logical=$logical root=$session_dir" >&2
+      exit 7
+    }
+  done
+  echo "LOCAL_SNAPSHOT_REUSE_OK root=$session_dir files=${#snapshot_files[@]}"
+fi
 
 python - "$manifest" "$session_dir" "$work/requested-files.txt" <<'PY'
 import gzip,hashlib,json,os,sys
