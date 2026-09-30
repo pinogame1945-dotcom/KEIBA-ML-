@@ -20,6 +20,7 @@ def parse_args():
     p.add_argument("--work-root", default="out/outsider-tie-audit-v1")
     p.add_argument("--ml-source-sha", default="")
     p.add_argument("--top3-dir", default="")
+    p.add_argument("--candidate", default="", help="Optional single candidate for parallel execution")
     return p.parse_args()
 
 def open_text(path):
@@ -266,6 +267,10 @@ def main():
     names = [x["name"] for x in candidates]
     if len(names) != 13 or len(set(names)) != 13:
         raise RuntimeError(f"expected 13 unique outsiders, got {names}")
+    if a.candidate:
+        candidates = [x for x in candidates if x["name"] == a.candidate]
+        if len(candidates) != 1:
+            raise RuntimeError(f"unknown candidate: {a.candidate}")
 
     inputs = [Path(x).resolve() for x in a.inputs.split(",") if x.strip()]
     if len(inputs) != 3 or any(not p.is_file() for p in inputs):
