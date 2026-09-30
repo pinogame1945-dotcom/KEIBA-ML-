@@ -1,0 +1,149 @@
+name: L1.7 King Outsider Podium Calibrator WF V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-support-safe-v1-20260930
+    paths:
+      - .github/triggers/l17-king-outsider-podium-calibrator-wf-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l17-king-outsider-podium-calibrator-wf-v1
+  cancel-in-progress: true
+
+jobs:
+  calibrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install and validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle scikit-learn
+          python -m py_compile \
+            research/train_l17_king_outsider_podium_calibrator_wf_v1.py \
+            research/rerank_l1_score_safe_v1.py \
+            research/materialize_l16_full_rank_consensus_v1.py \
+            research/resolve_kaggle_file_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+
+      - name: Build five-year inputs once and run walk-forward calibration
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kaggle_transient() {
+            local label="$1"; shift
+            local attempt rc delay tmp
+            for attempt in 1 2 3 4 5 6; do
+              tmp="$(mktemp)"
+              set +e
+              "$@" >"$tmp.out" 2>"$tmp.err"
+              rc=$?
+              set -e
+              cat "$tmp.out"; cat "$tmp.err" >&2
+              if [[ "$rc" -eq 0 ]]; then rm -f "$tmp" "$tmp.out" "$tmp.err"; return 0; fi
+              if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle 404 non-retryable label=$label" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"; return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"; return "$rc"
+              fi
+              rm -f "$tmp" "$tmp.out" "$tmp.err"
+              case "$attempt" in 1) delay=15;;2)delay=30;;3)delay=60;;4)delay=90;;*)delay=120;;esac
+              sleep "$delay"
+            done
+          }
+
+          root="out/l17-podium-calibrator"
+          snaproot="$root/snapshots/$GENERATION_ID"
+          mkdir -p "$root" "$snaproot"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$snaproot"
+
+          cmd=(python research/train_l17_king_outsider_podium_calibrator_wf_v1.py)
+
+          for year in 2021 2022 2023 2024 2025; do
+            echo "=== prepare year $year ==="
+            bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$snaproot" "$year"
+            if [[ -s "$snaproot/snapshot-$year.jsonl.gz" ]]; then
+              snapshot="$snaproot/snapshot-$year.jsonl.gz"
+            elif [[ -s "$snaproot/snapshot-$year.jsonl" ]]; then
+              snapshot="$snaproot/snapshot-$year.jsonl"
+            else
+              echo "::error::snapshot missing year=$year"; exit 1
+            fi
+
+            yroot="$root/y$year"
+            mkdir -p "$yroot/scores"
+            args=()
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              ref="pino1945/keiba-l15-7k-$alias-y$year-v1"
+              d="$yroot/scores/$alias"
+              mkdir -p "$d"
+              meta="$d/files.json"
+              kaggle_transient "seven-files:$alias:$year" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
+              remote="$(python research/resolve_kaggle_file_v1.py --files-json "$meta" --wanted score.jsonl.gz --wanted score.jsonl)"
+              kaggle_transient "seven-download:$alias:$year" kaggle datasets download "$ref" -f "$remote" -p "$d" --unzip --quiet --force
+              p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              [[ -n "$p" ]] || { echo "::error::score missing $alias $year"; exit 1; }
+              safe="$d/safe-score.jsonl.gz"
+              python research/rerank_l1_score_safe_v1.py --input "$p" --output "$safe"
+              args+=(--expert "$alias=$safe")
+            done
+
+            consensus="$yroot/consensus.jsonl.gz"
+            python research/materialize_l16_full_rank_consensus_v1.py "${args[@]}" --output "$consensus"
+            ballots="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$year/ballots.csv.gz"
+            [[ -s "$ballots" ]] || { echo "::error::ballots missing year=$year"; exit 1; }
+
+            cmd+=("--ballots-$year" "$ballots" "--consensus-$year" "$consensus" "--snapshot-$year" "$snapshot")
+          done
+
+          result="research-results/l17-king-outsider-podium-calibrator-wf-v1/run-$GITHUB_RUN_ID/summary.json"
+          mkdir -p "$(dirname "$result")"
+          cmd+=(--output "$result")
+          "${cmd[@]}"
+          echo "RESULT=$result" >> "$GITHUB_ENV"
+
+      - name: Commit compact research outputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$(dirname "$RESULT")"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json" "$root/predictions.csv.gz"
+          git commit -m "research: L1.7 podium calibrator walk-forward run $GITHUB_RUN_ID"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No paid external storage."
+          echo "Snapshots and Seven scores are resolved metadata-first and reused within one runner."
+          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
+          echo "2026 sealed; odds/popularity/payout not used."
