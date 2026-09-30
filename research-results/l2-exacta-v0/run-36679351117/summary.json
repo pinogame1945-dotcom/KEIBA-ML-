@@ -1,0 +1,58 @@
+{
+  "contract": "L2_EXACTA_V0_RESULT",
+  "bet_type": "EXACTA",
+  "stage": "V0_AND_DIRECTION_AUDIT",
+  "all_ordered_pairs": true,
+  "ticket_count_formula": "N*(N-1)",
+  "market_probability": "(1/EXACTA_odds)/sum(1/EXACTA_odds) within race",
+  "rankers": [
+    "MARKET",
+    "L17_ONLY_MODEL",
+    "MARKET_AWARE_MODEL"
+  ],
+  "rank_upgrade": "market_rank - market_aware_model_rank",
+  "law_search": false,
+  "roi_policy_search": false,
+  "direct_vs_decomposed_comparison": false,
+  "direction_audit": {
+    "strict_unique_winning_ticket_only": true,
+    "multi_payout_dead_heat_races_excluded_from_direction_judgment": true,
+    "primary_metric": "direction_correct_pct_of_captured",
+    "miss_classes": [
+      "PAIR_MISS",
+      "REVERSE_MISS",
+      "HIT"
+    ]
+  },
+  "reversal_invariant": {
+    "2022": {
+      "checked_pairs": 310647,
+      "symmetric_numeric_features": 52,
+      "directional_signed_features": 25
+    },
+    "2023": {
+      "checked_pairs": 316287,
+      "symmetric_numeric_features": 52,
+      "directional_signed_features": 25
+    },
+    "2024": {
+      "checked_pairs": 310915,
+      "symmetric_numeric_features": 52,
+      "directional_signed_features": 25
+    },
+    "2025": {
+      "checked_pairs": 320385,
+      "symmetric_numeric_features": 52,
+      "directional_signed_features": 25
+    }
+  },
+  "walk_forward": {
+    "years": [
+      2023,
+      2024,
+      2025
+    ],
+    "training_rule": "all prior years only"
+  },
+  "2026_locked": true
+}

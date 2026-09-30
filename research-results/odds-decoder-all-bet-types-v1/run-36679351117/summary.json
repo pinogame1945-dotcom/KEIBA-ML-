@@ -1,0 +1,72 @@
+{
+  "contract": "ODDS_DECODER_ALL_BET_TYPES_AUDIT_V1",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "normalization": "strip thousands separators before float conversion",
+  "assertion": "every valid positive raw final-odds key must appear exactly once in decoded market map",
+  "status": "PASS",
+  "failures": [],
+  "totals": [
+    {
+      "bet_type": "WIN",
+      "raw_valid_unique": 189256,
+      "old_decoder_unique": 189256,
+      "comma_price_unique": 0,
+      "new_decoder_unique": 189256,
+      "recovered_vs_old": 0,
+      "new_missing_unique": 0,
+      "new_extra_unique": 0
+    },
+    {
+      "bet_type": "QUINELLA",
+      "raw_valid_unique": 1258260,
+      "old_decoder_unique": 944277,
+      "comma_price_unique": 313983,
+      "new_decoder_unique": 1258260,
+      "recovered_vs_old": 313983,
+      "new_missing_unique": 0,
+      "new_extra_unique": 0
+    },
+    {
+      "bet_type": "EXACTA",
+      "raw_valid_unique": 2516492,
+      "old_decoder_unique": 1509036,
+      "comma_price_unique": 1007456,
+      "new_decoder_unique": 2516492,
+      "recovered_vs_old": 1007456,
+      "new_missing_unique": 0,
+      "new_extra_unique": 0
+    },
+    {
+      "bet_type": "TRIO",
+      "raw_valid_unique": 5369610,
+      "old_decoder_unique": 2033775,
+      "comma_price_unique": 3335835,
+      "new_decoder_unique": 5369610,
+      "recovered_vs_old": 3335835,
+      "new_missing_unique": 0,
+      "new_extra_unique": 0
+    },
+    {
+      "bet_type": "TRIFECTA",
+      "raw_valid_unique": 32084960,
+      "old_decoder_unique": 3713918,
+      "comma_price_unique": 28371042,
+      "new_decoder_unique": 32084960,
+      "recovered_vs_old": 28371042,
+      "new_missing_unique": 0,
+      "new_extra_unique": 0
+    }
+  ]
+}
