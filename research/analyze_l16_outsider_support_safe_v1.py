@@ -160,11 +160,17 @@ def main():
                     "weighted_wait":3*len(candidates)-support_score,
                 })
         expected=len(cons)*3
-        if len(rows)!=expected:
-            raise ValueError(f"expected exactly 3 king horses per race y{year}: rows={len(rows)} expected={expected}")
+        missing_finish_rows=expected-len(rows)
+        if missing_finish_rows < 0:
+            raise ValueError(f"unexpected extra king rows y{year}: rows={len(rows)} expected={expected}")
+        # Match the historical L1.6 convention: horses without a numeric finish_position
+        # are excluded only from horse-level win/podium-rate denominators.
         all_rows.extend(rows)
         by_year[str(year)]={
             "races":len(cons),
+            "expected_king_top3_rows":expected,
+            "evaluable_king_top3_rows":len(rows),
+            "missing_finish_rows":missing_finish_rows,
             "king_top3":build_scope(rows),
             "by_king_rank":{str(k):build_scope([r for r in rows if r["king_rank"]==k]) for k in (1,2,3)},
         }
@@ -174,6 +180,9 @@ def main():
         "years":list(YEARS),
         "races":sum(by_year[str(y)]["races"] for y in YEARS),
         "candidate_count":len(candidates_ref),
+        "expected_king_top3_rows":sum(by_year[str(y)]["expected_king_top3_rows"] for y in YEARS),
+        "evaluable_king_top3_rows":len(all_rows),
+        "missing_finish_rows":sum(by_year[str(y)]["missing_finish_rows"] for y in YEARS),
         "candidates":candidates_ref,
         "definition":{
             "support_count":"number of tie-safe outsiders placing horse in Top3",
