@@ -1,0 +1,96 @@
+{
+  "contract": "L2_TRIO_AUTO_LAW_V1_RESULT",
+  "bet_type": "TRIO",
+  "manual_ticket_rule_boundaries": false,
+  "rule_features": [
+    "rank_upgrade",
+    "model_rank",
+    "market_rank",
+    "odds",
+    "field_size",
+    "trio_rank_sum",
+    "trio_worst_rank",
+    "trio_top3_count",
+    "trio_top6_count",
+    "trio_outside_top6_count"
+  ],
+  "boundary_learning": "DecisionTreeRegressor learns all split thresholds from 2022-2024 only",
+  "complexity_selection": "leave-one-discovery-year-out; 2025 excluded",
+  "complexity_candidates": {
+    "max_leaf_nodes": [
+      4,
+      8,
+      16,
+      32
+    ]
+  },
+  "chosen_max_leaf_nodes": 32,
+  "chosen_min_samples_leaf": 19895,
+  "selected_positive_roi_leaves": [
+    18,
+    19,
+    21,
+    38,
+    49,
+    52,
+    53,
+    62
+  ],
+  "leaf_acceptance": "train leaf ROI > 100% (break-even only)",
+  "discovery_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "discovery_metrics": {
+    "label": "DISCOVERY_2022_2024",
+    "tickets": 240010,
+    "races": 7145,
+    "hits": 104,
+    "hit_rate_pct": 0.043331527853006126,
+    "stake_yen": 24001000.0,
+    "return_yen": 36736450.0,
+    "profit_yen": 12735450.0,
+    "roi_pct": 153.0621640764968,
+    "roi_ex_top1_win_pct": 149.94879380025833,
+    "roi_ex_top2_wins_pct": 146.85575601016623,
+    "roi_ex_top3_wins_pct": 143.821632431982,
+    "largest_single_return_yen": 747240.0,
+    "largest3_return_share_pct": 6.037110281477933,
+    "median_odds": 3816.1,
+    "mean_odds": 3899.115104787301,
+    "median_market_rank": 327.0,
+    "median_model_rank": 332.0,
+    "median_rank_upgrade": -1.0
+  },
+  "confirmation_2025_metrics": {
+    "label": "CONFIRMATION_2025",
+    "tickets": 90516,
+    "races": 2564,
+    "hits": 12,
+    "hit_rate_pct": 0.013257324671881215,
+    "stake_yen": 9051600.0,
+    "return_yen": 4075470.0,
+    "profit_yen": -4976130.0,
+    "roi_pct": 45.024857483759774,
+    "roi_ex_top1_win_pct": 38.16750629722922,
+    "roi_ex_top2_wins_pct": 32.45072694330284,
+    "roi_ex_top3_wins_pct": 26.885523001458306,
+    "largest_single_return_yen": 620700.0,
+    "largest3_return_share_pct": 40.28737789751857,
+    "median_odds": 3804.1,
+    "mean_odds": 3911.9985262274076,
+    "median_market_rank": 326.0,
+    "median_model_rank": 329.0,
+    "median_rank_upgrade": 2.0
+  },
+  "session_reuse": {
+    "base_table_built_once_per_year": true,
+    "prediction_table_built_once_per_test_year": true,
+    "auto_rule_search_reuses_predictions": true,
+    "github_artifact_or_cache_used": false
+  },
+  "2026_locked": true
+}
