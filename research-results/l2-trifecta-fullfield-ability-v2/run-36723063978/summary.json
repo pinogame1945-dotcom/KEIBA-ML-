@@ -1,0 +1,156 @@
+{
+  "contract": "L2_TRIFECTA_FULLFIELD_ABILITY_V2_RESULT",
+  "fix": "Do not require every trifecta combination to have a positive decoded odds value. Candidate universe comes from STARTED L1.7 horses, labels/returns from payout.",
+  "evaluation_odds_required": false,
+  "candidate_universe": "all ordered trifecta permutations of all STARTED horses represented by L1.7",
+  "all_candidates_scored": true,
+  "manual_seat_rules": false,
+  "manual_gap_rules": false,
+  "race_skip_rules": false,
+  "modes": {
+    "COMPAT": "No market model features, but retains V1-style market-top negative sampling for isolation of the coverage fix.",
+    "PURE": "No market model features and no market-dependent negative sampling."
+  },
+  "development_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "holdout_used_for_policy_selection": false,
+  "topn_grid": [
+    1,
+    2,
+    3,
+    5,
+    10,
+    20,
+    30,
+    60,
+    120
+  ],
+  "selected_dev_policy": {
+    "COMPAT": {
+      "mode": "COMPAT",
+      "top_n": 5,
+      "years": "2023|2024",
+      "source_races": 6912,
+      "tickets": 34560,
+      "hit_races": 111,
+      "race_hit_rate_pct": 1.6059027777777777,
+      "stake_yen": 3456000.0,
+      "return_yen": 3408560.0,
+      "profit_yen": -47440.0,
+      "roi_pct": 98.62731481481481
+    },
+    "PURE": {
+      "mode": "PURE",
+      "top_n": 3,
+      "years": "2023|2024",
+      "source_races": 6912,
+      "tickets": 20736,
+      "hit_races": 78,
+      "race_hit_rate_pct": 1.1284722222222223,
+      "stake_yen": 2073600.0,
+      "return_yen": 1852640.0,
+      "profit_yen": -220960.0,
+      "roi_pct": 89.34413580246914
+    }
+  },
+  "holdout": {
+    "COMPAT": {
+      "year": 2025,
+      "mode": "COMPAT",
+      "top_n": 5,
+      "source_races": 3456,
+      "tickets": 17280,
+      "avg_tickets_per_race": 5.0,
+      "hit_races": 78,
+      "race_hit_rate_pct": 2.2569444444444446,
+      "stake_yen": 1728000.0,
+      "return_yen": 1662740.0,
+      "profit_yen": -65260.0,
+      "roi_pct": 96.22337962962963
+    },
+    "PURE": {
+      "year": 2025,
+      "mode": "PURE",
+      "top_n": 3,
+      "source_races": 3456,
+      "tickets": 10368,
+      "avg_tickets_per_race": 3.0,
+      "hit_races": 33,
+      "race_hit_rate_pct": 0.9548611111111112,
+      "stake_yen": 1036800.0,
+      "return_yen": 574060.0,
+      "profit_yen": -462740.0,
+      "roi_pct": 55.36844135802469
+    }
+  },
+  "holdout_fixed_old_top3_reference": {
+    "COMPAT": {
+      "year": 2025,
+      "mode": "COMPAT",
+      "top_n": 3,
+      "source_races": 3456,
+      "tickets": 10368,
+      "avg_tickets_per_race": 3.0,
+      "hit_races": 52,
+      "race_hit_rate_pct": 1.5046296296296295,
+      "stake_yen": 1036800.0,
+      "return_yen": 808460.0,
+      "profit_yen": -228340.0,
+      "roi_pct": 77.97646604938272
+    },
+    "PURE": {
+      "year": 2025,
+      "mode": "PURE",
+      "top_n": 3,
+      "source_races": 3456,
+      "tickets": 10368,
+      "avg_tickets_per_race": 3.0,
+      "hit_races": 33,
+      "race_hit_rate_pct": 0.9548611111111112,
+      "stake_yen": 1036800.0,
+      "return_yen": 574060.0,
+      "profit_yen": -462740.0,
+      "roi_pct": 55.36844135802469
+    }
+  },
+  "year_meta": {
+    "2023": {
+      "year": 2023,
+      "races": 3456,
+      "mean_candidates": 2344.2638888888887,
+      "median_candidates": 2730.0,
+      "max_candidates": 4896,
+      "mean_field_size": 13.7421875,
+      "counters": {
+        "ok_races": 3456
+      }
+    },
+    "2024": {
+      "year": 2024,
+      "races": 3456,
+      "mean_candidates": 2296.0225694444443,
+      "median_candidates": 2184.0,
+      "max_candidates": 4896,
+      "mean_field_size": 13.602141203703704,
+      "counters": {
+        "ok_races": 3456
+      }
+    },
+    "2025": {
+      "year": 2025,
+      "races": 3456,
+      "mean_candidates": 2398.722222222222,
+      "median_candidates": 2730.0,
+      "max_candidates": 4896,
+      "mean_field_size": 13.81105324074074,
+      "counters": {
+        "ok_races": 3456
+      }
+    }
+  },
+  "2026_locked": true,
+  "production_promotion": false
+}
