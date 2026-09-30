@@ -1,0 +1,144 @@
+{
+  "contract": "L16_OUTSIDER_COUNCIL_SAFE_V1",
+  "year": 2021,
+  "races": 3456,
+  "candidate_count": 13,
+  "candidates": [
+    "outsider_bodychange",
+    "outsider_chimera",
+    "outsider_classmove",
+    "outsider_coursetransition",
+    "outsider_daytrend",
+    "outsider_disttransition",
+    "outsider_field",
+    "outsider_gatecourse",
+    "outsider_jockey",
+    "outsider_opponentgap",
+    "outsider_raceshape",
+    "outsider_rotation",
+    "outsider_weightchange"
+  ],
+  "weighted_policy": "rank1=3, rank2=2, rank3=1, outside=0; ties: top1 votes, support count, top2 votes, top3 votes, horse_number, horse_id",
+  "count_policy": "Top3 support count; ties: weighted score, top1 votes, top2 votes, top3 votes, horse_number, horse_id",
+  "metrics": {
+    "weighted": {
+      "1": {
+        "hits": 679,
+        "races": 3456,
+        "rate": 0.1964699074074074
+      },
+      "3": {
+        "hits": 1564,
+        "races": 3456,
+        "rate": 0.4525462962962963
+      },
+      "6": {
+        "hits": 2380,
+        "races": 3456,
+        "rate": 0.6886574074074074
+      }
+    },
+    "count": {
+      "1": {
+        "hits": 674,
+        "races": 3456,
+        "rate": 0.19502314814814814
+      },
+      "3": {
+        "hits": 1551,
+        "races": 3456,
+        "rate": 0.4487847222222222
+      },
+      "6": {
+        "hits": 2395,
+        "races": 3456,
+        "rate": 0.6929976851851852
+      }
+    }
+  },
+  "seven_top3_blind": {
+    "count": 1475,
+    "council": {
+      "weighted": {
+        "1": {
+          "hits": 89,
+          "races": 1475,
+          "rate": 0.06033898305084746
+        },
+        "3": {
+          "hits": 337,
+          "races": 1475,
+          "rate": 0.22847457627118645
+        },
+        "6": {
+          "hits": 703,
+          "races": 1475,
+          "rate": 0.4766101694915254
+        }
+      },
+      "count": {
+        "1": {
+          "hits": 91,
+          "races": 1475,
+          "rate": 0.06169491525423729
+        },
+        "3": {
+          "hits": 353,
+          "races": 1475,
+          "rate": 0.2393220338983051
+        },
+        "6": {
+          "hits": 704,
+          "races": 1475,
+          "rate": 0.47728813559322036
+        }
+      }
+    }
+  },
+  "seven_top6_blind": {
+    "count": 650,
+    "council": {
+      "weighted": {
+        "1": {
+          "hits": 15,
+          "races": 650,
+          "rate": 0.023076923076923078
+        },
+        "3": {
+          "hits": 93,
+          "races": 650,
+          "rate": 0.14307692307692307
+        },
+        "6": {
+          "hits": 225,
+          "races": 650,
+          "rate": 0.34615384615384615
+        }
+      },
+      "count": {
+        "1": {
+          "hits": 12,
+          "races": 650,
+          "rate": 0.018461538461538463
+        },
+        "3": {
+          "hits": 89,
+          "races": 650,
+          "rate": 0.13692307692307693
+        },
+        "6": {
+          "hits": 223,
+          "races": 650,
+          "rate": 0.34307692307692306
+        }
+      }
+    }
+  },
+  "positive_vote_horses_per_race": {
+    "min": 4,
+    "max": 18,
+    "mean": 12.061921296296296
+  },
+  "2026_sealed": true,
+  "odds_used": false
+}
