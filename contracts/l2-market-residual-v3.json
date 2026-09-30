@@ -1,0 +1,99 @@
+{
+  "contract": "L2_MARKET_RESIDUAL_V3",
+  "purpose": "Learn whether L1.7 adds stable information beyond a calibrated market baseline, without raw EV multiplication and without hard-coding 2025-discovered bands.",
+  "bet_type": "QUINELLA",
+  "architecture": "market_context_baseline_vs_l17_residual_correction",
+  "years": {
+    "train_and_develop": [
+      2022,
+      2023,
+      2024
+    ],
+    "development_predictions": [
+      2023,
+      2024
+    ],
+    "observed_confirmation": [
+      2025
+    ],
+    "historical_independent_check": [
+      2022
+    ],
+    "locked": [
+      2026
+    ]
+  },
+  "stages": {
+    "market_context_baseline": {
+      "target": "ticket hit",
+      "features": [
+        "market_q_norm",
+        "market_log_q",
+        "market_rank",
+        "race_month",
+        "venue_code",
+        "discipline",
+        "surface",
+        "direction",
+        "weather",
+        "track_condition",
+        "course_layout",
+        "race_class_normalized",
+        "grade",
+        "sex_condition",
+        "weight_rule",
+        "distance_m",
+        "field_size"
+      ]
+    },
+    "full_model": {
+      "target": "ticket hit",
+      "features": "market-context features + L1.7/Seven-King pair structure + market-relative L1.7 features",
+      "forbidden": [
+        "raw odds as direct feature",
+        "popularity",
+        "payout",
+        "finish result",
+        "realized profit"
+      ]
+    },
+    "residual": {
+      "formula": "delta_logit = logit(p_full) - logit(p_market_context)",
+      "interpretation": "positive means L1.7 argues this ticket deserves higher hit probability than market+race context alone"
+    }
+  },
+  "relative_features": [
+    "market_rank - L1.7 pair rank",
+    "log(L1.7 pair probability product) - market_log_q",
+    "Seven-King probability disagreement",
+    "Seven-King rank disagreement",
+    "pair consensus-rank structure"
+  ],
+  "selection": {
+    "development_years": [
+      2023,
+      2024
+    ],
+    "holdout_policy_selection_from_2025": false,
+    "raw_ev_multiplication": false,
+    "candidate_horse_cut": false,
+    "template_router": false,
+    "policy_family": "positive residual + within-race residual rank + minimum correction strength",
+    "robustness_required": [
+      "neighbor thresholds",
+      "year-by-year consistency",
+      "return concentration",
+      "bootstrap",
+      "market-only incremental logloss/brier lift"
+    ]
+  },
+  "confirmation_2025": "confirmation only; already inspected and therefore not pristine",
+  "historical_check_2022": "historical independent check after hypothesis formation; not used to tune V3 after results are seen",
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
