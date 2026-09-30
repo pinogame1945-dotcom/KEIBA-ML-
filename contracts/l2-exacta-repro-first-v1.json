@@ -1,0 +1,61 @@
+{
+  "contract": "L2_EXACTA_REPRO_FIRST_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Prefer cross-period reproducibility over aggregate ROI.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "base_model": {
+    "objective": "tweedie return regression",
+    "variance_power": 1.5,
+    "power_choice": "fixed midpoint of prior 1.2/1.5/1.8 candidates; no new test-year tuning"
+  },
+  "lanes": {
+    "control": "one pooled model trained on all prior years",
+    "repro_first": "independent prior-period models; every model must predict >100 yen return"
+  },
+  "independent_periods": {
+    "2023": ["2022_H1", "2022_H2"],
+    "2024": ["2022", "2023"],
+    "2025": ["2022", "2023", "2024"]
+  },
+  "repro_score": "minimum predicted return across independent models",
+  "primary_metrics": [
+    "roi_by_year",
+    "worst_year_roi",
+    "profitable_year_count",
+    "roi_std",
+    "tail_removal_robustness"
+  ],
+  "aggregate_roi_primary": false,
+  "human_fixed_selection_rules": {
+    "top_k": false,
+    "odds_band": false,
+    "ticket_count_cap": false,
+    "forced_skip_rate": false,
+    "legacy_law": false
+  },
+  "decision": {
+    "criterion": "all independent prior-period models predict return_yen > 100",
+    "variable_ticket_count": true,
+    "race_skip_allowed": true
+  },
+  "evaluation": {
+    "flat_stake_yen_per_ticket": 100,
+    "l3_stake_sizing_separate": true,
+    "previous_direct_profit_run": 36698305749
+  },
+  "speed": {
+    "vectorized_ordered_ticket_expansion": true,
+    "l17_materialized_once_per_year": true,
+    "same_runner_reuse": true,
+    "persistent_cache": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
