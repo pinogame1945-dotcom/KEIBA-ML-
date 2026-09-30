@@ -1,0 +1,202 @@
+name: L2 EXACTA Learned Boundary V1
+
+on:
+  push:
+    branches:
+      - research/l2-exacta-learned-boundary-v1-20260930
+    paths:
+      - .github/triggers/l2-exacta-learned-boundary-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-exacta-learned-boundary-v1
+  cancel-in-progress: true
+
+jobs:
+  learned-boundary-v1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Contract decoder and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_l2_exacta_learned_boundary_v1.py \
+            research/run_l2_exacta_auto_v0.py \
+            research/run_l2_exacta_decomposed_v1.py \
+            research/run_l2_exacta_v0.py \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/build_l2_bet_kings_dataset_v1.py \
+            research/build_l2_l17_fullfield_dataset_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from research.build_l2_bet_kings_dataset_v1 import finite
+
+          c=json.load(open("contracts/l2-exacta-learned-boundary-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_EXACTA_LEARNED_BOUNDARY_V1"
+          assert c["locked_years"]==[2026]
+          assert not any(c["human_fixed_selection_rules"].values())
+          assert c["decision"]["variable_ticket_count"] is True
+          assert c["decision"]["race_skip_allowed"] is True
+          assert c["evaluation"]["l3_stake_sizing_separate"] is True
+          assert c["speed"]["all_bet_decoder_audit_repeated"] is False
+          assert c["cost"]["standard_github_cpu_only"] is True
+          assert c["cost"]["gpu"] is False
+          assert c["cost"]["github_artifact"] is False
+          assert c["cost"]["github_cache"] is False
+          assert c["cost"]["persistent_kaggle_upload"] is False
+          assert finite("2,173.2")==2173.2
+          assert finite("15,010.7")==15010.7
+          assert Path("research-results/l2-exacta-auto-v0/run-36688819634/aggregate.csv").is_file()
+
+          wf=Path(".github/workflows/l2-exacta-learned-boundary-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
+          assert not any(u.startswith("actions/cache") for u in uses),uses
+          print("EXACTA_LEARNED_BOUNDARY_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven horse-level score tables once
+        shell: bash
+        run: |
+          set -euo pipefail
+          started=$(date +%s)
+          session_script="scripts/kaggle-dataset-session-v2.sh"
+          test -s "$session_script"
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/exacta-learned/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session_script" init "$ref" "$d"
+              bash "$session_script" fetch "$d" score.jsonl
+              p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          done
+          echo "SCORE_RESTORE_SECONDS=$(( $(date +%s) - started ))"
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          started=$(date +%s)
+          mkdir -p out/exacta-learned/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              p="$(find "out/exacta-learned/scores/$y/$alias" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--expert "$alias=$p")
+            done
+            python research/materialize_l17_seven_king_fullfield_v1.py \
+              --year "$y" "${args[@]}" \
+              --output "out/exacta-learned/l17/l17-$y.jsonl.gz"
+            test -s "out/exacta-learned/l17/l17-$y.jsonl.gz"
+            echo "L17_$y=out/exacta-learned/l17/l17-$y.jsonl.gz" >> "$GITHUB_ENV"
+          done
+          echo "L17_MATERIALIZE_SECONDS=$(( $(date +%s) - started ))"
+
+      - name: Sparse restore 2022-2025 race and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          started=$(date +%s)
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "BACKFILL_RESTORE_SECONDS=$(( $(date +%s) - started ))"
+
+      - name: Run learned-boundary exacta
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-exacta-learned-boundary-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_exacta_learned_boundary_v1.py \
+            --l17-year "2022:$L17_2022" \
+            --l17-year "2023:$L17_2023" \
+            --l17-year "2024:$L17_2024" \
+            --l17-year "2025:$L17_2025" \
+            --backfill-root out/backfill \
+            --auto-baseline research-results/l2-exacta-auto-v0/run-36688819634/aggregate.csv \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== AUTO V0 VS LEARNED ====="
+          cat "$result/auto-v0-vs-learned-boundary.csv"
+          echo "===== YEARLY ====="
+          cat "$result/metrics-by-year.csv"
+          echo "===== TOP LEARNED SPLITS ====="
+          head -n 50 "$result/top-learned-splits.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache and no upload-artifact."
+          echo "No paid persistence."
+          echo "Seven score datasets are read-only."
+          echo "Derived L1.7/pair/meta matrices are runner-local."
+          echo "Only compact research outputs are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-exacta-learned-boundary-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/auto-v0-vs-learned-boundary.csv" \
+            "$result/metrics-by-year.csv" \
+            "$result/folds.csv" \
+            "$result/feature-importance.csv" \
+            "$result/learned-splits.csv" \
+            "$result/top-learned-splits.csv"
+          git commit -m "research: archive exacta learned-boundary V1 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
