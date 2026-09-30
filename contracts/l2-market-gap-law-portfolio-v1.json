@@ -1,0 +1,45 @@
+{
+  "contract": "L2_MARKET_GAP_LAW_PORTFOLIO_V1",
+  "purpose": "Freeze law1 and law2, then add independent QUINELLA laws using discovery years only.",
+  "bet_type": "QUINELLA",
+  "discovery_years": [2022, 2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "fixed_laws": [
+    {
+      "law_id": "LAW1",
+      "definition": "Apply frozen V2 race pick MODEL_TOP15 + rank_upgrade>=5 + max1, then keep rank_upgrade 15-24 and field_size 15-16."
+    },
+    {
+      "law_id": "LAW2",
+      "candidate_id": "GAP10P__model_rank_band=1-3",
+      "definition": "Among model_rank<=15 and rank_upgrade>=10, keep model_rank 1-3 and select max1 ticket per race using frozen candidate sort."
+    }
+  ],
+  "candidate_universe": "Same finite grid as L2_MARKET_GAP_LAW_ARENA_V1; LAW1 and LAW2 aliases excluded.",
+  "incremental_eligibility": {
+    "min_unique_discovery_tickets": 100,
+    "min_unique_tickets_each_discovery_year": 20,
+    "min_incremental_pooled_roi_pct": 105.0,
+    "min_incremental_roi_after_remove_largest_win_pct": 95.0,
+    "min_discovery_years_roi_ge_90": 2,
+    "max_steps": 8
+  },
+  "selection_objective": "At each step, among eligible candidates choose highest incremental discovery profit; tie-break by incremental max-win-removed ROI, minimum yearly ROI, unique ticket count, then candidate_id. Recompute uniqueness against the enlarged portfolio after each addition.",
+  "reporting": [
+    "selected law sequence",
+    "incremental tickets/hits/ROI/profit by discovery year",
+    "pooled incremental ROI and max-win-removed ROI",
+    "portfolio tickets/hits/ROI/profit after each step",
+    "2025 confirmation for each selected law and cumulative portfolio",
+    "pairwise overlap matrix among selected laws"
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
