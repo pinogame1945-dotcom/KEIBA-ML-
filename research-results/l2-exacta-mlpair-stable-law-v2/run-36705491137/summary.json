@@ -1,0 +1,29 @@
+{
+  "contract": "L2_EXACTA_MLPAIR_STABLE_LAW_V2",
+  "foundation": "decomposed market-aware ML unordered pair rank",
+  "scored_years": {
+    "2023": "trained on 2022 only",
+    "2024": "trained on 2022-2023",
+    "2025": "trained on 2022-2024"
+  },
+  "law_test_years": [
+    2024,
+    2025
+  ],
+  "why_2023_not_law_test": "no leakage-safe pre-2022 ML-pair population exists in the four-year dataset",
+  "2024_prior_periods": [
+    "2023_H1",
+    "2023_H2"
+  ],
+  "2025_prior_periods": [
+    "2023",
+    "2024"
+  ],
+  "search": "ML pair rank 1..15 plus prior-derived simple conditions and beam two-condition intersections",
+  "prior_gate": "ROI>100 in every independent prior period with >= 50 tickets and >= 30 races",
+  "robust_flag": "ROI>100 even after removing the largest winning payout in every prior period",
+  "same_signature_selected_2024_and_2025_and_profitable_both": 0,
+  "test_year_never_used_for_selection": true,
+  "2026_locked": true,
+  "script_total_seconds": 534.218096751
+}
