@@ -48,8 +48,6 @@ jobs:
           import sys
           from pathlib import Path
           sys.path.insert(0,"research")
-          import run_l2_universal_ticket_calibration_v2 as u
-
           c=json.load(open("contracts/l2-universal-ticket-calibration-v2.json",encoding="utf-8"))
           assert c["contract"]=="L2_UNIVERSAL_TICKET_CALIBRATION_V2"
           assert c["probability_model"]["odds_used_for_gamma_selection"] is False
