@@ -37,7 +37,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_l2_exacta_v0.py             research/materialize_l17_seven_king_fullfield_v1.py             research/build_l2_bet_kings_dataset_v1.py             research/build_l2_l17_fullfield_dataset_v1.py
+          python -m py_compile             research/run_l2_exacta_v0.py             research/audit_odds_decoder_all_bet_types_v1.py             research/materialize_l17_seven_king_fullfield_v1.py             research/build_l2_bet_kings_dataset_v1.py             research/build_l2_l17_fullfield_dataset_v1.py
           python - <<'PY'
           import json
           from pathlib import Path
@@ -129,6 +129,18 @@ jobs:
           echo "daily=$(find out/backfill/data/daily -type f -name '*.jsonl.gz' | wc -l)"
           echo "odds=$(find out/backfill/data/odds/daily -type f -name '*.jsonl.gz' | wc -l)"
 
+      - name: Audit shared odds decoder across all supported bet types
+        shell: bash
+        run: |
+          set -euo pipefail
+          audit="research-results/odds-decoder-all-bet-types-v1/run-$GITHUB_RUN_ID"
+          python research/audit_odds_decoder_all_bet_types_v1.py \
+            --backfill-root out/backfill \
+            --out-dir "$audit"
+          echo "===== ODDS DECODER AUDIT ====="
+          cat "$audit/totals-by-bet-type.csv"
+          cat "$audit/summary.json"
+
       - name: Run EXACTA V0 and direction audit
         shell: bash
         run: |
@@ -165,9 +177,10 @@ jobs:
         run: |
           set -euo pipefail
           result="research-results/l2-exacta-v0/run-$GITHUB_RUN_ID"
+          audit="research-results/odds-decoder-all-bet-types-v1/run-$GITHUB_RUN_ID"
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
-          git add             "$result/README.md"             "$result/summary.json"             "$result/fold-metrics.csv"             "$result/ranking-coverage.csv"             "$result/direction-audit.csv"             "$result/top1-miss-decomposition.csv"             "$result/feature-importance-l17-only.csv"             "$result/feature-importance-market-aware.csv"             "$result/winner-ticket-diagnostics.csv.gz"
+          git add             "$result/README.md"             "$result/summary.json"             "$result/fold-metrics.csv"             "$result/ranking-coverage.csv"             "$result/direction-audit.csv"             "$result/top1-miss-decomposition.csv"             "$result/feature-importance-l17-only.csv"             "$result/feature-importance-market-aware.csv"             "$result/winner-ticket-diagnostics.csv.gz"             "$audit/summary.json"             "$audit/all-bet-types.csv"             "$audit/totals-by-bet-type.csv"
           git commit -m "research: archive exacta V0 run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
