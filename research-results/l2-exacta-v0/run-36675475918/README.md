@@ -1,0 +1,3 @@
+# L2 EXACTA V0 — Ordered Pair / Direction Audit
+
+Every priced ordered pair A->B is scored. No LAW or ROI policy is searched in V0. The comparison is MARKET vs L17_ONLY_MODEL vs MARKET_AWARE_MODEL. The primary diagnostic is whether, after the actual first-two horses are captured, the correct order is ranked above the reverse order. Premarket reversal invariants require symmetric pair features to remain identical and all directional features to change sign under A->B / B->A reversal. Races with multiple winning EXACTA payouts (for example dead-heat ambiguity) remain in ranking coverage but are excluded from strict direction judgment. 2026 is sealed.
