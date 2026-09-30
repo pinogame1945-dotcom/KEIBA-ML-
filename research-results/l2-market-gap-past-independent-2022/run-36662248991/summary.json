@@ -1,0 +1,33 @@
+{
+  "contract": "L2_MARKET_GAP_PAST_INDEPENDENT_2022_RESULT",
+  "purpose": "Test the already-frozen 2025-observed market-gap hypothesis on an earlier untouched evaluation year.",
+  "train_year": 2021,
+  "test_year": 2022,
+  "training_data_uses_test_year": false,
+  "policy_selected_on_2022": false,
+  "frozen_policy": {
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "frozen_policy_result": {
+    "label": "FROZEN_V2_POLICY_ON_2022",
+    "source_races": 3456,
+    "executed_races": 2496,
+    "execution_coverage_pct": 72.22222222222223,
+    "tickets": 2496,
+    "hit_races": 41,
+    "race_hit_rate_pct": 1.1863425925925926,
+    "stake_yen": 249600.0,
+    "return_yen": 164880.0,
+    "profit_yen": -84720.0,
+    "roi_pct": 66.0576923076923,
+    "max_drawdown_yen": 104330.0,
+    "model_top_k": 15,
+    "min_market_rank_upgrade": 5,
+    "max_tickets_per_race": 1
+  },
+  "diagnostic_policy_count": 96,
+  "diagnostic_profitable_policy_count": 8,
+  "2026_locked": true
+}
