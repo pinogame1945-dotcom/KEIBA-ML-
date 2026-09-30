@@ -1,0 +1,215 @@
+name: L2 Universal Ticket EV V1
+
+on:
+  push:
+    branches:
+      - research/l2-universal-ticket-ev-v1-20260930
+    paths:
+      - .github/triggers/l2-universal-ticket-ev-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-universal-ticket-ev-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards and probability self-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_l2_universal_ticket_ev_v1.py \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/build_l2_bet_kings_dataset_v1.py \
+            research/build_l2_l17_fullfield_dataset_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          python - <<'PY'
+          import json
+          import sys
+          from pathlib import Path
+          sys.path.insert(0,"research")
+          import run_l2_universal_ticket_ev_v1 as u
+
+          c=json.load(open("contracts/l2-universal-ticket-ev-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_UNIVERSAL_TICKET_EV_V1"
+          assert c["candidate_universe"]["top6_restriction"] is False
+          assert c["candidate_universe"]["candidate_horse_prefilter"] is False
+          assert c["probability_model"]["odds_as_probability_feature"] is False
+          assert c["probability_model"]["calibration_policy"]=="STRICTLY_PRIOR_YEARS_ONLY"
+          assert c["selection"]["rule"]=="ticket_probability * odds > 1.0"
+          for k in ("manual_edge_threshold","manual_top_k","manual_ticket_cap","manual_odds_band","manual_race_skip_rule","roi_tuned_rule_grid"):
+              assert c["selection"][k] is False,(k,c["selection"][k])
+          assert c["kaggle_policy"]["metadata_first"] is True
+          assert c["kaggle_policy"]["guess_remote_names"] is False
+          assert c["kaggle_policy"]["404_after_metadata_resolution"]=="FAIL_FAST_AS_METADATA_DRIFT"
+          assert c["cost"]["standard_github_cpu_only"] is True
+          for k in ("gpu","paid_runner","github_artifact","github_cache","paid_persistent_storage"):
+              assert c["cost"][k] is False,(k,c["cost"][k])
+          assert c["invariants"]["2026_used"] is False
+
+          checks=u.probability_self_test()
+          assert set(checks)=={"WIN","QUINELLA","EXACTA","TRIO","TRIFECTA"}
+          print("PROBABILITY_SELF_TEST",checks)
+
+          wf=Path(".github/workflows/l2-universal-ticket-ev-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses),uses
+          assert not any(u.startswith("actions/cache") for u in uses),uses
+          assert "/data/daily/2026-" not in wf
+          assert "/data/odds/daily/2026-" not in wf
+          print("L2_UNIVERSAL_TICKET_EV_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle scipy
+
+      - name: Restore seven horse-level score tables metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          for y in 2021 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/universal-ticket/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              mkdir -p "$d"
+
+              # Strict 404 policy:
+              # init lists real remote names first; fetch resolves only names present in that metadata.
+              # Any metadata/download 404 stops the run. No alternate-name guessing and no 404 retry loop.
+              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
+              bash scripts/kaggle-dataset-session-v2.sh fetch "$d" score.jsonl
+
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
+            done
+          done
+
+      - name: Materialize leak-safe L1.7 full-field consensus once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/universal-ticket/l17
+          for y in 2021 2022 2023 2024 2025; do
+            args=()
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"
+              alias="${spec##*=}"
+              p="$(find "out/universal-ticket/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--expert "$name=$p")
+            done
+            out="out/universal-ticket/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py \
+              --year "$y" "${args[@]}" --output "$out"
+            test -s "$out"
+            echo "L17_$y=$out" >> "$GITHUB_ENV"
+          done
+
+      - name: Sparse restore 2021-2025 race and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2021-*.jsonl.gz
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2021-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "daily_files=$(find out/backfill/data/daily -type f -name '*.jsonl.gz' | wc -l)"
+          echo "odds_files=$(find out/backfill/data/odds/daily -type f -name '*.jsonl.gz' | wc -l)"
+
+      - name: Run universal all-ticket EV walk-forward
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-universal-ticket-ev-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_universal_ticket_ev_v1.py \
+            --l17-2021 "$L17_2021" \
+            --l17-2022 "$L17_2022" \
+            --l17-2023 "$L17_2023" \
+            --l17-2024 "$L17_2024" \
+            --l17-2025 "$L17_2025" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== CALIBRATION FOLDS ====="
+          cat "$result/calibration-folds.csv"
+          echo "===== ECONOMICS YEARLY ====="
+          cat "$result/economics-yearly.csv"
+          echo "===== ECONOMICS COMBINED ====="
+          cat "$result/economics-combined.csv"
+
+      - name: Cost and leakage guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache and no upload-artifact."
+          echo "Kaggle score datasets are read-only and metadata-first."
+          echo "A 404 after metadata resolution is fatal metadata drift; no alternate name guessing."
+          echo "All score tables and BACKFILL packs are fetched once and reused in the same runner."
+          echo "Full ticket matrices are streamed and not persisted."
+          echo "Only compact metrics, samples, and compressed race-level summaries are committed."
+          echo "Historical final odds are a research execution-price proxy only."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-universal-ticket-ev-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive universal ticket EV v1 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
