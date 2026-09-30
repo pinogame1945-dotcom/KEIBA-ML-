@@ -11,7 +11,7 @@ import lightgbm as lgb
 import numpy as np
 import pandas as pd
 
-from research.build_l2_bet_kings_dataset_v1 import decode_odds, payout_map, horse_number_map
+from build_l2_bet_kings_dataset_v1 import decode_odds, payout_map, horse_number_map
 
 YEARS=(2022,2023,2024,2025)
 TEST_YEARS=(2023,2024,2025)
