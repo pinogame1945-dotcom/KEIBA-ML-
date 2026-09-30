@@ -1,0 +1,268 @@
+{
+  "contract": "L2_QUINELLA_HUMAN_MACHINE_CROSS_V1",
+  "confirmation_year": 2025,
+  "source_variant": "ODDS_COMMA_CORRECTED",
+  "human_rules_frozen_from_zero_base_run": {
+    "run_id": 36684420309,
+    "rules": {
+      "RULE5": {
+        "gap": "GAP0_2",
+        "conditions": [
+          [
+            "field_size_band",
+            "13-14"
+          ],
+          [
+            "l17_rank_band",
+            "11-20"
+          ]
+        ],
+        "expected_2025_tickets": 585
+      },
+      "RULE7": {
+        "gap": "GAP3_4",
+        "conditions": [
+          [
+            "market_rank_band",
+            "<=10"
+          ],
+          [
+            "l17_rank_band",
+            "31-40"
+          ]
+        ],
+        "expected_2025_tickets": 68
+      }
+    }
+  },
+  "machine_model": {
+    "type": "learned-boundary LightGBM classifier",
+    "train_years": [
+      2021,
+      2022,
+      2023,
+      2024
+    ],
+    "signal": "within-race normalized p_model > normalized market probability",
+    "manual_machine_threshold_tuning": false,
+    "ratio_threshold": 1.0,
+    "threshold_reason": "natural market-relative zero crossing"
+  },
+  "primary_2025": {
+    "HUMAN_ALL": {
+      "label": "HUMAN_ALL",
+      "tickets": 653,
+      "hits": 35,
+      "hit_rate_pct": 5.359877488514548,
+      "stake_yen": 65300.0,
+      "return_yen": 84540.0,
+      "profit_yen": 19240.0,
+      "roi_pct": 129.46401225114855,
+      "largest_single_return_yen": 4990.0,
+      "largest_return_share_pct": 5.9025313461083515,
+      "roi_after_remove_largest_win_pct": 121.82235834609494,
+      "median_odds": 26.7,
+      "executed_races": 641,
+      "mean_machine_ratio": 1.0708100226338317,
+      "median_machine_ratio": 1.0640093363499827,
+      "machine_agree_share_pct": 73.20061255742726
+    },
+    "MACHINE_ALL": {
+      "label": "MACHINE_ALL",
+      "tickets": 80810,
+      "hits": 1832,
+      "hit_rate_pct": 2.267046157653756,
+      "stake_yen": 8081000.0,
+      "return_yen": 6519220.0,
+      "profit_yen": -1561780.0,
+      "roi_pct": 80.67343150600173,
+      "largest_single_return_yen": 115250.0,
+      "largest_return_share_pct": 1.7678495280110198,
+      "roi_after_remove_largest_win_pct": 79.2472466278926,
+      "median_odds": 68.7,
+      "executed_races": 3455,
+      "mean_machine_ratio": 1.1442229849448107,
+      "median_machine_ratio": 1.0974063527264837,
+      "machine_agree_share_pct": 100.0
+    },
+    "BOTH": {
+      "label": "BOTH",
+      "tickets": 478,
+      "hits": 27,
+      "hit_rate_pct": 5.648535564853557,
+      "stake_yen": 47800.0,
+      "return_yen": 68740.0,
+      "profit_yen": 20940.0,
+      "roi_pct": 143.80753138075315,
+      "largest_single_return_yen": 4990.0,
+      "largest_return_share_pct": 7.25923770730288,
+      "roi_after_remove_largest_win_pct": 133.36820083682008,
+      "median_odds": 27.15,
+      "executed_races": 470,
+      "mean_machine_ratio": 1.1237513599030169,
+      "median_machine_ratio": 1.101993725237556,
+      "machine_agree_share_pct": 100.0
+    },
+    "HUMAN_ONLY": {
+      "label": "HUMAN_ONLY",
+      "tickets": 175,
+      "hits": 8,
+      "hit_rate_pct": 4.571428571428571,
+      "stake_yen": 17500.0,
+      "return_yen": 15800.0,
+      "profit_yen": -1700.0,
+      "roi_pct": 90.28571428571429,
+      "largest_single_return_yen": 2530.0,
+      "largest_return_share_pct": 16.0126582278481,
+      "roi_after_remove_largest_win_pct": 75.82857142857142,
+      "median_odds": 24.0,
+      "executed_races": 175,
+      "mean_machine_ratio": 0.9262045414071434,
+      "median_machine_ratio": 0.9451339697900369,
+      "machine_agree_share_pct": 0.0
+    },
+    "MACHINE_ONLY": {
+      "label": "MACHINE_ONLY",
+      "tickets": 80332,
+      "hits": 1805,
+      "hit_rate_pct": 2.2469252601702934,
+      "stake_yen": 8033200.0,
+      "return_yen": 6450480.0,
+      "profit_yen": -1582720.0,
+      "roi_pct": 80.29776427824528,
+      "largest_single_return_yen": 115250.0,
+      "largest_return_share_pct": 1.7866887425431905,
+      "roi_after_remove_largest_win_pct": 78.863093163372,
+      "median_odds": 69.2,
+      "executed_races": 3455,
+      "mean_machine_ratio": 1.1443447973828176,
+      "median_machine_ratio": 1.097378334972721,
+      "machine_agree_share_pct": 100.0
+    }
+  },
+  "rule_splits_2025": {
+    "RULE5_ALL": {
+      "label": "RULE5_ALL",
+      "tickets": 585,
+      "hits": 31,
+      "hit_rate_pct": 5.299145299145299,
+      "stake_yen": 58500.0,
+      "return_yen": 76000.0,
+      "profit_yen": 17500.0,
+      "roi_pct": 129.9145299145299,
+      "largest_single_return_yen": 4990.0,
+      "largest_return_share_pct": 6.565789473684211,
+      "roi_after_remove_largest_win_pct": 121.38461538461539,
+      "median_odds": 27.9,
+      "executed_races": 585,
+      "mean_machine_ratio": 1.0631622397555134,
+      "median_machine_ratio": 1.0584137470227863,
+      "machine_agree_share_pct": 71.62393162393163,
+      "rule_id": "RULE5",
+      "machine_relation": "ALL"
+    },
+    "RULE5_MACHINE_AGREE": {
+      "label": "RULE5_MACHINE_AGREE",
+      "tickets": 419,
+      "hits": 24,
+      "hit_rate_pct": 5.727923627684964,
+      "stake_yen": 41900.0,
+      "return_yen": 61830.0,
+      "profit_yen": 19930.0,
+      "roi_pct": 147.5656324582339,
+      "largest_single_return_yen": 4990.0,
+      "largest_return_share_pct": 8.07051593077794,
+      "roi_after_remove_largest_win_pct": 135.6563245823389,
+      "median_odds": 28.2,
+      "executed_races": 419,
+      "mean_machine_ratio": 1.1172053716583557,
+      "median_machine_ratio": 1.0945670327007362,
+      "machine_agree_share_pct": 100.0,
+      "rule_id": "RULE5",
+      "machine_relation": "MACHINE_AGREE"
+    },
+    "RULE5_MACHINE_DISAGREE": {
+      "label": "RULE5_MACHINE_DISAGREE",
+      "tickets": 166,
+      "hits": 7,
+      "hit_rate_pct": 4.216867469879518,
+      "stake_yen": 16600.0,
+      "return_yen": 14170.0,
+      "profit_yen": -2430.0,
+      "roi_pct": 85.36144578313252,
+      "largest_single_return_yen": 2530.0,
+      "largest_return_share_pct": 17.854622441778407,
+      "roi_after_remove_largest_win_pct": 70.12048192771084,
+      "median_odds": 24.5,
+      "executed_races": 166,
+      "mean_machine_ratio": 0.9267521658561707,
+      "median_machine_ratio": 0.9442608071994911,
+      "machine_agree_share_pct": 0.0,
+      "rule_id": "RULE5",
+      "machine_relation": "MACHINE_DISAGREE"
+    },
+    "RULE7_ALL": {
+      "label": "RULE7_ALL",
+      "tickets": 68,
+      "hits": 4,
+      "hit_rate_pct": 5.882352941176471,
+      "stake_yen": 6800.0,
+      "return_yen": 8540.0,
+      "profit_yen": 1740.0,
+      "roi_pct": 125.58823529411765,
+      "largest_single_return_yen": 2670.0,
+      "largest_return_share_pct": 31.26463700234192,
+      "roi_after_remove_largest_win_pct": 86.32352941176471,
+      "median_odds": 23.6,
+      "executed_races": 68,
+      "mean_machine_ratio": 1.1366034488664243,
+      "median_machine_ratio": 1.1232337347936767,
+      "machine_agree_share_pct": 86.76470588235294,
+      "rule_id": "RULE7",
+      "machine_relation": "ALL"
+    },
+    "RULE7_MACHINE_AGREE": {
+      "label": "RULE7_MACHINE_AGREE",
+      "tickets": 59,
+      "hits": 3,
+      "hit_rate_pct": 5.084745762711864,
+      "stake_yen": 5900.0,
+      "return_yen": 6910.0,
+      "profit_yen": 1010.0,
+      "roi_pct": 117.11864406779661,
+      "largest_single_return_yen": 2670.0,
+      "largest_return_share_pct": 38.63965267727931,
+      "roi_after_remove_largest_win_pct": 71.86440677966101,
+      "median_odds": 23.8,
+      "executed_races": 59,
+      "mean_machine_ratio": 1.170238971335442,
+      "median_machine_ratio": 1.135242082079072,
+      "machine_agree_share_pct": 100.0,
+      "rule_id": "RULE7",
+      "machine_relation": "MACHINE_AGREE"
+    },
+    "RULE7_MACHINE_DISAGREE": {
+      "label": "RULE7_MACHINE_DISAGREE",
+      "tickets": 9,
+      "hits": 1,
+      "hit_rate_pct": 11.11111111111111,
+      "stake_yen": 900.0,
+      "return_yen": 1630.0,
+      "profit_yen": 730.0,
+      "roi_pct": 181.11111111111111,
+      "largest_single_return_yen": 1630.0,
+      "largest_return_share_pct": 100.0,
+      "roi_after_remove_largest_win_pct": 0.0,
+      "median_odds": 18.6,
+      "executed_races": 9,
+      "mean_machine_ratio": 0.9161039126806401,
+      "median_machine_ratio": 0.9540689410488725,
+      "machine_agree_share_pct": 0.0,
+      "rule_id": "RULE7",
+      "machine_relation": "MACHINE_DISAGREE"
+    }
+  },
+  "2025_used_to_tune_human_rules": false,
+  "2025_used_to_tune_machine_threshold": false,
+  "2026_locked": true
+}
