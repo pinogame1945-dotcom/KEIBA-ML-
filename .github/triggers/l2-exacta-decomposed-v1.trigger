@@ -1,0 +1,1 @@
+2026-09-30 launch exacta decomposed V1 with pair-matrix speedup and frozen direct baseline\n
