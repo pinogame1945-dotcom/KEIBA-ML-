@@ -25,7 +25,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with:
-          ref: \${{ github.ref_name }}
+          ref: ${{ github.ref_name }}
           fetch-depth: 0
 
       - uses: actions/setup-python@v5
@@ -159,14 +159,14 @@ jobs:
               no_auto_jockey=light \
               no_auto_full_pedigree_v1=pedv1 \
               jockey_trainer_condition_plus_raceclass=condrc; do
-              name="\${spec%%=*}"; alias="\${spec##*=}"
+              name="${spec%%=*}"; alias="${spec##*=}"
               p="$(find "out/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
               test -n "$p"; test -s "$p"
               args+=(--expert "$name=$p")
             done
             out="out/l17/l17-$y.jsonl.gz"
             python research/materialize_l17_seven_king_fullfield_v1.py \
-              --year "$y" "\${args[@]}" --output "$out"
+              --year "$y" "${args[@]}" --output "$out"
             test -s "$out"
             echo "L17_$y=$out" >> "$GITHUB_ENV"
           done
