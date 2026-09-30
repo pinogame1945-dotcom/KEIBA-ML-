@@ -1,0 +1,46 @@
+{
+  "contract": "L2_EXACTA_STABLE_LAW_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Discover simple betting laws that reproduce across prior periods before testing on the next unseen year.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "foundation": {
+    "candidate_generator": "decomposed unordered pair market rank",
+    "pair_rank_search": "1 through 15",
+    "reason": "stable first-two pair capture across 2023-2025"
+  },
+  "search": {
+    "numeric_thresholds": ["q20", "q40", "q60", "q80"],
+    "threshold_source": "prior periods only",
+    "features": "market direction/price + L1.7 pair quality/direction + broad race context",
+    "single_condition_first": true,
+    "two_condition_intersections_from_prior_stable_singles": true,
+    "shortlist_per_fold": 100
+  },
+  "prior_validation": {
+    "2023": ["2022_H1", "2022_H2"],
+    "2024": ["2022", "2023"],
+    "2025": ["2022", "2023", "2024"],
+    "required_roi_each_period": ">100",
+    "minimum_tickets_each_period": 50,
+    "minimum_races_each_period": 30,
+    "robust_flag": "ROI remains >100 after removing largest winning payout in each prior period"
+  },
+  "test_year_use": "evaluation only; never used to select law",
+  "primary_metrics": [
+    "same law signature recurrence across folds",
+    "unseen-year ROI by year",
+    "profitable unseen-year count",
+    "worst unseen-year ROI",
+    "support",
+    "tail robustness"
+  ],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
