@@ -19,6 +19,7 @@ def parse_args():
     p.add_argument("--out-dir", required=True)
     p.add_argument("--work-root", default="out/outsider-tie-audit-v1")
     p.add_argument("--ml-source-sha", default="")
+    p.add_argument("--top3-dir", default="")
     return p.parse_args()
 
 def open_text(path):
@@ -351,6 +352,16 @@ def main():
             "--valid-start", valid_start,
             "--valid-end", valid_end,
         ])
+
+        if a.top3_dir:
+            top3_dir = Path(a.top3_dir)
+            top3_dir.mkdir(parents=True, exist_ok=True)
+            run([
+                sys.executable, "research/extract_safe_outsider_top3_v1.py",
+                "--score", score,
+                "--candidate", candidate,
+                "--output", top3_dir / f"{candidate}.csv",
+            ])
 
         audit = audit_score(score, truth, router, candidate, a.year)
         audit["label_ja"] = row.get("label_ja") or candidate
