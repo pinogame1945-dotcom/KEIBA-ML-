@@ -2,10 +2,16 @@
   "contract": "L2_MARKET_GAP_LAW_PORTFOLIO_V1",
   "purpose": "Freeze law1 and law2, then add independent QUINELLA laws using discovery years only.",
   "bet_type": "QUINELLA",
-  "discovery_years": [2022, 2023, 2024],
+  "discovery_years": [
+    2022,
+    2023,
+    2024
+  ],
   "confirmation_year": 2025,
   "confirmation_used_for_selection": false,
-  "locked_years": [2026],
+  "locked_years": [
+    2026
+  ],
   "fixed_laws": [
     {
       "law_id": "LAW1",
@@ -21,10 +27,11 @@
   "incremental_eligibility": {
     "min_unique_discovery_tickets": 100,
     "min_unique_tickets_each_discovery_year": 20,
-    "min_incremental_pooled_roi_pct": 105.0,
-    "min_incremental_roi_after_remove_largest_win_pct": 95.0,
+    "min_incremental_pooled_roi_pct": 105,
+    "min_incremental_roi_after_remove_largest_win_pct": 95,
     "min_discovery_years_roi_ge_90": 2,
-    "max_steps": 8
+    "max_steps": 8,
+    "min_incremental_worst_year_roi_pct": 70
   },
   "selection_objective": "At each step, among eligible candidates choose highest incremental discovery profit; tie-break by incremental max-win-removed ROI, minimum yearly ROI, unique ticket count, then candidate_id. Recompute uniqueness against the enlarged portfolio after each addition.",
   "reporting": [
