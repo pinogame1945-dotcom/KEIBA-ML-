@@ -1,2 +1,3 @@
-launch=2026-09-30T05:45:00Z
+launch=2026-09-30T05:54:00Z
 purpose=TRIO_V0_ALL_COMBINATIONS_RANKING_ONLY
+retry=guard_self_match_fixed
