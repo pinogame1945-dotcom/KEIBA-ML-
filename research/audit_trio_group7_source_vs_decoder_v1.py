@@ -37,6 +37,9 @@ def main():
     detail=[]
     key_patterns={}
     rejected_examples=[]
+    ordering_counts={"ascending":0,"not_ascending":0}
+    nonascending_examples=[]
+    canonical_collisions=0
     for race_path in sorted((root/"data/daily").glob("2025-*.jsonl.gz")):
         odds_path=root/"data/odds/daily"/race_path.name
         if not odds_path.exists():
@@ -69,6 +72,7 @@ def main():
             summary_priced=int(summary.get("priced_rows") or 0)
 
             valid_keys=0; priced=0; invalid_keys=0; invalid_shapes=0
+            canonical_seen=set()
             for k,raw in (g7.items() if isinstance(g7,dict) else []):
                 ks=str(k)
                 pattern=f"len={len(ks)}|digits={ks.isdigit()}|sample={ks[:2]}"
@@ -79,6 +83,18 @@ def main():
                         rejected_examples.append({"race_id":rid,"field_size":len(started),"key":ks,"raw":raw})
                     continue
                 valid_keys+=1
+                ks=str(k)
+                nums_key=tuple(int(ks[i:i+2]) for i in (0,2,4))
+                if nums_key[0] < nums_key[1] < nums_key[2]:
+                    ordering_counts["ascending"]+=1
+                else:
+                    ordering_counts["not_ascending"]+=1
+                    if len(nonascending_examples)<40:
+                        nonascending_examples.append({"race_id":rid,"key":ks,"nums":nums_key})
+                canon=tuple(sorted(nums_key))
+                if canon in canonical_seen:
+                    canonical_collisions+=1
+                canonical_seen.add(canon)
                 t=final_tuple(raw)
                 if not t:
                     invalid_shapes+=1
@@ -140,6 +156,9 @@ def main():
       "median_decoder_coverage_pct":float(d.decoder_coverage_started_pct.median()),
       "key_patterns":dict(sorted(key_patterns.items(), key=lambda kv:(-kv[1],kv[0]))[:30]),
       "rejected_examples":rejected_examples,
+      "ordering_counts":ordering_counts,
+      "canonical_collisions":canonical_collisions,
+      "nonascending_examples":nonascending_examples,
       "2026_locked":True
     }
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
