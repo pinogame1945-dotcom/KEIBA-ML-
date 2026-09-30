@@ -1,0 +1,116 @@
+{
+  "contract": "L2_ODDS_ONLY_UNIVERSAL_V1",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "horse_model_used": false,
+  "l17_used": false,
+  "seven_king_used": false,
+  "raw_market_probability": "(1/odds) normalized across all priced tickets within race and bet type",
+  "calibration": {
+    "method": "p_cal = p_market^gamma / sum(p_market^gamma)",
+    "gamma_grid": [
+      0.5,
+      0.65,
+      0.8,
+      0.9,
+      1.0,
+      1.1,
+      1.2,
+      1.35,
+      1.55,
+      1.8,
+      2.1,
+      2.5,
+      3.0
+    ],
+    "selection_metric": "minimum strictly-prior-year winning-ticket negative log likelihood",
+    "odds_used_as_input": true,
+    "roi_used_for_gamma_selection": false,
+    "test_year_used_for_gamma_selection": false
+  },
+  "buy_rule": "probability * same historical final odds > 1.0",
+  "manual_edge_threshold": false,
+  "manual_top_k": false,
+  "manual_ticket_cap": false,
+  "manual_odds_band": false,
+  "manual_race_skip_rule": false,
+  "market_price_stage": "historical FINAL odds",
+  "important_interpretation": "RAW_MARKET is a self-consistency sanity check; with a complete pari-mutuel market, normalized inverse odds should ordinarily imply no positive EV after overround/takeout.",
+  "calibration_counts": {
+    "2021": {
+      "races_seen": 3456,
+      "usable_top3": 3435,
+      "excluded_top3": 21
+    },
+    "2022": {
+      "races_seen": 3456,
+      "usable_top3": 3444,
+      "excluded_top3": 12
+    },
+    "2023": {
+      "races_seen": 3456,
+      "usable_top3": 3442,
+      "excluded_top3": 14
+    },
+    "2024": {
+      "races_seen": 3456,
+      "usable_top3": 3434,
+      "excluded_top3": 22
+    },
+    "2025": {
+      "races_seen": 3456,
+      "usable_top3": 3428,
+      "excluded_top3": 28
+    }
+  },
+  "folds": [
+    {
+      "test_year": 2022,
+      "train_years": "2021",
+      "win_gamma": 1.0,
+      "quinella_gamma": 1.1,
+      "exacta_gamma": 1.0,
+      "trio_gamma": 1.1,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2021|2022",
+      "win_gamma": 1.0,
+      "quinella_gamma": 1.1,
+      "exacta_gamma": 1.0,
+      "trio_gamma": 1.1,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2021|2022|2023",
+      "win_gamma": 1.0,
+      "quinella_gamma": 1.1,
+      "exacta_gamma": 1.0,
+      "trio_gamma": 1.1,
+      "trifecta_gamma": 1.0
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2021|2022|2023|2024",
+      "win_gamma": 1.0,
+      "quinella_gamma": 1.1,
+      "exacta_gamma": 1.1,
+      "trio_gamma": 1.1,
+      "trifecta_gamma": 1.0
+    }
+  ],
+  "race_summary_files": [
+    "race-market-summary-2022.csv.gz",
+    "race-market-summary-2023.csv.gz",
+    "race-market-summary-2024.csv.gz",
+    "race-market-summary-2025.csv.gz"
+  ],
+  "2026_locked": true
+}
