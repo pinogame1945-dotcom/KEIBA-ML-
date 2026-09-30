@@ -1,0 +1,60 @@
+{
+  "contract": "L2_EXACTA_DIRECTION_SPECIALIST_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Hold unordered-pair selection fixed and learn only A>B versus B>A.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "pair_candidate_generator": {
+    "type": "decomposed market-aware ML unordered-pair rank",
+    "walk_forward": {
+      "2023": [2022],
+      "2024": [2022, 2023],
+      "2025": [2022, 2023, 2024]
+    },
+    "top_k": "1 through 15"
+  },
+  "direction_models": {
+    "DIR_STANDARD": {
+      "objective": "binary direction classification",
+      "market_aware": true,
+      "sample_weight": "uniform"
+    },
+    "DIR_VALUE": {
+      "objective": "binary direction classification",
+      "market_aware": true,
+      "sample_weight": "1 + log1p(min(winning_return_yen, training_q95)/100), normalized to mean 1",
+      "cap_source": "training fold only"
+    }
+  },
+  "baselines": [
+    "MARKET_ONE",
+    "L17_VOTE_ONE"
+  ],
+  "selection": {
+    "no_skip": true,
+    "one_ticket_per_selected_pair": true,
+    "confidence_gate": false,
+    "odds_filter": false,
+    "law_search": false
+  },
+  "evaluation": {
+    "flat_stake_per_ticket_yen": 100,
+    "primary_metrics": [
+      "ROI by year",
+      "worst-year ROI",
+      "profitable-year count",
+      "direction accuracy",
+      "tail robustness",
+      "distance to perfect-direction ceiling"
+    ]
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
