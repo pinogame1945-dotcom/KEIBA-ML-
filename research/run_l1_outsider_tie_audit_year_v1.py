@@ -155,6 +155,7 @@ def audit_score(score_path, truth, router, candidate, year):
             "old_rescues": 0,
             "safe_rescues": 0,
             "shuffle_sensitive_races": 0,
+            "safe_rescue_race_ids": [],
         }
 
     for rid in races:
@@ -205,6 +206,8 @@ def audit_score(score_path, truth, router, candidate, year):
             seven_blind = not bool(winners & seven_union)
             st["old_rescues"] += int(seven_blind and old_hit)
             st["safe_rescues"] += int(seven_blind and safe_hit)
+            if seven_blind and safe_hit:
+                st["safe_rescue_race_ids"].append(rid)
 
             shuffle_changed = False
             for trial in range(SHUFFLE_TRIALS):
@@ -236,6 +239,7 @@ def audit_score(score_path, truth, router, candidate, year):
             st[key + "_rate"] = st[key] / total
         st["capture_delta"] = st["safe_capture"] - st["old_capture"]
         st["rescue_delta"] = st["safe_rescues"] - st["old_rescues"]
+        st["safe_rescue_race_ids"] = sorted(st["safe_rescue_race_ids"])
         out["topn"][str(n)] = st
     return out
 
