@@ -1,0 +1,33 @@
+name: Remove remaining failed runs
+
+on:
+  push:
+    branches:
+      - research/l2-normal-value-router-v2-20260929
+    paths:
+      - ".github/workflows/tmp-delete-final-failed-runs.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Delete exact failed runs
+        shell: bash
+        run: |
+          set -euo pipefail
+          for id in 36663200264 36654285482 36654276904 36568903779 36568492054; do
+            gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/$id"
+            echo "DELETED=$id"
+          done
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "standard ubuntu-latest only"
+          echo "no gpu, artifact, cache, paid compute, or paid storage"
