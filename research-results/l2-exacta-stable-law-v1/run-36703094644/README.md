@@ -1,0 +1,3 @@
+# L2 EXACTA Stable LAW V1
+
+This search does not optimize on the unseen test year. It starts from the stable unordered-pair market ranking and searches simple interpretable betting laws that combine pair rank with market direction, exacta price, L1.7 pair quality, L1.7 directional advantages, and broad race context. Numeric thresholds are derived from prior-data quantiles rather than fixed payout/odds cutoffs. A law must be profitable in every independent prior period and meet support guards before it can be tested on the next year. A robust flag additionally requires profitability after removing the single largest winning payout in every prior period. The final report emphasizes recurring law signatures and unseen-year reproducibility. 2026 is sealed.
