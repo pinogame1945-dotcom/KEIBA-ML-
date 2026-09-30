@@ -1,0 +1,30 @@
+{
+  "contract": "L2_TRIFECTA_COMPAT_DEEPMISS_AUDIT_V1",
+  "purpose": "Separate horse-set blindness from finishing-order error in 2025 COMPAT winning trifectas ranked below 200.",
+  "training_years": [2022, 2023, 2024],
+  "audit_year": 2025,
+  "locked_years": [2026],
+  "model_recipe": "Exact Ability V2 COMPAT 2025 fold reproduction",
+  "deep_miss_definition": "exact winning trifecta rank > 200",
+  "diagnostics": [
+    "actual 1st/2nd/3rd horse consensus ranks",
+    "count of podium horses outside consensus Top6 and Top10",
+    "best model rank among all six permutations of the actual podium trio",
+    "winner payout by failure type"
+  ],
+  "policy": {
+    "new_betting_rule_created": false,
+    "race_filter_added": false,
+    "model_features_changed": false,
+    "training_recipe_changed": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
