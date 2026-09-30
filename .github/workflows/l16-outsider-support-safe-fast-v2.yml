@@ -1,0 +1,340 @@
+name: L1.6 Outsider Support Safe Fast V2
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-support-safe-v1-20260930
+    paths:
+      - .github/triggers/l16-outsider-support-safe-fast-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-support-safe-fast-v2
+  cancel-in-progress: true
+
+jobs:
+  year:
+    name: year-${{ matrix.year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        year: [2021, 2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      KEIBA_LGBM_N_JOBS: "1"
+      OMP_NUM_THREADS: "1"
+      OPENBLAS_NUM_THREADS: "1"
+      MKL_NUM_THREADS: "1"
+      NUMEXPR_NUM_THREADS: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Validate and install
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l1_outsider_tie_audit_year_v1.py             research/score_l1_raw_light_v1.py             research/rerank_l1_score_safe_v1.py             research/extract_safe_outsider_top3_v1.py             research/analyze_l16_outsider_support_safe_v1.py             research/analyze_l16_outsider_council_safe_v1.py             research/materialize_l16_full_rank_consensus_v1.py             research/build_router_feature_snapshot_v1.py             research/resolve_kaggle_file_v1.py             research/build_l1_nonhorse_dataset_v1.py             research/run_feature_arena.py             research/train-staged-lightgbm.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore only this fold's snapshots
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+          delay=$(( (YEAR - 2021) * 20 ))
+          if [[ "$delay" -gt 0 ]]; then
+            echo "Stagger Kaggle access by ${delay}s for year=$YEAR"
+            sleep "$delay"
+          fi
+          root="out/l16-fast/snapshots/$GENERATION_ID"
+          mkdir -p "$root"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$root" "$((YEAR-2))" "$((YEAR-1))" "$YEAR"
+          for y in "$((YEAR-2))" "$((YEAR-1))" "$YEAR"; do
+            test -s "$root/snapshot-$y.jsonl" || test -s "$root/snapshot-$y.jsonl.gz"
+          done
+          echo "SNAPSHOT_ROOT=$root" >> "$GITHUB_ENV"
+
+      - name: Build safe Seven-King consensus/router for this year
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+
+          kaggle_transient() {
+            local label="$1"
+            shift
+            local attempt delay rc tmp
+            for attempt in 1 2 3 4 5 6; do
+              tmp="$(mktemp)"
+              set +e
+              "$@" >"$tmp.out" 2>"$tmp.err"
+              rc=$?
+              set -e
+              cat "$tmp.out"
+              cat "$tmp.err" >&2
+              if [[ "$rc" -eq 0 ]]; then
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return 0
+              fi
+              if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle 404 non-retryable label=$label" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              rm -f "$tmp" "$tmp.out" "$tmp.err"
+              if [[ "$attempt" -eq 6 ]]; then
+                echo "::error::Kaggle transient failure label=$label after $attempt attempts" >&2
+                return "$rc"
+              fi
+              case "$attempt" in
+                1) delay=15 ;;
+                2) delay=30 ;;
+                3) delay=60 ;;
+                4) delay=90 ;;
+                *) delay=120 ;;
+              esac
+              echo "::warning::Kaggle transient retry label=$label attempt=$attempt/6 sleep=${delay}s" >&2
+              sleep "$delay"
+            done
+          }
+
+          snap() {
+            local y="$1"
+            if [[ -s "$SNAPSHOT_ROOT/snapshot-$y.jsonl.gz" ]]; then
+              printf '%s' "$SNAPSHOT_ROOT/snapshot-$y.jsonl.gz"
+            elif [[ -s "$SNAPSHOT_ROOT/snapshot-$y.jsonl" ]]; then
+              printf '%s' "$SNAPSHOT_ROOT/snapshot-$y.jsonl"
+            else
+              echo "::error::snapshot missing year=$y" >&2
+              exit 1
+            fi
+          }
+
+          yroot="out/l16-fast/y$YEAR"
+          scores="out/l16-fast/scores/y$YEAR"
+          mkdir -p "$yroot/outsider-top3" "$scores"
+          args=()
+
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y$YEAR-v1"
+            d="$scores/$alias"
+            mkdir -p "$d"
+            meta="$d/files.json"
+            kaggle_transient "seven-files:$alias:$YEAR" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
+            remote="$(python research/resolve_kaggle_file_v1.py --files-json "$meta" --wanted score.jsonl.gz --wanted score.jsonl)"
+            echo "SEVEN_SCORE_REMOTE_RESOLVED alias=$alias year=$YEAR file=$remote"
+            kaggle_transient "seven-download:$alias:$YEAR" kaggle datasets download "$ref" -f "$remote" -p "$d" --unzip --quiet --force
+            p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+            test -n "$p"; test -s "$p"
+            safe="$d/safe-score.jsonl.gz"
+            python research/rerank_l1_score_safe_v1.py --input "$p" --output "$safe"
+            args+=(--expert "$alias=$safe")
+          done
+
+          snapshot="$(snap "$YEAR")"
+          python research/materialize_l16_full_rank_consensus_v1.py             "${args[@]}"             --output "$yroot/consensus.jsonl.gz"
+          python research/build_router_feature_snapshot_v1.py             --snapshot "$snapshot"             "${args[@]}"             --output "$yroot/router.jsonl.gz"
+
+          if [[ "$snapshot" == *.gz ]]; then
+            ln -s "$(realpath "$snapshot")" "$yroot/snapshot.jsonl.gz"
+          else
+            ln -s "$(realpath "$snapshot")" "$yroot/snapshot.jsonl"
+          fi
+          rm -rf "$scores"
+          echo "YEAR_ROOT=$yroot" >> "$GITHUB_ENV"
+
+      - name: Recompute 13 outsiders four-at-a-time
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+
+          snap() {
+            local y="$1"
+            if [[ -s "$SNAPSHOT_ROOT/snapshot-$y.jsonl.gz" ]]; then
+              printf '%s' "$SNAPSHOT_ROOT/snapshot-$y.jsonl.gz"
+            else
+              printf '%s' "$SNAPSHOT_ROOT/snapshot-$y.jsonl"
+            fi
+          }
+
+          wait_batch() {
+            local failed=0 pid
+            for pid in "$@"; do
+              if ! wait "$pid"; then failed=1; fi
+            done
+            [[ "$failed" -eq 0 ]]
+          }
+
+          candidates=(
+            outsider_daytrend outsider_raceshape outsider_gatecourse outsider_jockey
+            outsider_field outsider_chimera outsider_rotation outsider_classmove
+            outsider_weightchange outsider_bodychange outsider_disttransition
+            outsider_coursetransition outsider_opponentgap
+          )
+
+          p1="$(snap "$((YEAR-2))")"
+          p2="$(snap "$((YEAR-1))")"
+          pv="$(snap "$YEAR")"
+          mkdir -p "$YEAR_ROOT/audit" "$YEAR_ROOT/outsider-top3"
+
+          pids=()
+          for cand in "${candidates[@]}"; do
+            echo "PARALLEL_OUTSIDER_START year=$YEAR candidate=$cand"
+            python research/run_l1_outsider_tie_audit_year_v1.py               --year "$YEAR"               --inputs "$p1,$p2,$pv"               --validation-snapshot "$pv"               --router-seven "$YEAR_ROOT/router.jsonl.gz"               --out-dir "$YEAR_ROOT/audit/$cand"               --work-root "out/l16-fast-work/$cand"               --top3-dir "$YEAR_ROOT/outsider-top3"               --candidate "$cand"               --ml-source-sha "$GITHUB_SHA" &
+            pids+=("$!")
+            if [[ "${#pids[@]}" -ge 4 ]]; then
+              wait_batch "${pids[@]}"
+              pids=()
+            fi
+          done
+          if [[ "${#pids[@]}" -gt 0 ]]; then wait_batch "${pids[@]}"; fi
+
+          test "$(find "$YEAR_ROOT/outsider-top3" -maxdepth 1 -name '*.csv' | wc -l)" -eq 13
+          echo "PARALLEL_OUTSIDER_YEAR_OK year=$YEAR workers=4"
+
+      - name: Analyze and checkpoint this year
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+          result="research-results/l16-outsider-support-safe-fast-v2/run-$GITHUB_RUN_ID/y$YEAR"
+          mkdir -p "$result"
+
+          python research/analyze_l16_outsider_support_safe_v1.py             --root "out/l16-fast"             --years "$YEAR"             --output-json "$result/support-summary.json"             --output-csv "$result/support-buckets.csv"
+
+          if [[ -s "$YEAR_ROOT/snapshot.jsonl.gz" ]]; then snap="$YEAR_ROOT/snapshot.jsonl.gz"; else snap="$YEAR_ROOT/snapshot.jsonl"; fi
+          python research/analyze_l16_outsider_council_safe_v1.py             --consensus "$YEAR_ROOT/consensus.jsonl.gz"             --snapshot "$snap"             --top3-dir "$YEAR_ROOT/outsider-top3"             --year "$YEAR"             --output "$result/council.json"
+
+          YEAR_ROOT="$YEAR_ROOT" RESULT="$result" python - <<'PY'
+          import csv,gzip,os
+          from pathlib import Path
+          src=Path(os.environ["YEAR_ROOT"])/"outsider-top3"
+          out=Path(os.environ["RESULT"])/"ballots.csv.gz"
+          files=sorted(src.glob("*.csv"))
+          if len(files)!=13: raise SystemExit(f"expected 13 ballot files, got {len(files)}")
+          with gzip.open(out,"wt",encoding="utf-8",newline="") as fo:
+              w=None
+              for p in files:
+                  with p.open(newline="",encoding="utf-8-sig") as fi:
+                      r=csv.DictReader(fi)
+                      if w is None:
+                          w=csv.DictWriter(fo,fieldnames=r.fieldnames)
+                          w.writeheader()
+                      for row in r:w.writerow(row)
+          print("BALLOTS_PACKED",out,out.stat().st_size)
+          PY
+
+          test -s "$result/support-summary.json"
+          test -s "$result/council.json"
+          test -s "$result/ballots.csv.gz"
+          echo "YEAR_RESULT=$result" >> "$GITHUB_ENV"
+
+      - name: Commit year checkpoint
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$YEAR_RESULT"
+          git commit -m "research: checkpoint outsider support year ${{ matrix.year }} run $GITHUB_RUN_ID"
+
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then
+              echo "YEAR_CHECKPOINT_PUSHED year=${{ matrix.year }} attempt=$attempt"
+              exit 0
+            fi
+            sleep $((attempt * 3))
+          done
+          echo "::error::failed to push year checkpoint" >&2
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU runner only."
+          echo "No GPU / paid runner."
+          echo "No GitHub Artifact or Cache."
+          echo "No paid storage or cloud compute."
+          echo "Each year lane restores only its three rolling snapshots."
+          echo "Kaggle is metadata-first; 404 is non-retryable."
+          echo "Only 429/502/503/504 and transient network failures retry."
+          echo "13 outsider models run four-at-a-time with one LightGBM thread each."
+          echo "Year results and compressed Top3 ballots are checkpointed to git."
+          echo "No odds/popularity/payout. 2026 sealed."
+
+  aggregate:
+    name: aggregate
+    needs: year
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Aggregate saved year checkpoints
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l16-outsider-support-safe-fast-v2/run-$GITHUB_RUN_ID"
+          for y in 2021 2022 2023 2024 2025; do
+            test -s "$root/y$y/support-summary.json"
+            test -s "$root/y$y/council.json"
+            test -s "$root/y$y/ballots.csv.gz"
+          done
+          python research/aggregate_l16_outsider_support_safe_v1.py             --root "$root"             --output-support "$root/summary.json"             --output-council "$root/council-summary.json"             --output-csv "$root/support-buckets.csv"
+
+      - name: Commit aggregate
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l16-outsider-support-safe-fast-v2/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json" "$root/council-summary.json" "$root/support-buckets.csv"
+          git commit -m "research: aggregate fast outsider support run $GITHUB_RUN_ID"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "Aggregation uses git-checkpointed compact outputs only."
