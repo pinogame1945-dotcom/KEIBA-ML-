@@ -1,0 +1,44 @@
+{
+  "contract": "L2_EXACTA_BIDIRECTIONAL_V1",
+  "question": "Is exacta instability primarily direction prediction or the price structure itself?",
+  "candidate_generator": "walk-forward decomposed market-aware ML unordered-pair rank",
+  "policies": {
+    "MARKET_ONE": "one direction per selected pair, market-favored orientation",
+    "L17_ONE": "one direction per selected pair, Seven-King vote orientation; market breaks ties",
+    "BOTH_DIRECTIONS": "both A>B and B>A, two tickets per selected pair",
+    "PERFECT_DIRECTION_CEILING": "evaluation-only one-ticket upper bound using realized winning direction"
+  },
+  "top_k": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15
+  ],
+  "flat_stake_yen_per_ticket": 100,
+  "law_search": false,
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "walk_forward": "all prior years only",
+  "primary_metrics": [
+    "ROI by year",
+    "worst-year ROI",
+    "profitable-year count",
+    "tail robustness"
+  ],
+  "2026_locked": true,
+  "script_total_seconds": 424.92210797199994
+}
