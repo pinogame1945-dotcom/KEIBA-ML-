@@ -21,14 +21,33 @@ mkdir -p "$out_dir"
 retry_kaggle() {
   local label="$1"
   shift
-  local attempt delay
+  local attempt delay rc tmp
   for attempt in 1 2 3 4 5 6; do
-    if "$@"; then
+    tmp="$(mktemp)"
+    set +e
+    "$@" >"$tmp.out" 2>"$tmp.err"
+    rc=$?
+    set -e
+    cat "$tmp.out"
+    cat "$tmp.err" >&2
+    if [[ "$rc" -eq 0 ]]; then
+      rm -f "$tmp" "$tmp.out" "$tmp.err"
       return 0
     fi
+    if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+      echo "::error::Kaggle 404 is non-retryable label=$label" >&2
+      rm -f "$tmp" "$tmp.out" "$tmp.err"
+      return "$rc"
+    fi
+    if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+      echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+      rm -f "$tmp" "$tmp.out" "$tmp.err"
+      return "$rc"
+    fi
+    rm -f "$tmp" "$tmp.out" "$tmp.err"
     if [[ "$attempt" -eq 6 ]]; then
-      echo "::error::Kaggle operation failed label=$label after $attempt attempts" >&2
-      return 1
+      echo "::error::Kaggle transient operation failed label=$label after $attempt attempts" >&2
+      return "$rc"
     fi
     case "$attempt" in
       1) delay=15 ;;
@@ -37,11 +56,10 @@ retry_kaggle() {
       4) delay=90 ;;
       *) delay=120 ;;
     esac
-    echo "::warning::Kaggle retry label=$label attempt=$attempt/6 sleep=${delay}s" >&2
+    echo "::warning::Kaggle transient retry label=$label attempt=$attempt/6 sleep=${delay}s" >&2
     sleep "$delay"
   done
 }
-
 resolve_ref() {
   if [[ -n "${KAGGLE_DATASET_REF:-}" ]]; then
     local ref="$KAGGLE_DATASET_REF"
