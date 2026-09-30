@@ -1,0 +1,50 @@
+{
+  "contract": "L2_TRIO_MARKET_RESIDUAL_V1",
+  "version": 1,
+  "purpose": "Use final TRIO market probability as the baseline and learn only the L1.7/Seven-King correction to that market view.",
+  "bet_type": "TRIO",
+  "input_years": [2021, 2022, 2023, 2024, 2025],
+  "oof_years": [2022, 2023, 2024, 2025],
+  "calibrated_years": [2023, 2024, 2025],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "market_baseline": {
+    "probability": "(1 / final_trio_odds) / sum_race(1 / final_trio_odds)",
+    "role": "baseline probability, not a feature inside the residual model"
+  },
+  "residual_model": {
+    "target": "normalized official outcome mass - market probability",
+    "features": "L1.7/Seven-King trio and race features only",
+    "market_features_used": false,
+    "combination": "corrected_p proportional to market_q * exp(alpha * residual_score)",
+    "alpha_learned_from_strictly_prior_oof": true,
+    "alpha_objective": "winner log-loss"
+  },
+  "betting_diagnostic": {
+    "ev_formula": "edge = corrected_probability * final_odds - 1",
+    "buy_rule": "edge > 0",
+    "manual_edge_threshold_search": false,
+    "manual_ticket_rule_grid": false,
+    "tail_checks": ["ROI excluding largest win", "ROI excluding largest 2 wins", "ROI excluding largest 3 wins"]
+  },
+  "session_reuse": {
+    "one_runner": true,
+    "build_full_trio_base_once_per_year": true,
+    "build_residual_oof_once_per_test_year": true,
+    "reuse_oof_for_all_tilts_and_ev_diagnostics": true,
+    "persist_between_runs": false
+  },
+  "output_policy": {
+    "commit_compact_outputs_only": true,
+    "large_runner_local_tables_ephemeral": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
