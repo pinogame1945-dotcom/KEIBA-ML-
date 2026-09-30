@@ -1,0 +1,51 @@
+{
+  "contract": "L2_UNIVERSAL_TICKET_CALIBRATION_V2",
+  "version": 2,
+  "parent": "L2_UNIVERSAL_TICKET_EV_V1",
+  "purpose": "Correct ticket-tail overconfidence without using market prices, ROI, payout or future-year outcomes for calibration selection.",
+  "bet_types": ["WIN", "QUINELLA", "EXACTA", "TRIO", "TRIFECTA"],
+  "probability_model": {
+    "horse_stage": "STRICTLY_PRIOR_YEAR_TEMPERATURE_CALIBRATION",
+    "ticket_stage": "PER_BET_POWER_CALIBRATION",
+    "formula": "p_cal = p_base^gamma / sum_race(p_base^gamma)",
+    "gamma_selection_metric": "PRIOR_YEAR_WINNING_TICKET_NEGATIVE_LOG_LIKELIHOOD",
+    "gamma_grid": [0.60,0.75,0.90,1.00,1.15,1.35,1.60,2.00,2.50,3.00],
+    "odds_used_for_gamma_selection": false,
+    "roi_used_for_gamma_selection": false,
+    "payout_used_for_gamma_selection": false,
+    "test_year_used_for_gamma_selection": false,
+    "market_used_in_probability_model": false,
+    "locked_years": [2026]
+  },
+  "selection": {
+    "rule": "calibrated_ticket_probability * odds > 1.0",
+    "manual_edge_threshold": false,
+    "manual_top_k": false,
+    "manual_ticket_cap": false,
+    "manual_odds_band": false,
+    "manual_race_skip_rule": false
+  },
+  "stake": {
+    "l2_research": "FLAT_100_YEN",
+    "l3_separate": true
+  },
+  "comparison": {
+    "baseline": "BASE_GAMMA1",
+    "candidate": "POWER_CALIBRATED",
+    "selection_between_variants_by_roi": false
+  },
+  "kaggle_policy": {
+    "metadata_first": true,
+    "guess_remote_names": false,
+    "same_runner_reuse": true,
+    "404_after_metadata_resolution": "FAIL_FAST_AS_METADATA_DRIFT"
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}
