@@ -254,25 +254,23 @@ def iter_full_races(year,l17_rows,backfill_root):
             }
 
 
-def feature_matrix(race,indices,market_aware):
+def feature_matrix(race,indices):
     idx=np.asarray(indices,dtype=np.int64)
-    out=np.empty((len(idx),len(ALL_FEATURES if market_aware else BASE_FEATURES)),dtype=np.float32)
-    total=len(race["combos"])
+    out=np.empty((len(idx),len(BASE_FEATURES)),dtype=np.float32)
     for j,i in enumerate(idx):
         a,b,c,_=race["combos"][int(i)]
-        base=base_vector(a,b,c,len(race["horses"]),race["l17_scores"][int(i)])
-        if market_aware:
-            q=float(race["market_q"][int(i)])
-            mr=float(race["market_rank"][int(i)])
-            out[j,:len(BASE_FEATURES)]=base
-            out[j,len(BASE_FEATURES):]=(
-                q,
-                math.log(max(q,1e-12)),
-                mr,
-                mr/float(total),
-            )
-        else:
-            out[j,:]=base
+        out[j,:]=base_vector(a,b,c,len(race["horses"]),race["l17_scores"][int(i)])
+    return out
+
+
+def market_extra_matrix(race,indices):
+    idx=np.asarray(indices,dtype=np.int64)
+    out=np.empty((len(idx),len(MARKET_FEATURES)),dtype=np.float32)
+    total=float(len(race["combos"]))
+    for j,i in enumerate(idx):
+        q=float(race["market_q"][int(i)])
+        mr=float(race["market_rank"][int(i)])
+        out[j,:]=(q,math.log(max(q,1e-12)),mr,mr/total)
     return out
 
 
@@ -309,8 +307,8 @@ def build_training_sample(year,l17_rows,backfill_root):
         y=(race["returns"][idx]>0).astype(np.int8)
         if int(y.sum())<=0:
             raise RuntimeError(f"sample lost positive race={race['race_id']}")
-        x_base.append(feature_matrix(race,idx,False))
-        x_market.append(feature_matrix(race,idx,True)[:,len(BASE_FEATURES):])
+        x_base.append(feature_matrix(race,idx))
+        x_market.append(market_extra_matrix(race,idx))
         ys.append(y)
         groups.append(len(idx))
         counters["rows"]+=len(idx)
@@ -417,8 +415,8 @@ def score_year(year,l17_rows,backfill_root,ability_model,market_model):
             continue
         counters["ok_races"]+=1
         all_idx=np.arange(len(race["combos"]),dtype=np.int64)
-        xb=feature_matrix(race,all_idx,False)
-        xm_extra=feature_matrix(race,all_idx,True)[:,len(BASE_FEATURES):]
+        xb=feature_matrix(race,all_idx)
+        xm_extra=market_extra_matrix(race,all_idx)
         ability_score=np.asarray(ability_model.predict(xb),dtype=np.float64)
         market_score=np.asarray(market_model.predict(np.hstack([xb,xm_extra])),dtype=np.float64)
         ability_order=np.argsort(-ability_score,kind="mergesort")
