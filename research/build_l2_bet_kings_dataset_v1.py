@@ -68,6 +68,8 @@ def parse_year_paths(items):
 
 def finite(value):
     try:
+        if isinstance(value,str):
+            value=value.replace(",","").strip()
         x=float(value)
         return x if math.isfinite(x) else None
     except (TypeError,ValueError):
