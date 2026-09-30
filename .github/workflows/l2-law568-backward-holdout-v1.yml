@@ -1,0 +1,171 @@
+name: L2 LAW5 LAW6 LAW8 Backward Holdout V1
+
+on:
+  push:
+    branches:
+      - research/l2-law568-backward-holdout-v1-20260930
+    paths:
+      - .github/triggers/l2-law568-backward-holdout-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-law568-backward-holdout-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l2_law568_backward_holdout_v1.py             research/run_l2_market_gap_law_arena_v1.py             research/materialize_l17_seven_king_fullfield_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          bash -n scripts/rebuild-seven-score-local-v1.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-law568-backward-holdout-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_LAW568_BACKWARD_HOLDOUT_V1"
+          assert c["backward_holdout_year"]==2021
+          assert c["l2_training_years"]==[2020]
+          assert c["no_rule_tuning_after_holdout_open"] is True
+          assert c["locked_years"]==[2026]
+          assert set(c["frozen_laws"])=={"LAW1","LAW2","LAW5","LAW6","LAW8"}
+          wf=Path(".github/workflows/l2-law568-backward-holdout-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          forbidden=("/data/daily/"+"2026-","/data/odds/daily/"+"2026-","--l17-"+"2026")
+          assert not any(x in wf for x in forbidden)
+          print("L2_LAW568_BACKWARD_HOLDOUT_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore 2020-2021 seven scores metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          for y in 2020 2021; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              mkdir -p "$d"
+              set +e
+              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
+              rc=$?
+              if [[ "$rc" -eq 0 ]]; then
+                bash scripts/kaggle-dataset-session-v2.sh fetch "$d" score.jsonl
+                rc=$?
+              fi
+              set -e
+              if [[ "$rc" -eq 43 || "$rc" -eq 44 ]]; then
+                echo "::warning::score source unavailable; local rebuild year=$y alias=$alias rc=$rc"
+                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+                bash scripts/rebuild-seven-score-local-v1.sh "$alias" "$y" "$d"
+              elif [[ "$rc" -ne 0 ]]; then
+                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
+                exit "$rc"
+              fi
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          done
+
+      - name: Materialize L1.7 2020-2021
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l17
+          for y in 2020 2021; do
+            args=()
+            for spec in               core4_no_pedigree=core4               no_auto_full_pedigree_legacy=pedlegacy               jockey_trainer_condition=condition               no_auto_full=full               no_auto_jockey=light               no_auto_full_pedigree_v1=pedv1               jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              args+=(--expert "$name=$p")
+            done
+            out="out/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py               --year "$y" "${args[@]}" --output "$out"
+            test -s "$out"
+            echo "L17_$y=$out" >> "$GITHUB_ENV"
+          done
+
+      - name: Sparse restore 2020-2021 race and odds packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2020-*.jsonl.gz
+          /data/daily/2021-*.jsonl.gz
+          /data/odds/daily/2020-*.jsonl.gz
+          /data/odds/daily/2021-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run frozen 2021 backward holdout
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-law568-backward-holdout-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_law568_backward_holdout_v1.py             --l17-2020 "$L17_2020"             --l17-2021 "$L17_2021"             --backfill-root out/backfill             --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== LAW METRICS ====="
+          cat "$result/law-2021-metrics.csv"
+          echo "===== PORTFOLIOS ====="
+          cat "$result/portfolio-2021-metrics.csv"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle read-only; no dataset/model upload."
+          echo "Compact CSV/JSON results only."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-law568-backward-holdout-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive LAW568 backward holdout run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
