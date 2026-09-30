@@ -1,0 +1,1 @@
+2026-09-30 launch exacta AUTO V0 no human fixed TopK/confidence/odds-band/law\n
