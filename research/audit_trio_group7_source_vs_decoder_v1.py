@@ -35,6 +35,8 @@ def main():
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
 
     detail=[]
+    key_patterns={}
+    rejected_examples=[]
     for race_path in sorted((root/"data/daily").glob("2025-*.jsonl.gz")):
         odds_path=root/"data/odds/daily"/race_path.name
         if not odds_path.exists():
@@ -68,8 +70,13 @@ def main():
 
             valid_keys=0; priced=0; invalid_keys=0; invalid_shapes=0
             for k,raw in (g7.items() if isinstance(g7,dict) else []):
+                ks=str(k)
+                pattern=f"len={len(ks)}|digits={ks.isdigit()}|sample={ks[:2]}"
+                key_patterns[pattern]=key_patterns.get(pattern,0)+1
                 if not valid_trio_key(k):
                     invalid_keys+=1
+                    if len(rejected_examples)<40:
+                        rejected_examples.append({"race_id":rid,"field_size":len(started),"key":ks,"raw":raw})
                     continue
                 valid_keys+=1
                 t=final_tuple(raw)
@@ -131,6 +138,8 @@ def main():
       "total_invalid_shapes":int(d.invalid_shapes.sum()),
       "median_source_coverage_pct":float(d.source_coverage_started_pct.median()),
       "median_decoder_coverage_pct":float(d.decoder_coverage_started_pct.median()),
+      "key_patterns":dict(sorted(key_patterns.items(), key=lambda kv:(-kv[1],kv[0]))[:30]),
+      "rejected_examples":rejected_examples,
       "2026_locked":True
     }
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
