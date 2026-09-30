@@ -55,59 +55,65 @@ def parse_paths(items):
 
 
 def expand_ordered_tickets(frame):
-    rows=[]
+    # Vectorized expansion: each unordered pair becomes A>B and B>A without
+    # Python row iteration. This is materially faster and lower-overhead for
+    # ~1.25M pair rows across 2022-2025.
     safe_cols=[
         c for c in frame.columns
         if c not in OUTCOME_OR_ID
         and not any(tok in c.lower() for tok in FORBIDDEN_FEATURE_TOKENS)
     ]
-    for _,r in frame.iterrows():
-        for orientation in (1,0):
-            if orientation==1:
-                odds=float(r["odds_a_to_b"])
-                reverse_odds=float(r["odds_b_to_a"])
-                market_q=float(r["market_q_a_to_b"])
-                hit=int(r["hit_a_to_b"])
-                ret=float(r["return_a_to_b"])
-                sign=1.0
-                ticket=f'{int(r["a_horse_number"])}>{int(r["b_horse_number"])}'
-            else:
-                odds=float(r["odds_b_to_a"])
-                reverse_odds=float(r["odds_a_to_b"])
-                market_q=float(r["market_q_b_to_a"])
-                hit=int(r["hit_b_to_a"])
-                ret=float(r["return_b_to_a"])
-                sign=-1.0
-                ticket=f'{int(r["b_horse_number"])}>{int(r["a_horse_number"])}'
+    keep=["year","race_id","race_date","a_horse_number","b_horse_number",
+          "odds_a_to_b","odds_b_to_a","market_q_a_to_b","market_q_b_to_a",
+          "hit_a_to_b","hit_b_to_a","return_a_to_b","return_b_to_a",
+          "pair_market_q",*safe_cols]
+    keep=list(dict.fromkeys(keep))
+    base=frame[keep].copy()
 
-            row={
-                "year":int(r["year"]),
-                "race_id":str(r["race_id"]),
-                "race_date":str(r["race_date"]),
-                "ticket":ticket,
-                "hit":hit,
-                "return_yen":ret,
-                "realized_profit_yen":ret-STAKE,
-                "odds":odds,
-                "log_odds":math.log(max(odds,1e-12)),
-                "market_implied_probability":1.0/max(odds,1e-12),
-                "market_q_orientation":market_q,
-                "market_log_q_orientation":math.log(max(market_q,1e-12)),
-                "market_share_within_pair":market_q/max(float(r["pair_market_q"]),1e-12),
-                "log_odds_ratio_to_reverse":math.log(max(odds,1e-12))-math.log(max(reverse_odds,1e-12)),
-            }
-            for c in safe_cols:
-                v=r[c]
-                if c.startswith("dir_"):
-                    row[c]=sign*float(v)
-                else:
-                    row[c]=v
-            rows.append(row)
+    def make_side(is_ab):
+        z=base.copy()
+        if is_ab:
+            z["ticket"]=z["a_horse_number"].astype(int).astype(str)+">"+z["b_horse_number"].astype(int).astype(str)
+            z["hit"]=z["hit_a_to_b"].astype("int8")
+            z["return_yen"]=pd.to_numeric(z["return_a_to_b"],errors="coerce").fillna(0.0)
+            z["odds"]=pd.to_numeric(z["odds_a_to_b"],errors="coerce")
+            z["reverse_odds"]=pd.to_numeric(z["odds_b_to_a"],errors="coerce")
+            z["market_q_orientation"]=pd.to_numeric(z["market_q_a_to_b"],errors="coerce")
+            sign=1.0
+        else:
+            z["ticket"]=z["b_horse_number"].astype(int).astype(str)+">"+z["a_horse_number"].astype(int).astype(str)
+            z["hit"]=z["hit_b_to_a"].astype("int8")
+            z["return_yen"]=pd.to_numeric(z["return_b_to_a"],errors="coerce").fillna(0.0)
+            z["odds"]=pd.to_numeric(z["odds_b_to_a"],errors="coerce")
+            z["reverse_odds"]=pd.to_numeric(z["odds_a_to_b"],errors="coerce")
+            z["market_q_orientation"]=pd.to_numeric(z["market_q_b_to_a"],errors="coerce")
+            sign=-1.0
 
-    out=pd.DataFrame(rows)
+        for col in safe_cols:
+            if col.startswith("dir_"):
+                z[col]=pd.to_numeric(z[col],errors="coerce").fillna(0.0)*sign
+
+        odds=z["odds"].clip(lower=1e-12)
+        rev=z["reverse_odds"].clip(lower=1e-12)
+        mq=z["market_q_orientation"].clip(lower=1e-12)
+        pair_q=pd.to_numeric(z["pair_market_q"],errors="coerce").fillna(0.0).clip(lower=1e-12)
+        z["realized_profit_yen"]=z["return_yen"]-STAKE
+        z["log_odds"]=np.log(odds)
+        z["market_implied_probability"]=1.0/odds
+        z["market_log_q_orientation"]=np.log(mq)
+        z["market_share_within_pair"]=mq/pair_q
+        z["log_odds_ratio_to_reverse"]=np.log(odds)-np.log(rev)
+
+        cols=["year","race_id","race_date","ticket","hit","return_yen",
+              "realized_profit_yen","odds","log_odds","market_implied_probability",
+              "market_q_orientation","market_log_q_orientation",
+              "market_share_within_pair","log_odds_ratio_to_reverse",*safe_cols]
+        return z[list(dict.fromkeys(cols))]
+
+    out=pd.concat([make_side(True),make_side(False)],ignore_index=True,copy=False)
     out["market_rank_orientation"]=out.groupby(
         ["year","race_id"]
-    )["market_q_orientation"].rank(method="min",ascending=False).astype(int)
+    )["market_q_orientation"].rank(method="min",ascending=False).astype("int16")
     return out
 
 
@@ -135,7 +141,7 @@ def make_model(power,seed):
         reg_lambda=6.0,
         reg_alpha=1.0,
         random_state=seed,
-        n_jobs=2,
+        n_jobs=-1,
         deterministic=True,
         force_col_wise=True,
         verbosity=-1,
@@ -250,12 +256,24 @@ def main():
     if set(lp)!=set(YEARS) or 2026 in lp:
         raise SystemExit("L1.7 years must be exactly 2022-2025; 2026 sealed")
 
-    pair_frames={
-        y:build_pair_year_frame(y,load_l17(lp[y],y),a.backfill_root)
-        for y in YEARS
-    }
-    frames={y:expand_ordered_tickets(pair_frames[y]) for y in YEARS}
+    frames={}
+    for y in YEARS:
+        t_build=time.perf_counter()
+        pair_frame=build_pair_year_frame(y,load_l17(lp[y],y),a.backfill_root)
+        t_expand=time.perf_counter()
+        frames[y]=expand_ordered_tickets(pair_frame)
+        print("EXACTA_ORDERED_YEAR_READY "+json.dumps({
+            "year":y,
+            "ordered_tickets":len(frames[y]),
+            "pair_build_seconds":round(t_expand-t_build,3),
+            "ordered_expand_seconds":round(time.perf_counter()-t_expand,3),
+        },separators=(",",":")),flush=True)
+        del pair_frame
     cols=feature_columns(frames[2022])
+    print("EXACTA_DIRECT_PROFIT_FEATURES "+json.dumps({
+        "feature_count":len(cols),
+        "years":list(YEARS),
+    },separators=(",",":")),flush=True)
 
     fold_rows=[]
     metric_rows=[]
