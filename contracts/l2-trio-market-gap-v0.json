@@ -3,8 +3,19 @@
   "version": 1,
   "purpose": "Research TRIO as an independent L2 market. Generate every priced 3-horse combination, compare market ranking, pure L1.7 trio ranking, and a market-aware LambdaRank model. V0 must not search or promote LAW rules.",
   "bet_type": "TRIO",
-  "input_years": [2021, 2022, 2023, 2024, 2025],
-  "test_years": [2022, 2023, 2024, 2025],
+  "input_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "test_years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
   "candidate_generation": {
     "all_runners": true,
     "all_three_horse_combinations": true,
@@ -14,16 +25,29 @@
   "target": "Actual payable TRIO combination from race payout data; dead-heat payable combinations remain valid positives.",
   "market": {
     "probability": "(1 / trio_odds) / sum_race(1 / trio_odds)",
-    "features": ["market_q_norm", "market_log_q", "market_rank"],
+    "features": [
+      "market_q_norm",
+      "market_log_q",
+      "market_rank"
+    ],
     "raw_ev_multiplication": false
   },
   "rankings": [
     "MARKET",
     "L17_TRIO_PRODUCT",
+    "L17_TRIO_SUM",
     "MARKET_AWARE_MODEL"
   ],
   "value_diagnostic": "rank_upgrade = market_rank - model_rank",
-  "required_top_k": [1, 3, 5, 10, 20, 50, 100],
+  "required_top_k": [
+    1,
+    3,
+    5,
+    10,
+    20,
+    50,
+    100
+  ],
   "research_boundaries": {
     "law_search": false,
     "ticket_selection_policy": false,
@@ -46,5 +70,7 @@
     "github_artifact": false,
     "github_cache": false,
     "persistent_external_storage_write": false
-  }
+  },
+  "incomplete_market_policy": "Skip the entire race if any TRIO combination lacks a final price, so within-race market normalization is never computed on a partial market.",
+  "memory_policy": "Materialize one year at a time to runner-local compressed pickle; do not retain all five full TRIO frames in memory."
 }
