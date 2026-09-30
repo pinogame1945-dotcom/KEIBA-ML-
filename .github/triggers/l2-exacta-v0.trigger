@@ -1,1 +1,1 @@
-2026-09-30 start EXACTA V0 ordered-pair and direction audit\n
+2026-09-30 rerun EXACTA V0 after comma-odds decoder fix and all-bet audit\n
