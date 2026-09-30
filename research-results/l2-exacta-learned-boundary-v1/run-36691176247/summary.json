@@ -1,0 +1,57 @@
+{
+  "contract": "L2_EXACTA_LEARNED_BOUNDARY_V1",
+  "purpose": "learn where the prior AUTO model overestimates exacta value using out-of-time meta learning",
+  "manual_topk": false,
+  "manual_confidence_floor": false,
+  "manual_odds_band": false,
+  "manual_ticket_cap": false,
+  "manual_skip_rate": false,
+  "legacy_law_seeded": false,
+  "meta_model": "LightGBM classifier over out-of-time base predictions, odds/market state, pair context, and direction context",
+  "meta_probability_normalization": "within-race sum-to-one",
+  "selection_rule": "learned_probability * final_odds > 1.0",
+  "selection_rule_reason": "mathematical break-even only; all practical boundaries are learned by the meta model",
+  "walk_forward": {
+    "test_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "training": "prior years only"
+  },
+  "overall_2023_2025": {
+    "label": "LEARNED_BOUNDARY_ALL",
+    "source_races": 10365,
+    "executed_races": 10247,
+    "execution_coverage_pct": 98.86155330438977,
+    "tickets": 171343,
+    "tickets_per_source_race": 16.530921369995177,
+    "tickets_per_executed_race": 16.721284278325363,
+    "hit_races": 865,
+    "race_hit_rate_pct_all": 8.345393150024119,
+    "stake_yen": 17134300.0,
+    "return_yen": 8050770.0,
+    "profit_yen": -9083530.0,
+    "roi_pct": 46.98627898425964,
+    "mean_edge": 0.3760357383044051,
+    "median_edge": 0.1740148075326695,
+    "median_odds": 673.5
+  },
+  "frozen_auto_v0_market_aware": {
+    "variant": "AUTO_MARKET_AWARE_EV",
+    "years": "2023|2024|2025",
+    "source_races": 10365,
+    "bet_races": 10224,
+    "bet_race_pct": 98.6396526772793,
+    "selected_tickets": 169643,
+    "tickets_per_source_race": 16.36690786300048,
+    "hit_races": 888,
+    "hit_race_pct_all": 8.567293777134587,
+    "stake_yen_equal100": 16964300.0,
+    "return_yen": 11300730.0,
+    "profit_yen_equal100": -5663570.0,
+    "roi_pct_equal100": 66.61477337703295
+  },
+  "2026_locked": true,
+  "script_total_seconds": 855.761675558
+}

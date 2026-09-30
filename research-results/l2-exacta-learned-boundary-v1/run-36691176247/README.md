@@ -1,0 +1,3 @@
+# L2 EXACTA Learned Boundary V1
+
+This lane does not impose Top-K, a confidence floor, an odds band, a ticket cap, or a target skip rate. A second-stage LightGBM model is trained only on out-of-time predictions from prior data so it can learn where the base pair/direction model systematically over- or under-estimates exacta hit probability. Its split thresholds are the learned boundaries. Final ticket selection uses only the mathematical break-even condition learned_probability * final_odds > 1.0. Probabilities are normalized within race. Flat 100-yen staking is evaluation only; L3 stake sizing remains separate. 2026 is sealed.
