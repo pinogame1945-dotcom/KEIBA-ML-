@@ -1,0 +1,41 @@
+{
+  "contract": "L2_EXACTA_MLPAIR_STABLE_LAW_V2",
+  "bet_type": "EXACTA",
+  "purpose": "Test reproducible betting laws on the true decomposed ML unordered-pair rank.",
+  "years": [2022, 2023, 2024, 2025],
+  "locked_years": [2026],
+  "ml_pair_walk_forward": {
+    "2023": [2022],
+    "2024": [2022, 2023],
+    "2025": [2022, 2023, 2024]
+  },
+  "law_test_years": [2024, 2025],
+  "why_2023_not_law_test": "No leakage-safe pre-2022 ML-pair population exists in the four-year dataset.",
+  "prior_validation": {
+    "2024": ["2023_H1", "2023_H2"],
+    "2025": ["2023", "2024"],
+    "required_roi_each_period": ">100",
+    "minimum_tickets_each_period": 50,
+    "minimum_races_each_period": 30,
+    "robust_flag": "ROI remains >100 after removing largest winning payout in each prior period"
+  },
+  "search": {
+    "pair_model_rank_k": "1 through 15",
+    "numeric_thresholds": ["q20", "q40", "q60", "q80"],
+    "threshold_source": "prior OOT periods only",
+    "single_condition": true,
+    "two_condition_beam_search": true,
+    "beam_single": 40,
+    "shortlist_per_fold": 100
+  },
+  "test_year_use": "evaluation only; never used to select law",
+  "direction_model_added": false,
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
