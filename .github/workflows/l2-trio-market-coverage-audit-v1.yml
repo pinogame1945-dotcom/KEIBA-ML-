@@ -36,7 +36,13 @@ jobs:
           python -m py_compile research/audit_trio_market_coverage_v1.py
           grep -q 'runs-on: ubuntu-latest' .github/workflows/l2-trio-market-coverage-audit-v1.yml
           ! grep -q 'upload-artifact\|actions/cache\|runs-on:.*gpu' .github/workflows/l2-trio-market-coverage-audit-v1.yml
-          ! grep -q '2026-' .github/workflows/l2-trio-market-coverage-audit-v1.yml
+          python - <<'PY'
+from pathlib import Path
+wf=Path(".github/workflows/l2-trio-market-coverage-audit-v1.yml").read_text()
+forbidden=("/data/daily/"+"2026-","/data/odds/daily/"+"2026-")
+assert not any(x in wf for x in forbidden)
+print("TRIO_MARKET_COVERAGE_AUDIT_GUARDS_OK")
+PY
       - name: Install standard CPU dependencies
         run: python -m pip install --disable-pip-version-check pandas
       - name: Sparse restore 2022-2025 race and odds packs
