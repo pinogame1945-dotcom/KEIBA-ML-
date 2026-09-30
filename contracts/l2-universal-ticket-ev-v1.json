@@ -1,0 +1,83 @@
+{
+  "contract": "L2_UNIVERSAL_TICKET_EV_V1",
+  "version": 1,
+  "purpose": "Score every market-priced ticket across all five JRA bet types from one leak-safe L1.7 probability world, then convert probability to EV using price.",
+  "bet_types": ["WIN", "QUINELLA", "EXACTA", "TRIO", "TRIFECTA"],
+  "candidate_universe": {
+    "scope": "ALL_MARKET_PRICED_TICKETS_FOR_ALL_L17_FULLFIELD_RUNNERS",
+    "top6_restriction": false,
+    "template_restriction": false,
+    "candidate_horse_prefilter": false,
+    "large_ticket_matrices_persisted": false
+  },
+  "probability_model": {
+    "family": "TEMPERATURE_CALIBRATED_PLACKETT_LUCE",
+    "horse_strength_source": "L17_SEVEN_KING_FULLFIELD_OUTPUT_V1.mean_probability",
+    "odds_as_probability_feature": false,
+    "popularity_as_probability_feature": false,
+    "payout_as_probability_feature": false,
+    "current_race_finish_as_probability_feature": false,
+    "calibration_target": "official top-3 order",
+    "calibration_policy": "STRICTLY_PRIOR_YEARS_ONLY",
+    "dead_heat_or_missing_top3_policy": "EXCLUDE_FROM_TEMPERATURE_CALIBRATION_ONLY",
+    "test_years": [2022, 2023, 2024, 2025],
+    "locked_years": [2026]
+  },
+  "ticket_probability": {
+    "WIN": "P(first)",
+    "EXACTA": "P(first,second)",
+    "QUINELLA": "P(a,b)+P(b,a)",
+    "TRIFECTA": "P(first,second,third)",
+    "TRIO": "sum of six ordered top-3 permutations"
+  },
+  "market_stage": {
+    "research_price": "HISTORICAL_FINAL_ODDS_PROXY",
+    "production_requirement": "USE_ACTUAL_PRE_RACE_EXECUTION_TIME_ODDS_WHEN_AVAILABLE",
+    "final_odds_caveat_required": true
+  },
+  "selection": {
+    "rule": "ticket_probability * odds > 1.0",
+    "manual_edge_threshold": false,
+    "manual_top_k": false,
+    "manual_ticket_cap": false,
+    "manual_odds_band": false,
+    "manual_race_skip_rule": false,
+    "roi_tuned_rule_grid": false
+  },
+  "stake": {
+    "l2_research": "FLAT_100_YEN_PER_SELECTED_TICKET",
+    "l3_optimization_separate": true
+  },
+  "outputs": {
+    "summary": "summary.json",
+    "calibration_folds": "calibration-folds.csv",
+    "economics_yearly": "economics-yearly.csv",
+    "economics_combined": "economics-combined.csv",
+    "top_positive_ev_ticket_samples": "top-positive-ev-tickets.csv",
+    "race_ticket_summaries": "race-ticket-summary-YYYY.csv.gz"
+  },
+  "kaggle_policy": {
+    "metadata_first": true,
+    "guess_remote_names": false,
+    "same_runner_reuse": true,
+    "redownload_if_local_exists": false,
+    "retry_only": ["429", "502", "503", "504", "transient_network"],
+    "404_after_metadata_resolution": "FAIL_FAST_AS_METADATA_DRIFT"
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false,
+    "kaggle_existing_datasets_read_only": true
+  },
+  "invariants": {
+    "rerank_l1_using_results": false,
+    "2026_used": false,
+    "holdout_future_data_used_for_calibration": false,
+    "odds_used_to_fit_probability": false,
+    "outcomes_used_to_choose_manual_betting_rules": false
+  }
+}
