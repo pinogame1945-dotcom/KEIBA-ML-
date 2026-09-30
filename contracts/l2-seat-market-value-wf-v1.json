@@ -1,0 +1,48 @@
+{
+  "contract": "L2_SEAT_MARKET_VALUE_WF_V1",
+  "purpose": "Select trifecta finishing seat by prior-year formation hit probability relative to current final trifecta market pricing.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "scope": {
+    "focal_ranks": [1, 2, 3],
+    "pools": [3, 6],
+    "seats": [1, 2, 3],
+    "bet_type": "TRIFECTA",
+    "stake_per_ticket_yen": 100
+  },
+  "variants": ["RANK_ONLY", "DIRECTION", "BUCKET"],
+  "policies": {
+    "PROB_ONLY": "Select seat with highest prior-year formation hit probability.",
+    "VALUE_RATIO": "Select seat maximizing prior formation hit probability divided by current summed implied probability mass.",
+    "MARKET_CHEAPEST": "Select seat with lowest current summed implied probability mass."
+  },
+  "market_mass_formula": "sum(1/final_trifecta_odds) over the seat formation tickets",
+  "invariants": {
+    "rerank_l1": false,
+    "train_on_test_year": false,
+    "test_outcome_as_selection_feature": false,
+    "payout_as_selection_feature": false,
+    "payout_evaluation_only": true,
+    "current_final_trifecta_odds_as_selection_feature": true,
+    "current_final_popularity_as_group_feature": true,
+    "learn_skip_threshold": false,
+    "gate_used": false,
+    "outsider_used": false,
+    "production_promotion": false
+  },
+  "data": {
+    "seven_king_scores": "existing Kaggle datasets, metadata-first read-only",
+    "race_pack": "fixed KEIBA-BACKFILL SHA",
+    "odds": "fixed KEIBA-BACKFILL SHA data/odds/daily; comma-safe parsing"
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
