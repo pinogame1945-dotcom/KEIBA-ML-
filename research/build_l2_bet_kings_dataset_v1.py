@@ -68,6 +68,13 @@ def parse_year_paths(items):
 
 def finite(value):
     try:
+        # Odds and payout sources may use thousands separators, e.g. "2,173.2".
+        # Normalize numeric display formatting before conversion. Do this once in
+        # the shared numeric decoder so every bet type sees the same price universe.
+        if isinstance(value,str):
+            value=value.strip().replace(",","")
+            if not value:
+                return None
         x=float(value)
         return x if math.isfinite(x) else None
     except (TypeError,ValueError):
@@ -75,7 +82,8 @@ def finite(value):
 
 
 def mean(values):
-    vals=[float(x) for x in values if x is not None and math.isfinite(float(x))]
+    vals=[finite(x) for x in values]
+    vals=[x for x in vals if x is not None]
     return sum(vals)/len(vals) if vals else 0.0
 
 
