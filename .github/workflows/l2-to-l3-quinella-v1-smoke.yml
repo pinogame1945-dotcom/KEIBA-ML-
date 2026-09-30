@@ -1,0 +1,54 @@
+name: L2 to L3 Quinella Contract Smoke V1
+
+on:
+  push:
+    branches:
+      - feature/l2-to-l3-quinella-v1-20260930
+    paths:
+      - .github/triggers/l2-to-l3-quinella-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Contract guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/emit_l2_to_l3_quinella_v1.py research/test_l2_to_l3_quinella_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("contracts/l2-to-l3-quinella-v1.json",encoding="utf-8"))
+          cat=json.load(open("contracts/l2-quinella-law-catalog-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_TO_L3_QUINELLA_V1"
+          assert c["invariants"]["l2_must_not_set_stake"] is True
+          assert "stake_yen" in c["forbidden_fields"]
+          assert cat["contract"]=="L2_QUINELLA_LAW_CATALOG_V1"
+          enabled={x["law_id"] for x in cat["laws"] if x["enabled_for_handoff"]}
+          assert enabled=={"LAW1","LAW2"},enabled
+          pending={x["law_id"] for x in cat["laws"] if x["status"]=="REVALIDATION_PENDING"}
+          assert pending=={"LAW5","LAW6","LAW8"},pending
+          print("CONTRACT_GUARDS_OK")
+          PY
+
+      - name: Smoke test
+        run: python research/test_l2_to_l3_quinella_v1.py
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU, Artifact, Cache, external storage, or paid compute."
