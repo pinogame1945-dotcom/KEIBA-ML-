@@ -1,0 +1,95 @@
+name: Audit TRIFECTA Full-Field Coverage V1
+
+on:
+  push:
+    branches:
+      - research/audit-trifecta-fullfield-coverage-v1-20260930
+    paths:
+      - .github/triggers/audit-trifecta-fullfield-coverage-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: audit-trifecta-fullfield-coverage-v1
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_trifecta_fullfield_coverage_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/audit-trifecta-fullfield-coverage-v1.yml").read_text()
+          assert "runs-on: ubuntu-latest" in wf
+          assert "upload-artifact" not in wf
+          assert "actions/cache" not in wf
+          print("AUDIT_GUARDS_OK")
+          PY
+
+      - name: Sparse restore fixed BACKFILL
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Audit raw-vs-started trifecta completeness
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/audit-trifecta-fullfield-coverage-v1/run-$GITHUB_RUN_ID"
+          python research/audit_trifecta_fullfield_coverage_v1.py             --backfill-root out/backfill             --out-dir "$result"
+          cat "$result/summary.json"
+          cat "$result/yearly-summary.csv"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / cache / artifact / Kaggle write."
+          echo "Audit reads fixed BACKFILL data only."
+
+      - name: Commit compact audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/audit-trifecta-fullfield-coverage-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result/summary.json" "$result/yearly-summary.csv" "$result/noncomplete-samples.csv"
+          git commit -m "audit: archive trifecta full-field coverage run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
