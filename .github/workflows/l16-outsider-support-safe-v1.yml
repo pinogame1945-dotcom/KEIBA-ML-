@@ -183,6 +183,26 @@ jobs:
             fi
           }
 
+          wait_batch() {
+            local failed=0 pid
+            for pid in "$@"; do
+              if ! wait "$pid"; then failed=1; fi
+            done
+            if [[ "$failed" -ne 0 ]]; then
+              echo "::error::parallel outsider batch failed" >&2
+              return 1
+            fi
+          }
+
+          candidates=(
+            outsider_daytrend outsider_raceshape outsider_gatecourse outsider_jockey outsider_field outsider_chimera
+            outsider_rotation outsider_classmove outsider_weightchange outsider_bodychange
+            outsider_disttransition outsider_coursetransition outsider_opponentgap
+          )
+
+          # One runner/session keeps snapshots and Seven-King routers local.
+          # Only CPU-heavy outsider training/scoring is parallelized.
+          # Four workers keeps memory comfortably below the standard runner limit.
           for year in 2021 2022 2023 2024 2025; do
             t1=$((year-2))
             t2=$((year-1))
@@ -190,11 +210,28 @@ jobs:
             p2="$(snap "$t2")"
             pv="$(snap "$year")"
             yroot="$SUPPORT_ROOT/y$year"
+            mkdir -p "$yroot/audit" "$yroot/outsider-top3"
 
-            python research/run_l1_outsider_tie_audit_year_v1.py               --year "$year"               --inputs "$p1,$p2,$pv"               --validation-snapshot "$pv"               --router-seven "$yroot/router.jsonl.gz"               --out-dir "$yroot/audit"               --work-root "out/l16-support-work"               --top3-dir "$yroot/outsider-top3"               --ml-source-sha "$GITHUB_SHA"
+            pids=()
+            for cand in "${candidates[@]}"; do
+              echo "PARALLEL_OUTSIDER_START year=$year candidate=$cand"
+              python research/run_l1_outsider_tie_audit_year_v1.py                 --year "$year"                 --inputs "$p1,$p2,$pv"                 --validation-snapshot "$pv"                 --router-seven "$yroot/router.jsonl.gz"                 --out-dir "$yroot/audit/$cand"                 --work-root "out/l16-support-work/$cand"                 --top3-dir "$yroot/outsider-top3"                 --candidate "$cand"                 --ml-source-sha "$GITHUB_SHA" &
+              pids+=("$!")
+              if [[ "${#pids[@]}" -ge 4 ]]; then
+                wait_batch "${pids[@]}"
+                pids=()
+              fi
+            done
+            if [[ "${#pids[@]}" -gt 0 ]]; then
+              wait_batch "${pids[@]}"
+            fi
 
             test "$(find "$yroot/outsider-top3" -maxdepth 1 -name '*.csv' | wc -l)" -eq 13
-            rm -rf "out/l16-support-work/$year"
+            for cand in "${candidates[@]}"; do
+              test -s "$yroot/audit/$cand/$cand.json"
+            done
+            rm -rf "out/l16-support-work"
+            echo "PARALLEL_OUTSIDER_YEAR_OK year=$year workers=4"
           done
 
       - name: Analyze support count and weighted support
