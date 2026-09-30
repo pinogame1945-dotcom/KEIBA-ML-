@@ -1,0 +1,212 @@
+name: L1.6 Outsider High Score Low King Outcome V1
+
+on:
+  push:
+    branches:
+      - research/l16-outsider-support-safe-v1-20260930
+    paths:
+      - .github/triggers/l16-outsider-high-score-low-king-outcome-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l16-outsider-high-score-low-king-outcome-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    name: year-${{ matrix.year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        year: [2021, 2022, 2023, 2024, 2025]
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GENERATION_ID: eb13d4096519167b
+      YEAR: ${{ matrix.year }}
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install and validate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m py_compile             research/rerank_l1_score_safe_v1.py             research/materialize_l16_full_rank_consensus_v1.py             research/resolve_kaggle_file_v1.py             research/analyze_l16_outsider_high_score_low_king_outcome_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+
+      - name: Restore validation snapshot only
+        shell: bash
+        run: |
+          set -euo pipefail
+          delay=$(( (YEAR - 2021) * 15 ))
+          if [[ "$delay" -gt 0 ]]; then sleep "$delay"; fi
+          root="out/highscore/snapshots/$GENERATION_ID"
+          mkdir -p "$root"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION_ID" "$root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION_ID" "$root" "$YEAR"
+          if [[ -s "$root/snapshot-$YEAR.jsonl.gz" ]]; then
+            echo "SNAPSHOT=$root/snapshot-$YEAR.jsonl.gz" >> "$GITHUB_ENV"
+          elif [[ -s "$root/snapshot-$YEAR.jsonl" ]]; then
+            echo "SNAPSHOT=$root/snapshot-$YEAR.jsonl" >> "$GITHUB_ENV"
+          else
+            echo "::error::snapshot missing year=$YEAR"; exit 1
+          fi
+
+      - name: Rebuild safe Seven-King full rank
+        shell: bash
+        run: |
+          set -euo pipefail
+          kaggle_transient() {
+            local label="$1"; shift
+            local attempt rc delay tmp
+            for attempt in 1 2 3 4 5 6; do
+              tmp="$(mktemp)"
+              set +e
+              "$@" >"$tmp.out" 2>"$tmp.err"
+              rc=$?
+              set -e
+              cat "$tmp.out"; cat "$tmp.err" >&2
+              if [[ "$rc" -eq 0 ]]; then rm -f "$tmp" "$tmp.out" "$tmp.err"; return 0; fi
+              if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle 404 non-retryable label=$label" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"; return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"; return "$rc"
+              fi
+              rm -f "$tmp" "$tmp.out" "$tmp.err"
+              case "$attempt" in 1) delay=15;;2)delay=30;;3)delay=60;;4)delay=90;;*)delay=120;;esac
+              sleep "$delay"
+            done
+          }
+
+          root="out/highscore/y$YEAR"
+          mkdir -p "$root/scores"
+          args=()
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y$YEAR-v1"
+            d="$root/scores/$alias"
+            mkdir -p "$d"
+            meta="$d/files.json"
+            kaggle_transient "seven-files:$alias:$YEAR" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
+            remote="$(python research/resolve_kaggle_file_v1.py --files-json "$meta" --wanted score.jsonl.gz --wanted score.jsonl)"
+            kaggle_transient "seven-download:$alias:$YEAR" kaggle datasets download "$ref" -f "$remote" -p "$d" --unzip --quiet --force
+            p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+            safe="$d/safe-score.jsonl.gz"
+            python research/rerank_l1_score_safe_v1.py --input "$p" --output "$safe"
+            args+=(--expert "$alias=$safe")
+          done
+
+          python research/materialize_l16_full_rank_consensus_v1.py             "${args[@]}"             --output "$root/consensus.jsonl.gz"
+          echo "CONSENSUS=$root/consensus.jsonl.gz" >> "$GITHUB_ENV"
+
+      - name: Analyze actual outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          ballots="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$YEAR/ballots.csv.gz"
+          result="research-results/l16-outsider-high-score-low-king-outcome-v1/run-$GITHUB_RUN_ID/y$YEAR.json"
+          mkdir -p "$(dirname "$result")"
+          python research/analyze_l16_outsider_high_score_low_king_outcome_v1.py             --ballots "$ballots"             --consensus "$CONSENSUS"             --snapshot "$SNAPSHOT"             --year "$YEAR"             --output "$result"
+          echo "YEAR_RESULT=$result" >> "$GITHUB_ENV"
+
+      - name: Commit year result
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$YEAR_RESULT"
+          git commit -m "research: high-score low-king outcome year $YEAR run $GITHUB_RUN_ID"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep $((attempt * 3))
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No Outsider retraining."
+          echo "Only one validation snapshot per lane plus persisted Seven scores."
+          echo "Kaggle metadata-first; 404 non-retryable."
+          echo "2026 sealed."
+
+  aggregate:
+    name: aggregate
+    needs: year
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Aggregate five years
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l16-outsider-high-score-low-king-outcome-v1/run-$GITHUB_RUN_ID"
+          ROOT="$root" python - <<'PY'
+          import json,os
+          from collections import defaultdict
+          from pathlib import Path
+          root=Path(os.environ["ROOT"])
+          years=[2021,2022,2023,2024,2025]
+          rows={y:json.loads((root/f"y{y}.json").read_text()) for y in years}
+          def blank(): return {"n":0,"wins":0,"top3":0,"top6":0,"finish_sum":0,"finish_n":0,"missing_finish":0}
+          def merge(ds):
+              z=blank()
+              for d in ds:
+                  for k in z:z[k]+=d[k]
+              n=z["finish_n"]
+              return {**z,
+                "win_rate":z["wins"]/n if n else None,
+                "top3_rate":z["top3"]/n if n else None,
+                "top6_rate":z["top6"]/n if n else None,
+                "avg_finish":z["finish_sum"]/n if n else None}
+          sbs=("1-5","6-10","11-15","16-20","21-25","26+")
+          kbs=("1","2","3","4-6","7-10","11+")
+          cross={sb:{kb:merge([rows[y]["cross"][sb][kb] for y in years]) for kb in kbs} for sb in sbs}
+          focus_keys=list(rows[2021]["focus"])
+          focus={k:merge([rows[y]["focus"][k] for y in years]) for k in focus_keys}
+          exact_keys=sorted({int(k) for y in years for k in rows[y]["exact_score_king7plus"]})
+          exact={str(s):merge([rows[y]["exact_score_king7plus"].get(str(s),blank()) for y in years]) for s in exact_keys}
+          out={"contract":"L16_OUTSIDER_HIGH_SCORE_LOW_KING_OUTCOME_ALL_YEARS_V1",
+               "years":years,"cross":cross,"focus":focus,"exact_score_king7plus":exact,
+               "by_year":{str(y):rows[y] for y in years},"2026_sealed":True,"odds_used":False}
+          (root/"summary.json").write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n")
+          print(json.dumps({"focus":focus,"cross":{"16-20":cross["16-20"],"21-25":cross["21-25"],"26+":cross["26+"]}},ensure_ascii=False,separators=(",",":")))
+          PY
+
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$root/summary.json"
+          git commit -m "research: aggregate high-score low-king outcome run $GITHUB_RUN_ID"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted CPU only; compact git output only."
