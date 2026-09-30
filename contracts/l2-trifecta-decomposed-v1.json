@@ -1,0 +1,35 @@
+{
+  "contract":"L2_TRIFECTA_DECOMPOSED_V1",
+  "purpose":"Separate podium-set selection from finishing-order assignment without hand-authored seat rules.",
+  "years":[2022,2023,2024,2025],
+  "development_years":[2023,2024],
+  "holdout_year":2025,
+  "locked_years":[2026],
+  "architecture":{
+    "stage1":"unordered podium-set binary model",
+    "stage2":"conditional order binary model over 6 permutations",
+    "final_score":"normalized P(set) * normalized P(order | set)",
+    "market_model_features":false,
+    "market_usage":"stage1 hard-negative sampling only",
+    "manual_rules":false
+  },
+  "policy":{
+    "topn_grid":[1,2,3,5,10,20,30,60,120],
+    "selection":"2023-2024 choose one global Top-N, freeze for 2025"
+  },
+  "invariants":{
+    "payout_as_feature":false,
+    "holdout_used_for_policy_selection":false,
+    "2026_used":false,
+    "production_promotion":false
+  },
+  "cost":{
+    "standard_github_cpu_only":true,
+    "gpu":false,
+    "paid_runner":false,
+    "github_artifact":false,
+    "github_cache":false,
+    "persistent_kaggle_upload":false,
+    "kaggle_existing_datasets_read_only":true
+  }
+}
