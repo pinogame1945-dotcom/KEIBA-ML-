@@ -1,3 +1,1 @@
-launch market-relative QUINELLA ranker v2 2026-09-30 JST
-retry metadata after exact-download 404 2026-09-30 JST
-back off transient Kaggle exact-download 404 2026-09-30 JST
+relaunch V2 after replacing score 404 retries with local deterministic rebuild 2026-09-30 JST
