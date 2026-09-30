@@ -285,16 +285,16 @@ def main():
 
                     hno = horse_number_map(pack)
                     order = [str(x) for x in rec["consensus_order"]]
-                    top6_ids = order[:6]
-                    if any(h not in hno for h in top6_ids):
-                        missing = [h for h in top6_ids if h not in hno]
+                    trusted_ids = order[:min(6, len(order))]
+                    if any(h not in hno for h in trusted_ids):
+                        missing = [h for h in trusted_ids if h not in hno]
                         raise ValueError(f"horse-number mapping missing race={rid} horses={missing}")
-                    top6 = [hno[h] for h in top6_ids]
-                    if len(set(top6)) != 6:
-                        raise ValueError(f"duplicate horse number in top6 race={rid} top6={top6}")
+                    trusted_numbers = [hno[h] for h in trusted_ids]
+                    if len(set(trusted_numbers)) != len(trusted_numbers):
+                        raise ValueError(f"duplicate horse number in trusted pool race={rid} nums={trusted_numbers}")
 
                     payouts, present = payout_map(pack)
-                    for s in strategies(top6):
+                    for s in strategies(trusted_numbers):
                         bet = s["bet_type"]
                         if bet not in present:
                             continue
