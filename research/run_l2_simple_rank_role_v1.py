@@ -63,7 +63,9 @@ def load_l17(paths):
                     raise ValueError(f"bad/duplicate race_id={rid}")
                 order = [str(x) for x in (r.get("consensus_order") or [])]
                 horses = r.get("horses") or []
-                if len(order) != len(horses) or len(order) < 6:
+                # Top6 strategies already skip naturally when the field has <6 runners.
+                # The audit only requires ranks 1-3, so valid 3-5 horse fields must pass.
+                if len(order) != len(horses) or len(order) < 3:
                     raise ValueError(f"bad L1.7 field race={rid} order={len(order)} horses={len(horses)}")
                 if len(set(order)) != len(order):
                     raise ValueError(f"duplicate horse in L1.7 race={rid}")
