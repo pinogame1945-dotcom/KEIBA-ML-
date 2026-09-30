@@ -262,8 +262,26 @@ def main():
     pd.DataFrame(cv_rows).to_csv(out/"complexity-loyo.csv",index=False)
     configs.to_csv(out/"complexity-selection.csv",index=False)
     leaf_stats.to_csv(out/"final-tree-leaves.csv",index=False)
-    dev_selected.to_csv(out/"selected-discovery-tickets.csv.gz",index=False,compression="gzip")
-    confirm_selected.to_csv(out/"selected-confirmation-2025-tickets.csv.gz",index=False,compression="gzip")
+    sample_cols=[
+        "year","race_id","race_date","trio_numbers","odds","market_rank",
+        "model_rank","rank_upgrade","hit","return_yen_per100","auto_leaf_id",
+    ]
+    pd.concat([
+        dev_selected.sort_values(
+            ["rank_upgrade","model_rank","odds"],ascending=[False,True,False]
+        ).head(300).assign(period="DISCOVERY"),
+        confirm_selected.sort_values(
+            ["rank_upgrade","model_rank","odds"],ascending=[False,True,False]
+        ).head(200).assign(period="CONFIRMATION"),
+    ],ignore_index=True)[["period"]+sample_cols].to_csv(out/"selected-ticket-sample.csv",index=False)
+
+    final_by_year=[]
+    for y in TEST_YEARS:
+        chosen=dev_selected[dev_selected["year"]==y] if y in DEV_YEARS else confirm_selected
+        m=metrics(chosen,f"AUTO_POLICY_{y}")
+        m.update({"year":y,"period":"DISCOVERY" if y in DEV_YEARS else "CONFIRMATION"})
+        final_by_year.append(m)
+    pd.DataFrame(final_by_year).to_csv(out/"final-policy-by-year.csv",index=False)
     (out/"final-tree.txt").write_text(tree_text,encoding="utf-8")
 
     summary={
