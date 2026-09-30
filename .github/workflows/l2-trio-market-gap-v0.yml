@@ -148,15 +148,15 @@ jobs:
         run: |
           set -euo pipefail
           result="research-results/l2-trio-market-gap-v0/run-$GITHUB_RUN_ID"
-          python research/run_l2_ticket_market_gap_trio_v0.py             --l17-2021 "$L17_2021"             --l17-2022 "$L17_2022"             --l17-2023 "$L17_2023"             --l17-2024 "$L17_2024"             --l17-2025 "$L17_2025"             --backfill-root out/backfill             --out-dir "$result"
+          python research/run_l2_ticket_market_gap_trio_v0.py             --l17-2021 "$L17_2021"             --l17-2022 "$L17_2022"             --l17-2023 "$L17_2023"             --l17-2024 "$L17_2024"             --l17-2025 "$L17_2025"             --backfill-root out/backfill             --work-dir out/trio-v0-work             --out-dir "$result"
           echo "===== SUMMARY ====="
           cat "$result/summary.json"
           echo "===== RANKING COVERAGE ====="
-          cat "$result/ranking-coverage.csv"
+          cat "$result/ranking-comparison.csv"
           echo "===== MARKET VS MODEL DISAGREEMENT ====="
-          cat "$result/market-model-disagreement.csv"
+          cat "$result/market-vs-model-rescue.csv"
           echo "===== WINNER DELTA ====="
-          cat "$result/winner-rank-delta-summary.csv"
+          head -n 80 "$result/winning-ticket-ranks.csv"
 
       - name: Cost guard
         if: always()
