@@ -38,7 +38,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_l1_outsider_tie_audit_year_v1.py             research/score_l1_raw_light_v1.py             research/rerank_l1_score_safe_v1.py             research/analyze_l1_outsider_safe_rescue_union_v1.py             research/build_router_feature_snapshot_v1.py             research/build_l1_nonhorse_dataset_v1.py             research/run_feature_arena.py             research/train-staged-lightgbm.py             research/emit_l1_to_l2.py
+          python -m py_compile research/run_l1_outsider_tie_audit_year_v1.py research/score_l1_raw_light_v1.py research/rerank_l1_score_safe_v1.py research/analyze_l1_outsider_safe_rescue_union_v1.py research/build_router_feature_snapshot_v1.py research/build_l1_nonhorse_dataset_v1.py research/run_feature_arena.py research/train-staged-lightgbm.py research/emit_l1_to_l2.py
           bash -n scripts/kaggle-snapshot-session.sh
 
       - name: Install dependencies
@@ -133,26 +133,30 @@ jobs:
               mkdir -p "$d"
               meta="$d/files.json"
 
-              kaggle_transient "seven-files:$alias:$year" bash -c                 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
+              kaggle_transient "seven-files:$alias:$year" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
 
               remote="$(python - "$meta" <<'PY'
-import json,sys
-rows=json.load(open(sys.argv[1],encoding="utf-8"))
-names=[str(x.get("name") or "") for x in rows]
-for wanted in ("score.jsonl.gz","score.jsonl"):
-    if wanted in names:
-        print(wanted); raise SystemExit
-nested=[x for x in names if x.endswith("/score.jsonl.gz") or x.endswith("/score.jsonl")]
-if len(nested)==1:
-    print(nested[0]); raise SystemExit
-raise SystemExit(f"score file missing/ambiguous: {names}")
-PY
-)"
+          import json,sys
+          rows=json.load(open(sys.argv[1],encoding="utf-8"))
+          names=[str(x.get("name") or "") for x in rows]
+          for wanted in ("score.jsonl.gz","score.jsonl"):
+              if wanted in names:
+                  print(wanted)
+                  raise SystemExit
+          nested=[x for x in names if x.endswith("/score.jsonl.gz") or x.endswith("/score.jsonl")]
+          if len(nested)==1:
+              print(nested[0])
+              raise SystemExit
+          raise SystemExit(f"score file missing/ambiguous: {names}")
+          PY
+          )"
+
               echo "SEVEN_SCORE_REMOTE_RESOLVED alias=$alias year=$year file=$remote"
               kaggle_transient "seven-download:$alias:$year" kaggle datasets download "$ref" -f "$remote" -p "$d" --unzip --quiet --force
 
               p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
-              test -n "$p"; test -s "$p"
+              test -n "$p"
+              test -s "$p"
               safe="$d/safe-score.jsonl.gz"
               python research/rerank_l1_score_safe_v1.py --input "$p" --output "$safe"
               args+=(--expert "$alias=$safe")
@@ -160,7 +164,7 @@ PY
 
             snapshot="$(snap "$year")"
             router="$router_root/router-$year.jsonl.gz"
-            python research/build_router_feature_snapshot_v1.py               --snapshot "$snapshot"               "${args[@]}"               --output "$router"
+            python research/build_router_feature_snapshot_v1.py --snapshot "$snapshot" "${args[@]}" --output "$router"
             test -s "$router"
             rm -rf "$score_root/y$year"
           done
@@ -195,8 +199,7 @@ PY
             router="$ROUTER_ROOT/router-$year.jsonl.gz"
             test -s "$router"
 
-            python research/run_l1_outsider_tie_audit_year_v1.py               --year "$year"               --inputs "$p1,$p2,$pv"               --validation-snapshot "$pv"               --router-seven "$router"               --out-dir "$result/y$year"               --work-root "out/safe-rescue-work"               --ml-source-sha "$GITHUB_SHA"
-
+            python research/run_l1_outsider_tie_audit_year_v1.py --year "$year" --inputs "$p1,$p2,$pv" --validation-snapshot "$pv" --router-seven "$router" --out-dir "$result/y$year" --work-root "out/safe-rescue-work" --ml-source-sha "$GITHUB_SHA"
             rm -rf "out/safe-rescue-work/$year"
           done
 
@@ -206,34 +209,34 @@ PY
         shell: bash
         run: |
           set -euo pipefail
-          python research/analyze_l1_outsider_safe_rescue_union_v1.py             --root "$RESULT_ROOT"             --output-json "$RESULT_ROOT/union-summary.json"             --output-csv "$RESULT_ROOT/individual-rescue.csv"             --output-pairwise-csv "$RESULT_ROOT/pairwise-overlap.csv"
+          python research/analyze_l1_outsider_safe_rescue_union_v1.py --root "$RESULT_ROOT" --output-json "$RESULT_ROOT/union-summary.json" --output-csv "$RESULT_ROOT/individual-rescue.csv" --output-pairwise-csv "$RESULT_ROOT/pairwise-overlap.csv"
 
           RESULT_ROOT="$RESULT_ROOT" python - <<'PY'
-import json,os
-from pathlib import Path
-p=Path(os.environ["RESULT_ROOT"])/"union-summary.json"
-x=json.loads(p.read_text(encoding="utf-8"))
-assert x["topn"]["6"]["seven_blind_count"]==1735, x["topn"]["6"]["seven_blind_count"]
-t=x["topn"]["6"]
-lines=[
-    "# L1 Outsider Safe Rescue Union V1","",
-    "- Years: 2021-2025",
-    "- 2026: sealed",
-    "- Seven Kings: persisted horse-level scores -> safe rerank -> local router rebuild",
-    "- Outsiders: safe tie-break only",
-    f"- Seven-King Top6 blind races: {t['seven_blind_count']}",
-    f"- All 13 outsiders union rescue: {t['all_13_union_rescue_count']} ({t['all_13_union_rescue_rate']:.2%})",
-    f"- Remaining unrescued: {t['remaining_unrescued_count']} ({t['remaining_unrescued_rate']:.2%})",
-    "",
-    "## Best Top6 rescue combinations by number of outsiders","",
-    "| N | Rescue | Coverage | Marginal | Combination |",
-    "|---:|---:|---:|---:|---|",
-]
-for r in t["best_combinations_by_size"]:
-    lines.append(f"| {r['size']} | {r['rescue_count']} | {r['coverage_rate_on_blind']:.2%} | {r['marginal_vs_prev_best']:+d} | {' + '.join(r['labels'])} |")
-(Path(os.environ["RESULT_ROOT"])/"README.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
-print("\n".join(lines[:10]))
-PY
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RESULT_ROOT"])/"union-summary.json"
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["topn"]["6"]["seven_blind_count"]==1735, x["topn"]["6"]["seven_blind_count"]
+          t=x["topn"]["6"]
+          lines=[
+              "# L1 Outsider Safe Rescue Union V1","",
+              "- Years: 2021-2025",
+              "- 2026: sealed",
+              "- Seven Kings: persisted horse-level scores -> safe rerank -> local router rebuild",
+              "- Outsiders: safe tie-break only",
+              f"- Seven-King Top6 blind races: {t['seven_blind_count']}",
+              f"- All 13 outsiders union rescue: {t['all_13_union_rescue_count']} ({t['all_13_union_rescue_rate']:.2%})",
+              f"- Remaining unrescued: {t['remaining_unrescued_count']} ({t['remaining_unrescued_rate']:.2%})",
+              "",
+              "## Best Top6 rescue combinations by number of outsiders","",
+              "| N | Rescue | Coverage | Marginal | Combination |",
+              "|---:|---:|---:|---:|---|",
+          ]
+          for r in t["best_combinations_by_size"]:
+              lines.append(f"| {r['size']} | {r['rescue_count']} | {r['coverage_rate_on_blind']:.2%} | {r['marginal_vs_prev_best']:+d} | {' + '.join(r['labels'])} |")
+          (Path(os.environ["RESULT_ROOT"])/"README.md").write_text("\n".join(lines)+"\n",encoding="utf-8")
+          print("\n".join(lines[:10]))
+          PY
 
       - name: Commit compact results
         shell: bash
