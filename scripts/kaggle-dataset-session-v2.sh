@@ -20,6 +20,11 @@ retry_metadata() {
       rm -f "$log" "$out.tmp"
       return 44
     fi
+    if grep -Eqi '(^|[^0-9])4[0-9][0-9]([^0-9]|$)' "$log" && ! grep -Eqi '(^|[^0-9])429([^0-9]|$)' "$log"; then
+      echo "::error::non-retryable dataset metadata client error ref=$ref" >&2
+      rm -f "$log" "$out.tmp"
+      return 43
+    fi
     if [[ "$attempt" -eq 6 ]]; then
       echo "::error::metadata failed ref=$ref after $attempt attempts" >&2
       rm -f "$log" "$out.tmp"
@@ -100,6 +105,11 @@ retry_exact_download() {
       echo "::error::metadata drift: exact remote disappeared ref=$ref remote=$remote" >&2
       rm -f "$log"
       return 44
+    fi
+    if grep -Eqi '(^|[^0-9])4[0-9][0-9]([^0-9]|$)' "$log" && ! grep -Eqi '(^|[^0-9])429([^0-9]|$)' "$log"; then
+      echo "::error::non-retryable exact-download client error ref=$ref remote=$remote" >&2
+      rm -f "$log"
+      return 43
     fi
 
     if [[ "$attempt" -eq 6 ]]; then
