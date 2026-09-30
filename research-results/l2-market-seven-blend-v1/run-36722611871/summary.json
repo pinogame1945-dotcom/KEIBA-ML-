@@ -1,0 +1,107 @@
+{
+  "contract": "L2_MARKET_SEVEN_BLEND_V1",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "market_probability": "normalized inverse final odds within race and bet type",
+  "seven_probability": "L1.7 Seven-King mean_probability -> Plackett-Luce ticket probability -> renormalized on priced ticket universe",
+  "blend_probability": "p_blend proportional to p_market^(1-alpha) * p_seven^alpha",
+  "alpha_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.7,
+    1.0,
+    1.3
+  ],
+  "alpha_selection": "minimum strictly-prior-year winning-ticket negative log likelihood",
+  "roi_used_for_alpha_selection": false,
+  "test_year_used_for_alpha_selection": false,
+  "payout_used_for_alpha_selection": false,
+  "buy_rule": "variant_probability * historical final odds > 1.0",
+  "manual_edge_threshold": false,
+  "manual_top_k": false,
+  "manual_ticket_cap": false,
+  "manual_odds_band": false,
+  "manual_race_skip_rule": false,
+  "folds": [
+    {
+      "test_year": 2022,
+      "train_years": "2021",
+      "win_alpha_seven": 0.0,
+      "quinella_alpha_seven": 0.0,
+      "exacta_alpha_seven": 0.0,
+      "trio_alpha_seven": 0.0,
+      "trifecta_alpha_seven": 0.0
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2021|2022",
+      "win_alpha_seven": 0.0,
+      "quinella_alpha_seven": 0.0,
+      "exacta_alpha_seven": 0.0,
+      "trio_alpha_seven": 0.0,
+      "trifecta_alpha_seven": 0.0
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2021|2022|2023",
+      "win_alpha_seven": 0.0,
+      "quinella_alpha_seven": 0.0,
+      "exacta_alpha_seven": 0.0,
+      "trio_alpha_seven": 0.0,
+      "trifecta_alpha_seven": 0.0
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2021|2022|2023|2024",
+      "win_alpha_seven": 0.0,
+      "quinella_alpha_seven": 0.0,
+      "exacta_alpha_seven": 0.0,
+      "trio_alpha_seven": 0.0,
+      "trifecta_alpha_seven": 0.0
+    }
+  ],
+  "calibration_counts": {
+    "2021": {
+      "races_seen": 3456,
+      "usable_top3": 3435,
+      "excluded_top3": 21
+    },
+    "2022": {
+      "races_seen": 3456,
+      "usable_top3": 3444,
+      "excluded_top3": 12
+    },
+    "2023": {
+      "races_seen": 3456,
+      "usable_top3": 3442,
+      "excluded_top3": 14
+    },
+    "2024": {
+      "races_seen": 3456,
+      "usable_top3": 3434,
+      "excluded_top3": 22
+    },
+    "2025": {
+      "races_seen": 3456,
+      "usable_top3": 3428,
+      "excluded_top3": 28
+    }
+  },
+  "race_summary_files": [
+    "race-blend-summary-2022.csv.gz",
+    "race-blend-summary-2023.csv.gz",
+    "race-blend-summary-2024.csv.gz",
+    "race-blend-summary-2025.csv.gz"
+  ],
+  "market_price_caveat": "historical FINAL odds are a research execution-price proxy, not timestamped production execution prices",
+  "2026_locked": true
+}

@@ -1,0 +1,3 @@
+# L2 Market + Seven Blend V1
+
+This is the direct three-way control: market-only, Seven-only and market+Seven. The market distribution is normalized inverse final odds. The Seven distribution is the L1.7 full-field mean-probability world decomposed into each ticket type and renormalized over the same priced ticket universe. The combined distribution is a geometric opinion pool: p ∝ market^(1-alpha) * seven^alpha. Alpha is chosen independently for each bet type using only strictly prior-year winning-ticket negative log likelihood; ROI, payout and the test year are never used to choose alpha. All three variants use the same EV>1 rule. 2026 remains sealed.
