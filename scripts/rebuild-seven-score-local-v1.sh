@@ -27,18 +27,17 @@ fi
 
 generation_id="eb13d4096519167b"
 snapshot_ref="pino1945/keiba-ml-snapshot-${generation_id}"
-session_script="scripts/kaggle-dataset-session-v2.sh"
+session_script="scripts/kaggle-snapshot-session.sh"
 session_dir="out/local-rebuild/snapshot-session-${generation_id}"
 work="out/local-rebuild/${alias_name}-y${year}"
 mkdir -p "$session_dir" "$work" "$out_dir"
 
-if [[ ! -s "$session_dir/.files.json" || ! -s "$session_dir/.dataset-ref" ]]; then
-  bash "$session_script" init "$snapshot_ref" "$session_dir"
+if [[ ! -s "$session_dir/manifest.json" || ! -s "$session_dir/.dataset-ref" ]]; then
+  KAGGLE_DATASET_REF="$snapshot_ref" bash "$session_script" init "$generation_id" "$session_dir"
 fi
-bash "$session_script" fetch "$session_dir" manifest.json
 
-manifest="$(find "$session_dir" -type f -name 'manifest.json' -print -quit)"
-test -n "$manifest"; test -s "$manifest"
+manifest="$session_dir/manifest.json"
+test -s "$manifest"
 
 python - "$manifest" "$generation_id" "$year" "$work/requested-files.txt" <<'PY'
 import json,sys
@@ -57,8 +56,8 @@ with open(out,"w",encoding="utf-8") as f:
         f.write(str(rows[y]["file"])+"\n")
 PY
 
-mapfile -t snapshot_files < "$work/requested-files.txt"
-bash "$session_script" fetch "$session_dir" "${snapshot_files[@]}"
+KAGGLE_DATASET_REF="$snapshot_ref" bash "$session_script" fetch \
+  "$generation_id" "$session_dir" "$((year - 2))" "$((year - 1))" "$year"
 
 python - "$manifest" "$session_dir" "$work/requested-files.txt" <<'PY'
 import gzip,hashlib,json,os,sys
