@@ -1,1 +1,1 @@
-relaunch persisted robustness audit after no-Kaggle guard self-match fix 2026-09-30 JST
+relaunch persisted robustness audit after race_id dtype normalization 2026-09-30 JST
