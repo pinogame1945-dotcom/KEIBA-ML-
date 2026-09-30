@@ -1,0 +1,60 @@
+{
+  "contract": "L2_TRIO_RESIDUAL_GATE_V1",
+  "version": 1,
+  "purpose": "Learn where the L1.7 residual signal should locally adjust the TRIO market probability, without hand-written ticket-rule boundaries.",
+  "bet_type": "TRIO",
+  "input_years": [2021, 2022, 2023, 2024, 2025],
+  "residual_oof_years": [2022, 2023, 2024, 2025],
+  "complexity_selection_years": [2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "gate": {
+    "features": ["market_log_q", "residual_score"],
+    "algorithm": "LightGBM binary meta-calibrator followed by within-race normalization",
+    "split_boundaries_learned": true,
+    "manual_ticket_rule_boundaries": false,
+    "num_leaves_candidates": [4, 8, 16, 32],
+    "complexity_selection_basis": "winner log-loss, then Brier and AUC on 2023-2024",
+    "roi_used_for_complexity_selection": false
+  },
+  "residual_source": {
+    "target": "normalized official outcome mass - market probability",
+    "market_features_inside_residual_model": false,
+    "walk_forward": true
+  },
+  "benchmarks": [
+    "MARKET_ONLY",
+    "GLOBAL_ALPHA_RESIDUAL",
+    "LOCAL_RESIDUAL_GATE"
+  ],
+  "betting_diagnostic": {
+    "ev_formula": "edge = probability * final_odds - 1",
+    "buy_rule": "edge > 0",
+    "manual_edge_threshold_search": false,
+    "tail_checks": [
+      "ROI excluding largest win",
+      "ROI excluding largest 2 wins",
+      "ROI excluding largest 3 wins"
+    ]
+  },
+  "session_reuse": {
+    "one_runner": true,
+    "build_full_trio_base_once_per_year": true,
+    "build_residual_oof_once_per_test_year": true,
+    "reuse_oof_for_all_gate_complexities": true,
+    "persist_between_runs": false
+  },
+  "output_policy": {
+    "commit_compact_outputs_only": true,
+    "large_runner_local_tables_ephemeral": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
