@@ -34,7 +34,8 @@ def add_market_features(df):
     return z.sort_index()
 
 def market_feature_columns(df):
-    pre=feature_columns(df)
+    pre_source=df.drop(columns=["market_inv_odds","market_q_norm","market_log_q","market_rank"],errors="ignore")
+    pre=feature_columns(pre_source)
     # Horse numbers created spurious importance in V0/V1. Keep race/L1.7 structure,
     # but remove raw number identifiers from the market-relative model.
     pre=[c for c in pre if c not in {
