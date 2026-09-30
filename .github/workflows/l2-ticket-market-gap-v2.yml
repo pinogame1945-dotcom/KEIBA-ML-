@@ -37,7 +37,13 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile research/materialize_l17_seven_king_fullfield_v1.py research/run_l2_ticket_market_gap_v2.py
+          python -m py_compile \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/run_l2_ticket_market_gap_v2.py \
+            research/run_feature_arena.py \
+            research/emit_l1_to_l2.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          bash -n scripts/rebuild-seven-score-local-v1.sh
           python - <<'PY'
           import json
           from pathlib import Path
@@ -77,31 +83,35 @@ jobs:
         run: |
           set -euo pipefail
           session_script="scripts/kaggle-dataset-session-v2.sh"
+          rebuild_script="scripts/rebuild-seven-score-local-v1.sh"
           test -s "$session_script"
+          test -s "$rebuild_script"
+
           for y in 2022 2023 2024 2025; do
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/ticket-eval/scores/$y/$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
-              for fetch_attempt in 1 2 3 4; do
-                bash "$session_script" init "$ref" "$d"
-                if bash "$session_script" fetch "$d" score.jsonl; then
-                  break
-                else
-                  rc=$?
-                  if [[ "$rc" -ne 44 || "$fetch_attempt" -eq 4 ]]; then
-                    exit "$rc"
-                  fi
-                  case "$fetch_attempt" in
-                    1) delay=30 ;;
-                    2) delay=60 ;;
-                    *) delay=120 ;;
-                  esac
-                  echo "::warning::Kaggle exact-download 404; refresh metadata and retry ref=$ref attempt=$fetch_attempt/4 sleep=${delay}s"
-                  sleep "$delay"
-                fi
-              done
-              sleep 5
-              p="$(find "$d" -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              mkdir -p "$d"
+
+              set +e
+              bash "$session_script" init "$ref" "$d"
+              rc=$?
+              if [[ "$rc" -eq 0 ]]; then
+                bash "$session_script" fetch "$d" score.jsonl
+                rc=$?
+              fi
+              set -e
+
+              if [[ "$rc" -eq 44 ]]; then
+                echo "::warning::score metadata drift; no retry/no alternate filename. local rebuild year=$y alias=$alias"
+                rm -f "$d/score.jsonl" "$d/score.jsonl.gz"
+                bash "$rebuild_script" "$alias" "$y" "$d"
+              elif [[ "$rc" -ne 0 ]]; then
+                echo "::error::score restore failed year=$y alias=$alias rc=$rc"
+                exit "$rc"
+              fi
+
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
               test -n "$p"; test -s "$p"
               echo "SEVEN_SCORE_OK year=$y alias=$alias path=$p"
             done
@@ -183,6 +193,8 @@ jobs:
           echo "No GPU / paid runner."
           echo "No actions/cache and no upload-artifact."
           echo "Kaggle inputs are existing datasets, read-only."
+          echo "404 exact-score downloads are not retried or guessed under alternate names."
+          echo "Metadata-drift scores are rebuilt locally from manifest-resolved snapshots."
           echo "No Kaggle dataset/model persistence."
           echo "Pair matrices remain ephemeral on the runner."
           echo "Only compact research outputs are committed."
