@@ -1,0 +1,55 @@
+{
+  "contract": "L2_TRIO_DIRECT_EV_V1",
+  "version": 1,
+  "purpose": "Estimate TRIO ticket hit probability directly, compare it with the market probability, and evaluate mathematical expected value without hand-written betting rules.",
+  "bet_type": "TRIO",
+  "input_years": [2021, 2022, 2023, 2024, 2025],
+  "oof_years": [2022, 2023, 2024, 2025],
+  "variant_selection_years": [2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "direct_probability_model": {
+    "target": "official payout-positive TRIO ticket",
+    "market_features_used": false,
+    "race_normalization": "normalize direct ticket probabilities to sum 1 within each complete-priced race"
+  },
+  "market": {
+    "probability": "(1 / final_trio_odds) / sum_race(1 / final_trio_odds)",
+    "ev_formula": "edge = estimated_probability * final_odds - 1"
+  },
+  "calibration": {
+    "variants": ["DIRECT_MODEL", "MARKET_ONLY", "AUTO_BLEND"],
+    "auto_blend_alpha_learned": true,
+    "alpha_objective": "winner log-loss on strictly prior OOF years",
+    "variant_selection_objective": "minimum winner log-loss on 2023-2024",
+    "roi_used_for_variant_selection": false,
+    "2025_used_for_selection_or_calibration": false
+  },
+  "betting_diagnostic": {
+    "buy_rule": "edge > 0",
+    "reason": "mathematical break-even only",
+    "manual_edge_threshold_search": false,
+    "manual_ticket_rule_grid": false,
+    "tail_checks": ["ROI excluding largest win", "ROI excluding largest 2 wins", "ROI excluding largest 3 wins"]
+  },
+  "session_reuse": {
+    "one_runner": true,
+    "build_full_trio_base_once_per_year": true,
+    "build_direct_oof_probability_once_per_test_year": true,
+    "reuse_oof_for_all_variants": true,
+    "persist_between_runs": false
+  },
+  "output_policy": {
+    "commit_compact_outputs_only": true,
+    "large_runner_local_tables_ephemeral": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
