@@ -28,7 +28,8 @@ TEST_YEARS=(2023,2024,2025)
 ID_COLS={
     "year","race_id","race_date","pair_horse_ids","pair_numbers",
     "a_horse_id","b_horse_id","a_horse_number","b_horse_number",
-    "pair_hit","direction_label","direction_eligible","multi_direction_hit",
+    "pair_hit","hit_a_to_b","hit_b_to_a","direction_label","direction_eligible",
+    "strict_direction_eligible","multi_direction_hit",
     "odds_a_to_b","odds_b_to_a","market_q_a_to_b","market_q_b_to_a",
     "pair_market_q","pair_market_log_q","pair_market_rank",
     "pair_l17_score","pair_l17_rank","pair_market_aware_score","pair_model_rank",
@@ -165,8 +166,11 @@ def build_pair_year_frame(year,l17_rows,backfill_root):
                         "a_horse_number":an,
                         "b_horse_number":bn,
                         "pair_hit":pair_hit,
+                        "hit_a_to_b":hab,
+                        "hit_b_to_a":hba,
                         "direction_label":label,
                         "direction_eligible":direction_eligible,
+                        "strict_direction_eligible":0,
                         "multi_direction_hit":multi_direction_hit,
                         "odds_a_to_b":oab,
                         "odds_b_to_a":oba,
@@ -192,13 +196,18 @@ def build_pair_year_frame(year,l17_rows,backfill_root):
     df["pair_market_rank"]=df.groupby(["year","race_id"])["pair_market_q"].rank(
         method="min",ascending=False
     ).astype(int)
+    race_hits=df.groupby(["year","race_id"])["pair_hit"].transform("sum")
+    df["strict_direction_eligible"]=(
+        (race_hits==1) & (df["direction_eligible"]==1) & (df["pair_hit"]==1)
+    ).astype(int)
+    strict_races=int(df.loc[df["strict_direction_eligible"]==1,"race_id"].nunique())
 
     print("EXACTA_PAIR_YEAR_READY "+json.dumps({
         "year":year,
         "priced_races":priced_races,
         "pair_rows":len(df),
         "positive_pairs":int(df["pair_hit"].sum()),
-        "direction_eligible_races":direction_eligible_races,
+        "direction_eligible_races":strict_races,
         "multi_direction_races":multi_direction_races,
         "missing_reverse_pairs":missing_reverse_pairs,
         "seconds":round(time.perf_counter()-t0,3),
@@ -273,7 +282,7 @@ def train_pair_ranker(train,test,cols,seed):
 
 def train_direction_classifier(train,test,cols,seed):
     t0=time.perf_counter()
-    tr=train[train["direction_eligible"]==1].copy().sort_values(
+    tr=train[train["strict_direction_eligible"]==1].copy().sort_values(
         ["year","race_id","pair_numbers"]
     ).reset_index(drop=True)
     if tr.empty or tr["direction_label"].nunique()!=2:
@@ -298,51 +307,64 @@ def train_direction_classifier(train,test,cols,seed):
     return out,imp,time.perf_counter()-t0,len(tr)
 
 
-def evaluate_variant(df,year,label,pair_rank_col,dir_mode):
-    eligible=df[df["direction_eligible"]==1].copy()
-    if eligible.empty:
-        return []
-    # Exactly one unique direction-eligible winning pair per normal race.
-    positive=eligible[eligible["pair_hit"]==1].copy()
-    if positive["race_id"].duplicated().any():
-        raise SystemExit(f"multiple unique direction pairs y={year}")
-
+def _direction_prediction(frame,dir_mode):
     if dir_mode=="market":
-        pred=np.where(
-            positive["market_q_a_to_b"]>positive["market_q_b_to_a"],1,
-            np.where(positive["market_q_a_to_b"]<positive["market_q_b_to_a"],0,-1)
+        return np.where(
+            frame["market_q_a_to_b"]>frame["market_q_b_to_a"],1,
+            np.where(frame["market_q_a_to_b"]<frame["market_q_b_to_a"],0,-1)
         )
-    elif dir_mode=="l17":
-        pred=(positive["dir_l17_prob"].to_numpy()>=0.5).astype(int)
-    elif dir_mode=="market_aware":
-        pred=(positive["dir_market_aware_prob"].to_numpy()>=0.5).astype(int)
-    else:
-        raise ValueError(dir_mode)
+    if dir_mode=="l17":
+        return (frame["dir_l17_prob"].to_numpy()>=0.5).astype(int)
+    if dir_mode=="market_aware":
+        return (frame["dir_market_aware_prob"].to_numpy()>=0.5).astype(int)
+    raise ValueError(dir_mode)
 
-    positive["_dir_pred"]=pred
+
+def evaluate_variant(df,year,label,pair_rank_col,dir_mode):
+    # Direction accuracy: strict unique exacta winner only, matching V0.
+    positive=df[df["strict_direction_eligible"]==1].copy()
+    if positive.empty:
+        return []
+    if positive["race_id"].duplicated().any():
+        raise SystemExit(f"multiple strict direction pairs y={year}")
+
+    positive["_dir_pred"]=_direction_prediction(positive,dir_mode)
     positive["_dir_correct"]=positive["_dir_pred"]==positive["direction_label"]
     positive["_dir_tie"]=positive["_dir_pred"]<0
-    source=len(positive)
+    source_direction=len(positive)
+
+    # End-to-end exact hit coverage: all priced races, including dead-heat multi-payout races.
+    all_pairs=df.copy()
+    all_pairs["_dir_pred"]=_direction_prediction(all_pairs,dir_mode)
+    all_pairs["_pred_hit"]=(
+        ((all_pairs["_dir_pred"]==1) & (all_pairs["hit_a_to_b"]==1)) |
+        ((all_pairs["_dir_pred"]==0) & (all_pairs["hit_b_to_a"]==1))
+    )
+    source_all=all_pairs["race_id"].nunique()
+
     rows=[]
     for k in TOP_K:
         cap=positive[positive[pair_rank_col]<=k]
         correct=int(cap["_dir_correct"].sum())
         ties=int(cap["_dir_tie"].sum())
         reverse=len(cap)-correct-ties
+
+        chosen=all_pairs[all_pairs[pair_rank_col]<=k]
+        exact_hit_races=int(chosen.loc[chosen["_pred_hit"],"race_id"].nunique())
         rows.append({
             "year":year,
             "model":label,
             "top_k":k,
-            "source_direction_races":source,
+            "source_direction_races":source_direction,
             "pair_captured_races":len(cap),
-            "pair_capture_pct":100.0*len(cap)/source if source else 0.0,
+            "pair_capture_pct":100.0*len(cap)/source_direction if source_direction else 0.0,
             "direction_correct_races":correct,
             "direction_reverse_races":reverse,
             "direction_tie_races":ties,
             "direction_correct_pct_of_captured":100.0*correct/len(cap) if len(cap) else 0.0,
             "direction_correct_pct_excluding_ties":100.0*correct/(correct+reverse) if correct+reverse else 0.0,
-            "exact_hit_races_top_k":correct,
-            "exact_hit_coverage_pct":100.0*correct/source if source else 0.0,
+            "exact_hit_races_top_k":exact_hit_races,
+            "exact_hit_coverage_pct":100.0*exact_hit_races/source_all if source_all else 0.0,
             "ticket_budget_semantics":"one chosen orientation per unordered pair",
         })
     return rows
