@@ -43,6 +43,9 @@ def percentile(xs,p):
 
 def write_csv(path,rows):
     path=Path(path); path.parent.mkdir(parents=True,exist_ok=True)
+    if hasattr(rows,"to_csv"):
+        rows.to_csv(path,index=False)
+        return
     if not rows:
         path.write_text("",encoding="utf-8"); return
     fields=[]
