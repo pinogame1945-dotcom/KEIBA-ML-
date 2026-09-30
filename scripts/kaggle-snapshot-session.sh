@@ -128,8 +128,21 @@ PY
 case "$cmd" in
   init)
     dataset_ref="$(resolve_ref)"
-    retry_kaggle "session-manifest" kaggle datasets download "$dataset_ref" -f manifest.json -p "$out_dir" --unzip --quiet --force
     retry_kaggle "session-files" bash -c 'kaggle datasets files "$1" --page-size 500 --format "json(name,size)" >"$2"' _ "$dataset_ref" "$files_json"
+    manifest_remote="$(python - "$files_json" <<'PY'
+import json,sys
+rows=json.load(open(sys.argv[1],encoding="utf-8"))
+names=[str(x.get("name") or "") for x in rows]
+if "manifest.json" in names:
+    print("manifest.json"); raise SystemExit
+nested=[x for x in names if x.endswith("/manifest.json")]
+if len(nested)==1:
+    print(nested[0]); raise SystemExit
+raise SystemExit(f"manifest.json missing/ambiguous: {names}")
+PY
+)"
+    echo "SESSION_MANIFEST_RESOLVED file=$manifest_remote"
+    retry_kaggle "session-manifest" kaggle datasets download "$dataset_ref" -f "$manifest_remote" -p "$out_dir" --unzip --quiet --force
     python - "$manifest" "$generation_id" <<'PY'
 import json,sys
 m=json.load(open(sys.argv[1],encoding="utf-8"))
