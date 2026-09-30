@@ -1,0 +1,61 @@
+{
+  "contract": "L2_TRIO_LAW_ARENA_V1",
+  "version": 1,
+  "purpose": "Discover first TRIO value-law candidates from the corrected full-market V0 without porting QUINELLA laws.",
+  "bet_type": "TRIO",
+  "input_years": [2021, 2022, 2023, 2024, 2025],
+  "discovery_years": [2022, 2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "candidate_grid": {
+    "rank_upgrade_min": [5, 10, 20],
+    "model_rank_bands": ["1-3", "4-5", "6-10", "11-20"],
+    "candidate_count": 12,
+    "other_filters": false
+  },
+  "candidate_semantics": "Every priced TRIO ticket satisfying the fixed threshold and rank band is included; no market-rank, odds, field-size, race-type, or popularity filter is searched in V1.",
+  "robustness": {
+    "required_metrics": [
+      "tickets",
+      "races",
+      "hits",
+      "hit rate",
+      "ROI",
+      "profit",
+      "median odds",
+      "mean odds",
+      "ROI after removing largest win",
+      "ROI after removing largest 2 wins",
+      "ROI after removing largest 3 wins",
+      "per-year discovery metrics"
+    ],
+    "discovery_order_uses_only_2022_2024": true,
+    "discovery_sort": "ROI after removing top3 wins, then top2, top1, raw ROI, ticket support"
+  },
+  "session_reuse": {
+    "one_runner": true,
+    "build_full_trio_base_once_per_year": true,
+    "build_walk_forward_prediction_once_per_test_year": true,
+    "reuse_predictions_for_all_12_candidates": true,
+    "persist_between_runs": false
+  },
+  "market": {
+    "source": "corrected shared comma-safe decoder",
+    "incomplete_race_policy": "skip entire race if any TRIO combination lacks final price"
+  },
+  "research_boundaries": {
+    "law_promotion_automatic": false,
+    "2025_rule_tuning": false,
+    "l3_handoff": false,
+    "2026_outcomes_locked": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
