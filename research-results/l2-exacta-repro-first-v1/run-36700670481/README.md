@@ -1,0 +1,3 @@
+# L2 EXACTA Repro-First V1
+
+This lane treats year-to-year reproducibility as the primary research objective. For each unseen test year, separate prior-period Tweedie return models are trained independently. A ticket passes only when every independent model predicts a return above the 100-yen stake; the ticket score is the minimum prediction across those models. For 2023, 2022 is split chronologically into two independent halves. For 2024 the periods are 2022 and 2023; for 2025 they are 2022, 2023, and 2024. A pooled-prior model with the same Tweedie 1.5 configuration is the control. The primary readout is per-year ROI, worst-year ROI, profitable-year count, dispersion, and tail robustness, not aggregate ROI. 2026 remains sealed.

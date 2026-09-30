@@ -1,0 +1,34 @@
+{
+  "contract": "L2_EXACTA_REPRO_FIRST_V1",
+  "bet_type": "EXACTA",
+  "objective": "prefer cross-period reproducibility over average ROI",
+  "base_model": "LightGBM Tweedie return regression",
+  "tweedie_variance_power": 1.5,
+  "power_choice_reason": "fixed midpoint of the pre-existing 1.2/1.5/1.8 candidate set; no new test-year tuning in this lane",
+  "control": "one model trained on all prior years",
+  "repro_lane": "independent prior-period models; every model must predict return > 100 yen",
+  "repro_score": "minimum predicted return across independent prior-period models",
+  "2023_independent_periods": "chronological halves of 2022",
+  "2024_independent_periods": [
+    "2022",
+    "2023"
+  ],
+  "2025_independent_periods": [
+    "2022",
+    "2023",
+    "2024"
+  ],
+  "primary_evaluation": [
+    "ROI by individual test year",
+    "worst_year_roi",
+    "profitable_year_count",
+    "ROI standard deviation",
+    "tail-removal robustness"
+  ],
+  "average_roi_is_not_primary": true,
+  "manual_topk": false,
+  "manual_odds_band": false,
+  "manual_ticket_cap": false,
+  "2026_locked": true,
+  "script_total_seconds": 792.449866185
+}
