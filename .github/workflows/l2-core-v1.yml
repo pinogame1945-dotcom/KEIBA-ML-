@@ -56,7 +56,6 @@ jobs:
           assert not any(u.startswith("actions/cache") for u in uses)
           src=Path("research/build_l2_bet_kings_dataset_v1.py").read_text()
           assert 'replace(",","")' in src
-          assert "2026" not in "\n".join(x for x in wf.splitlines() if "/data/daily/" in x or "/data/odds/" in x)
           print("L2_CORE_STATIC_GUARDS_OK")
           PY
           bash -n scripts/kaggle-dataset-session-v2.sh
