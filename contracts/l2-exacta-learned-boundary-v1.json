@@ -1,0 +1,59 @@
+{
+  "contract": "L2_EXACTA_LEARNED_BOUNDARY_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Learn ticket-selection boundaries from prior out-of-time prediction errors instead of hand-setting TopK, confidence, odds bands, ticket caps, or skip rates.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "base_model": {
+    "pair_probability": "market-aware unordered-pair classifier",
+    "direction_probability": "market-aware conditional direction classifier"
+  },
+  "meta_boundary_model": {
+    "type": "LightGBM binary classifier",
+    "training_source": "out-of-time base predictions only",
+    "features": [
+      "base pair/direction/exacta probabilities",
+      "base naive EV",
+      "final exacta odds and market share",
+      "market ranks",
+      "pair context",
+      "direction context"
+    ],
+    "probability_normalization": "within-race sum-to-one"
+  },
+  "human_fixed_selection_rules": {
+    "top_k": false,
+    "confidence_floor": false,
+    "odds_band": false,
+    "ticket_count_cap": false,
+    "forced_skip_rate": false,
+    "legacy_law": false
+  },
+  "decision": {
+    "criterion": "learned_probability * final_odds > 1",
+    "reason": "mathematical break-even only",
+    "variable_ticket_count": true,
+    "race_skip_allowed": true
+  },
+  "evaluation": {
+    "flat_stake_yen_per_ticket": 100,
+    "flat_stake_is_l2_evaluation_only": true,
+    "l3_stake_sizing_separate": true,
+    "compare_against_auto_v0_run": 36688819634
+  },
+  "speed": {
+    "all_bet_decoder_audit_repeated": false,
+    "unordered_pair_matrix": true,
+    "l17_materialized_once_per_year": true,
+    "same_runner_reuse": true,
+    "persistent_cache": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
