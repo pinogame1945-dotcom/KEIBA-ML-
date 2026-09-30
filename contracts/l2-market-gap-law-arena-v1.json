@@ -1,0 +1,59 @@
+{
+  "contract": "L2_MARKET_GAP_LAW_ARENA_V1",
+  "purpose": "Discover additional interpretable QUINELLA purchase laws that add unique tickets beyond frozen law1.",
+  "bet_type": "QUINELLA",
+  "frozen_law1": {
+    "gap_min": 15,
+    "gap_max_exclusive": 25,
+    "field_size_min": 15,
+    "field_size_max": 16,
+    "model_top_k": 15,
+    "max_tickets_per_race": 1
+  },
+  "discovery_years": [2022, 2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "candidate_generation": {
+    "max_tickets_per_race": 1,
+    "model_top_k": 15,
+    "gap_bands": ["0-2", "3-4", "5-6", "7-9", "10-14", "15-24", "25+", "5+", "10+"],
+    "single_secondary_dimensions": [
+      "field_size_band", "surface", "distance_band", "market_rank_band",
+      "model_rank_band", "l17_rank_band", "odds_band", "pair_worse_rank_band"
+    ],
+    "two_secondary_dimension_pairs": [
+      ["field_size_band", "surface"],
+      ["field_size_band", "distance_band"],
+      ["field_size_band", "market_rank_band"],
+      ["field_size_band", "model_rank_band"],
+      ["field_size_band", "l17_rank_band"],
+      ["surface", "distance_band"],
+      ["market_rank_band", "model_rank_band"],
+      ["market_rank_band", "l17_rank_band"],
+      ["model_rank_band", "l17_rank_band"],
+      ["odds_band", "field_size_band"],
+      ["odds_band", "market_rank_band"],
+      ["odds_band", "model_rank_band"],
+      ["pair_worse_rank_band", "field_size_band"],
+      ["pair_worse_rank_band", "market_rank_band"]
+    ]
+  },
+  "qualification": {
+    "min_tickets_each_discovery_year": 30,
+    "min_total_discovery_tickets": 120,
+    "min_unique_tickets_vs_law1": 60,
+    "max_candidate_overlap_share_with_law1_pct": 60.0,
+    "min_pooled_discovery_roi_pct": 100.0,
+    "min_pooled_discovery_roi_after_remove_largest_win_pct": 95.0,
+    "min_unique_discovery_roi_pct": 95.0
+  },
+  "selection_objective": "Rank qualified candidates using discovery years only: worst-year ROI, unique-vs-law1 ROI, pooled ROI after largest-win removal, unique ticket count, lower overlap.",
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
