@@ -213,6 +213,8 @@ def load_race_context(root,race_ids):
                     "field_size":len(entries),
                 })
     out=pd.DataFrame(rows).drop_duplicates("race_id")
+    if not out.empty:
+        out["race_id"]=out["race_id"].astype(str)
     missing=wanted-set(out["race_id"].astype(str)) if not out.empty else wanted
     if missing:
         raise SystemExit(f"missing race context count={len(missing)} sample={sorted(missing)[:10]}")
@@ -296,6 +298,7 @@ def main():
         raise SystemExit(f"frozen policy drift {got}")
 
     tickets=pd.read_csv(src/"holdout-selected-tickets.csv.gz",compression="gzip")
+    tickets["race_id"]=tickets["race_id"].astype(str)
     tickets=add_time_bins(tickets)
     old=summary["holdout"]
     m=metrics(tickets,int(old["source_races"]),"FROZEN_V2")
