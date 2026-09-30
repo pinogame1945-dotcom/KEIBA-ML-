@@ -1,0 +1,72 @@
+{
+  "contract": "TRIFECTA_FULLFIELD_COVERAGE_AUDIT_V1",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "yearly": [
+    {
+      "year": 2022,
+      "races": 3456,
+      "CURRENT_COMPLETE": 2990,
+      "winner_priced": 3456,
+      "races_with_comma": 3444,
+      "comma_positive_rows": 6945835,
+      "positive_rows": 7877244,
+      "positive_started_rows": 7877244,
+      "positive_nonstarted_rows": 0,
+      "missing_started_rows": 17592,
+      "raw_missing_started_rows": 0,
+      "STARTED_PARTIAL": 466
+    },
+    {
+      "year": 2023,
+      "races": 3456,
+      "STARTED_PARTIAL": 626,
+      "winner_priced": 3456,
+      "races_with_comma": 3443,
+      "comma_positive_rows": 7135332,
+      "positive_rows": 8072242,
+      "positive_started_rows": 8072242,
+      "positive_nonstarted_rows": 0,
+      "missing_started_rows": 29534,
+      "raw_missing_started_rows": 0,
+      "CURRENT_COMPLETE": 2830
+    },
+    {
+      "year": 2024,
+      "races": 3456,
+      "STARTED_PARTIAL": 962,
+      "winner_priced": 3454,
+      "races_with_comma": 3440,
+      "comma_positive_rows": 6972361,
+      "positive_rows": 7887761,
+      "positive_started_rows": 7887761,
+      "positive_nonstarted_rows": 0,
+      "missing_started_rows": 47293,
+      "raw_missing_started_rows": 0,
+      "CURRENT_COMPLETE": 2494
+    },
+    {
+      "year": 2025,
+      "races": 3456,
+      "STARTED_PARTIAL": 1114,
+      "winner_priced": 3455,
+      "races_with_comma": 3439,
+      "comma_positive_rows": 7317514,
+      "positive_rows": 8247713,
+      "positive_started_rows": 8247713,
+      "positive_nonstarted_rows": 0,
+      "missing_started_rows": 42271,
+      "raw_missing_started_rows": 0,
+      "CURRENT_COMPLETE": 2342
+    }
+  ],
+  "definitions": {
+    "current_complete": "positive decoded trifecta rows equals P(number of horses appearing in any positive row,3)",
+    "started_complete": "positive decoded trifecta rows restricted to race-pack entry_status STARTED equals P(number of STARTED horses,3)",
+    "false_reject_nonstarted_residual": "current completeness fails but STARTED-only completeness passes and positive odds still reference non-started horses"
+  }
+}
