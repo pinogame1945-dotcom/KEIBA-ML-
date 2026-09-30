@@ -70,7 +70,7 @@ def candidate_segments(prior):
             for key,n in counts.items():
                 if n<min_support:
                     continue
-                if width==1:
+                if not isinstance(key, tuple):
                     key=(key,)
                 definition=tuple(zip(dims,key))
                 g=prior[segment_mask(prior,definition)].copy()
