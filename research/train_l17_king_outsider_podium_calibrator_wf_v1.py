@@ -107,9 +107,13 @@ def eval_fold(train,test,year):
         z=dict(x); z["p3"]=float(pr); z["baseline_score"]=-float(z["rank"]); scored.append(z)
     baseline=race_metrics(scored,"baseline_score")
     ml=race_metrics(scored,"p3")
-    moves=sum(1 for rid in {x["race_id"] for x in scored}
-              if [z["horse_id"] for z in sorted([q for q in scored if q["race_id"]==rid],key=lambda z:(z["rank"],z["horse_id"]))]
-              != [z["horse_id"] for z in sorted([q for q in scored if q["race_id"]==rid],key=lambda z:(-z["p3"],z["rank"],z["horse_id"]))])
+    by=defaultdict(list)
+    for z in scored: by[z["race_id"]].append(z)
+    moves=0
+    for rs in by.values():
+        base_ids=[z["horse_id"] for z in sorted(rs,key=lambda z:(z["rank"],z["horse_id"]))]
+        ml_ids=[z["horse_id"] for z in sorted(rs,key=lambda z:(-z["p3"],z["rank"],z["horse_id"]))]
+        moves+=int(base_ids!=ml_ids)
     return {
       "eval_year":year,"train_years":sorted({x["year"] for x in train}),
       "train_rows":len(train),"test_rows":len(test),
