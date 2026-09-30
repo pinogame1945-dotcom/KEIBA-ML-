@@ -324,6 +324,8 @@ def main():
     final_conf=metrics(subset_years(final,(CONFIRM_YEAR,)),"FINAL_PORTFOLIO_2025")
     summary={
         "contract":"L2_MARKET_GAP_LAW_PORTFOLIO_V1_RESULT",
+        "source_variant":"ODDS_COMMA_CORRECTED",
+        "odds_decoder_numeric_normalization":"remove thousands separators before float conversion",
         "fixed_laws":["LAW1",LAW2_ID],
         "selected_law_count":len(selected),
         "selected_sequence":[
