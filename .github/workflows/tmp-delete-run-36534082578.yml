@@ -1,0 +1,29 @@
+name: Remove obsolete failed run 36534082578
+
+on:
+  push:
+    branches:
+      - research/l2-normal-value-router-v2-20260929
+    paths:
+      - ".github/workflows/tmp-delete-run-36534082578.yml"
+
+permissions:
+  actions: write
+  contents: read
+
+jobs:
+  cleanup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    env:
+      GH_TOKEN: ${{ github.token }}
+    steps:
+      - name: Delete exact obsolete failed run
+        run: |
+          gh api --method DELETE "repos/$GITHUB_REPOSITORY/actions/runs/36534082578"
+          echo "deleted run 36534082578"
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "standard ubuntu-latest only"
+          echo "no artifacts, cache, gpu, or paid storage"
