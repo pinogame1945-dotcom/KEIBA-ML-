@@ -1,0 +1,53 @@
+{
+  "contract": "L2_TRIO_AUTO_LAW_V1",
+  "version": 1,
+  "purpose": "Learn interpretable TRIO ticket-rule boundaries from discovery data without hand-written rank-upgrade thresholds or model-rank bands.",
+  "bet_type": "TRIO",
+  "input_years": [2021, 2022, 2023, 2024, 2025],
+  "discovery_years": [2022, 2023, 2024],
+  "confirmation_year": 2025,
+  "confirmation_used_for_selection": false,
+  "locked_years": [2026],
+  "manual_ticket_rule_boundaries": false,
+  "rule_learning": {
+    "algorithm": "DecisionTreeRegressor",
+    "criterion": "poisson",
+    "features": [
+      "rank_upgrade",
+      "model_rank",
+      "market_rank",
+      "odds",
+      "field_size",
+      "trio_rank_sum",
+      "trio_worst_rank",
+      "trio_top3_count",
+      "trio_top6_count",
+      "trio_outside_top6_count"
+    ],
+    "split_thresholds_learned_from_discovery_only": true,
+    "complexity_selected_by_leave_one_discovery_year_out": true,
+    "max_leaf_candidates": [4, 8, 16, 32],
+    "leaf_acceptance": "training leaf ROI > 100 percent break-even",
+    "2025_excluded_from_rule_and_complexity_selection": true
+  },
+  "session_reuse": {
+    "one_runner": true,
+    "build_full_trio_base_once_per_year": true,
+    "build_walk_forward_prediction_once_per_test_year": true,
+    "reuse_predictions_for_all_auto_rule_learning": true,
+    "persist_between_runs": false
+  },
+  "output_policy": {
+    "commit_compact_outputs_only": true,
+    "full_selected_ticket_table_persisted": false,
+    "large_runner_local_tables_ephemeral": true
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_external_storage_write": false
+  }
+}
