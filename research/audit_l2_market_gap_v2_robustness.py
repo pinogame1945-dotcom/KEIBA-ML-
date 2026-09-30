@@ -342,7 +342,12 @@ def main():
     selected={}
     yearly=[]
     for y in TEST_YEARS:
-        c=apply_gap_policy(preds[y],**frozen_policy)
+        c=apply_gap_policy(
+            preds[y],
+            frozen_policy["model_top_k"],
+            frozen_policy["min_market_rank_upgrade"],
+            frozen_policy["max_tickets_per_race"],
+        )
         c=add_bins(c)
         selected[y]=c
         m=metrics(c,preds[y]["race_id"].nunique(),"FROZEN_POLICY")
