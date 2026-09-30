@@ -1,0 +1,41 @@
+{
+  "contract": "L2_MARKET_GAP_V1",
+  "purpose": "Audit whether L1.7 consensus rank outperforming final market popularity rank is useful as a buy/no-buy filter.",
+  "years": [2022, 2023, 2024, 2025],
+  "locked_years": [2026],
+  "gap": {
+    "formula": "market_popularity_rank - l17_consensus_rank",
+    "buy_rule": "gap > 0",
+    "skip_rule": "gap <= 0",
+    "buckets": ["NEG_4PLUS", "NEG_2_3", "NEG_1", "ZERO", "POS_1", "POS_2_3", "POS_4PLUS"]
+  },
+  "invariants": {
+    "rerank_l1": false,
+    "train_model": false,
+    "learn_threshold": false,
+    "gate_used": false,
+    "outsider_used": false,
+    "router_used": false,
+    "odds_as_selection_feature": false,
+    "popularity_as_selection_feature": true,
+    "finish_as_selection_feature": false,
+    "payout_as_selection_feature": false,
+    "payout_evaluation_only": true,
+    "fixed_stake_per_ticket_yen": 100,
+    "production_promotion": false
+  },
+  "market_source": {
+    "source": "KEIBA-BACKFILL daily race packs results[].popularity and results[].win_odds",
+    "join_key": "horse_id",
+    "note": "Final market popularity is allowed at L2; finish position is evaluation only."
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
