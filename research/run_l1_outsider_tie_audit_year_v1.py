@@ -274,6 +274,19 @@ def main():
     truth = load_truth(valid_snapshot)
     router = load_router(router_path)
 
+    blind_race_ids_by_topn = {}
+    for n in TOPNS:
+        ids = []
+        for rid in sorted(set(truth) & set(router)):
+            winners = truth[rid]
+            views = (router[rid].get("experts") or {})
+            if len(views) != 7:
+                raise RuntimeError(f"expected 7 experts race={rid}")
+            seven_union = set().union(*(expert_set(v, n) for v in views.values()))
+            if not bool(winners & seven_union):
+                ids.append(rid)
+        blind_race_ids_by_topn[str(n)] = ids
+
     out_dir = Path(a.out_dir)
     out_dir.mkdir(parents=True, exist_ok=True)
     work_root = Path(a.work_root).resolve() / str(a.year)
@@ -370,6 +383,8 @@ def main():
         "races_per_candidate": sorted({x["races"] for x in results}),
         "safe_tie_breaker": "raw_margin_logit desc, horse_number asc, horse_id asc",
         "shuffle_trials": SHUFFLE_TRIALS,
+        "seven_blind_race_ids_by_topn": blind_race_ids_by_topn,
+        "seven_blind_counts_by_topn": {k: len(v) for k, v in blind_race_ids_by_topn.items()},
         "2026_sealed": True,
     }
     (out_dir / "summary.json").write_text(json.dumps(summary, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
