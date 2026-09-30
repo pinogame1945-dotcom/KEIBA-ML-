@@ -1,0 +1,47 @@
+{
+  "contract": "L2_EXACTA_BIDIRECTIONAL_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Diagnose whether exacta instability comes mainly from direction prediction or from price structure.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "candidate_generator": {
+    "type": "decomposed market-aware ML unordered-pair rank",
+    "walk_forward": {
+      "2023": [2022],
+      "2024": [2022, 2023],
+      "2025": [2022, 2023, 2024]
+    },
+    "top_k": "1 through 15"
+  },
+  "policies": {
+    "MARKET_ONE": "one ticket per pair, market-favored orientation",
+    "L17_ONE": "one ticket per pair, Seven-King vote orientation; market breaks ties",
+    "BOTH_DIRECTIONS": "two tickets per pair, both exacta orientations",
+    "PERFECT_DIRECTION_CEILING": "evaluation-only one-ticket upper bound using realized winning direction"
+  },
+  "selection_rules": {
+    "law_search": false,
+    "odds_filter": false,
+    "race_filter": false,
+    "manual_direction_threshold": false
+  },
+  "evaluation": {
+    "flat_stake_per_ticket_yen": 100,
+    "primary_metrics": [
+      "ROI by individual year",
+      "worst-year ROI",
+      "profitable-year count",
+      "tail robustness",
+      "perfect-direction ceiling"
+    ]
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
