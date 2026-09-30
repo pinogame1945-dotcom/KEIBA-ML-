@@ -59,10 +59,11 @@ def build_year(ballots,consensus,snapshot,year):
         for hid,rank in hs.items():
             if rank>10: continue
             pos=truth.get(rid,{}).get(hid)
-            if pos is None: continue
             score=int(pts.get(rid,{}).get(hid,0))
             rows.append({"year":year,"race_id":rid,"horse_id":hid,"rank":rank,"score":score,
-                         "finish":pos,"y3":int(pos<=3),"win":int(pos==1)})
+                         "finish":pos,
+                         "y3":(int(pos<=3) if pos is not None else None),
+                         "win":(int(pos==1) if pos is not None else None)})
     return rows
 
 def race_metrics(rows,prob_key):
@@ -95,34 +96,38 @@ def race_metrics(rows,prob_key):
       "podium_recall_at6":m["podium_hits_at6"]/d}
 
 def eval_fold(train,test,year):
-    X=np.asarray([features(x["rank"],x["score"]) for x in train],dtype=float)
-    y=np.asarray([x["y3"] for x in train],dtype=int)
+    train_labeled=[x for x in train if x["y3"] is not None]
+    X=np.asarray([features(x["rank"],x["score"]) for x in train_labeled],dtype=float)
+    y=np.asarray([x["y3"] for x in train_labeled],dtype=int)
     model=LogisticRegression(C=0.5,max_iter=1000,solver="lbfgs")
     model.fit(X,y)
     rank_baseline={}
     for r in range(1,11):
-        vals=[x["y3"] for x in train if x["rank"]==r]
+        vals=[x["y3"] for x in train_labeled if x["rank"]==r]
         if not vals: raise ValueError(f"missing training rank {r}")
         rank_baseline[r]=sum(vals)/len(vals)
     Xt=np.asarray([features(x["rank"],x["score"]) for x in test],dtype=float)
     p=model.predict_proba(Xt)[:,1]
-    yy=np.asarray([x["y3"] for x in test],dtype=int)
     scored=[]
     for x,pr in zip(test,p):
         z=dict(x); z["p3"]=float(pr); z["p3_rank_baseline"]=float(rank_baseline[z["rank"]]); z["p3_delta"]=float(pr-rank_baseline[z["rank"]]); z["baseline_score"]=-float(z["rank"]); scored.append(z)
-    baseline=race_metrics(scored,"baseline_score")
-    ml=race_metrics(scored,"p3")
+    eval_scored=[z for z in scored if z["y3"] is not None]
+    yy=np.asarray([x["y3"] for x in eval_scored],dtype=int)
+    pp=np.asarray([x["p3"] for x in eval_scored],dtype=float)
+    baseline=race_metrics(eval_scored,"baseline_score")
+    ml=race_metrics(eval_scored,"p3")
     by=defaultdict(list)
-    for z in scored: by[z["race_id"]].append(z)
+    for z in eval_scored: by[z["race_id"]].append(z)
     moves=0
     for rs in by.values():
         base_ids=[z["horse_id"] for z in sorted(rs,key=lambda z:(z["rank"],z["horse_id"]))]
         ml_ids=[z["horse_id"] for z in sorted(rs,key=lambda z:(-z["p3"],z["rank"],z["horse_id"]))]
         moves+=int(base_ids!=ml_ids)
     return {
-      "eval_year":year,"train_years":sorted({x["year"] for x in train}),
-      "train_rows":len(train),"test_rows":len(test),
-      "auc":float(roc_auc_score(yy,p)),"logloss":float(log_loss(yy,p)),"brier":float(brier_score_loss(yy,p)),
+      "eval_year":year,"train_years":sorted({x["year"] for x in train_labeled}),
+      "train_rows":len(train_labeled),"test_rows":len(eval_scored),"prediction_rows":len(test),
+      "missing_truth_test_rows":len(test)-len(eval_scored),
+      "auc":float(roc_auc_score(yy,pp)),"logloss":float(log_loss(yy,pp)),"brier":float(brier_score_loss(yy,pp)),
       "reordered_races":moves,
       "baseline":baseline,"ml":ml,
       "delta":{"rank1_top3_rate":ml["rank1_top3_rate"]-baseline["rank1_top3_rate"],
@@ -147,6 +152,7 @@ def aggregate(folds):
     return out
 
 def fit_deployment(rows):
+    rows=[x for x in rows if x["y3"] is not None]
     X=np.asarray([features(x["rank"],x["score"]) for x in rows],dtype=float)
     y=np.asarray([x["y3"] for x in rows],dtype=int)
     model=LogisticRegression(C=0.5,max_iter=1000,solver="lbfgs")
