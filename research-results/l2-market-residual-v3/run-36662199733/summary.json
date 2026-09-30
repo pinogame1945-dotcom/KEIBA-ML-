@@ -1,0 +1,52 @@
+{
+  "contract": "L2_MARKET_RESIDUAL_V3_RESULT",
+  "architecture": "market_context_baseline_vs_l17_residual_correction",
+  "raw_ev_multiplication": false,
+  "candidate_horse_cut": false,
+  "development_years": [
+    2023,
+    2024
+  ],
+  "confirmation_year": 2025,
+  "confirmation_used_for_policy_selection": false,
+  "selection_objective": "maximize worst-year DEV ROI subject to >=20% execution coverage in both DEV years; tie combined ROI/profit/lower drawdown",
+  "selected_policy": {
+    "label": "DELTA_0.75_MAX2",
+    "source_races": 6910,
+    "executed_races": 5987,
+    "execution_coverage_pct": 86.6425470332851,
+    "tickets": 11267,
+    "hit_races": 25,
+    "race_hit_rate_pct": 0.361794500723589,
+    "stake_yen": 1126700.0,
+    "return_yen": 784730.0,
+    "profit_yen": -341970.0,
+    "roi_pct": 69.64853110854709,
+    "max_drawdown_yen": 433700.0,
+    "min_delta": 0.75,
+    "max_tickets_per_race": 2,
+    "min_year_roi_pct": 68.70142331680793,
+    "min_year_execution_coverage_pct": 79.24145917776491
+  },
+  "confirmation_2025": {
+    "label": "FROZEN_DEV_CHAMPION",
+    "source_races": 3455,
+    "executed_races": 2517,
+    "execution_coverage_pct": 72.85094066570188,
+    "tickets": 4331,
+    "hit_races": 4,
+    "race_hit_rate_pct": 0.11577424023154848,
+    "stake_yen": 433100.0,
+    "return_yen": 241570.0,
+    "profit_yen": -191530.0,
+    "roi_pct": 55.776956822904644,
+    "max_drawdown_yen": 261810.0,
+    "min_delta": 0.75,
+    "max_tickets_per_race": 2,
+    "selected_from_dev_years": [
+      2023,
+      2024
+    ]
+  },
+  "2026_locked": true
+}
