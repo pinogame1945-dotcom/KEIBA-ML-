@@ -1,0 +1,45 @@
+{
+  "contract": "L2_SIMPLE_RANK_ROLE_V1",
+  "created_at": "2026-09-30",
+  "purpose": "Accept L1.7 ranks 1-3 as-is and measure only deterministic AXIS/HIMO usage.",
+  "years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "locked_years": [
+    2026
+  ],
+  "focal_ranks": [
+    1,
+    2,
+    3
+  ],
+  "partner_pools": [
+    3,
+    6
+  ],
+  "invariants": {
+    "rerank_l1": false,
+    "train_model": false,
+    "race_filtering": false,
+    "gate_used": false,
+    "outsider_used": false,
+    "router_used": false,
+    "odds_as_selection_feature": false,
+    "popularity_as_selection_feature": false,
+    "payout_as_selection_feature": false,
+    "payout_evaluation_only": true,
+    "fixed_stake_per_ticket_yen": 100
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "kaggle_existing_datasets_read_only": true,
+    "persistent_kaggle_upload": false
+  }
+}
