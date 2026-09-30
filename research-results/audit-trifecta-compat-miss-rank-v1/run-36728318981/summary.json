@@ -1,0 +1,203 @@
+{
+  "contract": "L2_TRIFECTA_COMPAT_MISS_RANK_AUDIT_V1",
+  "year": 2025,
+  "source_races": 3456,
+  "training_years": [
+    2022,
+    2023,
+    2024
+  ],
+  "model_recipe": "Ability V2 COMPAT 2025 fold exact reproduction",
+  "training_rows": 1029405,
+  "training_races": 10368,
+  "reproduction_guard": {
+    "expected_top5_hits": 78,
+    "actual_top5_hits": 78,
+    "expected_top5_return_yen": 1662740.0,
+    "actual_top5_return_yen": 1662740.0,
+    "passed": true
+  },
+  "top5": {
+    "hit_races": 78,
+    "miss_races": 3378,
+    "hit_rate_pct": 2.2569444444444446,
+    "roi_pct": 96.22337962962963
+  },
+  "near_miss_6_to_20": {
+    "races": 95,
+    "share_of_all_races_pct": 2.7488425925925926,
+    "share_of_top5_misses_pct": 2.812314979277679,
+    "median_winner_rank": 12.0,
+    "median_payout_yen_per100": 6690.0,
+    "median_fifth_minus_winner_score_gap": 0.057632433412700634
+  },
+  "winner_rank_median": 439.5,
+  "winner_rank_p75": 850.25,
+  "winner_rank_p90": 1429.5,
+  "winner_rank_p95": 1861.25,
+  "winner_rank_max": 4200,
+  "bands": [
+    {
+      "band": "01-05",
+      "races": 78,
+      "share_pct": 2.2569444444444446,
+      "cumulative_through_band_pct": 2.2569444444444446,
+      "mean_winner_rank": 2.9743589743589745,
+      "mean_candidates": 969.8461538461538,
+      "mean_winner_payout_yen_per100": 21317.17948717949,
+      "median_winner_payout_yen_per100": 1780.0,
+      "p75_winner_payout_yen_per100": 3202.5,
+      "p90_winner_payout_yen_per100": 29124.0,
+      "max_winner_payout_yen_per100": 508860.0
+    },
+    {
+      "band": "06-10",
+      "races": 43,
+      "share_pct": 1.244212962962963,
+      "cumulative_through_band_pct": 3.5011574074074074,
+      "mean_winner_rank": 8.13953488372093,
+      "mean_candidates": 1194.0,
+      "mean_winner_payout_yen_per100": 30591.86046511628,
+      "median_winner_payout_yen_per100": 4330.0,
+      "p75_winner_payout_yen_per100": 31010.0,
+      "p90_winner_payout_yen_per100": 73770.0,
+      "max_winner_payout_yen_per100": 280200.0
+    },
+    {
+      "band": "11-20",
+      "races": 52,
+      "share_pct": 1.5046296296296295,
+      "cumulative_through_band_pct": 5.005787037037037,
+      "mean_winner_rank": 15.307692307692308,
+      "mean_candidates": 1561.2692307692307,
+      "mean_winner_payout_yen_per100": 36938.07692307692,
+      "median_winner_payout_yen_per100": 14535.0,
+      "p75_winner_payout_yen_per100": 48342.5,
+      "p90_winner_payout_yen_per100": 91745.99999999999,
+      "max_winner_payout_yen_per100": 239740.0
+    },
+    {
+      "band": "21-50",
+      "races": 131,
+      "share_pct": 3.790509259259259,
+      "cumulative_through_band_pct": 8.796296296296296,
+      "mean_winner_rank": 34.282442748091604,
+      "mean_candidates": 1710.320610687023,
+      "mean_winner_payout_yen_per100": 33355.19083969466,
+      "median_winner_payout_yen_per100": 19510.0,
+      "p75_winner_payout_yen_per100": 48065.0,
+      "p90_winner_payout_yen_per100": 86430.0,
+      "max_winner_payout_yen_per100": 204970.0
+    },
+    {
+      "band": "51-100",
+      "races": 192,
+      "share_pct": 5.555555555555555,
+      "cumulative_through_band_pct": 14.351851851851851,
+      "mean_winner_rank": 74.58854166666667,
+      "mean_candidates": 1751.65625,
+      "mean_winner_payout_yen_per100": 60282.395833333336,
+      "median_winner_payout_yen_per100": 25535.0,
+      "p75_winner_payout_yen_per100": 61732.5,
+      "p90_winner_payout_yen_per100": 106924.00000000001,
+      "max_winner_payout_yen_per100": 1100180.0
+    },
+    {
+      "band": "101-200",
+      "races": 422,
+      "share_pct": 12.210648148148149,
+      "cumulative_through_band_pct": 26.5625,
+      "mean_winner_rank": 149.7654028436019,
+      "mean_candidates": 1901.3317535545023,
+      "mean_winner_payout_yen_per100": 49945.3317535545,
+      "median_winner_payout_yen_per100": 22285.0,
+      "p75_winner_payout_yen_per100": 59887.5,
+      "p90_winner_payout_yen_per100": 116857.00000000001,
+      "max_winner_payout_yen_per100": 1419800.0
+    },
+    {
+      "band": "201+",
+      "races": 2538,
+      "share_pct": 73.4375,
+      "cumulative_through_band_pct": 100.0,
+      "mean_winner_rank": 811.4700551615446,
+      "mean_candidates": 2647.3900709219856,
+      "mean_winner_payout_yen_per100": 158768.11662726555,
+      "median_winner_payout_yen_per100": 27735.0,
+      "p75_winner_payout_yen_per100": 95337.5,
+      "p90_winner_payout_yen_per100": 324529.00000000035,
+      "max_winner_payout_yen_per100": 11483780.0
+    }
+  ],
+  "topn_reach": [
+    {
+      "top_n": 1,
+      "caught_races": 9,
+      "caught_rate_pct": 0.2604166666666667,
+      "increment_from_top5_races": null
+    },
+    {
+      "top_n": 2,
+      "caught_races": 35,
+      "caught_rate_pct": 1.0127314814814814,
+      "increment_from_top5_races": null
+    },
+    {
+      "top_n": 3,
+      "caught_races": 52,
+      "caught_rate_pct": 1.5046296296296295,
+      "increment_from_top5_races": null
+    },
+    {
+      "top_n": 5,
+      "caught_races": 78,
+      "caught_rate_pct": 2.2569444444444446,
+      "increment_from_top5_races": 0
+    },
+    {
+      "top_n": 10,
+      "caught_races": 121,
+      "caught_rate_pct": 3.5011574074074074,
+      "increment_from_top5_races": 43
+    },
+    {
+      "top_n": 20,
+      "caught_races": 173,
+      "caught_rate_pct": 5.005787037037037,
+      "increment_from_top5_races": 95
+    },
+    {
+      "top_n": 50,
+      "caught_races": 304,
+      "caught_rate_pct": 8.796296296296296,
+      "increment_from_top5_races": 226
+    },
+    {
+      "top_n": 100,
+      "caught_races": 496,
+      "caught_rate_pct": 14.351851851851851,
+      "increment_from_top5_races": 418
+    },
+    {
+      "top_n": 200,
+      "caught_races": 918,
+      "caught_rate_pct": 26.5625,
+      "increment_from_top5_races": 840
+    },
+    {
+      "top_n": 500,
+      "caught_races": 1884,
+      "caught_rate_pct": 54.513888888888886,
+      "increment_from_top5_races": 1806
+    },
+    {
+      "top_n": 1000,
+      "caught_races": 2780,
+      "caught_rate_pct": 80.43981481481481,
+      "increment_from_top5_races": 2702
+    }
+  ],
+  "counters": {},
+  "new_betting_rule_created": false,
+  "2026_locked": true
+}
