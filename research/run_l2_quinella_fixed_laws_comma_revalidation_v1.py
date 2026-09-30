@@ -62,7 +62,7 @@ def main():
         train_years=[2021] if y==2022 else [t for t in (2022,2023,2024) if t<y]
         train=pd.concat([frames[t] for t in train_years],ignore_index=True)
         test=frames[y].copy().reset_index(drop=True)
-        score,_=train_rank_predict(train,test,cols,94000+y)
+        score,_=train_rank_predict(train,test,cols,93000+y)
         test["market_aware_score"]=score
         test=add_bins(add_ranks(test))
         predictions[y]=test
