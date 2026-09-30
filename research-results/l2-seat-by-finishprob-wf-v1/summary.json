@@ -1,0 +1,40 @@
+{
+  "contract": "L2_SEAT_BY_FINISHPROB_WF_V1",
+  "source_run": 36706811732,
+  "idea": "Choose trifecta seat only from prior-year exact finish probabilities of the fixed L1.7 focal horse; never choose seat by ROI.",
+  "test_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "variants": {
+    "RANK_ONLY": "rank only",
+    "DIRECTION": "rank + KING_HIGHER/SAME/MARKET_HIGHER",
+    "BUCKET": "rank + fixed market-gap bucket"
+  },
+  "pools": [
+    3,
+    6
+  ],
+  "selection_target": "argmax(P(finish=1),P(finish=2),P(finish=3))",
+  "selection_uses_roi": false,
+  "selection_uses_payout": false,
+  "selection_uses_test_year": false,
+  "rerank_l1": false,
+  "2026_locked": true,
+  "best_oos_combined": {
+    "variant": "BUCKET",
+    "focal_rank": 2,
+    "pool_k": 6,
+    "test_years": "2023-2025",
+    "races": 10335,
+    "tickets": 206700,
+    "avg_tickets_per_race": 20.0,
+    "hit_races": 1109,
+    "hit_rate_pct": 10.73052733430092,
+    "stake_yen": 20670000.0,
+    "return_yen": 14686580.0,
+    "profit_yen": -5983420.0,
+    "roi_pct": 71.0526366715046
+  }
+}
