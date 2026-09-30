@@ -1,0 +1,103 @@
+name: L2 Market Gap Past Independent Preflight
+
+on:
+  push:
+    branches:
+      - research/l2-market-gap-past-independent-v1-20260930
+    paths:
+      - .github/triggers/l2-market-gap-past-independent-preflight.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  preflight:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install Kaggle CLI
+        run: python -m pip install --disable-pip-version-check kaggle
+
+      - name: Metadata-only snapshot preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          s="out/preflight/snapshot"
+          bash scripts/kaggle-dataset-session-v2.sh init "pino1945/keiba-ml-snapshot-eb13d4096519167b" "$s"
+          python - "$s/.files.json" <<'PY'
+          import json,sys
+          p=sys.argv[1]
+          x=json.load(open(p,encoding="utf-8"))
+          names=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  for k,val in v.items():
+                      if k in ("name","fileName","path","ref") and isinstance(val,str):
+                          names.append(val)
+                      walk(val)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(x)
+          uniq=sorted(set(names))
+          print("SNAPSHOT_REMOTE_NAMES")
+          for n in uniq: print(n)
+          for y in range(2017,2023):
+              hits=[n for n in uniq if str(y) in n and "snapshot" in n.lower()]
+              print(f"SNAPSHOT_YEAR {y} count={len(hits)} names={hits}")
+          PY
+
+      - name: Metadata-only seven-score preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          for y in 2021 2022; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/preflight/score-$y-$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              set +e
+              bash scripts/kaggle-dataset-session-v2.sh init "$ref" "$d"
+              rc=$?
+              set -e
+              if [[ "$rc" -ne 0 ]]; then
+                echo "SCORE_META year=$y alias=$alias status=missing_or_error rc=$rc"
+                continue
+              fi
+              python - "$d/.files.json" "$y" "$alias" <<'PY'
+          import json,sys
+          p,y,a=sys.argv[1:]
+          x=json.load(open(p,encoding="utf-8"))
+          names=[]
+          def walk(v):
+              if isinstance(v,dict):
+                  for k,val in v.items():
+                      if k in ("name","fileName","path","ref") and isinstance(val,str):
+                          names.append(val)
+                      walk(val)
+              elif isinstance(v,list):
+                  for z in v: walk(z)
+          walk(x)
+          uniq=sorted(set(names))
+          score=[n for n in uniq if "score.jsonl" in n]
+          print(f"SCORE_META year={y} alias={a} status=ok score_files={score}")
+          PY
+            done
+          done
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Metadata-only Kaggle reads."
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / Artifact / Cache / Kaggle writes."
+          echo "No paid storage created."
+          echo "2026 not read."
