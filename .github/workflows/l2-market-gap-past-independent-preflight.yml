@@ -60,7 +60,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          for y in 2021 2022; do
+          for y in 2020 2021 2022; do
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/preflight/score-$y-$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
