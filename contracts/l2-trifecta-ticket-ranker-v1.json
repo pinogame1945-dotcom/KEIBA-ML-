@@ -1,0 +1,52 @@
+{
+  "contract": "L2_TRIFECTA_TICKET_RANKER_V1",
+  "purpose": "Replace hand-authored seat/gap rules with one ticket-level ranker over every Seven-King Top6 trifecta candidate.",
+  "years": [2022, 2023, 2024, 2025],
+  "development_years": [2023, 2024],
+  "holdout_year": 2025,
+  "locked_years": [2026],
+  "candidate_universe": {
+    "horses": "Seven-King consensus Top6",
+    "bet_type": "TRIFECTA",
+    "ordered_permutations_per_full_race": 120,
+    "all_candidates_scored": true
+  },
+  "model": {
+    "family": "LightGBM LambdaRank",
+    "training": "strict walk-forward",
+    "features": [
+      "seat-specific L1.7 Seven-King consensus features",
+      "seat-specific seven-expert ranks and probabilities",
+      "race context",
+      "normalized inverse final trifecta odds within the 120-ticket race",
+      "market rank within the 120-ticket race"
+    ],
+    "raw_odds_as_model_feature": false,
+    "payout_as_model_feature": false,
+    "finish_result_as_model_feature": false
+  },
+  "policy": {
+    "manual_seat_rules": false,
+    "manual_market_gap_rules": false,
+    "race_skip_rules": false,
+    "topn_grid": [1, 2, 3, 5, 10, 20, 30, 60, 120],
+    "selection_rule": "Select one global Top-N on development years only, then freeze for 2025 holdout."
+  },
+  "invariants": {
+    "rerank_l1": false,
+    "outsider_used": false,
+    "gate_used": false,
+    "holdout_used_for_policy_selection": false,
+    "2026_used": false,
+    "production_promotion": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false,
+    "kaggle_existing_datasets_read_only": true
+  }
+}
