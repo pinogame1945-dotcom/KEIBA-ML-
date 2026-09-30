@@ -1,0 +1,57 @@
+{
+  "contract": "L2_EXACTA_DIRECT_PROFIT_V1",
+  "bet_type": "EXACTA",
+  "purpose": "Predict ticket monetary return directly instead of predicting hit probability and multiplying by odds.",
+  "years": [2022, 2023, 2024, 2025],
+  "test_years": [2023, 2024, 2025],
+  "locked_years": [2026],
+  "target": {
+    "training_target": "realized return_yen_per100",
+    "derived_predicted_profit": "predicted_return_yen - 100"
+  },
+  "models": [
+    {"label": "DIRECT_TWEEDIE_1_2", "objective": "tweedie", "variance_power": 1.2},
+    {"label": "DIRECT_TWEEDIE_1_5", "objective": "tweedie", "variance_power": 1.5},
+    {"label": "DIRECT_TWEEDIE_1_8", "objective": "tweedie", "variance_power": 1.8}
+  ],
+  "human_fixed_selection_rules": {
+    "top_k": false,
+    "confidence_floor": false,
+    "odds_band": false,
+    "ticket_count_cap": false,
+    "forced_skip_rate": false,
+    "legacy_law": false
+  },
+  "decision": {
+    "criterion": "predicted_return_yen > 100",
+    "reason": "mathematical positive predicted profit only",
+    "variable_ticket_count": true,
+    "race_skip_allowed": true
+  },
+  "evaluation": {
+    "flat_stake_yen_per_ticket": 100,
+    "compare_auto_v0_run": 36688819634,
+    "compare_learned_boundary_run": 36691176247,
+    "tail_remove_top_winners": [1, 3, 10, 25],
+    "l3_stake_sizing_separate": true
+  },
+  "market": {
+    "final_odds_used_as_l2_feature": true,
+    "caveat": "historical final odds proxy, not live timestamp execution simulation"
+  },
+  "speed": {
+    "all_bet_decoder_audit_repeated": false,
+    "unordered_pair_build_once": true,
+    "ordered_ticket_expansion_once": true,
+    "l17_materialized_once_per_year": true,
+    "same_runner_reuse": true,
+    "persistent_cache": false
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "persistent_kaggle_upload": false
+  }
+}
