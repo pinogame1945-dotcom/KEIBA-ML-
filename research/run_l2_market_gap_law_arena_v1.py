@@ -370,6 +370,8 @@ def main():
 
     summary={
         "contract":"L2_MARKET_GAP_LAW_ARENA_V1_RESULT",
+        "source_variant":"ODDS_COMMA_CORRECTED",
+        "odds_decoder_numeric_normalization":"remove thousands separators before float conversion",
         "candidate_count":int(len(arena)),
         "qualified_candidate_count":int(len(qualified)),
         "discovery_years":list(DEV_YEARS),
