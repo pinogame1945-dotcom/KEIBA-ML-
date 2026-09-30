@@ -1,0 +1,2490 @@
+{
+  "contract": "L1_OUTSIDER_SAFE_RESCUE_UNION_V1",
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "candidate_count": 13,
+  "topn": {
+    "1": {
+      "seven_blind_count": 10083,
+      "all_13_union_rescue_count": 6004,
+      "all_13_union_rescue_rate": 0.5954577010810275,
+      "remaining_unrescued_count": 4079,
+      "remaining_unrescued_rate": 0.40454229891897253,
+      "rescued_by_outsider_count_distribution": {
+        "0": 4079,
+        "1": 3096,
+        "2": 1637,
+        "3": 773,
+        "4": 290,
+        "5": 100,
+        "6": 51,
+        "7": 40,
+        "8": 13,
+        "9": 3,
+        "10": 1
+      },
+      "individual": {
+        "outsider_bodychange": {
+          "rescue_count": 860,
+          "rescue_rate_on_blind": 0.08529207577109987,
+          "exclusive_rescue_count": 247,
+          "exclusive_rescue_rate_on_blind": 0.024496677576118217
+        },
+        "outsider_chimera": {
+          "rescue_count": 832,
+          "rescue_rate_on_blind": 0.08251512446692452,
+          "exclusive_rescue_count": 106,
+          "exclusive_rescue_rate_on_blind": 0.01051274422294952
+        },
+        "outsider_classmove": {
+          "rescue_count": 708,
+          "rescue_rate_on_blind": 0.07021719726271942,
+          "exclusive_rescue_count": 172,
+          "exclusive_rescue_rate_on_blind": 0.017058415154219974
+        },
+        "outsider_coursetransition": {
+          "rescue_count": 661,
+          "rescue_rate_on_blind": 0.06555588614499652,
+          "exclusive_rescue_count": 175,
+          "exclusive_rescue_rate_on_blind": 0.017355945651095904
+        },
+        "outsider_daytrend": {
+          "rescue_count": 941,
+          "rescue_rate_on_blind": 0.09332539918674998,
+          "exclusive_rescue_count": 319,
+          "exclusive_rescue_rate_on_blind": 0.03163740950114053
+        },
+        "outsider_disttransition": {
+          "rescue_count": 764,
+          "rescue_rate_on_blind": 0.07577109987107011,
+          "exclusive_rescue_count": 233,
+          "exclusive_rescue_rate_on_blind": 0.023108201924030545
+        },
+        "outsider_field": {
+          "rescue_count": 1018,
+          "rescue_rate_on_blind": 0.10096201527323218,
+          "exclusive_rescue_count": 246,
+          "exclusive_rescue_rate_on_blind": 0.024397500743826243
+        },
+        "outsider_gatecourse": {
+          "rescue_count": 841,
+          "rescue_rate_on_blind": 0.08340771595755232,
+          "exclusive_rescue_count": 350,
+          "exclusive_rescue_rate_on_blind": 0.03471189130219181
+        },
+        "outsider_jockey": {
+          "rescue_count": 790,
+          "rescue_rate_on_blind": 0.07834969751066151,
+          "exclusive_rescue_count": 205,
+          "exclusive_rescue_rate_on_blind": 0.0203312506198552
+        },
+        "outsider_opponentgap": {
+          "rescue_count": 774,
+          "rescue_rate_on_blind": 0.07676286819398988,
+          "exclusive_rescue_count": 244,
+          "exclusive_rescue_rate_on_blind": 0.02419914707924229
+        },
+        "outsider_raceshape": {
+          "rescue_count": 1071,
+          "rescue_rate_on_blind": 0.10621838738470693,
+          "exclusive_rescue_count": 252,
+          "exclusive_rescue_rate_on_blind": 0.024992561737578103
+        },
+        "outsider_rotation": {
+          "rescue_count": 954,
+          "rescue_rate_on_blind": 0.09461469800654568,
+          "exclusive_rescue_count": 297,
+          "exclusive_rescue_rate_on_blind": 0.02945551919071705
+        },
+        "outsider_weightchange": {
+          "rescue_count": 862,
+          "rescue_rate_on_blind": 0.08549042943568383,
+          "exclusive_rescue_count": 250,
+          "exclusive_rescue_rate_on_blind": 0.024794208072994147
+        }
+      },
+      "best_combinations_by_size": [
+        {
+          "size": 1,
+          "rescue_count": 1071,
+          "marginal_vs_prev_best": 1071,
+          "candidates": [
+            "outsider_raceshape"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.10621838738470693,
+          "labels": [
+            "レース構造型"
+          ]
+        },
+        {
+          "size": 2,
+          "rescue_count": 1949,
+          "marginal_vs_prev_best": 878,
+          "candidates": [
+            "outsider_field",
+            "outsider_raceshape"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.19329564613706238,
+          "labels": [
+            "メンバー構成型",
+            "レース構造型"
+          ]
+        },
+        {
+          "size": 3,
+          "rescue_count": 2596,
+          "marginal_vs_prev_best": 647,
+          "candidates": [
+            "outsider_field",
+            "outsider_raceshape",
+            "outsider_rotation"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.25746305662997127,
+          "labels": [
+            "メンバー構成型",
+            "レース構造型",
+            "ローテーション型"
+          ]
+        },
+        {
+          "size": 4,
+          "rescue_count": 3199,
+          "marginal_vs_prev_best": 603,
+          "candidates": [
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_raceshape",
+            "outsider_rotation"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.3172666865020331,
+          "labels": [
+            "メンバー構成型",
+            "枠・コース型",
+            "レース構造型",
+            "ローテーション型"
+          ]
+        },
+        {
+          "size": 5,
+          "rescue_count": 3706,
+          "marginal_vs_prev_best": 507,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_raceshape",
+            "outsider_rotation"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.36754934047406523,
+          "labels": [
+            "当日傾向型",
+            "メンバー構成型",
+            "枠・コース型",
+            "レース構造型",
+            "ローテーション型"
+          ]
+        },
+        {
+          "size": 6,
+          "rescue_count": 4162,
+          "marginal_vs_prev_best": 456,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.41277397599920657,
+          "labels": [
+            "当日傾向型",
+            "メンバー構成型",
+            "枠・コース型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 7,
+          "rescue_count": 4580,
+          "marginal_vs_prev_best": 418,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.4542298918972528,
+          "labels": [
+            "当日傾向型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 8,
+          "rescue_count": 4934,
+          "marginal_vs_prev_best": 354,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.4893384905286125,
+          "labels": [
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 9,
+          "rescue_count": 5231,
+          "marginal_vs_prev_best": 297,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.5187940097193295,
+          "labels": [
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 10,
+          "rescue_count": 5512,
+          "marginal_vs_prev_best": 281,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.546662699593375,
+          "labels": [
+            "馬体変動型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 11,
+          "rescue_count": 5724,
+          "marginal_vs_prev_best": 212,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.567688188039274,
+          "labels": [
+            "馬体変動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 12,
+          "rescue_count": 5898,
+          "marginal_vs_prev_best": 174,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.5849449568580779,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 13,
+          "rescue_count": 6004,
+          "marginal_vs_prev_best": 106,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_chimera",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.5954577010810275,
+          "labels": [
+            "馬体変動型",
+            "キメラ型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        }
+      ],
+      "pairwise": {
+        "outsider_bodychange+outsider_chimera": {
+          "intersection": 116,
+          "union": 1576,
+          "jaccard": 0.07360406091370558
+        },
+        "outsider_bodychange+outsider_classmove": {
+          "intersection": 67,
+          "union": 1501,
+          "jaccard": 0.04463690872751499
+        },
+        "outsider_bodychange+outsider_coursetransition": {
+          "intersection": 58,
+          "union": 1463,
+          "jaccard": 0.039644565960355434
+        },
+        "outsider_bodychange+outsider_daytrend": {
+          "intersection": 96,
+          "union": 1705,
+          "jaccard": 0.0563049853372434
+        },
+        "outsider_bodychange+outsider_disttransition": {
+          "intersection": 76,
+          "union": 1548,
+          "jaccard": 0.04909560723514212
+        },
+        "outsider_bodychange+outsider_field": {
+          "intersection": 327,
+          "union": 1551,
+          "jaccard": 0.21083172147001933
+        },
+        "outsider_bodychange+outsider_gatecourse": {
+          "intersection": 76,
+          "union": 1625,
+          "jaccard": 0.04676923076923077
+        },
+        "outsider_bodychange+outsider_jockey": {
+          "intersection": 73,
+          "union": 1577,
+          "jaccard": 0.046290424857324035
+        },
+        "outsider_bodychange+outsider_opponentgap": {
+          "intersection": 65,
+          "union": 1569,
+          "jaccard": 0.041427660930529
+        },
+        "outsider_bodychange+outsider_raceshape": {
+          "intersection": 109,
+          "union": 1822,
+          "jaccard": 0.05982436882546652
+        },
+        "outsider_bodychange+outsider_rotation": {
+          "intersection": 85,
+          "union": 1729,
+          "jaccard": 0.049161364950838636
+        },
+        "outsider_bodychange+outsider_weightchange": {
+          "intersection": 74,
+          "union": 1648,
+          "jaccard": 0.044902912621359224
+        },
+        "outsider_chimera+outsider_classmove": {
+          "intersection": 67,
+          "union": 1473,
+          "jaccard": 0.04548540393754243
+        },
+        "outsider_chimera+outsider_coursetransition": {
+          "intersection": 52,
+          "union": 1441,
+          "jaccard": 0.03608605135322693
+        },
+        "outsider_chimera+outsider_daytrend": {
+          "intersection": 128,
+          "union": 1645,
+          "jaccard": 0.07781155015197569
+        },
+        "outsider_chimera+outsider_disttransition": {
+          "intersection": 73,
+          "union": 1523,
+          "jaccard": 0.0479317137229153
+        },
+        "outsider_chimera+outsider_field": {
+          "intersection": 184,
+          "union": 1666,
+          "jaccard": 0.11044417767106843
+        },
+        "outsider_chimera+outsider_gatecourse": {
+          "intersection": 72,
+          "union": 1601,
+          "jaccard": 0.04497189256714553
+        },
+        "outsider_chimera+outsider_jockey": {
+          "intersection": 368,
+          "union": 1254,
+          "jaccard": 0.2934609250398724
+        },
+        "outsider_chimera+outsider_opponentgap": {
+          "intersection": 72,
+          "union": 1534,
+          "jaccard": 0.0469361147327249
+        },
+        "outsider_chimera+outsider_raceshape": {
+          "intersection": 263,
+          "union": 1640,
+          "jaccard": 0.1603658536585366
+        },
+        "outsider_chimera+outsider_rotation": {
+          "intersection": 107,
+          "union": 1679,
+          "jaccard": 0.06372840976771887
+        },
+        "outsider_chimera+outsider_weightchange": {
+          "intersection": 95,
+          "union": 1599,
+          "jaccard": 0.05941213258286429
+        },
+        "outsider_classmove+outsider_coursetransition": {
+          "intersection": 191,
+          "union": 1178,
+          "jaccard": 0.16213921901528014
+        },
+        "outsider_classmove+outsider_daytrend": {
+          "intersection": 71,
+          "union": 1578,
+          "jaccard": 0.044993662864385296
+        },
+        "outsider_classmove+outsider_disttransition": {
+          "intersection": 154,
+          "union": 1318,
+          "jaccard": 0.11684370257966616
+        },
+        "outsider_classmove+outsider_field": {
+          "intersection": 83,
+          "union": 1643,
+          "jaccard": 0.0505173463177115
+        },
+        "outsider_classmove+outsider_gatecourse": {
+          "intersection": 58,
+          "union": 1491,
+          "jaccard": 0.038900067069081154
+        },
+        "outsider_classmove+outsider_jockey": {
+          "intersection": 59,
+          "union": 1439,
+          "jaccard": 0.04100069492703266
+        },
+        "outsider_classmove+outsider_opponentgap": {
+          "intersection": 126,
+          "union": 1356,
+          "jaccard": 0.09292035398230089
+        },
+        "outsider_classmove+outsider_raceshape": {
+          "intersection": 147,
+          "union": 1632,
+          "jaccard": 0.0900735294117647
+        },
+        "outsider_classmove+outsider_rotation": {
+          "intersection": 135,
+          "union": 1527,
+          "jaccard": 0.08840864440078586
+        },
+        "outsider_classmove+outsider_weightchange": {
+          "intersection": 188,
+          "union": 1382,
+          "jaccard": 0.13603473227206947
+        },
+        "outsider_coursetransition+outsider_daytrend": {
+          "intersection": 72,
+          "union": 1530,
+          "jaccard": 0.047058823529411764
+        },
+        "outsider_coursetransition+outsider_disttransition": {
+          "intersection": 172,
+          "union": 1253,
+          "jaccard": 0.1372705506783719
+        },
+        "outsider_coursetransition+outsider_field": {
+          "intersection": 53,
+          "union": 1626,
+          "jaccard": 0.032595325953259535
+        },
+        "outsider_coursetransition+outsider_gatecourse": {
+          "intersection": 58,
+          "union": 1444,
+          "jaccard": 0.04016620498614958
+        },
+        "outsider_coursetransition+outsider_jockey": {
+          "intersection": 47,
+          "union": 1404,
+          "jaccard": 0.03347578347578348
+        },
+        "outsider_coursetransition+outsider_opponentgap": {
+          "intersection": 92,
+          "union": 1343,
+          "jaccard": 0.06850335070737155
+        },
+        "outsider_coursetransition+outsider_raceshape": {
+          "intersection": 127,
+          "union": 1605,
+          "jaccard": 0.07912772585669782
+        },
+        "outsider_coursetransition+outsider_rotation": {
+          "intersection": 111,
+          "union": 1504,
+          "jaccard": 0.07380319148936171
+        },
+        "outsider_coursetransition+outsider_weightchange": {
+          "intersection": 144,
+          "union": 1379,
+          "jaccard": 0.10442349528643945
+        },
+        "outsider_daytrend+outsider_disttransition": {
+          "intersection": 89,
+          "union": 1616,
+          "jaccard": 0.055074257425742575
+        },
+        "outsider_daytrend+outsider_field": {
+          "intersection": 119,
+          "union": 1840,
+          "jaccard": 0.06467391304347826
+        },
+        "outsider_daytrend+outsider_gatecourse": {
+          "intersection": 127,
+          "union": 1655,
+          "jaccard": 0.07673716012084592
+        },
+        "outsider_daytrend+outsider_jockey": {
+          "intersection": 77,
+          "union": 1654,
+          "jaccard": 0.046553808948004836
+        },
+        "outsider_daytrend+outsider_opponentgap": {
+          "intersection": 84,
+          "union": 1631,
+          "jaccard": 0.05150214592274678
+        },
+        "outsider_daytrend+outsider_raceshape": {
+          "intersection": 224,
+          "union": 1788,
+          "jaccard": 0.12527964205816555
+        },
+        "outsider_daytrend+outsider_rotation": {
+          "intersection": 106,
+          "union": 1789,
+          "jaccard": 0.05925097820011179
+        },
+        "outsider_daytrend+outsider_weightchange": {
+          "intersection": 85,
+          "union": 1718,
+          "jaccard": 0.04947613504074505
+        },
+        "outsider_disttransition+outsider_field": {
+          "intersection": 62,
+          "union": 1720,
+          "jaccard": 0.03604651162790698
+        },
+        "outsider_disttransition+outsider_gatecourse": {
+          "intersection": 51,
+          "union": 1554,
+          "jaccard": 0.032818532818532815
+        },
+        "outsider_disttransition+outsider_jockey": {
+          "intersection": 69,
+          "union": 1485,
+          "jaccard": 0.046464646464646465
+        },
+        "outsider_disttransition+outsider_opponentgap": {
+          "intersection": 112,
+          "union": 1426,
+          "jaccard": 0.0785413744740533
+        },
+        "outsider_disttransition+outsider_raceshape": {
+          "intersection": 147,
+          "union": 1688,
+          "jaccard": 0.08708530805687204
+        },
+        "outsider_disttransition+outsider_rotation": {
+          "intersection": 117,
+          "union": 1601,
+          "jaccard": 0.0730793254216115
+        },
+        "outsider_disttransition+outsider_weightchange": {
+          "intersection": 119,
+          "union": 1507,
+          "jaccard": 0.0789648307896483
+        },
+        "outsider_field+outsider_gatecourse": {
+          "intersection": 102,
+          "union": 1757,
+          "jaccard": 0.05805350028457598
+        },
+        "outsider_field+outsider_jockey": {
+          "intersection": 96,
+          "union": 1712,
+          "jaccard": 0.056074766355140186
+        },
+        "outsider_field+outsider_opponentgap": {
+          "intersection": 111,
+          "union": 1681,
+          "jaccard": 0.0660321237358715
+        },
+        "outsider_field+outsider_raceshape": {
+          "intersection": 140,
+          "union": 1949,
+          "jaccard": 0.07183170856849666
+        },
+        "outsider_field+outsider_rotation": {
+          "intersection": 153,
+          "union": 1819,
+          "jaccard": 0.08411214953271028
+        },
+        "outsider_field+outsider_weightchange": {
+          "intersection": 151,
+          "union": 1729,
+          "jaccard": 0.08733371891266628
+        },
+        "outsider_gatecourse+outsider_jockey": {
+          "intersection": 77,
+          "union": 1554,
+          "jaccard": 0.04954954954954955
+        },
+        "outsider_gatecourse+outsider_opponentgap": {
+          "intersection": 45,
+          "union": 1570,
+          "jaccard": 0.028662420382165606
+        },
+        "outsider_gatecourse+outsider_raceshape": {
+          "intersection": 103,
+          "union": 1809,
+          "jaccard": 0.056937534549474846
+        },
+        "outsider_gatecourse+outsider_rotation": {
+          "intersection": 75,
+          "union": 1720,
+          "jaccard": 0.0436046511627907
+        },
+        "outsider_gatecourse+outsider_weightchange": {
+          "intersection": 79,
+          "union": 1624,
+          "jaccard": 0.04864532019704434
+        },
+        "outsider_jockey+outsider_opponentgap": {
+          "intersection": 50,
+          "union": 1514,
+          "jaccard": 0.03302509907529723
+        },
+        "outsider_jockey+outsider_raceshape": {
+          "intersection": 104,
+          "union": 1757,
+          "jaccard": 0.05919180421172453
+        },
+        "outsider_jockey+outsider_rotation": {
+          "intersection": 86,
+          "union": 1658,
+          "jaccard": 0.05186972255729795
+        },
+        "outsider_jockey+outsider_weightchange": {
+          "intersection": 86,
+          "union": 1566,
+          "jaccard": 0.05491698595146871
+        },
+        "outsider_opponentgap+outsider_raceshape": {
+          "intersection": 177,
+          "union": 1668,
+          "jaccard": 0.10611510791366907
+        },
+        "outsider_opponentgap+outsider_rotation": {
+          "intersection": 194,
+          "union": 1534,
+          "jaccard": 0.12646675358539766
+        },
+        "outsider_opponentgap+outsider_weightchange": {
+          "intersection": 118,
+          "union": 1518,
+          "jaccard": 0.077733860342556
+        },
+        "outsider_raceshape+outsider_rotation": {
+          "intersection": 195,
+          "union": 1830,
+          "jaccard": 0.10655737704918032
+        },
+        "outsider_raceshape+outsider_weightchange": {
+          "intersection": 134,
+          "union": 1799,
+          "jaccard": 0.0744858254585881
+        },
+        "outsider_rotation+outsider_weightchange": {
+          "intersection": 163,
+          "union": 1653,
+          "jaccard": 0.09860859044162129
+        }
+      }
+    },
+    "3": {
+      "seven_blind_count": 4798,
+      "all_13_union_rescue_count": 4227,
+      "all_13_union_rescue_rate": 0.8809920800333473,
+      "remaining_unrescued_count": 571,
+      "remaining_unrescued_rate": 0.11900791996665278,
+      "rescued_by_outsider_count_distribution": {
+        "0": 571,
+        "1": 905,
+        "2": 1039,
+        "3": 868,
+        "4": 582,
+        "5": 347,
+        "6": 226,
+        "7": 153,
+        "8": 64,
+        "9": 33,
+        "10": 7,
+        "11": 2,
+        "12": 1
+      },
+      "individual": {
+        "outsider_bodychange": {
+          "rescue_count": 1083,
+          "rescue_rate_on_blind": 0.22571904960400166,
+          "exclusive_rescue_count": 78,
+          "exclusive_rescue_rate_on_blind": 0.01625677365568987
+        },
+        "outsider_chimera": {
+          "rescue_count": 787,
+          "rescue_rate_on_blind": 0.16402667778240934,
+          "exclusive_rescue_count": 16,
+          "exclusive_rescue_rate_on_blind": 0.003334722801167153
+        },
+        "outsider_classmove": {
+          "rescue_count": 962,
+          "rescue_rate_on_blind": 0.20050020842017507,
+          "exclusive_rescue_count": 59,
+          "exclusive_rescue_rate_on_blind": 0.012296790329303876
+        },
+        "outsider_coursetransition": {
+          "rescue_count": 1063,
+          "rescue_rate_on_blind": 0.22155064610254271,
+          "exclusive_rescue_count": 76,
+          "exclusive_rescue_rate_on_blind": 0.015839933305543976
+        },
+        "outsider_daytrend": {
+          "rescue_count": 1168,
+          "rescue_rate_on_blind": 0.24343476448520215,
+          "exclusive_rescue_count": 124,
+          "exclusive_rescue_rate_on_blind": 0.025844101709045435
+        },
+        "outsider_disttransition": {
+          "rescue_count": 1059,
+          "rescue_rate_on_blind": 0.22071696540225094,
+          "exclusive_rescue_count": 70,
+          "exclusive_rescue_rate_on_blind": 0.014589412255106295
+        },
+        "outsider_field": {
+          "rescue_count": 1083,
+          "rescue_rate_on_blind": 0.22571904960400166,
+          "exclusive_rescue_count": 52,
+          "exclusive_rescue_rate_on_blind": 0.010837849103793247
+        },
+        "outsider_gatecourse": {
+          "rescue_count": 1097,
+          "rescue_rate_on_blind": 0.22863693205502292,
+          "exclusive_rescue_count": 119,
+          "exclusive_rescue_rate_on_blind": 0.024802000833680702
+        },
+        "outsider_jockey": {
+          "rescue_count": 810,
+          "rescue_rate_on_blind": 0.16882034180908712,
+          "exclusive_rescue_count": 73,
+          "exclusive_rescue_rate_on_blind": 0.015214672780325135
+        },
+        "outsider_opponentgap": {
+          "rescue_count": 650,
+          "rescue_rate_on_blind": 0.13547311379741558,
+          "exclusive_rescue_count": 36,
+          "exclusive_rescue_rate_on_blind": 0.007503126302626094
+        },
+        "outsider_raceshape": {
+          "rescue_count": 1052,
+          "rescue_rate_on_blind": 0.2192580241767403,
+          "exclusive_rescue_count": 44,
+          "exclusive_rescue_rate_on_blind": 0.00917048770320967
+        },
+        "outsider_rotation": {
+          "rescue_count": 1048,
+          "rescue_rate_on_blind": 0.2184243434764485,
+          "exclusive_rescue_count": 84,
+          "exclusive_rescue_rate_on_blind": 0.017507294706127552
+        },
+        "outsider_weightchange": {
+          "rescue_count": 1128,
+          "rescue_rate_on_blind": 0.2350979574822843,
+          "exclusive_rescue_count": 74,
+          "exclusive_rescue_rate_on_blind": 0.015423092955398083
+        }
+      },
+      "best_combinations_by_size": [
+        {
+          "size": 1,
+          "rescue_count": 1168,
+          "marginal_vs_prev_best": 1168,
+          "candidates": [
+            "outsider_daytrend"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.24343476448520215,
+          "labels": [
+            "当日傾向型"
+          ]
+        },
+        {
+          "size": 2,
+          "rescue_count": 2004,
+          "marginal_vs_prev_best": 836,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.41767403084618593,
+          "labels": [
+            "当日傾向型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 3,
+          "rescue_count": 2607,
+          "marginal_vs_prev_best": 603,
+          "candidates": [
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_field"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.5433513964151729,
+          "labels": [
+            "コース遷移型",
+            "当日傾向型",
+            "メンバー構成型"
+          ]
+        },
+        {
+          "size": 4,
+          "rescue_count": 3060,
+          "marginal_vs_prev_best": 453,
+          "candidates": [
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_field",
+            "outsider_gatecourse"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.637765735723218,
+          "labels": [
+            "コース遷移型",
+            "当日傾向型",
+            "メンバー構成型",
+            "枠・コース型"
+          ]
+        },
+        {
+          "size": 5,
+          "rescue_count": 3374,
+          "marginal_vs_prev_best": 314,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_gatecourse",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.7032096706961234,
+          "labels": [
+            "馬体変動型",
+            "当日傾向型",
+            "距離遷移型",
+            "枠・コース型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 6,
+          "rescue_count": 3621,
+          "marginal_vs_prev_best": 247,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_gatecourse",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.7546894539391413,
+          "labels": [
+            "馬体変動型",
+            "当日傾向型",
+            "距離遷移型",
+            "枠・コース型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 7,
+          "rescue_count": 3804,
+          "marginal_vs_prev_best": 183,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.7928303459774906,
+          "labels": [
+            "馬体変動型",
+            "コース遷移型",
+            "当日傾向型",
+            "枠・コース型",
+            "騎手型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 8,
+          "rescue_count": 3944,
+          "marginal_vs_prev_best": 140,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.8220091704877032,
+          "labels": [
+            "馬体変動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "枠・コース型",
+            "騎手型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 9,
+          "rescue_count": 4042,
+          "marginal_vs_prev_best": 98,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.842434347644852,
+          "labels": [
+            "馬体変動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 10,
+          "rescue_count": 4113,
+          "marginal_vs_prev_best": 71,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.8572321800750312,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 11,
+          "rescue_count": 4175,
+          "marginal_vs_prev_best": 62,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.870154230929554,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 12,
+          "rescue_count": 4211,
+          "marginal_vs_prev_best": 36,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.8776573572321801,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 13,
+          "rescue_count": 4227,
+          "marginal_vs_prev_best": 16,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_chimera",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.8809920800333473,
+          "labels": [
+            "馬体変動型",
+            "キメラ型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        }
+      ],
+      "pairwise": {
+        "outsider_bodychange+outsider_chimera": {
+          "intersection": 246,
+          "union": 1624,
+          "jaccard": 0.15147783251231528
+        },
+        "outsider_bodychange+outsider_classmove": {
+          "intersection": 243,
+          "union": 1802,
+          "jaccard": 0.13485016648168702
+        },
+        "outsider_bodychange+outsider_coursetransition": {
+          "intersection": 278,
+          "union": 1868,
+          "jaccard": 0.14882226980728053
+        },
+        "outsider_bodychange+outsider_daytrend": {
+          "intersection": 278,
+          "union": 1973,
+          "jaccard": 0.1409021794221997
+        },
+        "outsider_bodychange+outsider_disttransition": {
+          "intersection": 282,
+          "union": 1860,
+          "jaccard": 0.15161290322580645
+        },
+        "outsider_bodychange+outsider_field": {
+          "intersection": 546,
+          "union": 1620,
+          "jaccard": 0.337037037037037
+        },
+        "outsider_bodychange+outsider_gatecourse": {
+          "intersection": 264,
+          "union": 1916,
+          "jaccard": 0.13778705636743216
+        },
+        "outsider_bodychange+outsider_jockey": {
+          "intersection": 187,
+          "union": 1706,
+          "jaccard": 0.10961313012895663
+        },
+        "outsider_bodychange+outsider_opponentgap": {
+          "intersection": 159,
+          "union": 1574,
+          "jaccard": 0.10101651842439645
+        },
+        "outsider_bodychange+outsider_raceshape": {
+          "intersection": 293,
+          "union": 1842,
+          "jaccard": 0.15906623235613462
+        },
+        "outsider_bodychange+outsider_rotation": {
+          "intersection": 263,
+          "union": 1868,
+          "jaccard": 0.14079229122055675
+        },
+        "outsider_bodychange+outsider_weightchange": {
+          "intersection": 293,
+          "union": 1918,
+          "jaccard": 0.15276329509906153
+        },
+        "outsider_chimera+outsider_classmove": {
+          "intersection": 135,
+          "union": 1614,
+          "jaccard": 0.08364312267657993
+        },
+        "outsider_chimera+outsider_coursetransition": {
+          "intersection": 152,
+          "union": 1698,
+          "jaccard": 0.0895170789163722
+        },
+        "outsider_chimera+outsider_daytrend": {
+          "intersection": 277,
+          "union": 1678,
+          "jaccard": 0.16507747318235996
+        },
+        "outsider_chimera+outsider_disttransition": {
+          "intersection": 179,
+          "union": 1667,
+          "jaccard": 0.10737852429514097
+        },
+        "outsider_chimera+outsider_field": {
+          "intersection": 351,
+          "union": 1519,
+          "jaccard": 0.23107307439104674
+        },
+        "outsider_chimera+outsider_gatecourse": {
+          "intersection": 213,
+          "union": 1671,
+          "jaccard": 0.12746858168761221
+        },
+        "outsider_chimera+outsider_jockey": {
+          "intersection": 379,
+          "union": 1218,
+          "jaccard": 0.3111658456486043
+        },
+        "outsider_chimera+outsider_opponentgap": {
+          "intersection": 103,
+          "union": 1334,
+          "jaccard": 0.07721139430284858
+        },
+        "outsider_chimera+outsider_raceshape": {
+          "intersection": 379,
+          "union": 1460,
+          "jaccard": 0.2595890410958904
+        },
+        "outsider_chimera+outsider_rotation": {
+          "intersection": 232,
+          "union": 1603,
+          "jaccard": 0.14472863381160325
+        },
+        "outsider_chimera+outsider_weightchange": {
+          "intersection": 222,
+          "union": 1693,
+          "jaccard": 0.13112817483756645
+        },
+        "outsider_classmove+outsider_coursetransition": {
+          "intersection": 418,
+          "union": 1607,
+          "jaccard": 0.26011200995644057
+        },
+        "outsider_classmove+outsider_daytrend": {
+          "intersection": 238,
+          "union": 1892,
+          "jaccard": 0.12579281183932348
+        },
+        "outsider_classmove+outsider_disttransition": {
+          "intersection": 364,
+          "union": 1657,
+          "jaccard": 0.21967410983705493
+        },
+        "outsider_classmove+outsider_field": {
+          "intersection": 197,
+          "union": 1848,
+          "jaccard": 0.1066017316017316
+        },
+        "outsider_classmove+outsider_gatecourse": {
+          "intersection": 231,
+          "union": 1828,
+          "jaccard": 0.1263676148796499
+        },
+        "outsider_classmove+outsider_jockey": {
+          "intersection": 164,
+          "union": 1608,
+          "jaccard": 0.10199004975124377
+        },
+        "outsider_classmove+outsider_opponentgap": {
+          "intersection": 230,
+          "union": 1382,
+          "jaccard": 0.16642547033285093
+        },
+        "outsider_classmove+outsider_raceshape": {
+          "intersection": 298,
+          "union": 1716,
+          "jaccard": 0.17365967365967366
+        },
+        "outsider_classmove+outsider_rotation": {
+          "intersection": 308,
+          "union": 1702,
+          "jaccard": 0.1809635722679201
+        },
+        "outsider_classmove+outsider_weightchange": {
+          "intersection": 382,
+          "union": 1708,
+          "jaccard": 0.22365339578454332
+        },
+        "outsider_coursetransition+outsider_daytrend": {
+          "intersection": 259,
+          "union": 1972,
+          "jaccard": 0.13133874239350912
+        },
+        "outsider_coursetransition+outsider_disttransition": {
+          "intersection": 427,
+          "union": 1695,
+          "jaccard": 0.2519174041297935
+        },
+        "outsider_coursetransition+outsider_field": {
+          "intersection": 195,
+          "union": 1951,
+          "jaccard": 0.0999487442337263
+        },
+        "outsider_coursetransition+outsider_gatecourse": {
+          "intersection": 255,
+          "union": 1905,
+          "jaccard": 0.13385826771653545
+        },
+        "outsider_coursetransition+outsider_jockey": {
+          "intersection": 188,
+          "union": 1685,
+          "jaccard": 0.11157270029673591
+        },
+        "outsider_coursetransition+outsider_opponentgap": {
+          "intersection": 220,
+          "union": 1493,
+          "jaccard": 0.14735432016075017
+        },
+        "outsider_coursetransition+outsider_raceshape": {
+          "intersection": 331,
+          "union": 1784,
+          "jaccard": 0.18553811659192826
+        },
+        "outsider_coursetransition+outsider_rotation": {
+          "intersection": 306,
+          "union": 1805,
+          "jaccard": 0.16952908587257617
+        },
+        "outsider_coursetransition+outsider_weightchange": {
+          "intersection": 353,
+          "union": 1838,
+          "jaccard": 0.19205658324265507
+        },
+        "outsider_daytrend+outsider_disttransition": {
+          "intersection": 258,
+          "union": 1969,
+          "jaccard": 0.13103098019299136
+        },
+        "outsider_daytrend+outsider_field": {
+          "intersection": 309,
+          "union": 1942,
+          "jaccard": 0.15911431513903193
+        },
+        "outsider_daytrend+outsider_gatecourse": {
+          "intersection": 340,
+          "union": 1925,
+          "jaccard": 0.17662337662337663
+        },
+        "outsider_daytrend+outsider_jockey": {
+          "intersection": 206,
+          "union": 1772,
+          "jaccard": 0.1162528216704289
+        },
+        "outsider_daytrend+outsider_opponentgap": {
+          "intersection": 175,
+          "union": 1643,
+          "jaccard": 0.10651247717589775
+        },
+        "outsider_daytrend+outsider_raceshape": {
+          "intersection": 402,
+          "union": 1818,
+          "jaccard": 0.22112211221122113
+        },
+        "outsider_daytrend+outsider_rotation": {
+          "intersection": 273,
+          "union": 1943,
+          "jaccard": 0.1405043746783325
+        },
+        "outsider_daytrend+outsider_weightchange": {
+          "intersection": 292,
+          "union": 2004,
+          "jaccard": 0.14570858283433133
+        },
+        "outsider_disttransition+outsider_field": {
+          "intersection": 226,
+          "union": 1916,
+          "jaccard": 0.11795407098121086
+        },
+        "outsider_disttransition+outsider_gatecourse": {
+          "intersection": 245,
+          "union": 1911,
+          "jaccard": 0.1282051282051282
+        },
+        "outsider_disttransition+outsider_jockey": {
+          "intersection": 183,
+          "union": 1686,
+          "jaccard": 0.10854092526690391
+        },
+        "outsider_disttransition+outsider_opponentgap": {
+          "intersection": 223,
+          "union": 1486,
+          "jaccard": 0.1500672947510094
+        },
+        "outsider_disttransition+outsider_raceshape": {
+          "intersection": 328,
+          "union": 1783,
+          "jaccard": 0.18395961862030286
+        },
+        "outsider_disttransition+outsider_rotation": {
+          "intersection": 318,
+          "union": 1789,
+          "jaccard": 0.1777529346003354
+        },
+        "outsider_disttransition+outsider_weightchange": {
+          "intersection": 329,
+          "union": 1858,
+          "jaccard": 0.17707212055974167
+        },
+        "outsider_field+outsider_gatecourse": {
+          "intersection": 250,
+          "union": 1930,
+          "jaccard": 0.12953367875647667
+        },
+        "outsider_field+outsider_jockey": {
+          "intersection": 230,
+          "union": 1663,
+          "jaccard": 0.13830426939266385
+        },
+        "outsider_field+outsider_opponentgap": {
+          "intersection": 186,
+          "union": 1547,
+          "jaccard": 0.12023270846800259
+        },
+        "outsider_field+outsider_raceshape": {
+          "intersection": 290,
+          "union": 1845,
+          "jaccard": 0.15718157181571815
+        },
+        "outsider_field+outsider_rotation": {
+          "intersection": 340,
+          "union": 1791,
+          "jaccard": 0.18983807928531546
+        },
+        "outsider_field+outsider_weightchange": {
+          "intersection": 386,
+          "union": 1825,
+          "jaccard": 0.2115068493150685
+        },
+        "outsider_gatecourse+outsider_jockey": {
+          "intersection": 205,
+          "union": 1702,
+          "jaccard": 0.12044653349001175
+        },
+        "outsider_gatecourse+outsider_opponentgap": {
+          "intersection": 161,
+          "union": 1586,
+          "jaccard": 0.10151324085750316
+        },
+        "outsider_gatecourse+outsider_raceshape": {
+          "intersection": 265,
+          "union": 1884,
+          "jaccard": 0.14065817409766454
+        },
+        "outsider_gatecourse+outsider_rotation": {
+          "intersection": 256,
+          "union": 1889,
+          "jaccard": 0.1355214399152991
+        },
+        "outsider_gatecourse+outsider_weightchange": {
+          "intersection": 278,
+          "union": 1947,
+          "jaccard": 0.14278376990241398
+        },
+        "outsider_jockey+outsider_opponentgap": {
+          "intersection": 93,
+          "union": 1367,
+          "jaccard": 0.06803218727139722
+        },
+        "outsider_jockey+outsider_raceshape": {
+          "intersection": 171,
+          "union": 1691,
+          "jaccard": 0.10112359550561797
+        },
+        "outsider_jockey+outsider_rotation": {
+          "intersection": 184,
+          "union": 1674,
+          "jaccard": 0.10991636798088411
+        },
+        "outsider_jockey+outsider_weightchange": {
+          "intersection": 199,
+          "union": 1739,
+          "jaccard": 0.1144335825186889
+        },
+        "outsider_opponentgap+outsider_raceshape": {
+          "intersection": 258,
+          "union": 1444,
+          "jaccard": 0.1786703601108033
+        },
+        "outsider_opponentgap+outsider_rotation": {
+          "intersection": 269,
+          "union": 1429,
+          "jaccard": 0.18824352694191743
+        },
+        "outsider_opponentgap+outsider_weightchange": {
+          "intersection": 234,
+          "union": 1544,
+          "jaccard": 0.15155440414507773
+        },
+        "outsider_raceshape+outsider_rotation": {
+          "intersection": 345,
+          "union": 1755,
+          "jaccard": 0.19658119658119658
+        },
+        "outsider_raceshape+outsider_weightchange": {
+          "intersection": 327,
+          "union": 1853,
+          "jaccard": 0.17647058823529413
+        },
+        "outsider_rotation+outsider_weightchange": {
+          "intersection": 327,
+          "union": 1849,
+          "jaccard": 0.17685235262303947
+        }
+      }
+    },
+    "6": {
+      "seven_blind_count": 1735,
+      "all_13_union_rescue_count": 1693,
+      "all_13_union_rescue_rate": 0.975792507204611,
+      "remaining_unrescued_count": 42,
+      "remaining_unrescued_rate": 0.02420749279538905,
+      "rescued_by_outsider_count_distribution": {
+        "0": 42,
+        "1": 92,
+        "2": 206,
+        "3": 256,
+        "4": 281,
+        "5": 259,
+        "6": 218,
+        "7": 160,
+        "8": 116,
+        "9": 70,
+        "10": 23,
+        "11": 10,
+        "12": 2
+      },
+      "individual": {
+        "outsider_bodychange": {
+          "rescue_count": 710,
+          "rescue_rate_on_blind": 0.4092219020172911,
+          "exclusive_rescue_count": 6,
+          "exclusive_rescue_rate_on_blind": 0.00345821325648415
+        },
+        "outsider_chimera": {
+          "rescue_count": 402,
+          "rescue_rate_on_blind": 0.23170028818443805,
+          "exclusive_rescue_count": 0,
+          "exclusive_rescue_rate_on_blind": 0.0
+        },
+        "outsider_classmove": {
+          "rescue_count": 674,
+          "rescue_rate_on_blind": 0.38847262247838615,
+          "exclusive_rescue_count": 5,
+          "exclusive_rescue_rate_on_blind": 0.002881844380403458
+        },
+        "outsider_coursetransition": {
+          "rescue_count": 715,
+          "rescue_rate_on_blind": 0.41210374639769454,
+          "exclusive_rescue_count": 6,
+          "exclusive_rescue_rate_on_blind": 0.00345821325648415
+        },
+        "outsider_daytrend": {
+          "rescue_count": 756,
+          "rescue_rate_on_blind": 0.43573487031700286,
+          "exclusive_rescue_count": 21,
+          "exclusive_rescue_rate_on_blind": 0.012103746397694525
+        },
+        "outsider_disttransition": {
+          "rescue_count": 706,
+          "rescue_rate_on_blind": 0.4069164265129683,
+          "exclusive_rescue_count": 8,
+          "exclusive_rescue_rate_on_blind": 0.004610951008645533
+        },
+        "outsider_field": {
+          "rescue_count": 639,
+          "rescue_rate_on_blind": 0.368299711815562,
+          "exclusive_rescue_count": 10,
+          "exclusive_rescue_rate_on_blind": 0.005763688760806916
+        },
+        "outsider_gatecourse": {
+          "rescue_count": 734,
+          "rescue_rate_on_blind": 0.42305475504322765,
+          "exclusive_rescue_count": 21,
+          "exclusive_rescue_rate_on_blind": 0.012103746397694525
+        },
+        "outsider_jockey": {
+          "rescue_count": 434,
+          "rescue_rate_on_blind": 0.2501440922190202,
+          "exclusive_rescue_count": 5,
+          "exclusive_rescue_rate_on_blind": 0.002881844380403458
+        },
+        "outsider_opponentgap": {
+          "rescue_count": 343,
+          "rescue_rate_on_blind": 0.19769452449567723,
+          "exclusive_rescue_count": 2,
+          "exclusive_rescue_rate_on_blind": 0.0011527377521613833
+        },
+        "outsider_raceshape": {
+          "rescue_count": 636,
+          "rescue_rate_on_blind": 0.3665706051873199,
+          "exclusive_rescue_count": 3,
+          "exclusive_rescue_rate_on_blind": 0.001729106628242075
+        },
+        "outsider_rotation": {
+          "rescue_count": 631,
+          "rescue_rate_on_blind": 0.3636887608069164,
+          "exclusive_rescue_count": 0,
+          "exclusive_rescue_rate_on_blind": 0.0
+        },
+        "outsider_weightchange": {
+          "rescue_count": 661,
+          "rescue_rate_on_blind": 0.3809798270893372,
+          "exclusive_rescue_count": 5,
+          "exclusive_rescue_rate_on_blind": 0.002881844380403458
+        }
+      },
+      "best_combinations_by_size": [
+        {
+          "size": 1,
+          "rescue_count": 756,
+          "marginal_vs_prev_best": 756,
+          "candidates": [
+            "outsider_daytrend"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.43573487031700286,
+          "labels": [
+            "当日傾向型"
+          ]
+        },
+        {
+          "size": 2,
+          "rescue_count": 1170,
+          "marginal_vs_prev_best": 414,
+          "candidates": [
+            "outsider_daytrend",
+            "outsider_disttransition"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.6743515850144092,
+          "labels": [
+            "当日傾向型",
+            "距離遷移型"
+          ]
+        },
+        {
+          "size": 3,
+          "rescue_count": 1380,
+          "marginal_vs_prev_best": 210,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_field",
+            "outsider_gatecourse"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.7953890489913544,
+          "labels": [
+            "クラス移動型",
+            "メンバー構成型",
+            "枠・コース型"
+          ]
+        },
+        {
+          "size": 4,
+          "rescue_count": 1514,
+          "marginal_vs_prev_best": 134,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_daytrend",
+            "outsider_field",
+            "outsider_gatecourse"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.8726224783861671,
+          "labels": [
+            "クラス移動型",
+            "当日傾向型",
+            "メンバー構成型",
+            "枠・コース型"
+          ]
+        },
+        {
+          "size": 5,
+          "rescue_count": 1589,
+          "marginal_vs_prev_best": 75,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.915850144092219,
+          "labels": [
+            "クラス移動型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型"
+          ]
+        },
+        {
+          "size": 6,
+          "rescue_count": 1625,
+          "marginal_vs_prev_best": 36,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.9365994236311239,
+          "labels": [
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型"
+          ]
+        },
+        {
+          "size": 7,
+          "rescue_count": 1652,
+          "marginal_vs_prev_best": 27,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_raceshape"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.9521613832853026,
+          "labels": [
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "レース構造型"
+          ]
+        },
+        {
+          "size": 8,
+          "rescue_count": 1670,
+          "marginal_vs_prev_best": 18,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_raceshape",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.962536023054755,
+          "labels": [
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "レース構造型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 9,
+          "rescue_count": 1681,
+          "marginal_vs_prev_best": 11,
+          "candidates": [
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.9688760806916427,
+          "labels": [
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 10,
+          "rescue_count": 1689,
+          "marginal_vs_prev_best": 8,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_raceshape",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.9734870317002882,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "レース構造型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 11,
+          "rescue_count": 1693,
+          "marginal_vs_prev_best": 4,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.975792507204611,
+          "labels": [
+            "馬体変動型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 12,
+          "rescue_count": 1693,
+          "marginal_vs_prev_best": 0,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_chimera",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_weightchange"
+          ],
+          "tie_count": 2,
+          "coverage_rate_on_blind": 0.975792507204611,
+          "labels": [
+            "馬体変動型",
+            "キメラ型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "斤量変化型"
+          ]
+        },
+        {
+          "size": 13,
+          "rescue_count": 1693,
+          "marginal_vs_prev_best": 0,
+          "candidates": [
+            "outsider_bodychange",
+            "outsider_chimera",
+            "outsider_classmove",
+            "outsider_coursetransition",
+            "outsider_daytrend",
+            "outsider_disttransition",
+            "outsider_field",
+            "outsider_gatecourse",
+            "outsider_jockey",
+            "outsider_opponentgap",
+            "outsider_raceshape",
+            "outsider_rotation",
+            "outsider_weightchange"
+          ],
+          "tie_count": 1,
+          "coverage_rate_on_blind": 0.975792507204611,
+          "labels": [
+            "馬体変動型",
+            "キメラ型",
+            "クラス移動型",
+            "コース遷移型",
+            "当日傾向型",
+            "距離遷移型",
+            "メンバー構成型",
+            "枠・コース型",
+            "騎手型",
+            "相手格差型",
+            "レース構造型",
+            "ローテーション型",
+            "斤量変化型"
+          ]
+        }
+      ],
+      "pairwise": {
+        "outsider_bodychange+outsider_chimera": {
+          "intersection": 215,
+          "union": 897,
+          "jaccard": 0.23968784838350055
+        },
+        "outsider_bodychange+outsider_classmove": {
+          "intersection": 301,
+          "union": 1083,
+          "jaccard": 0.27793167128347185
+        },
+        "outsider_bodychange+outsider_coursetransition": {
+          "intersection": 321,
+          "union": 1104,
+          "jaccard": 0.2907608695652174
+        },
+        "outsider_bodychange+outsider_daytrend": {
+          "intersection": 333,
+          "union": 1133,
+          "jaccard": 0.293909973521624
+        },
+        "outsider_bodychange+outsider_disttransition": {
+          "intersection": 317,
+          "union": 1099,
+          "jaccard": 0.28844404003639673
+        },
+        "outsider_bodychange+outsider_field": {
+          "intersection": 399,
+          "union": 950,
+          "jaccard": 0.42
+        },
+        "outsider_bodychange+outsider_gatecourse": {
+          "intersection": 319,
+          "union": 1125,
+          "jaccard": 0.28355555555555556
+        },
+        "outsider_bodychange+outsider_jockey": {
+          "intersection": 183,
+          "union": 961,
+          "jaccard": 0.19042663891779396
+        },
+        "outsider_bodychange+outsider_opponentgap": {
+          "intersection": 120,
+          "union": 933,
+          "jaccard": 0.12861736334405144
+        },
+        "outsider_bodychange+outsider_raceshape": {
+          "intersection": 284,
+          "union": 1062,
+          "jaccard": 0.2674199623352166
+        },
+        "outsider_bodychange+outsider_rotation": {
+          "intersection": 255,
+          "union": 1086,
+          "jaccard": 0.23480662983425415
+        },
+        "outsider_bodychange+outsider_weightchange": {
+          "intersection": 307,
+          "union": 1064,
+          "jaccard": 0.28853383458646614
+        },
+        "outsider_chimera+outsider_classmove": {
+          "intersection": 118,
+          "union": 958,
+          "jaccard": 0.12317327766179541
+        },
+        "outsider_chimera+outsider_coursetransition": {
+          "intersection": 144,
+          "union": 973,
+          "jaccard": 0.14799588900308325
+        },
+        "outsider_chimera+outsider_daytrend": {
+          "intersection": 227,
+          "union": 931,
+          "jaccard": 0.24382384532760473
+        },
+        "outsider_chimera+outsider_disttransition": {
+          "intersection": 156,
+          "union": 952,
+          "jaccard": 0.1638655462184874
+        },
+        "outsider_chimera+outsider_field": {
+          "intersection": 252,
+          "union": 789,
+          "jaccard": 0.3193916349809886
+        },
+        "outsider_chimera+outsider_gatecourse": {
+          "intersection": 181,
+          "union": 955,
+          "jaccard": 0.18952879581151832
+        },
+        "outsider_chimera+outsider_jockey": {
+          "intersection": 196,
+          "union": 640,
+          "jaccard": 0.30625
+        },
+        "outsider_chimera+outsider_opponentgap": {
+          "intersection": 73,
+          "union": 672,
+          "jaccard": 0.10863095238095238
+        },
+        "outsider_chimera+outsider_raceshape": {
+          "intersection": 271,
+          "union": 767,
+          "jaccard": 0.3533246414602347
+        },
+        "outsider_chimera+outsider_rotation": {
+          "intersection": 174,
+          "union": 859,
+          "jaccard": 0.20256111757857975
+        },
+        "outsider_chimera+outsider_weightchange": {
+          "intersection": 191,
+          "union": 872,
+          "jaccard": 0.2190366972477064
+        },
+        "outsider_classmove+outsider_coursetransition": {
+          "intersection": 418,
+          "union": 971,
+          "jaccard": 0.43048403707518024
+        },
+        "outsider_classmove+outsider_daytrend": {
+          "intersection": 303,
+          "union": 1127,
+          "jaccard": 0.2688553682342502
+        },
+        "outsider_classmove+outsider_disttransition": {
+          "intersection": 372,
+          "union": 1008,
+          "jaccard": 0.36904761904761907
+        },
+        "outsider_classmove+outsider_field": {
+          "intersection": 171,
+          "union": 1142,
+          "jaccard": 0.14973730297723292
+        },
+        "outsider_classmove+outsider_gatecourse": {
+          "intersection": 297,
+          "union": 1111,
+          "jaccard": 0.26732673267326734
+        },
+        "outsider_classmove+outsider_jockey": {
+          "intersection": 166,
+          "union": 942,
+          "jaccard": 0.1762208067940552
+        },
+        "outsider_classmove+outsider_opponentgap": {
+          "intersection": 178,
+          "union": 839,
+          "jaccard": 0.21215733015494637
+        },
+        "outsider_classmove+outsider_raceshape": {
+          "intersection": 294,
+          "union": 1016,
+          "jaccard": 0.28937007874015747
+        },
+        "outsider_classmove+outsider_rotation": {
+          "intersection": 267,
+          "union": 1038,
+          "jaccard": 0.25722543352601157
+        },
+        "outsider_classmove+outsider_weightchange": {
+          "intersection": 304,
+          "union": 1031,
+          "jaccard": 0.2948593598448109
+        },
+        "outsider_coursetransition+outsider_daytrend": {
+          "intersection": 315,
+          "union": 1156,
+          "jaccard": 0.27249134948096887
+        },
+        "outsider_coursetransition+outsider_disttransition": {
+          "intersection": 398,
+          "union": 1023,
+          "jaccard": 0.3890518084066471
+        },
+        "outsider_coursetransition+outsider_field": {
+          "intersection": 236,
+          "union": 1118,
+          "jaccard": 0.2110912343470483
+        },
+        "outsider_coursetransition+outsider_gatecourse": {
+          "intersection": 312,
+          "union": 1137,
+          "jaccard": 0.27440633245382584
+        },
+        "outsider_coursetransition+outsider_jockey": {
+          "intersection": 176,
+          "union": 973,
+          "jaccard": 0.18088386433710174
+        },
+        "outsider_coursetransition+outsider_opponentgap": {
+          "intersection": 185,
+          "union": 873,
+          "jaccard": 0.21191294387170675
+        },
+        "outsider_coursetransition+outsider_raceshape": {
+          "intersection": 316,
+          "union": 1035,
+          "jaccard": 0.30531400966183575
+        },
+        "outsider_coursetransition+outsider_rotation": {
+          "intersection": 304,
+          "union": 1042,
+          "jaccard": 0.29174664107485604
+        },
+        "outsider_coursetransition+outsider_weightchange": {
+          "intersection": 298,
+          "union": 1078,
+          "jaccard": 0.2764378478664193
+        },
+        "outsider_daytrend+outsider_disttransition": {
+          "intersection": 292,
+          "union": 1170,
+          "jaccard": 0.24957264957264957
+        },
+        "outsider_daytrend+outsider_field": {
+          "intersection": 302,
+          "union": 1093,
+          "jaccard": 0.27630375114364136
+        },
+        "outsider_daytrend+outsider_gatecourse": {
+          "intersection": 378,
+          "union": 1112,
+          "jaccard": 0.33992805755395683
+        },
+        "outsider_daytrend+outsider_jockey": {
+          "intersection": 210,
+          "union": 980,
+          "jaccard": 0.21428571428571427
+        },
+        "outsider_daytrend+outsider_opponentgap": {
+          "intersection": 154,
+          "union": 945,
+          "jaccard": 0.16296296296296298
+        },
+        "outsider_daytrend+outsider_raceshape": {
+          "intersection": 355,
+          "union": 1037,
+          "jaccard": 0.3423336547733848
+        },
+        "outsider_daytrend+outsider_rotation": {
+          "intersection": 280,
+          "union": 1107,
+          "jaccard": 0.2529358626919603
+        },
+        "outsider_daytrend+outsider_weightchange": {
+          "intersection": 286,
+          "union": 1131,
+          "jaccard": 0.25287356321839083
+        },
+        "outsider_disttransition+outsider_field": {
+          "intersection": 258,
+          "union": 1087,
+          "jaccard": 0.23735050597976082
+        },
+        "outsider_disttransition+outsider_gatecourse": {
+          "intersection": 301,
+          "union": 1139,
+          "jaccard": 0.2642669007901668
+        },
+        "outsider_disttransition+outsider_jockey": {
+          "intersection": 175,
+          "union": 965,
+          "jaccard": 0.18134715025906736
+        },
+        "outsider_disttransition+outsider_opponentgap": {
+          "intersection": 199,
+          "union": 850,
+          "jaccard": 0.23411764705882354
+        },
+        "outsider_disttransition+outsider_raceshape": {
+          "intersection": 310,
+          "union": 1032,
+          "jaccard": 0.3003875968992248
+        },
+        "outsider_disttransition+outsider_rotation": {
+          "intersection": 298,
+          "union": 1039,
+          "jaccard": 0.28681424446583254
+        },
+        "outsider_disttransition+outsider_weightchange": {
+          "intersection": 295,
+          "union": 1072,
+          "jaccard": 0.2751865671641791
+        },
+        "outsider_field+outsider_gatecourse": {
+          "intersection": 278,
+          "union": 1095,
+          "jaccard": 0.25388127853881276
+        },
+        "outsider_field+outsider_jockey": {
+          "intersection": 184,
+          "union": 889,
+          "jaccard": 0.20697412823397077
+        },
+        "outsider_field+outsider_opponentgap": {
+          "intersection": 136,
+          "union": 846,
+          "jaccard": 0.1607565011820331
+        },
+        "outsider_field+outsider_raceshape": {
+          "intersection": 259,
+          "union": 1016,
+          "jaccard": 0.2549212598425197
+        },
+        "outsider_field+outsider_rotation": {
+          "intersection": 298,
+          "union": 972,
+          "jaccard": 0.3065843621399177
+        },
+        "outsider_field+outsider_weightchange": {
+          "intersection": 330,
+          "union": 970,
+          "jaccard": 0.3402061855670103
+        },
+        "outsider_gatecourse+outsider_jockey": {
+          "intersection": 200,
+          "union": 968,
+          "jaccard": 0.2066115702479339
+        },
+        "outsider_gatecourse+outsider_opponentgap": {
+          "intersection": 149,
+          "union": 928,
+          "jaccard": 0.16056034482758622
+        },
+        "outsider_gatecourse+outsider_raceshape": {
+          "intersection": 274,
+          "union": 1096,
+          "jaccard": 0.25
+        },
+        "outsider_gatecourse+outsider_rotation": {
+          "intersection": 274,
+          "union": 1091,
+          "jaccard": 0.25114573785517874
+        },
+        "outsider_gatecourse+outsider_weightchange": {
+          "intersection": 310,
+          "union": 1085,
+          "jaccard": 0.2857142857142857
+        },
+        "outsider_jockey+outsider_opponentgap": {
+          "intersection": 62,
+          "union": 715,
+          "jaccard": 0.08671328671328671
+        },
+        "outsider_jockey+outsider_raceshape": {
+          "intersection": 168,
+          "union": 902,
+          "jaccard": 0.18625277161862527
+        },
+        "outsider_jockey+outsider_rotation": {
+          "intersection": 156,
+          "union": 909,
+          "jaccard": 0.1716171617161716
+        },
+        "outsider_jockey+outsider_weightchange": {
+          "intersection": 179,
+          "union": 916,
+          "jaccard": 0.19541484716157206
+        },
+        "outsider_opponentgap+outsider_raceshape": {
+          "intersection": 185,
+          "union": 794,
+          "jaccard": 0.23299748110831234
+        },
+        "outsider_opponentgap+outsider_rotation": {
+          "intersection": 192,
+          "union": 782,
+          "jaccard": 0.24552429667519182
+        },
+        "outsider_opponentgap+outsider_weightchange": {
+          "intersection": 151,
+          "union": 853,
+          "jaccard": 0.17702227432590856
+        },
+        "outsider_raceshape+outsider_rotation": {
+          "intersection": 304,
+          "union": 963,
+          "jaccard": 0.31568016614745587
+        },
+        "outsider_raceshape+outsider_weightchange": {
+          "intersection": 293,
+          "union": 1004,
+          "jaccard": 0.2918326693227092
+        },
+        "outsider_rotation+outsider_weightchange": {
+          "intersection": 243,
+          "union": 1049,
+          "jaccard": 0.23164918970448045
+        }
+      }
+    }
+  },
+  "labels": {
+    "outsider_bodychange": "馬体変動型",
+    "outsider_chimera": "キメラ型",
+    "outsider_classmove": "クラス移動型",
+    "outsider_coursetransition": "コース遷移型",
+    "outsider_daytrend": "当日傾向型",
+    "outsider_disttransition": "距離遷移型",
+    "outsider_field": "メンバー構成型",
+    "outsider_gatecourse": "枠・コース型",
+    "outsider_jockey": "騎手型",
+    "outsider_opponentgap": "相手格差型",
+    "outsider_raceshape": "レース構造型",
+    "outsider_rotation": "ローテーション型",
+    "outsider_weightchange": "斤量変化型"
+  },
+  "2026_sealed": true
+}
