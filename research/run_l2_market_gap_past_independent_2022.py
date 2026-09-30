@@ -60,7 +60,12 @@ def main():
     test=add_ranks(test)
 
     source=test["race_id"].nunique()
-    frozen=apply_gap_policy(test,**FROZEN_POLICY)
+    frozen=apply_gap_policy(
+        test,
+        FROZEN_POLICY["model_top_k"],
+        FROZEN_POLICY["min_market_rank_upgrade"],
+        FROZEN_POLICY["max_tickets_per_race"],
+    )
     frozen_metrics=evaluate_chosen(frozen,source,"FROZEN_V2_POLICY_ON_2022")
     frozen_metrics.update(FROZEN_POLICY)
 
