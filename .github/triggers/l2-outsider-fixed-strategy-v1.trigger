@@ -11,3 +11,4 @@ rerun=explicit-trigger-v2
 rerun=static-guard-fix-v3
 rerun=king-axis-outsider-mates-v1
 rerun=correct-result-path-v2
+rerun=king-axis-outsider-unique-mates-v2
