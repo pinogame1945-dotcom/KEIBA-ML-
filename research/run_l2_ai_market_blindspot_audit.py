@@ -37,8 +37,9 @@ def softmax(v):
 
 def win_market_probs(df,root):
     root=Path(root)
-    out=np.zeros(len(df),dtype=float)
-    odds_out=np.zeros(len(df),dtype=float)
+    out=np.full(len(df),np.nan,dtype=float)
+    odds_out=np.full(len(df),np.nan,dtype=float)
+    skipped=[]
     bydate=defaultdict(list)
     for rid,date in df[["race_id","race_date"]].drop_duplicates().itertuples(index=False):
         bydate[str(date)[:10]].append(str(rid))
@@ -49,7 +50,9 @@ def win_market_probs(df,root):
         recs=load_odds_day(root/"data"/"odds"/"daily"/f"{date}.jsonl.gz",set(rids))
         for rid in rids:
             rec=recs.get(rid)
-            if rec is None: raise SystemExit(f"missing odds {rid}")
+            if rec is None:
+                skipped.append({"race_id":rid,"race_date":date,"reason":"odds_row_missing"})
+                continue
             data=((rec.get("odds") or {}).get("1") or {})
             vals={}
             for key,raw in data.items():
@@ -61,14 +64,22 @@ def win_market_probs(df,root):
                 odd=finite(tup[0])
                 if odd is not None and odd>0 and no in row_lookup[rid]:
                     vals[no]=float(odd)
-            if not vals: raise SystemExit(f"no WIN odds {rid}")
+            expected=set(row_lookup[rid])
+            if not vals:
+                skipped.append({"race_id":rid,"race_date":date,"reason":"win_odds_absent"})
+                continue
+            if set(vals)!=expected:
+                skipped.append({"race_id":rid,"race_date":date,"reason":f"win_odds_incomplete:{len(vals)}/{len(expected)}"})
+                continue
             inv={no:1.0/o for no,o in vals.items()}
-            s=sum(inv.values())
+            total=sum(inv.values())
+            if total<=0:
+                skipped.append({"race_id":rid,"race_date":date,"reason":"win_odds_invalid_sum"})
+                continue
             for no,i in row_lookup[rid].items():
-                if no not in vals: continue
-                odds_out[i]=vals[no]; out[i]=inv[no]/s
-    if np.any(out<=0): raise SystemExit(f"missing normalized market probs rows={(out<=0).sum()}")
-    return out,odds_out
+                odds_out[i]=vals[no]
+                out[i]=inv[no]/total
+    return out,odds_out,skipped
 
 def race_normalize(df,p):
     p=np.asarray(p,dtype=float); out=np.zeros(len(p),dtype=float)
@@ -156,7 +167,7 @@ def main():
     df["year"]=df["year"].astype(int); df["race_id"]=df["race_id"].astype(str)
     params=dict(objective="binary",n_estimators=260,learning_rate=0.04,num_leaves=31,min_child_samples=50,subsample=0.9,colsample_bytree=0.9,reg_lambda=1.0,random_state=20261001,n_jobs=2,verbosity=-1)
 
-    yearly={}; bandrows=[]; rankrows=[]; metricrows=[]
+    yearly={}; bandrows=[]; rankrows=[]; metricrows=[]; skipped_market=[]
     for test_year,train_years in FOLDS:
         train=df[df["year"].isin(train_years) & (df["train_eligible"]==True) & (df["label_available"]==True)].copy()
         test=df[df["year"]==test_year].copy().reset_index(drop=True)
@@ -166,8 +177,20 @@ def main():
         calib=train[train["race_id"].isin(cal_ids)].copy().reset_index(drop=True)
         pa,_=final_conf_probs(train,calib,fit,test,features,params)
         cv,cm=fit_confidence(train); q=predict_confidence(cv,cm,test)
-        pm,odds=win_market_probs(test,a.backfill_root)
-
+        pm,odds,skipped=win_market_probs(test,a.backfill_root)
+        if skipped:
+            for row in skipped:
+                row["test_year"]=test_year
+            skipped_market.extend(skipped)
+            bad={row["race_id"] for row in skipped}
+            keep=(~test["race_id"].isin(bad)).to_numpy()
+            test=test.loc[keep].reset_index(drop=True)
+            pa=np.asarray(pa,dtype=float)[keep]
+            q=np.asarray(q,dtype=float)[keep]
+            pm=np.asarray(pm,dtype=float)[keep]
+            odds=np.asarray(odds,dtype=float)[keep]
+        if np.any(~np.isfinite(pm)) or np.any(pm<=0) or np.any(~np.isfinite(odds)) or np.any(odds<=0):
+            raise SystemExit(f"market filter left invalid rows year={test_year}")
         yearly[test_year]=(test,pa,pm,q,odds)
         br,rr=aggregate_bands(test_year,test,pa,pm,q,odds); bandrows.extend(br); rankrows.extend(rr)
         metricrows.extend([
@@ -202,7 +225,8 @@ def main():
     write_csv(out/"divergence-by-rank.csv",rankrows)
     write_csv(out/"raw-model-metrics.csv",metricrows)
     write_csv(out/"incremental-information-test.csv",residual)
-    summary={"contract":"L2_AI_VS_MARKET_BLINDSPOT_AUDIT","scope":"all horses, all races, WIN market only","purpose":"test whether AI contains reproducible information beyond final win-odds market; no buying rule learned","divergence":"log2(AI_CONF_win_probability / normalized_final_win_market_probability)","direct_test":"strict OOS market-recalibrated vs market-plus-AI residual model","2026_locked":True,"promotion":False}
+    write_csv(out/"skipped-market-races.csv",skipped_market)
+    summary={"contract":"L2_AI_VS_MARKET_BLINDSPOT_AUDIT","scope":"all horses in races with complete WIN market coverage; skipped races are explicitly recorded","purpose":"test whether AI contains reproducible information beyond final win-odds market; no buying rule learned","divergence":"log2(AI_CONF_win_probability / normalized_final_win_market_probability)","direct_test":"strict OOS market-recalibrated vs market-plus-AI residual model","market_missing_policy":"exclude whole race from market comparison and write skipped-market-races.csv","skipped_market_races":len(skipped_market),"2026_locked":True,"promotion":False}
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("L2_AI_MARKET_BLINDSPOT_AUDIT_READY")
 
