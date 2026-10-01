@@ -1,0 +1,50 @@
+{
+  "contract": "L2_TICKET_LAB_V1_DECISION",
+  "run_id": 36824147036,
+  "bet_type": "QUINELLA",
+  "dataset": {
+    "races": 10344,
+    "tickets": 945527,
+    "years": [
+      2023,
+      2024,
+      2025
+    ],
+    "folds": [
+      {
+        "test_year": 2024,
+        "train_years": [
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2023,
+          2024
+        ]
+      }
+    ]
+  },
+  "performance": {
+    "elapsed_seconds": 173.611071884,
+    "build_seconds": 109.66908314,
+    "parallel_workers": 4,
+    "shared_ticket_table": true
+  },
+  "headline": {
+    "market_raw_beats_learned_models_on_logloss_both_folds": true,
+    "l175_full_beats_market_only_both_folds": false,
+    "l175_full_beats_market_raw_both_folds": false,
+    "note": "L1.75 FULL added signal importance but did not improve global all-ticket probability quality. Market odds remain the strongest global baseline."
+  },
+  "interpretation": [
+    "Do not discard L1.75; prior horse-level divergence evidence shows useful conditional signal.",
+    "Do not ask a flexible ticket model to relearn the entire market probability surface from scratch.",
+    "Next architecture should treat normalized market quinella probability as the baseline and learn only an L1.75 residual/logit correction.",
+    "No TopN filtering, hard STRONG tag, or handcrafted buying rule should be introduced yet."
+  ],
+  "next": "L2_TICKET_RESIDUAL_V1: cross-fitted additive/logit correction to MARKET_RAW using King, Outsider, and L1.75 disagreement features; evaluate global calibration plus disagreement subsets.",
+  "promotion": false,
+  "2026_locked": true
+}
