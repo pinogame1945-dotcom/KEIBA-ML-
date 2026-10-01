@@ -1,0 +1,43 @@
+{
+  "contract": "L1_DISSENT_GATE_V1_DECISION",
+  "run_id": 36816525878,
+  "binary_gate": {
+    "decision": "REJECT",
+    "reason": "TRUST did not consistently improve direction-correct effect over all disagreements; pooled TRUST was weaker than pooled all/reject.",
+    "pooled_2024_2025": {
+      "all_disagreements_horses": 40237,
+      "all_direction_correct_effect_pp": 1.4425928607774567,
+      "trust_horses": 23678,
+      "trust_direction_correct_effect_pp": 1.4160918966123561,
+      "reject_horses": 16559,
+      "reject_direction_correct_effect_pp": 1.4804870469904678
+    }
+  },
+  "high_tier": {
+    "2024": {
+      "horses": 3496,
+      "coverage_pct": 17.434669858368242,
+      "direction_correct_effect_pp": 1.9995522273703694
+    },
+    "2025": {
+      "horses": 3360,
+      "coverage_pct": 16.646024275452067,
+      "direction_correct_effect_pp": 3.2159572480570255
+    },
+    "decision": "KEEP_AS_DIAGNOSTIC_CANDIDATE",
+    "definition": "positive Dissent support score in top calibration tertile; threshold learned only from prior calibration score distribution, not test outcomes",
+    "pooled": {
+      "horses": 6856,
+      "coverage_pct": 17.039043666277305,
+      "direction_correct_effect_pp": 2.5956900438095705
+    }
+  },
+  "model_incremental_information": {
+    "2024": "MARKET_PLUS_L1 slightly worse than MARKET_ONLY on log-loss and Brier",
+    "2025": "MARKET_PLUS_L1 better than MARKET_ONLY on log-loss and Brier",
+    "conclusion": "not stable enough for promotion"
+  },
+  "architecture": "core L1 remains market-free; no reranking or promotion from this experiment",
+  "next_recommended_test": "Treat HIGH as a non-reranking STRONG_DISSENT tag and validate one more strict walk-forward formulation without binary TRUST/REJECT semantics.",
+  "2026_locked": true
+}
