@@ -1,0 +1,56 @@
+{
+  "contract": "L2_FIXED_STRATEGY_BENCHMARK_V1_DECISION",
+  "run_id": 36834149143,
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "conclusion": "No fixed all-race strategy achieved positive ROI. Human-defined ticket shapes can be benchmarked cleanly, but buying every race at flat 100-yen stake is unprofitable.",
+  "pooled_2024_2025": {
+    "Q_AXIS1_TOP6": {
+      "hit_rate_pct": 37.21233174120712,
+      "roi_pct": 74.81055558774115,
+      "avg_points": 4.996671008829064,
+      "max_drawdown_yen": 873290
+    },
+    "Q_TOP2_TO8": {
+      "hit_rate_pct": 47.87957736286004,
+      "roi_pct": 75.0524921626285,
+      "avg_points": 11.911709364596902,
+      "max_drawdown_yen": 2057350
+    },
+    "Q_TOP6_BOX": {
+      "hit_rate_pct": 63.829787234042556,
+      "roi_pct": 70.63475656877898,
+      "avg_points": 14.983355044145318,
+      "max_drawdown_yen": 3050760
+    },
+    "T_AXIS1_TO8": {
+      "hit_rate_pct": 43.55188884064264,
+      "roi_pct": 70.9789712292938,
+      "avg_points": 20.751917788391953,
+      "max_drawdown_yen": 4160890
+    },
+    "T_AXIS12_TO8": {
+      "hit_rate_pct": 22.072658850774353,
+      "roi_pct": 69.29378599722958,
+      "avg_points": 5.955854682298451,
+      "max_drawdown_yen": 1263530
+    },
+    "T_TOP6_BOX": {
+      "hit_rate_pct": 43.55188884064264,
+      "roi_pct": 67.60231968104385,
+      "avg_points": 19.966710088290636,
+      "max_drawdown_yen": 4469260
+    }
+  },
+  "interpretation": [
+    "Highest pooled ROI among the six was Q_TOP2_TO8 at 75.05%, but it used about 11.9 tickets per race.",
+    "Q_AXIS1_TOP6 was nearly the same ROI at 74.81% with only about 5 tickets per race and much lower drawdown, making it the most efficient simple quinella baseline.",
+    "Q_TOP6_BOX maximized hit rate at 63.83% but point cost pushed ROI down to 70.63%.",
+    "No trio strategy exceeded 71% pooled ROI.",
+    "Do not interpret higher hit rate as profitability; ticket count dominates cost."
+  ],
+  "promotion": false,
+  "2026_locked": true
+}
