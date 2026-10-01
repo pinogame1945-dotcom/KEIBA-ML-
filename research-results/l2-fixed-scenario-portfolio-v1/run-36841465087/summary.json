@@ -1,0 +1,46 @@
+{
+  "contract": "L2_FIXED_SCENARIO_PORTFOLIO_V1",
+  "portfolio": {
+    "MAINLINE": "KING1 -> KING2..6 quinella, 5 tickets x 100 = 500 yen",
+    "HOLE_MIX": "KING1+KING2 fixed + top3 Outsider mates after excluding KING1..3, trio, 3 x 100 = 300 yen",
+    "REVERSE": "Outsider1 axis -> top2 distinct KING mates, quinella, 2 x 100 = 200 yen",
+    "target_budget_yen": 1000
+  },
+  "design": "Human-defined fixed scenario portfolio. No model search, no odds gate, no threshold tuning, no race selection.",
+  "odds_gate": false,
+  "threshold_search": false,
+  "race_selection": false,
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "outsider_stats": {
+    "2023": {
+      "races": 3456,
+      "positive_vote_horses_min": 4,
+      "positive_vote_horses_mean": 11.994502314814815,
+      "positive_vote_horses_max": 18
+    },
+    "2024": {
+      "races": 3454,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.868847712796757,
+      "positive_vote_horses_max": 18
+    },
+    "2025": {
+      "races": 3455,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.957742402315485,
+      "positive_vote_horses_max": 18
+    }
+  },
+  "counters": {},
+  "elapsed_seconds": 18.89445518400001,
+  "promotion": false,
+  "2026_locked": true
+}
