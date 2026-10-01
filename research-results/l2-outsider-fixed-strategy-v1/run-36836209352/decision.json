@@ -1,0 +1,68 @@
+{
+  "contract": "L2_OUTSIDER_FIXED_STRATEGY_V1_DECISION",
+  "run_id": 36836209352,
+  "comparison": "Exact same six fixed strategies, same races, 100 yen per ticket, no odds gate: KING rank vs tie-safe 13-Outsider weighted council rank.",
+  "pooled_2024_2025": {
+    "Q_AXIS1_TOP6": {
+      "king_roi_pct": 74.81055558774115,
+      "outsider_roi_pct": 71.5422049707433,
+      "delta_roi_pp": -3.26835061699785
+    },
+    "Q_TOP2_TO8": {
+      "king_roi_pct": 75.0524921626285,
+      "outsider_roi_pct": 66.57926073537631,
+      "delta_roi_pp": -8.473231427252188
+    },
+    "Q_TOP6_BOX": {
+      "king_roi_pct": 70.63475656877898,
+      "outsider_roi_pct": 68.99613601236476,
+      "delta_roi_pp": -1.6386205564142244
+    },
+    "T_AXIS1_TO8": {
+      "king_roi_pct": 70.9789712292938,
+      "outsider_roi_pct": 66.41318221447254,
+      "delta_roi_pp": -4.565789014821263
+    },
+    "T_AXIS12_TO8": {
+      "king_roi_pct": 69.29378599722958,
+      "outsider_roi_pct": 79.57884760261489,
+      "delta_roi_pp": 10.285061605385309
+    },
+    "T_TOP6_BOX": {
+      "king_roi_pct": 67.60231968104385,
+      "outsider_roi_pct": 72.35237404856832,
+      "delta_roi_pp": 4.75005436752447
+    }
+  },
+  "year_instability": {
+    "T_AXIS12_TO8": {
+      "2024": {
+        "king": 64.98979591836735,
+        "outsider": 92.60932944606414
+      },
+      "2025": {
+        "king": 73.60007778696097,
+        "outsider": 66.54139724828626
+      }
+    },
+    "T_TOP6_BOX": {
+      "2024": {
+        "king": 65.5492100304392,
+        "outsider": 78.13248296854617
+      },
+      "2025": {
+        "king": 69.65632250580046,
+        "outsider": 66.5697505800464
+      }
+    }
+  },
+  "interpretation": [
+    "Outsider ranking is materially worse for hit rate across all six structures.",
+    "Outsider improves pooled ROI only in two trio structures: fixed top1+top2 axis to ranks 3-8 and Top6 box.",
+    "Neither Outsider strategy is profitable overall; best pooled ROI is 79.58%.",
+    "The apparent trio advantage is not stable by year: both favorable pooled structures win in 2024 but lose to KING in 2025.",
+    "This supports treating Outsider as a complementary longshot source rather than a replacement ranking for Seven-King."
+  ],
+  "promotion": false,
+  "2026_locked": true
+}
