@@ -12,3 +12,4 @@ rerun=static-guard-fix-v3
 rerun=king-axis-outsider-mates-v1
 rerun=correct-result-path-v2
 rerun=king-axis-outsider-unique-mates-v2
+rerun=overlap-levels-v3
