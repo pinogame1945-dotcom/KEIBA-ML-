@@ -1,0 +1,126 @@
+name: L1.7 Outsider Market Divergence V1
+
+on:
+  push:
+    branches:
+      - research/l17-outsider-market-divergence-v1-20261001
+    paths:
+      - .github/triggers/l17-outsider-market-divergence-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l17-outsider-market-divergence-v1
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l17_outsider_market_divergence_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          src=Path("research/run_l17_outsider_market_divergence_v1.py").read_text()
+          assert "SEVEN_KING_UNCHANGED" in src
+          assert "SIGNAL_ONLY_NO_RERANK" in src
+          assert "usecols" in src
+          assert "finish" not in src.split("usecols=",1)[1].split(")",1)[0]
+          assert "y3" not in src.split("usecols=",1)[1].split(")",1)[0]
+          assert "2026 sealed" in src
+          wf=Path(".github/workflows/l17-outsider-market-divergence-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("L17_OUTSIDER_MARKET_DIVERGENCE_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install statistics dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+
+      - name: Restore frozen L1.7 Outsider prediction file from research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l17-outsider-source
+          git fetch --depth=1 origin research/l16-outsider-support-safe-v1-20260930:refs/remotes/origin/l17-outsider-source
+          git show origin/l17-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/l17-outsider-source/predictions.csv.gz
+          test -s out/l17-outsider-source/predictions.csv.gz
+          python - <<'PY'
+          import gzip,csv
+          p="out/l17-outsider-source/predictions.csv.gz"
+          with gzip.open(p,"rt",encoding="utf-8") as f:
+              r=csv.DictReader(f)
+              required={"year","race_id","horse_id","rank","score","p3","p3_rank_baseline","p3_delta"}
+              assert required.issubset(set(r.fieldnames or [])),r.fieldnames
+          print("FROZEN_OUTSIDER_SOURCE_OK")
+          PY
+
+      - name: Verify frozen market-divergence source
+        shell: bash
+        run: |
+          set -euo pipefail
+          p="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
+          test -s "$p"
+          echo "Using frozen V3 market-divergence horse rows."
+
+      - name: Run L1.7 plus Outsider market-divergence audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l17-outsider-market-divergence-v1/run-$GITHUB_RUN_ID"
+          python research/run_l17_outsider_market_divergence_v1.py \
+            --market-scored research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz \
+            --outsider-predictions out/l17-outsider-source/predictions.csv.gz \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== HEADLINE ====="
+          cat "$result/yearly-headline.csv"
+          echo "===== ALIGNMENT ====="
+          cat "$result/alignment-summary.csv"
+          test "$(du -sm "$result" | cut -f1)" -le 5
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No Kaggle access."
+          echo "Existing repository research outputs reused."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l17-outsider-market-divergence-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive L1.7 Outsider market divergence $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
