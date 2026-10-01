@@ -1,0 +1,11 @@
+{
+  "contract": "L2_AI_VS_MARKET_BLINDSPOT_AUDIT",
+  "scope": "all horses in races with complete WIN market coverage; skipped races are explicitly recorded",
+  "purpose": "test whether AI contains reproducible information beyond final win-odds market; no buying rule learned",
+  "divergence": "log2(AI_CONF_win_probability / normalized_final_win_market_probability)",
+  "direct_test": "strict OOS market-recalibrated vs market-plus-AI residual model",
+  "market_missing_policy": "exclude whole race from market comparison and write skipped-market-races.csv",
+  "skipped_market_races": 3,
+  "2026_locked": true,
+  "promotion": false
+}
