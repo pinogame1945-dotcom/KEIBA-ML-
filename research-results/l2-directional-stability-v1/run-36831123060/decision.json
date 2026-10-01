@@ -1,0 +1,42 @@
+{
+  "contract": "L2_DIRECTIONAL_STABILITY_V1_DECISION",
+  "run_id": 36831123060,
+  "reproduction": {
+    "passed": true,
+    "source_run": 36827680562,
+    "combined_delta_logloss": {
+      "2024": -0.00010415986858722309,
+      "2025": -0.0004339596633184027
+    },
+    "route_alphas": {
+      "2024": {
+        "UP_ONLY": 0.1,
+        "DOWN_ONLY": 0.2,
+        "MIXED": 0
+      },
+      "2025": {
+        "UP_ONLY": 0.1,
+        "DOWN_ONLY": 0.1,
+        "MIXED": 0
+      }
+    }
+  },
+  "stability_gate": {
+    "passed": false,
+    "pooled_mean_delta_logloss": -0.0002689879767071161,
+    "pooled_ci_low": -0.0011437202818555595,
+    "pooled_ci_high": 0.0005812237542135057,
+    "pooled_bootstrap_prob_improve": 0.74525,
+    "reason": "Both unseen years improved in mean, but pooled race-bootstrap 95% CI still crosses zero."
+  },
+  "interpretation": [
+    "Directional decomposition is more promising than global/local absolute-gap correction, but is not statistically stable enough to freeze as a production probability layer.",
+    "UP_ONLY has negative mean delta in both years but pooled 95% CI still crosses zero.",
+    "DOWN_ONLY is unstable by year: worse in 2024, better in 2025.",
+    "MIXED remains effectively disabled with alpha=0 in both years.",
+    "Segment diagnostics reveal heterogeneity, but outcome-defined segments such as winning-ticket odds bands must remain diagnostics only and must not be converted into betting rules."
+  ],
+  "next": "Do not promote directional probability correction. Move to L2B value research with MARKET_RAW as the canonical probability baseline and Directional/King/Outsider signals as auxiliary features; evaluate edge/ROI walk-forward without filtering to tiny hand-picked cells.",
+  "promotion": false,
+  "2026_locked": true
+}
