@@ -105,6 +105,7 @@ def market_and_finish(df,root):
     root=Path(root)
     rows=[]
     skipped=[]
+    groups={str(rid):g for rid,g in df.groupby("race_id",sort=False)}
     bydate=defaultdict(list)
     for rid,date in df[["race_id","race_date"]].drop_duplicates().itertuples(index=False):
         bydate[str(date)[:10]].append(str(rid))
@@ -113,7 +114,7 @@ def market_and_finish(df,root):
         packs=load_day(root/"data"/"daily"/f"{date}.jsonl.gz",wanted)
         oddsday=load_odds_day(root/"data"/"odds"/"daily"/f"{date}.jsonl.gz",wanted)
         for rid in rids:
-            sub=df[df["race_id"]==rid]
+            sub=groups[rid]
             pack=packs.get(rid)
             orec=oddsday.get(rid)
             if pack is None or orec is None:
