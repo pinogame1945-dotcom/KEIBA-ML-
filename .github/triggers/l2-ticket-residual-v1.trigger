@@ -5,3 +5,4 @@ baseline=market-raw
 correction=king-outsider-l175
 parallel_models=3
 2026_locked=true
+rerun=dependency-order-fix-v2
