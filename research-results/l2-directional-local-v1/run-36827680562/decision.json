@@ -1,0 +1,43 @@
+{
+  "contract": "L2_DIRECTIONAL_LOCAL_V1_DECISION",
+  "run_id": 36827680562,
+  "bet_type": "QUINELLA",
+  "headline": {
+    "combined_beats_market_raw_logloss_both_folds": true,
+    "market_2024_logloss": 3.204446886780772,
+    "combined_2024_logloss": 3.2043427269121842,
+    "market_2025_logloss": 3.2650451552877042,
+    "combined_2025_logloss": 3.2646111956243864,
+    "mixed_alpha_zero_both_folds": true
+  },
+  "route_findings": {
+    "UP_ONLY": {
+      "alpha_2024": 0.1,
+      "delta_logloss_2024": -0.00029259913845125496,
+      "alpha_2025": 0.1,
+      "delta_logloss_2025": -0.000007695542147523327
+    },
+    "DOWN_ONLY": {
+      "alpha_2024": 0.2,
+      "delta_logloss_2024": 0.00018967260584190626,
+      "alpha_2025": 0.1,
+      "delta_logloss_2025": -0.00042754865478666915
+    },
+    "MIXED": {
+      "alpha_2024": 0,
+      "alpha_2025": 0,
+      "interpretation": "Do not correct pairs containing both UP and DOWN horses in V1."
+    }
+  },
+  "interpretation": [
+    "Preserving dissent direction materially improved the design over absolute-gap local correction.",
+    "The combined directional model beats MARKET_RAW on race log loss in both unseen folds, but the margin is small and route effects are not yet fully stable.",
+    "UP_ONLY is directionally useful in both folds, with a clear gain in 2024 and near-flat gain in 2025.",
+    "DOWN_ONLY is unstable across folds: worse in 2024 and materially better in 2025.",
+    "MIXED correctly self-disables in both folds via alpha=0.",
+    "Do not promote to production yet; next validation should test whether the directional gain survives stricter cross-year/segment stability checks before moving to value/ROI."
+  ],
+  "next": "L2_DIRECTIONAL_STABILITY_V1: keep thresholds and routes frozen; run predeclared stability checks by year/race-class/market-price bands and bootstrap uncertainty. No new route or threshold search. If stable enough, freeze directional probability layer and move to L2B price/value evaluation.",
+  "promotion": false,
+  "2026_locked": true
+}
