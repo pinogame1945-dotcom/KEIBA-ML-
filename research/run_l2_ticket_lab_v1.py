@@ -148,7 +148,7 @@ def horse_context(row,outsider,p3):
         "p3_delta":delta,"p3_valid":valid,"alignment":align,
     }
 
-def pair_features(year,rid,a,b,pair_odds,pair_prob_norm,field_size):
+def pair_features(year,rid,a,b,pair_odds,pair_prob_norm,field_size,race_class="UNKNOWN",grade="UNKNOWN"):
     vals=[a,b]
     def arr(k): return [float(x[k]) for x in vals]
     kr=arr("king_rank"); mr=arr("market_rank"); conf=arr("confidence"); wo=arr("win_odds")
@@ -159,6 +159,8 @@ def pair_features(year,rid,a,b,pair_odds,pair_prob_norm,field_size):
         "year":int(year),"race_id":str(rid),
         "selection_numbers":f"{min(a['horse_number'],b['horse_number']):02d}-{max(a['horse_number'],b['horse_number']):02d}",
         "field_size":int(field_size),
+        "race_class":str(race_class or "UNKNOWN"),
+        "grade":str(grade or "UNKNOWN"),
         "pair_market_odds":float(pair_odds),
         "log_pair_market_odds":math.log(max(float(pair_odds),EPS)),
         "pair_market_prob_norm":float(pair_prob_norm),
@@ -230,9 +232,12 @@ def build_tickets(market,outsider,p3,backfill_root):
                 inv={ns:1.0/max(price,EPS) for ns,price in qodds.items()}
                 invsum=sum(inv.values())
                 bynum={h["horse_number"]:h for h in horses}
+                race_meta=pack.get("race") or {}
+                race_class=str(race_meta.get("race_class_normalized") or race_meta.get("race_class") or "UNKNOWN")
+                grade=str(race_meta.get("grade") or "UNKNOWN")
                 for ns in sorted(expected):
                     a,b=bynum[ns[0]],bynum[ns[1]]
-                    row=pair_features(year,rid,a,b,qodds[ns],inv[ns]/invsum,len(horses))
+                    row=pair_features(year,rid,a,b,qodds[ns],inv[ns]/invsum,len(horses),race_class,grade)
                     row["hit"]=int(ns==winner)
                     rows.append(row)
                 stats["races_kept"]+=1; stats[f"races_kept_{year}"]+=1
