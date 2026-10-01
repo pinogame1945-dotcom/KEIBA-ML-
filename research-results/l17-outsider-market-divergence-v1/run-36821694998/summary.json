@@ -1,0 +1,116 @@
+{
+  "contract": "L17_OUTSIDER_MARKET_DIVERGENCE_V1",
+  "purpose": "Measure whether frozen safe Outsider opinion reinforces or contradicts Seven-King market dissent.",
+  "market_source": "Frozen V3 market-divergence horse rows (2023-2025).",
+  "outsider_source": "L1.7 King Outsider Podium Calibrator WF V1 predictions run 36747215581.",
+  "outsider_ballots_source_run": 36724124925,
+  "join_scope": "Historical canonical L1.7 King ranks 1..10 only, because p3_delta calibration scope is ranks 1..10.",
+  "rank_policy": "Use the rank stored with the frozen L1.7 Outsider calibrator. Any mismatch versus later reconstructed Seven-King rank is diagnostic only.",
+  "alignment_rule": "sign(market_rank - king_rank) * p3_delta; >0 agrees with Seven-King dissent, <0 opposes.",
+  "ranking_policy": "SEVEN_KING_UNCHANGED",
+  "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
+  "target_or_market_used_to_build_outsider_signal": false,
+  "odds_used_in_outsider_signal": false,
+  "2026_locked": true,
+  "decision": {
+    "L1_UPGRADE": {
+      "outsider_agreement_enriches_vs_all_all_years": false,
+      "outsider_agreement_beats_opposition_all_years": false,
+      "rows": [
+        {
+          "test_year": 2023,
+          "direction": "L1_UPGRADE",
+          "all_horses": 8348,
+          "all_effect_pp": 1.6203923268529086,
+          "agree_horses": 3037,
+          "agree_effect_pp": 2.2382024485463026,
+          "oppose_horses": 5311,
+          "oppose_effect_pp": 1.2671087004957562,
+          "agree_minus_all_pp": 0.617810121693394,
+          "agree_minus_oppose_pp": 0.9710937480505464,
+          "agree_beats_all": true,
+          "agree_beats_oppose": true
+        },
+        {
+          "test_year": 2024,
+          "direction": "L1_UPGRADE",
+          "all_horses": 8517,
+          "all_effect_pp": 1.218170434433402,
+          "agree_horses": 3250,
+          "agree_effect_pp": 1.0498392130931853,
+          "oppose_horses": 5267,
+          "oppose_effect_pp": 1.3220391394563193,
+          "agree_minus_all_pp": -0.1683312213402166,
+          "agree_minus_oppose_pp": -0.27219992636313406,
+          "agree_beats_all": false,
+          "agree_beats_oppose": false
+        },
+        {
+          "test_year": 2025,
+          "direction": "L1_UPGRADE",
+          "all_horses": 8487,
+          "all_effect_pp": 1.3684301729966175,
+          "agree_horses": 3207,
+          "agree_effect_pp": 2.1632748594293316,
+          "oppose_horses": 5280,
+          "oppose_effect_pp": 0.885652349248566,
+          "agree_minus_all_pp": 0.7948446864327141,
+          "agree_minus_oppose_pp": 1.2776225101807657,
+          "agree_beats_all": true,
+          "agree_beats_oppose": true
+        }
+      ]
+    },
+    "L1_DOWNGRADE": {
+      "outsider_agreement_enriches_vs_all_all_years": false,
+      "outsider_agreement_beats_opposition_all_years": false,
+      "rows": [
+        {
+          "test_year": 2023,
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 5686,
+          "all_effect_pp": 2.774171810461266,
+          "agree_horses": 2759,
+          "agree_effect_pp": 3.082685074181738,
+          "oppose_horses": 2927,
+          "oppose_effect_pp": 2.4833661751333587,
+          "agree_minus_all_pp": 0.30851326372047216,
+          "agree_minus_oppose_pp": 0.5993188990483795,
+          "agree_beats_all": true,
+          "agree_beats_oppose": true
+        },
+        {
+          "test_year": 2024,
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 5712,
+          "all_effect_pp": 2.3417711108026187,
+          "agree_horses": 2678,
+          "agree_effect_pp": 3.4650259538079804,
+          "oppose_horses": 3034,
+          "oppose_effect_pp": 1.350315451749104,
+          "agree_minus_all_pp": 1.1232548430053617,
+          "agree_minus_oppose_pp": 2.1147105020588763,
+          "agree_beats_all": true,
+          "agree_beats_oppose": true
+        },
+        {
+          "test_year": 2025,
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 5606,
+          "all_effect_pp": 3.4449190802796634,
+          "agree_horses": 2606,
+          "agree_effect_pp": 3.423594775282828,
+          "oppose_horses": 3000,
+          "oppose_effect_pp": 3.463442793220248,
+          "agree_minus_all_pp": -0.02132430499683524,
+          "agree_minus_oppose_pp": -0.039848017937419655,
+          "agree_beats_all": false,
+          "agree_beats_oppose": false
+        }
+      ]
+    }
+  },
+  "rank_mismatch_rows": 1441,
+  "rank_mismatch_rate": 0.03402115402776466,
+  "promotion": false
+}
