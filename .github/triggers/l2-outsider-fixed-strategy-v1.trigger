@@ -10,3 +10,4 @@ outsider_policy=weighted_safe_13
 rerun=explicit-trigger-v2
 rerun=static-guard-fix-v3
 rerun=king-axis-outsider-mates-v1
+rerun=correct-result-path-v2
