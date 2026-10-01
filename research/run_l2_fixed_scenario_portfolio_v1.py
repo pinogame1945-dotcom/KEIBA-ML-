@@ -218,7 +218,7 @@ def main():
             "REVERSE":"Outsider1 axis -> top2 distinct KING mates, quinella, 2 x 100 = 200 yen",
             "target_budget_yen":PORTFOLIO_BUDGET_YEN
         },
-        "design":"Human-defined fixed scenario portfolio. No model search, no odds gate, no threshold tuning, no race selection.",
+        "design":"Human-defined fixed scenario portfolio. No model search, no odds gate, no threshold tuning, no race selection.",\n        "odds_gate":False,\n        "threshold_search":False,\n        "race_selection":False,
         "evaluation_years":list(YEARS),
         "primary_years":list(PRIMARY_YEARS),
         "outsider_stats":outsider_stats,
