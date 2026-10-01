@@ -1,0 +1,51 @@
+{
+  "contract": "L2_KING_AXIS_OUTSIDER_OVERLAP_LEVELS_V3",
+  "comparison": "KING-only and OUTSIDER-only baselines plus three hybrid overlap exclusions: axis-only, KING Top3, KING Top8.",
+  "hybrid_levels": {
+    "HYBRID_AXIS": "exclude only the fixed KING axis horse(s)",
+    "HYBRID_TOP3": "exclude KING ranks 1-3 before taking Outsider mates",
+    "HYBRID_TOP8": "exclude KING ranks 1-8 before taking Outsider mates"
+  },
+  "short_field_policy": "Never refill with excluded KING horses. Use fewer mates/tickets and report coverage.",
+  "odds_gate": false,
+  "threshold_search": false,
+  "stake_policy": "100 yen per generated ticket",
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "outsider_stats": {
+    "2023": {
+      "races": 3456,
+      "positive_vote_horses_min": 4,
+      "positive_vote_horses_mean": 11.994502314814815,
+      "positive_vote_horses_max": 18
+    },
+    "2024": {
+      "races": 3454,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.868847712796757,
+      "positive_vote_horses_max": 18
+    },
+    "2025": {
+      "races": 3455,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.957742402315485,
+      "positive_vote_horses_max": 18
+    }
+  },
+  "counters": {
+    "zero_ticket_HYBRID_TOP8_T_AXIS1_7": 1115,
+    "zero_ticket_HYBRID_TOP8_Q_AXIS1_5": 623,
+    "zero_ticket_HYBRID_TOP8_Q_TOP2_6": 623,
+    "zero_ticket_HYBRID_TOP8_T_AXIS12_6": 623
+  },
+  "elapsed_seconds": 26.332657332000053,
+  "promotion": false,
+  "2026_locked": true
+}
