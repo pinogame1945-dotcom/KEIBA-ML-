@@ -1,0 +1,20 @@
+{
+  "contract": "L2_CORE_V1_SHARED_BUY_VALUE",
+  "model": "single online SGD logistic hit-probability model with bet-specific feature blocks",
+  "walk_forward": "train 2023 -> test 2024; update with 2024 -> test 2025",
+  "inputs": [
+    "calibrated_ai_p",
+    "divergence_corrected_p",
+    "normalized_market_p",
+    "ai_market_ratio",
+    "odds",
+    "reliability_factor",
+    "bet_type"
+  ],
+  "target": "ticket_hit",
+  "profit_not_used_as_training_label": true,
+  "probabilities_renormalized_within_race_bet": true,
+  "odds_used_only_in_final_L2_market_value_layer": true,
+  "2026_locked": true,
+  "promotion": false
+}
