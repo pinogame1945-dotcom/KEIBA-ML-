@@ -1,0 +1,90 @@
+{
+  "contract": "L1_STRONG_DISSENT_UNCERTAINTY_V4_DECISION",
+  "run_id": 36819898481,
+  "formal_promotion": {
+    "decision": "REJECT",
+    "reason": "Predeclared promotion rule failed in both directions. Race-cluster 95% CI for STRONG-minus-ALL crosses zero in multiple years, and threshold sensitivity fails in 2024.",
+    "upgrade": {
+      "point_enrichment_all_years": true,
+      "ci95_lower_above_zero_all_years": false,
+      "threshold_sensitivity_all_years": false,
+      "frozen_delta_pp": {
+        "y2023": 0.9872942082737766,
+        "y2024": 0.11871778781923492,
+        "y2025": 1.8874585031229263
+      },
+      "frozen_ci95_pp": {
+        "y2023": [
+          -0.4682550934282953,
+          2.3498983793579225
+        ],
+        "y2024": [
+          -1.1728790057135876,
+          1.4733054131224055
+        ],
+        "y2025": [
+          0.3280507392179573,
+          3.5712984473084095
+        ]
+      }
+    },
+    "downgrade": {
+      "point_enrichment_all_years": true,
+      "ci95_lower_above_zero_all_years": false,
+      "threshold_sensitivity_all_years": false,
+      "frozen_delta_pp": {
+        "y2023": 0.6490988757771992,
+        "y2024": 0.09985056463565112,
+        "y2025": 0.851694780956596
+      },
+      "frozen_ci95_pp": {
+        "y2023": [
+          -1.0476207573709373,
+          2.26476308809262
+        ],
+        "y2024": [
+          -1.8922395806129018,
+          1.997169817600631
+        ],
+        "y2025": [
+          -1.339990331086203,
+          2.9476443276357847
+        ]
+      }
+    }
+  },
+  "threshold_sensitivity": {
+    "multipliers": [
+      0.8,
+      1,
+      1.2
+    ],
+    "upgrade": "2024 fails; at 1.2x selected-minus-ALL becomes -1.235pp.",
+    "downgrade": "2023 and 2024 fail; point enrichment changes sign around the frozen threshold."
+  },
+  "surviving_evidence": {
+    "market_dissent_direction": "KEEP",
+    "reason": "Across V1/V3, plain L1-vs-market direction itself is positive in every evaluated year. What failed is the attempt to reliably identify a stronger subset.",
+    "strong_flag": "DO_NOT_FIX",
+    "strong_score": "DIAGNOSTIC_ONLY"
+  },
+  "recommended_contract": {
+    "layer": "POST_L1_MARKET_COMPARISON",
+    "fields": [
+      "l1_rank",
+      "podium_confidence",
+      "market_rank",
+      "signed_rank_gap = market_rank - l1_rank",
+      "dissent_direction = UP / DOWN / NEAR",
+      "absolute_rank_gap"
+    ],
+    "exclusions": [
+      "No STRONG/NORMAL/CONTRA categorical promotion",
+      "No market-based reranking of L1",
+      "No market data in core L1 training/features"
+    ]
+  },
+  "next_recommended_test": "Stop optimizing Dissent tags. Freeze the simple post-L1 market-comparison fields and test their incremental utility inside L2 on bet construction/ROI with walk-forward evaluation.",
+  "architecture": "Core L1 remains market-free.",
+  "2026_locked": true
+}
