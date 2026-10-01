@@ -1,0 +1,151 @@
+{
+  "contract": "L2_TICKET_RESIDUAL_V1",
+  "bet_type": "QUINELLA",
+  "architecture": "p_corrected(ticket|race) proportional to p_market(ticket|race) * exp(alpha * AI_correction_score)",
+  "market_baseline": "within-race normalized inverse final quinella odds; frozen historical benchmark",
+  "correction_models": {
+    "KING_CORRECTION": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count"
+    ],
+    "KING_OUTSIDER_CORRECTION": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count",
+      "outsider_score_sum",
+      "outsider_score_max",
+      "outsider_score_min",
+      "outsider_support_sum",
+      "outsider_support_max",
+      "outsider_top1_votes_sum",
+      "outsider_top2_votes_sum",
+      "outsider_top3_votes_sum"
+    ],
+    "L175_CORRECTION": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count",
+      "outsider_score_sum",
+      "outsider_score_max",
+      "outsider_score_min",
+      "outsider_support_sum",
+      "outsider_support_max",
+      "outsider_top1_votes_sum",
+      "outsider_top2_votes_sum",
+      "outsider_top3_votes_sum",
+      "signed_gap_sum",
+      "signed_gap_min",
+      "signed_gap_max",
+      "abs_gap_sum",
+      "abs_gap_max",
+      "up_count",
+      "down_count",
+      "near_count",
+      "p3_delta_sum",
+      "p3_delta_min",
+      "p3_delta_max",
+      "p3_valid_count",
+      "outsider_alignment_sum",
+      "outsider_alignment_abs_sum"
+    ]
+  },
+  "alpha_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.75,
+    1.0,
+    1.5,
+    2.0
+  ],
+  "alpha_selection": "internal prior-year race split only; test-year outcomes never used",
+  "fit_policy": "80% of each prior train year fits correction model; remaining 20% selects alpha; no test-year tuning",
+  "market_features_in_correction_model": false,
+  "market_context_in_l175_features": "Only precomputed King-vs-market rank disagreement fields from L1.75 are allowed in L175_CORRECTION.",
+  "scope": "all priced quinella combinations; no TopN filter, no handcrafted ticket rule, no forced BUY/SKIP",
+  "build": {
+    "races_kept": 10344,
+    "races_kept_2023": 3453,
+    "tickets": 945527,
+    "deadheat_or_multi_winner_quinella": 21,
+    "races_kept_2024": 3447,
+    "races_kept_2025": 3444,
+    "build_seconds": 115.79732831,
+    "feature_columns": 42,
+    "rows": 945527,
+    "memory_mib": 421.1056146621704
+  },
+  "parallel": {
+    "workers": 3,
+    "cpu_count": 4,
+    "shared_ticket_table": true,
+    "correction_models_run_concurrently": true
+  },
+  "result": {
+    "KING_CORRECTION": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.0
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.0
+        }
+      ]
+    },
+    "KING_OUTSIDER_CORRECTION": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.0
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.0
+        }
+      ]
+    },
+    "L175_CORRECTION": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.0
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.0
+        }
+      ]
+    }
+  },
+  "subset_note": "Subset metrics are diagnostics only and are not used to choose a production rule.",
+  "elapsed_seconds": 166.64108489400002,
+  "2026_locked": true,
+  "promotion": false
+}
