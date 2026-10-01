@@ -179,6 +179,12 @@ def pair_features(year,rid,a,b,pair_odds,pair_prob_norm,field_size):
         "p3_delta_sum":sum(p3),"p3_delta_min":min(p3),"p3_delta_max":max(p3),
         "p3_valid_count":a["p3_valid"]+b["p3_valid"],
         "outsider_alignment_sum":sum(al),"outsider_alignment_abs_sum":sum(abs(x) for x in al),
+        "up_outsider_agree_count":sum(x["signed_gap"]>=2 and x["alignment"]>0 for x in vals),
+        "up_outsider_oppose_count":sum(x["signed_gap"]>=2 and x["alignment"]<0 for x in vals),
+        "down_outsider_agree_count":sum(x["signed_gap"]<=-2 and x["alignment"]>0 for x in vals),
+        "down_outsider_oppose_count":sum(x["signed_gap"]<=-2 and x["alignment"]<0 for x in vals),
+        "up_alignment_sum":sum(float(x["alignment"]) for x in vals if x["signed_gap"]>=2),
+        "down_alignment_sum":sum(float(x["alignment"]) for x in vals if x["signed_gap"]<=-2),
     }
 
 def build_tickets(market,outsider,p3,backfill_root):
