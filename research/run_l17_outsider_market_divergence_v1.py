@@ -62,13 +62,18 @@ def main():
     # but only the explicitly selected safe signal columns above are loaded.
     keys=["year","race_id","horse_id"]
     if p.duplicated(keys).any(): raise SystemExit("duplicate outsider prediction keys")
-    z=m.merge(p,on=keys,how="inner",validate="one_to_one")
+    z=m.merge(p,on=keys,how="inner",validate="one_to_one",suffixes=("_market_source","_l17"))
     if z.empty: raise SystemExit("empty join")
-    if not np.array_equal(z["consensus_rank"].astype(int).to_numpy(),z["rank"].astype(int).to_numpy()):
-        raise SystemExit("king rank mismatch after join")
 
-    # OOS calibrator scope is King ranks 1..10 only.
-    if int(z["consensus_rank"].max())>10: raise SystemExit("outsider predictions outside rank<=10")
+    # IMPORTANT: p3_delta belongs to the historical canonical L1.7 rank stored with
+    # the Outsider calibration. Recompute dissent from that rank rather than forcing
+    # it onto a later reconstructed Seven-King rank.
+    z["market_source_consensus_rank"]=z["consensus_rank"].astype(int)
+    z["king_rank"]=z["rank"].astype(int)
+    z["king_rank_mismatch"]=(z["market_source_consensus_rank"]!=z["king_rank"]).astype(int)
+    if int(z["king_rank"].max())>10: raise SystemExit("outsider predictions outside rank<=10")
+    z["rank_gap"]=z["market_rank"].astype(float)-z["king_rank"].astype(float)
+    z["direction"]=np.where(z["rank_gap"]>=2,"L1_UPGRADE",np.where(z["rank_gap"]<=-2,"L1_DOWNGRADE","NEAR"))
     z=z[z["direction"].isin(DIRECTIONS)].copy()
     z["outsider_alignment_score"]=np.sign(z["rank_gap"].to_numpy(dtype=float))*z["p3_delta"].to_numpy(dtype=float)
     z["outsider_alignment"]=[alignment_label(x) for x in z["outsider_alignment_score"]]
@@ -137,9 +142,9 @@ def main():
     write_csv(out/"alignment-summary.csv",rows)
     write_csv(out/"yearly-headline.csv",yearly)
     write_csv(out/"score-buckets.csv",bucket_rows)
-    keep=["year","race_id","horse_id","consensus_rank","market_rank","rank_gap","direction",
-          "score","p3","p3_rank_baseline","p3_delta","outsider_alignment_score","outsider_alignment",
-          "target_top3","market_peer_top3_rate"]
+    keep=["year","race_id","horse_id","king_rank","market_source_consensus_rank","king_rank_mismatch",
+          "market_rank","rank_gap","direction","score","p3","p3_rank_baseline","p3_delta",
+          "outsider_alignment_score","outsider_alignment","target_top3","market_peer_top3_rate"]
     z[keep].to_csv(out/"joined-scored.csv.gz",index=False,compression="gzip")
 
     ydf=pd.DataFrame(yearly)
@@ -158,7 +163,8 @@ def main():
         "market_source":"Frozen V3 market-divergence horse rows (2023-2025).",
         "outsider_source":"L1.7 King Outsider Podium Calibrator WF V1 predictions run 36747215581.",
         "outsider_ballots_source_run":36724124925,
-        "join_scope":"King ranks 1..10 only, because p3_delta calibration scope is ranks 1..10.",
+        "join_scope":"Historical canonical L1.7 King ranks 1..10 only, because p3_delta calibration scope is ranks 1..10.",
+        "rank_policy":"Use the rank stored with the frozen L1.7 Outsider calibrator. Any mismatch versus later reconstructed Seven-King rank is diagnostic only.",
         "alignment_rule":"sign(market_rank - king_rank) * p3_delta; >0 agrees with Seven-King dissent, <0 opposes.",
         "ranking_policy":"SEVEN_KING_UNCHANGED",
         "outsider_policy":"SIGNAL_ONLY_NO_RERANK",
@@ -166,6 +172,8 @@ def main():
         "odds_used_in_outsider_signal":False,
         "2026_locked":True,
         "decision":decision,
+        "rank_mismatch_rows":int(z["king_rank_mismatch"].sum()),
+        "rank_mismatch_rate":float(z["king_rank_mismatch"].mean()),
         "promotion":False
     }
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
