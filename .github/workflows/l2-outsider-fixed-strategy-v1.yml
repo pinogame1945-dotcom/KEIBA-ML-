@@ -42,8 +42,6 @@ jobs:
           src=Path("research/run_l2_outsider_fixed_strategy_v1.py").read_text()
           for token in (
               'SOURCES=("KING","OUTSIDER")',
-              '("Q_AXIS1_TOP6"',
-              '("T_TOP6_BOX"',
               '"weighted":0',
               '(-x["weighted"],-x["v1"],-x["count"],-x["v2"],-x["v3"],x["horse_number"],x["horse_id"])',
               '"stake_policy":"100 yen per generated ticket"',
@@ -52,6 +50,9 @@ jobs:
               '"2026_locked":True',
           ):
               assert token in src,token
+          base=Path("research/run_l2_fixed_strategy_benchmark_v1.py").read_text()
+          for strategy in ("Q_AXIS1_TOP6","Q_TOP2_TO8","Q_TOP6_BOX","T_AXIS1_TO8","T_AXIS12_TO8","T_TOP6_BOX"):
+              assert strategy in base,strategy
           assert "edge_threshold" not in src
           assert "predict_proba" not in src
           wf=Path(".github/workflows/l2-outsider-fixed-strategy-v1.yml").read_text()
