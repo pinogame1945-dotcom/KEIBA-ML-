@@ -8,6 +8,7 @@ import math
 import re
 from collections import defaultdict
 from contextlib import ExitStack
+from functools import lru_cache
 from pathlib import Path
 
 YEARS=(2022,2023,2024,2025)
@@ -173,25 +174,34 @@ def final_odds_tuple(raw):
     return raw[3:6] if len(raw)>=6 else raw[:3]
 
 
-def decode_odds(record):
-    out={}
+@lru_cache(maxsize=16384)
+def parse_odds_key(bet_type,key):
+    # Combination keys repeat across races; parse each structural key once.
+    key=str(key)
+    n=ARITY[bet_type]
+    if n==1:
+        if len(key) not in (1,2) or not key.isascii() or not key.isdigit():
+            return None
+        nums=(int(key),)
+    else:
+        if len(key)!=(2*n) or not key.isascii() or not key.isdigit():
+            return None
+        nums=tuple(int(key[i*2:i*2+2]) for i in range(n))
+    if any(x<=0 for x in nums) or (n>1 and len(set(nums))!=n):
+        return None
+    return canonical_numbers(bet_type,nums)
+
+
+def iter_decoded_odds(record):
+    # Streaming decoder: avoid allocating a large intermediate dict on full-field scans.
     root=record.get("odds") or {}
     for bet_type,group in BET_GROUP.items():
         data=root.get(group)
         if not isinstance(data,dict):
             continue
-        n=ARITY[bet_type]
         for key,raw in data.items():
-            key=str(key)
-            if n==1:
-                if not re.fullmatch(r"\d{1,2}",key):
-                    continue
-                nums=[int(key)]
-            else:
-                if not re.fullmatch(r"\d{%d}"%(2*n),key):
-                    continue
-                nums=[int(key[i*2:i*2+2]) for i in range(n)]
-            if any(x<=0 for x in nums) or (n>1 and len(set(nums))!=n):
+            nums=parse_odds_key(bet_type,key)
+            if nums is None:
                 continue
             tup=final_odds_tuple(raw)
             if not tup:
@@ -199,9 +209,12 @@ def decode_odds(record):
             price=finite(tup[0])
             if price is None or price<=0:
                 continue
-            out[(bet_type,canonical_numbers(bet_type,nums))]=price
-    return out
+            yield bet_type,nums,price
 
+
+def decode_odds(record):
+    # Compatibility wrapper. New large scans should consume iter_decoded_odds directly.
+    return {(bet_type,nums):price for bet_type,nums,price in iter_decoded_odds(record)}
 
 def payout_map(race_pack):
     out={}
