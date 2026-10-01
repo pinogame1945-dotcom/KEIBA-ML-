@@ -169,7 +169,8 @@ def main():
         futures={}; wall=time.perf_counter()
         with ThreadPoolExecutor(max_workers=workers) as ex:
             for ri,route in enumerate(ROUTES,1):
-                futures[ex.submit(fit_route,route,fit,cal,test,20261400+fi*100+ri)]=route
+                # Exact Directional Local V1 seed: stability audit must reproduce the frozen model, not retrain a variant.
+                futures[ex.submit(fit_route,route,fit,cal,test,20261300+fi*100+ri)]=route
             result={}
             for fut in as_completed(futures):
                 r=fut.result(); result[r["route"]]=r
@@ -180,7 +181,19 @@ def main():
         preds={r:result[r]["pred_test"] for r in ROUTES}
         pcombo=apply_route_corrections(test,preds,alphas)
 
-        ledger.extend(race_loss_ledger(test,pmarket,pcombo,"DIRECTIONAL_COMBINED",test_year))
+        combo_ledger=race_loss_ledger(test,pmarket,pcombo,"DIRECTIONAL_COMBINED",test_year)
+        # Frozen-run regression guard against Directional Local V1 run 36827680562.
+        expected_delta={2024:-0.0001041598685875833,2025:-0.00043395966331782887}[int(test_year)]
+        actual_delta=float(np.mean([x["delta_log_loss"] for x in combo_ledger]))
+        if abs(actual_delta-expected_delta)>1e-10:
+            raise SystemExit(f"frozen directional reproduction drift year={test_year} actual={actual_delta} expected={expected_delta}")
+        expected_alpha={
+            2024:{"UP_ONLY":0.1,"DOWN_ONLY":0.2,"MIXED":0.0},
+            2025:{"UP_ONLY":0.1,"DOWN_ONLY":0.1,"MIXED":0.0},
+        }[int(test_year)]
+        if any(abs(float(alphas[r])-expected_alpha[r])>1e-12 for r in ROUTES):
+            raise SystemExit(f"frozen alpha drift year={test_year} actual={alphas} expected={expected_alpha}")
+        ledger.extend(combo_ledger)
         ticket_price_rows.extend(ticket_price_audit(test,pmarket,pcombo,"DIRECTIONAL_COMBINED",test_year))
         for d in route_diagnostics(test,pmarket,pcombo,"DIRECTIONAL_COMBINED"):
             d["test_year"]=test_year; route_diag.append(d)
