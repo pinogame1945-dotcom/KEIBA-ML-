@@ -5,3 +5,6 @@ stake=100_per_ticket
 odds_gate=false
 threshold_search=false
 2026_locked=true
+
+outsider_mirror=true
+requested=2026-10-01
