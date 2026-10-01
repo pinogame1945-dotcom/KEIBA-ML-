@@ -1,0 +1,73 @@
+{
+  "contract": "L1_ASYMMETRIC_DISSENT_V3_DECISION",
+  "run_id": 36818983849,
+  "predeclared_enrichment_test": {
+    "decision": "PASS_BOTH_DIRECTIONS",
+    "upgrade": {
+      "y2023": {
+        "all_effect_pp": 1.43129394436461,
+        "strong_effect_pp": 2.418588152638387,
+        "strong_horses": 1946,
+        "coverage_pct": 19.44833100139916
+      },
+      "y2024": {
+        "all_effect_pp": 1.0077957061774543,
+        "strong_effect_pp": 1.12651349399669,
+        "strong_horses": 2048,
+        "coverage_pct": 20.23715415019763
+      },
+      "y2025": {
+        "all_effect_pp": 1.2882850456617463,
+        "strong_effect_pp": 3.175743548784673,
+        "strong_horses": 1627,
+        "coverage_pct": 15.91665036196439
+      }
+    },
+    "downgrade": {
+      "y2023": {
+        "all_effect_pp": 2.019590957204813,
+        "strong_effect_pp": 2.6686898329820115,
+        "strong_horses": 2079,
+        "coverage_pct": 21.10231425091352
+      },
+      "y2024": {
+        "all_effect_pp": 1.452864951814639,
+        "strong_effect_pp": 1.5527155164502906,
+        "strong_horses": 1593,
+        "coverage_pct": 16.03906564639549
+      },
+      "y2025": {
+        "all_effect_pp": 2.0323207823355744,
+        "strong_effect_pp": 2.8840155632921687,
+        "strong_horses": 1375,
+        "coverage_pct": 13.801063936565292
+      }
+    }
+  },
+  "semantic_audit": {
+    "three_level_tag_decision": "REJECT_FOR_NOW",
+    "reason": "Score ordering is not monotonic. CONTRA can still show strong direction-correct effect and in 2024 exceeds STRONG in both directions.",
+    "examples": {
+      "y2024_upgrade": {
+        "strong_effect_pp": 1.12651349399669,
+        "contra_effect_pp": 1.4534846044499414
+      },
+      "y2024_downgrade": {
+        "strong_effect_pp": 1.5527155164502906,
+        "contra_effect_pp": 2.1857724572509287
+      }
+    }
+  },
+  "strong_flag": {
+    "decision": "KEEP_AS_CANDIDATE_NOT_FIX",
+    "reason": "STRONG enriches over ALL in every 2023-2025 fold with >500 horses, but 2024 incremental enrichment is only ~0.1pp and uncertainty has not yet been quantified."
+  },
+  "global_probability_model": {
+    "decision": "NOT_A_MARKET_REPLACEMENT",
+    "reason": "RANK_CROSS and GAP_ONLY probability models are worse than MARKET_ONLY in log-loss/Brier in all three test years."
+  },
+  "next_recommended_test": "Race-cluster bootstrap / uncertainty audit of STRONG-vs-ALL enrichment, plus threshold sensitivity around the prior-calibration 2/3 cut. Do not optimize thresholds on test outcomes.",
+  "architecture": "Core L1 remains market-free; dissent remains post-L1 diagnostic only; no rerank.",
+  "2026_locked": true,
+  "promotion": false
+}
