@@ -1,0 +1,67 @@
+{
+  "contract": "L2_OUTSIDER_FIXED_STRATEGY_V1",
+  "comparison": "Exact same six ticket shapes, same 100 yen/ticket, same races, KING rank vs OUTSIDER weighted council rank.",
+  "outsider_rank_policy": "13 safe Outsiders: top1=3, top2=2, top3=1; ties: top1 votes, support count, top2 votes, top3 votes, horse_number, horse_id.",
+  "strategy_contract": {
+    "Q_AXIS1_TOP6": {
+      "bet": "QUINELLA",
+      "label": "馬連 1位軸→2〜6位"
+    },
+    "Q_TOP2_TO8": {
+      "bet": "QUINELLA",
+      "label": "馬連 1〜2位→3〜8位"
+    },
+    "Q_TOP6_BOX": {
+      "bet": "QUINELLA",
+      "label": "馬連 Top6 BOX"
+    },
+    "T_AXIS1_TO8": {
+      "bet": "TRIO",
+      "label": "三連複 1位軸＋2〜8位から2頭"
+    },
+    "T_AXIS12_TO8": {
+      "bet": "TRIO",
+      "label": "三連複 1・2位固定＋3〜8位"
+    },
+    "T_TOP6_BOX": {
+      "bet": "TRIO",
+      "label": "三連複 Top6 BOX"
+    }
+  },
+  "stake_policy": "100 yen per generated ticket",
+  "odds_gate": false,
+  "threshold_search": false,
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "outsider_stats": {
+    "2023": {
+      "races": 3456,
+      "positive_vote_horses_min": 4,
+      "positive_vote_horses_mean": 11.994502314814815,
+      "positive_vote_horses_max": 18
+    },
+    "2024": {
+      "races": 3454,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.868847712796757,
+      "positive_vote_horses_max": 18
+    },
+    "2025": {
+      "races": 3455,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.957742402315485,
+      "positive_vote_horses_max": 18
+    }
+  },
+  "counters": {},
+  "elapsed_seconds": 23.011789043000007,
+  "promotion": false,
+  "2026_locked": true
+}
