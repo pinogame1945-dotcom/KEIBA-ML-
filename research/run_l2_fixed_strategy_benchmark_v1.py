@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,csv,itertools,json,math,time
+import argparse,csv,gzip,itertools,json,math,time
 from collections import defaultdict
 from pathlib import Path
 
@@ -176,7 +176,10 @@ def main():
     write_csv(out/"yearly-summary.csv",summary)
     write_csv(out/"primary-2024-2025-summary.csv",pooled)
     write_csv(out/"side-by-side.csv",paired_compare(summary))
-    write_csv(out/"race-detail.csv",race_rows)
+    if race_rows:
+        with gzip.open(out/"race-detail.csv.gz","wt",newline="",encoding="utf-8") as fh:
+            w=csv.DictWriter(fh,fieldnames=list(race_rows[0]))
+            w.writeheader(); w.writerows(race_rows)
 
     result={
         "contract":"L2_FIXED_STRATEGY_BENCHMARK_V1",
