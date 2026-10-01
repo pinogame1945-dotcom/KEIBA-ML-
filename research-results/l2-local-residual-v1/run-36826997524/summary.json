@@ -1,0 +1,151 @@
+{
+  "contract": "L2_LOCAL_RESIDUAL_V1",
+  "bet_type": "QUINELLA",
+  "architecture": "MARKET_RAW globally; additive predicted (hit - market_probability) correction only on tickets containing >=1 horse with abs(King rank - market rank) >= 2; renormalize within race",
+  "main_local_threshold_abs_rank_gap": 2,
+  "strong_dissent_diagnostic_threshold": 4,
+  "thresholds_predeclared": true,
+  "test_year_threshold_tuning": false,
+  "target": "ticket_hit - normalized_market_quinella_probability",
+  "correction_models": {
+    "KING_LOCAL": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count"
+    ],
+    "KING_OUTSIDER_LOCAL": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count",
+      "outsider_score_sum",
+      "outsider_score_max",
+      "outsider_score_min",
+      "outsider_support_sum",
+      "outsider_support_max",
+      "outsider_top1_votes_sum",
+      "outsider_top2_votes_sum",
+      "outsider_top3_votes_sum"
+    ],
+    "L175_LOCAL": [
+      "king_rank_min",
+      "king_rank_max",
+      "king_rank_sum",
+      "king_rank_diff",
+      "confidence_mean",
+      "confidence_min",
+      "confidence_max",
+      "king_top3_count",
+      "king_top6_count",
+      "outsider_score_sum",
+      "outsider_score_max",
+      "outsider_score_min",
+      "outsider_support_sum",
+      "outsider_support_max",
+      "outsider_top1_votes_sum",
+      "outsider_top2_votes_sum",
+      "outsider_top3_votes_sum",
+      "signed_gap_sum",
+      "signed_gap_min",
+      "signed_gap_max",
+      "abs_gap_sum",
+      "abs_gap_max",
+      "up_count",
+      "down_count",
+      "near_count",
+      "p3_delta_sum",
+      "p3_delta_min",
+      "p3_delta_max",
+      "p3_valid_count",
+      "outsider_alignment_sum",
+      "outsider_alignment_abs_sum"
+    ]
+  },
+  "alpha_grid": [
+    0.0,
+    0.1,
+    0.25,
+    0.5,
+    0.75,
+    1.0,
+    1.25,
+    1.5,
+    2.0
+  ],
+  "alpha_selection": "prior-year internal calibration only",
+  "outside_local_region": "correction score forced to zero before within-race normalization",
+  "scope": "all priced quinella combinations retained; no TopN filter, no handcrafted ticket selection",
+  "build": {
+    "races_kept": 10344,
+    "races_kept_2023": 3453,
+    "tickets": 945527,
+    "deadheat_or_multi_winner_quinella": 21,
+    "races_kept_2024": 3447,
+    "races_kept_2025": 3444,
+    "build_seconds": 111.688366307,
+    "feature_columns": 42,
+    "rows": 945527,
+    "memory_mib": 421.1056146621704
+  },
+  "parallel": {
+    "workers": 3,
+    "cpu_count": 4,
+    "shared_ticket_table": true,
+    "local_models_run_concurrently": true
+  },
+  "result": {
+    "KING_LOCAL": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.75
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.75
+        }
+      ]
+    },
+    "KING_OUTSIDER_LOCAL": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.0
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.0
+        }
+      ]
+    },
+    "L175_LOCAL": {
+      "beats_market_raw_logloss_both_folds": false,
+      "selected_alphas": [
+        {
+          "test_year": 2024,
+          "selected_alpha": 0.0
+        },
+        {
+          "test_year": 2025,
+          "selected_alpha": 0.1
+        }
+      ]
+    }
+  },
+  "elapsed_seconds": 158.133263747,
+  "2026_locked": true,
+  "promotion": false
+}
