@@ -1,0 +1,58 @@
+{
+  "contract": "L1_STRONG_DISSENT_V2_DECISION",
+  "run_id": 36818060384,
+  "full_model": {
+    "decision": "REJECT_AS_UNIQUE_STRONG_DISSENT",
+    "reason": "FULL failed the predeclared strict uniqueness rule in both directions. It did not beat every simple baseline in matched-count evaluation in both 2024 and 2025.",
+    "upgrade": {
+      "y2024": {
+        "full_effect_pp": 3.803320792281431,
+        "best_simple": "RANK_CROSS",
+        "best_simple_effect_pp": 2.0371760728818646
+      },
+      "y2025": {
+        "full_effect_pp": 1.9677005651395234,
+        "best_simple": "RANK_CROSS",
+        "best_simple_effect_pp": 3.1414009426883216
+      }
+    },
+    "downgrade": {
+      "y2024": {
+        "full_effect_pp": 1.3654730519777012,
+        "best_simple": "GAP_ONLY",
+        "best_simple_effect_pp": 2.3907484024743386
+      },
+      "y2025": {
+        "full_effect_pp": 2.523408330626023,
+        "best_simple": "GAP_ONLY",
+        "best_simple_effect_pp": 2.3781180420507626
+      }
+    }
+  },
+  "simple_signals": {
+    "upgrade_rank_cross": {
+      "decision": "PROMISING_DIAGNOSTIC_CANDIDATE",
+      "matched_full_count_effect_pp": {
+        "y2024": 2.0371760728818646,
+        "y2025": 3.1414009426883216
+      },
+      "interpretation": "For L1 upgrades, the relation between L1 rank and market rank is more stable than the full feature stack."
+    },
+    "downgrade_gap_only": {
+      "decision": "PROMISING_DIAGNOSTIC_CANDIDATE",
+      "matched_full_count_effect_pp": {
+        "y2024": 2.3907484024743386,
+        "y2025": 2.3781180420507626
+      },
+      "interpretation": "For L1 downgrades, disagreement magnitude alone is extremely stable across the two unknown years."
+    }
+  },
+  "model_global_metrics": {
+    "y2024": "All augmented models, including FULL, were slightly worse than MARKET_ONLY in log-loss/Brier.",
+    "y2025": "FULL improved over MARKET_ONLY; simpler models did not.",
+    "conclusion": "Global incremental information is not stable across years."
+  },
+  "architecture": "Core L1 remains market-free. No reranking. No FULL Dissent promotion.",
+  "next_recommended_test": "Build a deliberately simple asymmetric dissent layer: UP uses rank-cross only; DOWN uses gap-only. Freeze thresholds from prior calibration and evaluate strict walk-forward without FULL features.",
+  "2026_locked": true
+}
