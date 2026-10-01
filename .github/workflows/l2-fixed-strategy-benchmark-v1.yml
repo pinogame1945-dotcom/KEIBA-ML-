@@ -12,7 +12,7 @@ permissions:
   contents: write
 
 concurrency:
-  group: l2-outsider-fixed-strategy-v1
+  group: l2-fixed-strategy-benchmark-v1
   cancel-in-progress: true
 
 jobs:
@@ -36,31 +36,31 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_l2_outsider_fixed_strategy_v1.py             research/run_l2_fixed_strategy_benchmark_v1.py             research/run_l2_ticket_lab_v1.py             research/build_l2_bet_kings_dataset_v1.py
+          python -m py_compile research/run_l2_outsider_fixed_strategy_v1.py research/run_l2_fixed_strategy_benchmark_v1.py research/run_l2_ticket_lab_v1.py research/build_l2_bet_kings_dataset_v1.py
           python - <<'PY'
           from pathlib import Path
-          src=Path("research/run_l2_outsider_fixed_strategy_v1.py").read_text()
+          src=Path("research/run_l2_fixed_strategy_benchmark_v1.py").read_text()
           for token in (
-              'SOURCES=("KING","OUTSIDER")',
-              '("Q_AXIS1_TOP6"',
-              '("T_TOP6_BOX"',
-              '"weighted":0',
-              '(-x["weighted"],-x["v1"],-x["count"],-x["v2"],-x["v3"],x["horse_number"],x["horse_id"])',
-              '"stake_policy":"100 yen per generated ticket"',
-              '"odds_gate":False',
-              '"threshold_search":False',
+              "Q_AXIS1_TOP6","Q_TOP2_TO8","Q_TOP6_BOX",
+              "T_AXIS1_TO8","T_AXIS12_TO8","T_TOP6_BOX",
+              'stake_policy":"100 yen per generated ticket"',
+              '"odds_policy":"Odds never determine whether a ticket is bought."',
               '"2026_locked":True',
           ):
               assert token in src,token
+          assert "LightGBM" not in src
           assert "edge_threshold" not in src
-          assert "predict_proba" not in src
-          wf=Path(".github/workflows/l2-outsider-fixed-strategy-v1.yml").read_text()
+          wf=Path(".github/workflows/l2-fixed-strategy-benchmark-v1.yml").read_text()
           runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
           assert runners==["ubuntu-latest"],runners
           uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
           assert not any(u.startswith("actions/upload-artifact") for u in uses)
           assert not any(u.startswith("actions/cache") for u in uses)
-          print("L2_OUTSIDER_FIXED_STATIC_GUARDS_OK")
+          mirror=Path("research/run_l2_outsider_fixed_strategy_v1.py").read_text()
+          assert 'SOURCES=("KING","OUTSIDER")' in mirror
+          assert '"odds_gate":False' in mirror
+          assert '"threshold_search":False' in mirror
+          print("L2_FIXED_STRATEGY_STATIC_GUARDS_OK")
           PY
 
       - name: Install standard CPU dependencies
@@ -69,7 +69,7 @@ jobs:
           set -euo pipefail
           python -m pip install --disable-pip-version-check pandas numpy lightgbm
 
-      - name: Strategy mirror guard
+      - name: Strategy shape guard
         shell: bash
         run: |
           set -euo pipefail
@@ -87,7 +87,7 @@ jobs:
           for s,n in expected.items():
               got=len(tickets_for(s,ranks))
               assert got==n,(s,got,n)
-          print("L2_OUTSIDER_FIXED_MIRROR_GUARD_OK")
+          print("L2_FIXED_STRATEGY_SHAPE_GUARD_OK")
           PY
 
       - name: Restore frozen safe Outsider ballots once
@@ -101,7 +101,7 @@ jobs:
             test -s "out/outsider-fixed/ballots/y$y.csv.gz"
           done
 
-      - name: Sparse restore 2023-2025 race packs once
+      - name: Sparse restore 2023-2025 race and odds packs once
         shell: bash
         run: |
           set -euo pipefail
@@ -112,6 +112,9 @@ jobs:
           /data/daily/2023-*.jsonl.gz
           /data/daily/2024-*.jsonl.gz
           /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
           PATTERNS
           git -C out/backfill checkout "$BACKFILL_SHA"
           test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
@@ -128,7 +131,7 @@ jobs:
           cat "$result/summary.json"
           echo "===== KING VS OUTSIDER ====="
           cat "$result/king-vs-outsider.csv"
-          echo "===== PRIMARY ====="
+          echo "===== 2024-2025 ====="
           cat "$result/primary-2024-2025-summary.csv"
           echo "===== YEARLY ====="
           cat "$result/yearly-summary.csv"
@@ -143,10 +146,12 @@ jobs:
           echo "No GPU / paid runner / paid cloud compute."
           echo "No Artifact / Cache."
           echo "No Kaggle access."
-          echo "No ML training, no odds gate, no threshold search."
+          echo "No ML training and no threshold search."
+          echo "No odds gate."
           echo "Safe Outsider ballots restored once and reused."
-          echo "BACKFILL daily packs restored once and reused."
-          echo "KING and OUTSIDER use identical ticket shapes and stake policy."
+          echo "BACKFILL restored once and reused."
+          echo "KING and OUTSIDER use identical six ticket shapes and 100-yen stake."
+          echo "Only compact summaries plus gzip race detail are committed."
           echo "2026 remains sealed."
 
       - name: Commit compact results
