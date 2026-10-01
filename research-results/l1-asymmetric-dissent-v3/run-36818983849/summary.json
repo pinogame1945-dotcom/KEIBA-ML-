@@ -1,0 +1,143 @@
+{
+  "contract": "L1_ASYMMETRIC_DISSENT_V3",
+  "frozen_rule": {
+    "UP": "RANK_CROSS only",
+    "DOWN": "GAP_ONLY only",
+    "STRONG": "score >= direction-specific 2/3 quantile of positive prior-calibration support scores",
+    "NORMAL": "0 < score < STRONG threshold",
+    "CONTRA": "score <= 0"
+  },
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ]
+    },
+    {
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ]
+    }
+  ],
+  "new_stress_test": "2023 trained only on 2022; V2 selected methods using 2024/2025 performance, so this is the new third OOS check",
+  "promotion_rule": "Per direction: STRONG >=500 horses, positive direction-correct effect, and stronger than ALL disagreements in every 2023/2024/2025 fold.",
+  "decision": {
+    "L1_UPGRADE": {
+      "pass_all_three_folds": true,
+      "folds": [
+        {
+          "test_year": 2023,
+          "train_years": "2022",
+          "direction": "L1_UPGRADE",
+          "all_horses": 10006,
+          "all_effect_pp": 1.43129394436461,
+          "strong_horses": 1946,
+          "strong_races": 1477,
+          "strong_coverage_pct": 19.44833100139916,
+          "strong_effect_pp": 2.418588152638387,
+          "strong_minus_all_pp": 0.987294208273777,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        },
+        {
+          "test_year": 2024,
+          "train_years": "2022|2023",
+          "direction": "L1_UPGRADE",
+          "all_horses": 10120,
+          "all_effect_pp": 1.0077957061774543,
+          "strong_horses": 2048,
+          "strong_races": 1604,
+          "strong_coverage_pct": 20.23715415019763,
+          "strong_effect_pp": 1.12651349399669,
+          "strong_minus_all_pp": 0.11871778781923581,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        },
+        {
+          "test_year": 2025,
+          "train_years": "2022|2023|2024",
+          "direction": "L1_UPGRADE",
+          "all_horses": 10222,
+          "all_effect_pp": 1.2882850456617463,
+          "strong_horses": 1627,
+          "strong_races": 1341,
+          "strong_coverage_pct": 15.91665036196439,
+          "strong_effect_pp": 3.175743548784673,
+          "strong_minus_all_pp": 1.8874585031229267,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        }
+      ]
+    },
+    "L1_DOWNGRADE": {
+      "pass_all_three_folds": true,
+      "folds": [
+        {
+          "test_year": 2023,
+          "train_years": "2022",
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 9852,
+          "all_effect_pp": 2.019590957204813,
+          "strong_horses": 2079,
+          "strong_races": 1539,
+          "strong_coverage_pct": 21.10231425091352,
+          "strong_effect_pp": 2.6686898329820115,
+          "strong_minus_all_pp": 0.6490988757771983,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        },
+        {
+          "test_year": 2024,
+          "train_years": "2022|2023",
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 9932,
+          "all_effect_pp": 1.452864951814639,
+          "strong_horses": 1593,
+          "strong_races": 1274,
+          "strong_coverage_pct": 16.03906564639549,
+          "strong_effect_pp": 1.5527155164502906,
+          "strong_minus_all_pp": 0.09985056463565156,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        },
+        {
+          "test_year": 2025,
+          "train_years": "2022|2023|2024",
+          "direction": "L1_DOWNGRADE",
+          "all_horses": 9963,
+          "all_effect_pp": 2.0323207823355744,
+          "strong_horses": 1375,
+          "strong_races": 1152,
+          "strong_coverage_pct": 13.801063936565292,
+          "strong_effect_pp": 2.8840155632921687,
+          "strong_minus_all_pp": 0.8516947809565942,
+          "strong_positive": true,
+          "strong_n_ge_500": true,
+          "strong_beats_all": true
+        }
+      ]
+    }
+  },
+  "core_L1_market_free": true,
+  "rerank": false,
+  "paid_compute": false,
+  "2026_locked": true,
+  "promotion": false,
+  "skipped_market_races": 3
+}
