@@ -5,3 +5,4 @@ freeze_threshold=2
 bootstrap_draws=4000
 segment_audit=race_class,grade,field_size,market_price
 2026_locked=true
+rerun=frozen-seed-reproduction-fix-v2
