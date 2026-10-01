@@ -1,0 +1,107 @@
+name: L1 Strong Dissent Uncertainty V4
+
+on:
+  push:
+    branches:
+      - research/l1-strong-dissent-uncertainty-v4-20261001
+    paths:
+      - .github/triggers/l1-strong-dissent-uncertainty-v4.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-strong-dissent-uncertainty-v4
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_strong_dissent_uncertainty_v4.py
+          python - <<'PY'
+          from pathlib import Path
+          src=Path("research/run_l1_strong_dissent_uncertainty_v4.py").read_text()
+          assert "race-cluster bootstrap" in src
+          assert "0.8,1.0,1.2" in src.replace(" ","")
+          assert "2026 sealed" in src
+          wf=Path(".github/workflows/l1-strong-dissent-uncertainty-v4.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("L1_STRONG_DISSENT_UNCERTAINTY_V4_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install statistics dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+
+      - name: Verify frozen V3 inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          base="research-results/l1-asymmetric-dissent-v3/run-36818983849"
+          test -s "$base/scored.csv.gz"
+          test -s "$base/thresholds.csv"
+          echo "Using frozen V3 outputs only; no Kaggle downloads."
+
+      - name: Run race-cluster uncertainty audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_base="research-results/l1-asymmetric-dissent-v3/run-36818983849"
+          result="research-results/l1-strong-dissent-uncertainty-v4/run-$GITHUB_RUN_ID"
+          python research/run_l1_strong_dissent_uncertainty_v4.py \
+            --scored "$source_base/scored.csv.gz" \
+            --thresholds "$source_base/thresholds.csv" \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== UNCERTAINTY ====="
+          cat "$result/uncertainty.csv"
+          echo "===== SENSITIVITY ====="
+          cat "$result/sensitivity-summary.csv"
+          test "$(du -sm "$result" | cut -f1)" -le 2
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No Kaggle reads or writes."
+          echo "No external dataset downloads."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-strong-dissent-uncertainty-v4/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive STRONG dissent uncertainty V4 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
