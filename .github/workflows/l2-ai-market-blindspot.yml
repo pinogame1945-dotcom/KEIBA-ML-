@@ -45,7 +45,7 @@ jobs:
           assert c["cost_policy"]["github_standard_cpu_only"] is True
           assert c["cost_policy"]["gpu"] is False
           src=Path("research/run_l2_ai_market_blindspot_audit.py").read_text()
-          assert "all horses, all races, WIN market only" in src
+          assert "skipped-market-races.csv" in src
           assert "no buying rule learned" in src
           assert "MARKET_PLUS_AI" in src
           assert "2026_locked" in src
