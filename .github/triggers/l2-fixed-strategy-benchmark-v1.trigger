@@ -8,3 +8,6 @@ threshold_search=false
 
 outsider_mirror_rerun=true
 requested=2026-10-01
+
+outsider_mirror_known_good_workflow=true
+requested=2026-10-01
