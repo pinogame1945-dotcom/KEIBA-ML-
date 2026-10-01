@@ -1,0 +1,224 @@
+{
+  "contract": "L1_STRONG_DISSENT_UNCERTAINTY_V4",
+  "source": "Frozen V3 scored outputs only; no model retraining and no Kaggle/network data dependency.",
+  "bootstrap": "race-cluster bootstrap within each test-year/direction cell",
+  "bootstrap_reps": 2000,
+  "threshold_sensitivity_multipliers": [
+    0.8,
+    1.0,
+    1.2
+  ],
+  "threshold_sensitivity_policy": "Multipliers fixed before reading V4 outcomes; no threshold optimization.",
+  "formal_promotion_rule": [
+    "At frozen 1.0x threshold, STRONG-minus-ALL point enrichment > 0 in 2023, 2024, 2025.",
+    "At frozen 1.0x threshold, race-cluster bootstrap 95% CI lower bound for STRONG-minus-ALL > 0 in 2023, 2024, 2025.",
+    "At 0.8x, 1.0x, 1.2x thresholds, point enrichment remains > 0 in every 2023, 2024, 2025 cell."
+  ],
+  "decision": {
+    "L1_UPGRADE": {
+      "point_enrichment_all_years": true,
+      "ci95_lower_above_zero_all_years": false,
+      "threshold_sensitivity_all_years": false,
+      "formal_promotion_pass": false,
+      "frozen_rows": [
+        {
+          "test_year": 2023,
+          "direction": "L1_UPGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0183648595177337,
+          "tested_threshold": 0.0183648595177337,
+          "all_horses": 10006,
+          "selected_horses": 1946,
+          "selected_races": 1477,
+          "coverage_pct": 19.44833100139916,
+          "all_effect_pp": 1.4312939443646144,
+          "selected_effect_pp": 2.418588152638391,
+          "selected_minus_all_pp": 0.9872942082737766,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": -0.4682550934282953,
+          "delta_ci95_high_pp": 2.3498983793579225,
+          "selected_effect_ci95_low_pp": 0.7542856840489914,
+          "selected_effect_ci95_high_pp": 4.047482385807744,
+          "p_boot_delta_gt_0": 0.912
+        },
+        {
+          "test_year": 2024,
+          "direction": "L1_UPGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0125004024991332,
+          "tested_threshold": 0.0125004024991332,
+          "all_horses": 10120,
+          "selected_horses": 2048,
+          "selected_races": 1604,
+          "coverage_pct": 20.23715415019763,
+          "all_effect_pp": 1.0077957061774585,
+          "selected_effect_pp": 1.1265134939966934,
+          "selected_minus_all_pp": 0.11871778781923492,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": -1.1728790057135876,
+          "delta_ci95_high_pp": 1.4733054131224055,
+          "selected_effect_ci95_low_pp": -0.3589401836516054,
+          "selected_effect_ci95_high_pp": 2.6777879009822794,
+          "p_boot_delta_gt_0": 0.5655
+        },
+        {
+          "test_year": 2025,
+          "direction": "L1_UPGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0104819165505741,
+          "tested_threshold": 0.0104819165505741,
+          "all_horses": 10222,
+          "selected_horses": 1627,
+          "selected_races": 1341,
+          "coverage_pct": 15.91665036196439,
+          "all_effect_pp": 1.2882850456617507,
+          "selected_effect_pp": 3.175743548784677,
+          "selected_minus_all_pp": 1.8874585031229263,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": 0.3280507392179573,
+          "delta_ci95_high_pp": 3.5712984473084095,
+          "selected_effect_ci95_low_pp": 1.4109296529587272,
+          "selected_effect_ci95_high_pp": 5.023632200243978,
+          "p_boot_delta_gt_0": 0.987
+        }
+      ],
+      "sensitivity_rows": [
+        {
+          "direction": "L1_UPGRADE",
+          "test_year": 2023,
+          "all_three_multiplier_point_positive": true,
+          "all_three_multiplier_selected_effect_positive": true,
+          "min_point_delta_pp": 0.7800223369476738,
+          "max_point_delta_pp": 1.1042331499458948,
+          "coverage_min_pct": 15.400759544273436,
+          "coverage_max_pct": 24.2254647211673
+        },
+        {
+          "direction": "L1_UPGRADE",
+          "test_year": 2024,
+          "all_three_multiplier_point_positive": false,
+          "all_three_multiplier_selected_effect_positive": false,
+          "min_point_delta_pp": -1.2353723489020914,
+          "max_point_delta_pp": 0.11871778781923492,
+          "coverage_min_pct": 15.671936758893281,
+          "coverage_max_pct": 25.385375494071145
+        },
+        {
+          "direction": "L1_UPGRADE",
+          "test_year": 2025,
+          "all_three_multiplier_point_positive": true,
+          "all_three_multiplier_selected_effect_positive": true,
+          "min_point_delta_pp": 0.5393507622745803,
+          "max_point_delta_pp": 2.1275461220917897,
+          "coverage_min_pct": 11.533946390138915,
+          "coverage_max_pct": 21.4145959694776
+        }
+      ]
+    },
+    "L1_DOWNGRADE": {
+      "point_enrichment_all_years": true,
+      "ci95_lower_above_zero_all_years": false,
+      "threshold_sensitivity_all_years": false,
+      "formal_promotion_pass": false,
+      "frozen_rows": [
+        {
+          "test_year": 2023,
+          "direction": "L1_DOWNGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0226014210049872,
+          "tested_threshold": 0.0226014210049872,
+          "all_horses": 9852,
+          "selected_horses": 2079,
+          "selected_races": 1539,
+          "coverage_pct": 21.10231425091352,
+          "all_effect_pp": 2.0195909572048096,
+          "selected_effect_pp": 2.668689832982009,
+          "selected_minus_all_pp": 0.6490988757771992,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": -1.0476207573709373,
+          "delta_ci95_high_pp": 2.26476308809262,
+          "selected_effect_ci95_low_pp": 0.7282863049483137,
+          "selected_effect_ci95_high_pp": 4.5395444777657445,
+          "p_boot_delta_gt_0": 0.76
+        },
+        {
+          "test_year": 2024,
+          "direction": "L1_DOWNGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0193112511501521,
+          "tested_threshold": 0.0193112511501521,
+          "all_horses": 9932,
+          "selected_horses": 1593,
+          "selected_races": 1274,
+          "coverage_pct": 16.03906564639549,
+          "all_effect_pp": 1.4528649518146355,
+          "selected_effect_pp": 1.5527155164502866,
+          "selected_minus_all_pp": 0.09985056463565112,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": -1.8922395806129018,
+          "delta_ci95_high_pp": 1.997169817600631,
+          "selected_effect_ci95_low_pp": -0.6292242963435815,
+          "selected_effect_ci95_high_pp": 3.6289413249980984,
+          "p_boot_delta_gt_0": 0.5455
+        },
+        {
+          "test_year": 2025,
+          "direction": "L1_DOWNGRADE",
+          "threshold_multiplier": 1.0,
+          "base_threshold": 0.0126584434831434,
+          "tested_threshold": 0.0126584434831434,
+          "all_horses": 9963,
+          "selected_horses": 1375,
+          "selected_races": 1152,
+          "coverage_pct": 13.801063936565292,
+          "all_effect_pp": 2.0323207823355705,
+          "selected_effect_pp": 2.8840155632921665,
+          "selected_minus_all_pp": 0.851694780956596,
+          "bootstrap_reps_valid": 2000,
+          "delta_ci95_low_pp": -1.339990331086203,
+          "delta_ci95_high_pp": 2.9476443276357847,
+          "selected_effect_ci95_low_pp": 0.6130388609800679,
+          "selected_effect_ci95_high_pp": 5.216437223174354,
+          "p_boot_delta_gt_0": 0.7855
+        }
+      ],
+      "sensitivity_rows": [
+        {
+          "direction": "L1_DOWNGRADE",
+          "test_year": 2023,
+          "all_three_multiplier_point_positive": false,
+          "all_three_multiplier_selected_effect_positive": true,
+          "min_point_delta_pp": -0.3224536838908785,
+          "max_point_delta_pp": 1.2000591150227349,
+          "coverage_min_pct": 17.032074705643524,
+          "coverage_max_pct": 26.26877791311409
+        },
+        {
+          "direction": "L1_DOWNGRADE",
+          "test_year": 2024,
+          "all_three_multiplier_point_positive": false,
+          "all_three_multiplier_selected_effect_positive": true,
+          "min_point_delta_pp": -0.12213748272296399,
+          "max_point_delta_pp": 0.09985056463565112,
+          "coverage_min_pct": 11.478050745066453,
+          "coverage_max_pct": 21.143777688280306
+        },
+        {
+          "direction": "L1_DOWNGRADE",
+          "test_year": 2025,
+          "all_three_multiplier_point_positive": true,
+          "all_three_multiplier_selected_effect_positive": true,
+          "min_point_delta_pp": 0.39357098294556003,
+          "max_point_delta_pp": 0.851694780956596,
+          "coverage_min_pct": 10.739737026999899,
+          "coverage_max_pct": 17.805881762521327
+        }
+      ]
+    }
+  },
+  "core_L1_market_free": true,
+  "rerank": false,
+  "paid_compute": false,
+  "2026_locked": true,
+  "promotion": false
+}
