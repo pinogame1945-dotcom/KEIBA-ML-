@@ -221,9 +221,9 @@ def main():
     year_means={str(r["scope"]):float(r["mean"]) for _,r in combo.iterrows() if r["scope"] in ("2024","2025")}
     pooled=combo[combo["scope"]=="POOLED_2024_2025"].iloc[0]
     strict_stability=bool(
-        year_means.get("2024",1)>=0 is False and
-        year_means.get("2025",1)>=0 is False and
-        float(pooled["ci_high"])<0
+        year_means.get("2024",1.0)<0.0 and
+        year_means.get("2025",1.0)<0.0 and
+        float(pooled["ci_high"])<0.0
     )
 
     write_csv(out/"race-loss-ledger.csv",ledger)
