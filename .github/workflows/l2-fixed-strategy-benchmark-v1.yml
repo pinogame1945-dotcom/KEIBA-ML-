@@ -1,0 +1,150 @@
+name: L2 Fixed Strategy Benchmark V1
+
+on:
+  push:
+    branches:
+      - research/l2-fixed-strategy-benchmark-v1-20261001
+    paths:
+      - .github/triggers/l2-fixed-strategy-benchmark-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-fixed-strategy-benchmark-v1
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_fixed_strategy_benchmark_v1.py research/run_l2_ticket_lab_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          src=Path("research/run_l2_fixed_strategy_benchmark_v1.py").read_text()
+          for token in (
+              "Q_AXIS1_TOP6","Q_TOP2_TO8","Q_TOP6_BOX",
+              "T_AXIS1_TO8","T_AXIS12_TO8","T_TOP6_BOX",
+              'stake_policy":"100 yen per generated ticket"',
+              '"odds_policy":"Odds never determine whether a ticket is bought."',
+              '"2026_locked":True',
+          ):
+              assert token in src,token
+          assert "LightGBM" not in src
+          assert "edge_threshold" not in src
+          wf=Path(".github/workflows/l2-fixed-strategy-benchmark-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("L2_FIXED_STRATEGY_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check pandas numpy lightgbm
+
+      - name: Strategy shape guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=research python - <<'PY'
+          from run_l2_fixed_strategy_benchmark_v1 import tickets_for
+          ranks={i:i for i in range(1,19)}
+          expected={
+            "Q_AXIS1_TOP6":5,
+            "Q_TOP2_TO8":12,
+            "Q_TOP6_BOX":15,
+            "T_AXIS1_TO8":21,
+            "T_AXIS12_TO8":6,
+            "T_TOP6_BOX":20,
+          }
+          for s,n in expected.items():
+              got=len(tickets_for(s,ranks))
+              assert got==n,(s,got,n)
+          print("L2_FIXED_STRATEGY_SHAPE_GUARD_OK")
+          PY
+
+      - name: Sparse restore 2023-2025 race and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'PATTERNS'
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          PATTERNS
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run fixed human strategy benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_market="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
+          test -s "$source_market"
+          result="research-results/l2-fixed-strategy-benchmark-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_fixed_strategy_benchmark_v1.py             --market-scored "$source_market"             --backfill-root out/backfill             --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== YEARLY ====="
+          cat "$result/yearly-summary.csv"
+          echo "===== 2024-2025 ====="
+          cat "$result/primary-2024-2025-summary.csv"
+          echo "===== SIDE BY SIDE ====="
+          cat "$result/side-by-side.csv"
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 20
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / paid cloud compute."
+          echo "No Artifact / Cache."
+          echo "No Kaggle access."
+          echo "No ML training and no threshold search."
+          echo "BACKFILL restored once and reused."
+          echo "Only compact summaries plus gzip race detail are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-fixed-strategy-benchmark-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive L2 Fixed Strategy Benchmark V1 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
