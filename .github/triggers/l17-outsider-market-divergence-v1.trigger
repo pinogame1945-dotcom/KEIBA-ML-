@@ -4,3 +4,4 @@ market_source=v3-frozen
 outsider_source=l17-podium-calibrator-run-36747215581
 ranking_policy=seven-king-unchanged
 2026_locked=true
+rerun=canonical-l17-rank-v2
