@@ -1,0 +1,44 @@
+{
+  "contract": "L2B_QUINELLA_VALUE_V1_DECISION",
+  "run_id": 36832474164,
+  "status": "SUCCESS",
+  "result": {
+    "2024": {
+      "market_value_blend": 0,
+      "market_king_blend": 0,
+      "l175_blend": 0,
+      "interpretation": "Prior-year calibration selected MARKET_RAW unchanged for all variants; therefore no positive edge tickets exist against normalized final quinella market probability."
+    },
+    "2025": {
+      "market_value_blend": 0.1,
+      "market_king_blend": 0.05,
+      "l175_blend": 0.1,
+      "positive_edge_outcome": "Every ticket with modeled edge >= 0 missed for all three learned variants; ROI=0 in all predeclared positive-edge threshold policies.",
+      "market_value_edge0": {
+        "bought_race_pct": 41.20209059233449,
+        "tickets": 8648,
+        "roi_pct": 0
+      },
+      "market_king_edge0": {
+        "bought_race_pct": 17.015098722415797,
+        "tickets": 1895,
+        "roi_pct": 0
+      },
+      "l175_edge0": {
+        "bought_race_pct": 41.637630662020904,
+        "tickets": 8416,
+        "roi_pct": 0
+      }
+    }
+  },
+  "audit_note": "Payout join is not broken: winning quinella identity and return_yen_per100 are derived from the same canonical payout_map key. The zero returns in positive-edge selections reflect zero winning tickets, not missing payout data.",
+  "interpretation": [
+    "A model that only slightly improves or matches race log loss can still create catastrophic false-positive edge by shifting tiny probability mass onto very high-odds tickets.",
+    "The 2025 positive-edge sets were dominated by extreme odds: e.g. MARKET_VALUE 0_5 band mean odds ~5590 and L175_VALUE 0_5 band mean odds ~5626, with zero realized hits.",
+    "Do not use naive edge = p*odds-1 from these blended probabilities as a buy rule.",
+    "Market-centered probability quality and betting-value calibration are separate problems."
+  ],
+  "next": "L2B_VALUE_CALIBRATION_V2: keep MARKET_RAW as canonical probability, estimate conservative out-of-sample reliability/shrinkage of positive model-minus-market residuals before computing edge; explicitly penalize low-support/high-odds probability lifts. Do not hand-pick tiny ROI cells or tune thresholds on test years.",
+  "promotion": false,
+  "2026_locked": true
+}
