@@ -1,0 +1,107 @@
+{
+  "contract": "L2_DIRECTIONAL_LOCAL_V1",
+  "bet_type": "QUINELLA",
+  "routes": {
+    "UP_ONLY": "pair contains >=1 L1.75 UP horse and no DOWN horse",
+    "DOWN_ONLY": "pair contains >=1 L1.75 DOWN horse and no UP horse",
+    "MIXED": "pair contains both UP and DOWN horses"
+  },
+  "near_only_policy": "MARKET_RAW unchanged",
+  "target": "ticket_hit - normalized_market_quinella_probability",
+  "direction_threshold": "UP if signed_rank_gap>=2; DOWN if <=-2; otherwise NEAR",
+  "outsider_directional_context": [
+    "up_outsider_agree_count",
+    "up_outsider_oppose_count",
+    "down_outsider_agree_count",
+    "down_outsider_oppose_count",
+    "up_alignment_sum",
+    "down_alignment_sum"
+  ],
+  "alpha_grid": [
+    0.0,
+    0.05,
+    0.1,
+    0.2,
+    0.35,
+    0.5,
+    0.75,
+    1.0,
+    1.5
+  ],
+  "alpha_selection": "each route independently on prior-year internal calibration; no test-year tuning",
+  "combine_policy": "apply each route's prior-selected alpha simultaneously, then normalize within race",
+  "build": {
+    "races_kept": 10344,
+    "races_kept_2023": 3453,
+    "tickets": 945527,
+    "deadheat_or_multi_winner_quinella": 21,
+    "races_kept_2024": 3447,
+    "races_kept_2025": 3444,
+    "build_seconds": 118.06856478600001,
+    "feature_columns": 42,
+    "rows": 945527,
+    "memory_mib": 464.3884057998657
+  },
+  "parallel": {
+    "workers": 3,
+    "cpu_count": 4,
+    "shared_ticket_table": true,
+    "route_models_run_concurrently": true
+  },
+  "result": {
+    "combined_beats_market_raw_logloss_both_folds": true,
+    "route_selected_alphas": [
+      {
+        "test_year": 2024,
+        "route": "UP_ONLY",
+        "fit_rows": 70949,
+        "cal_rows": 17218,
+        "test_rows": 88005,
+        "selected_alpha": 0.1
+      },
+      {
+        "test_year": 2024,
+        "route": "DOWN_ONLY",
+        "fit_rows": 69510,
+        "cal_rows": 17103,
+        "test_rows": 85974,
+        "selected_alpha": 0.2
+      },
+      {
+        "test_year": 2024,
+        "route": "MIXED",
+        "fit_rows": 28432,
+        "cal_rows": 7122,
+        "test_rows": 36196,
+        "selected_alpha": 0.0
+      },
+      {
+        "test_year": 2025,
+        "route": "UP_ONLY",
+        "fit_rows": 142023,
+        "cal_rows": 34149,
+        "test_rows": 90268,
+        "selected_alpha": 0.1
+      },
+      {
+        "test_year": 2025,
+        "route": "DOWN_ONLY",
+        "fit_rows": 138289,
+        "cal_rows": 34298,
+        "test_rows": 87489,
+        "selected_alpha": 0.1
+      },
+      {
+        "test_year": 2025,
+        "route": "MIXED",
+        "fit_rows": 57550,
+        "cal_rows": 14200,
+        "test_rows": 36467,
+        "selected_alpha": 0.0
+      }
+    ]
+  },
+  "elapsed_seconds": 162.384107643,
+  "promotion": false,
+  "2026_locked": true
+}
