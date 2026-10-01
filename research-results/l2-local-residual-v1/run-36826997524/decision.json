@@ -1,0 +1,32 @@
+{
+  "contract": "L2_LOCAL_RESIDUAL_V1_DECISION",
+  "run_id": 36826997524,
+  "bet_type": "QUINELLA",
+  "headline": {
+    "market_global_baseline_retained": true,
+    "king_local_selected_alpha": {
+      "2024": 0.75,
+      "2025": 0.75
+    },
+    "king_outsider_local_selected_alpha": {
+      "2024": 0,
+      "2025": 0
+    },
+    "l175_local_selected_alpha": {
+      "2024": 0,
+      "2025": 0.1
+    },
+    "l175_2025_delta_race_log_loss_vs_market": -0.00019087963082764503,
+    "l175_2024_delta_race_log_loss_vs_market": 0,
+    "promotion": false
+  },
+  "interpretation": [
+    "Global correction failed previously; local correction at abs rank gap >=2 is closer to the intended market-mistake hypothesis.",
+    "KING_LOCAL calibration selected nonzero alpha in both folds, but unseen-year test log loss was slightly worse in both years; do not promote.",
+    "KING_OUTSIDER_LOCAL selected alpha 0 in both folds; no evidence for a blanket local correction.",
+    "L175_LOCAL selected alpha 0 for 2024 and 0.1 for 2025; 2025 improved market log loss slightly, but no cross-year consistency yet.",
+    "The useful signal, if real, is likely more specific than 'any dissent >=2'. Direction and role inside the pair should be preserved instead of collapsed into abs_gap_max."
+  ],
+  "next": "L2_DIRECTIONAL_LOCAL_V1: retain MARKET_RAW globally and split local tickets by whether they contain UP-grade horses, DOWN-grade horses, both, or only NEAR partners. Preserve horse-side direction and Outsider agreement. Learn residual correction by predeclared direction class, with no test-year threshold tuning.",
+  "2026_locked": true
+}
