@@ -155,7 +155,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          result="research-results/l2-king-axis-outsider-overlap-levels-v3/run-$GITHUB_RUN_ID"
+          result="research-results/l2-outsider-axis-king-mates-v1/run-$GITHUB_RUN_ID"
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
