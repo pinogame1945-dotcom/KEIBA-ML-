@@ -1,0 +1,29 @@
+{
+  "contract": "L2_TICKET_RESIDUAL_V1_DECISION",
+  "run_id": 36826016718,
+  "bet_type": "QUINELLA",
+  "result": {
+    "king_correction_selected_alpha": {
+      "2024": 0,
+      "2025": 0
+    },
+    "king_outsider_correction_selected_alpha": {
+      "2024": 0,
+      "2025": 0
+    },
+    "l175_correction_selected_alpha": {
+      "2024": 0,
+      "2025": 0
+    },
+    "conclusion": "No global all-ticket correction survived prior-year calibration; MARKET_RAW remains the global quinella probability baseline."
+  },
+  "interpretation": [
+    "L1.75 is not useful as a blanket correction over every quinella ticket.",
+    "This does not invalidate previously observed horse-level market-dissent signal.",
+    "The remaining hypothesis is conditional use: apply/learn corrections only in disagreement regions rather than across the full ticket universe.",
+    "Do not optimize a hard STRONG tag or TopN rule yet; first test cross-fitted local residual models on predeclared dissent subsets."
+  ],
+  "next": "L2_LOCAL_RESIDUAL_V1: keep MARKET_RAW globally; train/evaluate residual corrections only on tickets containing at least one horse with abs King-vs-market rank gap >=2, with >=4 as a separately reported diagnostic, and compare against unchanged market on the same subset. No test-year threshold tuning.",
+  "promotion": false,
+  "2026_locked": true
+}
