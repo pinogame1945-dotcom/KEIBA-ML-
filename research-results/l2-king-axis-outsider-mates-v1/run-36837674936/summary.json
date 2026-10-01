@@ -1,0 +1,60 @@
+{
+  "contract": "L2_KING_AXIS_OUTSIDER_MATES_V1",
+  "comparison": "Same races and flat 100-yen tickets. KING-only vs OUTSIDER-only vs HYBRID where axes are KING and mates are chosen strictly by Outsider council order.",
+  "strategies": {
+    "Q_AXIS1_5": {
+      "bet": "QUINELLA",
+      "label": "馬連 KING1位軸→紐5頭"
+    },
+    "Q_TOP2_6": {
+      "bet": "QUINELLA",
+      "label": "馬連 KING1・2位軸→紐6頭"
+    },
+    "T_AXIS1_7": {
+      "bet": "TRIO",
+      "label": "三連複 KING1位軸＋紐7頭から2頭"
+    },
+    "T_AXIS12_6": {
+      "bet": "TRIO",
+      "label": "三連複 KING1・2位固定＋紐6頭"
+    }
+  },
+  "hybrid_mate_policy": "For each strategy, take the first N Outsider-ranked distinct horses after excluding the fixed KING axis horse(s).",
+  "outsider_rank_policy": "13 safe Outsiders weighted council: top1=3, top2=2, top3=1; tie-safe deterministic policy inherited from safe council.",
+  "odds_gate": false,
+  "threshold_search": false,
+  "stake_policy": "100 yen per generated ticket",
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "outsider_stats": {
+    "2023": {
+      "races": 3456,
+      "positive_vote_horses_min": 4,
+      "positive_vote_horses_mean": 11.994502314814815,
+      "positive_vote_horses_max": 18
+    },
+    "2024": {
+      "races": 3454,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.868847712796757,
+      "positive_vote_horses_max": 18
+    },
+    "2025": {
+      "races": 3455,
+      "positive_vote_horses_min": 5,
+      "positive_vote_horses_mean": 11.957742402315485,
+      "positive_vote_horses_max": 18
+    }
+  },
+  "counters": {},
+  "elapsed_seconds": 24.806220435,
+  "promotion": false,
+  "2026_locked": true
+}
