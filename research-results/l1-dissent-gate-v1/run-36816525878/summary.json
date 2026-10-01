@@ -1,0 +1,34 @@
+{
+  "contract": "L1_DISSENT_GATE_V1",
+  "architecture": "core L1 remains market-free; Dissent Gate is a post-L1 comparison layer and never reranks L1",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "market_model_features": [
+    "field_size",
+    "market_rank_pct",
+    "log_market_win_probability",
+    "log_final_win_odds"
+  ],
+  "augmented_model": "market features + frozen L1.7 internal features + strict-OOS podium confidence",
+  "gate_score": "sign(market_rank-L1_rank) * (P_top3_market_plus_L1 - P_top3_market_only)",
+  "trust_rule": "score > 0; LOW/MID/HIGH are prior-calibration positive-score tertiles, not outcome-optimized thresholds",
+  "disagreement_rule": "abs(tie-safe final WIN market rank - L1.7 rank) >= 2",
+  "evaluation_only_baseline": "same test-year, same market-rank actual podium rate",
+  "skipped_market_races": 3,
+  "2026_locked": true,
+  "paid_compute": false,
+  "promotion": false
+}
