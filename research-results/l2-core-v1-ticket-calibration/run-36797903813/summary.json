@@ -1,0 +1,56 @@
+{
+  "contract": "L2_CORE_V1_TICKET_CALIBRATION_RESULT",
+  "method": "market-free per-bet isotonic on cross-fit prior-race ticket probabilities, then within-race renormalization",
+  "odds_used_for_calibration": false,
+  "odds_used_only_for_final_valuation": true,
+  "prior_strength": 200.0,
+  "2026_locked": true,
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "fit_races": 2761,
+      "ticket_calibration_races": 691,
+      "final_conf_temperature": 1.1275122128653323,
+      "labeled_unique_winner_races": 3453,
+      "win_log_loss": 2.0964575929964586,
+      "brier_score": 0.06069322814998469,
+      "calibration_error_10bin": 0.003444118094496622,
+      "top1_accuracy_pct": 27.106863596872284,
+      "winner_in_top3_pct": 59.918911091804226,
+      "official_top3_member_recall_pct": 48.35535834860615,
+      "official_top3_exact_set_pct": 7.037358818418766
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "fit_races": 5524,
+      "ticket_calibration_races": 1381,
+      "final_conf_temperature": 1.1275122128653323,
+      "labeled_unique_winner_races": 3450,
+      "win_log_loss": 2.076415880280852,
+      "brier_score": 0.06097784305065325,
+      "calibration_error_10bin": 0.002443873560500636,
+      "top1_accuracy_pct": 28.869565217391305,
+      "winner_in_top3_pct": 61.18840579710145,
+      "official_top3_member_recall_pct": 48.83676030504875,
+      "official_top3_exact_set_pct": 6.492753623188406
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "fit_races": 8284,
+      "ticket_calibration_races": 2071,
+      "final_conf_temperature": 1.1943215116604917,
+      "labeled_unique_winner_races": 3450,
+      "win_log_loss": 2.092225907594748,
+      "brier_score": 0.06013822196101477,
+      "calibration_error_10bin": 0.0030151574526464946,
+      "top1_accuracy_pct": 28.956521739130434,
+      "winner_in_top3_pct": 60.46376811594203,
+      "official_top3_member_recall_pct": 49.097577453913715,
+      "official_top3_exact_set_pct": 6.782608695652174
+    }
+  ],
+  "promotion": false
+}
