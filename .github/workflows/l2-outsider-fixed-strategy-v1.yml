@@ -36,18 +36,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile research/run_l2_king_axis_outsider_unique_mates_v2.py research/run_l2_king_axis_outsider_mates_v1.py research/run_l2_outsider_fixed_strategy_v1.py research/run_l2_fixed_strategy_benchmark_v1.py research/run_l2_ticket_lab_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python -m py_compile research/run_l2_king_axis_outsider_overlap_levels_v3.py research/run_l2_outsider_fixed_strategy_v1.py research/run_l2_fixed_strategy_benchmark_v1.py research/run_l2_ticket_lab_v1.py research/build_l2_bet_kings_dataset_v1.py
           python - <<'PY'
           from pathlib import Path
-          src=Path("research/run_l2_king_axis_outsider_unique_mates_v2.py").read_text()
+          src=Path("research/run_l2_king_axis_outsider_overlap_levels_v3.py").read_text()
           for token in (
-              'SOURCES=("KING","OUTSIDER","HYBRID","HYBRID_UNIQUE")',
+              'SOURCES=("KING","OUTSIDER","HYBRID_AXIS","HYBRID_TOP3","HYBRID_TOP8")',
               '"Q_AXIS1_5"',
               '"Q_TOP2_6"',
               '"T_AXIS1_7"',
               '"T_AXIS12_6"',
-              '"king_exclude_hi":6',
-              '"king_exclude_hi":8',
+              '"HYBRID_AXIS"',
+              '"HYBRID_TOP3"',
+              '"HYBRID_TOP8"',
               '"stake_policy":"100 yen per generated ticket"',
               '"odds_gate":False',
               '"threshold_search":False',
@@ -118,18 +119,18 @@ jobs:
           git -C out/backfill checkout "$BACKFILL_SHA"
           test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
 
-      - name: Run overlap-free KING-axis Outsider-mates benchmark
+      - name: Run three-level KING-overlap Outsider-mates benchmark
         shell: bash
         run: |
           set -euo pipefail
           source_market="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
           test -s "$source_market"
-          result="research-results/l2-king-axis-outsider-unique-mates-v2/run-$GITHUB_RUN_ID"
-          PYTHONPATH=research python research/run_l2_king_axis_outsider_unique_mates_v2.py             --market-scored "$source_market"             --ballots-year "2023:out/outsider-fixed/ballots/y2023.csv.gz"             --ballots-year "2024:out/outsider-fixed/ballots/y2024.csv.gz"             --ballots-year "2025:out/outsider-fixed/ballots/y2025.csv.gz"             --backfill-root out/backfill             --out-dir "$result"
+          result="research-results/l2-king-axis-outsider-overlap-levels-v3/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_king_axis_outsider_overlap_levels_v3.py             --market-scored "$source_market"             --ballots-year "2023:out/outsider-fixed/ballots/y2023.csv.gz"             --ballots-year "2024:out/outsider-fixed/ballots/y2024.csv.gz"             --ballots-year "2025:out/outsider-fixed/ballots/y2025.csv.gz"             --backfill-root out/backfill             --out-dir "$result"
           echo "===== SUMMARY ====="
           cat "$result/summary.json"
-          echo "===== FOUR WAY ====="
-          cat "$result/four-way-comparison.csv"
+          echo "===== FIVE WAY ====="
+          cat "$result/five-way-comparison.csv"
           echo "===== PRIMARY ====="
           cat "$result/primary-2024-2025-summary.csv"
           echo "===== YEARLY ====="
@@ -148,7 +149,7 @@ jobs:
           echo "No ML training, no odds gate, no threshold search."
           echo "Safe Outsider ballots restored once and reused."
           echo "BACKFILL daily packs restored once and reused."
-          echo "KING, OUTSIDER, HYBRID, and HYBRID_UNIQUE use fixed predeclared ticket shapes and identical flat 100-yen stake policy."
+          echo "KING, OUTSIDER, HYBRID_AXIS, HYBRID_TOP3, and HYBRID_TOP8 use fixed predeclared ticket shapes and identical flat 100-yen stake policy."
           echo "2026 remains sealed."
 
       - name: Commit compact results
@@ -156,10 +157,10 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          result="research-results/l2-king-axis-outsider-mates-v1/run-$GITHUB_RUN_ID"
+          result="research-results/l2-king-axis-outsider-overlap-levels-v3/run-$GITHUB_RUN_ID"
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git add "$result"
-          git commit -m "research: archive L2 KING Axis Outsider Unique Mates V2 $GITHUB_RUN_ID"
+          git commit -m "research: archive L2 KING Axis Outsider Overlap Levels V3 $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
