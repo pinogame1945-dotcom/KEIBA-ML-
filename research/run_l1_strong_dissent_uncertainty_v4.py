@@ -97,6 +97,9 @@ def main():
     for c in ("target_top3","market_peer_top3_rate","score_up","score_down"):
         scored[c]=pd.to_numeric(scored[c],errors="raise")
 
+    out=Path(a.out_dir)
+    out.mkdir(parents=True,exist_ok=True)
+
     threshold_map={}
     for r in thr.itertuples(index=False):
         threshold_map[(int(r.test_year),str(r.direction))]=float(r.strong_threshold)
@@ -129,7 +132,7 @@ def main():
                     **boot,
                 })
 
-    write_csv(Path(a.out_dir)/"uncertainty.csv",rows)
+    write_csv(out/"uncertainty.csv",rows)
     rdf=pd.DataFrame(rows)
 
     frozen=rdf[rdf["threshold_multiplier"]==1.0].copy()
@@ -148,7 +151,7 @@ def main():
                 "coverage_min_pct":float(y["coverage_pct"].min()),
                 "coverage_max_pct":float(y["coverage_pct"].max()),
             })
-    write_csv(Path(a.out_dir)/"sensitivity-summary.csv",sens)
+    write_csv(out/"sensitivity-summary.csv",sens)
 
     # Predeclared promotion standard for this audit:
     # 1) frozen threshold must have positive point enrichment in all 3 years,
@@ -181,7 +184,7 @@ def main():
             "max_yearly_selected_minus_all_pp":float(q["selected_minus_all_pp"].max()),
             "total_selected_horses":int(q["selected_horses"].sum()),
         })
-    write_csv(Path(a.out_dir)/"pooled-descriptive.csv",pooled)
+    write_csv(out/"pooled-descriptive.csv",pooled)
 
     summary={
         "contract":"L1_STRONG_DISSENT_UNCERTAINTY_V4",
@@ -202,7 +205,6 @@ def main():
         "2026_locked":True,
         "promotion":False
     }
-    out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
     (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("===== UNCERTAINTY =====")
     print((out/"uncertainty.csv").read_text(encoding="utf-8"))
