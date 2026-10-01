@@ -71,11 +71,17 @@ def write_csv(path,rows):
         w=csv.DictWriter(f,fieldnames=fields,extrasaction="ignore"); w.writeheader(); w.writerows(rows)
 
 def load_market(path):
-    safe_cols=[
-        "year","race_id","horse_id","horse_number","consensus_rank","market_rank",
-        "confidence_score","confidence_tag","final_win_odds"
+    required_cols=[
+        "year","race_id","horse_id","horse_number","consensus_rank","market_rank","final_win_odds"
     ]
-    df=pd.read_csv(path,compression="gzip",usecols=safe_cols,dtype={"race_id":str,"horse_id":str})
+    header=pd.read_csv(path,compression="gzip",nrows=0)
+    present=set(header.columns)
+    missing=[x for x in required_cols if x not in present]
+    if missing: raise SystemExit(f"market source missing required columns: {missing}")
+    optional=[x for x in ("confidence_score","confidence_tag") if x in present]
+    df=pd.read_csv(path,compression="gzip",usecols=required_cols+optional,dtype={"race_id":str,"horse_id":str})
+    if "confidence_score" not in df.columns: df["confidence_score"]=0.0
+    if "confidence_tag" not in df.columns: df["confidence_tag"]="NA_NOT_IN_FROZEN_SOURCE"
     df["year"]=pd.to_numeric(df["year"],errors="raise").astype(int)
     df=df[df["year"].isin(YEARS)].copy()
     if 2026 in set(df["year"]): raise SystemExit("2026 sealed")
