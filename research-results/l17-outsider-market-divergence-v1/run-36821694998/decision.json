@@ -1,0 +1,59 @@
+{
+  "contract": "L17_OUTSIDER_MARKET_DIVERGENCE_V1_DECISION",
+  "run_id": 36821694998,
+  "canonical_source": {
+    "l17_signal_contract": "L17_TO_L2_SIGNAL_V1",
+    "outsider_ballots_run": 36724124925,
+    "podium_calibrator_run": 36747215581,
+    "ranking_policy": "SEVEN_KING_UNCHANGED",
+    "outsider_policy": "SIGNAL_ONLY_NO_RERANK"
+  },
+  "findings": {
+    "upgrade": {
+      "y2023": {
+        "all_effect_pp": 1.6203923268529086,
+        "agree_effect_pp": 2.2382024485463026,
+        "agree_minus_all_pp": 0.617810121693394
+      },
+      "y2024": {
+        "all_effect_pp": 1.218170434433402,
+        "agree_effect_pp": 1.0498392130931853,
+        "agree_minus_all_pp": -0.1683312213402166
+      },
+      "y2025": {
+        "all_effect_pp": 1.3684301729966175,
+        "agree_effect_pp": 2.1632748594293316,
+        "agree_minus_all_pp": 0.7948446864327141
+      }
+    },
+    "downgrade": {
+      "y2023": {
+        "all_effect_pp": 2.774171810461266,
+        "agree_effect_pp": 3.082685074181738,
+        "agree_minus_all_pp": 0.30851326372047216
+      },
+      "y2024": {
+        "all_effect_pp": 2.3417711108026187,
+        "agree_effect_pp": 3.4650259538079804,
+        "agree_minus_all_pp": 1.1232548430053617
+      },
+      "y2025": {
+        "all_effect_pp": 3.4449190802796634,
+        "agree_effect_pp": 3.423594775282828,
+        "agree_minus_all_pp": -0.02132430499683524
+      }
+    }
+  },
+  "decision": {
+    "outsider_signal": "KEEP_AND_EXPORT_TO_L2",
+    "use_for_l1_rerank": false,
+    "rationale": "Outsider agreement enriches Seven-King market dissent in several years but not every year/direction; signal is informative context, not a stable reranking command.",
+    "fields": [
+      "outsider_score",
+      "p3_delta",
+      "outsider_alignment_with_market_dissent"
+    ]
+  },
+  "canonical_rank_note": "Used historical canonical L1.7 rank paired with the frozen Outsider calibrator. Later reconstructed Seven-King rank mismatch rate was 3.40%, so ranks were not forcibly substituted.",
+  "2026_locked": true
+}
