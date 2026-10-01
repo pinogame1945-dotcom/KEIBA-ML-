@@ -1,0 +1,167 @@
+name: L2 Core V1 Fast Divergence Reliability
+
+on:
+  push:
+    branches:
+      - research/l2-core-v1-redefinition-20261001
+    paths:
+      - .github/triggers/l2-core-v1-divergence-fast.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-core-v1-divergence-fast
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/materialize_l17_seven_king_fullfield_v1.py             research/extract_l2_core_dates_v1.py             research/build_l2_core_v1_dataset.py             research/run_l2_core_v1.py             research/run_l2_core_v1_confidence_ab.py             research/run_l2_core_v1_ticket_calibration.py             research/run_l2_core_v1_market_valuation_fast.py             research/run_l2_core_v1_divergence_reliability_fast.py             research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-core-v1.json",encoding="utf-8"))
+          assert c["cost_policy"]["github_standard_cpu_only"] is True
+          assert c["cost_policy"]["gpu"] is False
+          src=Path("research/run_l2_core_v1_divergence_reliability_fast.py").read_text()
+          assert '"market_blend":False' in src
+          assert "AI/normalized-market divergence" in src
+          assert "iter_decoded_odds" in src
+          assert "2026_locked" in src
+          wf=Path(".github/workflows/l2-core-v1-divergence-fast.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("DIVERGENCE_FAST_STATIC_GUARDS_OK")
+          PY
+          bash -n scripts/kaggle-dataset-session-v2.sh
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python -m pip install --disable-pip-version-check scikit-learn
+
+      - name: Restore seven score tables once
+        shell: bash
+        run: |
+          set -euo pipefail
+          session="scripts/kaggle-dataset-session-v2.sh"
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/l2-div-fast/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session" init "$ref" "$d"
+              bash "$session" fetch "$d" score.jsonl
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          done
+
+      - name: Materialize L1.7 once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-div-fast/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for spec in               core4_no_pedigree=core4               no_auto_full_pedigree_legacy=pedlegacy               jockey_trainer_condition=condition               no_auto_full=full               no_auto_jockey=light               no_auto_full_pedigree_v1=pedv1               jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/l2-div-fast/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              args+=(--expert "$name=$p")
+            done
+            p="out/l2-div-fast/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
+            echo "L17_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve dates and restore exact race/odds packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-div-fast/scores/$y/core4" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+            args+=(--score-year "$y:$p")
+          done
+          python research/extract_l2_core_dates_v1.py "${args[@]}"             --dates-out out/l2-div-fast/all-dates.txt             --race-dates-out out/l2-div-fast/race-dates.csv
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-div-fast/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build L2 dataset once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_core_v1_dataset.py             --l17-year "2022:$L17_2022"             --l17-year "2023:$L17_2023"             --l17-year "2024:$L17_2024"             --l17-year "2025:$L17_2025"             --race-dates out/l2-div-fast/race-dates.csv             --backfill-root out/backfill             --out-dir out/l2-div-fast/dataset
+
+      - name: Run fast divergence reliability
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-core-v1-divergence-fast/run-$GITHUB_RUN_ID"
+          python research/run_l2_core_v1_divergence_reliability_fast.py             --contract contracts/l2-core-v1.json             --dataset-dir out/l2-div-fast/dataset             --backfill-root out/backfill             --calibrator-bins research-results/l2-core-v1-ticket-calibration/run-36797903813/calibrator-bins.csv             --out-dir "$result"
+          echo "===== RELIABILITY FACTORS ====="
+          cat "$result/learned-reliability-factors.csv"
+          echo "===== MARKET DIAGNOSTIC ====="
+          cat "$result/market-diagnostic.csv"
+          echo "===== EDGE BANDS ====="
+          cat "$result/edge-band-calibration.csv"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "Frozen ticket calibrator reused; no expensive recalibration."
+          echo "Odds are streamed once and only inform divergence reliability + final valuation."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-core-v1-divergence-fast/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive fast L2 divergence reliability run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
