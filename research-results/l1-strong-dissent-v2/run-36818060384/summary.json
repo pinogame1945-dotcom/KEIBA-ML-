@@ -1,0 +1,85 @@
+{
+  "contract": "L1_STRONG_DISSENT_V2",
+  "purpose": "test whether FULL dissent adds reproducible information beyond simpler disagreement heuristics",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "methods": {
+    "GAP_ONLY": "market model plus signed/absolute L1-market rank gap only",
+    "CONF_ONLY": "market model plus strict-OOS L1 podium confidence only",
+    "RANK_CROSS": "market model plus L1 rank and L1-market rank interaction only",
+    "FULL": "market model plus frozen L1.7 internal features, confidence, and rank-gap features"
+  },
+  "high_rule": "top prior-calibration tertile among positive direction-support scores; no test outcome used",
+  "matched_diagnostic": "within each test-year direction, each method selects the same count as FULL by score only",
+  "strict_uniqueness_rule": "FULL must beat every simple baseline in MATCHED_FULL_COUNT effect in BOTH 2024 and 2025 for that direction",
+  "strict_result": {
+    "L1_UPGRADE": {
+      "full_wins_both_years": false,
+      "details": [
+        {
+          "direction": "L1_UPGRADE",
+          "selection_mode": "MATCHED_FULL_COUNT",
+          "test_year": 2024,
+          "full_effect_pp": 3.803320792281431,
+          "best_simple_method": "RANK_CROSS",
+          "best_simple_effect_pp": 2.0371760728818646,
+          "full_minus_best_simple_pp": 1.7661447193995663,
+          "full_wins": true
+        },
+        {
+          "direction": "L1_UPGRADE",
+          "selection_mode": "MATCHED_FULL_COUNT",
+          "test_year": 2025,
+          "full_effect_pp": 1.9677005651395234,
+          "best_simple_method": "RANK_CROSS",
+          "best_simple_effect_pp": 3.1414009426883216,
+          "full_minus_best_simple_pp": -1.1737003775487982,
+          "full_wins": false
+        }
+      ]
+    },
+    "L1_DOWNGRADE": {
+      "full_wins_both_years": false,
+      "details": [
+        {
+          "direction": "L1_DOWNGRADE",
+          "selection_mode": "MATCHED_FULL_COUNT",
+          "test_year": 2024,
+          "full_effect_pp": 1.3654730519777012,
+          "best_simple_method": "GAP_ONLY",
+          "best_simple_effect_pp": 2.3907484024743386,
+          "full_minus_best_simple_pp": -1.0252753504966374,
+          "full_wins": false
+        },
+        {
+          "direction": "L1_DOWNGRADE",
+          "selection_mode": "MATCHED_FULL_COUNT",
+          "test_year": 2025,
+          "full_effect_pp": 2.523408330626023,
+          "best_simple_method": "GAP_ONLY",
+          "best_simple_effect_pp": 2.3781180420507626,
+          "full_minus_best_simple_pp": 0.14529028857526027,
+          "full_wins": true
+        }
+      ]
+    }
+  },
+  "skipped_market_races": 3,
+  "core_L1_market_free": true,
+  "rerank": false,
+  "2026_locked": true,
+  "promotion": false
+}
