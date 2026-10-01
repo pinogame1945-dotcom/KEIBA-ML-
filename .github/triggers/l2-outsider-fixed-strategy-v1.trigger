@@ -9,3 +9,4 @@ outsider_policy=weighted_safe_13
 2026_locked=true
 rerun=explicit-trigger-v2
 rerun=static-guard-fix-v3
+rerun=king-axis-outsider-mates-v1
