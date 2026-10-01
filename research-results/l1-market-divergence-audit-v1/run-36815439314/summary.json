@@ -1,0 +1,22 @@
+{
+  "contract": "L1_MARKET_DIVERGENCE_AUDIT_V1",
+  "definition": "rank_gap = tie-safe final WIN market rank - L1.7 consensus rank; + means L1 rates horse higher than market",
+  "market_rank_ties": "competition rank from final odds only; equal odds share rank; never row-order first ranking",
+  "confidence": "strict prior-data P(podium | consensus_rank,vote1,vote2,vote3); LOW/MID/HIGH thresholds learned from prior calibration races within rank",
+  "confidence_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "year_2022_confidence": "NA_NO_PRIOR because no earlier seven-king year is available in this lane",
+  "market_peer_baseline": "same test_year and same tie-safe final WIN market rank",
+  "correctness": "upgrade is supported when top3 lift vs market-rank peers >0; downgrade is supported when lift <0",
+  "races_market_covered": 13821,
+  "horses_market_covered": 189256,
+  "skipped_market_races": 3,
+  "stable_cell_rule": "exact L1 rank<=10 x market rank<=10 x confidence, disagreement >=2; >=30 horses/year, >=2 years, >=100 pooled",
+  "stable_cells": 84,
+  "2026_locked": true,
+  "l1_uses_market": false,
+  "promotion": false
+}
