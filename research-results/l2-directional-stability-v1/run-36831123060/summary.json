@@ -1,0 +1,63 @@
+{
+  "contract": "L2_DIRECTIONAL_STABILITY_V1",
+  "source_architecture": "L2_DIRECTIONAL_LOCAL_V1 frozen routes and thresholds",
+  "bet_type": "QUINELLA",
+  "no_new_route_search": true,
+  "no_threshold_search": true,
+  "direction_threshold": "UP >= +2, DOWN <= -2, MIXED both; unchanged from V1",
+  "bootstrap": {
+    "draws": 4000,
+    "unit": "race",
+    "ci": "percentile_95",
+    "seeded": true
+  },
+  "segments": [
+    "race_class",
+    "grade",
+    "field_size_band",
+    "winning_ticket_odds_band",
+    "winning_market_probability_band",
+    "winning_ticket_direction_route"
+  ],
+  "ticket_price_bands": [
+    "LT10",
+    "10_30",
+    "30_100",
+    "100_PLUS"
+  ],
+  "minimum_segment_races": 80,
+  "build": {
+    "races_kept": 10344,
+    "races_kept_2023": 3453,
+    "tickets": 945527,
+    "deadheat_or_multi_winner_quinella": 21,
+    "races_kept_2024": 3447,
+    "races_kept_2025": 3444,
+    "build_seconds": 116.383014429,
+    "feature_columns": 42,
+    "rows": 945527,
+    "memory_mib": 562.2734928131104
+  },
+  "parallel": {
+    "workers": 3,
+    "cpu_count": 4,
+    "route_models_run_concurrently": true,
+    "shared_ticket_table": true
+  },
+  "stability_gate": {
+    "definition": "combined mean delta log loss < 0 in both unseen years AND pooled bootstrap 95% CI upper bound < 0",
+    "passed": false,
+    "year_mean_delta_log_loss": {
+      "2024": -0.00010415986858722309,
+      "2025": -0.0004339596633184027
+    },
+    "pooled_mean_delta_log_loss": -0.0002689879767071161,
+    "pooled_ci_low": -0.0011437202818555595,
+    "pooled_ci_high": 0.0005812237542135057,
+    "pooled_bootstrap_prob_improve": 0.74525
+  },
+  "policy": "No production promotion from this run alone. If strict stability passes, freeze directional probability layer before L2B value evaluation; otherwise retain as research signal.",
+  "elapsed_seconds": 164.43402222,
+  "promotion": false,
+  "2026_locked": true
+}
