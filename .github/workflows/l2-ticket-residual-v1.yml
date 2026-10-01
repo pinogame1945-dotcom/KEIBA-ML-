@@ -1,0 +1,156 @@
+name: L2 Ticket Residual V1 Quinella
+
+on:
+  push:
+    branches:
+      - research/l2-ticket-residual-v1-20261001
+    paths:
+      - .github/triggers/l2-ticket-residual-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ticket-residual-v1-quinella
+  cancel-in-progress: true
+
+jobs:
+  residual:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and invariant guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_ticket_lab_v1.py research/run_l2_ticket_residual_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          import numpy as np
+          import pandas as pd
+          from pathlib import Path
+          import sys
+          sys.path.insert(0,"research")
+          from run_l2_ticket_residual_v1 import race_softmax_from_market
+          src=Path("research/run_l2_ticket_residual_v1.py").read_text()
+          assert "ThreadPoolExecutor" in src
+          assert "p_market(ticket|race) * exp(alpha * AI_correction_score)" in src
+          assert '"pair_market_odds"' not in src.split("CORRECTION_FEATURES=",1)[1].split("}",1)[0]
+          assert "2026_locked" in src
+          df=pd.DataFrame({"race_id":["r1","r1","r1"],"pair_market_prob_norm":[0.5,0.3,0.2]})
+          p=race_softmax_from_market(df,np.array([100.0,-50.0,3.0]),0.0)
+          assert np.max(np.abs(p-np.array([0.5,0.3,0.2]))) < 1e-12,p
+          wf=Path(".github/workflows/l2-ticket-residual-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("L2_TICKET_RESIDUAL_V1_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python -m pip install --disable-pip-version-check pandas numpy
+
+      - name: Restore frozen safe Outsider sources once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-ticket-residual/outsider
+          git fetch --depth=1 origin research/l16-outsider-support-safe-v1-20260930:refs/remotes/origin/l2-outsider-source
+          for y in 2023 2024 2025; do
+            git show "origin/l2-outsider-source:research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$y/ballots.csv.gz" > "out/l2-ticket-residual/outsider/ballots-$y.csv.gz"
+            test -s "out/l2-ticket-residual/outsider/ballots-$y.csv.gz"
+          done
+          git show "origin/l2-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz" > out/l2-ticket-residual/outsider/predictions.csv.gz
+          test -s out/l2-ticket-residual/outsider/predictions.csv.gz
+
+      - name: Sparse restore 2023-2025 race and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'PATTERNS'
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          PATTERNS
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "daily files=$(find out/backfill/data/daily -type f -name '*.jsonl.gz' | wc -l)"
+          echo "odds files=$(find out/backfill/data/odds/daily -type f -name '*.jsonl.gz' | wc -l)"
+
+      - name: Run shared Ticket Table and parallel residual corrections
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_market="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
+          test -s "$source_market"
+          result="research-results/l2-ticket-residual-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_ticket_residual_v1.py \
+            --market-scored "$source_market" \
+            --ballots-year "2023:out/l2-ticket-residual/outsider/ballots-2023.csv.gz" \
+            --ballots-year "2024:out/l2-ticket-residual/outsider/ballots-2024.csv.gz" \
+            --ballots-year "2025:out/l2-ticket-residual/outsider/ballots-2025.csv.gz" \
+            --outsider-predictions out/l2-ticket-residual/outsider/predictions.csv.gz \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          echo "===== FOLD METRICS ====="
+          cat "$result/fold-metrics.csv"
+          echo "===== DELTA ====="
+          cat "$result/delta-vs-market.csv"
+          echo "===== SUBSETS ====="
+          cat "$result/subset-diagnostics.csv"
+          echo "===== TIMING ====="
+          cat "$result/timing.csv"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / paid cloud compute."
+          echo "No Artifact / Cache."
+          echo "No Kaggle access."
+          echo "BACKFILL sparse checkout is restored once and reused."
+          echo "Ticket Table is built once in memory and shared."
+          echo "Three correction models run concurrently; LightGBM n_jobs=1 each."
+          echo "Only compact CSV/JSON summaries are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-ticket-residual-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive L2 Ticket Residual V1 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
