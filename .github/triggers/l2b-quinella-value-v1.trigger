@@ -1,0 +1,9 @@
+launch=l2b-quinella-value-v1
+requested=2026-10-01
+bet=quinella
+canonical_probability=market_raw
+models=market,market_king,l175
+edge_thresholds=0,0.05,0.10,0.20,0.30,0.50
+payout_training=false
+parallel_models=3
+2026_locked=true
