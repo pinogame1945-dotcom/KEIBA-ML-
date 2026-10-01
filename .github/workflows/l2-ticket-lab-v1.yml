@@ -43,8 +43,9 @@ jobs:
           assert "ThreadPoolExecutor" in src
           assert "all priced quinella combinations" in src
           assert "2026 sealed" in src
-          assert '"finish"' not in src.split("safe_cols=",1)[1].split("]",1)[0]
-          assert '"target_top3"' not in src.split("safe_cols=",1)[1].split("]",1)[0]
+          guard=src.split("required_cols=",1)[1].split("]",1)[0]
+          assert '"finish"' not in guard
+          assert '"target_top3"' not in guard
           wf=Path(".github/workflows/l2-ticket-lab-v1.yml").read_text()
           runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
           assert runners==["ubuntu-latest"],runners
