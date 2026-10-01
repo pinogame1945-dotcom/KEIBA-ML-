@@ -1,0 +1,46 @@
+{
+  "contract": "L2_FIXED_STRATEGY_BENCHMARK_V1",
+  "philosophy": "Human defines ticket shape; AI/L1.75 supplies only the frozen horse ranking. No learned buy rule, no odds gate, no threshold search.",
+  "strategies": {
+    "Q_AXIS1_TOP6": {
+      "bet": "QUINELLA",
+      "label": "馬連 1位軸→2〜6位"
+    },
+    "Q_TOP2_TO8": {
+      "bet": "QUINELLA",
+      "label": "馬連 1〜2位→3〜8位"
+    },
+    "Q_TOP6_BOX": {
+      "bet": "QUINELLA",
+      "label": "馬連 Top6 BOX"
+    },
+    "T_AXIS1_TO8": {
+      "bet": "TRIO",
+      "label": "三連複 1位軸＋2〜8位から2頭"
+    },
+    "T_AXIS12_TO8": {
+      "bet": "TRIO",
+      "label": "三連複 1・2位固定＋3〜8位"
+    },
+    "T_TOP6_BOX": {
+      "bet": "TRIO",
+      "label": "三連複 Top6 BOX"
+    }
+  },
+  "stake_policy": "100 yen per generated ticket",
+  "odds_policy": "Odds never determine whether a ticket is bought.",
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_comparison_years": [
+    2024,
+    2025
+  ],
+  "payout_use": "evaluation only",
+  "counters": {},
+  "elapsed_seconds": 102.216816085,
+  "promotion": false,
+  "2026_locked": true
+}
