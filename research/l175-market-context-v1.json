@@ -1,0 +1,70 @@
+{
+  "contract": "L175_MARKET_CONTEXT_V1",
+  "version": "1.0.0",
+  "status": "FIXED_BRIDGE_CONTRACT",
+  "purpose": "Package frozen L1.7 + safe Outsider context + WIN market context for L2 without changing horse ranking.",
+  "upstream": {
+    "l17_contract": "L17_TO_L2_SIGNAL_V1",
+    "outsider_ballots_run": 36724124925,
+    "outsider_podium_calibrator_run": 36747215581
+  },
+  "ranking_policy": "SEVEN_KING_UNCHANGED",
+  "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
+  "market_policy": "JOIN_AFTER_L17_FREEZE",
+  "market_fields": [
+    "market_win_odds",
+    "market_rank"
+  ],
+  "derived_fields": [
+    "signed_rank_gap = market_rank - king_rank",
+    "abs_rank_gap = abs(signed_rank_gap)",
+    "dissent_direction = UP if gap>=2; DOWN if gap<=-2; NEAR otherwise",
+    "outsider_alignment_score = sign(signed_rank_gap) * p3_delta",
+    "outsider_alignment = AGREE / OPPOSE / NEUTRAL / NA"
+  ],
+  "l2_features": [
+    "king_rank",
+    "king_borda_score",
+    "king_normalized_borda",
+    "king_mean_rank",
+    "king_rank_std",
+    "king_best_rank",
+    "king_worst_rank",
+    "king_top1_votes",
+    "king_probability_mean",
+    "king_probability_std",
+    "outsider_score",
+    "outsider_support_count",
+    "outsider_top1_votes",
+    "outsider_top2_votes",
+    "outsider_top3_votes",
+    "p3_calibrated",
+    "p3_rank_baseline",
+    "p3_delta",
+    "market_win_odds",
+    "market_rank",
+    "signed_rank_gap",
+    "abs_rank_gap",
+    "dissent_direction",
+    "outsider_alignment_score",
+    "outsider_alignment"
+  ],
+  "prohibited_outputs": [
+    "reranked_rank",
+    "blended_rank",
+    "buy_flag",
+    "skip_flag",
+    "stake",
+    "finish_position",
+    "target",
+    "payout",
+    "roi"
+  ],
+  "bet_type_odds_owner": "L2",
+  "evidence": {
+    "market_divergence_audit": "L1 market disagreement showed directionally useful residual information versus same market-rank peers.",
+    "strong_dissent": "Rejected as a fixed production tag after uncertainty/sensitivity audit.",
+    "outsider_alignment": "Keep as feature/context; do not use as hard reranking command."
+  },
+  "2026_locked": true
+}
