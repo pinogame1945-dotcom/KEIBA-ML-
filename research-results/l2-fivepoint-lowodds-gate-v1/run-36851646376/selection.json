@@ -1,0 +1,33 @@
+{
+  "selected_threshold": 1.0,
+  "selection_period": "2023|2024_DEV",
+  "selection_rule": "highest dev ROI among predeclared thresholds with active_race_rate>=90% and avg_tickets>=2.0; ties prefer higher race coverage then lower threshold",
+  "predeclared_thresholds": [
+    1.0,
+    3.0,
+    5.0,
+    7.0,
+    10.0
+  ],
+  "coverage_guard": {
+    "min_active_race_rate_pct": 90.0,
+    "min_avg_tickets": 2.0
+  },
+  "dev": {
+    "baseline_roi_pct": 76.49088277858176,
+    "selected_roi_pct": 76.49088277858176,
+    "baseline_hit_rate_pct": 38.3068017366136,
+    "selected_hit_rate_pct": 38.3068017366136,
+    "selected_active_race_rate_pct": 100.0,
+    "selected_avg_tickets": 5.0
+  },
+  "holdout_2025": {
+    "baseline_roi_pct": 74.91577424023154,
+    "selected_roi_pct": 74.91577424023154,
+    "baseline_hit_rate_pct": 38.69753979739508,
+    "selected_hit_rate_pct": 38.69753979739508,
+    "selected_active_race_rate_pct": 100.0,
+    "selected_avg_tickets": 5.0,
+    "roi_delta_pp": 0.0
+  }
+}
