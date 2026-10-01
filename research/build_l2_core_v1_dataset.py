@@ -145,6 +145,8 @@ def main():
                     }
                     views=h.get('experts') or {}
                     if set(views)!=set(expert_names): raise SystemExit(f'expert coverage drift race={rid} horse={hid}')
+                    row['vote2']=sum(1 for v in views.values() if int(finite(v.get('rank'),99))==2)
+                    row['vote3']=sum(1 for v in views.values() if int(finite(v.get('rank'),99))==3)
                     for e in expert_names:
                         v=views[e]; s=expert_safe[e]
                         row[f'expert_{s}_rank_pct']=finite(v.get('rank'),99.0)/field_size
