@@ -7,3 +7,4 @@ odds_gate=false
 threshold_search=false
 outsider_policy=weighted_safe_13
 2026_locked=true
+rerun=explicit-trigger-v2
