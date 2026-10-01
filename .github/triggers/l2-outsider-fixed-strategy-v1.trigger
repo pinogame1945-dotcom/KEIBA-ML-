@@ -1,0 +1,9 @@
+launch=l2-outsider-fixed-strategy-v1
+requested=2026-10-01
+compare=KING_vs_OUTSIDER
+strategies=mirror_previous_six
+stake=100_per_ticket
+odds_gate=false
+threshold_search=false
+outsider_policy=weighted_safe_13
+2026_locked=true
