@@ -1,0 +1,106 @@
+{
+  "contract": "L2_WORLD_ROUTER_V3",
+  "status": "RESEARCH_FROZEN_V1",
+  "created_at": "2026-10-04",
+  "purpose": "Route each race to NORMAL, KING1_COLLAPSE, OUTSIDER_RISE, or BOTH only when calibrated pre-race event probabilities materially exceed prior event rates. Avoid contaminating ordinary races with upset-world probability mass.",
+  "upstream": {
+    "normal_world": "Frozen L1.7 mean_probability",
+    "scenario_engine": "L2_RACE_DISTRIBUTION_MIXTURE_V2",
+    "outsider_source": "Frozen tie-safe 13-Outsider ballots run 36724124925"
+  },
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ]
+    },
+    {
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ]
+    }
+  ],
+  "router": {
+    "baseline": "NORMAL",
+    "activation_rule": "Activate a world only when its calibrated gate probability >= prior train event rate + predeclared margin.",
+    "margins": [
+      0.05,
+      0.1,
+      0.15,
+      0.2
+    ],
+    "routes": {
+      "NORMAL": "Neither gate active",
+      "KING1_COLLAPSE": "Collapse gate active only",
+      "OUTSIDER_RISE": "Outsider gate active only",
+      "BOTH": "Both gates active"
+    },
+    "scenario_parameters": {
+      "collapse_factor": [
+        0.1,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "outsider_max_boost": [
+        0,
+        0.5,
+        1,
+        2,
+        4
+      ]
+    },
+    "selection": "Choose margin pair plus scenario parameters only on prior-year internal chronological calibration by actual TRIO negative log likelihood. Ties prefer fewer routed races, then weaker transforms.",
+    "test_year_isolation": true
+  },
+  "evaluation": {
+    "primary": "Actual official top3-set TRIO negative log likelihood, BASE versus ROUTER.",
+    "secondary": [
+      "winner_log_loss",
+      "ticket_brier",
+      "ticket_log_loss",
+      "ticket_ece",
+      "route_coverage",
+      "route_precision"
+    ],
+    "supported_bets": [
+      "WIN",
+      "QUINELLA",
+      "EXACTA",
+      "TRIO",
+      "TRIFECTA"
+    ],
+    "ticket_space": "Enumerate full ticket space from runners; no odds file required.",
+    "roi_optimized": false,
+    "market_price_used": false
+  },
+  "data_policy": {
+    "probability_features_market_free": true,
+    "payout_use": "Hit labels only",
+    "locked_years": [
+      2026
+    ]
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_reads_only": true,
+    "kaggle_writes": false
+  },
+  "promotion": false
+}
