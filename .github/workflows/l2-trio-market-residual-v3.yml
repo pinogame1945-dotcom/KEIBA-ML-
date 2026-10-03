@@ -50,7 +50,7 @@ jobs:
           c=json.load(open('contracts/l2-trio-market-residual-v3.json',encoding='utf-8'))
           l=json.load(open('research/l175-market-context-v1.json',encoding='utf-8'))
           assert c['contract']=='L2_TRIO_MARKET_RESIDUAL_V3'
-                    assert c['market_base']['bet_type']=='TRIO'
+          assert c['market_base']['bet_type']=='TRIO'
           assert c['market_base']['payout_used'] is False
           assert c['residual_model']['base_market_probability_is_offset'] is True
           assert c['residual_model']['base_market_probability_is_feature'] is False
@@ -66,7 +66,7 @@ jobs:
           assert not any(u.startswith('actions/upload-artifact') for u in uses)
           assert not any(u.startswith('actions/cache') for u in uses)
           src=Path('research/run_l2_trio_market_residual_v3.py').read_text()
-          assert '2026 sealed' in src
+          assert "'2026_locked':True" in src
           assert 'n_jobs=-1' in src
           assert 'mmap_mode' in src
           assert 'residual_objective' in src
@@ -185,6 +185,7 @@ jobs:
           set -euo pipefail
           PYTHONPATH=research python - <<'PY'
           import numpy as np
+          import lightgbm as lgb
           from run_l2_trio_market_residual_v3 import offset_softmax,residual_objective
           q=np.array([0.6,0.4,0.2,0.3,0.5],dtype=float)
           ri=np.array([0,0,1,1,1],dtype=int)
@@ -196,6 +197,11 @@ jobs:
           assert abs(grad[:2].sum()) < 1e-12
           assert abs(grad[2:].sum()) < 1e-12
           assert np.isfinite(hess).all() and (hess>0).all()
+          X=np.array([[0.0],[1.0],[0.2],[0.4],[0.8]],dtype=np.float32)
+          m=lgb.LGBMRegressor(objective=obj,n_estimators=2,num_leaves=2,min_child_samples=1,verbosity=-1)
+          m.fit(X,y)
+          pred=m.predict(X)
+          assert np.isfinite(pred).all()
           print('L2_TRIO_V3_RESIDUAL_UNIT_OK')
           PY
 
@@ -255,6 +261,6 @@ jobs:
             "$result/alpha-calibration.csv" \
             "$result/runtime.csv" \
             "$result/coverage.csv" \
-            "$result/skipped-market-races.csv"
+            "$result/skipped-win-market-races.csv"
           git commit -m "research: archive L2 TRIO market residual V3 run $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
