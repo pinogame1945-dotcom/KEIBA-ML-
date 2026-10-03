@@ -2,3 +2,4 @@ launch=2026-10-04
 phase=V2_VS_OUTSIDER_OVERLAP_AUDIT
 source=v2_run_37152273185
 retry=static_guard_fix
+retry=guard_self_reference_fix
