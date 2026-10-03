@@ -1,0 +1,145 @@
+{
+  "contract": "L2_TRIO_OUTSIDER_STRUCTRISK_DIRECT_V1_RESULT",
+  "architecture": "MARKET_PLUS_OUTSIDER_THEN_DIRECT_STRUCTURAL_RISK_TICKET_ATTENUATION",
+  "correction": {
+    "candidate_scopes": [
+      "TOP1",
+      "TOP3"
+    ],
+    "candidate_modes": [
+      "POS",
+      "ABS"
+    ],
+    "lambda_grid": [
+      0.0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.3,
+      0.4,
+      0.6
+    ],
+    "selection": "strict prior OOS mean race logloss only",
+    "mechanism": "For tickets containing a warned upper-ranked horse, multiply MARKET+OUTSIDER ticket probability by exp(-lambda * warned_horse_count), then renormalize within race.",
+    "rank_rewrite": false,
+    "router_used": false
+  },
+  "structural_risk": {
+    "snapshot_coverage_pct": 100.0,
+    "warm_2022": {
+      "test_year": 2022,
+      "train_label": "2022_FIRST60",
+      "train_horses": 28241,
+      "test_horses": 9559,
+      "positive_delta_p80": 0.013210275837355012,
+      "absolute_delta_p80": 0.022666735755699996,
+      "test_mean_delta": -0.0010119673205759231,
+      "test_mean_abs_delta": 0.014656693153608099,
+      "feature_count": 30,
+      "warm_policy": "eligible_races_first60_train_middle20_unused_last20_eval",
+      "fit_races": 2071,
+      "eval_races": 691
+    },
+    "folds": [
+      {
+        "test_year": 2023,
+        "train_years": [
+          2022
+        ]
+      },
+      {
+        "test_year": 2024,
+        "train_years": [
+          2022,
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2022,
+          2023,
+          2024
+        ]
+      }
+    ],
+    "u_shape_guard": "POS and ABS warning definitions compete using prior OOS only."
+  },
+  "fold_metrics": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "history_oos_races": 691,
+      "selected_scope": "TOP1",
+      "selected_mode": "ABS",
+      "selected_lambda": 0.3,
+      "base_outsider_mean_delta_vs_market": -0.004000114629550816,
+      "corrected_mean_delta_vs_market": -0.003744396467066131,
+      "corrected_minus_base_mean_delta": 0.00025571816248468455,
+      "risky_ticket_share_pct": 5.4110411074631735,
+      "engine_alpha": 0.4,
+      "engine_runtime_seconds": 20.964338541030884
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "history_oos_races": 4134,
+      "selected_scope": "TOP1",
+      "selected_mode": "POS",
+      "selected_lambda": 0.15,
+      "base_outsider_mean_delta_vs_market": -0.006749732812380687,
+      "corrected_mean_delta_vs_market": -0.006968980295658845,
+      "corrected_minus_base_mean_delta": -0.00021924748327815967,
+      "risky_ticket_share_pct": 6.948087175987114,
+      "engine_alpha": 0.7,
+      "engine_runtime_seconds": 41.75876569747925
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "history_oos_races": 7572,
+      "selected_scope": "TOP1",
+      "selected_mode": "POS",
+      "selected_lambda": 0.15,
+      "base_outsider_mean_delta_vs_market": -0.007696785005764908,
+      "corrected_mean_delta_vs_market": -0.007305629200788421,
+      "corrected_minus_base_mean_delta": 0.0003911558049764868,
+      "risky_ticket_share_pct": 6.912232932164315,
+      "engine_alpha": 0.7,
+      "engine_runtime_seconds": 64.19617772102356
+    }
+  ],
+  "pooled_2023_2025": {
+    "base_outsider_mean_delta_vs_market": -0.006148736429865627,
+    "corrected_mean_delta_vs_market": -0.006005994988871586,
+    "corrected_minus_base_mean_delta": 0.00014274144099404138,
+    "corrected_minus_base_bootstrap": {
+      "n": 10325,
+      "mean": 0.00014274144099404138,
+      "ci_low": -0.0008803432387263637,
+      "ci_high": 0.001174194257201246,
+      "p_improve": 0.3874
+    },
+    "corrected_vs_market_bootstrap": {
+      "n": 10325,
+      "mean": -0.006005994988871586,
+      "ci_low": -0.007808961335100938,
+      "ci_high": -0.004158515940498504,
+      "p_improve": 1.0
+    }
+  },
+  "success_gate": {
+    "beats_outsider_mean": false,
+    "beats_outsider_ci95": false,
+    "beats_reference_minus_0_00615": false,
+    "reference_fixed_outsider_mean": -0.00614873642986566
+  },
+  "market_price_used": true,
+  "payout_used": false,
+  "roi_used": false,
+  "staking_used": false,
+  "2026_locked": true,
+  "promotion": false,
+  "elapsed_seconds": 826.8156101703644
+}
