@@ -1,0 +1,66 @@
+{
+  "contract": "L2_STRUCTRISK_OUTSIDER_FAILURE_AUDIT_V1_RESULT",
+  "question": "Does Structural Risk separate races where the current MARKET+OUTSIDER champion fails badly?",
+  "inputs": {
+    "structural_risk_race_rows": 10325,
+    "outsider_diagnostic_rows": 10325,
+    "joined_races": 10325,
+    "years": [
+      2023,
+      2024,
+      2025
+    ]
+  },
+  "failure_definitions": {
+    "worse_than_market": "outsider_logloss_delta_vs_market > 0",
+    "severe_underweight": "outsider gives true TRIO less than half the pure market probability; equivalent delta > ln(2)"
+  },
+  "high_risk_definition": "Per-year horse-level training-fold p80 thresholds already frozen by Structural Risk run 37155641216; no outcome-tuned threshold in this audit.",
+  "signals": [
+    "KING1_POS",
+    "KING1_ABS",
+    "MARKET1_POS",
+    "MARKET1_ABS",
+    "KING_TOP3_ABS_MAX",
+    "MARKET_TOP3_ABS_MAX"
+  ],
+  "best_pooled_signal": {
+    "signal": "MARKET1_POS",
+    "scope": "POOLED",
+    "races": 10325,
+    "high_races": 2192,
+    "high_share_pct": 21.230024213075062,
+    "mean_delta_high": -0.0037115748306108674,
+    "mean_delta_low": -0.006805598378170884,
+    "high_minus_low_mean_delta": 0.0030940235475600164,
+    "delta_diff_boot_mean": 0.0030404575470901122,
+    "delta_diff_ci_low": -0.0006978467037749319,
+    "delta_diff_ci_high": 0.00680581692693515,
+    "worse_than_market_high_pct": 39.872262773722625,
+    "worse_than_market_low_pct": 35.866224025574816,
+    "worse_rate_diff_pp": 4.006038748147811,
+    "worse_rate_diff_ci_low_pp": 1.6467216781949023,
+    "worse_rate_diff_ci_high_pp": 6.2398388930472475,
+    "severe_underweight_high_pct": 0.0,
+    "severe_underweight_low_pct": 0.12295585884667404,
+    "severe_rate_diff_pp": -0.12295585884667404,
+    "severe_rate_diff_ci_low_pp": -0.20902496003934587,
+    "severe_rate_diff_ci_high_pp": -0.04918234353866962,
+    "mean_outsider_true_p_high": 0.02011408810111971,
+    "mean_outsider_true_p_low": 0.039892285312923034,
+    "mean_market_true_p_high": 0.019455221960654398,
+    "mean_market_true_p_low": 0.03816674363344714,
+    "strong_mean_separation": false,
+    "strong_worse_rate_separation": true,
+    "strong_severe_rate_separation": false,
+    "all_three_strong": false
+  },
+  "decision_rule": "Treat Structural Risk as an L2 failure switch only if it creates a large, year-consistent separation in the current champion's failures. Tiny average LogLoss shifts are not sufficient.",
+  "router_used": false,
+  "retraining": false,
+  "new_kaggle_downloads": false,
+  "payout_used": false,
+  "roi_used": false,
+  "2026_locked": true,
+  "elapsed_seconds": 10.807923316955566
+}
