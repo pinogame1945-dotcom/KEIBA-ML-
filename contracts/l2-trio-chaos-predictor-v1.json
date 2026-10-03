@@ -1,0 +1,63 @@
+{
+  "contract": "L2_TRIO_CHAOS_PREDICTOR_V1",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "target": "V4_BOTH_FAIL",
+  "target_definition": "For a race in the frozen V4 strict walk-forward diagnostics, both MARKET_PLUS_SEVEN_KING and MARKET_PLUS_OUTSIDER assign lower probability to the realized winning TRIO than pure TRIO market.",
+  "goal": "Test whether V4 both-fail / CHAOS races can be predicted before the result on unseen years.",
+  "strict_walk_forward": {
+    "2024": [2023],
+    "2025": [2023, 2024],
+    "note": "2023 is label-source only because no strict-prior V4 both-fail label exists for 2022."
+  },
+  "feature_sets": {
+    "STRUCTURE_ONLY": "Frozen L1.7 race-shape plus frozen safe Outsider ballot aggregates only.",
+    "STRUCTURE_PLUS_TRIO_MARKET_SHAPE": "STRUCTURE_ONLY plus full-race TRIO market distribution shape derived without using the winning combination."
+  },
+  "forbidden_features": [
+    "winning trio identity",
+    "race result / finishing order",
+    "payout",
+    "ROI",
+    "V4 king/outsider logloss delta",
+    "V4 market_true_p / king_true_p / outsider_true_p",
+    "best_ex_post",
+    "2026 data"
+  ],
+  "historical_market_proxy": "FINAL_TRIO_ODDS",
+  "operational_market_requirement": "LATEST_TIMESTAMPED_PRE_RACE_TRIO_ODDS",
+  "model": {
+    "family": "LightGBM binary classifier",
+    "hyperparameters_fixed_before_test": true,
+    "temperature_calibration": "latest prior training year chronological last 20%",
+    "class_weight": "none"
+  },
+  "evaluation": {
+    "primary": ["ROC_AUC", "average_precision", "binary_logloss", "Brier"],
+    "decision_diagnostics": [
+      "top_10pct_risk_both_fail_rate_and_lift",
+      "top_20pct_risk_both_fail_rate_and_lift",
+      "top_30pct_risk_both_fail_rate_and_lift",
+      "recall_of_both_fail_in_each_risk_bucket"
+    ],
+    "interpretation": "Prediction usefulness requires concentration of failures in high-risk predictions, not merely statistical significance."
+  },
+  "speed_policy": {
+    "metadata_first_score_restore_once": true,
+    "l17_once_per_year": true,
+    "backfill_results_and_odds_sparse_restore_once": true,
+    "horse_dataset_once": true,
+    "market_shape_once_per_race": true,
+    "parallel_feature_set_models": 2,
+    "cpu_split": "Two models run concurrently with half of logical CPUs each."
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  },
+  "locked_years": [2026]
+}
