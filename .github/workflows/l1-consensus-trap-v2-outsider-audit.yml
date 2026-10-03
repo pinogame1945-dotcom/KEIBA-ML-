@@ -1,0 +1,99 @@
+name: L1 Consensus Trap V2 vs Outsiders Audit
+
+on:
+  push:
+    branches:
+      - research/l1-consensus-trap-v2-20261004
+    paths:
+      - .github/triggers/l1-consensus-trap-v2-outsider-audit.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-consensus-trap-v2-outsider-audit
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_l1_consensus_trap_v2_vs_outsiders_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-consensus-trap-v2-outsider-audit.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          assert "kaggle" not in wf.lower()
+          print("V2_OUTSIDER_AUDIT_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install lightweight dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas scikit-learn
+
+      - name: Restore saved tie-safe Outsider ballots
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/v2-outsider-audit
+          git fetch --depth=1 origin research/l16-outsider-support-safe-v1-20260930:refs/remotes/origin/safe-outsider-source
+          for y in 2024 2025; do
+            src="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$y/ballots.csv.gz"
+            git show "origin/safe-outsider-source:$src" > "out/v2-outsider-audit/y$y-ballots.csv.gz"
+            test -s "out/v2-outsider-audit/y$y-ballots.csv.gz"
+          done
+
+      - name: Audit V2 against existing Outsiders
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/l1-consensus-trap-v2/run-37152273185/oos-predictions.csv.gz"
+          test -s "$pred"
+          result="research-results/l1-consensus-trap-v2-outsider-audit-v1/run-$GITHUB_RUN_ID"
+          python research/audit_l1_consensus_trap_v2_vs_outsiders_v1.py             --v2-predictions "$pred"             --ballots-year "2024=out/v2-outsider-audit/y2024-ballots.csv.gz"             --ballots-year "2025=out/v2-outsider-audit/y2025-ballots.csv.gz"             --out-dir "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 5
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No Kaggle access."
+          echo "Saved V2 predictions + saved tie-safe Outsider ballots only."
+          echo "2026 remains sealed."
+
+      - name: Commit compact audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-consensus-trap-v2-outsider-audit-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive V2 vs Outsider audit $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
