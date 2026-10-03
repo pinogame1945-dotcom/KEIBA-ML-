@@ -1,0 +1,3 @@
+launch=2026-10-04
+phase=L1_CONSENSUS_TRAP_V2
+hypothesis=strong_consensus_x_structural_anomaly
