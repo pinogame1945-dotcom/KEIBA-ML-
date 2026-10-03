@@ -1,0 +1,421 @@
+{
+  "contract": "L2_TRIO_CHAOS_CONTEXT_AUDIT",
+  "races": 10325,
+  "both_fail_races": 2208,
+  "both_fail_pct": 21.38498789346247,
+  "subsets": {
+    "ALL": {
+      "races": 10325,
+      "fav_odds_mean": 2.619738498789346,
+      "fav_odds_median": 2.5,
+      "fav_gap_ratio_mean": 1.8826088212230894,
+      "fav_miss_pct": 34.91525423728813,
+      "fav_le_1_5_pct": 7.699757869249395,
+      "fav_le_2_0_pct": 28.861985472154966,
+      "dominant_fav_pct": 27.34140435835351,
+      "dominant_fav_miss_pct": 5.452784503631961,
+      "superdominant_fav_miss_pct": 0.8329297820823244,
+      "bad_going_pct": 8.290556900726392,
+      "wet_weather_pct": 9.830508474576272
+    },
+    "BOTH_FAIL": {
+      "races": 2208,
+      "fav_odds_mean": 2.652762681159421,
+      "fav_odds_median": 2.6,
+      "fav_gap_ratio_mean": 1.85360843718278,
+      "fav_miss_pct": 55.389492753623195,
+      "fav_le_1_5_pct": 7.291666666666667,
+      "fav_le_2_0_pct": 27.445652173913043,
+      "dominant_fav_pct": 26.132246376811597,
+      "dominant_fav_miss_pct": 9.96376811594203,
+      "superdominant_fav_miss_pct": 1.766304347826087,
+      "bad_going_pct": 8.197463768115941,
+      "wet_weather_pct": 9.782608695652174
+    },
+    "NOT_BOTH_FAIL": {
+      "races": 8117,
+      "fav_odds_mean": 2.610755205125046,
+      "fav_odds_median": 2.5,
+      "fav_gap_ratio_mean": 1.8904975544941256,
+      "fav_miss_pct": 29.345817420229146,
+      "fav_le_1_5_pct": 7.810767524947641,
+      "fav_le_2_0_pct": 29.24725883947271,
+      "dominant_fav_pct": 27.67032154736972,
+      "dominant_fav_miss_pct": 4.225699149932241,
+      "superdominant_fav_miss_pct": 0.5790316619440681,
+      "bad_going_pct": 8.315880251324382,
+      "wet_weather_pct": 9.843538253049156
+    }
+  },
+  "favorite_bins": [
+    {
+      "bucket": "fav<=1.5",
+      "races": 795,
+      "both_fail_races": 161,
+      "both_fail_pct": 20.251572327044027,
+      "lift_vs_all": 0.9469994758909853,
+      "fav_miss_pct": 10.817610062893083
+    },
+    {
+      "bucket": "1.5<fav<=2.0",
+      "races": 2185,
+      "both_fail_races": 445,
+      "both_fail_pct": 20.36613272311213,
+      "lift_vs_all": 0.9523565233973402,
+      "fav_miss_pct": 23.157894736842106
+    },
+    {
+      "bucket": "2.0<fav<=2.5",
+      "races": 2241,
+      "both_fail_races": 467,
+      "both_fail_pct": 20.838911200356982,
+      "lift_vs_all": 0.9744644843464032,
+      "fav_miss_pct": 32.1731369924141
+    },
+    {
+      "bucket": "fav>2.5",
+      "races": 5104,
+      "both_fail_races": 1135,
+      "both_fail_pct": 22.237460815047022,
+      "lift_vs_all": 1.0398631472615965,
+      "fav_miss_pct": 44.905956112852664
+    },
+    {
+      "bucket": "dominant: fav<=2.0 & gap>=1.5",
+      "races": 2823,
+      "both_fail_races": 577,
+      "both_fail_pct": 20.439249025859016,
+      "lift_vs_all": 0.9557755715217134,
+      "fav_miss_pct": 19.943322706340773
+    },
+    {
+      "bucket": "dominant miss",
+      "races": 563,
+      "both_fail_races": 220,
+      "both_fail_pct": 39.07637655417407,
+      "lift_vs_all": 1.8272807423996704,
+      "fav_miss_pct": 100.0
+    },
+    {
+      "bucket": "superdominant miss: fav<=1.5",
+      "races": 86,
+      "both_fail_races": 39,
+      "both_fail_pct": 45.348837209302324,
+      "lift_vs_all": 2.120592138523761,
+      "fav_miss_pct": 100.0
+    }
+  ],
+  "top_context_lifts": [
+    {
+      "dimension": "track_condition",
+      "value": "不",
+      "races": 343,
+      "both_fail_races": 91,
+      "both_fail_pct": 26.53061224489796,
+      "lift_vs_all": 1.240618530020704,
+      "fav_miss_pct": 41.10787172011662,
+      "dominant_fav_pct": 24.198250728862973
+    },
+    {
+      "dimension": "distance_bucket",
+      "value": ">=2500",
+      "races": 559,
+      "both_fail_races": 133,
+      "both_fail_pct": 23.792486583184257,
+      "lift_vs_all": 1.1125789129138473,
+      "fav_miss_pct": 32.55813953488372,
+      "dominant_fav_pct": 33.631484794275494
+    },
+    {
+      "dimension": "venue",
+      "value": "01",
+      "races": 502,
+      "both_fail_races": 116,
+      "both_fail_pct": 23.107569721115535,
+      "lift_vs_all": 1.0805509844679253,
+      "fav_miss_pct": 33.66533864541832,
+      "dominant_fav_pct": 22.111553784860558
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "11-13",
+      "races": 2342,
+      "both_fail_races": 539,
+      "both_fail_pct": 23.014517506404783,
+      "lift_vs_all": 1.0761996977066548,
+      "fav_miss_pct": 34.67122117847993,
+      "dominant_fav_pct": 31.041844577284373
+    },
+    {
+      "dimension": "venue",
+      "value": "09",
+      "races": 1207,
+      "both_fail_races": 269,
+      "both_fail_pct": 22.286661143330573,
+      "lift_vs_all": 1.0421638419605441,
+      "fav_miss_pct": 36.536868268434134,
+      "dominant_fav_pct": 29.328914664457333
+    },
+    {
+      "dimension": "venue",
+      "value": "03",
+      "races": 719,
+      "both_fail_races": 160,
+      "both_fail_pct": 22.253129346314328,
+      "lift_vs_all": 1.0405958356009757,
+      "fav_miss_pct": 39.22114047287899,
+      "dominant_fav_pct": 21.279554937413074
+    },
+    {
+      "dimension": "year",
+      "value": "2023",
+      "races": 3443,
+      "both_fail_races": 766,
+      "both_fail_pct": 22.248039500435667,
+      "lift_vs_all": 1.040357825371369,
+      "fav_miss_pct": 36.160325297705484,
+      "dominant_fav_pct": 26.052860877142024
+    },
+    {
+      "dimension": "venue",
+      "value": "10",
+      "races": 790,
+      "both_fail_races": 175,
+      "both_fail_pct": 22.151898734177212,
+      "lift_vs_all": 1.03586211245643,
+      "fav_miss_pct": 38.86075949367089,
+      "dominant_fav_pct": 22.025316455696203
+    },
+    {
+      "dimension": "venue",
+      "value": "08",
+      "races": 1527,
+      "both_fail_races": 338,
+      "both_fail_pct": 22.134905042567123,
+      "lift_vs_all": 1.0350674572667824,
+      "fav_miss_pct": 34.446627373935826,
+      "dominant_fav_pct": 27.76686313032089
+    },
+    {
+      "dimension": "venue",
+      "value": "04",
+      "races": 931,
+      "both_fail_races": 205,
+      "both_fail_pct": 22.019334049409238,
+      "lift_vs_all": 1.029663152446333,
+      "fav_miss_pct": 36.734693877551024,
+      "dominant_fav_pct": 24.81203007518797
+    },
+    {
+      "dimension": "year",
+      "value": "2024",
+      "races": 3438,
+      "both_fail_races": 750,
+      "both_fail_pct": 21.81500872600349,
+      "lift_vs_all": 1.0201085375724004,
+      "fav_miss_pct": 33.595113438045374,
+      "dominant_fav_pct": 28.79581151832461
+    },
+    {
+      "dimension": "weather",
+      "value": "晴",
+      "races": 6152,
+      "both_fail_races": 1337,
+      "both_fail_pct": 21.732769830949287,
+      "lift_vs_all": 1.0162629008358306,
+      "fav_miss_pct": 34.29778933680104,
+      "dominant_fav_pct": 26.82054616384916
+    },
+    {
+      "dimension": "venue",
+      "value": "06",
+      "races": 1496,
+      "both_fail_races": 325,
+      "both_fail_pct": 21.724598930481285,
+      "lift_vs_all": 1.015880815023638,
+      "fav_miss_pct": 35.42780748663101,
+      "dominant_fav_pct": 29.612299465240643
+    },
+    {
+      "dimension": "weather",
+      "value": "雨",
+      "races": 484,
+      "both_fail_races": 105,
+      "both_fail_pct": 21.694214876033058,
+      "lift_vs_all": 1.0144600026949335,
+      "fav_miss_pct": 39.87603305785124,
+      "dominant_fav_pct": 26.859504132231404
+    },
+    {
+      "dimension": "surface",
+      "value": "TURF",
+      "races": 5260,
+      "both_fail_races": 1141,
+      "both_fail_pct": 21.692015209125476,
+      "lift_vs_all": 1.0143571423651292,
+      "fav_miss_pct": 34.88593155893536,
+      "dominant_fav_pct": 27.41444866920152
+    }
+  ],
+  "bottom_context_lifts": [
+    {
+      "dimension": "venue",
+      "value": "05",
+      "races": 1596,
+      "both_fail_races": 308,
+      "both_fail_pct": 19.298245614035086,
+      "lift_vs_all": 0.9024202262903636,
+      "fav_miss_pct": 30.576441102756892,
+      "dominant_fav_pct": 33.83458646616541
+    },
+    {
+      "dimension": "surface",
+      "value": "MIXED",
+      "races": 108,
+      "both_fail_races": 21,
+      "both_fail_pct": 19.444444444444446,
+      "lift_vs_all": 0.9092567431561996,
+      "fav_miss_pct": 26.851851851851855,
+      "dominant_fav_pct": 37.03703703703704
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "17-18",
+      "races": 888,
+      "both_fail_races": 175,
+      "both_fail_pct": 19.707207207207208,
+      "lift_vs_all": 0.9215439964420943,
+      "fav_miss_pct": 39.86486486486486,
+      "dominant_fav_pct": 15.090090090090092
+    },
+    {
+      "dimension": "venue",
+      "value": "07",
+      "races": 1125,
+      "both_fail_races": 225,
+      "both_fail_pct": 20.0,
+      "lift_vs_all": 0.9352355072463768,
+      "fav_miss_pct": 32.711111111111116,
+      "dominant_fav_pct": 24.88888888888889
+    },
+    {
+      "dimension": "year",
+      "value": "2025",
+      "races": 3444,
+      "both_fail_races": 692,
+      "both_fail_pct": 20.092915214866434,
+      "lift_vs_all": 0.9395803876517025,
+      "fav_miss_pct": 34.9883855981417,
+      "dominant_fav_pct": 27.177700348432055
+    },
+    {
+      "dimension": "venue",
+      "value": "02",
+      "races": 432,
+      "both_fail_races": 87,
+      "both_fail_pct": 20.13888888888889,
+      "lift_vs_all": 0.9417301982689211,
+      "fav_miss_pct": 35.18518518518518,
+      "dominant_fav_pct": 26.15740740740741
+    },
+    {
+      "dimension": "track_condition",
+      "value": "稍",
+      "races": 1662,
+      "both_fail_races": 340,
+      "both_fail_pct": 20.45728038507822,
+      "lift_vs_all": 0.9566187498909992,
+      "fav_miss_pct": 36.1612515042118,
+      "dominant_fav_pct": 27.67749699157641
+    },
+    {
+      "dimension": "weather",
+      "value": "小雨",
+      "races": 521,
+      "both_fail_races": 107,
+      "both_fail_pct": 20.537428023032632,
+      "lift_vs_all": 0.9603665957328438,
+      "fav_miss_pct": 34.16506717850288,
+      "dominant_fav_pct": 25.143953934740882
+    },
+    {
+      "dimension": "distance_bucket",
+      "value": "1300-1600",
+      "races": 2719,
+      "both_fail_races": 562,
+      "both_fail_pct": 20.669363736667894,
+      "lift_vs_all": 0.9665361439361231,
+      "fav_miss_pct": 35.01287237955131,
+      "dominant_fav_pct": 26.149319602795146
+    },
+    {
+      "dimension": "distance_bucket",
+      "value": "2100-2400",
+      "races": 561,
+      "both_fail_races": 116,
+      "both_fail_pct": 20.677361853832444,
+      "lift_vs_all": 0.9669101500942934,
+      "fav_miss_pct": 31.372549019607842,
+      "dominant_fav_pct": 29.76827094474153
+    },
+    {
+      "dimension": "weather",
+      "value": "曇",
+      "races": 3158,
+      "both_fail_races": 655,
+      "both_fail_pct": 20.740975300823305,
+      "lift_vs_all": 0.9698848278125028,
+      "fav_miss_pct": 35.40215326155795,
+      "dominant_fav_pct": 28.84737175427486
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "14-16",
+      "races": 5405,
+      "both_fail_races": 1131,
+      "both_fail_pct": 20.925069380203514,
+      "lift_vs_all": 0.978493393798013,
+      "fav_miss_pct": 37.59481961147086,
+      "dominant_fav_pct": 22.627197039777982
+    },
+    {
+      "dimension": "surface",
+      "value": "DIRT",
+      "races": 4957,
+      "both_fail_races": 1046,
+      "both_fail_pct": 21.101472664918298,
+      "lift_vs_all": 0.9867423245710208,
+      "fav_miss_pct": 35.1220496267904,
+      "dominant_fav_pct": 27.052652814202137
+    },
+    {
+      "dimension": "track_condition",
+      "value": "重",
+      "races": 856,
+      "both_fail_races": 181,
+      "both_fail_pct": 21.144859813084114,
+      "lift_vs_all": 0.9887711846471624,
+      "fav_miss_pct": 36.79906542056075,
+      "dominant_fav_pct": 24.766355140186917
+    },
+    {
+      "dimension": "bad_going",
+      "value": "1",
+      "races": 856,
+      "both_fail_races": 181,
+      "both_fail_pct": 21.144859813084114,
+      "lift_vs_all": 0.9887711846471624,
+      "fav_miss_pct": 36.79906542056075,
+      "dominant_fav_pct": 24.766355140186917
+    }
+  ],
+  "key_posthoc_rates": {
+    "both_fail_given_fav_miss_pct": 33.9251040221914,
+    "both_fail_given_fav_hit_pct": 14.657738095238097,
+    "both_fail_given_bad_going_pct": 21.144859813084114,
+    "both_fail_given_good_going_pct": 21.406695532791215,
+    "both_fail_given_dominant_fav_miss_pct": 39.07637655417407,
+    "both_fail_given_superdominant_fav_miss_pct": 45.348837209302324
+  },
+  "note": "Post-outcome descriptive audit. Favorite miss is outcome-conditioned and cannot be a pre-race feature. Track/weather/dominance can be tested pre-race only in a separate strict walk-forward model."
+}
