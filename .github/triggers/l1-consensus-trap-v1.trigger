@@ -1,3 +1,4 @@
 launch=2026-10-04
 phase=L1_CONSENSUS_TRAP_V1
 hypothesis=extreme_three_way_agreement_may_be_trap
+fast_bootstrap=vectorized_v2
