@@ -8,7 +8,8 @@
     "l17_contract": "L17_TO_L2_SIGNAL_V1",
     "ranking_policy": "SEVEN_KING_UNCHANGED",
     "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
-    "market_policy": "WIN_MARKET_CONTEXT_AFTER_L17_FREEZE"
+    "market_policy": "WIN_MARKET_CONTEXT_AFTER_L17_FREEZE",
+    "outsider_rank_mismatch_policy": "p3/p3_delta are used only when the frozen Outsider calibration rank equals the locally reconstructed Seven-King rank; mismatched rows are neutralized, never remapped."
   },
   "scope": {
     "bet_type": "TRIO",
@@ -18,7 +19,9 @@
     "buy_skip_target": false,
     "roi_target": false,
     "stake_target": false,
-    "locked_years": [2026]
+    "locked_years": [
+      2026
+    ]
   },
   "probability_model": {
     "family": "DIRECT_TRIO_COMBINATION_SCORE_SOFTMAX",
@@ -26,7 +29,7 @@
     "reason": "TRIO is an unordered one-of-N race event in ordinary non-dead-heat races. Direct combination scoring avoids forcing TRIO probability to be only a by-product of a WIN-strength model.",
     "single_winner_trio_training_only": true,
     "dead_heat_policy": "Races with zero or more than one official winning TRIO combination are excluded from V2 training and primary probability metrics and reported separately.",
-    "race_probability_mass": 1.0,
+    "race_probability_mass": 1,
     "trio_market_odds_feature": false,
     "win_market_context_feature": true,
     "historical_win_odds": "Final WIN odds are allowed only as the historical L1.75 market-context proxy. Operational inference must use the latest timestamped pre-race WIN snapshot."
@@ -65,9 +68,18 @@
   ],
   "evaluation": {
     "folds": {
-      "2023": [2022],
-      "2024": [2022, 2023],
-      "2025": [2022, 2023, 2024]
+      "2023": [
+        2022
+      ],
+      "2024": [
+        2022,
+        2023
+      ],
+      "2025": [
+        2022,
+        2023,
+        2024
+      ]
     },
     "primary_metrics": [
       "race log loss",
