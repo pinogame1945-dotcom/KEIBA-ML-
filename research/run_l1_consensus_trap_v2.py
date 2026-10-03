@@ -182,22 +182,39 @@ def exact_odds_matched_effect(q):
 def bootstrap_exact_odds(q):
     q=q.copy()
     q["race_id"]=q["race_id"].astype(str)
-    races=q["race_id"].unique()
-    if len(races)<30: return {}
+    q["odds_key"]=q["final_win_odds"].round(1)
+    races=sorted(q["race_id"].unique())
+    cells=sorted(q["odds_key"].unique())
+    R=len(races); C=len(cells)
+    if R<30 or C==0: return {}
+    ri={x:i for i,x in enumerate(races)}
+    ci={x:i for i,x in enumerate(cells)}
+    counts=np.zeros((R,C,2),dtype=np.float64)
+    sums=np.zeros((R,C,2),dtype=np.float64)
+    for r in q.itertuples(index=False):
+        i=ri[str(r.race_id)]; j=ci[float(r.odds_key)]
+        g=1 if int(r.structural_high20)==1 else 0
+        counts[i,j,g]+=1.0
+        sums[i,j,g]+=float(r.collapse)
+    counts2=counts.reshape(R,C*2); sums2=sums.reshape(R,C*2)
+    probs=np.full(R,1.0/R,dtype=np.float64)
     rng=np.random.default_rng(RNG_SEED)
-    vals=[]
-    for _ in range(BOOTSTRAPS):
-        ids=rng.choice(races,size=len(races),replace=True)
-        parts=[]
-        for i,rid in enumerate(ids):
-            g=q[q["race_id"]==rid].copy()
-            if g.empty: continue
-            g["race_id"]=g["race_id"]+"#"+str(i)
-            parts.append(g)
-        if not parts: continue
-        b=pd.concat(parts,ignore_index=True)
-        eff,_=exact_odds_matched_effect(b)
-        if eff is not None and math.isfinite(eff): vals.append(eff)
+    vals=[]; left=BOOTSTRAPS
+    while left>0:
+        b=min(100,left)
+        wts=rng.multinomial(R,probs,size=b).astype(np.float64,copy=False)
+        bc=(wts@counts2).reshape(b,C,2)
+        bs=(wts@sums2).reshape(b,C,2)
+        rest_n=bc[:,:,0]; high_n=bc[:,:,1]
+        valid=(rest_n>=2)&(high_n>=2)
+        rest_rate=np.divide(bs[:,:,0],rest_n,out=np.zeros_like(rest_n),where=rest_n>0)
+        high_rate=np.divide(bs[:,:,1],high_n,out=np.zeros_like(high_n),where=high_n>0)
+        cell_w=np.minimum(rest_n,high_n)*valid
+        den=cell_w.sum(axis=1)
+        num=((high_rate-rest_rate)*cell_w).sum(axis=1)
+        good=den>0
+        vals.extend((num[good]/den[good]).tolist())
+        left-=b
     if not vals: return {}
     a=np.asarray(vals,dtype=float)
     return {
