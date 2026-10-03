@@ -1,0 +1,133 @@
+name: L2 TRIO CHAOS Context Audit
+
+on:
+  push:
+    branches:
+      - research/l2-trio-chaos-context-audit-20261004
+    paths:
+      - .github/triggers/l2-trio-chaos-context-audit.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      V4_SOURCE_BRANCH: research/l2-trio-split-residual-v4-20261004
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l2_trio_chaos_context.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path('.github/workflows/l2-trio-chaos-context-audit.yml').read_text()
+          runners=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('runs-on:')]
+          assert runners==['ubuntu-latest']
+          uses=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('- uses:')]
+          assert not any(u.startswith('actions/upload-artifact') for u in uses)
+          assert not any(u.startswith('actions/cache') for u in uses)
+          print('CHAOS_CONTEXT_GUARD_OK')
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore frozen V4 diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/chaosc/labels
+          git fetch --depth=1 origin "$V4_SOURCE_BRANCH":refs/remotes/origin/chaosc-v4
+          git show "origin/chaosc-v4:research-results/l2-trio-split-residual-v4/run-37146919444/race-diagnostics.csv.gz" > out/chaosc/labels/v4.csv.gz
+          test -s out/chaosc/labels/v4.csv.gz
+
+      - name: Resolve exact dates from V4 diagnostics
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import csv,gzip
+          dates=set()
+          with gzip.open('out/chaosc/labels/v4.csv.gz','rt',encoding='utf-8',newline='') as f:
+              for r in csv.DictReader(f):
+                  y=int(r['year'])
+                  if y in (2023,2024,2025):
+                      dates.add(str(r['race_date'])[:10])
+          with open('out/chaosc/all-dates.txt','w',encoding='utf-8') as f:
+              for d in sorted(dates):
+                  f.write(d+'\n')
+          print('dates',len(dates))
+          PY
+
+      - name: Sparse restore result and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git init out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/chaosc/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$BACKFILL_SHA"
+          git -C out/backfill checkout --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Analyze favorite and race conditions
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-chaos-context-audit/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/analyze_l2_trio_chaos_context.py             --v4-diagnostics out/chaosc/labels/v4.csv.gz             --backfill-root out/backfill             --out-dir "$result"
+          echo '===== SUMMARY ====='
+          cat "$result/summary.json"
+          echo '===== FAVORITE BINS ====='
+          cat "$result/favorite-bins.csv"
+          echo '===== CONDITIONS ====='
+          cat "$result/condition-rates.csv"
+          du -sh "$result"
+
+      - name: Commit compact audit
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-chaos-context-audit/run-$GITHUB_RUN_ID"
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result/summary.json" "$result/favorite-bins.csv" "$result/condition-rates.csv" "$result/race-context.csv.gz"
+          git commit -m "research: archive CHAOS context audit $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo 'Standard ubuntu-latest CPU only.'
+          echo 'No GPU / paid runner / cache / artifact / Kaggle storage.'
+          echo 'No model training; post-hoc descriptive audit only.'
