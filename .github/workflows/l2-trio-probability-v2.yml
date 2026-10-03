@@ -1,0 +1,236 @@
+name: L2 TRIO Probability V2
+
+on:
+  push:
+    branches:
+      - research/l2-trio-probability-v2-20261004
+    paths:
+      - .github/triggers/l2-trio-probability-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-trio-probability-v2
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      OUTSIDER_SOURCE_BRANCH: research/l16-outsider-support-safe-v1-20260930
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/extract_l2_core_dates_v1.py \
+            research/build_l2_core_v1_dataset.py \
+            research/build_l2_bet_kings_dataset_v1.py \
+            research/run_l2_trio_probability_v2.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('contracts/l2-trio-probability-v2.json',encoding='utf-8'))
+          l=json.load(open('research/l175-market-context-v1.json',encoding='utf-8'))
+          assert c['contract']=='L2_TRIO_PROBABILITY_V2'
+          assert c['scope']['bet_type']=='TRIO'
+          assert c['scope']['buy_skip_target'] is False
+          assert c['scope']['roi_target'] is False
+          assert c['probability_model']['trio_market_odds_feature'] is False
+          assert c['probability_model']['win_market_context_feature'] is True
+          assert c['cost_policy']['github_standard_cpu_only'] is True
+          assert c['cost_policy']['gpu'] is False
+          assert c['cost_policy']['paid_artifact_or_cache'] is False
+          assert l['contract']=='L175_MARKET_CONTEXT_V1'
+          assert l['ranking_policy']=='SEVEN_KING_UNCHANGED'
+          wf=Path('.github/workflows/l2-trio-probability-v2.yml').read_text()
+          runners=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('runs-on:')]
+          assert runners==['ubuntu-latest'],runners
+          uses=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('- uses:')]
+          assert not any(u.startswith('actions/upload-artifact') for u in uses)
+          assert not any(u.startswith('actions/cache') for u in uses)
+          src=Path('research/run_l2_trio_probability_v2.py').read_text()
+          assert '2026 sealed' in src
+          assert 'n_jobs=-1' in src
+          assert 'mmap_mode' in src
+          print('L2_TRIO_V2_STATIC_GUARDS_OK')
+          PY
+          bash -n scripts/kaggle-dataset-session-v2.sh
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven score tables once metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          session='scripts/kaggle-dataset-session-v2.sh'
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/l2-trio-v2/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session" init "$ref" "$d"
+              bash "$session" fetch "$d" score.jsonl
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              echo "SCORE_OK year=$y alias=$alias path=$p"
+            done
+          done
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-trio-v2/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/l2-trio-v2/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              args+=(--expert "$name=$p")
+            done
+            p="out/l2-trio-v2/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
+            test -s "$p"
+            echo "L17_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve dates and restore exact BACKFILL files once
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-trio-v2/scores/$y/core4" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+            args+=(--score-year "$y:$p")
+          done
+          python research/extract_l2_core_dates_v1.py "${args[@]}" --dates-out out/l2-trio-v2/all-dates.txt --race-dates-out out/l2-trio-v2/race-dates.csv
+          rm -rf out/backfill
+          git init out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-trio-v2/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$BACKFILL_SHA"
+          git -C out/backfill checkout --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build horse rows once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_core_v1_dataset.py \
+            --l17-year "2022:$L17_2022" \
+            --l17-year "2023:$L17_2023" \
+            --l17-year "2024:$L17_2024" \
+            --l17-year "2025:$L17_2025" \
+            --race-dates out/l2-trio-v2/race-dates.csv \
+            --backfill-root out/backfill \
+            --out-dir out/l2-trio-v2/horse-dataset
+          cat out/l2-trio-v2/horse-dataset/manifest.json
+
+      - name: Restore frozen safe Outsider predictions once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-trio-v2/outsider
+          git fetch --depth=1 origin "$OUTSIDER_SOURCE_BRANCH":refs/remotes/origin/l2-trio-outsider-source
+          git show origin/l2-trio-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/l2-trio-v2/outsider/predictions.csv.gz
+          test -s out/l2-trio-v2/outsider/predictions.csv.gz
+          python - <<'PY'
+          import csv,gzip
+          with gzip.open('out/l2-trio-v2/outsider/predictions.csv.gz','rt',encoding='utf-8') as f:
+              r=csv.DictReader(f); req={'year','race_id','horse_id','rank','score','p3','p3_rank_baseline','p3_delta'}
+              assert req.issubset(set(r.fieldnames or [])),r.fieldnames
+          print('OUTSIDER_SOURCE_OK')
+          PY
+
+      - name: Run direct TRIO probability walk-forward
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-probability-v2/run-$GITHUB_RUN_ID"
+          python research/run_l2_trio_probability_v2.py \
+            --contract contracts/l2-trio-probability-v2.json \
+            --l175-contract research/l175-market-context-v1.json \
+            --dataset-dir out/l2-trio-v2/horse-dataset \
+            --backfill-root out/backfill \
+            --outsider-predictions out/l2-trio-v2/outsider/predictions.csv.gz \
+            --matrix-cache out/l2-trio-v2/matrix-cache \
+            --out-dir "$result"
+          echo '===== FOLD METRICS ====='
+          cat "$result/fold-metrics.csv"
+          echo '===== RUNTIME ====='
+          cat "$result/runtime.csv"
+          echo '===== COVERAGE ====='
+          cat "$result/coverage.csv"
+          echo '===== COMPACT RESULT SIZE ====='
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo 'Standard GitHub-hosted ubuntu-latest CPU only.'
+          echo 'No GPU / paid runner / paid cloud compute.'
+          echo 'No actions/cache or upload-artifact.'
+          echo 'No Kaggle upload, model upload, or dataset upload.'
+          echo 'Kaggle reads are metadata-first and session-reused.'
+          echo 'BACKFILL files are sparse-restored once and reused.'
+          echo 'Year TRIO matrices are runner-local NPY files and reused across folds.'
+          echo 'Only compact CSV/JSON summaries are committed.'
+          echo '2026 remains sealed.'
+
+      - name: Commit compact summaries only
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-probability-v2/run-$GITHUB_RUN_ID"
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/fold-metrics.csv" \
+            "$result/feature-importance.csv" \
+            "$result/runtime.csv" \
+            "$result/coverage.csv" \
+            "$result/skipped-market-races.csv"
+          git commit -m "research: archive L2 TRIO probability V2 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
