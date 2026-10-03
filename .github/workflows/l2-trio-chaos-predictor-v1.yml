@@ -1,0 +1,231 @@
+name: L2 TRIO CHAOS Predictor V1
+
+on:
+  push:
+    branches:
+      - research/l2-trio-chaos-predictor-v1-20261004
+    paths:
+      - .github/triggers/l2-trio-chaos-predictor-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-trio-chaos-predictor-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 180
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      OUTSIDER_SOURCE_BRANCH: research/l16-outsider-support-safe-v1-20260930
+      V4_SOURCE_BRANCH: research/l2-trio-split-residual-v4-20261004
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/extract_l2_core_dates_v1.py \
+            research/build_l2_bet_kings_dataset_v1.py \
+            research/run_l2_trio_chaos_predictor_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('contracts/l2-trio-chaos-predictor-v1.json',encoding='utf-8'))
+          assert c['contract']=='L2_TRIO_CHAOS_PREDICTOR_V1'
+          assert c['strict_walk_forward']['2024']==[2023]
+          assert c['strict_walk_forward']['2025']==[2023,2024]
+          assert c['cost_policy']['github_standard_cpu_only'] is True
+          assert c['cost_policy']['gpu'] is False
+          assert c['cost_policy']['paid_artifact_or_cache'] is False
+          assert c['locked_years']==[2026]
+          src=Path('research/run_l2_trio_chaos_predictor_v1.py').read_text()
+          assert 'FOLDS=((2024,(2023,)),(2025,(2023,2024)))' in src
+          assert 'ThreadPoolExecutor(max_workers=2)' in src
+          assert 'MARKET_FEATURES' in src and 'STRUCTURE_FEATURES' in src
+          assert '"2026_locked":True' in src
+          wf=Path('.github/workflows/l2-trio-chaos-predictor-v1.yml').read_text()
+          runners=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('runs-on:')]
+          assert runners==['ubuntu-latest'],runners
+          uses=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('- uses:')]
+          assert not any(u.startswith('actions/upload-artifact') for u in uses)
+          assert not any(u.startswith('actions/cache') for u in uses)
+          print('L2_TRIO_CHAOS_STATIC_GUARDS_OK')
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven score tables once metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          session='scripts/kaggle-dataset-session-v2.sh'
+          for y in 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/chaos/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session" init "$ref" "$d"
+              bash "$session" fetch "$d" score.jsonl
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              echo "SCORE_OK year=$y alias=$alias path=$p"
+            done
+          done
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/chaos/l17
+          for y in 2023 2024 2025; do
+            args=()
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/chaos/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              args+=(--expert "$name=$p")
+            done
+            p="out/chaos/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
+            test -s "$p"
+            echo "L17_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Restore safe Outsider ballots once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/chaos/ballots
+          git fetch --depth=1 origin "$OUTSIDER_SOURCE_BRANCH":refs/remotes/origin/chaos-outsider-source
+          for y in 2023 2024 2025; do
+            git show "origin/chaos-outsider-source:research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$y/ballots.csv.gz" > "out/chaos/ballots/y$y.csv.gz"
+            test -s "out/chaos/ballots/y$y.csv.gz"
+          done
+
+      - name: Restore frozen V4 both-fail labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/chaos/labels
+          git fetch --depth=1 origin "$V4_SOURCE_BRANCH":refs/remotes/origin/chaos-v4-source
+          git show "origin/chaos-v4-source:research-results/l2-trio-split-residual-v4/run-37146919444/race-diagnostics.csv.gz" > out/chaos/labels/v4-race-diagnostics.csv.gz
+          test -s out/chaos/labels/v4-race-diagnostics.csv.gz
+
+      - name: Resolve 2023-2025 exact race dates
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for y in 2023 2024 2025; do
+            p="$(find "out/chaos/scores/$y/core4" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+            args+=(--score-year "$y:$p")
+          done
+          python research/extract_l2_core_dates_v1.py "${args[@]}" \
+            --dates-out out/chaos/all-dates.txt \
+            --race-dates-out out/chaos/race-dates.csv
+
+      - name: Sparse restore TRIO odds files once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git init out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/chaos/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$BACKFILL_SHA"
+          git -C out/backfill checkout --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run strict walk-forward CHAOS predictor
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-chaos-predictor-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_trio_chaos_predictor_v1.py \
+            --contract contracts/l2-trio-chaos-predictor-v1.json \
+            --l17-year "2023:$L17_2023" \
+            --l17-year "2024:$L17_2024" \
+            --l17-year "2025:$L17_2025" \
+            --ballots-year "2023:out/chaos/ballots/y2023.csv.gz" \
+            --ballots-year "2024:out/chaos/ballots/y2024.csv.gz" \
+            --ballots-year "2025:out/chaos/ballots/y2025.csv.gz" \
+            --race-dates out/chaos/race-dates.csv \
+            --backfill-root out/backfill \
+            --v4-diagnostics out/chaos/labels/v4-race-diagnostics.csv.gz \
+            --out-dir "$result"
+          echo '===== FOLD METRICS ====='
+          cat "$result/fold-metrics.csv"
+          echo '===== RISK CONCENTRATION ====='
+          cat "$result/risk-concentration.csv"
+          echo '===== POOLED ====='
+          cat "$result/pooled-metrics.csv"
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo 'Standard GitHub-hosted ubuntu-latest CPU only.'
+          echo 'No GPU / paid runner / paid cloud compute.'
+          echo 'No actions/cache or upload-artifact.'
+          echo 'Kaggle score reads are metadata-first and session-reused.'
+          echo 'Only 2023-2025 are restored; 2022 is skipped for speed.'
+          echo 'Only BACKFILL odds files are restored; result packs are not downloaded.'
+          echo 'No horse-level training matrix is built.'
+          echo 'No payout / ROI / ticket-selection / staking optimization.'
+          echo '2026 remains sealed.'
+
+      - name: Commit compact CHAOS results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-chaos-predictor-v1/run-$GITHUB_RUN_ID"
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/fold-metrics.csv" \
+            "$result/risk-concentration.csv" \
+            "$result/pooled-metrics.csv" \
+            "$result/feature-importance.csv" \
+            "$result/predictions.csv.gz"
+          git commit -m "research: archive L2 TRIO CHAOS predictor $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
