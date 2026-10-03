@@ -18,19 +18,30 @@
       "feature_policy": "Drop Outsider score/availability and all Outsider-derived p3/delta/alignment features; retain Seven-King consensus, support, dispersion, King probability, market context and King-vs-market disagreement."
     },
     "MARKET_PLUS_OUTSIDER": {
-      "source": "L1.75 residual feature matrix",
-      "feature_policy": "Drop Seven-King rank/probability/support/dispersion, King-vs-market gap/dissent, King-derived p3/delta/alignment and race-level King aggregates; retain normalized TRIO market as offset, WIN market context, field size and raw independent Outsider score/availability."
+      "source": "Frozen safe 13-candidate Outsider ballots used by World Router research",
+      "feature_policy": "Attach per-horse independent Outsider ballot evidence (weighted 3/2/1 votes, support count, v1/v2/v3 counts) to every horse; order trio members by market rank. No Seven-King rank/probability/support/gap/p3 fields are used in this engine.",
+      "ballot_source": "research-results/l16-outsider-support-safe-fast-v2/run-36724124925/yYYYY/ballots.csv.gz",
+      "candidates_per_race": 13
     },
     "MARKET_ONLY": {
-      "alpha": 0.0
+      "alpha": 0
     }
   },
   "residual_form": "p_i proportional_to q_i * exp(alpha * f(x_i))",
   "alpha_policy": "Select alpha strictly from prior-year calibration; alpha=0 is always allowed.",
   "walk_forward": {
-    "2023": [2022],
-    "2024": [2022, 2023],
-    "2025": [2022, 2023, 2024]
+    "2023": [
+      2022
+    ],
+    "2024": [
+      2022,
+      2023
+    ],
+    "2025": [
+      2022,
+      2023,
+      2024
+    ]
   },
   "evaluation": {
     "metrics": [
@@ -52,13 +63,17 @@
     "parallel_engines": 2,
     "cpu_split": "Each of the two independent engines receives about half of available logical CPUs so both train concurrently without oversubscription.",
     "float32": true,
-    "compact_results_only": true
+    "compact_results_only": true,
+    "outsider_ballots_restore_once": true
   },
   "future_router_contract": {
     "world_router_not_used_for_training_v4": true,
-    "output_goal": "Produce clean independent engine probabilities and race-level diagnostics that can later be gated/mixed by NORMAL/COLLAPSE/OUTSIDER/BOTH without retraining this experiment."
+    "output_goal": "Produce clean independent engine probabilities and race-level diagnostics that can later be gated/mixed by NORMAL/COLLAPSE/OUTSIDER/BOTH without retraining this experiment.",
+    "shared_outsider_source": "World Router and V4 use the same frozen safe 13-candidate Outsider ballot source."
   },
-  "locked_years": [2026],
+  "locked_years": [
+    2026
+  ],
   "cost_policy": {
     "github_standard_cpu_only": true,
     "paid_runner": false,
