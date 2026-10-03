@@ -1,0 +1,70 @@
+{
+  "contract": "L2_TRIO_SPLIT_RESIDUAL_V4",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Build two independent TRIO market-residual probability engines from the same frozen inputs: MARKET_PLUS_SEVEN_KING and MARKET_PLUS_OUTSIDER. Keep the probability engine broad and simple so a future World Router can choose or mix them without embedding hand-written race rules here.",
+  "market_base": {
+    "bet_type": "TRIO",
+    "historical_source": "NETKEIBA_FINAL_TRIO_ODDS_PROXY",
+    "operational_source": "LATEST_TIMESTAMPED_PRE_RACE_TRIO_ODDS",
+    "raw_implied": "1 / trio_odds",
+    "race_normalization": "q_i = raw_i / sum(raw_j)",
+    "payout_used": false,
+    "roi_used": false
+  },
+  "engines": {
+    "MARKET_PLUS_SEVEN_KING": {
+      "source": "L1.75 residual feature matrix",
+      "feature_policy": "Drop Outsider score/availability and all Outsider-derived p3/delta/alignment features; retain Seven-King consensus, support, dispersion, King probability, market context and King-vs-market disagreement."
+    },
+    "MARKET_PLUS_OUTSIDER": {
+      "source": "L1.75 residual feature matrix",
+      "feature_policy": "Drop Seven-King rank/probability/support/dispersion, King-vs-market gap/dissent, King-derived p3/delta/alignment and race-level King aggregates; retain normalized TRIO market as offset, WIN market context, field size and raw independent Outsider score/availability."
+    },
+    "MARKET_ONLY": {
+      "alpha": 0.0
+    }
+  },
+  "residual_form": "p_i proportional_to q_i * exp(alpha * f(x_i))",
+  "alpha_policy": "Select alpha strictly from prior-year calibration; alpha=0 is always allowed.",
+  "walk_forward": {
+    "2023": [2022],
+    "2024": [2022, 2023],
+    "2025": [2022, 2023, 2024]
+  },
+  "evaluation": {
+    "metrics": [
+      "race log loss",
+      "multiclass Brier score",
+      "winning trio top1/top3/top10",
+      "bootstrap 95% CI of logloss delta vs market",
+      "race-level head-to-head: King residual vs Outsider residual"
+    ],
+    "no_roi_promotion": true
+  },
+  "speed_policy": {
+    "metadata_first_restore_once": true,
+    "l17_materialize_once_per_year": true,
+    "backfill_sparse_restore_once": true,
+    "horse_dataset_once": true,
+    "trio_matrix_once_per_year": true,
+    "matrix_mmap": true,
+    "parallel_engines": 2,
+    "cpu_split": "Each of the two independent engines receives about half of available logical CPUs so both train concurrently without oversubscription.",
+    "float32": true,
+    "compact_results_only": true
+  },
+  "future_router_contract": {
+    "world_router_not_used_for_training_v4": true,
+    "output_goal": "Produce clean independent engine probabilities and race-level diagnostics that can later be gated/mixed by NORMAL/COLLAPSE/OUTSIDER/BOTH without retraining this experiment."
+  },
+  "locked_years": [2026],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
