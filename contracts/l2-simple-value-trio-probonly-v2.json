@@ -1,0 +1,41 @@
+{
+  "contract": "L2_SIMPLE_VALUE_TRIO_PROBONLY_V2",
+  "purpose": "Keep the simple L1.75-vs-market value axis fixed, rank axis-containing TRIO tickets by hit probability only, then inspect ROI by market-odds band after ranking.",
+  "years": [2022, 2023, 2024, 2025],
+  "folds": {"2023":[2022],"2024":[2022,2023],"2025":[2022,2023,2024]},
+  "axis_policy": {
+    "value_candidate": "market_rank - consensus_rank >= 2",
+    "selection": "highest existing walk-forward p3; ties by larger rank gap, Outsider score, consensus rank",
+    "structural_risk": "NOT_USED"
+  },
+  "ticket_probability": {
+    "candidate_space": "all priced unordered TRIO tickets containing the frozen axis",
+    "model_unit": "ticket",
+    "horse_reranking": false,
+    "allowed_inputs": "frozen L1.75/Seven-King/p3/Outsider descriptors and market rank only",
+    "trio_odds_feature": false,
+    "win_odds_feature": false,
+    "odds_rank_feature": false,
+    "probability_times_odds": false
+  },
+  "evaluation": {
+    "ranking": "predicted hit probability only",
+    "fixed_topk": [1,3,5,8,12],
+    "odds_bands": ["LT10","10_20","20_50","50_100","100_200","200_500","500_PLUS"],
+    "odds_used_only_after_probability_rank_is_frozen": true,
+    "stake_per_ticket_yen": 100,
+    "staking_optimization": false,
+    "payout_used_for_model_or_ranking": false
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_artifact_or_cache": false,
+    "paid_cloud_compute": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "2026_locked": true
+  }
+}
