@@ -289,9 +289,10 @@ def main():
     dates=load_dates(a.race_dates)
     stats,candidates=load_ballots(ballot_paths)
     structure=load_l17_structure(paths,dates,stats,candidates)
-    market=build_market_shape(structure[["year","race_id","race_date","field_size"]],a.backfill_root)
     labels=load_labels(a.v4_diagnostics)
-    data=structure.merge(market,on=["year","race_id"],how="inner",validate="one_to_one").merge(
+    eligible=structure.merge(labels[["year","race_id"]],on=["year","race_id"],how="inner",validate="one_to_one")
+    market=build_market_shape(eligible[["year","race_id","race_date","field_size"]],a.backfill_root)
+    data=eligible.merge(market,on=["year","race_id"],how="inner",validate="one_to_one").merge(
         labels,on=["year","race_id"],how="inner",validate="one_to_one"
     )
     expected={2023:3443,2024:3438,2025:3444}
