@@ -1,0 +1,288 @@
+{
+  "contract": "L2_TRIO_V4_BOTH_FAIL_AUDIT",
+  "source_run": 37146919444,
+  "definition": "KING logloss delta >= 0 AND OUTSIDER logloss delta >= 0 versus pure TRIO market on the realized winning trio.",
+  "races": 10325,
+  "both_fail_races": 2208,
+  "both_fail_pct": 21.38498789346247,
+  "by_year": {
+    "2023": {
+      "races": 3443,
+      "both_fail": 766,
+      "both_fail_pct": 22.248039500435667
+    },
+    "2024": {
+      "races": 3438,
+      "both_fail": 750,
+      "both_fail_pct": 21.81500872600349
+    },
+    "2025": {
+      "races": 3444,
+      "both_fail": 692,
+      "both_fail_pct": 20.092915214866434
+    }
+  },
+  "field_size_all": {
+    "n": 10325,
+    "mean": 13.7144794188862,
+    "median": 15.0,
+    "q25": 12.0,
+    "q75": 16.0
+  },
+  "field_size_both_fail": {
+    "n": 2208,
+    "mean": 13.617753623188406,
+    "median": 14.0,
+    "q25": 12.0,
+    "q75": 16.0
+  },
+  "market_true_probability_all": {
+    "n": 10325,
+    "mean": 0.034194283051678494,
+    "median": 0.01590188406407833,
+    "q25": 0.00544990599155426,
+    "q75": 0.04083900898694992
+  },
+  "market_true_probability_both_fail": {
+    "n": 2208,
+    "mean": 0.013754852473534416,
+    "median": 0.0044936807826161385,
+    "q25": 0.0014764782681595534,
+    "q75": 0.013053728500381112
+  },
+  "king_delta_both_fail": {
+    "n": 2208,
+    "mean": 0.12483888058362771,
+    "median": 0.06646353356719836,
+    "q25": 0.028603043436396858,
+    "q75": 0.15531522746620752
+  },
+  "outsider_delta_both_fail": {
+    "n": 2208,
+    "mean": 0.08947401085539662,
+    "median": 0.051286869677292124,
+    "q25": 0.01845565857998699,
+    "q75": 0.12356721667306947
+  },
+  "most_overrepresented_reportable_slices": [
+    {
+      "dimension": "month",
+      "value": "09",
+      "races": 756,
+      "both_fail": 180,
+      "both_fail_pct": 23.809523809523807,
+      "lift_vs_all": 1.1133756038647342,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "札幌",
+      "races": 502,
+      "both_fail": 116,
+      "both_fail_pct": 23.107569721115535,
+      "lift_vs_all": 1.0805509844679253,
+      "reportable": 1
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "11-13",
+      "races": 2364,
+      "both_fail": 540,
+      "both_fail_pct": 22.84263959390863,
+      "lift_vs_all": 1.0681623813727654,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "阪神",
+      "races": 1207,
+      "both_fail": 269,
+      "both_fail_pct": 22.286661143330573,
+      "lift_vs_all": 1.0421638419605441,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "福島",
+      "races": 719,
+      "both_fail": 160,
+      "both_fail_pct": 22.253129346314328,
+      "lift_vs_all": 1.0405958356009757,
+      "reportable": 1
+    },
+    {
+      "dimension": "year",
+      "value": "2023",
+      "races": 3443,
+      "both_fail": 766,
+      "both_fail_pct": 22.248039500435667,
+      "lift_vs_all": 1.040357825371369,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "10",
+      "races": 861,
+      "both_fail": 191,
+      "both_fail_pct": 22.18350754936121,
+      "lift_vs_all": 1.037340196771533,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "小倉",
+      "races": 790,
+      "both_fail": 175,
+      "both_fail_pct": 22.151898734177212,
+      "lift_vs_all": 1.03586211245643,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "京都",
+      "races": 1527,
+      "both_fail": 338,
+      "both_fail_pct": 22.134905042567123,
+      "lift_vs_all": 1.0350674572667824,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "03",
+      "races": 931,
+      "both_fail": 206,
+      "both_fail_pct": 22.12674543501611,
+      "lift_vs_all": 1.0346858995314372,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "新潟",
+      "races": 931,
+      "both_fail": 205,
+      "both_fail_pct": 22.019334049409238,
+      "lift_vs_all": 1.029663152446333,
+      "reportable": 1
+    },
+    {
+      "dimension": "year",
+      "value": "2024",
+      "races": 3438,
+      "both_fail": 750,
+      "both_fail_pct": 21.81500872600349,
+      "lift_vs_all": 1.0201085375724004,
+      "reportable": 1
+    }
+  ],
+  "least_overrepresented_reportable_slices": [
+    {
+      "dimension": "course",
+      "value": "東京",
+      "races": 1596,
+      "both_fail": 308,
+      "both_fail_pct": 19.298245614035086,
+      "lift_vs_all": 0.9024202262903636,
+      "reportable": 1
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "17-18",
+      "races": 880,
+      "both_fail": 173,
+      "both_fail_pct": 19.65909090909091,
+      "lift_vs_all": 0.9192939929183136,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "06",
+      "races": 887,
+      "both_fail": 176,
+      "both_fail_pct": 19.84216459977452,
+      "lift_vs_all": 0.9278548437168112,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "中京",
+      "races": 1125,
+      "both_fail": 225,
+      "both_fail_pct": 20.0,
+      "lift_vs_all": 0.9352355072463768,
+      "reportable": 1
+    },
+    {
+      "dimension": "year",
+      "value": "2025",
+      "races": 3444,
+      "both_fail": 692,
+      "both_fail_pct": 20.092915214866434,
+      "lift_vs_all": 0.9395803876517025,
+      "reportable": 1
+    },
+    {
+      "dimension": "course",
+      "value": "函館",
+      "races": 432,
+      "both_fail": 87,
+      "both_fail_pct": 20.13888888888889,
+      "lift_vs_all": 0.9417301982689211,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "11",
+      "races": 867,
+      "both_fail": 176,
+      "both_fail_pct": 20.29988465974625,
+      "lift_vs_all": 0.9492586463400364,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "04",
+      "races": 882,
+      "both_fail": 181,
+      "both_fail_pct": 20.521541950113377,
+      "lift_vs_all": 0.9596237347596043,
+      "reportable": 1
+    },
+    {
+      "dimension": "field_bucket",
+      "value": "14-16",
+      "races": 5359,
+      "both_fail": 1122,
+      "both_fail_pct": 20.936741929464453,
+      "lift_vs_all": 0.9790392229244587,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "05",
+      "races": 832,
+      "both_fail": 176,
+      "both_fail_pct": 21.153846153846153,
+      "lift_vs_all": 0.9891914018952062,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "12",
+      "races": 802,
+      "both_fail": 170,
+      "both_fail_pct": 21.197007481296758,
+      "lift_vs_all": 0.9912097021937909,
+      "reportable": 1
+    },
+    {
+      "dimension": "month",
+      "value": "08",
+      "races": 922,
+      "both_fail": 196,
+      "both_fail_pct": 21.25813449023861,
+      "lift_vs_all": 0.9940681096545002,
+      "reportable": 1
+    }
+  ],
+  "warning": "market_true_p and both_fail are outcome-conditioned diagnostics. They describe failures after the result and must not be used as pre-race router features."
+}
