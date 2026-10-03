@@ -186,21 +186,50 @@ def matched_effect(z, high_label, ref_label):
     return float(np.average(d,weights=w)),cells
 
 def bootstrap_matched(z, high_label, ref_label):
-    races=z["race_id"].astype(str).unique()
+    # Exact race-cluster bootstrap, vectorized through per-race contribution matrices.
+    q=z[z["support_label"].isin([high_label,ref_label])].copy()
+    if q.empty: return {}
+
+    q["cell_key"]=q["year"].astype(str)+"|"+q["odds_key"].astype(str)
+    race_ids=sorted(q["race_id"].astype(str).unique())
+    cell_keys=sorted(q["cell_key"].astype(str).unique())
+    race_ix={x:i for i,x in enumerate(race_ids)}
+    cell_ix={x:i for i,x in enumerate(cell_keys)}
+    R=len(race_ids); C=len(cell_keys)
+    if R<20 or C==0: return {}
+
+    counts=np.zeros((R,C,2),dtype=np.float64)
+    sums=np.zeros((R,C,2),dtype=np.float64)
+    for r in q.itertuples(index=False):
+        ri=race_ix[str(r.race_id)]
+        ci=cell_ix[str(r.cell_key)]
+        li=1 if str(r.support_label)==high_label else 0
+        counts[ri,ci,li]+=1.0
+        sums[ri,ci,li]+=float(r.collapse)
+
+    counts2=counts.reshape(R,C*2)
+    sums2=sums.reshape(R,C*2)
+    probs=np.full(R,1.0/R,dtype=np.float64)
     rng=np.random.default_rng(RNG_SEED+sum(ord(c) for c in high_label+ref_label))
     vals=[]
-    for _ in range(BOOTSTRAPS):
-        sampled=rng.choice(races,size=len(races),replace=True)
-        chunks=[]
-        for i,rid in enumerate(sampled):
-            g=z[z["race_id"].astype(str)==str(rid)].copy()
-            if g.empty: continue
-            g["race_id"]=g["race_id"].astype(str)+"#"+str(i)
-            chunks.append(g)
-        if not chunks: continue
-        b=pd.concat(chunks,ignore_index=True)
-        eff,_=matched_effect(b,high_label,ref_label)
-        if eff is not None and math.isfinite(eff): vals.append(eff)
+    batch=100
+    left=BOOTSTRAPS
+    while left>0:
+        b=min(batch,left)
+        weights=rng.multinomial(R,probs,size=b).astype(np.float64,copy=False)
+        bc=(weights@counts2).reshape(b,C,2)
+        bs=(weights@sums2).reshape(b,C,2)
+        ref_n=bc[:,:,0]; high_n=bc[:,:,1]
+        valid=(ref_n>=2)&(high_n>=2)
+        ref_rate=np.divide(bs[:,:,0],ref_n,out=np.zeros_like(ref_n),where=ref_n>0)
+        high_rate=np.divide(bs[:,:,1],high_n,out=np.zeros_like(high_n),where=high_n>0)
+        w=np.minimum(ref_n,high_n)*valid
+        denom=w.sum(axis=1)
+        num=((high_rate-ref_rate)*w).sum(axis=1)
+        good=denom>0
+        vals.extend((num[good]/denom[good]).tolist())
+        left-=b
+
     if not vals: return {}
     a=np.asarray(vals,dtype=float)
     return {
