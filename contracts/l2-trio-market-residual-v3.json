@@ -1,0 +1,71 @@
+{
+  "contract": "L2_TRIO_MARKET_RESIDUAL_V3",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Use the TRIO market-implied race distribution as the base probability and learn only a multiplicative L1.75 correction. L2 estimates probability; L3 owns ticket selection, value thresholds, bankroll and stakes.",
+  "upstream": {
+    "l175_contract": "L175_MARKET_CONTEXT_V1",
+    "ranking_policy": "SEVEN_KING_UNCHANGED",
+    "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
+    "outsider_rank_mismatch_policy": "Frozen p3/p3_delta are neutralized when their historical canonical King rank differs from the locally reconstructed Seven-King rank."
+  },
+  "market_base": {
+    "bet_type": "TRIO",
+    "historical_source": "NETKEIBA_FINAL_TRIO_ODDS_PROXY",
+    "operational_source": "LATEST_TIMESTAMPED_PRE_RACE_TRIO_ODDS",
+    "raw_implied": "1 / trio_odds",
+    "race_normalization": "q_i = raw_i / sum(raw_j)",
+    "incomplete_historical_market_race": "EXCLUDE_FROM_V3_PRIMARY_TRAINING_AND_EVALUATION",
+    "payout_used": false,
+    "roi_used": false
+  },
+  "residual_model": {
+    "form": "p_i proportional_to q_i * exp(alpha * f_L175(x_i))",
+    "learner": "LightGBM custom grouped-softmax residual objective",
+    "base_market_probability_is_feature": false,
+    "base_market_probability_is_offset": true,
+    "correction_features": "L1.75 combination features only",
+    "calibration": "alpha shrinkage selected on strict-prior held-out races; alpha=0 pure market is always an allowed fallback",
+    "manual_ticket_templates": false,
+    "buy_skip_target": false,
+    "roi_target": false
+  },
+  "evaluation": {
+    "folds": {
+      "2023": [2022],
+      "2024": [2022, 2023],
+      "2025": [2022, 2023, 2024]
+    },
+    "primary_comparison": "V3 corrected TRIO market vs pure normalized TRIO market",
+    "metrics": [
+      "race log loss",
+      "multiclass Brier score",
+      "ticket ECE",
+      "winning trio top1/top3/top10",
+      "selected alpha",
+      "probability mass invariant"
+    ],
+    "promotion_rule": "Do not promote unless correction beats or robustly matches pure TRIO market across walk-forward years without relying on ROI."
+  },
+  "speed_policy": {
+    "metadata_first_kaggle_restore_once": true,
+    "l17_materialize_once_per_year": true,
+    "backfill_sparse_restore_once": true,
+    "horse_dataset_once": true,
+    "year_matrix_once_runner_local": true,
+    "float32_matrix": true,
+    "memory_mapped_npy": true,
+    "vectorized_group_softmax": true,
+    "standard_cpu_all_cores": true,
+    "compact_results_only": true
+  },
+  "locked_years": [2026],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
