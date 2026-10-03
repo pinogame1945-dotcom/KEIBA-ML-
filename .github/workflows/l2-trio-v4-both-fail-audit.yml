@@ -1,0 +1,49 @@
+name: L2 TRIO V4 Both Fail Audit
+
+on:
+  push:
+    branches:
+      - research/l2-trio-v4-both-fail-audit-20261004
+    paths:
+      - .github/triggers/l2-trio-v4-both-fail-audit.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - name: Static cost guard
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/analyze_l2_trio_v4_both_fail.py
+          test -f research-results/l2-trio-split-residual-v4/run-37146919444/race-diagnostics.csv.gz
+          echo "Standard ubuntu-latest CPU only; no cache/artifact/GPU/cloud."
+
+      - name: Analyze both-fail races
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/analyze_l2_trio_v4_both_fail.py
+          cat research-results/l2-trio-v4-both-fail-audit/summary.json
+          cat research-results/l2-trio-v4-both-fail-audit/slices.csv
+
+      - name: Commit compact audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l2-trio-v4-both-fail-audit/summary.json                   research-results/l2-trio-v4-both-fail-audit/slices.csv                   research-results/l2-trio-v4-both-fail-audit/worst-examples.csv
+          git commit -m "research: archive V4 both-fail audit $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
