@@ -1,0 +1,3 @@
+launch=2026-10-04
+phase=L1_STRUCTURAL_RISK_KING_MARKET_V1
+scope=all_races_king1_union_market1
