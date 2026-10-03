@@ -1,0 +1,55 @@
+{
+  "contract": "L1_ANCHOR_COLLAPSE_MODEL_V1",
+  "universe": "Seven-King rank1 + tie-safe market rank1 + frozen Outsider p3_delta>0 + final WIN odds<=2.0",
+  "market_usage": "gate and ODDS_ONLY evaluation baseline only; final odds are not model features",
+  "outsider_usage": "agreement gate and OUTSIDER_ONLY evaluation baseline only; p3_delta is not a model feature",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "families": {
+    "FIELD_PACE": [
+      "FIELD_OPPONENT",
+      "PACE_TIME"
+    ],
+    "FIELD_PACE_HISTORY": [
+      "FIELD_OPPONENT",
+      "HISTORY_FRAGILITY",
+      "PACE_TIME"
+    ],
+    "STRUCT5": [
+      "DISTANCE",
+      "FIELD_OPPONENT",
+      "HISTORY_FRAGILITY",
+      "PACE_TIME",
+      "RACE_CONDITION"
+    ],
+    "ALL_SAFE_NUMERIC": "ALL_SAFE_NUMERIC"
+  },
+  "feature_selection": "training-fold-only univariate predictive AUC, top 40, >=60% observed",
+  "models": [
+    "LOGISTIC",
+    "LIGHTGBM"
+  ],
+  "primary_metric": "Recall and lift among top 20% collapse risk, evaluated strict OOS",
+  "stress_test": "same OOS models evaluated on final WIN odds<=1.5 subset; never used as training target filter",
+  "anchor_rows": 1756,
+  "collapse_rows": 327,
+  "snapshot_coverage_pct": 100.0,
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifacts_or_cache": false,
+  "model_persisted": false,
+  "promotion": false
+}
