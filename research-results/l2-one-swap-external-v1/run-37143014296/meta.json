@@ -1,0 +1,73 @@
+{
+  "contract": "L2_ONE_SWAP_EXTERNAL_V1",
+  "baseline_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      1,
+      5
+    ]
+  ],
+  "kept_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      3
+    ]
+  ],
+  "replaced_pair": [
+    1,
+    5
+  ],
+  "routes": {
+    "BASE": "original 1-5 fifth ticket",
+    "OUTSIDER_SWAP": "KING1 x highest safe Outsider weighted-council horse outside KING Top5",
+    "L175_SWAP": "KING1 x strongest positive L1_UPGRADE asymmetric_dissent horse outside KING Top5",
+    "AGREE_SWAP": "KING1 x horse outside KING Top5 with both positive Outsider support and positive L1_UPGRADE dissent; prioritize Outsider support then dissent"
+  },
+  "fallback_policy": "If external candidate is unavailable or duplicates a kept ticket, retain original KING1-KING5 ticket.",
+  "odds_gate": "final quinella odds <= 30.0 applied identically after each five-ticket structural route is built",
+  "odds_source": "final odds; feasibility only, not production-time executable",
+  "selection_uses_years": [
+    2023,
+    2024
+  ],
+  "holdout_year": 2025,
+  "payout_use": "evaluation only; never used for candidate choice",
+  "threshold_search": false,
+  "ml_training": false,
+  "counters": {},
+  "usable_races": {
+    "2023": 3456,
+    "2024": 3454,
+    "2025": 3455
+  },
+  "elapsed_seconds": 53.17846092800001,
+  "promotion": false,
+  "2026_locked": true
+}
