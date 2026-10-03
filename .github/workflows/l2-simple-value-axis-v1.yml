@@ -1,0 +1,59 @@
+name: L2 Simple Value Axis V1
+
+on:
+  push:
+    branches:
+      - research/l2-simple-value-axis-v1-20261004
+    paths:
+      - ".github/triggers/l2-simple-value-axis-v1.trigger"
+  workflow_dispatch:
+
+concurrency:
+  group: l2-simple-value-axis-v1
+  cancel-in-progress: true
+
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - name: Cost guard
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-simple-value-axis-v1.yml").read_text().splitlines()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf if x.strip().startswith("runs-on:")]
+          uses=[x.strip().split(":",1)[1].strip() for x in wf if x.strip().startswith("- uses:")]
+          assert runners==["ubuntu-latest"], runners
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_l2_simple_value_axis_v1.py").read_text()
+          assert '"no_new_model":True' in src
+          assert '"no_kaggle_downloads":True' in src
+          assert '"2026_locked":True' in src
+          print("SIMPLE_VALUE_AXIS_COST_GUARD_OK")
+          PY
+
+      - name: Ensure Python deps
+        run: |
+          python -c "import numpy,pandas" || python -m pip install --disable-pip-version-check numpy pandas
+
+      - name: Run simple value-axis audit
+        run: |
+          python research/run_l2_simple_value_axis_v1.py
+
+      - name: Commit compact results
+        run: |
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l2-simple-value-axis-v1/
+          git commit -m "research: archive simple value-axis audit $GITHUB_RUN_ID" || exit 0
+          git push origin "HEAD:$GITHUB_REF_NAME"
