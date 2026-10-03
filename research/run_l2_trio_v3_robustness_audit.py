@@ -263,12 +263,13 @@ def main():
         alpha_out.extend(alpha_sensitivity(full['score'],ytest,qtest,ritest,test_year))
 
         runtime_rows.append({'test_year':test_year,'seconds':time.time()-ft})
+        fold_ab={r['variant']:r for r in ablation_rows if r['test_year']==test_year}
         print('L2_TRIO_V3_AUDIT_FOLD_DONE '+json.dumps({
             'year':test_year,'alpha':full['alpha'],
             'll_delta':float(rv['logloss_delta'].mean()),
             'brier_delta':float(rv['brier_delta'].mean()),
-            'no_outsider_ll_delta':ablation_rows[-4]['mean_logloss_delta_vs_market'],
-            'no_king_ll_delta':ablation_rows[-3]['mean_logloss_delta_vs_market']
+            'no_outsider_ll_delta':fold_ab['NO_OUTSIDER']['mean_logloss_delta_vs_market'],
+            'no_king_ll_delta':fold_ab['NO_SEVEN_KING']['mean_logloss_delta_vs_market']
         },separators=(',',':')),flush=True)
 
         del variants,fit_parts,cal,full_parts
