@@ -1,0 +1,132 @@
+{
+  "contract": "L2_SIMPLE_VALUE_TRIO_PROBONLY_V3_GAP1_RESULT",
+  "architecture": "FROZEN_VALUE_AXIS_THEN_PROBABILITY_ONLY_TICKET_RANK_THEN_ODDS_BAND_AUDIT",
+  "axis_rule": "market_rank-consensus_rank>=1, highest existing OOS p3",
+  "ticket_space": "all priced TRIO tickets containing axis",
+  "probability_model": "LightGBM hit model from L1.75/Seven-King/p3/Outsider descriptors; no raw win odds and no TRIO odds",
+  "ranking": "p_hat descending only",
+  "probability_times_odds": false,
+  "odds_usage": "post-ranking audit only",
+  "stake": "flat 100 yen per selected ticket",
+  "axis_yearly": [
+    {
+      "year": 2023,
+      "races": 3444,
+      "axis_top3_pct": 36.149825783972126,
+      "mean_king_rank": 2.2502903600464577,
+      "mean_market_rank": 4.3324622531939605,
+      "mean_rank_gap": 2.082171893147503,
+      "mean_p3_pct": 46.78701305292486
+    },
+    {
+      "year": 2024,
+      "races": 3433,
+      "axis_top3_pct": 33.498397902709,
+      "mean_king_rank": 2.2572094378094962,
+      "mean_market_rank": 4.37459947567725,
+      "mean_rank_gap": 2.117390037867754,
+      "mean_p3_pct": 46.80265125930049
+    },
+    {
+      "year": 2025,
+      "races": 3431,
+      "axis_top3_pct": 35.76216846400466,
+      "mean_king_rank": 2.257359370445934,
+      "mean_market_rank": 4.30195278344506,
+      "mean_rank_gap": 2.0445934129991254,
+      "mean_p3_pct": 46.84964818974967
+    }
+  ],
+  "axis_pooled": {
+    "races": 10308,
+    "axis_top3_pct": 35.13775708187815,
+    "mean_king_rank": 2.2549476135040747,
+    "mean_market_rank": 4.336340706247575,
+    "mean_rank_gap": 2.0813930927435003,
+    "mean_p3_pct": 46.813069234233886
+  },
+  "pooled_topk": [
+    {
+      "topk": 1,
+      "tickets": 10308,
+      "bought_races": 10308,
+      "coverage_pct": 100.0,
+      "stake_yen": 1030800.0,
+      "return_yen": 762960.0,
+      "profit_yen": -267840.0,
+      "roi_pct": 74.0162980209546,
+      "race_hit_rate_pct": 6.024447031431897,
+      "ticket_hit_rate_pct": 6.024447031431897,
+      "avg_tickets_per_bought_race": 1.0,
+      "roi_ci_low": 64.54593519596429,
+      "roi_ci_high": 84.88892122623204
+    },
+    {
+      "topk": 3,
+      "tickets": 30924,
+      "bought_races": 10308,
+      "coverage_pct": 100.0,
+      "stake_yen": 3092400.0,
+      "return_yen": 2195870.0,
+      "profit_yen": -896530.0,
+      "roi_pct": 71.0086017332816,
+      "race_hit_rate_pct": 12.718277066356228,
+      "ticket_hit_rate_pct": 4.23942568878541,
+      "avg_tickets_per_bought_race": 3.0,
+      "roi_ci_low": 64.94906868451689,
+      "roi_ci_high": 77.22159972836631
+    },
+    {
+      "topk": 5,
+      "tickets": 51540,
+      "bought_races": 10308,
+      "coverage_pct": 100.0,
+      "stake_yen": 5154000.0,
+      "return_yen": 3675000.0,
+      "profit_yen": -1479000.0,
+      "roi_pct": 71.30384167636787,
+      "race_hit_rate_pct": 16.72487388436166,
+      "ticket_hit_rate_pct": 3.346915017462165,
+      "avg_tickets_per_bought_race": 5.0,
+      "roi_ci_low": 66.15198389600312,
+      "roi_ci_high": 76.60305102832751
+    },
+    {
+      "topk": 8,
+      "tickets": 82418,
+      "bought_races": 10308,
+      "coverage_pct": 100.0,
+      "stake_yen": 8241800.0,
+      "return_yen": 6025170.0,
+      "profit_yen": -2216630.0,
+      "roi_pct": 73.10502560120362,
+      "race_hit_rate_pct": 21.05161039968956,
+      "ticket_hit_rate_pct": 2.6353466475769856,
+      "avg_tickets_per_bought_race": 7.995537446643384,
+      "roi_ci_low": 68.36242939003769,
+      "roi_ci_high": 77.96683264654646
+    },
+    {
+      "topk": 12,
+      "tickets": 123432,
+      "bought_races": 10308,
+      "coverage_pct": 100.0,
+      "stake_yen": 12343200.0,
+      "return_yen": 8719940.0,
+      "profit_yen": -3623260.0,
+      "roi_pct": 70.64569965649102,
+      "race_hit_rate_pct": 24.631354287931703,
+      "ticket_hit_rate_pct": 2.0602436969343443,
+      "avg_tickets_per_bought_race": 11.974388824214202,
+      "roi_ci_low": 66.53790464841727,
+      "roi_ci_high": 74.88595397563209
+    }
+  ],
+  "horse_reranking": false,
+  "structural_risk_used": false,
+  "payout_used_for_model_or_ranking": false,
+  "test_year_payout_used_only_for_evaluation": true,
+  "2026_locked": true,
+  "promotion": false,
+  "elapsed_seconds": 680.0417149066925
+}
