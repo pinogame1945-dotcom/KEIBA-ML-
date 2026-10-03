@@ -54,6 +54,7 @@ jobs:
           assert c['contract']=='L2_TRIO_SPLIT_RESIDUAL_V4'
           assert c['speed_policy']['parallel_engines']==2
           assert c['future_router_contract']['world_router_not_used_for_training_v4'] is True
+          assert c['engines']['MARKET_PLUS_OUTSIDER']['candidates_per_race']==13
           assert c['cost_policy']['github_standard_cpu_only'] is True
           assert c['cost_policy']['gpu'] is False
           assert c['cost_policy']['paid_artifact_or_cache'] is False
@@ -71,6 +72,8 @@ jobs:
           assert 'engine_threads=max(1,cpu//2)' in src
           assert 'X_king_v4.npy' in src
           assert 'X_outsider_v4.npy' in src
+          assert 'load_outsider_ballots' in src
+          assert 'SAFE_13_CANDIDATE_BALLOTS' in src
           assert "outsider_canonical_order':'MARKET_RANK_ASC'" in src
           print('L2_TRIO_V4_STATIC_GUARDS_OK')
           PY
@@ -164,20 +167,27 @@ jobs:
             --out-dir out/l2-trio-v4/horse-dataset
           cat out/l2-trio-v4/horse-dataset/manifest.json
 
-      - name: Restore frozen safe Outsider predictions once
+      - name: Restore frozen safe Outsider sources once
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p out/l2-trio-v4/outsider
+          mkdir -p out/l2-trio-v4/outsider out/l2-trio-v4/ballots
           git fetch --depth=1 origin "$OUTSIDER_SOURCE_BRANCH":refs/remotes/origin/l2-trio-outsider-source
           git show origin/l2-trio-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/l2-trio-v4/outsider/predictions.csv.gz
           test -s out/l2-trio-v4/outsider/predictions.csv.gz
+          for y in 2022 2023 2024 2025; do
+            git show "origin/l2-trio-outsider-source:research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$y/ballots.csv.gz" > "out/l2-trio-v4/ballots/y$y.csv.gz"
+            test -s "out/l2-trio-v4/ballots/y$y.csv.gz"
+          done
           python - <<'PY'
           import csv,gzip
           with gzip.open('out/l2-trio-v4/outsider/predictions.csv.gz','rt',encoding='utf-8') as f:
               r=csv.DictReader(f); req={'year','race_id','horse_id','rank','score','p3','p3_rank_baseline','p3_delta'}
               assert req.issubset(set(r.fieldnames or [])),r.fieldnames
-          print('OUTSIDER_SOURCE_OK')
+          with gzip.open('out/l2-trio-v4/ballots/y2025.csv.gz','rt',encoding='utf-8') as f:
+              r=csv.DictReader(f); req={'race_id','candidate','top1_horse_id','top2_horse_id','top3_horse_id'}
+              assert req.issubset(set(r.fieldnames or [])),r.fieldnames
+          print('OUTSIDER_SOURCES_OK')
           PY
 
       - name: Run parallel split residual V4
@@ -191,6 +201,10 @@ jobs:
             --dataset-dir out/l2-trio-v4/horse-dataset \
             --backfill-root out/backfill \
             --outsider-predictions out/l2-trio-v4/outsider/predictions.csv.gz \
+            --ballots-year "2022:out/l2-trio-v4/ballots/y2022.csv.gz" \
+            --ballots-year "2023:out/l2-trio-v4/ballots/y2023.csv.gz" \
+            --ballots-year "2024:out/l2-trio-v4/ballots/y2024.csv.gz" \
+            --ballots-year "2025:out/l2-trio-v4/ballots/y2025.csv.gz" \
             --matrix-cache out/l2-trio-v4/matrix-cache \
             --out-dir "$result"
           echo '===== FOLD METRICS ====='
@@ -214,6 +228,7 @@ jobs:
           echo 'No actions/cache or upload-artifact.'
           echo 'No Kaggle upload, model upload, or dataset upload.'
           echo 'Kaggle reads are metadata-first and session-reused.'
+          echo 'Frozen safe 13-candidate Outsider ballots are restored once and reused.'
           echo 'BACKFILL files are sparse-restored once and reused.'
           echo 'Year TRIO matrices are runner-local NPY files and reused across folds.'
           echo 'Only compact CSV/JSON summaries are committed.'
