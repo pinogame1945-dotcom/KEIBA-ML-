@@ -1,0 +1,104 @@
+{
+  "contract": "L2_TRIO_PROBABILITY_V2",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Estimate calibrated unordered TRIO hit probabilities directly from frozen L1.75 horse context. L2 does probability estimation only; ticket selection, expected-value thresholds, bankroll allocation, and stakes belong to L3.",
+  "upstream": {
+    "l175_contract": "L175_MARKET_CONTEXT_V1",
+    "l17_contract": "L17_TO_L2_SIGNAL_V1",
+    "ranking_policy": "SEVEN_KING_UNCHANGED",
+    "outsider_policy": "SIGNAL_ONLY_NO_RERANK",
+    "market_policy": "WIN_MARKET_CONTEXT_AFTER_L17_FREEZE"
+  },
+  "scope": {
+    "bet_type": "TRIO",
+    "ordered": false,
+    "all_field_combinations": true,
+    "manual_ticket_templates": false,
+    "buy_skip_target": false,
+    "roi_target": false,
+    "stake_target": false,
+    "locked_years": [2026]
+  },
+  "probability_model": {
+    "family": "DIRECT_TRIO_COMBINATION_SCORE_SOFTMAX",
+    "learner": "LightGBM binary scoring model followed by race-normalized softmax and strict-prior temperature calibration",
+    "reason": "TRIO is an unordered one-of-N race event in ordinary non-dead-heat races. Direct combination scoring avoids forcing TRIO probability to be only a by-product of a WIN-strength model.",
+    "single_winner_trio_training_only": true,
+    "dead_heat_policy": "Races with zero or more than one official winning TRIO combination are excluded from V2 training and primary probability metrics and reported separately.",
+    "race_probability_mass": 1.0,
+    "trio_market_odds_feature": false,
+    "win_market_context_feature": true,
+    "historical_win_odds": "Final WIN odds are allowed only as the historical L1.75 market-context proxy. Operational inference must use the latest timestamped pre-race WIN snapshot."
+  },
+  "horse_features": [
+    "king_rank_pct",
+    "king_mean_rank_pct",
+    "king_rank_std_pct",
+    "king_best_rank_pct",
+    "king_worst_rank_pct",
+    "king_top1_vote_share",
+    "king_top3_support_share",
+    "king_top6_support_share",
+    "king_probability_mean",
+    "king_probability_std",
+    "market_rank_pct",
+    "log_market_win_odds",
+    "signed_rank_gap_pct",
+    "abs_rank_gap_pct",
+    "dissent_up",
+    "dissent_down",
+    "outsider_available",
+    "outsider_score_scaled",
+    "p3_calibrated",
+    "p3_delta",
+    "outsider_alignment_score"
+  ],
+  "forbidden_probability_features": [
+    "TRIO market odds",
+    "TRIO payout",
+    "ticket return",
+    "profit",
+    "ROI",
+    "finish position",
+    "post-race result fields except the training label"
+  ],
+  "evaluation": {
+    "folds": {
+      "2023": [2022],
+      "2024": [2022, 2023],
+      "2025": [2022, 2023, 2024]
+    },
+    "primary_metrics": [
+      "race log loss",
+      "multiclass Brier score",
+      "ticket ECE",
+      "winning trio in top1/top3/top10",
+      "probability-mass invariant"
+    ],
+    "baselines": [
+      "PL-style TRIO from Seven-King mean_probability",
+      "PL-style TRIO from normalized inverse WIN market odds"
+    ],
+    "promotion_rule": "No promotion from ROI. Improvement must be visible in probability calibration and walk-forward stability."
+  },
+  "speed_policy": {
+    "materialize_l17_once_per_year": true,
+    "restore_backfill_once_per_runner": true,
+    "build_horse_dataset_once": true,
+    "build_trio_matrix_once_per_year": true,
+    "runner_local_npy_matrix_reuse_across_folds": true,
+    "float32_feature_matrix": true,
+    "vectorized_combo_generation": true,
+    "lightgbm_all_standard_cpu_cores": true,
+    "compact_results_only": true
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
