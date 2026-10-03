@@ -1,0 +1,87 @@
+{
+  "contract": "L2_TRIO_OUTSIDER_STRUCTRISK_DIRECT_V1",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Keep MARKET+OUTSIDER as the TRIO probability engine and directly attenuate tickets containing upper-ranked horses warned by Structural Risk.",
+  "baseline": "L2_TRIO_SPLIT_RESIDUAL_V4 MARKET_PLUS_OUTSIDER",
+  "correction": {
+    "route_selection": false,
+    "rank_rewrite": false,
+    "scopes": [
+      "TOP1",
+      "TOP3"
+    ],
+    "warning_modes": [
+      "POS",
+      "ABS"
+    ],
+    "lambda_grid": [
+      0,
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.3,
+      0.4,
+      0.6
+    ],
+    "formula": "p_corrected(ticket) proportional to p_outsider(ticket) * exp(-lambda * warned_upper_horses_in_ticket)",
+    "renormalize_within_race": true,
+    "selection": "Choose scope, warning mode, and lambda only from prior out-of-sample races."
+  },
+  "structural_risk": {
+    "folds": {
+      "2023": [
+        2022
+      ],
+      "2024": [
+        2022,
+        2023
+      ],
+      "2025": [
+        2022,
+        2023,
+        2024
+      ]
+    },
+    "warm_2022": "On eligible 2022 races: first 60% trains Structural Risk, middle 20% unused, last 20% produces OOF warnings used for the first correction-policy selection.",
+    "positive_warning": "signed Structural Risk delta >= training-fold p80",
+    "absolute_warning": "absolute Structural Risk delta >= training-fold p80",
+    "top_scope": "Union of Seven-King and market upper ranks.",
+    "future_labels_forbidden": true
+  },
+  "evaluation": {
+    "folds": [
+      2023,
+      2024,
+      2025
+    ],
+    "primary": "race logloss delta versus pure TRIO market",
+    "comparison": "corrected MARKET+OUTSIDER versus uncorrected MARKET+OUTSIDER",
+    "bootstrap_reps": 5000,
+    "reference_fixed_outsider_mean": -0.00614873642986566
+  },
+  "success_gate": {
+    "mean": "pooled corrected-minus-Outsider < 0",
+    "strong": "bootstrap 95% CI for corrected-minus-Outsider entirely below zero",
+    "reference": "pooled corrected delta beats -0.00614873642986566"
+  },
+  "forbidden": [
+    "payout optimization",
+    "ROI optimization",
+    "staking optimization",
+    "future-year tuning",
+    "rank rewrite"
+  ],
+  "locked_years": [
+    2026
+  ],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
