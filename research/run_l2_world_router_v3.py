@@ -43,35 +43,65 @@ def route_world(qc,qo,base_c,base_o,margin_c,margin_o):
     if ao: return "OUTSIDER"
     return "NORMAL"
 
-def router_parameter_loss(cal_races,cal_df,qc,qo,base_c,base_o,margin_c,margin_o,cf,ob):
+def select_router(cal_races,cal_df,qc,qo,base_c,base_o):
+    # Exact-semantics fast path:
+    # 1) build calibration race lookup once
+    # 2) materialize valid races/actual trio once
+    # 3) precompute trio NLL for 25 (collapse_factor, outsider_boost) settings
+    # 4) evaluate 16 routing-margin pairs with NumPy indexing
     lookup=make_race_lookup(cal_df,set(cal_races["year"].astype(int)))
-    losses=[]; routed=0
-    for r,qcv,qov in zip(cal_races.itertuples(index=False),qc,qo):
+    valid=[]
+    for i,r in enumerate(cal_races.itertuples(index=False)):
         key=(int(r.year),str(r.race_id))
         sub=lookup.get(key)
-        if sub is None: continue
+        if sub is None:
+            continue
         actual=actual_top3_nums(sub)
-        if actual is None: continue
-        worlds=scenario_probabilities(sub,cf,ob)
-        route=route_world(qcv,qov,base_c,base_o,margin_c,margin_o)
-        routed+=int(route!="NORMAL")
-        p=ticket_probability("TRIO",actual,worlds[route])
-        losses.append(-math.log(clip01(p)))
-    return (float(np.mean(losses)) if losses else float("inf"),len(losses),routed)
+        if actual is None:
+            continue
+        valid.append((i,sub,actual))
+    n=len(valid)
+    if not n:
+        return {
+            "collapse_margin":MARGINS[0],"outsider_margin":MARGINS[0],
+            "collapse_factor":COLLAPSE_FACTORS[0],"outsider_max_boost":OUTSIDER_BOOSTS[0],
+            "calibration_trio_nll":float("inf"),"races":0,"routed_races":0,"routed_rate_pct":0.0,
+        }, []
 
-def select_router(cal_races,cal_df,qc,qo,base_c,base_o):
+    idx=np.asarray([x[0] for x in valid],dtype=int)
+    qcv=np.asarray(qc,dtype=float)[idx]
+    qov=np.asarray(qo,dtype=float)[idx]
+
+    world_names=("NORMAL","COLLAPSE","OUTSIDER","BOTH")
+    loss_grid={}
+    for cf in COLLAPSE_FACTORS:
+        for ob in OUTSIDER_BOOSTS:
+            arr=np.empty((n,4),dtype=float)
+            for j,(_,sub,actual) in enumerate(valid):
+                worlds=scenario_probabilities(sub,cf,ob)
+                for wi,name in enumerate(world_names):
+                    p=ticket_probability("TRIO",actual,worlds[name])
+                    arr[j,wi]=-math.log(clip01(p))
+            loss_grid[(cf,ob)]=arr
+
     rows=[]
+    row_idx=np.arange(n)
     for mc in MARGINS:
+        ac=qcv>=min(float(base_c)+float(mc),0.999999)
         for mo in MARGINS:
+            ao=qov>=min(float(base_o)+float(mo),0.999999)
+            route_idx=ac.astype(np.int8)+2*ao.astype(np.int8)
+            routed=int(np.count_nonzero(route_idx))
             for cf in COLLAPSE_FACTORS:
                 for ob in OUTSIDER_BOOSTS:
-                    loss,n,routed=router_parameter_loss(cal_races,cal_df,qc,qo,base_c,base_o,mc,mo,cf,ob)
+                    arr=loss_grid[(cf,ob)]
+                    loss=float(np.mean(arr[row_idx,route_idx]))
                     rows.append({
                         "collapse_margin":mc,"outsider_margin":mo,
                         "collapse_factor":cf,"outsider_max_boost":ob,
                         "calibration_trio_nll":loss,"races":n,
                         "routed_races":routed,
-                        "routed_rate_pct":100.0*routed/n if n else 0.0,
+                        "routed_rate_pct":100.0*routed/n,
                     })
     rows.sort(key=lambda x:(
         x["calibration_trio_nll"],
