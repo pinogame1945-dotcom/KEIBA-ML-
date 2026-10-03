@@ -1,0 +1,23 @@
+{
+  "contract": "L1_ANCHOR_COLLAPSE_PHASE1_V1",
+  "year": 2024,
+  "definition": {
+    "seven_king": "consensus_rank == 1 and frozen Outsider rank == 1",
+    "market": "tie-safe final WIN market_rank == 1",
+    "outsider": "p3_delta > 0; reinforces King podium belief",
+    "survive": "target_top3 == 1",
+    "collapse": "target_top3 == 0"
+  },
+  "purpose": "Census only: isolate cases where all three systems agree, then measure how often the anchor still misses the podium.",
+  "anchors": 1217,
+  "collapse_cases": 337,
+  "collapse_rate_pct": 27.691043549712408,
+  "king_rank_mismatch_rows_in_join": 914,
+  "market_rows_joined": 33785,
+  "outsider_signal_used_for_rerank": false,
+  "market_used_inside_core_l1": false,
+  "outcome_optimized_thresholds": false,
+  "paid_compute": false,
+  "2026_locked": true,
+  "promotion": false
+}
