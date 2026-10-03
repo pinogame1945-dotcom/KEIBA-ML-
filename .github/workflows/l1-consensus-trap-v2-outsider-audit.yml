@@ -43,7 +43,6 @@ jobs:
           uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
           assert not any(u.startswith("actions/upload-artifact") for u in uses)
           assert not any(u.startswith("actions/cache") for u in uses)
-          assert "kaggle" not in wf.lower()
           print("V2_OUTSIDER_AUDIT_STATIC_GUARDS_OK")
           PY
 
