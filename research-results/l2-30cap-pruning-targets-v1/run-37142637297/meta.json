@@ -1,0 +1,58 @@
+{
+  "contract": "L2_30CAP_PRUNING_TARGETS_V1",
+  "base_pairs": [
+    [
+      1,
+      2
+    ],
+    [
+      1,
+      3
+    ],
+    [
+      1,
+      4
+    ],
+    [
+      2,
+      3
+    ],
+    [
+      1,
+      5
+    ]
+  ],
+  "base_ticket_gate": "final quinella odds <= 30.0",
+  "methods": {
+    "KING": "rank-sum ascending, then better rank",
+    "DISSENT_STRENGTH": "pair mean absolute L1.75 asymmetric_dissent_score descending, then KING order",
+    "CHEAP_ODDS": "lower final quinella odds first, then KING order"
+  },
+  "targets": [
+    3.0,
+    3.25,
+    3.5
+  ],
+  "quota_policy": "3 tickets always; for 3.25/3.5, a stable pre-result SHA256(year:race_id) bucket gives a 4th ticket to ~25%/~50% of races. Same race quota assignment for every method.",
+  "purpose": "Measure how much 30x-cap return can be retained while reducing average points, and compare actual return retention with retention required for ROI 100%.",
+  "odds_source": "final odds; feasibility only, not production-time executable",
+  "result_use": "payout only for evaluation; never for ticket ordering",
+  "evaluation_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_years": [
+    2024,
+    2025
+  ],
+  "counters": {},
+  "usable_races": {
+    "2023": 3456,
+    "2024": 3454,
+    "2025": 3455
+  },
+  "elapsed_seconds": 56.34204397800001,
+  "promotion": false,
+  "2026_locked": true
+}
