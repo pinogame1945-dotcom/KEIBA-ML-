@@ -1,0 +1,254 @@
+name: L2 TRIO Engine Router V1
+
+on:
+  push:
+    branches:
+      - research/l2-trio-engine-router-v1-20261004
+    paths:
+      - .github/triggers/l2-trio-engine-router-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-trio-engine-router-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      OUTSIDER_SOURCE_BRANCH: research/l16-outsider-support-safe-v1-20260930
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/materialize_l17_seven_king_fullfield_v1.py \
+            research/extract_l2_core_dates_v1.py \
+            research/build_l2_core_v1_dataset.py \
+            research/build_l2_bet_kings_dataset_v1.py \
+            research/run_l2_trio_market_residual_v3.py \
+            research/run_l2_trio_v3_robustness_audit.py \
+            research/run_l2_trio_split_residual_v4.py \
+            research/run_l2_trio_engine_router_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('contracts/l2-trio-engine-router-v1.json',encoding='utf-8'))
+          l=json.load(open('research/l175-market-context-v1.json',encoding='utf-8'))
+          assert c['contract']=='L2_TRIO_ENGINE_ROUTER_V1'
+          assert c['router_features']['outcome_free'] is True
+          assert c['warm_start_2022']['policy']=='chronological_60_fit_20_alpha_20_router_label'
+          assert c['cost_policy']['github_standard_cpu_only'] is True
+          assert c['cost_policy']['gpu'] is False
+          assert c['cost_policy']['paid_artifact_or_cache'] is False
+          assert c['locked_years']==[2026]
+          assert l['contract']=='L175_MARKET_CONTEXT_V1'
+          assert l['ranking_policy']=='SEVEN_KING_UNCHANGED'
+          wf=Path('.github/workflows/l2-trio-engine-router-v1.yml').read_text()
+          runners=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('runs-on:')]
+          assert runners==['ubuntu-latest'],runners
+          uses=[x.strip().split(':',1)[1].strip() for x in wf.splitlines() if x.strip().startswith('- uses:')]
+          assert not any(u.startswith('actions/upload-artifact') for u in uses)
+          assert not any(u.startswith('actions/cache') for u in uses)
+          src=Path('research/run_l2_trio_engine_router_v1.py').read_text()
+          assert 'initial_oof_engine' in src
+          assert 'chronological_60_fit_20_alpha_20_router_label' in src
+          assert 'np.argmin(np.column_stack([np.zeros(len(test)),pk,po])' in src
+          assert '"2026_locked":True' in src
+          assert 'payout_used":False' in src
+          assert 'roi_used":False' in src
+          print('L2_TRIO_ENGINE_ROUTER_V1_STATIC_GUARDS_OK')
+          PY
+          bash -n scripts/kaggle-dataset-session-v2.sh
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven score tables once metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          session='scripts/kaggle-dataset-session-v2.sh'
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/l2-trio-v4/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session" init "$ref" "$d"
+              bash "$session" fetch "$d" score.jsonl
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              echo "SCORE_OK year=$y alias=$alias path=$p"
+            done
+          done
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-trio-v4/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for spec in \
+              core4_no_pedigree=core4 \
+              no_auto_full_pedigree_legacy=pedlegacy \
+              jockey_trainer_condition=condition \
+              no_auto_full=full \
+              no_auto_jockey=light \
+              no_auto_full_pedigree_v1=pedv1 \
+              jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/l2-trio-v4/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              args+=(--expert "$name=$p")
+            done
+            p="out/l2-trio-v4/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
+            test -s "$p"
+            echo "L17_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve dates and restore exact BACKFILL files once
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/l2-trio-v4/scores/$y/core4" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+            args+=(--score-year "$y:$p")
+          done
+          python research/extract_l2_core_dates_v1.py "${args[@]}" --dates-out out/l2-trio-v4/all-dates.txt --race-dates-out out/l2-trio-v4/race-dates.csv
+          rm -rf out/backfill
+          git init out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/l2-trio-v4/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$BACKFILL_SHA"
+          git -C out/backfill checkout --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build horse rows once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_core_v1_dataset.py \
+            --l17-year "2022:$L17_2022" \
+            --l17-year "2023:$L17_2023" \
+            --l17-year "2024:$L17_2024" \
+            --l17-year "2025:$L17_2025" \
+            --race-dates out/l2-trio-v4/race-dates.csv \
+            --backfill-root out/backfill \
+            --out-dir out/l2-trio-v4/horse-dataset
+          cat out/l2-trio-v4/horse-dataset/manifest.json
+
+      - name: Restore frozen safe Outsider sources once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l2-trio-v4/outsider out/l2-trio-v4/ballots
+          git fetch --depth=1 origin "$OUTSIDER_SOURCE_BRANCH":refs/remotes/origin/l2-trio-outsider-source
+          git show origin/l2-trio-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/l2-trio-v4/outsider/predictions.csv.gz
+          test -s out/l2-trio-v4/outsider/predictions.csv.gz
+          for y in 2022 2023 2024 2025; do
+            git show "origin/l2-trio-outsider-source:research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y$y/ballots.csv.gz" > "out/l2-trio-v4/ballots/y$y.csv.gz"
+            test -s "out/l2-trio-v4/ballots/y$y.csv.gz"
+          done
+          python - <<'PY'
+          import csv,gzip
+          with gzip.open('out/l2-trio-v4/outsider/predictions.csv.gz','rt',encoding='utf-8') as f:
+              r=csv.DictReader(f); req={'year','race_id','horse_id','rank','score','p3','p3_rank_baseline','p3_delta'}
+              assert req.issubset(set(r.fieldnames or [])),r.fieldnames
+          with gzip.open('out/l2-trio-v4/ballots/y2025.csv.gz','rt',encoding='utf-8') as f:
+              r=csv.DictReader(f); req={'race_id','candidate','top1_horse_id','top2_horse_id','top3_horse_id'}
+              assert req.issubset(set(r.fieldnames or [])),r.fieldnames
+          print('OUTSIDER_SOURCES_OK')
+          PY
+
+      - name: Run strict three-way engine router V1
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-engine-router-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_trio_engine_router_v1.py \
+            --contract contracts/l2-trio-engine-router-v1.json \
+            --l175-contract research/l175-market-context-v1.json \
+            --dataset-dir out/l2-trio-v4/horse-dataset \
+            --backfill-root out/backfill \
+            --outsider-predictions out/l2-trio-v4/outsider/predictions.csv.gz \
+            --ballots-year "2022:out/l2-trio-v4/ballots/y2022.csv.gz" \
+            --ballots-year "2023:out/l2-trio-v4/ballots/y2023.csv.gz" \
+            --ballots-year "2024:out/l2-trio-v4/ballots/y2024.csv.gz" \
+            --ballots-year "2025:out/l2-trio-v4/ballots/y2025.csv.gz" \
+            --matrix-cache out/l2-trio-v4/matrix-cache \
+            --out-dir "$result"
+          echo '===== FOLD METRICS ====='
+          cat "$result/fold-metrics.csv"
+          echo '===== BOOTSTRAP ====='
+          cat "$result/bootstrap.csv"
+          echo '===== RUNTIME ====='
+          cat "$result/runtime.csv"
+          echo '===== RESULT SIZE ====='
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo 'Standard GitHub-hosted ubuntu-latest CPU only.'
+          echo 'No GPU / paid runner / paid cloud compute.'
+          echo 'No actions/cache or upload-artifact.'
+          echo 'No Kaggle upload, model upload, or dataset upload.'
+          echo 'Kaggle reads are metadata-first and session-reused.'
+          echo 'Frozen safe 13-candidate Outsider ballots are restored once and reused.'
+          echo 'BACKFILL files are sparse-restored once and reused.'
+          echo 'Year TRIO matrices are runner-local NPY files and reused across folds.'
+          echo 'Router uses only pre-race probability-distribution diagnostics and prior OOF labels.'
+          echo 'Only compact CSV/JSON summaries are committed.'
+          echo '2026 remains sealed.'
+
+      - name: Commit compact router summaries only
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trio-engine-router-v1/run-$GITHUB_RUN_ID"
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add \
+            "$result/README.md" \
+            "$result/summary.json" \
+            "$result/fold-metrics.csv" \
+            "$result/bootstrap.csv" \
+            "$result/router-feature-importance.csv" \
+            "$result/runtime.csv" \
+            "$result/race-routes.csv.gz" \
+            "$result/skipped-win-market-races.csv"
+          git commit -m "research: archive L2 TRIO engine router V1 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
