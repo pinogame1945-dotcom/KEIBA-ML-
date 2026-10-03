@@ -1,0 +1,30 @@
+{
+  "contract": "L1_STRUCTURAL_RISK_FULLFIELD_V1",
+  "goal": "Attach one Structural Risk danger vote to every horse without replacing Seven-King or market rankings.",
+  "population": "all evaluable horses in 2023-2025 market-scored OOS rows",
+  "baseline": "Seven-King rank + market rank/odds/probability + field size",
+  "full_model": "same baseline plus pre-race FIELD_OPPONENT + PACE_TIME structural features",
+  "vote_definition": "full collapse probability minus baseline collapse probability; positive means structure makes the horse more dangerous than King+market alone imply",
+  "high_vote": "training-fold 80th percentile of vote delta, applied unchanged to test year",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "rank_reporting": "one shared model; broad King and market rank buckets only, no rank-specific models",
+  "snapshot_coverage_pct": 100.0,
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifacts_or_cache": false,
+  "promotion": false
+}
