@@ -1,0 +1,65 @@
+{
+  "contract": "L2_TRIO_ENGINE_ROUTER_V2_STRUCTRISK",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Add strict walk-forward Structural Risk race context to the MARKET / MARKET+SEVEN_KING / MARKET+OUTSIDER router without changing rankings or the correction engines.",
+  "source_router": "L2_TRIO_ENGINE_ROUTER_V1",
+  "source_structural_risk": "L1_STRUCTURAL_RISK_FULLFIELD_V1_LOGIC",
+  "routes": [
+    "MARKET",
+    "KING",
+    "OUTSIDER"
+  ],
+  "structural_risk_policy": {
+    "reconstruction": "runner-local from annual snapshots and the same horse/market rows used by L2",
+    "folds": {
+      "2023": [
+        2022
+      ],
+      "2024": [
+        2022,
+        2023
+      ],
+      "2025": [
+        2022,
+        2023,
+        2024
+      ]
+    },
+    "feature_family": "FIELD_OPPONENT_PLUS_PACE_TIME",
+    "rank_rewrite": false,
+    "signed_vote": true,
+    "absolute_vote_for_u_shape": true,
+    "outcome_free_at_inference": true
+  },
+  "router_comparison": {
+    "2023": "Base Router only for routing because no pre-2023 OOS Structural Risk router-label history exists; Structural Risk scores are still generated leak-free for later training.",
+    "2024": "BASE_SAME_HISTORY vs STRUCT_RISK using 2023 OOS history only.",
+    "2025": "BASE_SAME_HISTORY vs STRUCT_RISK using 2023-2024 OOS history only.",
+    "reason": "Measure incremental Structural Risk value without confounding by different router training years."
+  },
+  "success_gate": {
+    "primary": "POOLED_2024_2025 Structural-Risk router has lower mean race logloss delta than same-history Base Router.",
+    "strong": "Bootstrap 95% CI of Structural-Risk minus Base Router is entirely below zero.",
+    "stretch": "Structural-Risk router beats fixed MARKET+OUTSIDER on 2024-2025.",
+    "reference_fixed_outsider_2023_2025": -0.00614873642986566
+  },
+  "locked_years": [
+    2026
+  ],
+  "forbidden": [
+    "payout optimization",
+    "ROI optimization",
+    "staking optimization",
+    "rank rewrite",
+    "future-year Structural Risk labels"
+  ],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
