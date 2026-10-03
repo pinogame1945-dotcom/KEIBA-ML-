@@ -1,0 +1,50 @@
+{
+  "contract": "L2_TRIO_V3_ROBUSTNESS_AUDIT",
+  "status": "PREDECLARED_AUDIT",
+  "created_at": "2026-10-04",
+  "subject": "L2_TRIO_MARKET_RESIDUAL_V3",
+  "purpose": "Stress-test whether the observed V3 improvement over pure TRIO market is stable rather than a narrow or accidental effect. This audit must not tune the production rule from test-year outcomes.",
+  "primary_question": "Does the frozen prior-selected L1.75 residual correction improve race-level probability quality versus pure normalized TRIO market across 2023-2025?",
+  "primary_rule": {
+    "year_point_estimate": "logloss_delta_vs_pure_trio_market < 0 in all 2023-2025",
+    "pooled_cluster_bootstrap": "95% CI upper bound for mean race logloss delta < 0",
+    "year_cluster_bootstrap": "At least 2 of 3 yearly 95% CI upper bounds < 0",
+    "note": "The audit reports this rule mechanically and does not redefine it after seeing results."
+  },
+  "bootstrap": {
+    "unit": "race",
+    "replicates": 5000,
+    "seed": 20261004,
+    "metrics": ["race_logloss_delta", "race_multiclass_brier_delta"]
+  },
+  "stability_slices": {
+    "minimum_races_to_report": 100,
+    "dimensions": [
+      "calendar_month",
+      "JRA_course_code",
+      "field_size_bucket"
+    ],
+    "field_size_buckets": ["<=10", "11-13", "14-16", "17-18"]
+  },
+  "alpha_sensitivity": {
+    "selection": "Alpha remains selected from strict-prior calibration only.",
+    "test_grid": [0.0,0.1,0.2,0.3,0.4,0.5,0.6,0.7,0.8,0.9,1.0,1.1,1.2,1.3,1.4,1.5],
+    "interpretation": "Test-grid results are descriptive robustness evidence and must not replace the prior-selected alpha."
+  },
+  "ablations": {
+    "FULL_V3": "Frozen V3 features.",
+    "NO_OUTSIDER": "Neutralize Outsider score, p3 calibration/delta/alignment and availability features.",
+    "NO_SEVEN_KING": "Neutralize Seven-King ranking/probability/support/dispersion, rank-gap/dissent, and King-calibrated p3 signals while retaining market-context and raw independent Outsider score where available.",
+    "MARKET_ONLY": "alpha=0; pure normalized TRIO market."
+  },
+  "operational_caveat": "Historical final TRIO and WIN odds are research proxies. Production requires timestamped pre-race odds and must be revalidated separately.",
+  "locked_years": [2026],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
