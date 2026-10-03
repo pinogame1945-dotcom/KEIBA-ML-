@@ -1,0 +1,228 @@
+{
+  "contract": "L2_TRIO_ENGINE_ROUTER_V2_STRUCTRISK_RESULT",
+  "architecture": "MARKET_KING_OUTSIDER_ROUTER_PLUS_STRUCTURAL_RISK",
+  "base_router_features": [
+    "field_size",
+    "combo_count",
+    "market_entropy",
+    "king_entropy",
+    "outsider_entropy",
+    "market_top1",
+    "market_top3",
+    "market_top10",
+    "king_top1",
+    "king_top3",
+    "king_top10",
+    "outsider_top1",
+    "outsider_top3",
+    "outsider_top10",
+    "tv_king_market",
+    "tv_outsider_market",
+    "tv_king_outsider",
+    "max_abs_king_market",
+    "max_abs_outsider_market",
+    "max_abs_king_outsider",
+    "kl_king_market",
+    "kl_market_king",
+    "kl_outsider_market",
+    "kl_market_outsider",
+    "kl_king_outsider",
+    "kl_outsider_king",
+    "same_top1_king_market",
+    "same_top1_outsider_market",
+    "same_top1_king_outsider",
+    "top3_overlap_king_market",
+    "top3_overlap_outsider_market",
+    "top3_overlap_king_outsider"
+  ],
+  "structural_router_features": [
+    "sr_king1_delta",
+    "sr_king1_abs_delta",
+    "sr_king1_full_risk",
+    "sr_market1_delta",
+    "sr_market1_abs_delta",
+    "sr_market1_full_risk",
+    "sr_king_top3_delta_mean",
+    "sr_king_top3_delta_max",
+    "sr_king_top3_delta_min",
+    "sr_king_top3_abs_mean",
+    "sr_king_top3_abs_max",
+    "sr_king_top3_high_pos_share",
+    "sr_king_top3_high_abs_share",
+    "sr_market_top3_delta_mean",
+    "sr_market_top3_delta_max",
+    "sr_market_top3_delta_min",
+    "sr_market_top3_abs_mean",
+    "sr_market_top3_abs_max",
+    "sr_market_top3_high_pos_share",
+    "sr_market_top3_high_abs_share",
+    "sr_king_top6_abs_mean",
+    "sr_king_top6_abs_max",
+    "sr_king_top6_high_pos_share",
+    "sr_king_top6_high_abs_share",
+    "sr_market_top6_abs_mean",
+    "sr_market_top6_abs_max",
+    "sr_market_top6_high_pos_share",
+    "sr_market_top6_high_abs_share",
+    "sr_both_top3_abs_mean",
+    "sr_both_top3_abs_max",
+    "sr_both_top3_high_pos_share",
+    "sr_both_top3_high_abs_share",
+    "sr_all_abs_mean",
+    "sr_all_abs_max"
+  ],
+  "structural_risk": {
+    "source": "runner-local strict walk-forward reconstruction from annual snapshots",
+    "snapshot_coverage_pct": 100.0,
+    "folds": [
+      {
+        "test_year": 2023,
+        "train_years": [
+          2022
+        ]
+      },
+      {
+        "test_year": 2024,
+        "train_years": [
+          2022,
+          2023
+        ]
+      },
+      {
+        "test_year": 2025,
+        "train_years": [
+          2022,
+          2023,
+          2024
+        ]
+      }
+    ],
+    "2023_router_note": "Structural Risk exists pre-race for 2023, but there is no prior OOS Structural Risk router-label history before 2023; V2 therefore intentionally matches base Router in 2023.",
+    "u_shape_guard": "Both signed delta and absolute delta/high-absolute-risk aggregates are supplied. Rankings are never rewritten."
+  },
+  "fold_metrics": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "router_training_policy": "2022_OOF_BASE_ONLY",
+      "router_train_races": 691,
+      "fixed_king_mean_delta": -0.0046774997535712045,
+      "fixed_outsider_mean_delta": -0.004000114629550815,
+      "base_router_mean_delta": -0.004661267415643249,
+      "risk_router_mean_delta": -0.004661267415643249,
+      "risk_minus_base_router_mean_delta": 0.0,
+      "risk_minus_outsider_mean_delta": -0.0006611527860924349,
+      "oracle_mean_delta": -0.051427953548187216,
+      "base_market_share_pct": 38.39674702294511,
+      "base_king_share_pct": 33.488237002614,
+      "base_outsider_share_pct": 28.115015974440894,
+      "risk_market_share_pct": 38.39674702294511,
+      "risk_king_share_pct": 33.488237002614,
+      "risk_outsider_share_pct": 28.115015974440894
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "router_training_policy": "PRIOR_OOS_YEARS_WITH_STRUCTRISK",
+      "router_train_races": 3443,
+      "fixed_king_mean_delta": -0.0009658505310922448,
+      "fixed_outsider_mean_delta": -0.0067497328123807595,
+      "base_router_mean_delta": -0.004547695541279589,
+      "risk_router_mean_delta": -0.004832448583027976,
+      "risk_minus_base_router_mean_delta": -0.0002847530417483879,
+      "risk_minus_outsider_mean_delta": 0.001917284229352784,
+      "oracle_mean_delta": -0.07600780265722401,
+      "base_market_share_pct": 27.137870855148343,
+      "base_king_share_pct": 50.174520069808025,
+      "base_outsider_share_pct": 22.68760907504363,
+      "risk_market_share_pct": 20.331588132635254,
+      "risk_king_share_pct": 51.396160558464224,
+      "risk_outsider_share_pct": 28.272251308900522
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "router_training_policy": "PRIOR_OOS_YEARS_WITH_STRUCTRISK",
+      "router_train_races": 6881,
+      "fixed_king_mean_delta": -0.00598550386824006,
+      "fixed_outsider_mean_delta": -0.007696785005764932,
+      "base_router_mean_delta": -0.006377333907912453,
+      "risk_router_mean_delta": -0.00588133515724429,
+      "risk_minus_base_router_mean_delta": 0.0004959987506681638,
+      "risk_minus_outsider_mean_delta": 0.0018154498485206424,
+      "oracle_mean_delta": -0.04088342987384544,
+      "base_market_share_pct": 6.678281068524971,
+      "base_king_share_pct": 15.127758420441348,
+      "base_outsider_share_pct": 78.19396051103368,
+      "risk_market_share_pct": 8.97212543554007,
+      "risk_king_share_pct": 27.584204413472705,
+      "risk_outsider_share_pct": 63.443670150987224
+    }
+  ],
+  "pooled_2023_2025": {
+    "fixed_king_mean_delta": -0.003877898411589303,
+    "fixed_outsider_mean_delta": -0.00614873642986566,
+    "base_router_mean_delta": -0.005195860432138443,
+    "risk_router_mean_delta": -0.005125231982766027,
+    "risk_minus_base_mean_delta": 7.062844937241631e-05,
+    "risk_minus_outsider_mean_delta": 0.001023504447099633,
+    "oracle_mean_delta": -0.05609528349515432,
+    "risk_vs_market_bootstrap": {
+      "n": 10325,
+      "mean": -0.005125231982766027,
+      "ci_low": -0.007045779094109121,
+      "ci_high": -0.0031539865062535193,
+      "p_improve": 1.0
+    },
+    "risk_minus_base_bootstrap": {
+      "n": 10325,
+      "mean": 7.062844937241631e-05,
+      "ci_low": -0.0011207271383581517,
+      "ci_high": 0.0012486744564620758,
+      "p_improve": 0.44966666666666666
+    },
+    "risk_minus_outsider_bootstrap": {
+      "n": 10325,
+      "mean": 0.001023504447099633,
+      "ci_low": -0.0005628641048110593,
+      "ci_high": 0.0025929467161620212,
+      "p_improve": 0.101
+    }
+  },
+  "pooled_2024_2025_structrisk_effect": {
+    "base_router_mean_delta": -0.0054633123001699676,
+    "risk_router_mean_delta": -0.005357349100552096,
+    "fixed_outsider_mean_delta": -0.007223671747866824,
+    "risk_minus_base_mean_delta": 0.00010596319961787236,
+    "risk_minus_outsider_mean_delta": 0.0018663226473147288,
+    "risk_minus_base_bootstrap": {
+      "n": 6882,
+      "mean": 0.00010596319961787236,
+      "ci_low": -0.0016283664384446135,
+      "ci_high": 0.0018828484226584895,
+      "p_improve": 0.4503333333333333
+    },
+    "risk_minus_outsider_bootstrap": {
+      "n": 6882,
+      "mean": 0.0018663226473147288,
+      "ci_low": -0.0001435488450689027,
+      "ci_high": 0.003897472219861059,
+      "p_improve": 0.036
+    }
+  },
+  "success_gate": {
+    "structural_risk_improves_same_history_router_2024_2025": false,
+    "structural_risk_improves_same_history_router_ci95_2024_2025": false,
+    "beats_fixed_outsider_2024_2025": false,
+    "beats_fixed_outsider_ci95_2024_2025": false,
+    "reference_fixed_outsider_2023_2025": -0.00614873642986566
+  },
+  "market_price_used": true,
+  "payout_used": false,
+  "roi_used": false,
+  "staking_used": false,
+  "rank_rewrite": false,
+  "2026_locked": true,
+  "promotion": false,
+  "elapsed_seconds": 1014.2687907218933
+}
