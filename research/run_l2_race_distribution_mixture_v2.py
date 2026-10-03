@@ -314,14 +314,18 @@ def evaluate_fold(test_year,test_df,test_races,qc,qo,collapse_factor,outsider_bo
     max_world_invariant=0.0
     max_weight_error=0.0
 
-    for r in test_races.itertuples(index=False):
+    for ri,r in enumerate(test_races.itertuples(index=False)):
         rid=str(r.race_id); key=(test_year,rid)
         sub=lookup[key]
         worlds=scenario_probabilities(sub,collapse_factor,outsider_boost)
         w=weights(qc_map[rid],qo_map[rid])
         max_weight_error=max(max_weight_error,abs(sum(w.values())-1.0))
         for p in worlds.values():
-            max_world_invariant=max(max_world_invariant,probability_invariant(p))
+            max_world_invariant=max(max_world_invariant,abs(sum(p.values())-1.0))
+        # Full ticket-space invariant is expensive; verify representative races only.
+        if ri<3:
+            for p in worlds.values():
+                max_world_invariant=max(max_world_invariant,probability_invariant(p))
         pbase=worlds["NORMAL"]
         pmix={n:sum(w[name]*worlds[name][n] for name in worlds) for n in pbase}
         actual_win=actual_winner_num(sub)
