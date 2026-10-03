@@ -49,7 +49,6 @@ jobs:
           assert not any(u.startswith("actions/upload-artifact") for u in uses)
           assert not any(u.startswith("actions/cache") for u in uses)
           assert "2026 sealed" in src
-          assert "consensus_rank==1 and market_rank==1" not in src
           assert "union of consensus_rank==1 and market_rank==1" in src
           assert "manifest.json" in wf
           print("L1_STRUCTURAL_RISK_KING_MARKET_STATIC_GUARDS_OK")
