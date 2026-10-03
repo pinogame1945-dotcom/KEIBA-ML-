@@ -1,0 +1,99 @@
+{
+  "contract": "L1_STRUCTURAL_RISK_KING_MARKET_V1",
+  "goal": "Expand structural contradiction to all races by evaluating both Seven-King #1 and market #1 anchors.",
+  "anchor_population": "union of consensus_rank==1 and market_rank==1; same horse deduplicated with BOTH flag",
+  "structural_inputs": "pre-race FIELD_OPPONENT + PACE_TIME numeric features only; no odds/popularity/payout",
+  "market_use": "final WIN odds and market rank are used in the explicit KING_MARKET_BASELINE and KING_MARKET_PLUS_STRUCT comparison, not in STRUCT_ONLY.",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "structural_high_threshold": "80th percentile of structural model scores on training rows only, then applied unchanged to test year",
+  "feature_selection": "training-fold-only top30 univariate predictive AUC, >=60% observed",
+  "snapshot_coverage_pct": 100.0,
+  "decision": {
+    "ALL_ANCHORS": {
+      "improves_auc_and_brier_both_years": false,
+      "years": {
+        "2024": {
+          "auc_delta": -0.00029999260913049497,
+          "brier_delta_full_minus_baseline": -2.2480797150087328e-05,
+          "auc_improves": false,
+          "brier_improves": true
+        },
+        "2025": {
+          "auc_delta": 0.0017244443879053106,
+          "brier_delta_full_minus_baseline": -0.0005918661296841488,
+          "auc_improves": true,
+          "brier_improves": true
+        }
+      }
+    },
+    "KING1": {
+      "improves_auc_and_brier_both_years": false,
+      "years": {
+        "2024": {
+          "auc_delta": -0.0021899740105180143,
+          "brier_delta_full_minus_baseline": 0.00016155866264772056,
+          "auc_improves": false,
+          "brier_improves": false
+        },
+        "2025": {
+          "auc_delta": 0.0031383355740060015,
+          "brier_delta_full_minus_baseline": -0.0007587699123861036,
+          "auc_improves": true,
+          "brier_improves": true
+        }
+      }
+    },
+    "MARKET1": {
+      "improves_auc_and_brier_both_years": false,
+      "years": {
+        "2024": {
+          "auc_delta": -0.00038046323104923285,
+          "brier_delta_full_minus_baseline": -6.828193388402903e-06,
+          "auc_improves": false,
+          "brier_improves": true
+        },
+        "2025": {
+          "auc_delta": 0.0005343428681172657,
+          "brier_delta_full_minus_baseline": -0.00025946761863870904,
+          "auc_improves": true,
+          "brier_improves": true
+        }
+      }
+    },
+    "BOTH": {
+      "improves_auc_and_brier_both_years": false,
+      "years": {
+        "2024": {
+          "auc_delta": -0.005638725809958833,
+          "brier_delta_full_minus_baseline": 0.00030810579874476773,
+          "auc_improves": false,
+          "brier_improves": false
+        },
+        "2025": {
+          "auc_delta": 0.002163409755347012,
+          "brier_delta_full_minus_baseline": -0.000312467264669547,
+          "auc_improves": true,
+          "brier_improves": true
+        }
+      }
+    }
+  },
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifacts_or_cache": false,
+  "promotion": false
+}
