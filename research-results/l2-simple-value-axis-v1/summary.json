@@ -1,0 +1,54 @@
+{
+  "contract": "L2_SIMPLE_VALUE_AXIS_V1_RESULT",
+  "architecture": "L175_VS_WIN_MARKET_VALUE_DISCOVERY_THEN_EXISTING_P3_AXIS_SELECTION",
+  "rules": {
+    "value_candidate": "rank_gap = market_rank - L1.75/Seven-King rank >= 2",
+    "primary_axis": "among value candidates in each race, choose highest existing walk-forward p3; ties use larger rank_gap then larger Outsider score",
+    "outsider_usage": "existing Outsider score and p3_delta are confirmation/context tags only; no horse reranking model",
+    "buy_skip": "not defined yet",
+    "ticket_construction": "not defined yet"
+  },
+  "source": "archived OOS horse-level L1.75-compatible divergence rows + safe Outsider podium calibration",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "primary_pooled": {
+    "selection_mode": "P3_FIRST",
+    "scope": "POOLED",
+    "horses": 9595,
+    "races": 9595,
+    "actual_top3_pct": 22.772277227722775,
+    "market_peer_top3_pct": 21.53197996388286,
+    "lift_vs_market_peer_pp": 1.2402972638399137,
+    "mean_l175_rank": 3.3931214174048985,
+    "mean_market_rank": 6.505471599791558,
+    "mean_rank_gap": 3.1123501823866597,
+    "mean_p3_pct": 38.43190842896617,
+    "mean_p3_delta_pp": -0.878224267869027,
+    "mean_outsider_score": 7.387076602397082
+  },
+  "gap_only_baseline_pooled": {
+    "selection_mode": "GAP_FIRST",
+    "scope": "POOLED",
+    "horses": 9595,
+    "races": 9595,
+    "actual_top3_pct": 15.268368942157373,
+    "market_peer_top3_pct": 13.24363060093039,
+    "lift_vs_market_peer_pp": 2.024738341226987,
+    "mean_l175_rank": 4.878895257946847,
+    "mean_market_rank": 8.979781136008338,
+    "mean_rank_gap": 4.10088587806149,
+    "mean_p3_pct": 30.059534384050522,
+    "mean_p3_delta_pp": -0.7016837238071119,
+    "mean_outsider_score": 5.987180823345493
+  },
+  "no_new_model": true,
+  "no_kaggle_downloads": true,
+  "payout_used": false,
+  "trio_odds_used": false,
+  "roi_used": false,
+  "2026_locked": true,
+  "elapsed_seconds": 21.06072449684143
+}
