@@ -46,7 +46,11 @@ def load_market(path):
             rid=str(row["race_id"])
             rank=int(float(row["consensus_rank"]))
             num=int(float(row["horse_number"]))
-            raw=row.get("asymmetric_dissent_score")\n            try:\n                dissent=float(raw) if raw not in (None,"") else 0.0\n            except ValueError:\n                dissent=0.0
+            raw=row.get("asymmetric_dissent_score")
+            try:
+                dissent=float(raw) if raw not in (None,"") else 0.0
+            except ValueError:
+                dissent=0.0
             d=rows.setdefault((y,rid),{})
             if rank in d:
                 raise SystemExit(f"duplicate rank y={y} race={rid} rank={rank}")
@@ -59,8 +63,8 @@ def method_key(method,cand):
     king=(p[0]+p[1],p[0],p[1])
     if method=="KING":
         return king
-    if method=="CONFIDENCE":
-        return (-cand["conf_mean"],)+king
+    if method=="DISSENT_STRENGTH":
+        return (-cand["dissent_strength"],)+king
     if method=="CHEAP_ODDS":
         return (cand["odds"],)+king
     raise ValueError(method)
