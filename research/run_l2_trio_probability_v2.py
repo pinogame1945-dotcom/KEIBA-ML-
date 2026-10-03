@@ -109,10 +109,17 @@ def attach_outsider(df,path):
     if p.duplicated(['year','race_id','horse_id']).any(): raise SystemExit('duplicate outsider prediction keys')
     p=p.rename(columns={'rank':'outsider_rank','score':'outsider_score','p3':'p3_calibrated'})
     z=df.merge(p,on=['year','race_id','horse_id'],how='left',validate='one_to_one')
-    z['outsider_available']=z['outsider_score'].notna().astype(float)
-    z['outsider_rank_mismatch']=((z['outsider_available']>0)&(z['outsider_rank'].fillna(-1).astype(float)!=z['consensus_rank'].astype(float))).astype(int)
+    z['outsider_source_available']=z['outsider_score'].notna().astype(float)
+    z['outsider_rank_mismatch']=((z['outsider_source_available']>0)&(z['outsider_rank'].fillna(-1).astype(float)!=z['consensus_rank'].astype(float))).astype(int)
     for c in ['outsider_score','p3_calibrated','p3_rank_baseline','p3_delta']:
         z[c]=pd.to_numeric(z[c],errors='coerce').fillna(0.0)
+    # p3/p3_delta were calibrated against the frozen historical canonical King rank.
+    # If that stored rank disagrees with the locally reconstructed Seven-King rank,
+    # do not transplant the calibrated residual onto a different rank baseline.
+    valid=(z['outsider_source_available']>0)&(z['outsider_rank_mismatch']==0)
+    z['outsider_available']=valid.astype(float)
+    for c in ['outsider_score','p3_calibrated','p3_rank_baseline','p3_delta']:
+        z.loc[~valid,c]=0.0
     return z
 
 def prepare_l175(df):
