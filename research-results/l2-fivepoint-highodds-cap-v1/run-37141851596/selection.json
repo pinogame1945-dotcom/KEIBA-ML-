@@ -1,0 +1,34 @@
+{
+  "selected_cap_label": "30",
+  "selected_max_odds": 30.0,
+  "selection_period": "2023|2024_DEV",
+  "selection_rule": "highest dev ROI among predeclared caps with active_race_rate>=90% and avg_tickets>=2.0; ties prefer higher race coverage then tighter numeric cap",
+  "predeclared_caps": [
+    null,
+    30.0,
+    50.0,
+    100.0,
+    200.0
+  ],
+  "coverage_guard": {
+    "min_active_race_rate_pct": 90.0,
+    "min_avg_tickets": 2.0
+  },
+  "dev": {
+    "baseline_roi_pct": 76.49088277858176,
+    "selected_roi_pct": 77.29033840117705,
+    "baseline_hit_rate_pct": 38.3068017366136,
+    "selected_hit_rate_pct": 37.04775687409551,
+    "selected_active_race_rate_pct": 99.60926193921853,
+    "selected_avg_tickets": 4.131114327062229
+  },
+  "holdout_2025": {
+    "baseline_roi_pct": 74.91577424023154,
+    "selected_roi_pct": 76.56256506350198,
+    "baseline_hit_rate_pct": 38.69753979739508,
+    "selected_hit_rate_pct": 37.45296671490593,
+    "selected_active_race_rate_pct": 99.59479015918959,
+    "selected_avg_tickets": 4.170477568740955,
+    "roi_delta_pp": 1.646790823270436
+  }
+}
