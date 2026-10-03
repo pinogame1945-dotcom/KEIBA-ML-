@@ -1,0 +1,21 @@
+{
+  "contract": "L1_ANCHOR_COLLAPSE_FEATURE_AUTOPSY_V1",
+  "year": 2023,
+  "anchor_definition": "Seven-King rank1 + tie-safe market rank1 + frozen Outsider p3_delta>0",
+  "snapshot": "snapshot-2023.jsonl",
+  "anchors_source": 1323,
+  "anchors_matched_snapshot": 1323,
+  "anchor_coverage_pct": 100.0,
+  "numeric_features_tested": 701,
+  "scopes": [
+    "TRIPLE_ALL",
+    "MARKET_ODDS_LE_2.0",
+    "MARKET_ODDS_LE_1.5"
+  ],
+  "purpose": "Exploratory autopsy only; identify pre-race feature differences inside unanimous anchors before fitting a collapse model.",
+  "causal_claim": false,
+  "outcome_optimized_thresholds": false,
+  "paid_compute": false,
+  "2026_locked": true,
+  "promotion": false
+}
