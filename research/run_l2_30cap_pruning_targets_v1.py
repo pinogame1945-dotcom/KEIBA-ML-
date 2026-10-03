@@ -9,7 +9,7 @@ YEARS=(2023,2024,2025)
 PRIMARY=(2024,2025)
 CAP=30.0
 TARGETS=(3.0,3.25,3.5)
-METHODS=("KING","CONFIDENCE","CHEAP_ODDS")
+METHODS=("KING","DISSENT_STRENGTH","CHEAP_ODDS")
 BASE_PAIRS=((1,2),(1,3),(1,4),(2,3),(1,5))
 
 def parse_args():
@@ -36,7 +36,7 @@ def load_market(path):
     with opener(path,"rt",encoding="utf-8",newline="") as fh:
         r=csv.DictReader(fh)
         fields=set(r.fieldnames or [])
-        need={"year","race_id","horse_number","consensus_rank","confidence_score"}
+        need={"year","race_id","horse_number","consensus_rank","asymmetric_dissent_score"}
         missing=sorted(need-fields)
         if missing:
             raise SystemExit(f"market source missing required columns: {missing}")
@@ -46,15 +46,15 @@ def load_market(path):
             rid=str(row["race_id"])
             rank=int(float(row["consensus_rank"]))
             num=int(float(row["horse_number"]))
-            conf=float(row["confidence_score"])
+            raw=row.get("asymmetric_dissent_score")\n            try:\n                dissent=float(raw) if raw not in (None,"") else 0.0\n            except ValueError:\n                dissent=0.0
             d=rows.setdefault((y,rid),{})
             if rank in d:
                 raise SystemExit(f"duplicate rank y={y} race={rid} rank={rank}")
-            d[rank]={"num":num,"conf":conf}
+            d[rank]={"num":num,"dissent":dissent}
     return rows
 
 def method_key(method,cand):
-    # cand: {pair, odds, payout, conf_mean}
+    # cand: {pair, odds, payout, dissent_strength}
     p=cand["pair"]
     king=(p[0]+p[1],p[0],p[1])
     if method=="KING":
@@ -161,7 +161,7 @@ def main():
                         "ticket":ticket,
                         "odds":float(odds),
                         "payout":float(payouts.get(("QUINELLA",ticket),0.0)),
-                        "conf_mean":(mk[a1]["conf"]+mk[b1]["conf"])/2.0,
+                        "dissent_strength":(abs(mk[a1]["dissent"])+abs(mk[b1]["dissent"]))/2.0,
                     })
                 if not complete:
                     counters["incomplete_five_candidate_odds"]+=1; continue
@@ -217,7 +217,7 @@ def main():
         "base_ticket_gate":"final quinella odds <= 30.0",
         "methods":{
             "KING":"rank-sum ascending, then better rank",
-            "CONFIDENCE":"pair mean confidence_score descending, then KING order",
+            "DISSENT_STRENGTH":"pair mean absolute L1.75 asymmetric_dissent_score descending, then KING order",
             "CHEAP_ODDS":"lower final quinella odds first, then KING order",
         },
         "targets":list(TARGETS),
