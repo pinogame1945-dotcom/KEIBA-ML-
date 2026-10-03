@@ -1,0 +1,542 @@
+{
+  "contract": "L2_RACE_DISTRIBUTION_MIXTURE_V2_RESULT",
+  "architecture": "MIXTURE_OF_PLACKETT_LUCE_WORLDS",
+  "normal_world_source": "Frozen L1.7 mean_probability, race-normalized; no learned replacement horse-strength model.",
+  "worlds": [
+    "NORMAL",
+    "KING1_COLLAPSE",
+    "OUTSIDER_RISE",
+    "BOTH"
+  ],
+  "folds": [
+    2023,
+    2024,
+    2025
+  ],
+  "fold_metrics": [
+    {
+      "test_year": 2023,
+      "winner_races": 3453,
+      "winner_log_loss_base": 2.0948190239840385,
+      "winner_log_loss_mix": 2.1000364949327825,
+      "winner_log_loss_delta_mix_minus_base": 0.005217470948743732,
+      "trio_races": 3448,
+      "actual_trio_nll_base": 4.667049552244437,
+      "actual_trio_nll_mix": 4.667061522508972,
+      "actual_trio_nll_delta_mix_minus_base": 1.1970264534255712e-05,
+      "probability_invariant_max_error": 4.440892098500626e-16,
+      "train_years": "2022",
+      "collapse_gate_temperature": 1.6916365703188638,
+      "outsider_gate_temperature": 1.465897208878238,
+      "collapse_gate_internal_cal_logloss": 0.669477499459628,
+      "outsider_gate_internal_cal_logloss": 0.6405690771506678,
+      "selected_collapse_factor": 0.75,
+      "selected_outsider_max_boost": 0.0,
+      "selected_internal_trio_nll": 4.714800111499378
+    },
+    {
+      "test_year": 2024,
+      "winner_races": 3450,
+      "winner_log_loss_base": 2.079476409595719,
+      "winner_log_loss_mix": 2.0845568288972083,
+      "winner_log_loss_delta_mix_minus_base": 0.0050804193014887,
+      "trio_races": 3447,
+      "actual_trio_nll_base": 4.61449414383462,
+      "actual_trio_nll_mix": 4.6147721878539345,
+      "actual_trio_nll_delta_mix_minus_base": 0.0002780440193146498,
+      "probability_invariant_max_error": 2.220446049250313e-16,
+      "train_years": "2022|2023",
+      "collapse_gate_temperature": 1.1824919608939632,
+      "outsider_gate_temperature": 1.1007695900788441,
+      "collapse_gate_internal_cal_logloss": 0.6517521672300471,
+      "outsider_gate_internal_cal_logloss": 0.6146779380595769,
+      "selected_collapse_factor": 0.75,
+      "selected_outsider_max_boost": 0.0,
+      "selected_internal_trio_nll": 4.683843441016503
+    },
+    {
+      "test_year": 2025,
+      "winner_races": 3450,
+      "winner_log_loss_base": 2.093712335937247,
+      "winner_log_loss_mix": 2.1010824247295576,
+      "winner_log_loss_delta_mix_minus_base": 0.007370088792310303,
+      "trio_races": 3445,
+      "actual_trio_nll_base": 4.652480178352859,
+      "actual_trio_nll_mix": 4.652695330471354,
+      "actual_trio_nll_delta_mix_minus_base": 0.0002151521184944326,
+      "probability_invariant_max_error": 4.440892098500626e-16,
+      "train_years": "2022|2023|2024",
+      "collapse_gate_temperature": 1.1824919608939632,
+      "outsider_gate_temperature": 0.9538780953467224,
+      "collapse_gate_internal_cal_logloss": 0.6471830938730588,
+      "outsider_gate_internal_cal_logloss": 0.5990824431025442,
+      "selected_collapse_factor": 1.0,
+      "selected_outsider_max_boost": 0.5,
+      "selected_internal_trio_nll": 4.6304271090075595
+    }
+  ],
+  "gate_metrics": [
+    {
+      "test_year": 2023,
+      "gate": "KING1_COLLAPSE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 41.31944444444444,
+      "mean_predicted_pct": 44.75656951784474,
+      "auc": 0.6175500279007067,
+      "brier": 0.2334865043723051,
+      "log_loss": 0.6589868651764174
+    },
+    {
+      "test_year": 2023,
+      "gate": "OUTSIDER_RISE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 64.14930555555556,
+      "mean_predicted_pct": 59.14237702693824,
+      "auc": 0.6302793404694738,
+      "brier": 0.21994203440391227,
+      "log_loss": 0.6310763511711858
+    },
+    {
+      "test_year": 2024,
+      "gate": "KING1_COLLAPSE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 40.133101851851855,
+      "mean_predicted_pct": 41.37780763686678,
+      "auc": 0.6374548167528138,
+      "brier": 0.2269374838129162,
+      "log_loss": 0.6448745218719867
+    },
+    {
+      "test_year": 2024,
+      "gate": "OUTSIDER_RISE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 63.36805555555556,
+      "mean_predicted_pct": 61.46851310608598,
+      "auc": 0.6720050928029893,
+      "brier": 0.21070981951776324,
+      "log_loss": 0.6109045283824505
+    },
+    {
+      "test_year": 2025,
+      "gate": "KING1_COLLAPSE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 40.219907407407405,
+      "mean_predicted_pct": 40.96387615676328,
+      "auc": 0.6285830193541198,
+      "brier": 0.2282908355918137,
+      "log_loss": 0.6474969473021768
+    },
+    {
+      "test_year": 2025,
+      "gate": "OUTSIDER_RISE_GATE",
+      "races": 3456,
+      "actual_rate_pct": 62.239583333333336,
+      "mean_predicted_pct": 62.33433621072423,
+      "auc": 0.6743213082750427,
+      "brier": 0.21252499448906764,
+      "log_loss": 0.6146535065044482
+    }
+  ],
+  "ticket_calibration": [
+    {
+      "test_year": 2023,
+      "model": "BASE",
+      "bet_type": "WIN",
+      "tickets": 47493,
+      "brier": 0.06063754412402538,
+      "log_loss": 0.2186826335124522,
+      "ece": 0.007776831753312559
+    },
+    {
+      "test_year": 2023,
+      "model": "BASE",
+      "bet_type": "QUINELLA",
+      "tickets": 316297,
+      "brier": 0.01038311170496844,
+      "log_loss": 0.049694474900953314,
+      "ece": 0.00045466416693626274
+    },
+    {
+      "test_year": 2023,
+      "model": "BASE",
+      "bet_type": "EXACTA",
+      "tickets": 632582,
+      "brier": 0.005329640771043249,
+      "log_loss": 0.02865282713756799,
+      "ece": 9.852107971958151e-05
+    },
+    {
+      "test_year": 2023,
+      "model": "BASE",
+      "bet_type": "TRIO",
+      "tickets": 1350291,
+      "brier": 0.0025067177862495276,
+      "log_loss": 0.01450930683820571,
+      "ece": 8.200270685515905e-05
+    },
+    {
+      "test_year": 2023,
+      "model": "BASE",
+      "bet_type": "TRIFECTA",
+      "tickets": 8072242,
+      "brier": 0.0004280831566778916,
+      "log_loss": 0.0031851486667588045,
+      "ece": 5.18344233827992e-06
+    },
+    {
+      "test_year": 2023,
+      "model": "MIXTURE",
+      "bet_type": "WIN",
+      "tickets": 47493,
+      "brier": 0.060775464585660126,
+      "log_loss": 0.21915527131572587,
+      "ece": 0.009006837595209878
+    },
+    {
+      "test_year": 2023,
+      "model": "MIXTURE",
+      "bet_type": "QUINELLA",
+      "tickets": 316297,
+      "brier": 0.010386694191356904,
+      "log_loss": 0.049741389033191905,
+      "ece": 0.0006738600895401807
+    },
+    {
+      "test_year": 2023,
+      "model": "MIXTURE",
+      "bet_type": "EXACTA",
+      "tickets": 632582,
+      "brier": 0.005331023419670371,
+      "log_loss": 0.028680280491725853,
+      "ece": 0.00012039977268934572
+    },
+    {
+      "test_year": 2023,
+      "model": "MIXTURE",
+      "bet_type": "TRIO",
+      "tickets": 1350291,
+      "brier": 0.002506592237395885,
+      "log_loss": 0.014509637020832857,
+      "ece": 6.914042009866757e-05
+    },
+    {
+      "test_year": 2023,
+      "model": "MIXTURE",
+      "bet_type": "TRIFECTA",
+      "tickets": 8072242,
+      "brier": 0.00042808582598471994,
+      "log_loss": 0.003186032342939456,
+      "ece": 4.251097830572592e-06
+    },
+    {
+      "test_year": 2024,
+      "model": "BASE",
+      "bet_type": "WIN",
+      "tickets": 46994,
+      "brier": 0.061050002674427215,
+      "log_loss": 0.21982736313157408,
+      "ece": 0.008298845380436983
+    },
+    {
+      "test_year": 2024,
+      "model": "BASE",
+      "bet_type": "QUINELLA",
+      "tickets": 310920,
+      "brier": 0.010518084780279498,
+      "log_loss": 0.05000140945600881,
+      "ece": 0.0004938356876098543
+    },
+    {
+      "test_year": 2024,
+      "model": "BASE",
+      "bet_type": "EXACTA",
+      "tickets": 621835,
+      "brier": 0.005416179757726775,
+      "log_loss": 0.02890829127476966,
+      "ece": 3.3248152374737086e-05
+    },
+    {
+      "test_year": 2024,
+      "model": "BASE",
+      "bet_type": "TRIO",
+      "tickets": 1322411,
+      "brier": 0.0025512133999290804,
+      "log_loss": 0.014668118770934203,
+      "ece": 7.943082576992461e-05
+    },
+    {
+      "test_year": 2024,
+      "model": "BASE",
+      "bet_type": "TRIFECTA",
+      "tickets": 7887761,
+      "brier": 0.00043850194814790464,
+      "log_loss": 0.0032390343319163347,
+      "ece": 4.121725465718045e-06
+    },
+    {
+      "test_year": 2024,
+      "model": "MIXTURE",
+      "bet_type": "WIN",
+      "tickets": 46994,
+      "brier": 0.06117142689685288,
+      "log_loss": 0.22027480669322327,
+      "ece": 0.010007153387104338
+    },
+    {
+      "test_year": 2024,
+      "model": "MIXTURE",
+      "bet_type": "QUINELLA",
+      "tickets": 310920,
+      "brier": 0.010522457999403828,
+      "log_loss": 0.05005590921071478,
+      "ece": 0.0006575704536495047
+    },
+    {
+      "test_year": 2024,
+      "model": "MIXTURE",
+      "bet_type": "EXACTA",
+      "tickets": 621835,
+      "brier": 0.005417579600561037,
+      "log_loss": 0.028937884524274534,
+      "ece": 4.5378657790854357e-05
+    },
+    {
+      "test_year": 2024,
+      "model": "MIXTURE",
+      "bet_type": "TRIO",
+      "tickets": 1322411,
+      "brier": 0.0025509530802088278,
+      "log_loss": 0.01466853072090865,
+      "ece": 7.200806309073345e-05
+    },
+    {
+      "test_year": 2024,
+      "model": "MIXTURE",
+      "bet_type": "TRIFECTA",
+      "tickets": 7887761,
+      "brier": 0.00043850384821600083,
+      "log_loss": 0.0032399046738858595,
+      "ece": 4.294284562770469e-06
+    },
+    {
+      "test_year": 2025,
+      "model": "BASE",
+      "bet_type": "WIN",
+      "tickets": 47715,
+      "brier": 0.06029756907583254,
+      "log_loss": 0.21770999816528802,
+      "ece": 0.006430580743480502
+    },
+    {
+      "test_year": 2025,
+      "model": "BASE",
+      "bet_type": "QUINELLA",
+      "tickets": 320391,
+      "brier": 0.01021333239844688,
+      "log_loss": 0.04891626710812729,
+      "ece": 0.0003724376755979175
+    },
+    {
+      "test_year": 2025,
+      "model": "BASE",
+      "bet_type": "EXACTA",
+      "tickets": 640776,
+      "brier": 0.005263466532871355,
+      "log_loss": 0.02826749646027679,
+      "ece": 6.404336045195946e-05
+    },
+    {
+      "test_year": 2025,
+      "model": "BASE",
+      "bet_type": "TRIO",
+      "tickets": 1381104,
+      "brier": 0.002446917098929262,
+      "log_loss": 0.014148592171693642,
+      "ece": 9.933163840388163e-05
+    },
+    {
+      "test_year": 2025,
+      "model": "BASE",
+      "bet_type": "TRIFECTA",
+      "tickets": 8247713,
+      "brier": 0.0004202669352903064,
+      "log_loss": 0.003119371470244269,
+      "ece": 5.302120875511942e-06
+    },
+    {
+      "test_year": 2025,
+      "model": "MIXTURE",
+      "bet_type": "WIN",
+      "tickets": 47715,
+      "brier": 0.060404941018307484,
+      "log_loss": 0.2183020317373394,
+      "ece": 0.008769730180666804
+    },
+    {
+      "test_year": 2025,
+      "model": "MIXTURE",
+      "bet_type": "QUINELLA",
+      "tickets": 320391,
+      "brier": 0.010217643762363308,
+      "log_loss": 0.048989453740011436,
+      "ece": 0.0006612053819852941
+    },
+    {
+      "test_year": 2025,
+      "model": "MIXTURE",
+      "bet_type": "EXACTA",
+      "tickets": 640776,
+      "brier": 0.005264709197586793,
+      "log_loss": 0.028306549988615645,
+      "ece": 7.665701236294417e-05
+    },
+    {
+      "test_year": 2025,
+      "model": "MIXTURE",
+      "bet_type": "TRIO",
+      "tickets": 1381104,
+      "brier": 0.0024465395128009564,
+      "log_loss": 0.01414887433386054,
+      "ece": 6.111292867729878e-05
+    },
+    {
+      "test_year": 2025,
+      "model": "MIXTURE",
+      "bet_type": "TRIFECTA",
+      "tickets": 8247713,
+      "brier": 0.0004202627901473461,
+      "log_loss": 0.0031202641775035104,
+      "ece": 5.231879323609259e-06
+    }
+  ],
+  "diagnostics": [
+    {
+      "test_year": 2023,
+      "subset": "ALL",
+      "races": 3448,
+      "trio_nll_base": 4.667049552244437,
+      "trio_nll_mix": 4.667061522508972,
+      "delta_mix_minus_base": 1.1970264534255712e-05
+    },
+    {
+      "test_year": 2023,
+      "subset": "KING1_COLLAPSE_TRUE",
+      "races": 1426,
+      "trio_nll_base": 5.628366560617334,
+      "trio_nll_mix": 5.536311711829864,
+      "delta_mix_minus_base": -0.092054848787469
+    },
+    {
+      "test_year": 2023,
+      "subset": "OUTSIDER_RISE_TRUE",
+      "races": 2210,
+      "trio_nll_base": 5.30072053170917,
+      "trio_nll_mix": 5.289551084241067,
+      "delta_mix_minus_base": -0.011169447468102578
+    },
+    {
+      "test_year": 2023,
+      "subset": "BOTH_TRUE",
+      "races": 1113,
+      "trio_nll_base": 5.943655213896864,
+      "trio_nll_mix": 5.852983374266155,
+      "delta_mix_minus_base": -0.0906718396307086
+    },
+    {
+      "test_year": 2023,
+      "subset": "NEITHER_TRUE",
+      "races": 925,
+      "trio_nll_base": 3.207169749933459,
+      "trio_nll_mix": 3.2667137599211054,
+      "delta_mix_minus_base": 0.05954400998764644
+    },
+    {
+      "test_year": 2024,
+      "subset": "ALL",
+      "races": 3447,
+      "trio_nll_base": 4.61449414383462,
+      "trio_nll_mix": 4.6147721878539345,
+      "delta_mix_minus_base": 0.0002780440193146498
+    },
+    {
+      "test_year": 2024,
+      "subset": "KING1_COLLAPSE_TRUE",
+      "races": 1384,
+      "trio_nll_base": 5.6130544197547545,
+      "trio_nll_mix": 5.525785016944127,
+      "delta_mix_minus_base": -0.0872694028106282
+    },
+    {
+      "test_year": 2024,
+      "subset": "OUTSIDER_RISE_TRUE",
+      "races": 2182,
+      "trio_nll_base": 5.317135965738424,
+      "trio_nll_mix": 5.307648934325008,
+      "delta_mix_minus_base": -0.009487031413416327
+    },
+    {
+      "test_year": 2024,
+      "subset": "BOTH_TRUE",
+      "races": 1082,
+      "trio_nll_base": 5.958920440462117,
+      "trio_nll_mix": 5.872675451025599,
+      "delta_mix_minus_base": -0.08624498943651845
+    },
+    {
+      "test_year": 2024,
+      "subset": "NEITHER_TRUE",
+      "races": 963,
+      "trio_nll_base": 3.097876673100854,
+      "trio_nll_mix": 3.148886948488444,
+      "delta_mix_minus_base": 0.05101027538758928
+    },
+    {
+      "test_year": 2025,
+      "subset": "ALL",
+      "races": 3445,
+      "trio_nll_base": 4.652480178352859,
+      "trio_nll_mix": 4.652695330471354,
+      "delta_mix_minus_base": 0.0002151521184944326
+    },
+    {
+      "test_year": 2025,
+      "subset": "KING1_COLLAPSE_TRUE",
+      "races": 1385,
+      "trio_nll_base": 5.704899595143036,
+      "trio_nll_mix": 5.655013628148481,
+      "delta_mix_minus_base": -0.04988596699455516
+    },
+    {
+      "test_year": 2025,
+      "subset": "OUTSIDER_RISE_TRUE",
+      "races": 2142,
+      "trio_nll_base": 5.367237386582335,
+      "trio_nll_mix": 5.302216890931274,
+      "delta_mix_minus_base": -0.0650204956510603
+    },
+    {
+      "test_year": 2025,
+      "subset": "BOTH_TRUE",
+      "races": 1094,
+      "trio_nll_base": 6.01446888540226,
+      "trio_nll_mix": 5.922376557194496,
+      "delta_mix_minus_base": -0.09209232820776452
+    },
+    {
+      "test_year": 2025,
+      "subset": "NEITHER_TRUE",
+      "races": 1012,
+      "trio_nll_base": 3.1716548949834062,
+      "trio_nll_mix": 3.2787281736009444,
+      "delta_mix_minus_base": 0.10707327861753856
+    }
+  ],
+  "selection_metric": "Prior-only internal calibration actual-TRIO negative log likelihood.",
+  "roi_optimized": false,
+  "market_price_used": false,
+  "odds_value_ignored": true,
+  "payout_use": "ticket hit labels only",
+  "2026_locked": true,
+  "elapsed_seconds": 938.6471609260001,
+  "promotion": false
+}
