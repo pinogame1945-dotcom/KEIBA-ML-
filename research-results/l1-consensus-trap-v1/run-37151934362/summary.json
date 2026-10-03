@@ -1,0 +1,28 @@
+{
+  "contract": "L1_CONSENSUS_TRAP_V1",
+  "hypothesis": "Among horses already agreed upon by market rank1 and Seven-King rank1, stronger Outsider reinforcement may identify a non-monotonic consensus trap rather than additional safety.",
+  "cohort": "market_rank==1 AND reconstructed consensus_rank==1 AND frozen historical king rank==1",
+  "outsider_agreement": "p3_delta > 0; positive rows split into label-free within-year tertiles",
+  "market_control": "exact final WIN odds at one-decimal resolution within test year; outcome used only to estimate peer collapse rate",
+  "primary_comparisons": [
+    "SUPPORT_HIGH vs NO_SUPPORT",
+    "SUPPORT_HIGH vs SUPPORT_LOW",
+    "ALL_SUPPORT vs NO_SUPPORT"
+  ],
+  "bootstrap": "race-cluster bootstrap of exact-odds matched cell differences",
+  "bootstrap_reps": 2000,
+  "pressure_curve": "descriptive only: average of within-year market-strength percentile and outsider-support percentile while Seven-King rank is fixed at 1",
+  "horses": 6286,
+  "races": 6286,
+  "collapse_rate_pct": 31.594018453706653,
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifacts_or_cache": false,
+  "promotion": false,
+  "causal_claim": false
+}
