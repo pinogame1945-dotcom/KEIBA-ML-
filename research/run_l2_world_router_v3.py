@@ -24,6 +24,7 @@ def parse_args():
     p.add_argument("--ballots-year",action="append",required=True,help="YEAR:PATH")
     p.add_argument("--backfill-root",required=True)
     p.add_argument("--out-dir",required=True)
+    p.add_argument("--headline-only",action="store_true",help="Skip full-ticket calibration; evaluate router headline/diagnostics only.")
     return p.parse_args()
 
 def parse_year_paths(items):
@@ -89,7 +90,7 @@ def enumerate_tickets(bet,nums):
     if bet=="TRIFECTA": return itertools.permutations(nums,3)
     raise ValueError(bet)
 
-def evaluate_fold(test_year,test_df,test_races,qc,qo,base_c,base_o,selected,backfill_root):
+def evaluate_fold(test_year,test_df,test_races,qc,qo,base_c,base_o,selected,backfill_root,headline_only=False):
     lookup=make_race_lookup(test_df,{test_year})
     race_models={}; race_date={}; per_race=[]; route_counts=defaultdict(int)
     max_inv=0.0
@@ -123,33 +124,35 @@ def evaluate_fold(test_year,test_df,test_races,qc,qo,base_c,base_o,selected,back
         race_models[rid]=(pbase,prouter)
         race_date[rid]=str(r.race_date)[:10]
 
-    cal={(model,bet):CalAgg() for model in ("BASE","ROUTER") for bet in BET_TYPES}
-    root=Path(backfill_root); bydate=defaultdict(list)
-    for rid,d in race_date.items(): bydate[d].append(rid)
-
-    for di,date in enumerate(sorted(bydate),1):
-        wanted=set(bydate[date])
-        day=load_day(root/"data"/"daily"/f"{date}.jsonl.gz",wanted)
-        for rid in wanted:
-            pack=day.get(rid)
-            if pack is None: raise SystemExit(f"missing result pack year={test_year} race={rid}")
-            payouts,present=payout_map(pack)
-            pbase,prouter=race_models[rid]
-            nums=tuple(sorted(pbase))
-            for bet in BET_TYPES:
-                if bet not in present: continue
-                for ticket in enumerate_tickets(bet,nums):
-                    ticket=tuple(ticket)
-                    y=1 if float(payouts.get((bet,ticket),0.0))>0 else 0
-                    cal[("BASE",bet)].add(ticket_probability(bet,ticket,pbase),y)
-                    cal[("ROUTER",bet)].add(ticket_probability(bet,ticket,prouter),y)
-        if di%25==0:
-            print(f"WORLD_ROUTER_TICKET_PROGRESS year={test_year} dates={di}/{len(bydate)}",flush=True)
-
     ticket_rows=[]
-    for model in ("BASE","ROUTER"):
-        for bet in BET_TYPES:
-            ticket_rows.append({"test_year":test_year,"model":model,"bet_type":bet,**cal[(model,bet)].result()})
+    if not headline_only:
+        cal={(model,bet):CalAgg() for model in ("BASE","ROUTER") for bet in BET_TYPES}
+        root=Path(backfill_root); bydate=defaultdict(list)
+        for rid,d in race_date.items(): bydate[d].append(rid)
+
+        for di,date in enumerate(sorted(bydate),1):
+            wanted=set(bydate[date])
+            day=load_day(root/"data"/"daily"/f"{date}.jsonl.gz",wanted)
+            for rid in wanted:
+                pack=day.get(rid)
+                if pack is None: raise SystemExit(f"missing result pack year={test_year} race={rid}")
+                payouts,present=payout_map(pack)
+                pbase,prouter=race_models[rid]
+                nums=tuple(sorted(pbase))
+                for bet in BET_TYPES:
+                    if bet not in present: continue
+                    for ticket in enumerate_tickets(bet,nums):
+                        ticket=tuple(ticket)
+                        y=1 if float(payouts.get((bet,ticket),0.0))>0 else 0
+                        cal[("BASE",bet)].add(ticket_probability(bet,ticket,pbase),y)
+                        cal[("ROUTER",bet)].add(ticket_probability(bet,ticket,prouter),y)
+            if di%25==0:
+                print(f"WORLD_ROUTER_TICKET_PROGRESS year={test_year} dates={di}/{len(bydate)}",flush=True)
+
+        ticket_rows=[]
+        for model in ("BASE","ROUTER"):
+            for bet in BET_TYPES:
+                ticket_rows.append({"test_year":test_year,"model":model,"bet_type":bet,**cal[(model,bet)].result()})
 
     dr=pd.DataFrame(per_race)
     win=dr.dropna(subset=["winner_nll_base","winner_nll_router"])
@@ -241,7 +244,7 @@ def main():
         gate_rows.extend(gate_metric_rows(test_year,test_r,qc,qo))
 
         headline,tickets,diagnostics,per_race=evaluate_fold(
-            test_year,test_df,test_r,qc,qo,base_c,base_o,selected,a.backfill_root
+            test_year,test_df,test_r,qc,qo,base_c,base_o,selected,a.backfill_root,headline_only=a.headline_only
         )
         fold_rows.append({
             **headline,"train_years":"|".join(map(str,train_years)),
@@ -268,7 +271,8 @@ def main():
     write_csv(out/"fold-metrics.csv",fold_rows)
     write_csv(out/"gate-metrics.csv",gate_rows)
     write_csv(out/"router-grid.csv",grid_rows)
-    write_csv(out/"ticket-calibration-ab.csv",ticket_rows)
+    if ticket_rows:
+        write_csv(out/"ticket-calibration-ab.csv",ticket_rows)
     write_csv(out/"router-diagnostics.csv",diagnostic_rows)
     with gzip.open(out/"race-router.csv.gz","wt",newline="",encoding="utf-8") as fh:
         w=csv.DictWriter(fh,fieldnames=list(per_race_all[0].keys()))
@@ -280,7 +284,7 @@ def main():
         "folds":[x[0] for x in FOLDS],
         "fold_metrics":fold_rows,"gate_metrics":gate_rows,
         "ticket_calibration":ticket_rows,"diagnostics":diagnostic_rows,
-        "roi_optimized":False,"market_price_used":False,
+        "roi_optimized":False,"market_price_used":False,"headline_only":a.headline_only,
         "full_ticket_space_from_runners":True,"2026_locked":True,
         "elapsed_seconds":time.perf_counter()-started,"promotion":False,
     }
@@ -293,7 +297,8 @@ def main():
     max_inv=max(float(x["probability_invariant_max_error"]) for x in fold_rows)
     if max_inv>1e-8: raise SystemExit(f"router invariant failed max={max_inv}")
     print("===== FOLD METRICS ====="); print((out/"fold-metrics.csv").read_text())
-    print("===== TICKET CALIBRATION ====="); print((out/"ticket-calibration-ab.csv").read_text())
+    if ticket_rows:
+        print("===== TICKET CALIBRATION ====="); print((out/"ticket-calibration-ab.csv").read_text())
     print("===== ROUTER DIAGNOSTICS ====="); print((out/"router-diagnostics.csv").read_text())
     print("L2_WORLD_ROUTER_V3_READY")
 
