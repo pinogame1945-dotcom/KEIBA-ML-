@@ -1,0 +1,50 @@
+{
+  "contract": "L2_SIMPLE_VALUE_TRIO_ROI_V1",
+  "purpose": "Fix the simple L1.75-vs-market value axis, evaluate every priced TRIO containing that axis, and select tickets using partner context plus live TRIO odds.",
+  "years": [2022, 2023, 2024, 2025],
+  "folds": {
+    "2023": [2022],
+    "2024": [2022, 2023],
+    "2025": [2022, 2023, 2024]
+  },
+  "axis_policy": {
+    "value_candidate": "market_rank - consensus_rank >= 2",
+    "requires_existing_oos_p3": true,
+    "selection": "highest p3_calibrated, then larger rank gap, then larger Outsider score, then better consensus rank",
+    "structural_risk": "NOT_USED"
+  },
+  "ticket_policy": {
+    "bet_type": "TRIO",
+    "candidate_space": "all priced unordered TRIO tickets containing the frozen axis",
+    "model_unit": "ticket",
+    "horse_reranking": false,
+    "uses_partner_context": true,
+    "uses_trio_odds_in_ticket_model": true,
+    "valuation": "calibrated_ticket_probability * final_trio_odds - 1",
+    "stake_per_ticket_yen": 100,
+    "staking_optimization": false
+  },
+  "policy_selection": {
+    "source": "strict prior chronological calibration slice only",
+    "coverage_floor_each_half": 0.40,
+    "objective": "maximize minimum ROI across two chronological calibration halves, then pooled calibration ROI",
+    "test_year_outcomes_used": false
+  },
+  "speed_policy": {
+    "seven_score_downloads_once_per_runner": true,
+    "backfill_sparse_checkout_once_per_runner": true,
+    "horse_rows_built_once_per_runner": true,
+    "ticket_rows_built_once_per_year": true
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_artifact_or_cache": false,
+    "paid_cloud_compute": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "2026_locked": true
+  }
+}
