@@ -1,0 +1,141 @@
+{
+  "contract": "L2_TRIO_CHAOS_PREDICTOR_V1_RESULT",
+  "strict_walk_forward": {
+    "2024": [
+      2023
+    ],
+    "2025": [
+      2023,
+      2024
+    ]
+  },
+  "feature_sets": [
+    "STRUCTURE_ONLY",
+    "STRUCTURE_PLUS_TRIO_MARKET_SHAPE"
+  ],
+  "fold_metrics": [
+    {
+      "test_year": 2024,
+      "feature_set": "STRUCTURE_ONLY",
+      "train_years": "2023",
+      "races": 3438,
+      "chaos_races": 750,
+      "chaos_rate": 0.2181500872600349,
+      "roc_auc": 0.5046835317460318,
+      "average_precision": 0.2186099859452275,
+      "logloss": 0.5364523117709281,
+      "brier": 0.1749382751349805,
+      "temperature": 1.02469507659596,
+      "internal_cal_logloss": 0.5355140140446433,
+      "prior_rate": 0.22248039500435668,
+      "baseline_logloss": 0.524611051969079,
+      "baseline_brier": 0.1705793782536346,
+      "logloss_delta_vs_prior": 0.011841259801849136,
+      "brier_delta_vs_prior": 0.004358896881345914
+    },
+    {
+      "test_year": 2024,
+      "feature_set": "STRUCTURE_PLUS_TRIO_MARKET_SHAPE",
+      "train_years": "2023",
+      "races": 3438,
+      "chaos_races": 750,
+      "chaos_rate": 0.2181500872600349,
+      "roc_auc": 0.5009737103174603,
+      "average_precision": 0.21707630309201348,
+      "logloss": 0.5371079511069412,
+      "brier": 0.1755540586569691,
+      "temperature": 1.1007695900788441,
+      "internal_cal_logloss": 0.5353204696774739,
+      "prior_rate": 0.22248039500435668,
+      "baseline_logloss": 0.524611051969079,
+      "baseline_brier": 0.1705793782536346,
+      "logloss_delta_vs_prior": 0.012496899137862227,
+      "brier_delta_vs_prior": 0.004974680403334514
+    },
+    {
+      "test_year": 2025,
+      "feature_set": "STRUCTURE_ONLY",
+      "train_years": "2023|2024",
+      "races": 3444,
+      "chaos_races": 692,
+      "chaos_rate": 0.20092915214866433,
+      "roc_auc": 0.49525305820674825,
+      "average_precision": 0.20416523433993064,
+      "logloss": 0.5102315069101818,
+      "brier": 0.16374534840297064,
+      "temperature": 1.1007695900788441,
+      "internal_cal_logloss": 0.5437442903027602,
+      "prior_rate": 0.22031681441650922,
+      "baseline_logloss": 0.5028061139904213,
+      "baseline_brier": 0.16093250941369527,
+      "logloss_delta_vs_prior": 0.007425392919760521,
+      "brier_delta_vs_prior": 0.002812838989275368
+    },
+    {
+      "test_year": 2025,
+      "feature_set": "STRUCTURE_PLUS_TRIO_MARKET_SHAPE",
+      "train_years": "2023|2024",
+      "races": 3444,
+      "chaos_races": 692,
+      "chaos_rate": 0.20092915214866433,
+      "roc_auc": 0.5170648356633956,
+      "average_precision": 0.2097833653497051,
+      "logloss": 0.5088521770281724,
+      "brier": 0.16345819295264935,
+      "temperature": 1.1007695900788441,
+      "internal_cal_logloss": 0.5414178865469998,
+      "prior_rate": 0.22031681441650922,
+      "baseline_logloss": 0.5028061139904213,
+      "baseline_brier": 0.16093250941369527,
+      "logloss_delta_vs_prior": 0.006046063037751126,
+      "brier_delta_vs_prior": 0.0025256835389540766
+    }
+  ],
+  "pooled_metrics": [
+    {
+      "feature_set": "STRUCTURE_ONLY",
+      "races": 6882,
+      "chaos_rate": 0.20953211275791922,
+      "roc_auc": 0.49961731051643965,
+      "average_precision": 0.21006616086845986,
+      "logloss": 0.5233304791727866,
+      "brier": 0.1693369325506966,
+      "top10_chaos_rate": 0.216255442670537,
+      "top10_lift": 1.0320873484456559,
+      "top10_recall": 0.10332871012482663,
+      "top20_chaos_rate": 0.2113289760348584,
+      "top20_lift": 1.0085755985241993,
+      "top20_recall": 0.20180305131761442,
+      "top30_chaos_rate": 0.20920096852300243,
+      "top30_lift": 0.9984196015085317,
+      "top30_recall": 0.29958391123439665
+    },
+    {
+      "feature_set": "STRUCTURE_PLUS_TRIO_MARKET_SHAPE",
+      "races": 6882,
+      "chaos_rate": 0.20953211275791922,
+      "roc_auc": 0.5081560536836094,
+      "average_precision": 0.21261638042715997,
+      "logloss": 0.5229677468164327,
+      "brier": 0.16950085297756232,
+      "top10_chaos_rate": 0.20174165457184326,
+      "top10_lift": 0.9628197411674239,
+      "top10_recall": 0.09639389736477115,
+      "top20_chaos_rate": 0.22367465504720407,
+      "top20_lift": 1.067495822492967,
+      "top20_recall": 0.21359223300970873,
+      "top30_chaos_rate": 0.20677966101694914,
+      "top30_lift": 0.9868638190836643,
+      "top30_recall": 0.2961165048543689
+    }
+  ],
+  "cpu_count": 4,
+  "parallel_models": 2,
+  "threads_per_model": 2,
+  "historical_market_proxy": "FINAL_TRIO_ODDS",
+  "operational_market_requirement": "LATEST_TIMESTAMPED_PRE_RACE_TRIO_ODDS",
+  "forbidden_features_used": false,
+  "2026_locked": true,
+  "runtime_seconds_total": 66.99681377410889,
+  "promotion": false
+}
