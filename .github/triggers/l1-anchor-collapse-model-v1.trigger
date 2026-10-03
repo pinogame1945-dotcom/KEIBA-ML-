@@ -1,0 +1,3 @@
+launch=2026-10-04
+phase=L1_ANCHOR_COLLAPSE_MODEL_V1
+universe=triple_agree_market_odds_le_2
