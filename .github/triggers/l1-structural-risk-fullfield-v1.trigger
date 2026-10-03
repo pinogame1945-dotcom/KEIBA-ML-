@@ -1,0 +1,4 @@
+launch=2026-10-04
+phase=L1_STRUCTURAL_RISK_FULLFIELD_V1
+scope=all_horses
+vote=full_minus_king_market_baseline
