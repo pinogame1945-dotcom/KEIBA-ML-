@@ -1,0 +1,34 @@
+{
+  "contract": "L1_CONSENSUS_TRAP_V2_OUTSIDER_OVERLAP_AUDIT_V1",
+  "question": "Is V2 structural warning merely a repackaging of existing safe Outsider dissent?",
+  "existing_structural_outsiders": [
+    "outsider_raceshape",
+    "outsider_field",
+    "outsider_opponentgap",
+    "outsider_chimera"
+  ],
+  "strong_dissent_definition": "anchor is Top3-supported by at most 1 of 4 structural Outsiders (>=3 of 4 dissent); fixed before outcome review",
+  "duplicate_rule": "Only call duplicate if structural4 strong dissent covers >=80% of V2 flagged collapses for both OOS years and both V2 models.",
+  "duplicate_by_rule": false,
+  "safe_outsider_candidate_count": 13,
+  "safe_outsider_candidates": [
+    "outsider_bodychange",
+    "outsider_chimera",
+    "outsider_classmove",
+    "outsider_coursetransition",
+    "outsider_daytrend",
+    "outsider_disttransition",
+    "outsider_field",
+    "outsider_gatecourse",
+    "outsider_jockey",
+    "outsider_opponentgap",
+    "outsider_raceshape",
+    "outsider_rotation",
+    "outsider_weightchange"
+  ],
+  "old_arena_note": "Historical outsider_lap/outsider_network/outsider_style are not in this current tie-safe 13-ballot pack and are not used in this audit.",
+  "2026_locked": true,
+  "paid_compute": false,
+  "kaggle_access": false,
+  "artifacts_or_cache": false
+}
