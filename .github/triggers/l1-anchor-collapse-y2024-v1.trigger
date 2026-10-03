@@ -1,0 +1,3 @@
+launch=2026-10-04
+phase=L1_ANCHOR_COLLAPSE_PHASE1_V1
+year=2024
