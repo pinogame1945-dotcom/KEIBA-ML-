@@ -224,7 +224,7 @@ def main():
     for y in YEARS:
         yearly[y],race_meta[y],skipped[y]=build_year(y,df,a.backfill_root)
 
-    features=[x for x in yearly[2022].columns if x.startswith(("axis_","p1_","p2_"))]
+    features=[f"{prefix}{c}" for prefix in ("axis_","p1_","p2_") for c in HFEATS]
     features += [
         "field_size_norm","partners_p3_sum","partners_p3_min","partners_score_sum",
         "trio_p3_sum","trio_king_prob_sum","trio_gap_mean","trio_outsider_available",
