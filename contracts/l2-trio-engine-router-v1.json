@@ -1,0 +1,93 @@
+{
+  "contract": "L2_TRIO_ENGINE_ROUTER_V1",
+  "status": "RESEARCH_FIXED_DESIGN",
+  "created_at": "2026-10-04",
+  "purpose": "Choose per race among MARKET_ONLY, MARKET_PLUS_SEVEN_KING, and MARKET_PLUS_OUTSIDER using only pre-race distribution diagnostics and prior out-of-sample router labels.",
+  "source_engine": "L2_TRIO_SPLIT_RESIDUAL_V4",
+  "routes": [
+    "MARKET",
+    "KING",
+    "OUTSIDER"
+  ],
+  "target_policy": {
+    "KING": "race_logloss_delta_of_market_plus_seven_king_vs_market",
+    "OUTSIDER": "race_logloss_delta_of_market_plus_outsider_vs_market",
+    "regression_target_clip": 0.5,
+    "decision": "choose minimum predicted delta among 0, predicted KING delta, predicted OUTSIDER delta"
+  },
+  "router_features": {
+    "outcome_free": true,
+    "sources": [
+      "trio market probability distribution",
+      "market+king probability distribution",
+      "market+outsider probability distribution",
+      "field size"
+    ],
+    "includes": [
+      "entropy",
+      "top probability mass",
+      "total variation distance",
+      "KL divergence",
+      "top-ticket overlap"
+    ],
+    "excludes": [
+      "result",
+      "payout",
+      "ROI",
+      "future-year labels"
+    ]
+  },
+  "warm_start_2022": {
+    "policy": "chronological_60_fit_20_alpha_20_router_label",
+    "reason": "create prior out-of-sample router labels for the 2023 test without requiring 2021 engine datasets"
+  },
+  "walk_forward": {
+    "2023": [
+      2022
+    ],
+    "2024": [
+      2022,
+      2023
+    ],
+    "2025": [
+      2022,
+      2023,
+      2024
+    ]
+  },
+  "success_gate": {
+    "primary": "pooled_2023_2025_router_mean_logloss_delta_vs_market < fixed_outsider_mean_logloss_delta_vs_market",
+    "strong": "bootstrap_95pct_CI_of_router_minus_outsider_is_below_zero",
+    "reference_fixed_outsider_mean": -0.00614873642986566
+  },
+  "evaluation": {
+    "metrics": [
+      "race logloss delta vs market",
+      "router minus fixed Outsider delta",
+      "route shares",
+      "bootstrap 95% CI",
+      "oracle gap"
+    ],
+    "no_roi_promotion": true
+  },
+  "speed_policy": {
+    "metadata_first_restore_once": true,
+    "l17_materialize_once_per_year": true,
+    "backfill_sparse_restore_once": true,
+    "trio_matrix_once_per_year": true,
+    "parallel_base_engines": 2,
+    "parallel_router_targets": 2,
+    "compact_results_only": true
+  },
+  "locked_years": [
+    2026
+  ],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_upload": false
+  }
+}
