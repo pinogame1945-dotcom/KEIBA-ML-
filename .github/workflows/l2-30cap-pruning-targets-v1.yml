@@ -1,0 +1,122 @@
+name: L2 30cap Pruning Targets V1
+
+on:
+  push:
+    branches:
+      - research/l2-30cap-pruning-targets-v1-20261004
+    paths:
+      - .github/triggers/l2-30cap-pruning-targets-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-30cap-pruning-targets-v1
+  cancel-in-progress: true
+
+jobs:
+  benchmark:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 1
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_30cap_pruning_targets_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          src=Path("research/run_l2_30cap_pruning_targets_v1.py").read_text()
+          for token in (
+              'CAP=30.0',
+              'TARGETS=(3.0,3.25,3.5)',
+              'METHODS=("KING","CONFIDENCE","CHEAP_ODDS")',
+              'BASE_PAIRS=((1,2),(1,3),(1,4),(2,3),(1,5))',
+              '"2026_locked":True',
+              '"promotion":False',
+          ):
+              assert token in src, token
+          assert "predict_proba" not in src
+          assert "edge_threshold" not in src
+          wf=Path(".github/workflows/l2-30cap-pruning-targets-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"], runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          print("L2_30CAP_PRUNING_STATIC_GUARDS_OK")
+          PY
+
+      - name: Sparse restore 2023-2025 race and odds packs once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'PATTERNS'
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          PATTERNS
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run pruning target benchmark
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_market="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
+          test -s "$source_market"
+          result="research-results/l2-30cap-pruning-targets-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_30cap_pruning_targets_v1.py \
+            --market-scored "$source_market" \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          echo "===== META ====="
+          cat "$result/meta.json"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.csv"
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 20
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / paid cloud compute."
+          echo "No Artifact / Cache."
+          echo "No Kaggle access."
+          echo "No ML training or outcome-driven rule search."
+          echo "Three pruning methods and three target point levels are fixed before evaluation."
+          echo "Final odds are feasibility-only; 2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-30cap-pruning-targets-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive L2 30cap Pruning Targets V1 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
