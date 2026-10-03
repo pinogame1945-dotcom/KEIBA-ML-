@@ -1,0 +1,111 @@
+{
+  "contract": "L2_RACE_DISTRIBUTION_MIXTURE_V2",
+  "status": "RESEARCH_FROZEN_V1",
+  "created_at": "2026-10-04",
+  "purpose": "Model a race as a mixture of coherent finish-order worlds instead of one shared Plackett-Luce world. Preserve frozen L1.7 mean_probability as the NORMAL world and add KING1_COLLAPSE, OUTSIDER_RISE, and BOTH worlds. Evaluate probability quality only; no ticket selection, ROI optimization, or staking.",
+  "folds": [
+    {
+      "test_year": 2023,
+      "train_years": [
+        2022
+      ]
+    },
+    {
+      "test_year": 2024,
+      "train_years": [
+        2022,
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2022,
+        2023,
+        2024
+      ]
+    }
+  ],
+  "worlds": {
+    "NORMAL": "Normalized frozen L1.7 mean_probability.",
+    "KING1_COLLAPSE": "NORMAL with consensus-rank-1 latent strength multiplied by a prior-calibrated collapse factor.",
+    "OUTSIDER_RISE": "NORMAL with safe Outsider-supported horses outside KING Top5 boosted by prior-calibrated support-weighted factor.",
+    "BOTH": "Apply KING1_COLLAPSE and OUTSIDER_RISE transforms together."
+  },
+  "mixture_weights": {
+    "collapse_gate": "Walk-forward LightGBM probability that KING rank1 misses official top3.",
+    "outsider_gate": "Walk-forward LightGBM probability that at least one safe-Outsider-supported horse outside KING Top5 reaches official top3.",
+    "combination": "Assume gate independence only for V2 weight composition: NORMAL=(1-qc)(1-qo), COLLAPSE=qc(1-qo), OUTSIDER=(1-qc)qo, BOTH=qc*qo.",
+    "gate_features": "Only frozen pre-race L1.7 diagnostics plus safe Outsider ballot aggregates; no odds, popularity, payout, or result features."
+  },
+  "calibration": {
+    "internal_split": "Chronological 80/20 split inside each training fold.",
+    "gate_temperature": "Choose broad temperature grid by binary log loss on internal calibration races.",
+    "scenario_parameter_grid": {
+      "collapse_factor": [
+        0.1,
+        0.25,
+        0.5,
+        0.75,
+        1
+      ],
+      "outsider_max_boost": [
+        0,
+        0.5,
+        1,
+        2,
+        4
+      ]
+    },
+    "selection_metric": "Mean negative log probability of the official unordered top3 set (TRIO probability) on prior-only internal calibration races.",
+    "holdout_rule": "Test year never participates in gate fitting, temperature selection, or scenario-parameter selection."
+  },
+  "probability_model": {
+    "family": "MIXTURE_OF_PLACKETT_LUCE_WORLDS",
+    "supported_bets": [
+      "WIN",
+      "QUINELLA",
+      "EXACTA",
+      "TRIO",
+      "TRIFECTA"
+    ],
+    "coherent_ticket_probabilities": true,
+    "full_field": true,
+    "manual_ticket_templates": false
+  },
+  "evaluation": {
+    "primary": "BASE_NORMAL versus MIXTURE probability quality by test year and bet type.",
+    "metrics": [
+      "winner_log_loss",
+      "actual_trio_nll",
+      "ticket_brier",
+      "ticket_log_loss",
+      "ticket_ece",
+      "probability_invariant_error",
+      "gate_auc",
+      "gate_brier",
+      "gate_log_loss"
+    ],
+    "no_roi_selection": true,
+    "final_odds_used_as_model_feature": false,
+    "payout_used_only_for_ticket_hit_labels": true
+  },
+  "data_policy": {
+    "l17_market_free": true,
+    "outsider_source": "Frozen tie-safe 13-Outsider ballots run 36724124925.",
+    "odds_files": "May be read only to enumerate historical offered ticket combinations; price values are ignored by V2.",
+    "locked_years": [
+      2026
+    ]
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_reads_only": true,
+    "kaggle_writes": false
+  },
+  "promotion": false
+}
