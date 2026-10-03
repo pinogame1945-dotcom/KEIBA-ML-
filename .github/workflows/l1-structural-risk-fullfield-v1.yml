@@ -1,0 +1,145 @@
+name: L1 Structural Risk Fullfield V1
+
+on:
+  push:
+    branches:
+      - research/l1-structural-risk-fullfield-v1-20261004
+    paths:
+      - .github/triggers/l1-structural-risk-fullfield-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-structural-risk-fullfield-v1
+  cancel-in-progress: true
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SNAPSHOT_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_structural_risk_fullfield_v1.py
+          bash -n scripts/kaggle-dataset-session-v2.sh
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-structural-risk-fullfield-v1.yml").read_text()
+          src=Path("research/run_l1_structural_risk_fullfield_v1.py").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          assert "2026 sealed" in src
+          assert "full collapse probability minus baseline collapse probability" in src
+          assert "manifest.json" in wf
+          assert "kaggle-dataset-session-v2.sh" in wf
+          print("L1_STRUCTURAL_RISK_FULLFIELD_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle numpy pandas scikit-learn
+
+      - name: Restore 2023-2025 snapshots once from manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          session="scripts/kaggle-dataset-session-v2.sh"
+          d="out/l1-structural-risk-fullfield-snapshot"
+          bash "$session" init "$SNAPSHOT_DATASET_REF" "$d"
+          bash "$session" fetch "$d" manifest.json
+          manifest="$(find "$d" -type f -name manifest.json -print -quit)"
+          test -s "$manifest"
+
+          for y in 2023 2024 2025; do
+            snapshot_file="$(python - "$manifest" "$y" <<'PY'
+          import json,os,re,sys
+          m=json.load(open(sys.argv[1],encoding="utf-8"))
+          y=int(sys.argv[2])
+          hits=[]
+          for row in m.get("years",[]):
+              f=str(row.get("file") or "")
+              ry=row.get("year")
+              inferred=None
+              mm=re.search(r"(20\d{2})",os.path.basename(f))
+              if mm: inferred=int(mm.group(1))
+              if (ry is not None and int(ry)==y) or inferred==y:
+                  if f: hits.append(f)
+          hits=list(dict.fromkeys(hits))
+          if len(hits)!=1:
+              raise SystemExit(f"manifest year resolution failed year={y} hits={hits}")
+          print(hits[0])
+          PY
+            )"
+            echo "Manifest resolved year=$y file=$snapshot_file"
+            bash "$session" fetch "$d" "$snapshot_file"
+            base="$(basename "$snapshot_file")"
+            plain="${base%.gz}"
+            p="$(find "$d" -type f \( -name "$base" -o -name "$plain" \) -print -quit)"
+            test -s "$p"
+            echo "SNAP_$y=$p" >> "$GITHUB_ENV"
+          done
+
+      - name: Run full-field Structural Risk vote
+        shell: bash
+        run: |
+          set -euo pipefail
+          scored="research-results/l1-asymmetric-dissent-v3/run-36818983849/scored.csv.gz"
+          test -s "$scored"
+          result="research-results/l1-structural-risk-fullfield-v1/run-$GITHUB_RUN_ID"
+          python research/run_l1_structural_risk_fullfield_v1.py             --market-scored "$scored"             --snapshot-year "2023=$SNAP_2023"             --snapshot-year "2024=$SNAP_2024"             --snapshot-year "2025=$SNAP_2025"             --out-dir "$result"
+          echo "===== MODEL COMPARISON ====="
+          cat "$result/headline-model-comparison.csv"
+          echo "===== RANK BUCKETS ====="
+          cat "$result/headline-rank-buckets.csv"
+          echo "===== THRESHOLDS ====="
+          cat "$result/thresholds.csv"
+          echo "===== SUMMARY ====="
+          cat "$result/summary.json"
+          test "$(du -sm "$result" | cut -f1)" -le 30
+          rm -rf out/l1-structural-risk-fullfield-snapshot
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "Kaggle reads only: one metadata session, exact manifest-resolved 2023-2025 snapshots."
+          echo "No Kaggle writes and no model persistence."
+          echo "One shared full-field model; no per-rank model explosion."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-structural-risk-fullfield-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive full-field Structural Risk $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
