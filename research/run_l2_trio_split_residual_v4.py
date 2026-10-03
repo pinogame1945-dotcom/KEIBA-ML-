@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-import argparse,gc,itertools,json,math,os,time
+import argparse,csv,gc,gzip,itertools,json,math,os,time
+from collections import defaultdict
 from concurrent.futures import ThreadPoolExecutor
 from pathlib import Path
 
@@ -14,8 +15,6 @@ from run_l2_trio_market_residual_v3 import (
     build_year_matrix,load_matrix,group_layout,offset_softmax,residual_objective,choose_alpha,model_params
 )
 from run_l2_trio_v3_robustness_audit import bootstrap_mean_ci,race_vectors,feature_keep
-from run_l2_race_distribution_mixture_v2 import load_outsider_ballots,attach_outsider as attach_outsider_ballots
-
 EPS=1e-12
 BOOT_REPS=5000
 SEED=20261004
@@ -48,6 +47,55 @@ def parse_year_paths(items):
     if set(out)!={2022,2023,2024,2025}:
         raise SystemExit(f'ballot years mismatch: {sorted(out)}')
     return out
+
+def load_outsider_ballots(paths):
+    stats={}
+    race_candidates=defaultdict(set)
+    for year,path in sorted(paths.items()):
+        temp=defaultdict(lambda:defaultdict(lambda:{'weighted':0,'support':0,'v1':0,'v2':0,'v3':0}))
+        with gzip.open(path,'rt',encoding='utf-8',newline='') as fh:
+            for row in csv.DictReader(fh):
+                rid=str(row['race_id'])
+                cand=str(row['candidate'])
+                race_candidates[(year,rid)].add(cand)
+                seen=set()
+                for pos,w in ((1,3),(2,2),(3,1)):
+                    hid=str(row.get(f'top{pos}_horse_id') or '')
+                    if not hid:
+                        continue
+                    if hid in seen:
+                        raise SystemExit(f'duplicate horse inside outsider ballot y={year} race={rid} candidate={cand}')
+                    seen.add(hid)
+                    d=temp[rid][hid]
+                    d['weighted']+=w
+                    d['support']+=1
+                    d[f'v{pos}']+=1
+        for rid,hmap in temp.items():
+            if len(race_candidates[(year,rid)])!=13:
+                raise SystemExit(f'expected 13 outsider candidates y={year} race={rid}, got={len(race_candidates[(year,rid)])}')
+            for hid,d in hmap.items():
+                stats[(year,str(rid),str(hid))]=dict(d)
+    return stats,race_candidates
+
+def attach_outsider_ballots(df,stats,race_candidates):
+    z=df.copy()
+    vals=[]
+    for r in z.itertuples(index=False):
+        key=(int(r.year),str(r.race_id),str(r.horse_id))
+        d=stats.get(key,{'weighted':0,'support':0,'v1':0,'v2':0,'v3':0})
+        vals.append((d['weighted'],d['support'],d['v1'],d['v2'],d['v3']))
+    arr=np.asarray(vals,dtype=np.float32)
+    z['outs_weighted']=arr[:,0]
+    z['outs_support']=arr[:,1]
+    z['outs_v1']=arr[:,2]
+    z['outs_v2']=arr[:,3]
+    z['outs_v3']=arr[:,4]
+    races=set((int(y),str(rid)) for y,rid in zip(z['year'],z['race_id']))
+    missing=[k for k in races if len(race_candidates.get(k,set()))!=13]
+    if missing:
+        raise SystemExit(f'outsider race coverage missing count={len(missing)} sample={missing[:3]}')
+    return z
+
 
 def reindex_groups(ri):
     ri=np.asarray(ri,dtype=np.int64)
