@@ -14,17 +14,19 @@ from run_l2_trio_market_residual_v3 import (
     build_year_matrix,load_matrix,group_layout,offset_softmax,residual_objective,choose_alpha,model_params
 )
 from run_l2_trio_v3_robustness_audit import bootstrap_mean_ci,race_vectors,feature_keep
+from run_l2_race_distribution_mixture_v2 import load_outsider_ballots,attach_outsider as attach_outsider_ballots
 
 EPS=1e-12
 BOOT_REPS=5000
 SEED=20261004
 
 OUTSIDER_FEATURE_NAMES=[
-    'h1_market_rank_pct','h1_log_market_win_odds','h1_outsider_available','h1_outsider_score_scaled',
-    'h2_market_rank_pct','h2_log_market_win_odds','h2_outsider_available','h2_outsider_score_scaled',
-    'h3_market_rank_pct','h3_log_market_win_odds','h3_outsider_available','h3_outsider_score_scaled',
+    'h1_market_rank_pct','h1_log_market_win_odds','h1_outs_weighted_scaled','h1_outs_support_share','h1_outs_v1_share','h1_outs_v2_share','h1_outs_v3_share',
+    'h2_market_rank_pct','h2_log_market_win_odds','h2_outs_weighted_scaled','h2_outs_support_share','h2_outs_v1_share','h2_outs_v2_share','h2_outs_v3_share',
+    'h3_market_rank_pct','h3_log_market_win_odds','h3_outs_weighted_scaled','h3_outs_support_share','h3_outs_v1_share','h3_outs_v2_share','h3_outs_v3_share',
     'field_size_norm','market_rank_mean_pct','market_rank_span_pct',
-    'outsider_available_share','outsider_score_mean','outsider_score_max','outsider_score_span'
+    'outs_positive_share','outs_weighted_mean','outs_weighted_max','outs_support_max_share',
+    'outs_v1_sum_share','outs_v2_sum_share','outs_v3_sum_share'
 ]
 
 def parse_args():
@@ -34,9 +36,18 @@ def parse_args():
     p.add_argument('--dataset-dir',required=True)
     p.add_argument('--backfill-root',required=True)
     p.add_argument('--outsider-predictions',required=True)
+    p.add_argument('--ballots-year',action='append',required=True,help='YEAR:PATH')
     p.add_argument('--matrix-cache',required=True)
     p.add_argument('--out-dir',required=True)
     return p.parse_args()
+
+def parse_year_paths(items):
+    out={}
+    for spec in items:
+        y,p=spec.split(':',1); out[int(y)]=p
+    if set(out)!={2022,2023,2024,2025}:
+        raise SystemExit(f'ballot years mismatch: {sorted(out)}')
+    return out
 
 def reindex_groups(ri):
     ri=np.asarray(ri,dtype=np.int64)
@@ -61,15 +72,19 @@ def outsider_combo_features(g,comb):
     ordered=np.take_along_axis(comb,order,axis=1)
     mr=(market_rank/fs).astype(np.float32)
     lo=g['log_market_win_odds'].to_numpy(dtype=np.float32)
-    oa=g['outsider_available'].to_numpy(dtype=np.float32)
-    oscore=g['outsider_score_scaled'].to_numpy(dtype=np.float32)
-    per=np.stack([mr,lo,oa,oscore],axis=1)
+    ow=(g['outs_weighted'].to_numpy(dtype=np.float32)/39.0).astype(np.float32)
+    osup=(g['outs_support'].to_numpy(dtype=np.float32)/13.0).astype(np.float32)
+    ov1=(g['outs_v1'].to_numpy(dtype=np.float32)/13.0).astype(np.float32)
+    ov2=(g['outs_v2'].to_numpy(dtype=np.float32)/13.0).astype(np.float32)
+    ov3=(g['outs_v3'].to_numpy(dtype=np.float32)/13.0).astype(np.float32)
+    per=np.stack([mr,lo,ow,osup,ov1,ov2,ov3],axis=1)
     X3=per[ordered].reshape(len(comb),-1).astype(np.float32,copy=False)
-    mr3=mr[comb]; oa3=oa[comb]; os3=oscore[comb]
+    mr3=mr[comb]; ow3=ow[comb]; os3=osup[comb]; v13=ov1[comb]; v23=ov2[comb]; v33=ov3[comb]
     agg=np.column_stack([
         np.full(len(comb),fs/18.0,dtype=np.float32),
         mr3.mean(1),mr3.max(1)-mr3.min(1),
-        oa3.mean(1),os3.mean(1),os3.max(1),os3.max(1)-os3.min(1)
+        (ow3>0).mean(1),ow3.mean(1),ow3.max(1),os3.max(1),
+        v13.sum(1),v23.sum(1),v33.sum(1)
     ]).astype(np.float32,copy=False)
     X=np.concatenate([X3,agg],axis=1).astype(np.float32,copy=False)
     if X.shape[1]!=len(OUTSIDER_FEATURE_NAMES):
@@ -120,7 +135,8 @@ def build_compact_engine_matrices(year,df,matrix_cache):
         'contract':'L2_TRIO_SPLIT_RESIDUAL_MATRIX_V4','year':year,'rows':rows,
         'king_feature_count':len(king_names),'king_feature_names':king_names,
         'outsider_feature_count':len(OUTSIDER_FEATURE_NAMES),'outsider_feature_names':OUTSIDER_FEATURE_NAMES,
-        'outsider_canonical_order':'MARKET_RANK_ASC','king_canonical_order':'SEVEN_KING_RANK_ASC'
+        'outsider_canonical_order':'MARKET_RANK_ASC','king_canonical_order':'SEVEN_KING_RANK_ASC',
+        'outsider_source':'SAFE_13_CANDIDATE_BALLOTS','outsider_candidates_per_race':13
     }
     engine_meta_path.write_text(json.dumps(em,ensure_ascii=False,indent=2)+'\n',encoding='utf-8')
     print(f'L2_TRIO_V4_ENGINE_MATRIX_READY year={year} king={len(king_names)} outsider={len(OUTSIDER_FEATURE_NAMES)} rows={rows}',flush=True)
@@ -249,6 +265,10 @@ def main():
     df,skipped=attach_win_market(df,a.backfill_root)
     df=attach_outsider(df,a.outsider_predictions)
     df=prepare_l175(df)
+    ballot_paths=parse_year_paths(a.ballots_year)
+    ballot_stats,race_candidates=load_outsider_ballots(ballot_paths)
+    df=attach_outsider_ballots(df,ballot_stats,race_candidates)
+    print(f'L2_TRIO_V4_BALLOTS_READY races={len(race_candidates)} horse_votes={len(ballot_stats)}',flush=True)
 
     engine_meta=[]
     for y in YEARS:
@@ -378,6 +398,7 @@ def main():
         'oracle_best_of_three_upper_bound':oracle_b,
         'oracle_note':'Ex-post oracle is a non-deployable ceiling only. Future World Router must be trained/evaluated strict walk-forward and may not use these labels from its test year.',
         'future_router_ready':True,
+        'outsider_source':'SAFE_13_CANDIDATE_BALLOTS_SHARED_WITH_WORLD_ROUTER',
         'operational_market_requirement':'LATEST_TIMESTAMPED_PRE_RACE_TRIO_ODDS',
         'payout_used':False,'roi_used':False,'2026_locked':True,
         'runtime_seconds_total':time.time()-t0,
@@ -387,8 +408,8 @@ def main():
     (out/'README.md').write_text(
         '# L2 TRIO Split Residual V4\n\n'
         'Two clean market-residual engines are trained in parallel from shared preprocessing: '
-        'MARKET+SEVEN_KING and MARKET+OUTSIDER. The Outsider engine is canonically ordered by market rank, '
-        'not Seven-King rank, to remove hidden King dependence. Results include race-level strict walk-forward '
+        'MARKET+SEVEN_KING and MARKET+OUTSIDER. The Outsider engine uses the same frozen safe 13-candidate '
+        'ballots as World Router and is canonically ordered by market rank, not Seven-King rank. Results include race-level strict walk-forward '
         'diagnostics for later World Router integration. No ROI, payout optimization, BUY/SKIP tuning, or 2026 data.\n',
         encoding='utf-8'
     )
