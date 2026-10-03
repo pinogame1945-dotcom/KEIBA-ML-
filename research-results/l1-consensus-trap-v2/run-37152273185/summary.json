@@ -1,0 +1,64 @@
+{
+  "contract": "L1_CONSENSUS_TRAP_V2",
+  "hypothesis": "Three-way agreement is normally safe, but a structural anomaly in field/opponent and pace/time space may identify a hidden collapse pocket.",
+  "cohort": "Seven-King rank1 + tie-safe market rank1 + frozen Outsider rank1 + p3_delta>0",
+  "strong_consensus": "top 30% within-year percentile of 50% market strength + 50% Outsider support strength; outcome-free",
+  "structural_model_inputs": "FIELD_OPPONENT and PACE_TIME numeric pre-race snapshot features only",
+  "structural_high20": "top 20% OOS structural risk within test year; outcome-free percentile after prediction",
+  "folds": [
+    {
+      "test_year": 2024,
+      "train_years": [
+        2023
+      ]
+    },
+    {
+      "test_year": 2025,
+      "train_years": [
+        2023,
+        2024
+      ]
+    }
+  ],
+  "feature_selection": "training-fold-only top 30 univariate predictive AUC, >=60% coverage",
+  "models": [
+    "LOGISTIC",
+    "LIGHTGBM"
+  ],
+  "primary_test": "Within strong-consensus horses, compare structural-high20 vs strong-consensus baseline; require positive direction in both 2024 and 2025.",
+  "secondary_test": "Exact one-decimal WIN-odds matched structural-high20 vs rest inside strong-consensus cohort with race-cluster bootstrap.",
+  "snapshot_coverage_pct": 100.0,
+  "decision": {
+    "LOGISTIC": {
+      "positive_both_oos_years": true,
+      "years": {
+        "2024": {
+          "delta_pp": 7.111209570225967,
+          "trap_direction_positive": true
+        },
+        "2025": {
+          "delta_pp": 13.762886597938145,
+          "trap_direction_positive": true
+        }
+      }
+    },
+    "LIGHTGBM": {
+      "positive_both_oos_years": true,
+      "years": {
+        "2024": {
+          "delta_pp": 8.87384176764077,
+          "trap_direction_positive": true
+        },
+        "2025": {
+          "delta_pp": 0.744018673409844,
+          "trap_direction_positive": true
+        }
+      }
+    }
+  },
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifacts_or_cache": false,
+  "promotion": false,
+  "causal_claim": false
+}
