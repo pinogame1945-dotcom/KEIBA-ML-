@@ -1,0 +1,57 @@
+{
+  "contract":"L2_PRICER_UNCERTAINTY_CAUSAL_AUDIT_V5",
+  "status":"RESEARCH",
+  "created_at":"2026-10-04",
+  "question":"Does the horse-level assignment of Seven-King disagreement contain predictive uncertainty information beyond merely adding Normal latent variance?",
+  "frozen_parameters":{"sigma":0.40,"lambda":0.50},
+  "models":[
+    "BASE_PL",
+    "NORMAL_HOMO_S040",
+    "HETERO_REAL",
+    "HETERO_RACE_MEAN",
+    "HETERO_RACE_RMS",
+    "HETERO_SHUFFLE_8",
+    "HETERO_REVERSED"
+  ],
+  "controls":{
+    "real":"sigma_i = 0.40 * (1 + 0.50 * uncertainty_i)",
+    "race_mean":"replace horse-specific sigma_i with its race mean",
+    "race_rms":"replace horse-specific sigma_i with its race RMS to preserve variance power",
+    "shuffle":"eight deterministic within-race permutations of uncertainty_i, averaged as a mixture",
+    "reversed":"within race, assign the uncertainty values in reverse uncertainty-rank order",
+    "common_random_numbers":true,
+    "antithetic_sampling":true
+  },
+  "evaluation":{
+    "test_years":[2023,2024,2025],
+    "primary_metric":"TRIFECTA NLL",
+    "secondary_metrics":["TRIO NLL","EXACTA NLL","WIN NLL"],
+    "diagnostic_subsets":["ALL","TAIL11_TRUE","KING1_MISS_TOP3_TRUE","NEITHER_STRESS"],
+    "paired_bootstrap_reps":3000,
+    "pairwise_primary":[
+      "HETERO_REAL_vs_HETERO_SHUFFLE_8",
+      "HETERO_REAL_vs_HETERO_RACE_RMS",
+      "HETERO_REAL_vs_HETERO_RACE_MEAN",
+      "HETERO_REAL_vs_NORMAL_HOMO_S040",
+      "HETERO_REAL_vs_HETERO_REVERSED"
+    ]
+  },
+  "data_policy":{
+    "pre_race_features_only":true,
+    "market_used":false,
+    "roi_optimized":false,
+    "ticket_selection":false,
+    "staking":false,
+    "locked_years":[2026]
+  },
+  "cost_policy":{
+    "github_standard_cpu_only":true,
+    "paid_runner":false,
+    "gpu":false,
+    "paid_cloud_compute":false,
+    "paid_artifact_or_cache":false,
+    "kaggle_reads_only":true,
+    "kaggle_writes":false
+  },
+  "promotion":false
+}
