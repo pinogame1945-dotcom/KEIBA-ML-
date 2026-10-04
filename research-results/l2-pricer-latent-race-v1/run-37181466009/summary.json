@@ -1,0 +1,240 @@
+{
+  "contract": "L2_PRICER_LATENT_RACE_V1_RESULT",
+  "architecture": "LATENT_LOG_STRENGTH_MIXTURE_OF_PL",
+  "families": [
+    "BASE_PL",
+    "NORMAL_HOMO",
+    "NORMAL_HETERO",
+    "STUDENTT_HETERO"
+  ],
+  "calibration_draws": 160,
+  "test_draws": 1024,
+  "antithetic": true,
+  "selection_metric": "prior-only chronological calibration TRIFECTA NLL",
+  "parallel_workers": 4,
+  "2026_locked": true,
+  "market_used": false,
+  "roi_optimized": false,
+  "selected_parameters": [
+    {
+      "test_year": 2023,
+      "family": "NORMAL_HOMO",
+      "sigma": 0.2,
+      "lambda": 0.0,
+      "df": null,
+      "cal_trifecta_nll": 6.461285342432969
+    },
+    {
+      "test_year": 2023,
+      "family": "NORMAL_HETERO",
+      "sigma": 0.2,
+      "lambda": 1.5,
+      "df": null,
+      "cal_trifecta_nll": 6.460551155481996
+    },
+    {
+      "test_year": 2023,
+      "family": "STUDENTT_HETERO",
+      "sigma": 0.3,
+      "lambda": 0.75,
+      "df": 5.0,
+      "cal_trifecta_nll": 6.460787248335803
+    },
+    {
+      "test_year": 2024,
+      "family": "NORMAL_HOMO",
+      "sigma": 0.4,
+      "lambda": 0.0,
+      "df": null,
+      "cal_trifecta_nll": 6.421102074422408
+    },
+    {
+      "test_year": 2024,
+      "family": "NORMAL_HETERO",
+      "sigma": 0.2,
+      "lambda": 1.5,
+      "df": null,
+      "cal_trifecta_nll": 6.420541600153674
+    },
+    {
+      "test_year": 2024,
+      "family": "STUDENTT_HETERO",
+      "sigma": 0.3,
+      "lambda": 0.75,
+      "df": 5.0,
+      "cal_trifecta_nll": 6.4211207051613
+    },
+    {
+      "test_year": 2025,
+      "family": "NORMAL_HOMO",
+      "sigma": 0.6,
+      "lambda": 0.0,
+      "df": null,
+      "cal_trifecta_nll": 6.359431823774131
+    },
+    {
+      "test_year": 2025,
+      "family": "NORMAL_HETERO",
+      "sigma": 0.4,
+      "lambda": 0.5,
+      "df": null,
+      "cal_trifecta_nll": 6.36138664513296
+    },
+    {
+      "test_year": 2025,
+      "family": "STUDENTT_HETERO",
+      "sigma": 0.3,
+      "lambda": 0.75,
+      "df": 5.0,
+      "cal_trifecta_nll": 6.363570805266352
+    }
+  ],
+  "fold_summary": [
+    {
+      "test_year": 2023,
+      "family": "BASE_PL",
+      "win_nll": 2.094446771062918,
+      "win_delta_vs_base": 0.0,
+      "exacta_nll": 4.247969057920027,
+      "exacta_delta_vs_base": 0.0,
+      "trio_nll": 4.666566976368864,
+      "trio_delta_vs_base": 0.0,
+      "trifecta_nll": 6.409228986741567,
+      "trifecta_delta_vs_base": 0.0
+    },
+    {
+      "test_year": 2023,
+      "family": "NORMAL_HOMO",
+      "win_nll": 2.094919347603344,
+      "win_delta_vs_base": 0.00047257654042587305,
+      "exacta_nll": 4.248192822215245,
+      "exacta_delta_vs_base": 0.00022376429521742125,
+      "trio_nll": 4.665834152545129,
+      "trio_delta_vs_base": -0.0007328238237356288,
+      "trifecta_nll": 6.407886455847154,
+      "trifecta_delta_vs_base": -0.001342530894413052
+    },
+    {
+      "test_year": 2023,
+      "family": "NORMAL_HETERO",
+      "win_nll": 2.0958972714784494,
+      "win_delta_vs_base": 0.0014505004155314083,
+      "exacta_nll": 4.248902193646089,
+      "exacta_delta_vs_base": 0.0009331357260613515,
+      "trio_nll": 4.664789708004177,
+      "trio_delta_vs_base": -0.001777268364687501,
+      "trifecta_nll": 6.405995197467552,
+      "trifecta_delta_vs_base": -0.0032337892740148533
+    },
+    {
+      "test_year": 2023,
+      "family": "STUDENTT_HETERO",
+      "win_nll": 2.0964078048268298,
+      "win_delta_vs_base": 0.001961033763911768,
+      "exacta_nll": 4.24916679124649,
+      "exacta_delta_vs_base": 0.001197733326463002,
+      "trio_nll": 4.66424304237421,
+      "trio_delta_vs_base": -0.002323933994654581,
+      "trifecta_nll": 6.404931941341561,
+      "trifecta_delta_vs_base": -0.004297045400006638
+    },
+    {
+      "test_year": 2024,
+      "family": "BASE_PL",
+      "win_nll": 2.0787073973921273,
+      "win_delta_vs_base": 0.0,
+      "exacta_nll": 4.197429197676684,
+      "exacta_delta_vs_base": 0.0,
+      "trio_nll": 4.612787053482635,
+      "trio_delta_vs_base": 0.0,
+      "trifecta_nll": 6.35023719663916,
+      "trifecta_delta_vs_base": 0.0
+    },
+    {
+      "test_year": 2024,
+      "family": "NORMAL_HOMO",
+      "win_nll": 2.0806303125481067,
+      "win_delta_vs_base": 0.001922915155979421,
+      "exacta_nll": 4.198884534237536,
+      "exacta_delta_vs_base": 0.0014553365608511726,
+      "trio_nll": 4.610464952574501,
+      "trio_delta_vs_base": -0.002322100908133784,
+      "trifecta_nll": 6.345990898953122,
+      "trifecta_delta_vs_base": -0.004246297686037792
+    },
+    {
+      "test_year": 2024,
+      "family": "NORMAL_HETERO",
+      "win_nll": 2.0800528573051174,
+      "win_delta_vs_base": 0.0013454599129900657,
+      "exacta_nll": 4.198418336335592,
+      "exacta_delta_vs_base": 0.0009891386589071516,
+      "trio_nll": 4.610892539277883,
+      "trio_delta_vs_base": -0.0018945142047526176,
+      "trifecta_nll": 6.347173364777297,
+      "trifecta_delta_vs_base": -0.0030638318618629867
+    },
+    {
+      "test_year": 2024,
+      "family": "STUDENTT_HETERO",
+      "win_nll": 2.0809390049391214,
+      "win_delta_vs_base": 0.002231607546994141,
+      "exacta_nll": 4.1992382688301575,
+      "exacta_delta_vs_base": 0.001809071153473063,
+      "trio_nll": 4.610658551050965,
+      "trio_delta_vs_base": -0.002128502431670398,
+      "trifecta_nll": 6.3467251078446045,
+      "trifecta_delta_vs_base": -0.0035120887945554458
+    },
+    {
+      "test_year": 2025,
+      "family": "BASE_PL",
+      "win_nll": 2.093536225428242,
+      "win_delta_vs_base": 0.0,
+      "exacta_nll": 4.230031027408295,
+      "exacta_delta_vs_base": 0.0,
+      "trio_nll": 4.650451806922033,
+      "trio_delta_vs_base": 0.0,
+      "trifecta_nll": 6.387471676182958,
+      "trifecta_delta_vs_base": 0.0
+    },
+    {
+      "test_year": 2025,
+      "family": "NORMAL_HOMO",
+      "win_nll": 2.097395769116418,
+      "win_delta_vs_base": 0.0038595436881756484,
+      "exacta_nll": 4.23262993669823,
+      "exacta_delta_vs_base": 0.002598909289935669,
+      "trio_nll": 4.646923243535867,
+      "trio_delta_vs_base": -0.003528563386165473,
+      "trifecta_nll": 6.38026369414834,
+      "trifecta_delta_vs_base": -0.007207982034618254
+    },
+    {
+      "test_year": 2025,
+      "family": "NORMAL_HETERO",
+      "win_nll": 2.095925470084226,
+      "win_delta_vs_base": 0.002389244655983891,
+      "exacta_nll": 4.231422576186491,
+      "exacta_delta_vs_base": 0.0013915487781961389,
+      "trio_nll": 4.64632707223938,
+      "trio_delta_vs_base": -0.004124734682652509,
+      "trifecta_nll": 6.381189231532164,
+      "trifecta_delta_vs_base": -0.006282444650794083
+    },
+    {
+      "test_year": 2025,
+      "family": "STUDENTT_HETERO",
+      "win_nll": 2.09524366989252,
+      "win_delta_vs_base": 0.0017074444642779518,
+      "exacta_nll": 4.230550154932548,
+      "exacta_delta_vs_base": 0.0005191275242530935,
+      "trio_nll": 4.646540285370631,
+      "trio_delta_vs_base": -0.00391152155140162,
+      "trifecta_nll": 6.382419631552743,
+      "trifecta_delta_vs_base": -0.005052044630215136
+    }
+  ],
+  "elapsed_seconds": 36.26233503800006,
+  "promotion": false
+}
