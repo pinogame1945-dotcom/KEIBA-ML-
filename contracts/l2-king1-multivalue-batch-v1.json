@@ -1,0 +1,39 @@
+{
+  "contract": "L2_KING1_MULTIVALUE_BATCH_V1",
+  "purpose": "Batch-test whether keeping multiple GAP1 value horses improves a King1-anchored TRIO strategy without introducing odds-driven promotion.",
+  "years": [2022, 2023, 2024, 2025],
+  "folds": {"2023":[2022],"2024":[2022,2023],"2025":[2022,2023,2024]},
+  "anchor": "Seven-King consensus rank1",
+  "value_candidate": "distinct from anchor; market_rank-consensus_rank>=1; Outsider context available",
+  "value_order": "p3 desc, rank gap desc, outsider score desc, consensus rank asc, market rank desc, horse_id asc",
+  "pools": ["TOP1","TOP2","TOP3","ALL"],
+  "ticket_space": "anchor fixed; unordered pair of non-anchor horses; ticket eligible for a pool when at least one partner is in that pool",
+  "probability_model": {
+    "one shared model per walk-forward fold trained on ALL-pool eligible tickets",
+    "ranking": "p_hat descending only",
+    "trio_odds_feature": false,
+    "raw_win_odds_feature": false,
+    "probability_times_odds": false,
+    "odds_can_promote_ticket": false
+  },
+  "evaluation": {
+    "topk": [1,3,5,8,12],
+    "stake_per_ticket_yen": 100,
+    "staking_optimization": false,
+    "payout_used_only_for_test_evaluation": true,
+    "report_candidate_count_distribution": true,
+    "report_role_pair_oracle_ceiling": true,
+    "report_rescue_vs_top1": true
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_artifact_or_cache": false,
+    "paid_cloud_compute": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "2026_locked": true
+  }
+}
