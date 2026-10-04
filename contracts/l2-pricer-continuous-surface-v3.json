@@ -1,0 +1,38 @@
+{
+  "contract":"L2_PRICER_CONTINUOUS_SURFACE_V3",
+  "status":"RESEARCH",
+  "created_at":"2026-10-04",
+  "purpose":"Learn a continuous race-context x volatility loss surface and choose how much probability dispersion to apply without binary danger gates or discrete per-action models.",
+  "core":{
+    "training_surface":"context features + family/sigma/lambda -> observed prior-race TRIFECTA NLL delta versus BASE_PL",
+    "policy":"predict dense candidate surface, shrink chosen sigma toward a prior-only static optimum, and fall back to BASE_PL when predicted gain is insufficient",
+    "nested_validation":"policy shrinkage and fallback threshold selected only on the latest available prior validation period",
+    "oracle":"dense-grid outcome oracle is diagnostic only"
+  },
+  "evaluation":{
+    "folds":[[2023,[2022]],[2024,[2022,2023]],[2025,[2022,2023,2024]]],
+    "primary_metric":"TRIFECTA NLL",
+    "secondary_metrics":["TRIO NLL","EXACTA NLL","WIN NLL"],
+    "policies":["BASE_PL","STATIC_PRIOR","SURFACE_POLICY","ORACLE_DENSE_DIAGNOSTIC"],
+    "market_used":false,
+    "roi_optimized":false,
+    "ticket_selection":false,
+    "staking":false
+  },
+  "data_policy":{
+    "pre_race_features_only":true,
+    "l17_market_free":true,
+    "outcomes_joined_separately":true,
+    "locked_years":[2026]
+  },
+  "cost_policy":{
+    "github_standard_cpu_only":true,
+    "paid_runner":false,
+    "gpu":false,
+    "paid_cloud_compute":false,
+    "paid_artifact_or_cache":false,
+    "kaggle_reads_only":true,
+    "kaggle_writes":false
+  },
+  "promotion":false
+}
