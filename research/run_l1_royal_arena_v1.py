@@ -114,7 +114,7 @@ def market_order(orec,horse_to_no):
         if odd is not None and odd>0: odds[int(ks)]=odd
     needed=set(horse_to_no.values())
     if set(odds)!=needed:
-        raise SystemExit(f"WIN odds incomplete got={len(odds)} expected={len(needed)}")
+        return None,None,{"got":len(odds),"expected":len(needed)}
     inv={no:hid for hid,no in horse_to_no.items()}
     order=[inv[no] for no in sorted(odds,key=lambda no:(odds[no],no,inv[no]))]
     comp={}
@@ -152,7 +152,7 @@ def consensus_order(per_alias,aliases,market_ranks=None):
 def empty_acc():
     return defaultdict(float)
 
-def add_metrics(acc,order,winners,podium,market_comp,full_rank=True):
+def add_metrics(acc,order,winners,podium,market_comp=None,full_rank=True):
     if not order: return
     top1=order[:1]; top3=order[:3]; top6=order[:6]
     acc["races"]+=1
@@ -161,14 +161,15 @@ def add_metrics(acc,order,winners,podium,market_comp,full_rank=True):
     acc["winner_top3_hit"]+=int(bool(set(top3)&winners))
     acc["podium_hits_top3"]+=len(set(top3)&podium)
     acc["top3_selected"]+=len(top3)
-    market_top3={h for h,r in market_comp.items() if r<=3}
-    nonmarket=[h for h in top3 if market_comp.get(h,999)>3]
-    acc["top3_nonmarket_selected"]+=len(nonmarket)
-    acc["top3_nonmarket_top3_hit"]+=sum(h in podium for h in nonmarket)
-    acc["top3_nonmarket_win_hit"]+=sum(h in winners for h in nonmarket)
-    union=set(top3)|market_top3
-    acc["top3_jaccard_market_sum"]+=(len(set(top3)&market_top3)/len(union) if union else 1.0)
-    acc["top3_jaccard_market_n"]+=1
+    if market_comp is not None:
+        market_top3={h for h,r in market_comp.items() if r<=3}
+        nonmarket=[h for h in top3 if market_comp.get(h,999)>3]
+        acc["top3_nonmarket_selected"]+=len(nonmarket)
+        acc["top3_nonmarket_top3_hit"]+=sum(h in podium for h in nonmarket)
+        acc["top3_nonmarket_win_hit"]+=sum(h in winners for h in nonmarket)
+        union=set(top3)|market_top3
+        acc["top3_jaccard_market_sum"]+=(len(set(top3)&market_top3)/len(union) if union else 1.0)
+        acc["top3_jaccard_market_n"]+=1
     if full_rank:
         acc["full_rank_races"]+=1
         acc["winner_top6_hit"]+=int(bool(set(top6)&winners))
@@ -217,11 +218,14 @@ def cmd_year(a):
         dates[date].append(rid); date_by_race[rid]=date
 
     acc=defaultdict(empty_acc)
+    market_scope_acc=defaultdict(empty_acc)
     loo=defaultdict(empty_acc)
     pair=defaultdict(lambda:defaultdict(float))
     rescue=defaultdict(lambda:defaultdict(float))
     root=Path(a.backfill_root)
     processed=0
+    market_covered=0
+    market_missing=[]
 
     for date,rids in sorted(dates.items()):
         wanted=set(rids)
@@ -238,39 +242,51 @@ def cmd_year(a):
             horses=set(next(iter(per.values())))
             if any(set(x)!=horses for x in per.values()): raise SystemExit(f"expert horse drift race={rid}")
             horse_to_no={hid:per[EXPERT_ALIASES[0]][hid]["horse_number"] for hid in horses}
-            market,market_comp,_=market_order(orec,horse_to_no)
+            market,market_comp,market_meta=market_order(orec,horse_to_no)
+            market_ok=market is not None
+            if market_ok:
+                market_covered+=1
+            else:
+                market_missing.append({"year":year,"race_id":rid,"race_date":date,**market_meta})
             council=consensus_order(per,EXPERT_ALIASES)
 
             orders={alias:[x["horse_id"] for x in experts[alias][rid]] for alias in EXPERT_ALIASES}
             orders["COUNCIL7"]=council
-            orders["MARKET"]=market
-            orders["COUNCIL7_PLUS_MARKET"]=consensus_order(per,EXPERT_ALIASES,market_comp)
-            for name,order in orders.items(): add_metrics(acc[name],order,winners,podium,market_comp,True)
+            if market_ok:
+                orders["MARKET"]=market
+                orders["COUNCIL7_PLUS_MARKET"]=consensus_order(per,EXPERT_ALIASES,market_comp)
+            for name,order in orders.items():
+                add_metrics(acc[name],order,winners,podium,market_comp if market_ok else None,True)
+                if market_ok:
+                    add_metrics(market_scope_acc[name],order,winners,podium,market_comp,True)
 
             for cand,byrace in ballots.items():
                 order=byrace[rid]
-                add_metrics(acc["OUTSIDER:"+cand],order,winners,podium,market_comp,False)
+                add_metrics(acc["OUTSIDER:"+cand],order,winners,podium,market_comp if market_ok else None,False)
+                if market_ok:
+                    add_metrics(market_scope_acc["OUTSIDER:"+cand],order,winners,podium,market_comp,False)
                 r=rescue[cand]
                 miss3=not bool(set(council[:3])&winners)
                 miss6=not bool(set(council[:6])&winners)
-                mmiss3=not bool(set(market[:3])&winners)
+                mmiss3=(not bool(set(market[:3])&winners)) if market_ok else None
                 r["races"]+=1
                 r["council_top3_miss_n"]+=int(miss3)
                 r["council_top3_miss_rescued"]+=int(miss3 and bool(set(order[:3])&winners))
                 r["council_top6_miss_n"]+=int(miss6)
                 r["council_top6_miss_rescued"]+=int(miss6 and bool(set(order[:3])&winners))
-                both=miss3 and mmiss3
-                r["council_market_top3_both_miss_n"]+=int(both)
-                r["council_market_both_miss_rescued"]+=int(both and bool(set(order[:3])&winners))
-                novel=[h for h in order[:3] if h not in set(council[:3]) and market_comp.get(h,999)>3]
-                r["novel_selected"]+=len(novel)
-                r["novel_actual_top3"]+=sum(h in podium for h in novel)
-                r["novel_winner"]+=sum(h in winners for h in novel)
+                if market_ok:
+                    both=miss3 and mmiss3
+                    r["council_market_top3_both_miss_n"]+=int(both)
+                    r["council_market_both_miss_rescued"]+=int(both and bool(set(order[:3])&winners))
+                    novel=[h for h in order[:3] if h not in set(council[:3]) and market_comp.get(h,999)>3]
+                    r["novel_selected"]+=len(novel)
+                    r["novel_actual_top3"]+=sum(h in podium for h in novel)
+                    r["novel_winner"]+=sum(h in winners for h in novel)
 
             for omit in EXPERT_ALIASES:
                 aliases=tuple(x for x in EXPERT_ALIASES if x!=omit)
                 order=consensus_order(per,aliases)
-                add_metrics(loo[omit],order,winners,podium,market_comp,True)
+                add_metrics(loo[omit],order,winners,podium,market_comp if market_ok else None,True)
 
             for i,a1 in enumerate(EXPERT_ALIASES):
                 r1={h:int(per[a1][h]["rank"]) for h in horses}
@@ -288,6 +304,8 @@ def cmd_year(a):
     if processed!=EXPECTED_RACES: raise SystemExit(f"processed {processed} != {EXPECTED_RACES}")
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
     write_csv(out/"participant-counts.csv",[{"year":year,"participant":k,**dict(v)} for k,v in sorted(acc.items())])
+    write_csv(out/"participant-market-covered-counts.csv",[{"year":year,"participant":k,**dict(v)} for k,v in sorted(market_scope_acc.items())])
+    write_csv(out/"market-missing-races.csv",market_missing)
     write_csv(out/"leave-one-out-counts.csv",[{"year":year,"omitted":k,**dict(v)} for k,v in sorted(loo.items())])
     write_csv(out/"pairwise-counts.csv",[{"year":year,"pair":k,**dict(v)} for k,v in sorted(pair.items())])
     write_csv(out/"outsider-rescue-counts.csv",[{"year":year,"candidate":k,**dict(v)} for k,v in sorted(rescue.items())])
@@ -295,6 +313,9 @@ def cmd_year(a):
         "contract":"L1_ROYAL_ARENA_YEAR_V1","year":year,"races":processed,
         "experts":list(EXPERT_ALIASES),"outsiders":sorted(ballots),
         "market":"final WIN odds; deterministic horse-number tie break, competition rank retained for independence metrics",
+        "market_covered_races":market_covered,
+        "market_missing_races":len(market_missing),
+        "market_missing_policy":"market-only metrics excluded; Seven-King, Council, Outsider and leave-one-out metrics continue on all races",
         "council":"tie-safe ranks only; no result/order leakage",
         "2026_locked":True,"paid_compute":False,"artifact_cache":False
     }
@@ -339,31 +360,40 @@ def cmd_aggregate(a):
     years=[int(x) for x in a.years.split(",")]
     if LOCKED_YEAR in years: raise SystemExit("2026 sealed")
     root=Path(a.root); out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
-    parts=[]; loos=[]; pairs=[]; rescues=[]
-    per_year={}
+    parts=[]; market_parts=[]; loos=[]; pairs=[]; rescues=[]
+    per_year={}; per_year_market={}
     for y in years:
         d=root/f"y{y}"
-        for fn in ("participant-counts.csv","leave-one-out-counts.csv","pairwise-counts.csv","outsider-rescue-counts.csv","summary.json"):
+        for fn in ("participant-counts.csv","participant-market-covered-counts.csv","leave-one-out-counts.csv","pairwise-counts.csv","outsider-rescue-counts.csv","summary.json"):
             if not (d/fn).exists(): raise SystemExit(f"missing year result {d/fn}")
         yp=read_rows(d/"participant-counts.csv"); parts+=yp
+        ymp=read_rows(d/"participant-market-covered-counts.csv"); market_parts+=ymp
         loos+=read_rows(d/"leave-one-out-counts.csv"); pairs+=read_rows(d/"pairwise-counts.csv"); rescues+=read_rows(d/"outsider-rescue-counts.csv")
         per_year[y]={r["participant"]:derive(r) for r in yp}
+        per_year_market[y]={r["participant"]:derive(r) for r in ymp}
 
     pg=sum_group(parts,"participant")
+    mpg=sum_group(market_parts,"participant")
     leaderboard=[]
-    market_by_year={y:per_year[y]["MARKET"] for y in years}
+    market_by_year={y:per_year_market[y]["MARKET"] for y in years}
     for name,c in sorted(pg.items()):
         d=derive(c)
-        d.update({"participant":name})
+        md=derive(mpg[name]) if name in mpg else {}
+        d.update({
+            "participant":name,
+            "market_covered_races":md.get("races"),
+            "market_covered_winner_top3_capture_pct":md.get("winner_top3_capture_pct"),
+            "market_covered_top1_top3_pct":md.get("top1_top3_pct"),
+        })
         d["years_beat_market_winner_top3"]=sum(
             1 for y in years
-            if name in per_year[y] and per_year[y][name]["winner_top3_capture_pct"] is not None
-            and per_year[y][name]["winner_top3_capture_pct"]>market_by_year[y]["winner_top3_capture_pct"]
+            if name in per_year_market[y] and per_year_market[y][name]["winner_top3_capture_pct"] is not None
+            and per_year_market[y][name]["winner_top3_capture_pct"]>market_by_year[y]["winner_top3_capture_pct"]
         )
         d["years_beat_market_top1_top3"]=sum(
             1 for y in years
-            if name in per_year[y] and per_year[y][name]["top1_top3_pct"] is not None
-            and per_year[y][name]["top1_top3_pct"]>market_by_year[y]["top1_top3_pct"]
+            if name in per_year_market[y] and per_year_market[y][name]["top1_top3_pct"] is not None
+            and per_year_market[y][name]["top1_top3_pct"]>market_by_year[y]["top1_top3_pct"]
         )
         leaderboard.append(d)
     leaderboard.sort(key=lambda r:(-(r["winner_top3_capture_pct"] or -1),-(r["top1_top3_pct"] or -1),r["participant"]))
@@ -453,7 +483,7 @@ def cmd_aggregate(a):
         "purpose":"Re-audit all Seven Kings against final WIN market and saved tie-safe Outsider ballots.",
         "rules":{
             "seven_kings":"full-field tie-safe ranks; one-at-a-time removal test",
-            "market":"final WIN market baseline and eighth-member council test",
+            "market":"final WIN market baseline and eighth-member council test; market-missing races are excluded only from market comparisons",
             "outsiders":"saved tie-safe Top3 ballots only in stage 1; no fake full-field rank",
             "next_stage":"recompute full-field ranks only for Outsider finalists after qualification"
         },
