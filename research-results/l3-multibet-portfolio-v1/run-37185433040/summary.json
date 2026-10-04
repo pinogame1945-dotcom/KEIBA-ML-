@@ -1,0 +1,57 @@
+{
+  "contract": "L3_MULTIBET_PORTFOLIO_V1_RESULT",
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO"
+  ],
+  "probability_model": "per-bet-type prior-only beta blend of normalized final WIN market probability and L1.7 mean win probability; exotic probabilities via Plackett-Luce/Harville",
+  "allocation": "fractional independent Kelly with same-race, same-horse, daily and per-bet-type exposure caps; 100-yen units; bankroll updates at end of day",
+  "policy_selection": "fit beta on years before calibration; choose active policy on immediately prior calibration year using two-half robustness; freeze into next test year",
+  "folds": [
+    {
+      "test_year": 2023,
+      "fit_years": [
+        2021
+      ],
+      "calibration_year": 2022
+    },
+    {
+      "test_year": 2024,
+      "fit_years": [
+        2021,
+        2022
+      ],
+      "calibration_year": 2023
+    },
+    {
+      "test_year": 2025,
+      "fit_years": [
+        2021,
+        2022,
+        2023
+      ],
+      "calibration_year": 2024
+    }
+  ],
+  "historical_market_timing": "FINAL_POSTHOC; not actionable same-time odds",
+  "initial_bankroll_yen": 100000.0,
+  "pooled": {
+    "test_years": "2023|2024|2025",
+    "stake_yen": 103800.0,
+    "return_yen": 78040.0,
+    "profit_yen": -25760.0,
+    "roi_pct": 75.18304431599229,
+    "continuous_start_bankroll": 100000.0,
+    "continuous_end_bankroll": 77470.0,
+    "continuous_profit": -22530.0,
+    "continuous_max_drawdown_pct": 26.19912096311867,
+    "winning_years": 0,
+    "qualified_policy_years": 0
+  },
+  "2026_locked": true,
+  "promotion": false,
+  "paid_compute": false,
+  "artifact_cache": false
+}
