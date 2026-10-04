@@ -1,0 +1,42 @@
+{
+  "contract": "L2_PRICER_LATENT_RACE_V1",
+  "status": "RESEARCH",
+  "created_at": "2026-10-04",
+  "purpose": "Test whether latent race-level uncertainty can beat the deterministic L1.7 Plackett-Luce baseline before any market or ROI layer is introduced.",
+  "families": {
+    "BASE_PL": "Frozen L1.7 mean_probability, race-normalized.",
+    "NORMAL_HOMO": "Antithetic Normal noise on log horse strengths with one race-global sigma.",
+    "NORMAL_HETERO": "Antithetic Normal noise on log horse strengths with horse-specific sigma scaled by seven-king disagreement.",
+    "STUDENTT_HETERO": "Antithetic heavy-tailed Student-t noise on log horse strengths with horse-specific sigma scaled by seven-king disagreement."
+  },
+  "selection": {
+    "folds": [[2023,[2022]],[2024,[2022,2023]],[2025,[2022,2023,2024]]],
+    "internal_calibration": "Chronological last 20 percent of prior-only training races.",
+    "metric": "Official winning TRIFECTA negative log probability; exacta and trio retained as diagnostics.",
+    "common_random_numbers": true,
+    "antithetic_sampling": true
+  },
+  "evaluation": {
+    "bets": ["WIN","EXACTA","TRIO","TRIFECTA"],
+    "subsets": ["ALL","TAIL11_TRUE","KING1_MISS_TOP3_TRUE","NEITHER_STRESS"],
+    "market_used": false,
+    "roi_optimized": false,
+    "ticket_selection": false,
+    "staking": false
+  },
+  "data_policy": {
+    "l17_market_free": true,
+    "outcomes_joined_separately": true,
+    "locked_years": [2026]
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_reads_only": true,
+    "kaggle_writes": false
+  },
+  "promotion": false
+}
