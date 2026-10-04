@@ -1,0 +1,37 @@
+{
+  "contract": "L2_KING1_VALUE_PARTNER_V1",
+  "purpose": "Separate reliability and value roles: Seven-King rank1 is the anchor, a distinct GAP1 value horse is fixed as the value leg, and only the third horse is probability-ranked.",
+  "years": [2022, 2023, 2024, 2025],
+  "folds": {"2023":[2022],"2024":[2022,2023],"2025":[2022,2023,2024]},
+  "roles": {
+    "anchor": "Seven-King consensus rank1",
+    "value": "distinct horse with market_rank-consensus_rank>=1 and Outsider context available; highest existing walk-forward p3 with unchanged tie breaks",
+    "partner": "all remaining horses"
+  },
+  "ticket_probability": {
+    "model": "LightGBM binary hit model",
+    "ranking": "p_hat descending only among third-horse candidates",
+    "trio_odds_feature": false,
+    "win_odds_feature": false,
+    "odds_rank_feature": false,
+    "probability_times_odds": false,
+    "market_can_promote_ticket": false
+  },
+  "evaluation": {
+    "topk": [1,3,5,8,12],
+    "stake_per_ticket_yen": 100,
+    "staking_optimization": false,
+    "payout_used_only_for_test_evaluation": true
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_artifact_or_cache": false,
+    "paid_cloud_compute": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "2026_locked": true
+  }
+}
