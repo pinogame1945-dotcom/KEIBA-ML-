@@ -1,0 +1,39 @@
+{
+  "contract": "L2_PRICER_CONTEXTUAL_VOLATILITY_V2",
+  "status": "RESEARCH",
+  "created_at": "2026-10-04",
+  "purpose": "Learn how much latent race uncertainty to apply from pre-race L1.7 diagnostics, instead of using one global volatility or a binary danger gate.",
+  "policy": {
+    "action_space": "BASE_PL plus multiple Normal/heteroscedastic/Student-t volatility actions",
+    "learner": "full-information action-value regression; predict per-action trifecta log-loss delta versus BASE_PL",
+    "decision": "choose the action with the lowest predicted delta, with a prior-only validation threshold that can fall back to BASE_PL",
+    "oracle": "test-outcome oracle action is diagnostic only and never deployable"
+  },
+  "evaluation": {
+    "folds": [[2023,[2022]],[2024,[2022,2023]],[2025,[2022,2023,2024]]],
+    "primary_metric": "TRIFECTA NLL",
+    "secondary_metrics": ["TRIO NLL","EXACTA NLL","WIN NLL"],
+    "policies": ["BASE_PL","STATIC_PRIOR","CONTEXTUAL","ORACLE_DIAGNOSTIC"],
+    "diagnostic_subsets": ["ALL","TAIL11_TRUE","KING1_MISS_TOP3_TRUE","NEITHER_STRESS"],
+    "market_used": false,
+    "roi_optimized": false,
+    "ticket_selection": false,
+    "staking": false
+  },
+  "data_policy": {
+    "pre_race_features_only": true,
+    "l17_market_free": true,
+    "outcomes_joined_separately": true,
+    "locked_years": [2026]
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "paid_runner": false,
+    "gpu": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "kaggle_reads_only": true,
+    "kaggle_writes": false
+  },
+  "promotion": false
+}
