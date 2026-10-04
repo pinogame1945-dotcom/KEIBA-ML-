@@ -1,0 +1,52 @@
+{
+  "contract":"L1_MARKET_CRITIC_V1",
+  "status":"RESEARCH",
+  "created_at":"2026-10-04",
+  "purpose":"Learn where the final WIN market systematically overvalues or undervalues horses using pre-race L1.7 information, without turning the critic into another ranking king.",
+  "architecture":{
+    "market_baseline":"LightGBM using market-only horse/race price features",
+    "l1_baseline":"LightGBM using L1.7 horse/race features only",
+    "market_critic":"LightGBM using market features plus L1.7 features and explicit L1-vs-market gaps",
+    "critic_score":"market_critic_probability - market_baseline_probability",
+    "primary_direction":"negative = market overvalued; positive = market undervalued"
+  },
+  "targets":["WIN","TOP3"],
+  "folds":[
+    {"test_year":2023,"train_years":[2022]},
+    {"test_year":2024,"train_years":[2022,2023]},
+    {"test_year":2025,"train_years":[2022,2023,2024]}
+  ],
+  "critic_bands":{
+    "threshold_source":"chronological last 20 percent of prior training races, predicted by fit-only models",
+    "quantiles":[0.10,0.25,0.75,0.90],
+    "bands":["STRONG_OVERVALUED","OVERVALUED","NEUTRAL","UNDERVALUED","STRONG_UNDERVALUED"]
+  },
+  "evaluation":{
+    "proper_scores":["binary_logloss","brier","race_winner_nll"],
+    "paired_bootstrap_reps":2500,
+    "bootstrap_unit":"race",
+    "primary_comparison":"MARKET_CRITIC_vs_MARKET_ONLY",
+    "market_error_check":"Within critic bands, compare actual outcome rate to market-only predicted rate",
+    "flat_win_roi_proxy":"Final historical WIN odds, 100-yen-equivalent flat stake; diagnostic only"
+  },
+  "market_policy":{
+    "historical_price":"NETKEIBA final WIN odds",
+    "odds_are_model_features":true,
+    "closing_odds_warning":"Research measures ability to criticize the closing market; live deployment must use an available pre-race odds snapshot instead."
+  },
+  "data_policy":{
+    "l1_features_pre_race_only":true,
+    "outcome_features_forbidden":true,
+    "locked_years":[2026],
+    "promotion":false
+  },
+  "cost_policy":{
+    "github_standard_cpu_only":true,
+    "paid_runner":false,
+    "gpu":false,
+    "paid_cloud_compute":false,
+    "paid_artifact_or_cache":false,
+    "kaggle_reads_only":true,
+    "kaggle_writes":false
+  }
+}
