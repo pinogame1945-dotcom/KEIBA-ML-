@@ -159,23 +159,28 @@ def metrics(sel,total_races):
         "avg_tickets_per_bought_race":len(sel)/br if br else None,
     }
 
+def freeze_probability_rank(df,maxk=12):
+    if df.empty:return df.copy()
+    z=df.sort_values(["race_id","p_hat","ticket"],ascending=[True,False,True]).copy()
+    z["prob_rank"]=z.groupby("race_id",sort=False).cumcount()+1
+    return z[z["prob_rank"]<=int(maxk)].copy()
+
 def select_topk(df,k):
-    out=[]
-    for _,g in df.groupby("race_id",sort=False):
-        q=g.sort_values(["p_hat","ticket"],ascending=[False,True]).head(k).copy()
-        q["prob_rank"]=np.arange(1,len(q)+1)
-        out.append(q)
-    return pd.concat(out,ignore_index=True) if out else df.iloc[:0].copy()
+    if "prob_rank" not in df.columns:
+        df=freeze_probability_rank(df,max(TOPKS))
+    return df[df["prob_rank"]<=int(k)].copy()
 
 
 def apply_postrank_rule(df,k,king_max,market_min,market_max,odds_floor):
-    frozen=select_topk(df,k)
-    if frozen.empty:return frozen
-    return frozen[
-        (frozen["axis_consensus_rank_raw"]<=float(king_max)) &
-        (frozen["axis_market_rank_raw"]>=float(market_min)) &
-        (frozen["axis_market_rank_raw"]<=float(market_max)) &
-        (frozen["trio_odds"]>=float(odds_floor))
+    if df.empty:return df.copy()
+    if "prob_rank" not in df.columns:
+        df=freeze_probability_rank(df,max(TOPKS))
+    return df[
+        (df["prob_rank"]<=int(k)) &
+        (df["axis_consensus_rank_raw"]<=float(king_max)) &
+        (df["axis_market_rank_raw"]>=float(market_min)) &
+        (df["axis_market_rank_raw"]<=float(market_max)) &
+        (df["trio_odds"]>=float(odds_floor))
     ].copy()
 
 def choose_rule(policy_df,total_races):
@@ -293,11 +298,11 @@ def main():
         policy=train[train["race_id"].astype(str).isin(policy_ids)].copy()
 
         model,iso,spw=fit_model(fit,cal,features,cpu); last_model=model
-        policyp=add_predictions(policy,model,iso,features)
+        policyp=freeze_probability_rank(add_predictions(policy,model,iso,features),max(TOPKS))
         rule,grid=choose_rule(policyp,int(policyp["race_id"].nunique()))
         grid["test_year"]=test_year; grid_rows.append(grid)
 
-        testp=add_predictions(yearly[test_year],model,iso,features)
+        testp=freeze_probability_rank(add_predictions(yearly[test_year],model,iso,features),max(TOPKS))
         total_races=int(testp["race_id"].nunique())
         sel=apply_postrank_rule(testp,rule["topk"],rule["king_max"],rule["market_min"],rule["market_max"],rule["odds_floor"])
         pooled_sel.append(sel.assign(test_year=test_year))
