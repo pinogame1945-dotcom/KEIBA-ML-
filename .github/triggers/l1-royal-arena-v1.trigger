@@ -1,0 +1,2 @@
+triggered_at=2026-10-04T14:53:00+09:00
+purpose=L1_ROYAL_ARENA_V1
