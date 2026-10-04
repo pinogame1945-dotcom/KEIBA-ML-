@@ -80,11 +80,12 @@ def build_year(year,df,root):
             trio_odds={nums:price for bet,nums,price in iter_decoded_odds(orec) if bet=="TRIO"}
             if not trio_odds:
                 skipped["no_trio_odds"]+=1; continue
-            axis_no=int(axis["horse_number"])
-            others=g[g["horse_number"].astype(int)!=axis_no]
+            axisd=axis.to_dict()
+            axis_no=int(axisd["horse_number"])
+            field_size_norm=float(g["field_size"].iloc[0])/18.0
+            horses=[r for r in g.to_dict("records") if int(r["horse_number"])!=axis_no]
             local=[]
-            for i,j in itertools.combinations(range(len(others)),2):
-                a=others.iloc[i]; b=others.iloc[j]
+            for a,b in itertools.combinations(horses,2):
                 if (float(a["consensus_rank"]),int(a["horse_number"])) > (float(b["consensus_rank"]),int(b["horse_number"])):
                     a,b=b,a
                 nums=tuple(sorted((axis_no,int(a["horse_number"]),int(b["horse_number"]))))
@@ -92,22 +93,22 @@ def build_year(year,df,root):
                 if odd is None or not math.isfinite(float(odd)) or float(odd)<=0:
                     continue
                 feat={}
-                feat.update(hf(axis,"axis_")); feat.update(hf(a,"p1_")); feat.update(hf(b,"p2_"))
+                feat.update(hf(axisd,"axis_")); feat.update(hf(a,"p1_")); feat.update(hf(b,"p2_"))
                 feat.update({
-                    "field_size_norm":float(g["field_size"].iloc[0])/18.0,
+                    "field_size_norm":field_size_norm,
                     "partners_p3_sum":float(a["p3_calibrated"]+b["p3_calibrated"]),
                     "partners_p3_min":float(min(a["p3_calibrated"],b["p3_calibrated"])),
                     "partners_score_sum":float(a["outsider_score_scaled"]+b["outsider_score_scaled"]),
-                    "trio_p3_sum":float(axis["p3_calibrated"]+a["p3_calibrated"]+b["p3_calibrated"]),
-                    "trio_king_prob_sum":float(axis["king_probability_mean"]+a["king_probability_mean"]+b["king_probability_mean"]),
-                    "trio_gap_mean":float((axis["signed_rank_gap_pct"]+a["signed_rank_gap_pct"]+b["signed_rank_gap_pct"])/3.0),
-                    "trio_outsider_available":float(axis["outsider_available"]+a["outsider_available"]+b["outsider_available"]),
+                    "trio_p3_sum":float(axisd["p3_calibrated"]+a["p3_calibrated"]+b["p3_calibrated"]),
+                    "trio_king_prob_sum":float(axisd["king_probability_mean"]+a["king_probability_mean"]+b["king_probability_mean"]),
+                    "trio_gap_mean":float((axisd["signed_rank_gap_pct"]+a["signed_rank_gap_pct"]+b["signed_rank_gap_pct"])/3.0),
+                    "trio_outsider_available":float(axisd["outsider_available"]+a["outsider_available"]+b["outsider_available"]),
                 })
                 hit=int(("TRIO",nums) in payouts)
                 ret=float(payouts.get(("TRIO",nums),0.0))
                 local.append({
                     "year":year,"race_id":rid,"race_date":date,
-                    "axis_horse_id":str(axis["horse_id"]),"axis_no":axis_no,
+                    "axis_horse_id":str(axisd["horse_id"]),"axis_no":axis_no,
                     "p1_no":int(a["horse_number"]),"p2_no":int(b["horse_number"]),
                     "ticket":"-".join(map(str,nums)),
                     "trio_odds":float(odd),"odds_band":odds_band(odd),
