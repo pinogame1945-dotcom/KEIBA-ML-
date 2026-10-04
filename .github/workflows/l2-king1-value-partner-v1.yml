@@ -1,0 +1,204 @@
+name: L2 King1 Value Partner V1
+
+on:
+  push:
+    branches:
+      - research/l2-king1-value-partner-v1-20261004
+    paths:
+      - .github/triggers/l2-king1-value-partner-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-king1-value-partner-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      OUTSIDER_SOURCE_BRANCH: research/l16-outsider-support-safe-v1-20260930
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/materialize_l17_seven_king_fullfield_v1.py             research/extract_l2_core_dates_v1.py             research/build_l2_core_v1_dataset.py             research/build_l2_bet_kings_dataset_v1.py             research/run_l2_trio_probability_v2.py             research/run_l2_king1_value_partner_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open('contracts/l2-king1-value-partner-v1.json',encoding='utf-8'))
+          assert c['contract']=='L2_KING1_VALUE_PARTNER_V1'
+          assert c['ticket_probability']['trio_odds_feature'] is False
+          assert c['ticket_probability']['win_odds_feature'] is False
+          assert c['ticket_probability']['probability_times_odds'] is False
+          assert c['ticket_probability']['market_can_promote_ticket'] is False
+          assert c['evaluation']['stake_per_ticket_yen']==100
+          assert c['cost_policy']['github_standard_cpu_only'] is True
+          assert c['cost_policy']['gpu'] is False
+          assert c['cost_policy']['paid_artifact_or_cache'] is False
+          assert c['data_policy']['kaggle_metadata_first'] is True
+          assert c['data_policy']['404_retry'] is False
+          assert c['data_policy']['2026_locked'] is True
+          wf=Path('.github/workflows/l2-king1-value-partner-v1.yml').read_text().splitlines()
+          runners=[x.strip().split(':',1)[1].strip() for x in wf if x.strip().startswith('runs-on:')]
+          uses=[x.strip().split(':',1)[1].strip() for x in wf if x.strip().startswith('- uses:')]
+          assert runners==['ubuntu-latest'],runners
+          assert not any(u.startswith('actions/upload-artifact') for u in uses)
+          assert not any(u.startswith('actions/cache') for u in uses)
+          src=Path('research/run_l2_king1_value_partner_v1.py').read_text()
+          assert 'probability_times_odds' in src
+          assert '"2026_locked":True' in src
+          assert 'STAKE=100.0' in src
+          assert 'choose_anchor_value' in src
+          assert 'freeze_rank' in src
+          assert 'cut=max(1,int(len(races)*0.80))' in src
+          section=src[src.index('features=['):src.index('features=list(dict.fromkeys(features))')+len('features=list(dict.fromkeys(features))')]
+          for bad in ('trio_odds','log_trio_odds','trio_implied_prob','odds_rank','log_market_win_odds'):
+              assert bad not in section,bad
+          print('L2_SIMPLE_VALUE_TRIO_ROI_STATIC_GUARDS_OK')
+          PY
+          bash -n scripts/kaggle-dataset-session-v2.sh
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore seven score tables once metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+          session='scripts/kaggle-dataset-session-v2.sh'
+          fetch_year() {
+            y="$1"
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/king1-value-partner-v1/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              bash "$session" init "$ref" "$d"
+              bash "$session" fetch "$d" score.jsonl
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+            done
+          }
+          export -f fetch_year
+          export session
+          printf '%s\n' 2022 2023 2024 2025 | xargs -n1 -P2 bash -c 'fetch_year "$1"' _
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/king1-value-partner-v1/l17
+          build_l17_year() {
+            y="$1"
+            args=()
+            for spec in core4_no_pedigree=core4 no_auto_full_pedigree_legacy=pedlegacy jockey_trainer_condition=condition no_auto_full=full no_auto_jockey=light no_auto_full_pedigree_v1=pedv1 jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="$(find "out/king1-value-partner-v1/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+              args+=(--expert "$name=$p")
+            done
+            p="out/king1-value-partner-v1/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
+            test -s "$p"
+          }
+          export -f build_l17_year
+          printf '%s\n' 2022 2023 2024 2025 | xargs -n1 -P2 bash -c 'build_l17_year "$1"' _
+          for y in 2022 2023 2024 2025; do
+            echo "L17_$y=out/king1-value-partner-v1/l17/l17-$y.jsonl.gz" >> "$GITHUB_ENV"
+          done
+
+      - name: Resolve dates and restore exact BACKFILL files once
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for y in 2022 2023 2024 2025; do
+            p="$(find "out/king1-value-partner-v1/scores/$y/core4" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
+            args+=(--score-year "$y:$p")
+          done
+          python research/extract_l2_core_dates_v1.py "${args[@]}"             --dates-out out/king1-value-partner-v1/all-dates.txt             --race-dates-out out/king1-value-partner-v1/race-dates.csv
+          rm -rf out/backfill
+          git init out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < out/king1-value-partner-v1/all-dates.txt
+          } > out/backfill/.git/info/sparse-checkout
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$BACKFILL_SHA"
+          git -C out/backfill checkout --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Build horse rows once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/build_l2_core_v1_dataset.py             --l17-year "2022:$L17_2022"             --l17-year "2023:$L17_2023"             --l17-year "2024:$L17_2024"             --l17-year "2025:$L17_2025"             --race-dates out/king1-value-partner-v1/race-dates.csv             --backfill-root out/backfill             --out-dir out/king1-value-partner-v1/horse-dataset
+
+      - name: Restore frozen Outsider podium context once
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/king1-value-partner-v1/outsider
+          git fetch --depth=1 origin "$OUTSIDER_SOURCE_BRANCH":refs/remotes/origin/king1-value-partner-v1-outsider-source
+          git show origin/king1-value-partner-v1-outsider-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/king1-value-partner-v1/outsider/predictions.csv.gz
+          test -s out/king1-value-partner-v1/outsider/predictions.csv.gz
+
+      - name: Run King1 plus value role test
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-king1-value-partner-v1/run-$GITHUB_RUN_ID"
+          PYTHONPATH=research python research/run_l2_king1_value_partner_v1.py             --contract contracts/l2-king1-value-partner-v1.json             --dataset-dir out/king1-value-partner-v1/horse-dataset             --backfill-root out/backfill             --outsider-predictions out/king1-value-partner-v1/outsider/predictions.csv.gz             --out-dir "$result"
+          cat "$result/role-year-metrics.csv"
+          cat "$result/pooled-topk-metrics.csv"
+          cat "$result/coverage.csv"
+          du -sh "$result"
+          test "$(du -sm "$result" | cut -f1)" -le 10
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo 'Standard GitHub-hosted ubuntu-latest CPU only.'
+          echo 'No GPU / paid runner / paid cloud compute.'
+          echo 'No actions/cache or upload-artifact.'
+          echo 'No Kaggle upload or paid storage.'
+          echo 'Kaggle reads are metadata-first and session-reused.'
+          echo 'BACKFILL sparse checkout is runner-local and reused.'
+          echo 'Only compact CSV/JSON summaries are committed.'
+          echo '2026 remains sealed.'
+
+      - name: Commit compact summaries only
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-king1-value-partner-v1/run-$GITHUB_RUN_ID"
+          git config user.name 'keiba-ml-research-bot'
+          git config user.email 'actions@users.noreply.github.com'
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result/README.md" "$result/summary.json" "$result/fold-topk-metrics.csv" "$result/pooled-topk-metrics.csv" "$result/role-year-metrics.csv" "$result/coverage.csv"
+          git commit -m "research: archive King1 value partner V1 $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
