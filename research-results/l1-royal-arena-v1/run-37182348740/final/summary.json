@@ -1,0 +1,28 @@
+{
+  "contract": "L1_ROYAL_ARENA_V1",
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "purpose": "Re-audit all Seven Kings against final WIN market and saved tie-safe Outsider ballots.",
+  "rules": {
+    "seven_kings": "full-field tie-safe ranks; one-at-a-time removal test",
+    "market": "final WIN market baseline and eighth-member council test; market-missing races are excluded only from market comparisons",
+    "outsiders": "saved tie-safe Top3 ballots only in stage 1; no fake full-field rank",
+    "next_stage": "recompute full-field ranks only for Outsider finalists after qualification"
+  },
+  "files": [
+    "leaderboard.csv",
+    "king-audit.csv",
+    "council-contribution.csv",
+    "pairwise-redundancy.csv",
+    "outsider-qualification.csv"
+  ],
+  "2026_locked": true,
+  "paid_compute": false,
+  "artifact_cache": false,
+  "promotion": false
+}
