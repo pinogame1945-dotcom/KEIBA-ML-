@@ -68,6 +68,7 @@ jobs:
           assert '"2026_locked":True' in src
           assert 'STAKE=100.0' in src
           assert 'apply_postrank_rule' in src
+          assert 'freeze_probability_rank' in src
           assert 'fit_cut=max(1,int(n*0.70))' in src
           section=src[src.index('features=['):src.index('features=list(dict.fromkeys(features))')+len('features=list(dict.fromkeys(features))')]
           for bad in ('trio_odds','log_trio_odds','trio_implied_prob','odds_rank','log_market_win_odds'):
@@ -88,7 +89,8 @@ jobs:
         run: |
           set -euo pipefail
           session='scripts/kaggle-dataset-session-v2.sh'
-          for y in 2022 2023 2024 2025; do
+          fetch_year() {
+            y="$1"
             for alias in core4 pedlegacy condition full light pedv1 condrc; do
               d="out/value-trio-filter-v4/scores/$y/$alias"
               ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
@@ -97,16 +99,20 @@ jobs:
               p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
               test -n "$p"; test -s "$p"
             done
-          done
+          }
+          export -f fetch_year
+          export session
+          printf '%s\n' 2022 2023 2024 2025 | xargs -n1 -P2 bash -c 'fetch_year "$1"' _
 
       - name: Materialize L1.7 once per year
         shell: bash
         run: |
           set -euo pipefail
           mkdir -p out/value-trio-filter-v4/l17
-          for y in 2022 2023 2024 2025; do
+          build_l17_year() {
+            y="$1"
             args=()
-            for spec in               core4_no_pedigree=core4               no_auto_full_pedigree_legacy=pedlegacy               jockey_trainer_condition=condition               no_auto_full=full               no_auto_jockey=light               no_auto_full_pedigree_v1=pedv1               jockey_trainer_condition_plus_raceclass=condrc; do
+            for spec in core4_no_pedigree=core4 no_auto_full_pedigree_legacy=pedlegacy jockey_trainer_condition=condition no_auto_full=full no_auto_jockey=light no_auto_full_pedigree_v1=pedv1 jockey_trainer_condition_plus_raceclass=condrc; do
               name="${spec%%=*}"; alias="${spec##*=}"
               p="$(find "out/value-trio-filter-v4/scores/$y/$alias" -maxdepth 1 -type f \( -name 'score.jsonl' -o -name 'score.jsonl.gz' \) -print -quit)"
               args+=(--expert "$name=$p")
@@ -114,7 +120,11 @@ jobs:
             p="out/value-trio-filter-v4/l17/l17-$y.jsonl.gz"
             python research/materialize_l17_seven_king_fullfield_v1.py --year "$y" "${args[@]}" --output "$p"
             test -s "$p"
-            echo "L17_$y=$p" >> "$GITHUB_ENV"
+          }
+          export -f build_l17_year
+          printf '%s\n' 2022 2023 2024 2025 | xargs -n1 -P2 bash -c 'build_l17_year "$1"' _
+          for y in 2022 2023 2024 2025; do
+            echo "L17_$y=out/value-trio-filter-v4/l17/l17-$y.jsonl.gz" >> "$GITHUB_ENV"
           done
 
       - name: Resolve dates and restore exact BACKFILL files once
