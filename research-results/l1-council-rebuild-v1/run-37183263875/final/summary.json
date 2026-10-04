@@ -1,0 +1,52 @@
+{
+  "contract": "L1_COUNCIL_REBUILD_V1",
+  "search_space": {
+    "pure_l1_subsets": 127,
+    "market_share_grid": [
+      0.0,
+      0.125,
+      0.25,
+      0.5,
+      1.0,
+      2.0,
+      4.0
+    ],
+    "market_share_definition": "market vote weight = selected L1 expert count * market_share",
+    "market_only_included": true
+  },
+  "selection": {
+    "walk_forward": "expanding prior years only; test years 2022-2025",
+    "primary": "Top3 podium precision",
+    "tie_breaks": [
+      "winner Top3 capture",
+      "Top1 podium rate",
+      "winner Top6 capture",
+      "fewer experts",
+      "lower market share"
+    ],
+    "modes": [
+      "UNCONSTRAINED",
+      "HYBRID",
+      "PURE_L1"
+    ]
+  },
+  "outsider_rescue": {
+    "source": "saved tie-safe 13-Outsider Top3 ballots",
+    "candidate": "highest aggregate 3-2-1 point horse outside base Top6",
+    "features": [
+      "aggregate points",
+      "vote count",
+      "base-vs-market Top3 Jaccard",
+      "candidate market rank"
+    ],
+    "actions": [
+      "replace base rank6",
+      "replace base rank3"
+    ],
+    "rule_selection": "prior years only; NONE allowed"
+  },
+  "2026_locked": true,
+  "promotion": false,
+  "paid_compute": false,
+  "artifact_cache": false
+}
