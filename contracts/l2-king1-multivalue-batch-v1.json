@@ -9,7 +9,7 @@
   "pools": ["TOP1","TOP2","TOP3","ALL"],
   "ticket_space": "anchor fixed; unordered pair of non-anchor horses; ticket eligible for a pool when at least one partner is in that pool",
   "probability_model": {
-    "one shared model per walk-forward fold trained on ALL-pool eligible tickets",
+    "training": "one shared model per walk-forward fold trained on ALL-pool eligible tickets",
     "ranking": "p_hat descending only",
     "trio_odds_feature": false,
     "raw_win_odds_feature": false,
