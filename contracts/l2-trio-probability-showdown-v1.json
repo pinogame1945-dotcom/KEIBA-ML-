@@ -1,0 +1,73 @@
+{
+  "contract": "L2_TRIO_PROBABILITY_SHOWDOWN_V1",
+  "purpose": "Final decisive comparison of TRIO probability engines. Decide whether L2 contains information beyond the market or whether research should return to L1.",
+  "locked_years": [2026],
+  "walk_forward_folds": {
+    "2023": [2022],
+    "2024": [2022, 2023],
+    "2025": [2022, 2023, 2024]
+  },
+  "probability_engines": [
+    "CURRENT_HARVILLE_PL",
+    "DISCOUNTED_HARVILLE",
+    "POSITION_SPECIFIC_1_2_3",
+    "DIRECT_TRIO"
+  ],
+  "market_comparisons": [
+    "PURE_TRIO_MARKET",
+    "AI_ONLY",
+    "TRIO_MARKET_PLUS_AI"
+  ],
+  "discounted_harville": {
+    "fit_alpha2_alpha3_on_prior_years_only": true,
+    "alpha_grid": [0.50,0.60,0.70,0.80,0.90,1.00],
+    "reference_alpha2": 0.81,
+    "reference_alpha3": 0.64
+  },
+  "market_plus_ai": {
+    "form": "normalize(q_market^(1-beta) * p_ai^beta)",
+    "beta_grid": [0.00,0.10,0.20,0.30,0.40,0.50,0.60,0.70,0.80,0.90,1.00,1.20,1.50],
+    "beta_fitted_on_prior_years_only": true
+  },
+  "primary_probability_metrics": [
+    "race_log_loss",
+    "multiclass_brier",
+    "ticket_ece",
+    "winner_top1",
+    "winner_top4",
+    "winner_top8",
+    "winner_top12",
+    "winner_top20"
+  ],
+  "fullfield_p3_audit": {
+    "enabled": true,
+    "source": "POSITION_SPECIFIC_1_2_3 marginals",
+    "rank_bands": ["1-6","7-12","13-18"]
+  },
+  "roi_budgets": [4,8,12,20],
+  "stake_per_ticket_yen": 100,
+  "roi_policy": {
+    "probability_times_odds_ranking": false,
+    "odds_can_promote_ticket": false,
+    "topk_ranked_by_probability_only": true,
+    "payout_used_only_for_evaluation": true
+  },
+  "decision_rule": {
+    "continue_l2_if": "At least one market+AI engine improves out-of-sample TRIO market race log-loss in a stable multi-year pattern and shows economically meaningful improvement without relying on test-year rule tuning.",
+    "otherwise": "Stop micro-tuning L2 and return research effort to L1."
+  },
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "paid_cloud_compute": false,
+    "paid_artifact_or_cache": false,
+    "paid_dataset_or_model_storage": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "retry_only_transient_429_5xx": true,
+    "runner_session_reuse": true
+  }
+}
