@@ -1,0 +1,43 @@
+{
+  "contract": "L17_TAIL_RESCUE_ROI_BATCH_V1",
+  "purpose": "Measure economic value of adding ranks 13-18 rescue horses to Seven-King horse Top12 without confusing horse ranks with ticket ranks.",
+  "test_years": [2023, 2024, 2025],
+  "train_folds": {"2023":[2022],"2024":[2022,2023],"2025":[2022,2023,2024]},
+  "challenge_scope": "field_size >= 13 and exactly three target_top3 horses",
+  "base_pool": "Seven-King consensus ranks 1-12",
+  "tail_pool": "Seven-King consensus ranks 13-18",
+  "selectors": ["KING_ORDER","MARKET","OUTSIDER","L175_P3","ML_COMBINED"],
+  "rescue_k": [0,1,2,3],
+  "bet_families": {
+    "BOX_ALL": "all unordered TRIO tickets inside selected horse pool",
+    "KING1_AXIS_ALL": "Seven-King rank1 fixed; all unordered partner pairs inside selected horse pool",
+    "KING_PL_TOPK": [12,20,30],
+    "L175_P3_TOPK": [12,20,30]
+  },
+  "stake_per_ticket_yen": 100,
+  "report": [
+    "hit_rate",
+    "ticket_count",
+    "average_tickets_per_race",
+    "stake",
+    "return",
+    "roi",
+    "profit",
+    "average_payout_when_hit",
+    "break_even_hit_rate_using_observed_hit_payout",
+    "horse_pool_capture",
+    "selector_agreement",
+    "tail_signal_coverage"
+  ],
+  "cost_policy": {
+    "github_standard_cpu_only": true,
+    "gpu": false,
+    "paid_artifact_or_cache": false,
+    "paid_cloud_compute": false
+  },
+  "data_policy": {
+    "kaggle_metadata_first": true,
+    "404_retry": false,
+    "2026_locked": true
+  }
+}
