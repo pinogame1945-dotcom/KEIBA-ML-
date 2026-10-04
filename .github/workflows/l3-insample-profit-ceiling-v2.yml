@@ -1,0 +1,196 @@
+name: L3 In-Sample Profit Ceiling V2
+
+on:
+  push:
+    branches:
+      - research/l3-insample-profit-ceiling-v2-20261004
+    paths:
+      - .github/triggers/l3-insample-profit-ceiling-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l3-insample-profit-ceiling-v2
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l3_insample_profit_ceiling_v2.py             research/materialize_l17_seven_king_fullfield_v1.py             research/resolve_kaggle_file_v1.py             research/rerank_l1_score_safe_v1.py             research/build_l2_bet_kings_dataset_v1.py             research/build_l2_l17_fullfield_dataset_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l3-insample-profit-ceiling-v2.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_l3_insample_profit_ceiling_v2.py").read_text()
+          for token in ("INSAMPLE_YEARS=(2022,2023,2024,2025)","BETA_GRID=tuple(i/20.0 for i in range(21))","EDGE_GRID=(-1.0,-0.75,-0.50,-0.25,-0.10,0.0,0.03,0.10,0.25,0.50)","COVERAGE_FLOORS=(50.0,70.0,90.0)","2026_locked"):
+              assert token in src,token
+          assert "TRIFECTA" not in src
+          print("L3_MULTIBET_PORTFOLIO_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install Kaggle client only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+
+      - name: Restore 2022-2025 seven scores metadata-first
+        shell: bash
+        run: |
+          set -euo pipefail
+
+          kaggle_transient() {
+            local label="$1"; shift
+            local attempt rc delay tmp
+            for attempt in 1 2 3 4 5 6; do
+              tmp="$(mktemp)"
+              set +e
+              "$@" >"$tmp.out" 2>"$tmp.err"
+              rc=$?
+              set -e
+              cat "$tmp.out"; cat "$tmp.err" >&2
+              if [[ "$rc" -eq 0 ]]; then
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return 0
+              fi
+              if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle 404 non-retryable label=$label" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              rm -f "$tmp" "$tmp.out" "$tmp.err"
+              [[ "$attempt" -lt 6 ]] || return "$rc"
+              case "$attempt" in
+                1) delay=10 ;;
+                2) delay=20 ;;
+                3) delay=40 ;;
+                4) delay=60 ;;
+                *) delay=90 ;;
+              esac
+              sleep "$delay"
+            done
+          }
+
+          for y in 2022 2023 2024 2025; do
+            for alias in core4 pedlegacy condition full light pedv1 condrc; do
+              d="out/scores/$y/$alias"
+              ref="pino1945/keiba-l15-7k-$alias-y$y-v1"
+              mkdir -p "$d"
+              meta="$d/files.json"
+              kaggle_transient "files:$alias:$y"                 bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$meta"
+              remote="$(python research/resolve_kaggle_file_v1.py                 --files-json "$meta" --wanted score.jsonl.gz --wanted score.jsonl)"
+              echo "RESOLVED year=$y alias=$alias remote=$remote"
+              kaggle_transient "download:$alias:$y:$remote"                 kaggle datasets download "$ref" -f "$remote" -p "$d" --unzip --quiet --force
+              p="$(find "$d" -maxdepth 1 -type f \( -name 'score.jsonl.gz' -o -name 'score.jsonl' \) -print -quit)"
+              test -n "$p"; test -s "$p"
+              python research/rerank_l1_score_safe_v1.py --input "$p" --output "$d/safe-score.jsonl.gz"
+              rm -f "$p" "$meta"
+            done
+          done
+
+      - name: Materialize L1.7 once per year
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l17
+          for y in 2022 2023 2024 2025; do
+            args=()
+            for spec in               core4_no_pedigree=core4               no_auto_full_pedigree_legacy=pedlegacy               jockey_trainer_condition=condition               no_auto_full=full               no_auto_jockey=light               no_auto_full_pedigree_v1=pedv1               jockey_trainer_condition_plus_raceclass=condrc; do
+              name="${spec%%=*}"; alias="${spec##*=}"
+              p="out/scores/$y/$alias/safe-score.jsonl.gz"
+              test -s "$p"
+              args+=(--expert "$name=$p")
+            done
+            out="out/l17/l17-$y.jsonl.gz"
+            python research/materialize_l17_seven_king_fullfield_v1.py               --year "$y" "${args[@]}" --output "$out"
+            test -s "$out"
+            echo "L17_$y=$out" >> "$GITHUB_ENV"
+          done
+          rm -rf out/scores
+
+      - name: Sparse restore 2022-2025 race and odds packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout             https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run direct broad in-sample profit ceiling v2
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l3-insample-profit-ceiling-v2/run-$GITHUB_RUN_ID"
+          python research/run_l3_insample_profit_ceiling_v2.py             --l17-2022 "$L17_2022"             --l17-2023 "$L17_2023"             --l17-2024 "$L17_2024"             --l17-2025 "$L17_2025"             --backfill-root out/backfill             --work-dir out/l3-insample-ceiling-v2             --out-dir "$result"             --workers 4
+          test -s "$result/summary.json"
+          test -s "$result/selected_by_type.csv"
+          test -s "$result/best_overall.csv"
+          echo "RESULT_DIR=$result" >> "$GITHUB_ENV"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle reads metadata then exact existing score filename once per dataset."
+          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
+          echo "All large compact intermediates remain runner-local and are not persisted."
+          echo "Only compact CSV/JSON final results are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$RESULT_DIR"
+          git commit -m "research: archive in-sample profit ceiling v2 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
