@@ -168,6 +168,10 @@ def cmd_year(a):
                 if any(s!=horse_sets[0] for s in horse_sets[1:]):
                     raise SystemExit(f"horse coverage drift {rid}")
                 horses=sorted(horse_sets[0])
+                rank_matrix=[]
+                for order in orders:
+                    rm={h:i+1 for i,h in enumerate(order)}
+                    rank_matrix.append([rm[h] for h in horses])
                 morder,mrank=market(orec,no_map)
                 if morder is None:
                     market_missing+=1
@@ -181,7 +185,7 @@ def cmd_year(a):
                 outs.sort(key=lambda x:(-x[1],-x[2],x[3],x[0]))
                 rec={
                     "year":year,"race_id":rid,"race_date":date,
-                    "horses":horses,"orders":orders,
+                    "horses":horses,"rank_matrix":rank_matrix,
                     "market_order":morder,"market_ranks":mranks,
                     "winner":winners,"podium":podium,"outsider_support":outs,
                 }
@@ -216,11 +220,7 @@ def order_for(rec,mask,share):
     horses=rec["horses"]; n=len(horses)
     if mask==0:
         return list(rec["market_order"])
-    idx={h:i for i,h in enumerate(horses)}
-    rankvec=[]
-    for order in rec["orders"]:
-        m={h:i+1 for i,h in enumerate(order)}
-        rankvec.append([m[h] for h in horses])
+    rankvec=rec["rank_matrix"]
     mr=rec["market_ranks"]
     k=popcount(mask); mw=share*k
     scored=[]
