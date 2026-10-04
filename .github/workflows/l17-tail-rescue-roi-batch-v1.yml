@@ -168,10 +168,10 @@ jobs:
           set -euo pipefail
           result="research-results/l17-tail-rescue-roi-batch-v1/run-$GITHUB_RUN_ID"
           PYTHONPATH=research python research/run_l17_tail_rescue_roi_batch_v1.py             --contract contracts/l17-tail-rescue-roi-batch-v1.json             --dataset-dir out/l17-tail-rescue-roi-batch-v1/horse-dataset             --backfill-root out/backfill             --outsider-predictions out/l17-tail-rescue-roi-batch-v1/outsider/predictions.csv.gz             --out-dir "$result"
-          cat "$result/top12-tail-summary.csv"
-          cat "$result/rank13-18-top3-rates.csv"
-          cat "$result/selector-rescue-metrics.csv"
-          cat "$result/oracle-ceiling.csv"
+          cat "$result/pooled-strategy-metrics.csv"
+          cat "$result/selector-agreement.csv"
+          cat "$result/exclusions.csv"
+          cat "$result/missing-payouts.csv"
           du -sh "$result"
           test "$(du -sm "$result" | cut -f1)" -le 10
 
