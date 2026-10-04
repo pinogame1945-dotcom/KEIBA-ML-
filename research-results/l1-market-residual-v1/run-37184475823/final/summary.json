@@ -1,0 +1,13 @@
+{
+  "contract": "L1_FINAL_MARKET_RESIDUAL_V1",
+  "question": "Does Seven-King rank information add strict-OOS predictive information beyond calibrated final WIN market?",
+  "market_note": "FINAL_POSTHOC benchmark only; not same-time actionable market.",
+  "models": {
+    "MARKET_CAL": "fixed logistic calibration on normalized final WIN implied probability + market rank percentile",
+    "L1_ONLY": "fixed logistic on all seven rank percentiles + consensus/disagreement features",
+    "MARKET_PLUS_L1": "union of MARKET_CAL and L1_ONLY features"
+  },
+  "walk_forward": "train prior years, test next year; pooled OOS 2022-2025",
+  "2026_locked": true,
+  "promotion": false
+}
