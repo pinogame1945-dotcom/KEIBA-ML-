@@ -42,7 +42,7 @@ jobs:
           python - <<'PY'
           import json
           from pathlib import Path
-          c=json.load(open('contracts/l2-trio-true-rank-audit-v1.json',encoding='utf-8'))
+          c=json.load(open('contracts/l2-simple-value-trio-probonly-v3-gap1.json',encoding='utf-8'))
           assert c['contract']=='L2_SIMPLE_VALUE_TRIO_PROBONLY_V3_GAP1'
           assert c['ticket_probability']['trio_odds_feature'] is False
           assert c['ticket_probability']['win_odds_feature'] is False
@@ -168,7 +168,7 @@ jobs:
         run: |
           set -euo pipefail
           result="research-results/l2-trio-true-rank-audit-v1/run-$GITHUB_RUN_ID"
-          PYTHONPATH=research python research/run_l2_trio_true_rank_audit_v1.py             --contract contracts/l2-trio-true-rank-audit-v1.json             --dataset-dir out/trio-true-rank-v1/horse-dataset             --backfill-root out/backfill             --outsider-predictions out/trio-true-rank-v1/outsider/predictions.csv.gz             --out-dir "$result"
+          PYTHONPATH=research python research/run_l2_trio_true_rank_audit_v1.py             --contract contracts/l2-simple-value-trio-probonly-v3-gap1.json             --dataset-dir out/trio-true-rank-v1/horse-dataset             --backfill-root out/backfill             --outsider-predictions out/trio-true-rank-v1/outsider/predictions.csv.gz             --out-dir "$result"
           cat "$result/year-summary.csv"
           python - <<'PY'
           import json,glob
