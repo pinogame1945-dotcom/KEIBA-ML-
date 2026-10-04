@@ -1,0 +1,109 @@
+{
+  "contract": "L3_INSAMPLE_PROFIT_CEILING_V1_RESULT",
+  "purpose": "Existence proof only: deliberately maximize in-sample profit/ROI while forcing broad race coverage.",
+  "deployable_backtest": false,
+  "overfit_intentional": true,
+  "subgroup_mining_allowed": false,
+  "individual_race_memorization_allowed": false,
+  "insample_years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "coverage_floors_pct": [
+    50.0,
+    70.0,
+    90.0
+  ],
+  "bet_types": [
+    "WIN",
+    "QUINELLA",
+    "EXACTA",
+    "TRIO"
+  ],
+  "selected_betas": {
+    "WIN": 0.0,
+    "QUINELLA": 0.1,
+    "EXACTA": 0.1,
+    "TRIO": 0.2
+  },
+  "global_knobs_only": [
+    "beta_by_bet_type",
+    "edge_min",
+    "kelly_mult",
+    "race_cap",
+    "day_cap",
+    "horse_cap_mult",
+    "max_tickets"
+  ],
+  "policy_grid_size": 1620,
+  "source_races": 13820,
+  "ceilings": [
+    {
+      "edge_min": 0.03,
+      "kelly_mult": 0.5,
+      "race_cap": 0.01,
+      "day_cap": 0.1,
+      "horse_cap_mult": 0.5,
+      "max_tickets": 12,
+      "roi_pct": 88.08365272454591,
+      "profit_yen": -71510.0,
+      "stake_yen": 600100.0,
+      "return_yen": 528590.0,
+      "end_bankroll": 28490.0,
+      "race_coverage_pct": 31.975397973950795,
+      "races_bet": 4419,
+      "tickets": 4552,
+      "max_drawdown_pct": 78.75,
+      "ruin": false,
+      "coverage_floor_pct": 50.0,
+      "coverage_floor_met": false
+    },
+    {
+      "edge_min": 0.03,
+      "kelly_mult": 0.5,
+      "race_cap": 0.01,
+      "day_cap": 0.1,
+      "horse_cap_mult": 0.5,
+      "max_tickets": 12,
+      "roi_pct": 88.08365272454591,
+      "profit_yen": -71510.0,
+      "stake_yen": 600100.0,
+      "return_yen": 528590.0,
+      "end_bankroll": 28490.0,
+      "race_coverage_pct": 31.975397973950795,
+      "races_bet": 4419,
+      "tickets": 4552,
+      "max_drawdown_pct": 78.75,
+      "ruin": false,
+      "coverage_floor_pct": 70.0,
+      "coverage_floor_met": false
+    },
+    {
+      "edge_min": 0.03,
+      "kelly_mult": 0.5,
+      "race_cap": 0.01,
+      "day_cap": 0.1,
+      "horse_cap_mult": 0.5,
+      "max_tickets": 12,
+      "roi_pct": 88.08365272454591,
+      "profit_yen": -71510.0,
+      "stake_yen": 600100.0,
+      "return_yen": 528590.0,
+      "end_bankroll": 28490.0,
+      "race_coverage_pct": 31.975397973950795,
+      "races_bet": 4419,
+      "tickets": 4552,
+      "max_drawdown_pct": 78.75,
+      "ruin": false,
+      "coverage_floor_pct": 90.0,
+      "coverage_floor_met": false
+    }
+  ],
+  "historical_market_timing": "FINAL_POSTHOC; existence-proof ceiling, not live-actionable same-time odds.",
+  "2026_locked": true,
+  "paid_compute": false,
+  "runner": "ubuntu-latest standard CPU",
+  "artifact_cache": false
+}
