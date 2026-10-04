@@ -141,6 +141,9 @@ def prepare_year(year,l17_path,backfill_root,out_path):
                 for (bet,key),value in payouts.items():
                     if bet in BET_TYPES and all(int(x) in es for x in key):
                         pay[bet].append([keystr(key),float(value)])
+                for bet in BET_TYPES:
+                    if not pay[bet]:
+                        tickets[bet]=[]
                 if not tickets["WIN"] or not pay["WIN"]:
                     skipped["win_contract_missing"]+=1; continue
                 row={
@@ -439,6 +442,10 @@ def main():
 
     total_stake=sum(r["test_stake_yen"] for r in folds)
     total_ret=sum(r["test_return_yen"] for r in folds)
+    peak=INITIAL_BANKROLL; continuous_maxdd=0.0
+    for x in continuous_curve:
+        b=float(x["bankroll"]); peak=max(peak,b)
+        if peak>0: continuous_maxdd=max(continuous_maxdd,100.0*(peak-b)/peak)
     pooled={
         "test_years":"2023|2024|2025",
         "stake_yen":total_stake,"return_yen":total_ret,"profit_yen":total_ret-total_stake,
@@ -446,6 +453,7 @@ def main():
         "continuous_start_bankroll":INITIAL_BANKROLL,
         "continuous_end_bankroll":continuous_bank,
         "continuous_profit":continuous_bank-INITIAL_BANKROLL,
+        "continuous_max_drawdown_pct":continuous_maxdd,
         "winning_years":sum(1 for r in folds if (r["test_roi_pct"] or 0)>=100.0),
         "qualified_policy_years":sum(1 for r in folds if r["policy_qualified_on_calibration"]),
     }
