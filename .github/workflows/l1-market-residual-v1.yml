@@ -1,0 +1,198 @@
+name: L1 Final Market Residual V1
+
+on:
+  push:
+    branches:
+      - research/l1-market-residual-v1-20261004
+    paths:
+      - .github/triggers/l1-market-residual-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-market-residual-v1
+  cancel-in-progress: true
+
+jobs:
+  year:
+    name: residual-data-${{ matrix.year }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        year: [2021, 2022, 2023, 2024, 2025]
+    env:
+      BACKFILL_SHA: 923c6b296b2ef2dc6dc1e17e3c71e794ceffe3a1
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_market_residual_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-market-residual-v1.yml").read_text()
+          assert [x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]==["ubuntu-latest","ubuntu-latest"]
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_l1_market_residual_v1.py").read_text()
+          assert "2026 sealed" in src
+          assert "MARKET_PLUS_L1" in src
+          assert "FINAL_POSTHOC" in src
+          print("L1_MARKET_RESIDUAL_STATIC_GUARDS_OK")
+          PY
+
+      - name: Extract dates from preserved council race state
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+          state="research-results/l1-council-rebuild-v1/run-37183263875/races/y$YEAR.jsonl.gz"
+          test -s "$state"
+          mkdir -p "out/residual/y$YEAR"
+          python - "$state" "out/residual/y$YEAR/dates.txt" <<'PY'
+          import gzip,json,sys
+          src,out=sys.argv[1:]
+          races=0; dates=set()
+          with gzip.open(src,"rt",encoding="utf-8") as f:
+              for line in f:
+                  if not line.strip(): continue
+                  r=json.loads(line); races+=1; dates.add(str(r["race_date"]))
+          if races!=3456: raise SystemExit(f"state coverage {races}")
+          open(out,"w",encoding="utf-8").write("\n".join(sorted(dates))+"\n")
+          print("DATES_READY",races,len(dates))
+          PY
+          echo "STATE=$state" >> "$GITHUB_ENV"
+
+      - name: Sparse checkout exact BACKFILL dates
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+          dates="out/residual/y$YEAR/dates.txt"
+          rm -rf "out/backfill-$YEAR"
+          git clone --depth 1 --filter=blob:none --no-checkout             https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git "out/backfill-$YEAR"
+          git -C "out/backfill-$YEAR" sparse-checkout init --no-cone
+          {
+            while IFS= read -r d; do
+              [[ -n "$d" ]] || continue
+              echo "/data/daily/$d.jsonl.gz"
+              echo "/data/odds/daily/$d.jsonl.gz"
+            done < "$dates"
+          } > "out/backfill-$YEAR/.git/info/sparse-checkout"
+          git -C "out/backfill-$YEAR" checkout "$BACKFILL_SHA"
+          test "$(git -C "out/backfill-$YEAR" rev-parse HEAD)" = "$BACKFILL_SHA"
+          echo "BACKFILL_ROOT=out/backfill-$YEAR" >> "$GITHUB_ENV"
+
+      - name: Build compact horse-level residual data
+        shell: bash
+        env:
+          YEAR: ${{ matrix.year }}
+        run: |
+          set -euo pipefail
+          root="research-results/l1-market-residual-v1/run-$GITHUB_RUN_ID"
+          mkdir -p "$root/data"
+          python research/run_l1_market_residual_v1.py year             --year "$YEAR"             --state "$STATE"             --backfill-root "$BACKFILL_ROOT"             --output "$root/data/y$YEAR.csv.gz"             --skipped "$root/data/y$YEAR-skipped.csv"             --summary "$root/data/y$YEAR-summary.json"
+          test -s "$root/data/y$YEAR.csv.gz"
+          test "$(du -sm "$root/data/y$YEAR.csv.gz" | cut -f1)" -le 8
+          rm -rf "$BACKFILL_ROOT" "out/residual/y$YEAR"
+          echo "DATA_FILE=$root/data/y$YEAR.csv.gz" >> "$GITHUB_ENV"
+          echo "SKIP_FILE=$root/data/y$YEAR-skipped.csv" >> "$GITHUB_ENV"
+          echo "SUMMARY_FILE=$root/data/y$YEAR-summary.json" >> "$GITHUB_ENV"
+
+      - name: Commit compact year data
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add -f "$DATA_FILE"
+          git add "$SKIP_FILE" "$SUMMARY_FILE"
+          git commit -m "research: residual market data y${{ matrix.year }} run $GITHUB_RUN_ID"
+          for attempt in 1 2 3 4 5 6 7 8; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then exit 0; fi
+            sleep $((attempt*2))
+          done
+          exit 1
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "No Kaggle downloads in this run."
+          echo "BACKFILL exact-date sparse checkout only."
+          echo "2026 sealed."
+
+  final:
+    name: strict-oos-residual-final
+    needs: year
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install analysis dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas scikit-learn
+
+      - name: Strict OOS residual audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          root="research-results/l1-market-residual-v1/run-$GITHUB_RUN_ID"
+          args=()
+          for y in 2021 2022 2023 2024 2025; do
+            test -s "$root/data/y$y.csv.gz"
+            args+=(--input "$root/data/y$y.csv.gz")
+          done
+          python research/run_l1_market_residual_v1.py final             "${args[@]}"             --out-dir "$root/final"
+          test -s "$root/final/pooled-oos.csv"
+          test -s "$root/final/fold-metrics.csv"
+          echo "FINAL_DIR=$root/final" >> "$GITHUB_ENV"
+
+      - name: Commit final report
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$FINAL_DIR"
+          git commit -m "research: archive final-market residual audit $GITHUB_RUN_ID"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git push origin "HEAD:$GITHUB_REF_NAME"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only."
+          echo "No GPU / paid runner / Artifact / Cache."
+          echo "Final-market benchmark is explicitly FINAL_POSTHOC, not same-time."
+          echo "2026 sealed."
