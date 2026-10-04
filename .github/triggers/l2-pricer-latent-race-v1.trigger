@@ -1,0 +1,2 @@
+triggered_at=2026-10-04T14:45:00+09:00
+purpose=L2_PRICER_LATENT_RACE_V1
