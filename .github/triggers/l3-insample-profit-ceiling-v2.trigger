@@ -4,3 +4,4 @@ negative_edge_candidates=allowed
 coverage_floors=50,70,90
 retry=include_all_5xx
 retry=download_404_after_metadata_resolution
+retry_again=manual_user_request
