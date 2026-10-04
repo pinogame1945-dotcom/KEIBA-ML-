@@ -3,3 +3,4 @@ base=GAP1
 probability_only=true
 axis_hit_only=true
 speed=no_iloc+parallel_prep
+retry=1
