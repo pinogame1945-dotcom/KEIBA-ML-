@@ -210,7 +210,8 @@ jobs:
           set -euo pipefail
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
-          git add "$YEAR_FILE" "$YEAR_SUMMARY"
+          git add -f "$YEAR_FILE"
+          git add "$YEAR_SUMMARY"
           git commit -m "research: materialize council rebuild year $YEAR run $GITHUB_RUN_ID"
           for attempt in 1 2 3 4 5 6 7 8; do
             git fetch origin "$GITHUB_REF_NAME"
