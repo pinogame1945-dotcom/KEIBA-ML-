@@ -1,0 +1,31 @@
+{
+  "contract":"L2_PRICER_TEMPERATURE_AUDIT_V4",
+  "status":"RESEARCH",
+  "created_at":"2026-10-04",
+  "question":"Is the stable heteroscedastic latent improvement more than simple probability flattening?",
+  "comparisons":["BASE_PL","TEMPERATURE_PL","NORMAL_HOMO","NORMAL_HETERO_PRIOR","NORMAL_HETERO_V3_LOCKED"],
+  "selection":{
+    "folds":[[2023,[2022]],[2024,[2022,2023]],[2025,[2022,2023,2024]]],
+    "calibration":"chronological last 20 percent of prior-only races",
+    "primary_metric":"TRIFECTA NLL",
+    "secondary_metrics":["TRIO NLL","EXACTA NLL","WIN NLL"],
+    "pairwise_tests":["HETERO_vs_TEMPERATURE","HETERO_vs_HOMO","V3_LOCKED_vs_TEMPERATURE"]
+  },
+  "controls":{
+    "temperature_definition":"normalize(p^(1/T))",
+    "common_random_numbers_for_normal_models":true,
+    "antithetic_sampling":true,
+    "locked_v3":{"sigma":0.40,"lambda":0.50}
+  },
+  "data_policy":{"pre_race_features_only":true,"market_used":false,"roi_optimized":false,"locked_years":[2026]},
+  "cost_policy":{
+    "github_standard_cpu_only":true,
+    "paid_runner":false,
+    "gpu":false,
+    "paid_cloud_compute":false,
+    "paid_artifact_or_cache":false,
+    "kaggle_reads_only":true,
+    "kaggle_writes":false
+  },
+  "promotion":false
+}
