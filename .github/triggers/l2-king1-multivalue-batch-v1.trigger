@@ -5,3 +5,4 @@ third=probability_only
 probability_times_odds=false
 batch=true
 speed=parallel_prep+shared_model+frozen_topk
+retry=jsonfix
