@@ -50,7 +50,8 @@ jobs:
           src=Path("research/run_l3_insample_profit_ceiling_v2_robustness.py").read_text()
           for token in ("INSAMPLE_YEARS=(2022,2023,2024,2025)","REMOVE_COUNTS=(0,1,5,10,20)","reoptimized\":False","2026_locked"):
               assert token in src,token
-          assert "metadata-confirmed downloads" not in wf
+          bad=("metadata-confirmed"+" downloads")
+          assert bad not in wf
           assert "404 is always non-retryable" in wf
           print("L3_V2_ROBUSTNESS_STATIC_GUARDS_OK")
           PY
