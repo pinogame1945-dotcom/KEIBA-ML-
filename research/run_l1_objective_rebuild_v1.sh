@@ -5,7 +5,24 @@ set -euo pipefail
 DATASET_REF="${DATASET_REF:-pino1945/keiba-ml-snapshot-bf811fa2eab73db0}"
 GENERATION_ID="${GENERATION_ID:-bf811fa2eab73db0}"
 SNAP_ROOT="out/l1-objective-snapshot"
+PROJ_ROOT="out/l1-objective-proj/shared-union"
 RESULT_ROOT="research-results/l1-objective-rebuild-v1/run-${GITHUB_RUN_ID:?GITHUB_RUN_ID required}"
+CPU_THREADS="${L1_THREADS:-$(nproc)}"
+DL_PARALLEL="${KAGGLE_DOWNLOAD_PARALLEL:-2}"
+PROJ_PARALLEL="${PROJECTION_PARALLEL:-$CPU_THREADS}"
+(( PROJ_PARALLEL > 7 )) && PROJ_PARALLEL=7
+(( PROJ_PARALLEL < 1 )) && PROJ_PARALLEL=1
+(( DL_PARALLEL > 7 )) && DL_PARALLEL=7
+(( DL_PARALLEL < 1 )) && DL_PARALLEL=1
+
+export L1_THREADS="$CPU_THREADS"
+export OMP_NUM_THREADS="$CPU_THREADS"
+export OPENBLAS_NUM_THREADS=1
+export MKL_NUM_THREADS=1
+export NUMEXPR_NUM_THREADS=1
+export MALLOC_ARENA_MAX=2
+
+echo "RUNTIME cpu_threads=$CPU_THREADS download_parallel=$DL_PARALLEL projection_parallel=$PROJ_PARALLEL"
 
 kaggle_transient() {
   local label="$1"; shift
@@ -45,12 +62,19 @@ kaggle_transient() {
   done
 }
 
-rm -rf "$SNAP_ROOT" out/l1-objective-proj
-mkdir -p "$SNAP_ROOT" "$RESULT_ROOT"
+wait_oldest() {
+  local -n arr=$1
+  local pid="${arr[0]}"
+  wait "$pid"
+  arr=("${arr[@]:1}")
+}
 
-# One metadata listing for the dataset. All subsequent downloads use only resolved real names.
+rm -rf "$SNAP_ROOT" "$PROJ_ROOT"
+mkdir -p "$SNAP_ROOT" "$PROJ_ROOT" "$RESULT_ROOT"
+
+# Metadata is fetched exactly once. No guessed file names and no fallback downloads.
 FILES_JSON="$SNAP_ROOT/files.json"
-kaggle_transient "files"   bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$DATASET_REF" "$FILES_JSON"
+kaggle_transient "files"   bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _   "$DATASET_REF" "$FILES_JSON"
 
 python - "$FILES_JSON" <<'PY'
 import json,sys
@@ -66,17 +90,36 @@ test -s "$SNAP_ROOT/manifest.json"
 
 python research/resolve_snapshot_manifest_remote_v1.py   --manifest "$SNAP_ROOT/manifest.json"   --files-json "$FILES_JSON"   --generation-id "$GENERATION_ID"   --output "$SNAP_ROOT/requested.tsv"
 
+# Download exact resolved remote files at low concurrency to improve wall-clock without hammering Kaggle.
+download_pids=()
 while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
   [[ -n "$remote" ]] || continue
-  kaggle_transient "download:$remote"     kaggle datasets download "$DATASET_REF" -f "$remote" -p "$SNAP_ROOT" --unzip --quiet --force
-  test -s "$SNAP_ROOT/$remote"
+  if [[ -s "$SNAP_ROOT/$remote" ]]; then
+    echo "SNAPSHOT_LOCAL_REUSE year=$year remote=$remote"
+    continue
+  fi
+  (
+    kaggle_transient "download:$remote"       kaggle datasets download "$DATASET_REF" -f "$remote" -p "$SNAP_ROOT" --unzip --quiet --force
+    test -s "$SNAP_ROOT/$remote"
+    echo "SNAPSHOT_DOWNLOAD_OK year=$year remote=$remote"
+  ) &
+  download_pids+=("$!")
+  if (( ${#download_pids[@]} >= DL_PARALLEL )); then
+    wait_oldest download_pids
+  fi
 done < "$SNAP_ROOT/requested.tsv"
+for pid in "${download_pids[@]}"; do
+  wait "$pid"
+done
 
-python - "$SNAP_ROOT/requested.tsv" "$SNAP_ROOT" <<'PY'
-import gzip,hashlib,json,os,sys
-req,root=sys.argv[1:]
-for line in open(req,encoding="utf-8"):
-    y,logical,remote,mode,expected_sha,expected_rows,min_date,max_date=line.rstrip("\n").split("\t")
+# Validate all local snapshots concurrently. This is CPU/I/O work and requires no network.
+python - "$SNAP_ROOT/requested.tsv" "$SNAP_ROOT" "$CPU_THREADS" <<'PY'
+import concurrent.futures,gzip,hashlib,json,os,sys
+req,root,workers=sys.argv[1:]
+items=[line.rstrip("\n").split("\t") for line in open(req,encoding="utf-8") if line.strip()]
+
+def check(fields):
+    y,logical,remote,mode,expected_sha,expected_rows,min_date,max_date=fields
     path=os.path.join(root,remote)
     if remote.endswith(".gz") and logical==remote and expected_sha:
         h=hashlib.sha256()
@@ -84,7 +127,7 @@ for line in open(req,encoding="utf-8"):
             for block in iter(lambda:f.read(1024*1024),b""):
                 h.update(block)
         if h.hexdigest()!=expected_sha:
-            raise SystemExit(f"sha256 mismatch {remote}")
+            raise RuntimeError(f"sha256 mismatch {remote}")
     opener=gzip.open if remote.endswith(".gz") else open
     rows=0
     actual_min=None
@@ -100,80 +143,51 @@ for line in open(req,encoding="utf-8"):
                 actual_min=d if actual_min is None or d<actual_min else actual_min
                 actual_max=d if actual_max is None or d>actual_max else actual_max
     if expected_rows and rows!=int(expected_rows):
-        raise SystemExit(f"row mismatch {remote}: expected={expected_rows} actual={rows}")
+        raise RuntimeError(f"row mismatch {remote}: expected={expected_rows} actual={rows}")
     if min_date and actual_min!=min_date:
-        raise SystemExit(f"min_date mismatch {remote}: expected={min_date} actual={actual_min}")
+        raise RuntimeError(f"min_date mismatch {remote}: expected={min_date} actual={actual_min}")
     if max_date and actual_max!=max_date:
-        raise SystemExit(f"max_date mismatch {remote}: expected={max_date} actual={actual_max}")
-    print(f"SNAPSHOT_METADATA_RESOLVED_OK year={y} logical={logical} remote={remote} mode={mode} rows={rows}")
+        raise RuntimeError(f"max_date mismatch {remote}: expected={max_date} actual={actual_max}")
+    return f"SNAPSHOT_VALID_OK year={y} logical={logical} remote={remote} mode={mode} rows={rows}"
+
+with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(items),max(1,int(workers)))) as ex:
+    for msg in ex.map(check,items):
+        print(msg,flush=True)
 PY
 
-run_variant() {
-  local variant="$1"
-  local feature_sets="$2"
-  local actor_prefixes="$3"
-  local proj="out/l1-objective-proj/$variant"
-  local result="$RESULT_ROOT/$variant"
-  mkdir -p "$proj" "$result"
-  local args=()
-  while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
-    local cmd=(
-      node research/project-yearly-snapshots.mjs
-      --inputs "$SNAP_ROOT/$remote"
-      --output "$proj/y$year.jsonl.gz"
-      --feature-sets "$feature_sets"
-      --prediction-phase FINAL
-    )
-    if [[ -n "$actor_prefixes" ]]; then
-      cmd+=(--actor-prefixes "$actor_prefixes")
-    fi
-    "${cmd[@]}"
-    args+=(--year-file "$year:$proj/y$year.jsonl.gz")
-  done < "$SNAP_ROOT/requested.tsv"
+# Project the union of both variants ONCE per year, parallelized across local year files.
+# Python later filters this shared union into core4 / structural, so no duplicate JSON parsing per model.
+projection_pids=()
+while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
+  (
+    node research/project-yearly-snapshots.mjs       --inputs "$SNAP_ROOT/$remote"       --output "$PROJ_ROOT/y$year.jsonl.gz"       --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE       --prediction-phase FINAL
+    test -s "$PROJ_ROOT/y$year.jsonl.gz"
+    echo "UNION_PROJECTION_OK year=$year"
+  ) &
+  projection_pids+=("$!")
+  if (( ${#projection_pids[@]} >= PROJ_PARALLEL )); then
+    wait_oldest projection_pids
+  fi
+done < "$SNAP_ROOT/requested.tsv"
+for pid in "${projection_pids[@]}"; do
+  wait "$pid"
+done
 
-  python research/run_l1_objective_rebuild_v1.py     --variant "$variant"     "${args[@]}"     --out-dir "$result"
+# Raw snapshots are no longer needed after the shared projection.
+rm -rf "$SNAP_ROOT"
 
-  rm -rf "$proj"
-  rm -f "$result/oos-predictions.csv.gz"
-}
+args=()
+for year in 2019 2020 2021 2022 2023 2024 2025; do
+  test -s "$PROJ_ROOT/y$year.jsonl.gz"
+  args+=(--year-file "$year:$PROJ_ROOT/y$year.jsonl.gz")
+done
 
-run_variant   core4   BASE,OPPONENT,AUTO,ACTOR,TIME_PACE   ""
+# Single Python process: each year is parsed once and shared by both variants.
+# Each LightGBM fit uses all standard-runner CPU threads; heads stay sequential to avoid RAM spikes.
+python research/run_l1_objective_rebuild_v1.py   --variants core4,structural   "${args[@]}"   --out-dir "$RESULT_ROOT"
 
-run_variant   structural   BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,ACTOR,TIME_PACE   actor_jockey_,actor_trainer_
+rm -rf "$PROJ_ROOT"
 
-python - "$RESULT_ROOT" <<'PY'
-import csv,json,sys
-from pathlib import Path
-root=Path(sys.argv[1])
-rows=[]
-for variant in ("core4","structural"):
-    p=root/variant/"pooled-metrics.csv"
-    with p.open(newline="",encoding="utf-8") as f:
-        rows.extend(csv.DictReader(f))
-fields=[]
-for row in rows:
-    for key in row:
-        if key not in fields:
-            fields.append(key)
-with (root/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
-    w=csv.DictWriter(f,fieldnames=fields)
-    w.writeheader()
-    w.writerows(rows)
-summary={
-    "contract":"L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
-    "question":"Does a new horse-only L1 learning objective materially improve strict walk-forward ranking?",
-    "variants":{
-        "core4":"BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
-        "structural":"BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
-    },
-    "heads":["WIN_BINARY","TOP3_BINARY","RANK_GRADED","BLEND_EQUAL","BLEND_TOP3_RANK","BLEND_WIN_RANK"],
-    "walk_forward":"2 prior years -> next year, 2021-2025",
-    "ability_uses_odds":False,
-    "2026_locked":True,
-    "promotion":False
-}
-(root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-print((root/"comparison.csv").read_text())
-PY
-
+test -s "$RESULT_ROOT/summary.json"
+test -s "$RESULT_ROOT/comparison.csv"
 echo "L1_OBJECTIVE_REBUILD_V1_COMPLETE result=$RESULT_ROOT"
