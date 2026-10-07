@@ -1,0 +1,52 @@
+{
+  "contract": "L1_CEILING_AUDIT_V1",
+  "question": "Is the ~40% top1 podium miss mostly shared/information-limited, or is there exploitable pre-race complementarity left?",
+  "primary_head": "core4__TOP3_BINARY",
+  "candidate_heads": [
+    "core4__WIN_BINARY",
+    "core4__TOP3_BINARY",
+    "core4__RANK_GRADED",
+    "structural__WIN_BINARY",
+    "structural__TOP3_BINARY",
+    "structural__RANK_GRADED"
+  ],
+  "diagnostics": {
+    "oracle_among_six_top1s": true,
+    "strict_past_oos_collapse_predictor": true,
+    "strict_past_oos_candidate_selector": true,
+    "feature_signal_groups": [
+      "MODEL_ONLY",
+      "HISTORY_AUTO",
+      "STRUCTURE",
+      "ALL_NUMERIC"
+    ]
+  },
+  "decision_thresholds": {
+    "oracle_uplift_pp_material": 3.0,
+    "strict_selector_uplift_pp_material": 1.0,
+    "collapse_auc_useful": 0.6,
+    "history_auc_increment_useful": 0.02
+  },
+  "pooled_complementarity": {
+    "test_year": "POOLED",
+    "races": 17280,
+    "baseline_top1_top3_pct": 59.72800925925926,
+    "oracle_top1_top3_pct": 75.49768518518518,
+    "oracle_uplift_pp": 15.769675925925927,
+    "all_six_top1_miss_pct": 24.502314814814817,
+    "all_heads_same_top1_pct": 46.68402777777778,
+    "avg_unique_top1_candidates": 1.6995949074074075,
+    "max_vote_mean": 4.939525462962963,
+    "oracle_win_pct": 41.932870370370374
+  },
+  "notes": [
+    "Oracle uses finish results only as a diagnostic upper bound and is not deployable.",
+    "Meta collapse/selector tests for 2022-2025 train only on earlier outer-fold OOS years.",
+    "No odds or popularity are model inputs.",
+    "2026 is sealed.",
+    "This audit is diagnostic only and cannot promote a production model."
+  ],
+  "ability_uses_odds": false,
+  "2026_locked": true,
+  "promotion": false
+}
