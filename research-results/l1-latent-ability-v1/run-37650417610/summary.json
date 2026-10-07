@@ -1,0 +1,26 @@
+{
+  "contract": "L1_LATENT_ABILITY_V1",
+  "design": "supervised domain ability encoders -> race-relative latent vector -> race matcher",
+  "components": [
+    "FORM",
+    "OPPONENT",
+    "SPEED_PACE",
+    "DISTANCE",
+    "CONDITION",
+    "ACTOR",
+    "PEDIGREE"
+  ],
+  "strict_fold": "Y-2 trains encoder; Y-1 OOF latent vectors train matcher; encoder refit on Y-2+Y-1 scores test Y; test labels never used for fitting or selection",
+  "direct_baseline": "same Y-2+Y-1 horizon, direct TOP3 and LambdaRank on raw safe features",
+  "uncertainty": "component disagreement and race-level latent spread are explicit matcher inputs",
+  "primary_metric": "top1_top3_pct",
+  "promotion_rule": "material multi-year gain required; sub-1pp improvement is not promotion-worthy",
+  "ability_uses_odds": false,
+  "2026_locked": true,
+  "cpu": 4,
+  "component_parallelism": {
+    "workers": 2,
+    "threads_each": 2
+  },
+  "promotion": false
+}
