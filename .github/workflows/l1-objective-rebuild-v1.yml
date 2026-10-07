@@ -1,0 +1,271 @@
+name: L1 Objective Rebuild V1
+
+on:
+  push:
+    branches:
+      - research/l1-objective-rebuild-v1-20261008
+    paths:
+      - .github/triggers/l1-objective-rebuild-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-objective-rebuild-v1
+  cancel-in-progress: true
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+      GENERATION_ID: bf811fa2eab73db0
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_objective_rebuild_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-objective-rebuild-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_l1_objective_rebuild_v1.py").read_text()
+          for token in ("WIN_BINARY","TOP3_BINARY","RANK_GRADED","2026_locked"):
+              assert token in src
+          assert "final_win_odds" in src and "FORBIDDEN_KEYS" in src
+          print("L1_OBJECTIVE_REBUILD_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Restore manifest and all 2019-2025 snapshots exactly once
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "${KAGGLE_API_TOKEN:-}"
+          root="out/l1-objective-snapshot"
+          mkdir -p "$root"
+
+          kaggle_transient() {
+            local label="$1"; shift
+            local attempt rc delay tmp
+            for attempt in 1 2 3 4 5 6; do
+              tmp="$(mktemp)"
+              set +e
+              "$@" >"$tmp.out" 2>"$tmp.err"
+              rc=$?
+              set -e
+              cat "$tmp.out"; cat "$tmp.err" >&2
+              if [[ "$rc" -eq 0 ]]; then
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return 0
+              fi
+              if grep -Eqi '404 Client Error|Not Found for url' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle 404 non-retryable label=$label" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|Too Many Requests|Bad Gateway|Service Unavailable|Gateway Timeout|timed out|connection reset|temporary failure' "$tmp.out" "$tmp.err"; then
+                echo "::error::Kaggle non-transient failure label=$label rc=$rc" >&2
+                rm -f "$tmp" "$tmp.out" "$tmp.err"
+                return "$rc"
+              fi
+              rm -f "$tmp" "$tmp.out" "$tmp.err"
+              [[ "$attempt" -lt 6 ]] || return "$rc"
+              case "$attempt" in
+                1) delay=10 ;;
+                2) delay=20 ;;
+                3) delay=40 ;;
+                4) delay=60 ;;
+                *) delay=90 ;;
+              esac
+              sleep "$delay"
+            done
+          }
+
+          files="$root/files.json"
+          kaggle_transient "files"             bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$DATASET_REF" "$files"
+
+          python - "$files" <<'PY'
+          import json,sys
+          rows=json.load(open(sys.argv[1],encoding="utf-8"))
+          names={str(x.get("name") or "") for x in rows}
+          if "manifest.json" not in names:
+              raise SystemExit("manifest.json missing from Kaggle metadata; stop as metadata drift")
+          PY
+
+          kaggle_transient "download:manifest.json"             kaggle datasets download "$DATASET_REF" -f manifest.json -p "$root" --quiet --force
+          test -s "$root/manifest.json"
+
+          python - "$root/manifest.json" "$files" "$GENERATION_ID" "$root/requested.txt" <<'PY'
+          import json,sys
+          manifest,files,generation,out=sys.argv[1:]
+          m=json.load(open(manifest,encoding="utf-8"))
+          if (m.get("generation") or {}).get("generation_id")!=generation:
+              raise SystemExit("snapshot generation mismatch")
+          years={int(x["year"]):x for x in m.get("years") or []}
+          wanted=[]
+          for y in range(2019,2026):
+              if y not in years: raise SystemExit(f"manifest year missing: {y}")
+              name=str(years[y].get("file") or "")
+              if not name: raise SystemExit(f"manifest file missing y={y}")
+              wanted.append((y,name,str(years[y].get("sha256") or "")))
+          names={str(x.get("name") or "") for x in json.load(open(files,encoding="utf-8"))}
+          missing=[name for _,name,_ in wanted if name not in names]
+          if missing:
+              raise SystemExit(f"manifest-listed remote file absent from metadata: {missing}")
+          with open(out,"w",encoding="utf-8") as f:
+              for y,name,sha in wanted: f.write(f"{y}\t{name}\t{sha}\n")
+          PY
+
+          while IFS=$'\t' read -r y remote sha; do
+            [[ -n "$remote" ]] || continue
+            kaggle_transient "download:$remote"               kaggle datasets download "$DATASET_REF" -f "$remote" -p "$root" --quiet --force
+            test -s "$root/$remote"
+          done < "$root/requested.txt"
+
+          python - "$root/requested.txt" "$root" <<'PY'
+          import gzip,hashlib,json,os,sys
+          req,root=sys.argv[1:]
+          for line in open(req,encoding="utf-8"):
+              y,name,expected=line.rstrip("\n").split("\t")
+              path=os.path.join(root,name)
+              if expected:
+                  h=hashlib.sha256()
+                  with open(path,"rb") as f:
+                      for b in iter(lambda:f.read(1024*1024),b""):h.update(b)
+                  if h.hexdigest()!=expected: raise SystemExit(f"sha256 mismatch {name}")
+              opener=gzip.open if name.endswith(".gz") else open
+              rows=0
+              with opener(path,"rt",encoding="utf-8") as f:
+                  for raw in f:
+                      if raw.strip(): rows+=1
+              if rows<=0: raise SystemExit(f"empty snapshot {name}")
+              print(f"SNAPSHOT_EXACT_OK year={y} remote={name} rows={rows}")
+          PY
+
+      - name: Run objective arena on core4 features
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l1-objective-snapshot"
+          proj="out/l1-objective-proj/core4"
+          result="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID/core4"
+          mkdir -p "$proj" "$result"
+          args=()
+          while IFS=$'\t' read -r y remote sha; do
+            node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,AUTO,ACTOR,TIME_PACE               --prediction-phase FINAL
+            args+=(--year-file "$y:$proj/y$y.jsonl.gz")
+          done < "$root/requested.txt"
+          python research/run_l1_objective_rebuild_v1.py             --variant core4             "${args[@]}"             --out-dir "$result"
+          rm -rf "$proj"
+          rm -f "$result/oos-predictions.csv.gz"
+
+      - name: Run objective arena on structural-rich features
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="out/l1-objective-snapshot"
+          proj="out/l1-objective-proj/structural"
+          result="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID/structural"
+          mkdir -p "$proj" "$result"
+          args=()
+          while IFS=$'\t' read -r y remote sha; do
+            node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,ACTOR,TIME_PACE               --actor-prefixes actor_jockey_,actor_trainer_               --prediction-phase FINAL
+            args+=(--year-file "$y:$proj/y$y.jsonl.gz")
+          done < "$root/requested.txt"
+          python research/run_l1_objective_rebuild_v1.py             --variant structural_rich             "${args[@]}"             --out-dir "$result"
+          rm -rf "$proj"
+          rm -f "$result/oos-predictions.csv.gz"
+
+      - name: Aggregate compact comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID"
+          python - "$root" <<'PY'
+          import csv,json,sys
+          from pathlib import Path
+          root=Path(sys.argv[1])
+          rows=[]
+          for variant in ("core4","structural"):
+              p=root/variant/"pooled-metrics.csv"
+              with p.open(newline="",encoding="utf-8") as f: rows.extend(csv.DictReader(f))
+          fields=[]
+          for r in rows:
+              for k in r:
+                  if k not in fields: fields.append(k)
+          with (root/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
+              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
+          summary={
+              "contract":"L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
+              "question":"Does changing the horse-only L1 learning objective and/or adding structural feature families materially improve strict walk-forward ranking?",
+              "variants":{
+                  "core4":"BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
+                  "structural_rich":"BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
+              },
+              "heads":["WIN_BINARY","TOP3_BINARY","RANK_GRADED","BLEND_EQUAL","BLEND_TOP3_RANK","BLEND_WIN_RANK"],
+              "walk_forward":"2 prior years -> next year, 2021-2025",
+              "ability_uses_odds":False,
+              "2026_locked":True,
+              "promotion":False
+          }
+          (root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          print((root/"comparison.csv").read_text())
+          PY
+          echo "RESULT_DIR=$root" >> "$GITHUB_ENV"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle is read-only."
+          echo "Remote file names come only from manifest.json after one metadata listing."
+          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
+          echo "Snapshots and projections are runner-local and ephemeral."
+          echo "Only compact CSV/JSON summaries are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$RESULT_DIR"
+          git commit -m "research: archive L1 objective rebuild run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
