@@ -67,7 +67,7 @@ def prepare(train,valid):
     xva=valid.reindex(columns=cols).copy()
     cats=[]
     for c in cols:
-        if c in BASE_CATEGORICAL or train[c].dtype=="object":
+        if c in BASE_CATEGORICAL:
             tv=xtr[c].astype("string").fillna("__MISSING__")
             levels=sorted(set(tv.tolist()))
             xtr[c]=pd.Categorical(tv,categories=levels)
