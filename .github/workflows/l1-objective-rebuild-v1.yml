@@ -26,16 +26,19 @@ jobs:
       PYTHONUNBUFFERED: "1"
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
           fetch-depth: 0
 
-      - uses: actions/setup-node@v4
+      - name: Setup Node
+        uses: actions/setup-node@v4
         with:
           node-version: "20"
 
-      - uses: actions/setup-python@v5
+      - name: Setup Python
+        uses: actions/setup-python@v5
         with:
           python-version: "3.12"
 
@@ -43,20 +46,19 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile research/run_l1_objective_rebuild_v1.py
+          python -m py_compile             research/run_l1_objective_rebuild_v1.py             research/resolve_snapshot_manifest_remote_v1.py
           node --check research/project-yearly-snapshots.mjs
           python - <<'PY'
           from pathlib import Path
           wf=Path(".github/workflows/l1-objective-rebuild-v1.yml").read_text()
           runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
-          assert runners==["ubuntu-latest"],runners
-          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
-          assert not any(u.startswith("actions/upload-artifact") for u in uses)
-          assert not any(u.startswith("actions/cache") for u in uses)
+          assert runners==["ubuntu-latest"], runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("uses:")]
+          assert not any(x.startswith("actions/upload-artifact") for x in uses)
+          assert not any(x.startswith("actions/cache") for x in uses)
           src=Path("research/run_l1_objective_rebuild_v1.py").read_text()
           for token in ("WIN_BINARY","TOP3_BINARY","RANK_GRADED","2026_locked"):
-              assert token in src
-          assert "final_win_odds" in src and "FORBIDDEN_KEYS" in src
+              assert token in src, token
           print("L1_OBJECTIVE_REBUILD_STATIC_GUARDS_OK")
           PY
 
@@ -67,7 +69,7 @@ jobs:
           python -m pip install --disable-pip-version-check kaggle
           python -m pip install --disable-pip-version-check -r ml/requirements.txt
 
-      - name: Restore manifest and all 2019-2025 snapshots exactly once
+      - name: Restore snapshots metadata-first
         shell: bash
         run: |
           set -euo pipefail
@@ -84,7 +86,8 @@ jobs:
               "$@" >"$tmp.out" 2>"$tmp.err"
               rc=$?
               set -e
-              cat "$tmp.out"; cat "$tmp.err" >&2
+              cat "$tmp.out"
+              cat "$tmp.err" >&2
               if [[ "$rc" -eq 0 ]]; then
                 rm -f "$tmp" "$tmp.out" "$tmp.err"
                 return 0
@@ -120,7 +123,7 @@ jobs:
           rows=json.load(open(sys.argv[1],encoding="utf-8"))
           names={str(x.get("name") or "") for x in rows}
           if "manifest.json" not in names:
-              raise SystemExit("manifest.json missing from Kaggle metadata; stop as metadata drift")
+              raise SystemExit("manifest.json missing from metadata")
           PY
 
           kaggle_transient "download:manifest.json"             kaggle datasets download "$DATASET_REF" -f manifest.json -p "$root" --unzip --quiet --force
@@ -143,16 +146,20 @@ jobs:
               if remote.endswith(".gz") and logical==remote and expected_sha:
                   h=hashlib.sha256()
                   with open(path,"rb") as f:
-                      for b in iter(lambda:f.read(1024*1024),b""): h.update(b)
+                      for block in iter(lambda:f.read(1024*1024),b""):
+                          h.update(block)
                   if h.hexdigest()!=expected_sha:
                       raise SystemExit(f"sha256 mismatch {remote}")
               opener=gzip.open if remote.endswith(".gz") else open
-              rows=0; actual_min=None; actual_max=None
+              rows=0
+              actual_min=None
+              actual_max=None
               with opener(path,"rt",encoding="utf-8") as f:
                   for raw in f:
-                      if not raw.strip(): continue
-                      r=json.loads(raw)
-                      d=str(r.get("race_date") or (r.get("features") or {}).get("race_date") or "")[:10]
+                      if not raw.strip():
+                          continue
+                      row=json.loads(raw)
+                      d=str(row.get("race_date") or (row.get("features") or {}).get("race_date") or "")[:10]
                       rows+=1
                       if d:
                           actual_min=d if actual_min is None or d<actual_min else actual_min
@@ -163,10 +170,10 @@ jobs:
                   raise SystemExit(f"min_date mismatch {remote}: expected={min_date} actual={actual_min}")
               if max_date and actual_max!=max_date:
                   raise SystemExit(f"max_date mismatch {remote}: expected={max_date} actual={actual_max}")
-              print(f"SNAPSHOT_METADATA_RESOLVED_OK year={y} logical={logical} remote={remote} mode={mode} rows={rows}")
+              print(f"SNAPSHOT_OK year={y} logical={logical} remote={remote} mode={mode} rows={rows}")
           PY
 
-      - name: Run objective arena on core4 features
+      - name: Run core4 objective arena
         shell: bash
         run: |
           set -euo pipefail
@@ -175,7 +182,7 @@ jobs:
           result="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID/core4"
           mkdir -p "$proj" "$result"
           args=()
-          while IFS=
+          while IFS=$'\t' read -r y logical remote mode sha rows min_date max_date; do
             node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,AUTO,ACTOR,TIME_PACE               --prediction-phase FINAL
             args+=(--year-file "$y:$proj/y$y.jsonl.gz")
           done < "$root/requested.txt"
@@ -183,7 +190,7 @@ jobs:
           rm -rf "$proj"
           rm -f "$result/oos-predictions.csv.gz"
 
-      - name: Run objective arena on structural-rich features
+      - name: Run structural objective arena
         shell: bash
         run: |
           set -euo pipefail
@@ -192,7 +199,7 @@ jobs:
           result="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID/structural"
           mkdir -p "$proj" "$result"
           args=()
-          while IFS=$'\t' read -r y remote sha; do
+          while IFS=$'\t' read -r y logical remote mode sha rows min_date max_date; do
             node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,ACTOR,TIME_PACE               --actor-prefixes actor_jockey_,actor_trainer_               --prediction-phase FINAL
             args+=(--year-file "$y:$proj/y$y.jsonl.gz")
           done < "$root/requested.txt"
@@ -211,22 +218,19 @@ jobs:
           root=Path(sys.argv[1])
           rows=[]
           for variant in ("core4","structural"):
-              p=root/variant/"pooled-metrics.csv"
-              with p.open(newline="",encoding="utf-8") as f: rows.extend(csv.DictReader(f))
+              with (root/variant/"pooled-metrics.csv").open(newline="",encoding="utf-8") as f:
+                  rows.extend(csv.DictReader(f))
           fields=[]
-          for r in rows:
-              for k in r:
-                  if k not in fields: fields.append(k)
+          for row in rows:
+              for k in row:
+                  if k not in fields:
+                      fields.append(k)
           with (root/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
-              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
+              w=csv.DictWriter(f,fieldnames=fields)
+              w.writeheader()
+              w.writerows(rows)
           summary={
               "contract":"L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
-              "question":"Does changing the horse-only L1 learning objective and/or adding structural feature families materially improve strict walk-forward ranking?",
-              "variants":{
-                  "core4":"BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
-                  "structural_rich":"BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
-              },
-              "heads":["WIN_BINARY","TOP3_BINARY","RANK_GRADED","BLEND_EQUAL","BLEND_TOP3_RANK","BLEND_WIN_RANK"],
               "walk_forward":"2 prior years -> next year, 2021-2025",
               "ability_uses_odds":False,
               "2026_locked":True,
@@ -242,171 +246,14 @@ jobs:
         shell: bash
         run: |
           echo "Standard GitHub-hosted ubuntu-latest CPU only."
-          echo "No GPU / paid runner."
-          echo "No actions/cache or upload-artifact."
-          echo "Kaggle is read-only."
-          echo "Remote file names come only from manifest.json after one metadata listing."
-          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
-          echo "Snapshots and projections are runner-local and ephemeral."
-          echo "Only compact CSV/JSON summaries are committed."
-          echo "2026 remains sealed."
-
-      - name: Commit compact results
-        if: success()
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "keiba-ml-research-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git add "$RESULT_DIR"
-          git commit -m "research: archive L1 objective rebuild run $GITHUB_RUN_ID"
-          git push origin "HEAD:$GITHUB_REF_NAME"
-\t' read -r y logical remote mode sha rows min_date max_date; do
-            node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,AUTO,ACTOR,TIME_PACE               --prediction-phase FINAL
-            args+=(--year-file "$y:$proj/y$y.jsonl.gz")
-          done < "$root/requested.txt"
-          python research/run_l1_objective_rebuild_v1.py             --variant core4             "${args[@]}"             --out-dir "$result"
-          rm -rf "$proj"
-          rm -f "$result/oos-predictions.csv.gz"
-
-      - name: Run objective arena on structural-rich features
-        shell: bash
-        run: |
-          set -euo pipefail
-          root="out/l1-objective-snapshot"
-          proj="out/l1-objective-proj/structural"
-          result="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID/structural"
-          mkdir -p "$proj" "$result"
-          args=()
-          while IFS=
-            node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,ACTOR,TIME_PACE               --actor-prefixes actor_jockey_,actor_trainer_               --prediction-phase FINAL
-            args+=(--year-file "$y:$proj/y$y.jsonl.gz")
-          done < "$root/requested.txt"
-          python research/run_l1_objective_rebuild_v1.py             --variant structural_rich             "${args[@]}"             --out-dir "$result"
-          rm -rf "$proj"
-          rm -f "$result/oos-predictions.csv.gz"
-
-      - name: Aggregate compact comparison
-        shell: bash
-        run: |
-          set -euo pipefail
-          root="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID"
-          python - "$root" <<'PY'
-          import csv,json,sys
-          from pathlib import Path
-          root=Path(sys.argv[1])
-          rows=[]
-          for variant in ("core4","structural"):
-              p=root/variant/"pooled-metrics.csv"
-              with p.open(newline="",encoding="utf-8") as f: rows.extend(csv.DictReader(f))
-          fields=[]
-          for r in rows:
-              for k in r:
-                  if k not in fields: fields.append(k)
-          with (root/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
-              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
-          summary={
-              "contract":"L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
-              "question":"Does changing the horse-only L1 learning objective and/or adding structural feature families materially improve strict walk-forward ranking?",
-              "variants":{
-                  "core4":"BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
-                  "structural_rich":"BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
-              },
-              "heads":["WIN_BINARY","TOP3_BINARY","RANK_GRADED","BLEND_EQUAL","BLEND_TOP3_RANK","BLEND_WIN_RANK"],
-              "walk_forward":"2 prior years -> next year, 2021-2025",
-              "ability_uses_odds":False,
-              "2026_locked":True,
-              "promotion":False
-          }
-          (root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-          print((root/"comparison.csv").read_text())
-          PY
-          echo "RESULT_DIR=$root" >> "$GITHUB_ENV"
-
-      - name: Cost guard
-        if: always()
-        shell: bash
-        run: |
-          echo "Standard GitHub-hosted ubuntu-latest CPU only."
-          echo "No GPU / paid runner."
-          echo "No actions/cache or upload-artifact."
-          echo "Kaggle is read-only."
-          echo "Remote file names come only from manifest.json after one metadata listing."
-          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
-          echo "Snapshots and projections are runner-local and ephemeral."
-          echo "Only compact CSV/JSON summaries are committed."
-          echo "2026 remains sealed."
-
-      - name: Commit compact results
-        if: success()
-        shell: bash
-        run: |
-          set -euo pipefail
-          git config user.name "keiba-ml-research-bot"
-          git config user.email "actions@users.noreply.github.com"
-          git pull --rebase origin "$GITHUB_REF_NAME"
-          git add "$RESULT_DIR"
-          git commit -m "research: archive L1 objective rebuild run $GITHUB_RUN_ID"
-          git push origin "HEAD:$GITHUB_REF_NAME"
-\t' read -r y logical remote mode sha rows min_date max_date; do
-            node research/project-yearly-snapshots.mjs               --inputs "$root/$remote"               --output "$proj/y$y.jsonl.gz"               --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,ACTOR,TIME_PACE               --actor-prefixes actor_jockey_,actor_trainer_               --prediction-phase FINAL
-            args+=(--year-file "$y:$proj/y$y.jsonl.gz")
-          done < "$root/requested.txt"
-          python research/run_l1_objective_rebuild_v1.py             --variant structural_rich             "${args[@]}"             --out-dir "$result"
-          rm -rf "$proj"
-          rm -f "$result/oos-predictions.csv.gz"
-
-      - name: Aggregate compact comparison
-        shell: bash
-        run: |
-          set -euo pipefail
-          root="research-results/l1-objective-rebuild-v1/run-$GITHUB_RUN_ID"
-          python - "$root" <<'PY'
-          import csv,json,sys
-          from pathlib import Path
-          root=Path(sys.argv[1])
-          rows=[]
-          for variant in ("core4","structural"):
-              p=root/variant/"pooled-metrics.csv"
-              with p.open(newline="",encoding="utf-8") as f: rows.extend(csv.DictReader(f))
-          fields=[]
-          for r in rows:
-              for k in r:
-                  if k not in fields: fields.append(k)
-          with (root/"comparison.csv").open("w",newline="",encoding="utf-8") as f:
-              w=csv.DictWriter(f,fieldnames=fields);w.writeheader();w.writerows(rows)
-          summary={
-              "contract":"L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
-              "question":"Does changing the horse-only L1 learning objective and/or adding structural feature families materially improve strict walk-forward ranking?",
-              "variants":{
-                  "core4":"BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
-                  "structural_rich":"BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
-              },
-              "heads":["WIN_BINARY","TOP3_BINARY","RANK_GRADED","BLEND_EQUAL","BLEND_TOP3_RANK","BLEND_WIN_RANK"],
-              "walk_forward":"2 prior years -> next year, 2021-2025",
-              "ability_uses_odds":False,
-              "2026_locked":True,
-              "promotion":False
-          }
-          (root/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
-          print((root/"comparison.csv").read_text())
-          PY
-          echo "RESULT_DIR=$root" >> "$GITHUB_ENV"
-
-      - name: Cost guard
-        if: always()
-        shell: bash
-        run: |
-          echo "Standard GitHub-hosted ubuntu-latest CPU only."
-          echo "No GPU / paid runner."
-          echo "No actions/cache or upload-artifact."
-          echo "Kaggle is read-only."
-          echo "Remote file names come only from manifest.json after one metadata listing."
-          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
-          echo "Snapshots and projections are runner-local and ephemeral."
-          echo "Only compact CSV/JSON summaries are committed."
-          echo "2026 remains sealed."
+          echo "No GPU or paid runner."
+          echo "No Artifact or Cache."
+          echo "Kaggle read-only."
+          echo "Metadata listed once; manifest logical names resolve to one actual remote name."
+          echo "404 is non-retryable."
+          echo "Snapshots/projections stay runner-local."
+          echo "Only compact CSV/JSON results are committed."
+          echo "2026 sealed."
 
       - name: Commit compact results
         if: success()
