@@ -1,0 +1,36 @@
+{
+  "contract": "L1_OBJECTIVE_REBUILD_V1_RESULT",
+  "variant": "core4",
+  "feature_description": "BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
+  "train_window_years": 2,
+  "test_years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "heads": [
+    "WIN_BINARY",
+    "TOP3_BINARY",
+    "RANK_GRADED",
+    "BLEND_EQUAL",
+    "BLEND_TOP3_RANK",
+    "BLEND_WIN_RANK"
+  ],
+  "rank_relevance": {
+    "1": 6,
+    "2": 5,
+    "3": 4,
+    "4": 3,
+    "5": 2,
+    "6": 1,
+    "7+": 0
+  },
+  "blend_policy": "fixed predeclared rank-score blends; no test-year weight search",
+  "ability_uses_odds": false,
+  "threads": 4,
+  "shared_year_cache": true,
+  "2026_locked": true,
+  "promotion": false
+}

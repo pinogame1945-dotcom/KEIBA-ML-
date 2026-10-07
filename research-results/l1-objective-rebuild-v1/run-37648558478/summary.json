@@ -1,0 +1,26 @@
+{
+  "contract": "L1_OBJECTIVE_REBUILD_V1_AGGREGATE",
+  "question": "Does changing the horse-only L1 learning objective and/or adding structural feature families materially improve strict walk-forward ranking?",
+  "variants": {
+    "core4": "BASE+OPPONENT+AUTO+ACTOR+TIME_PACE",
+    "structural": "BASE+OPPONENT+NETWORK+LAP+STYLE+DISTANCE+BACKFILL+ACTOR(jockey,trainer)+TIME_PACE"
+  },
+  "heads": [
+    "WIN_BINARY",
+    "TOP3_BINARY",
+    "RANK_GRADED",
+    "BLEND_EQUAL",
+    "BLEND_TOP3_RANK",
+    "BLEND_WIN_RANK"
+  ],
+  "walk_forward": "2 prior years -> next year, 2021-2025",
+  "runtime_optimization": {
+    "shared_union_projection": true,
+    "shared_year_cache_between_variants": true,
+    "lightgbm_threads": 4,
+    "oos_prediction_archive": false
+  },
+  "ability_uses_odds": false,
+  "2026_locked": true,
+  "promotion": false
+}
