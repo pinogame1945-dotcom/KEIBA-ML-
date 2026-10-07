@@ -123,7 +123,7 @@ jobs:
               raise SystemExit("manifest.json missing from Kaggle metadata; stop as metadata drift")
           PY
 
-          kaggle_transient "download:manifest.json"             kaggle datasets download "$DATASET_REF" -f manifest.json -p "$root" --quiet --force
+          kaggle_transient "download:manifest.json"             kaggle datasets download "$DATASET_REF" -f manifest.json -p "$root" --unzip --quiet --force
           test -s "$root/manifest.json"
 
           python - "$root/manifest.json" "$files" "$GENERATION_ID" "$root/requested.txt" <<'PY'
@@ -149,7 +149,7 @@ jobs:
 
           while IFS=$'\t' read -r y remote sha; do
             [[ -n "$remote" ]] || continue
-            kaggle_transient "download:$remote"               kaggle datasets download "$DATASET_REF" -f "$remote" -p "$root" --quiet --force
+            kaggle_transient "download:$remote"               kaggle datasets download "$DATASET_REF" -f "$remote" -p "$root" --unzip --quiet --force
             test -s "$root/$remote"
           done < "$root/requested.txt"
 
