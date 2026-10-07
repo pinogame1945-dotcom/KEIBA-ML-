@@ -15,7 +15,14 @@ COMPONENT_WORKERS=max(1,min(2,CPU))
 COMPONENT_THREADS=max(1,CPU//COMPONENT_WORKERS)
 
 META=("_race_id","_horse_id","_race_date","_finish","_is_win","_is_top3")
-FORBIDDEN={"actual_start_time","jockey_id","trainer_id","final_win_odds","final_popularity"}
+FORBIDDEN={
+    "actual_start_time","jockey_id","trainer_id",
+    "pedigree_sire_id","pedigree_dam_id","pedigree_siresire_id","pedigree_damsire_id",
+    "finish_position","target_finish_position","finish_time_ms","target_finish_time_ms",
+    "last_3f","target_last_3f","prize_money","target_prize_money",
+    "final_win_odds","market_final_win_odds","final_popularity","market_final_popularity",
+    "payout","payout_yen","market_payout","race_id","horse_id","owner_id","breeder_id",
+}
 CATEGORICAL={
     "venue_code","discipline","surface","direction","weather","track_condition","sex",
     "backfill_course_layout","backfill_race_class_normalized","backfill_grade",
