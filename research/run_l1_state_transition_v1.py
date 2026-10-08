@@ -126,27 +126,61 @@ def build_state_features(paths):
     s["speed_resid"]=(s["speed_mps"].astype(float)-race_speed_med.astype(float)).astype("float32")
     s["last3f_resid"]=(s["last3f_speed_mps"].astype(float)-race_last3_med.astype(float)).astype("float32")
 
-    # Strict chronology. Same-horse same-date duplicates would make ordering ambiguous, so stop rather than leak.
+    # Same horse/date can occur more than once in the snapshot under different race_ids.
+    # Never order those rows within a day: that would let one same-day result become another row's history.
+    # First prove that all fields used to update state are identical inside each horse/date group.
+    state_update_cols=[
+        "_finish","_is_win","_is_top3","distance_m","body_weight","carried_weight",
+        "margin_lengths","network_expected_pairwise_score","finish_time_ms","last_3f",
+        "field_size","finish_pct","speed_mps","last3f_speed_mps",
+        "perf_resid","speed_resid","last3f_resid",
+    ]
     dup=s.duplicated(["_horse_id","_race_date"],keep=False)
+    duplicate_groups=0
+    duplicate_rows=0
     if dup.any():
-        sample=s.loc[dup,["_horse_id","_race_date","_race_id"]].head(10).to_dict("records")
-        raise SystemExit(f"same-horse same-date duplicate in state source: {sample}")
+        duplicate_rows=int(dup.sum())
+        grouped=s.loc[dup].groupby(["_horse_id","_race_date"],sort=False)
+        duplicate_groups=int(grouped.ngroups)
+        conflicts=[]
+        for key,grp in grouped:
+            bad=[]
+            for col in state_update_cols:
+                vals=pd.to_numeric(grp[col],errors="coerce").dropna().to_numpy()
+                if len(vals)>1 and not np.allclose(vals,vals[0],rtol=1e-7,atol=1e-7,equal_nan=True):
+                    bad.append(col)
+            if bad:
+                conflicts.append({"key":key,"race_ids":grp["_race_id"].tolist(),"columns":bad})
+                if len(conflicts)>=10:
+                    break
+        if conflicts:
+            raise SystemExit(f"same-horse same-date conflicting state rows: {conflicts}")
+        print(
+            f"SAME_DAY_DUPLICATES_IDENTICAL groups={duplicate_groups} rows={duplicate_rows}; "
+            "history will update once per horse/date and fan out the same prior state to all same-day rows",
+            flush=True,
+        )
 
-    s=s.sort_values(["_horse_id","_race_date","_race_id"]).reset_index(drop=True)
-    g=s.groupby("_horse_id",sort=False)
+    # Build one chronological state event per horse/date only after consistency is proven.
+    events=(
+        s.sort_values(["_horse_id","_race_date","_race_id"])
+         .drop_duplicates(["_horse_id","_race_date"],keep="first")
+         .reset_index(drop=True)
+    )
+    g=events.groupby("_horse_id",sort=False)
 
-    out=s[["_race_id","_horse_id","_race_date","_year"]].copy()
+    event_out=events[["_horse_id","_race_date"]].copy()
     prior_count=g.cumcount().astype("int16")
-    out["seq_history_count"]=prior_count
+    event_out["seq_history_count"]=prior_count
 
     # Race-gap state.
-    current_date=pd.to_datetime(s["_race_date"],errors="coerce")
+    current_date=pd.to_datetime(events["_race_date"],errors="coerce")
     lag_dates={}
     for k in range(1,MAX_LAG+1):
         lag_dates[k]=pd.to_datetime(g["_race_date"].shift(k),errors="coerce")
-        out[f"seq_gap_current_lag{k}_days"]=(current_date-lag_dates[k]).dt.days.astype("float32")
-    out["seq_gap_lag1_lag2_days"]=(lag_dates[1]-lag_dates[2]).dt.days.astype("float32")
-    out["seq_gap_lag2_lag3_days"]=(lag_dates[2]-lag_dates[3]).dt.days.astype("float32")
+        event_out[f"seq_gap_current_lag{k}_days"]=(current_date-lag_dates[k]).dt.days.astype("float32")
+    event_out["seq_gap_lag1_lag2_days"]=(lag_dates[1]-lag_dates[2]).dt.days.astype("float32")
+    event_out["seq_gap_lag2_lag3_days"]=(lag_dates[2]-lag_dates[3]).dt.days.astype("float32")
 
     lag_cols=[]
     for metric in RAW_LAG_METRICS:
@@ -156,7 +190,7 @@ def build_state_features(paths):
         }.get(metric,metric)
         for k in range(1,MAX_LAG+1):
             c=f"seq_lag{k}_{metric}"
-            out[c]=pd.to_numeric(g[src].shift(k),errors="coerce").astype("float32")
+            event_out[c]=pd.to_numeric(g[src].shift(k),errors="coerce").astype("float32")
             lag_cols.append(c)
     lag_cols.extend(
         ["seq_history_count"]
@@ -166,50 +200,50 @@ def build_state_features(paths):
 
     transition_cols=[]
     for metric in TRANSITION_METRICS:
-        l1=out[f"seq_lag1_{metric}"]
-        l2=out[f"seq_lag2_{metric}"]
-        l3=out[f"seq_lag3_{metric}"]
+        l1=event_out[f"seq_lag1_{metric}"]
+        l2=event_out[f"seq_lag2_{metric}"]
+        l3=event_out[f"seq_lag3_{metric}"]
         d12=f"seq_delta12_{metric}"
         d23=f"seq_delta23_{metric}"
         accel=f"seq_accel_{metric}"
         reversal=f"seq_reversal_{metric}"
         std3=f"seq_std3_{metric}"
         range3=f"seq_range3_{metric}"
-        out[d12]=(l1-l2).astype("float32")
-        out[d23]=(l2-l3).astype("float32")
-        out[accel]=(out[d12]-out[d23]).astype("float32")
+        event_out[d12]=(l1-l2).astype("float32")
+        event_out[d23]=(l2-l3).astype("float32")
+        event_out[accel]=(out[d12]-out[d23]).astype("float32")
         valid=l1.notna()&l2.notna()&l3.notna()
         rev=np.where(valid & ((out[d12]*out[d23])<0),1.0,np.where(valid,0.0,np.nan))
-        out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
+        event_out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
         trio=pd.concat([l1,l2,l3],axis=1)
-        out[std3]=trio.std(axis=1,ddof=0).astype("float32")
-        out[range3]=(trio.max(axis=1)-trio.min(axis=1)).astype("float32")
+        event_out[std3]=trio.std(axis=1,ddof=0).astype("float32")
+        event_out[range3]=(trio.max(axis=1)-trio.min(axis=1)).astype("float32")
         transition_cols.extend([d12,d23,accel,reversal,std3,range3])
 
     residual_cols=[]
     for metric in RESIDUAL_METRICS:
         for k in range(1,MAX_LAG+1):
             c=f"seq_lag{k}_{metric}"
-            out[c]=pd.to_numeric(g[metric].shift(k),errors="coerce").astype("float32")
+            event_out[c]=pd.to_numeric(g[metric].shift(k),errors="coerce").astype("float32")
             residual_cols.append(c)
-        l1=out[f"seq_lag1_{metric}"]
-        l2=out[f"seq_lag2_{metric}"]
-        l3=out[f"seq_lag3_{metric}"]
+        l1=event_out[f"seq_lag1_{metric}"]
+        l2=event_out[f"seq_lag2_{metric}"]
+        l3=event_out[f"seq_lag3_{metric}"]
         d12=f"seq_delta12_{metric}"
         d23=f"seq_delta23_{metric}"
         accel=f"seq_accel_{metric}"
         reversal=f"seq_reversal_{metric}"
         pos3=f"seq_positive_count3_{metric}"
         std3=f"seq_std3_{metric}"
-        out[d12]=(l1-l2).astype("float32")
-        out[d23]=(l2-l3).astype("float32")
-        out[accel]=(out[d12]-out[d23]).astype("float32")
+        event_out[d12]=(l1-l2).astype("float32")
+        event_out[d23]=(l2-l3).astype("float32")
+        event_out[accel]=(out[d12]-out[d23]).astype("float32")
         valid=l1.notna()&l2.notna()&l3.notna()
         rev=np.where(valid & ((out[d12]*out[d23])<0),1.0,np.where(valid,0.0,np.nan))
-        out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
+        event_out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
         trio=pd.concat([l1,l2,l3],axis=1)
-        out[pos3]=trio.gt(0).sum(axis=1).where(valid,np.nan).astype("float32")
-        out[std3]=trio.std(axis=1,ddof=0).astype("float32")
+        event_out[pos3]=trio.gt(0).sum(axis=1).where(valid,np.nan).astype("float32")
+        event_out[std3]=trio.std(axis=1,ddof=0).astype("float32")
         residual_cols.extend(
             [f"seq_lag{k}_{metric}" for k in range(1,MAX_LAG+1)]
             +[d12,d23,accel,reversal,pos3,std3]
@@ -218,11 +252,19 @@ def build_state_features(paths):
     # Expected strength from the prior race is residual context, never current-race market.
     for k in range(1,MAX_LAG+1):
         c=f"seq_lag{k}_network_expected_pairwise_score"
-        out[c]=pd.to_numeric(g["network_expected_pairwise_score"].shift(k),errors="coerce").astype("float32")
+        event_out[c]=pd.to_numeric(g["network_expected_pairwise_score"].shift(k),errors="coerce").astype("float32")
         residual_cols.append(c)
 
     if any(c.startswith("seq_") is False for c in lag_cols+transition_cols+residual_cols):
         raise SystemExit("state feature namespace violation")
+
+    # Fan the same strictly-prior state back to every original row for that horse/date.
+    out=(
+        s[["_race_id","_horse_id","_race_date","_year"]]
+        .merge(event_out,on=["_horse_id","_race_date"],how="left",validate="many_to_one")
+    )
+    if len(out)!=len(s):
+        raise SystemExit("state fanout row-count mismatch")
 
     by_year={}
     coverage=[]
