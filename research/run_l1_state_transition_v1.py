@@ -211,10 +211,10 @@ def build_state_features(paths):
         range3=f"seq_range3_{metric}"
         event_out[d12]=(l1-l2).astype("float32")
         event_out[d23]=(l2-l3).astype("float32")
-        event_out[accel]=(out[d12]-out[d23]).astype("float32")
+        event_out[accel]=(event_out[d12]-event_out[d23]).astype("float32")
         valid=l1.notna()&l2.notna()&l3.notna()
-        rev=np.where(valid & ((out[d12]*out[d23])<0),1.0,np.where(valid,0.0,np.nan))
-        event_out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
+        rev=np.where(valid & ((event_out[d12]*event_out[d23])<0),1.0,np.where(valid,0.0,np.nan))
+        event_out[reversal]=pd.Series(rev,index=event_out.index,dtype="float32")
         trio=pd.concat([l1,l2,l3],axis=1)
         event_out[std3]=trio.std(axis=1,ddof=0).astype("float32")
         event_out[range3]=(trio.max(axis=1)-trio.min(axis=1)).astype("float32")
@@ -237,10 +237,10 @@ def build_state_features(paths):
         std3=f"seq_std3_{metric}"
         event_out[d12]=(l1-l2).astype("float32")
         event_out[d23]=(l2-l3).astype("float32")
-        event_out[accel]=(out[d12]-out[d23]).astype("float32")
+        event_out[accel]=(event_out[d12]-event_out[d23]).astype("float32")
         valid=l1.notna()&l2.notna()&l3.notna()
-        rev=np.where(valid & ((out[d12]*out[d23])<0),1.0,np.where(valid,0.0,np.nan))
-        event_out[reversal]=pd.Series(rev,index=out.index,dtype="float32")
+        rev=np.where(valid & ((event_out[d12]*event_out[d23])<0),1.0,np.where(valid,0.0,np.nan))
+        event_out[reversal]=pd.Series(rev,index=event_out.index,dtype="float32")
         trio=pd.concat([l1,l2,l3],axis=1)
         event_out[pos3]=trio.gt(0).sum(axis=1).where(valid,np.nan).astype("float32")
         event_out[std3]=trio.std(axis=1,ddof=0).astype("float32")
@@ -495,7 +495,7 @@ def main():
         "strictness":[
             "All sequence features are grouped by horse and shifted by >=1 race.",
             "Current-race target fields never enter current-race sequence features.",
-            "Same-horse same-date duplicates are fatal instead of being arbitrarily ordered.",
+            "Same-horse same-date duplicates must be state-identical; identical duplicates update history once per date and fan out the same strictly-prior state.",
             "Walk-forward remains two prior years -> next unknown year for 2021-2025.",
             "No odds or popularity are used.",
             "2026 is sealed."
