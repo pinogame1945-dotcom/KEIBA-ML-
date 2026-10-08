@@ -141,8 +141,12 @@ def quantile_threshold(train_candidates,q):
     vals=pd.to_numeric(train_candidates["_warning_score"],errors="coerce").replace([np.inf,-np.inf],np.nan).dropna()
     return float(vals.quantile(q)) if len(vals) else np.inf
 
-def aggregate(rows):
+def aggregate(rows,frames):
     pooled=[]
+    totalw=sum(int(frames[y]["_is_win"].sum()) for y in EVAL_YEARS)
+    totalp=sum(int(frames[y]["_is_top3"].sum()) for y in EVAL_YEARS)
+    basew=sum(int(((frames[y]["_is_win"]==1)&(frames[y]["model_rank"]<=6)).sum()) for y in EVAL_YEARS)
+    basep=sum(int(((frames[y]["_is_top3"]==1)&(frames[y]["model_rank"]<=6)).sum()) for y in EVAL_YEARS)
     keys=sorted({(r["variant"],r["gate"]) for r in rows})
     for variant,gate in keys:
         xs=[r for r in rows if r["variant"]==variant and r["gate"]==gate]
@@ -152,31 +156,14 @@ def aggregate(rows):
         ph=sum(int(r["warning_top3_hits"]) for r in xs)
         deepw=sum(int(r["deep_winners"]) for r in xs)
         deepp=sum(int(r["deep_top3_horses"]) for r in xs)
-        # Recover total denominators from capture deltas.
-        totalw=sum(int(round(r["warning_win_hits"]/(r["win_capture_delta_pp"]/100))) if r["warning_win_hits"] and r["win_capture_delta_pp"] else 0 for r in xs)
-        # Known yearly winner count can instead derive from baseline frame externally, but this path is robust for delta pooling below.
-        basew_num=sum((r["baseline_top6_win_capture_pct"]/100) * (int(round(r["warning_win_hits"]/(r["win_capture_delta_pp"]/100))) if r["warning_win_hits"] and r["win_capture_delta_pp"] else 0) for r in xs)
-        # Use stable project year totals where any zero-hit gate would otherwise lose denominator.
-        year_w={2022:3460,2023:3459,2024:3462,2025:3462}
-        totalw=sum(year_w[int(r["test_year"])] for r in xs)
-        basew=sum(round(r["baseline_top6_win_capture_pct"]/100*year_w[int(r["test_year"])]) for r in xs)
-        # top3 denominator from each frame has one row per actual top3 horse, including dead heats. Infer from baseline/delta when possible.
-        totalp=0; basep=0
-        for r in xs:
-            if r["top3_capture_delta_pp"]>0 and r["warning_top3_hits"]>0:
-                tp=round(r["warning_top3_hits"]/(r["top3_capture_delta_pp"]/100))
-            else:
-                # top3 rows are stable across variants within a year; defer to a sibling row in source rows.
-                sib=next(z for z in rows if z["test_year"]==r["test_year"] and z["warning_top3_hits"]>0 and z["top3_capture_delta_pp"]>0)
-                tp=round(sib["warning_top3_hits"]/(sib["top3_capture_delta_pp"]/100))
-            totalp+=tp
-            basep+=round(r["baseline_top6_top3_capture_pct"]/100*tp)
+        weighted_rank=sum(float(r["avg_warning_model_rank"])*int(r["warnings"]) for r in xs if int(r["warnings"])>0)
         pooled.append({
             "test_year":"ALL_2022_2025","variant":variant,"gate":gate,
             "races":races,"warnings":warnings,"fire_rate_pct":100*warnings/races if races else 0,
             "warning_win_hits":wh,"warning_top3_hits":ph,
             "warning_win_rate_pct":100*wh/warnings if warnings else 0,
             "warning_top3_rate_pct":100*ph/warnings if warnings else 0,
+            "avg_warning_model_rank":weighted_rank/warnings if warnings else np.nan,
             "deep_winners":deepw,"deep_top3_horses":deepp,
             "deep_winner_capture_pct":100*wh/deepw if deepw else 0,
             "deep_top3_capture_pct":100*ph/deepp if deepp else 0,
@@ -252,7 +239,7 @@ def main():
                     rows.append(eval_candidates(test_df,test_c,name,gate,y,th))
                 print(f"WARNING_VARIANT_READY year={y} variant={name}",flush=True)
 
-    metrics=aggregate(rows)
+    metrics=aggregate(rows,frames)
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
     write_csv(out/"warning-metrics.csv",metrics)
     write_csv(out/"warning-rank-bins.csv",rank_rows)
