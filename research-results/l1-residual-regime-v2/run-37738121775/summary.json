@@ -1,0 +1,71 @@
+{
+  "contract": "L1_RESIDUAL_REGIME_V2",
+  "question": "Can residual-regime field-relative context and a strict OOS correction layer lift the stable +1.35pp signal past +2pp?",
+  "direct_variants": {
+    "BASELINE_DIRECT": "core4 direct LambdaRank",
+    "REGIME_ALL": "all residual-regime features",
+    "REGIME_PERF_ONLY": "performance residual regime only",
+    "REGIME_SPEED_ONLY": "speed residual regime only",
+    "REGIME_LAST3F_ONLY": "last3f residual regime only",
+    "REGIME_PERF_SPEED": "performance + speed residual regimes",
+    "REGIME_FIELD_REL": "all regime + within-race zscore/percentile/gap-to-mean residual context"
+  },
+  "correction": {
+    "training": "For test Y, an inner baseline trains on Y-2 and predicts Y-1; correction trains only on those Y-1 OOS baseline scores + prior-only regime features. Final baseline trains Y-2,Y-1 and predicts Y.",
+    "target": "top3 probability",
+    "features": "baseline within-race strength + residual regime + field-relative residual regime",
+    "variants": {
+      "CORRECTION_ONLY": "correction probability only",
+      "CORRECTION_BLEND_25": "75% baseline rank score + 25% correction rank score",
+      "CORRECTION_BLEND_50": "50/50 fixed blend; primary correction hypothesis",
+      "CORRECTION_BLEND_75": "25% baseline + 75% correction"
+    }
+  },
+  "strictness": [
+    "All residual/regime features are shifted by >=1 horse race date.",
+    "Field-relative residual context uses only pre-race-known state of current entrants.",
+    "Correction training sees only OOS baseline predictions from the immediately prior year.",
+    "Final evaluation remains two prior calendar years -> next unknown year, 2021-2025.",
+    "No odds or popularity are used.",
+    "2026 is sealed."
+  ],
+  "primary_keys": [
+    [
+      "REGIME_ALL",
+      "RANK_GRADED"
+    ],
+    [
+      "REGIME_FIELD_REL",
+      "RANK_GRADED"
+    ],
+    [
+      "CORRECTION_BLEND_50",
+      "TOP3_CORRECTION"
+    ]
+  ],
+  "best_primary": {
+    "architecture": "REGIME_ALL",
+    "head": "RANK_GRADED",
+    "folds": 5,
+    "races": 17280,
+    "top1_top3_pct": 60.833333333333336,
+    "top1_top3_pct_worst": 59.432870370370374,
+    "top1_top3_pct_std": 1.2101135867482202,
+    "top1_win_pct": 29.502314814814813,
+    "top1_win_pct_worst": 28.53009259259259,
+    "top1_win_pct_std": 0.9341360543509762,
+    "winner_top3_capture_pct": 61.09953703703704,
+    "winner_top3_capture_pct_worst": 58.59375,
+    "winner_top3_capture_pct_std": 1.3516913114973808,
+    "winner_top6_capture_pct": 83.44328703703704,
+    "winner_top6_capture_pct_worst": 82.26273148148148,
+    "winner_top6_capture_pct_std": 0.912151595550183,
+    "top1_top3_uplift_pp": 0.9259259259259309,
+    "top1_top3_uplift_worst_fold_pp": 0.17361111111112137,
+    "top1_top3_uplift_best_fold_pp": 1.6493055555555642
+  },
+  "promotion_rule": "Require >=2.0pp pooled top1_top3 uplift vs baseline direct and no fold worse than -0.5pp.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
