@@ -56,7 +56,8 @@ jobs:
               assert cost[k] is False,(k,cost[k])
           wf=Path(".github/workflows/l2-trifecta-odds-rank-reverse-v1.yml").read_text()
           assert "runs-on: ubuntu-latest" in wf
-          assert ("/data/daily/"+"2026-") not in wf\n          assert ("/data/odds/daily/"+"2026-") not in wf
+          assert ("/data/daily/"+"2026-") not in wf
+          assert ("/data/odds/daily/"+"2026-") not in wf
           assert "actions/upload-artifact" not in wf
           assert "actions/cache" not in wf
           print("ODDS_RANK_REVERSE_GUARDS_OK")
