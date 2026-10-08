@@ -1,0 +1,159 @@
+{
+  "contract": "L2_TRIFECTA_BOUNDARY_ROUTER_V1_RESULT",
+  "races": 13182,
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "boundaries": {
+    "TOP10": "winner in top 10% of complete trifecta odds board",
+    "DEEP25": "winner deeper than 25%"
+  },
+  "selection": "nested time order: base train through y-2, calibrate on y-1, test y; select on 2023-2024 only; final base through 2023, calibrate 2024, test 2025",
+  "selected_configs": [
+    {
+      "boundary": "DEEP25",
+      "feature_set": "ALL_MARKET",
+      "model": "LOGIT",
+      "calibration": "SIGMOID",
+      "selection_brier": 0.10855132569527473,
+      "selection_log_loss": 0.36433419441972237,
+      "selection_auc": 0.6956157656849761,
+      "selection_ap": 0.25385355873790666,
+      "selection_ece": 0.012312197081014619
+    },
+    {
+      "boundary": "TOP10",
+      "feature_set": "ALL_MARKET",
+      "model": "LOGIT",
+      "calibration": "SIGMOID",
+      "selection_brier": 0.2018230954295573,
+      "selection_log_loss": 0.5888478063503546,
+      "selection_auc": 0.681978319256541,
+      "selection_ap": 0.8062844943047232,
+      "selection_ece": 0.027693061040054676
+    }
+  ],
+  "holdout_2025": [
+    {
+      "boundary": "TOP10",
+      "feature_set": "ALL_MARKET",
+      "model": "LOGIT",
+      "calibration": "SIGMOID",
+      "base_n": 8377,
+      "cal_n": 2482,
+      "test_n": 2323,
+      "prior": 0.6754765632194493,
+      "model_auc": 0.6779882794065912,
+      "model_average_precision": 0.815759131778482,
+      "model_brier": 0.19825733615853375,
+      "model_log_loss": 0.5802551422994225,
+      "model_balanced_accuracy_05": 0.5539258839781376,
+      "model_prevalence": 0.6844597503228583,
+      "model_mean_pred": 0.6708050753006152,
+      "model_ece10": 0.01530711417625693,
+      "prior_auc": 0.5,
+      "prior_average_precision": 0.6844597503228583,
+      "prior_brier": 0.2160552981613636,
+      "prior_log_loss": 0.6236469750573396,
+      "prior_balanced_accuracy_05": 0.5,
+      "prior_prevalence": 0.6844597503228583,
+      "prior_mean_pred": 0.6754765632194494,
+      "prior_ece10": 0.008983187103408952
+    },
+    {
+      "boundary": "DEEP25",
+      "feature_set": "ALL_MARKET",
+      "model": "LOGIT",
+      "calibration": "SIGMOID",
+      "base_n": 8377,
+      "cal_n": 2482,
+      "test_n": 2323,
+      "prior": 0.13435859655585228,
+      "model_auc": 0.6962768415085313,
+      "model_average_precision": 0.2623801624750359,
+      "model_brier": 0.10639240013475501,
+      "model_log_loss": 0.35660891326472677,
+      "model_balanced_accuracy_05": 0.5047194851411176,
+      "model_prevalence": 0.1300043047783039,
+      "model_mean_pred": 0.13666254466941177,
+      "model_ece10": 0.015071688535222642,
+      "prior_auc": 0.5,
+      "prior_average_precision": 0.1300043047783039,
+      "prior_brier": 0.11312214537429782,
+      "prior_log_loss": 0.3864771541473818,
+      "prior_balanced_accuracy_05": 0.5,
+      "prior_prevalence": 0.1300043047783039,
+      "prior_mean_pred": 0.13435859655585225,
+      "prior_ece10": 0.004354291777548341
+    }
+  ],
+  "fixed25": {
+    "coverage_pct": 86.99956952216961,
+    "avg_board_pct": 25.0,
+    "avg_tickets": 486.8557899268188
+  },
+  "dynamic_budget25": {
+    "selection_type": "BUDGET",
+    "selection_target": 25.0,
+    "t_top10": 0.9,
+    "t_deep25": 0.395,
+    "coverage_pct": 87.55919070167887,
+    "avg_board_pct": 25.61343090830822,
+    "avg_tickets": 489.3839862247094,
+    "median_tickets": 429.0,
+    "top10_route_pct": 3.013344812742144,
+    "top25_route_pct": 95.56607834696513,
+    "full_route_pct": 1.420576840292725
+  },
+  "dynamic_minus_fixed25_coverage_pp": 0.5596211795092643,
+  "fixed25_minus_dynamic_board_pp": -0.6134309083082208,
+  "brier_improvement_vs_prior_pct": {
+    "TOP10": 8.237688292900467,
+    "DEEP25": 5.949096189146231
+  },
+  "verdict": "RESEARCH_ONLY",
+  "promotion_gate": "both holdout AUC gates, both Brier gains positive, and dynamic 25%-budget frontier materially improves coverage or compression",
+  "parallelism": {
+    "feature_extraction_processes": 3,
+    "model_processes": 3
+  },
+  "input_counters_by_year": {
+    "2021": {
+      "race_seen": 3456,
+      "incomplete_universe": 859,
+      "ready": 2580,
+      "non_single_winner": 17
+    },
+    "2022": {
+      "race_seen": 3456,
+      "ready": 2980,
+      "incomplete_universe": 466,
+      "non_single_winner": 10
+    },
+    "2023": {
+      "race_seen": 3456,
+      "incomplete_universe": 626,
+      "ready": 2817,
+      "non_single_winner": 13
+    },
+    "2024": {
+      "race_seen": 3456,
+      "incomplete_universe": 960,
+      "ready": 2482,
+      "non_single_winner": 12,
+      "no_trifecta_odds": 2
+    },
+    "2025": {
+      "race_seen": 3456,
+      "incomplete_universe": 1113,
+      "ready": 2323,
+      "non_single_winner": 19,
+      "no_trifecta_odds": 1
+    }
+  },
+  "2026_locked": true
+}
