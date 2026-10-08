@@ -1,0 +1,83 @@
+{
+  "contract": "L1_WINNER_DEEPMISS_MEGA_V1",
+  "question": "Why do actual winners missed below baseline top6 win, and can their pre-race reasons rescue them without adding horses?",
+  "strictness": "all baseline reason frames are OOS; rescue model for Y trains only on OOS reason frame Y-1; 2021 anatomy only, rescue evaluated 2022-2025",
+  "deepmiss_definition": "baseline model rank >= 7",
+  "deepmiss_winners": 2941,
+  "all_winners": 17308,
+  "deepmiss_share_pct": 16.992142361913565,
+  "best_tail_family": {
+    "test_year": "ALL",
+    "group_column": "reason_family_1",
+    "reason": "FORM",
+    "runners": 74792,
+    "winners": 1870,
+    "win_rate_pct": 2.5002674082789604,
+    "tail_baseline_win_rate_pct": 2.2239698731860766,
+    "win_lift": 1.1242361861211085,
+    "winner_share_of_tail_pct": 63.58381502890173
+  },
+  "best_tail_feature_min20wins": {
+    "test_year": "ALL",
+    "group_column": "top_reason_feature",
+    "reason": "previous_finish_position",
+    "runners": 6252,
+    "winners": 242,
+    "win_rate_pct": 3.870761356365963,
+    "tail_baseline_win_rate_pct": 2.2239698731860766,
+    "win_lift": 1.7404738270220717,
+    "winner_share_of_tail_pct": 8.228493709622578
+  },
+  "tail_reason_strength_ge_090": {
+    "test_year": "ALL",
+    "signal": "reason_strength",
+    "threshold": 0.9,
+    "runners": 2308,
+    "winners": 81,
+    "win_rate_pct": 3.5095320623916813,
+    "tail_baseline_win_rate_pct": 2.2239698731860766,
+    "win_lift": 1.578048383076295,
+    "tail_winner_capture_pct": 2.754165249914995
+  },
+  "best_fixed_top6_rescue": {
+    "test_year": "ALL_2022_2025",
+    "variant": "FAMILY_SPEED_PACE",
+    "winners": 13843,
+    "baseline_top6_captured": 11539,
+    "final_top6_captured": 11501,
+    "baseline_top6_capture_pct": 83.35620891425269,
+    "final_top6_capture_pct": 83.0817019432204,
+    "delta_pp": -0.2745069710322907,
+    "deep_winners": 2304,
+    "deep_winners_rescued": 299,
+    "deep_pick_rate_pct": 12.977430555555555,
+    "rank6_winners_lost": 337,
+    "net_rescues": -38
+  },
+  "rescue_variants": [
+    "ALL_REASON",
+    "FAMILY_ACTOR",
+    "FAMILY_BASE",
+    "FAMILY_CONDITION",
+    "FAMILY_DISTANCE",
+    "FAMILY_FORM",
+    "FAMILY_OPPONENT",
+    "FAMILY_PEDIGREE",
+    "FAMILY_SPEED_PACE",
+    "HEUR_ACTOR",
+    "HEUR_FEATURE_STRENGTH",
+    "HEUR_FORM",
+    "HEUR_OPPONENT",
+    "HEUR_REASON_STRENGTH",
+    "HEUR_SPEED_PACE",
+    "MODEL_ONLY"
+  ],
+  "parallelism": {
+    "snapshot_download": "existing runner parallel download",
+    "rescue_workers": 2,
+    "threads_each": 2
+  },
+  "uses_odds": false,
+  "2026_locked": true,
+  "promotion": false
+}
