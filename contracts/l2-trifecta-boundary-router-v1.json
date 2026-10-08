@@ -1,0 +1,26 @@
+{
+  "contract": "L2_TRIFECTA_BOUNDARY_ROUTER_V1",
+  "purpose": "Replace unstable four-class depth routing with two calibrated binary boundaries and test whether dynamic search depth beats fixed board-percent cutoffs.",
+  "years": [2021, 2022, 2023, 2024, 2025],
+  "selection_test_years": [2023, 2024],
+  "holdout_year": 2025,
+  "locked_years": [2026],
+  "boundaries": {"TOP10": "winner rank percentile <= 0.10", "DEEP25": "winner rank percentile > 0.25"},
+  "calibration_methods": ["NONE", "SIGMOID", "ISOTONIC"],
+  "feature_sets": ["FIELD_ONLY", "TRI_MARKET", "ALL_MARKET", "MARKET_RACE"],
+  "models": ["LOGIT", "EXTRA_TREES"],
+  "routing_actions": ["SEARCH_TOP10_PERCENT", "SEARCH_TOP25_PERCENT", "SEARCH_FULL_BOARD"],
+  "threshold_selection": "2023-2024 nested walk-forward only; 2025 untouched",
+  "winner_dependent_features": false,
+  "strict_complete_trifecta_board": true,
+  "feature_extraction_once": true,
+  "parallel_cpu": true,
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}
