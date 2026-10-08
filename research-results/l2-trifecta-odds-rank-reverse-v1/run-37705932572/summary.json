@@ -1,0 +1,240 @@
+{
+  "contract": "L2_TRIFECTA_ODDS_RANK_REVERSE_V1_RESULT",
+  "definition": {
+    "SHORT": "winning trifecta final-odds rank 1-30",
+    "MIDDLE": "rank 31-120",
+    "DEEP": "rank 121+",
+    "ranking": "tie-safe competition rank, shortest final trifecta odds first",
+    "universe": "strictly complete priced trifecta boards only",
+    "multi_winner_policy": "exclude races with multiple positive trifecta payouts from primary feature analysis"
+  },
+  "features": "pre-race race context and whole-market shape only; no winner-dependent horse features",
+  "overall": {
+    "races": 13182,
+    "years": [
+      2021,
+      2022,
+      2023,
+      2024,
+      2025
+    ],
+    "short_pct": 32.87816719769383,
+    "middle_pct": 28.0230617508724,
+    "deep_pct": 39.09877105143377,
+    "median_winner_rank": 73.0,
+    "p90_winner_rank": 580.8999999999996,
+    "median_ticket_count": 1716.0
+  },
+  "top_numeric_associations": [
+    {
+      "feature": "effective_tickets",
+      "spearman_vs_winner_rank": 0.4793391165119175,
+      "deep_minus_short_smd": 1.019296303107949
+    },
+    {
+      "feature": "hhi",
+      "spearman_vs_winner_rank": -0.4793391165119175,
+      "deep_minus_short_smd": -0.8306584312136395
+    },
+    {
+      "feature": "top30_share",
+      "spearman_vs_winner_rank": -0.47826964901197416,
+      "deep_minus_short_smd": -1.1468004601969013
+    },
+    {
+      "feature": "top10_odds",
+      "spearman_vs_winner_rank": 0.47289883659128684,
+      "deep_minus_short_smd": 1.031744860814564
+    },
+    {
+      "feature": "top10_share",
+      "spearman_vs_winner_rank": -0.4679922099769463,
+      "deep_minus_short_smd": -1.0611378548337795
+    },
+    {
+      "feature": "top1_share",
+      "spearman_vs_winner_rank": -0.44943456905270973,
+      "deep_minus_short_smd": -0.8961723627531565
+    },
+    {
+      "feature": "top1_odds",
+      "spearman_vs_winner_rank": 0.44936755324708905,
+      "deep_minus_short_smd": 0.9460322917174072
+    },
+    {
+      "feature": "win_top3_share",
+      "spearman_vs_winner_rank": -0.445000769929965,
+      "deep_minus_short_smd": -1.0818131484724327
+    },
+    {
+      "feature": "top30_odds",
+      "spearman_vs_winner_rank": 0.4354970627378669,
+      "deep_minus_short_smd": 0.9522815243286405
+    },
+    {
+      "feature": "top30_to_top1",
+      "spearman_vs_winner_rank": -0.3503946618149121,
+      "deep_minus_short_smd": -0.5793412924220191
+    },
+    {
+      "feature": "field_size",
+      "spearman_vs_winner_rank": 0.35017499312940714,
+      "deep_minus_short_smd": 0.82120021783622
+    },
+    {
+      "feature": "ticket_count",
+      "spearman_vs_winner_rank": 0.35017499312940714,
+      "deep_minus_short_smd": 0.7492196712127018
+    }
+  ],
+  "top_categorical_deep_lifts": [
+    {
+      "dimension": "field_size_bin",
+      "value": "F_LE10",
+      "races": 2847,
+      "deep_pct": 15.489989462592202,
+      "deep_lift_vs_all": 0.39617586553335354
+    },
+    {
+      "dimension": "field_size_bin",
+      "value": "F_17_18",
+      "races": 751,
+      "deep_pct": 56.19174434087883,
+      "deep_lift_vs_all": 1.4371741829675295
+    },
+    {
+      "dimension": "race_class",
+      "value": "THREE_WIN",
+      "races": 1044,
+      "deep_pct": 51.43678160919541,
+      "deep_lift_vs_all": 1.3155600604819826
+    },
+    {
+      "dimension": "field_size_bin",
+      "value": "F_14_16",
+      "races": 5808,
+      "deep_pct": 51.15358126721763,
+      "deep_lift_vs_all": 1.308316857323366
+    },
+    {
+      "dimension": "surface",
+      "value": "MIXED",
+      "races": 160,
+      "deep_pct": 28.125,
+      "deep_lift_vs_all": 0.7193320721769499
+    },
+    {
+      "dimension": "race_class",
+      "value": "OPEN",
+      "races": 1511,
+      "deep_pct": 49.90072799470549,
+      "deep_lift_vs_all": 1.2762735669891498
+    },
+    {
+      "dimension": "discipline",
+      "value": "OBSTACLE",
+      "races": 561,
+      "deep_pct": 29.590017825311943,
+      "deep_lift_vs_all": 0.7568017364634498
+    },
+    {
+      "dimension": "race_class",
+      "value": "MAIDEN",
+      "races": 3247,
+      "deep_pct": 30.766861718509393,
+      "deep_lift_vs_all": 0.7869009917993612
+    },
+    {
+      "dimension": "track_condition",
+      "value": "不",
+      "races": 450,
+      "deep_pct": 47.333333333333336,
+      "deep_lift_vs_all": 1.2106092355452076
+    },
+    {
+      "dimension": "venue_code",
+      "value": "03",
+      "races": 799,
+      "deep_pct": 47.309136420525654,
+      "deep_lift_vs_all": 1.2099903692187994
+    },
+    {
+      "dimension": "distance_bin",
+      "value": "D_2100_2400",
+      "races": 767,
+      "deep_pct": 31.290743155149936,
+      "deep_lift_vs_all": 0.8002999151555811
+    },
+    {
+      "dimension": "distance_bin",
+      "value": "D_LE1200",
+      "races": 2838,
+      "deep_pct": 45.87737843551797,
+      "deep_lift_vs_all": 1.1733713669712802
+    },
+    {
+      "dimension": "distance_bin",
+      "value": "D_2500P",
+      "races": 848,
+      "deep_pct": 33.136792452830186,
+      "deep_lift_vs_all": 0.8475149361917104
+    },
+    {
+      "dimension": "race_class",
+      "value": "NEWCOMER",
+      "races": 1251,
+      "deep_pct": 34.93205435651478,
+      "deep_lift_vs_all": 0.8934310060682537
+    },
+    {
+      "dimension": "field_size_bin",
+      "value": "F_11_13",
+      "races": 3776,
+      "deep_pct": 34.95762711864407,
+      "deep_lift_vs_all": 0.8940850614628757
+    },
+    {
+      "dimension": "race_month",
+      "value": "12",
+      "races": 1009,
+      "deep_pct": 43.11199207135778,
+      "deep_lift_vs_all": 1.102643149950792
+    },
+    {
+      "dimension": "track_condition",
+      "value": "重",
+      "races": 1091,
+      "deep_pct": 43.07974335472044,
+      "deep_lift_vs_all": 1.1018183486649686
+    },
+    {
+      "dimension": "venue_code",
+      "value": "08",
+      "races": 1156,
+      "deep_pct": 35.38062283737024,
+      "deep_lift_vs_all": 0.904903706329481
+    },
+    {
+      "dimension": "venue_code",
+      "value": "09",
+      "races": 2014,
+      "deep_pct": 35.45183714001986,
+      "deep_lift_vs_all": 0.906725101241253
+    },
+    {
+      "dimension": "venue_code",
+      "value": "05",
+      "races": 1907,
+      "deep_pct": 35.710540115364445,
+      "deep_lift_vs_all": 0.9133417535908696
+    }
+  ],
+  "counters": {
+    "race_seen": 17280,
+    "incomplete_universe": 4024,
+    "ready": 13182,
+    "non_single_winner": 71,
+    "no_trifecta_odds": 3
+  },
+  "2026_locked": true
+}
