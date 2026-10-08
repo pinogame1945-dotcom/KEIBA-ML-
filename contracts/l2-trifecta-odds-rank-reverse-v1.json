@@ -1,0 +1,20 @@
+{
+  "contract": "L2_TRIFECTA_ODDS_RANK_REVERSE_V1",
+  "purpose": "Reverse-analyse the final trifecta odds-board position of the actual winning ticket, then identify pre-race race/market traits associated with shallow versus deep outcomes.",
+  "years": [2021, 2022, 2023, 2024, 2025],
+  "locked_years": [2026],
+  "layers": {"SHORT": "1-30", "MIDDLE": "31-120", "DEEP": "121+"},
+  "ranking": "tie-safe competition rank by shortest final TRIFECTA odds",
+  "strict_complete_trifecta_board": true,
+  "multi_winner_primary_policy": "exclude",
+  "winner_dependent_features": false,
+  "features": ["race context", "full trifecta odds-board shape", "win-market concentration"],
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}

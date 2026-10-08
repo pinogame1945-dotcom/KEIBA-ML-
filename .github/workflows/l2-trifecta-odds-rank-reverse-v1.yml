@@ -1,0 +1,124 @@
+name: L2 TRIFECTA Odds-Rank Reverse V1
+
+on:
+  push:
+    branches:
+      - research/l2-trifecta-odds-rank-reverse-v1-20261008
+    paths:
+      - .github/triggers/l2-trifecta-odds-rank-reverse-v1.trigger
+      - research/run_l2_trifecta_odds_rank_reverse_v1.py
+      - .github/workflows/l2-trifecta-odds-rank-reverse-v1.yml
+      - contracts/l2-trifecta-odds-rank-reverse-v1.json
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-trifecta-odds-rank-reverse-v1
+  cancel-in-progress: true
+
+jobs:
+  analyse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    env:
+      BACKFILL_SHA: a80f2c1994e10ddcf76efaa996c97147b1223e1f
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_trifecta_odds_rank_reverse_v1.py research/build_l2_bet_kings_dataset_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          c=json.load(open("contracts/l2-trifecta-odds-rank-reverse-v1.json",encoding="utf-8"))
+          assert c["contract"]=="L2_TRIFECTA_ODDS_RANK_REVERSE_V1"
+          assert c["years"]==[2021,2022,2023,2024,2025]
+          assert c["locked_years"]==[2026]
+          assert c["layers"]=={"SHORT":"1-30","MIDDLE":"31-120","DEEP":"121+"}
+          assert c["winner_dependent_features"] is False
+          assert c["strict_complete_trifecta_board"] is True
+          cost=c["cost"]
+          assert cost["standard_github_cpu_only"] is True
+          for k in ("gpu","paid_runner","github_artifact","github_cache","paid_persistent_storage"):
+              assert cost[k] is False,(k,cost[k])
+          wf=Path(".github/workflows/l2-trifecta-odds-rank-reverse-v1.yml").read_text()
+          assert "runs-on: ubuntu-latest" in wf
+          assert "2026-*.jsonl.gz" not in wf
+          assert "actions/upload-artifact" not in wf
+          assert "actions/cache" not in wf
+          print("ODDS_RANK_REVERSE_GUARDS_OK")
+          PY
+
+      - name: Install lightweight CPU dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas
+
+      - name: Sparse restore fixed 2021-2025 BACKFILL once
+        shell: bash
+        run: |
+          set -euo pipefail
+          rm -rf out/backfill
+          git clone --depth 1 --filter=blob:none --no-checkout https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git out/backfill
+          git -C out/backfill sparse-checkout init --no-cone
+          cat > out/backfill/.git/info/sparse-checkout <<'EOF'
+          /data/daily/2021-*.jsonl.gz
+          /data/daily/2022-*.jsonl.gz
+          /data/daily/2023-*.jsonl.gz
+          /data/daily/2024-*.jsonl.gz
+          /data/daily/2025-*.jsonl.gz
+          /data/odds/daily/2021-*.jsonl.gz
+          /data/odds/daily/2022-*.jsonl.gz
+          /data/odds/daily/2023-*.jsonl.gz
+          /data/odds/daily/2024-*.jsonl.gz
+          /data/odds/daily/2025-*.jsonl.gz
+          EOF
+          git -C out/backfill checkout "$BACKFILL_SHA"
+          test "$(git -C out/backfill rev-parse HEAD)" = "$BACKFILL_SHA"
+
+      - name: Run reverse analysis
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trifecta-odds-rank-reverse-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_trifecta_odds_rank_reverse_v1.py --backfill-root out/backfill --out-dir "$result"
+          echo "===== SUMMARY ====="; cat "$result/summary.json"
+          echo "===== YEARLY ====="; cat "$result/yearly.csv"
+          echo "===== LAYERS ====="; cat "$result/layer-summary.csv"
+          echo "===== NUMERIC ====="; head -20 "$result/numeric-effects.csv"
+          echo "===== CATEGORICAL ====="; head -30 "$result/categorical-profile.csv"
+
+      - name: Cost guard
+        if: always()
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner / artifact / cache."
+          echo "No Kaggle reads or writes."
+          echo "BACKFILL is pinned and read once on this runner."
+          echo "Raw per-race analysis rows are ephemeral."
+          echo "Only compact summaries are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-trifecta-odds-rank-reverse-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result/README.md" "$result/summary.json" "$result/yearly.csv" "$result/layer-summary.csv" "$result/numeric-effects.csv" "$result/categorical-profile.csv"
+          git commit -m "research: archive trifecta odds-rank reverse v1 run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
