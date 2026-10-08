@@ -1,0 +1,108 @@
+name: L1 Residual Regime Full Pairwise V1
+
+on:
+  push:
+    branches:
+      - research/l1-residual-regime-full-pairwise-v1-20261008
+    paths:
+      - .github/triggers/l1-residual-regime-full-pairwise-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-residual-regime-full-pairwise-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+      GENERATION_ID: bf811fa2eab73db0
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile             research/run_l1_residual_regime_full_pairwise_v1.py             research/run_l1_ceiling_audit_v1.py             research/run_l1_objective_rebuild_v1.py             research/resolve_snapshot_manifest_remote_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n research/run_l1_residual_regime_full_pairwise_v1.sh
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-residual-regime-full-pairwise-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_l1_residual_regime_full_pairwise_v1.py").read_text()
+          for token in ("FULL_PAIRWISE_REGIME","PAIR_BLEND","anti_row_leak","2026 sealed"):
+              assert token in src
+          assert "final_win_odds" in Path("research/run_l1_ceiling_audit_v1.py").read_text()
+          print("L1_RESIDUAL_REGIME_PAIR_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Run residual regime and full-field pairwise arena
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash research/run_l1_residual_regime_full_pairwise_v1.sh
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle is read-only."
+          echo "Metadata is listed once; only resolved existing remote names are downloaded."
+          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
+          echo "2019-2025 snapshots are reused within one runner."
+          echo "Only compact CSV/JSON diagnostics are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-residual-regime-full-pairwise-v1-v1/run-$GITHUB_RUN_ID"
+          test -s "$result/summary.json"
+          test -s "$result/fold-metrics.csv"
+          test -s "$result/pooled-metrics.csv"
+          test -s "$result/feature-importance.csv"
+          test -s "$result/pair-counts.csv"
+          test -s "$result/state-coverage.csv"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive L1 residual regime pairwise run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
