@@ -1,0 +1,106 @@
+name: L1 Winner Reason Mining V1
+
+on:
+  push:
+    branches:
+      - research/l1-winner-reason-mining-v1-20261008
+    paths:
+      - .github/triggers/l1-winner-reason-mining-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-winner-reason-mining-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+      GENERATION_ID: bf811fa2eab73db0
+      PYTHONUNBUFFERED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_winner_reason_mining_v1.py research/resolve_snapshot_manifest_remote_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l1-winner-reason-mining-v1.yml").read_text()
+          assert "runs-on: ubuntu-latest" in wf
+          assert "actions/upload-artifact" not in wf
+          assert "actions/cache" not in wf
+          src=Path("research/run_l1_winner_reason_mining_v1.py").read_text()
+          assert "2026_locked" in src
+          assert "market_final_win_odds" in src
+          assert "same-race" in src
+          print("WINNER_REASON_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Run winner reason mining
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp research/run_l1_latent_ability_v1.sh /tmp/winner-reason-run.sh
+          sed -i 's/l1-latent-ability-v1/l1-winner-reason-mining-v1/g' /tmp/winner-reason-run.sh
+          sed -i 's/l1-latent-ability/l1-winner-reason-mining/g' /tmp/winner-reason-run.sh
+          sed -i 's/run_l1_latent_ability_v1.py/run_l1_winner_reason_mining_v1.py/g' /tmp/winner-reason-run.sh
+          sed -i 's#test -s "$RESULT_ROOT/pooled-metrics.csv"#test -s "$RESULT_ROOT/winner-reasons.csv"#' /tmp/winner-reason-run.sh
+          bash /tmp/winner-reason-run.sh
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "Kaggle is read-only."
+          echo "Metadata listed once; manifest resolves exact real remote names."
+          echo "404 is non-retryable; only transient 429/5xx/network errors retry."
+          echo "2019-2025 snapshots are downloaded once per runner and reused."
+          echo "Only compact CSV/JSON research results are committed."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-winner-reason-mining-v1/run-$GITHUB_RUN_ID"
+          test -s "$result/summary.json"
+          test -s "$result/fold-metrics.csv"
+          test -s "$result/winner-reasons.csv"
+          test -s "$result/family-lift.csv"
+          test -s "$result/signature-lift.csv"
+          test -s "$result/feature-lift.csv"
+          test -s "$result/strength-lift.csv"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive winner reason mining run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
