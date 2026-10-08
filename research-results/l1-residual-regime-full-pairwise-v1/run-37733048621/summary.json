@@ -1,0 +1,89 @@
+{
+  "contract": "L1_RESIDUAL_REGIME_FULL_PAIRWISE_V1",
+  "question": "Do explicit residual-regime decomposition and direct full-field horse-vs-horse comparison jointly break the L1 top1 podium ceiling?",
+  "architectures": {
+    "BASELINE_DIRECT": "core4 direct LambdaRank",
+    "RESIDUAL_REGIME_DIRECT": "core4 + decomposed V1 residual regimes, direct LambdaRank",
+    "FULL_PAIRWISE_BASE": "all horses compared pair-by-pair from compact pre-race horse features",
+    "FULL_PAIRWISE_REGIME": "all horses compared pair-by-pair with the same residual-regime state added"
+  },
+  "residual_regime": {
+    "axes": [
+      "perf_resid",
+      "speed_resid",
+      "last3f_resid"
+    ],
+    "patterns": [
+      "lag1..5",
+      "mean3/5",
+      "std3/5",
+      "slope3/5",
+      "acceleration",
+      "shock",
+      "positive counts",
+      "uptrend",
+      "downtrend",
+      "persistent positive/negative",
+      "rebound",
+      "fade",
+      "standardized strength"
+    ]
+  },
+  "pairwise": {
+    "coverage": "all unordered horse pairs in every race; 18 horses = 153 pair comparisons",
+    "targets": {
+      "PAIR_FINISH": "A finishes ahead of B for all non-dead-heat train pairs",
+      "PAIR_TOP3": "A is podium and B is not, trained only across the podium boundary",
+      "PAIR_BLEND": "fixed 50/50 average of tournament scores"
+    },
+    "ranking": "mean predicted pairwise win probability across all opponents",
+    "anti_row_leak": "pair orientation comes from horse_id sort and deterministic alternating direction, never result/source row order",
+    "base_feature_selection": "train-only, label-free coverage filter; maximum 96 compact horse-level numeric features"
+  },
+  "strictness": [
+    "Every history/regime feature is shifted by >=1 horse race date.",
+    "Pairwise A/B orientation is independent of finish-table row order.",
+    "Two prior calendar years train each next unknown year, 2021-2025.",
+    "No odds or popularity are used.",
+    "2026 is sealed."
+  ],
+  "primary_comparison_keys": [
+    [
+      "RESIDUAL_REGIME_DIRECT",
+      "RANK_GRADED"
+    ],
+    [
+      "FULL_PAIRWISE_BASE",
+      "PAIR_BLEND"
+    ],
+    [
+      "FULL_PAIRWISE_REGIME",
+      "PAIR_BLEND"
+    ]
+  ],
+  "best_primary": {
+    "architecture": "RESIDUAL_REGIME_DIRECT",
+    "head": "RANK_GRADED",
+    "folds": 5,
+    "races": 17280,
+    "top1_top3_pct": 60.729166666666664,
+    "top1_top3_pct_worst": 59.02777777777778,
+    "top1_top3_pct_std": 1.1521001001540758,
+    "top1_win_pct": 29.43287037037037,
+    "top1_win_pct_worst": 28.53009259259259,
+    "top1_win_pct_std": 0.7026902424379878,
+    "winner_top3_capture_pct": 60.763888888888886,
+    "winner_top3_capture_pct_worst": 58.47800925925925,
+    "winner_top3_capture_pct_std": 1.1986293505328731,
+    "winner_top6_capture_pct": 83.74421296296296,
+    "winner_top6_capture_pct_worst": 82.20486111111111,
+    "winner_top6_capture_pct_std": 0.9941920782094785,
+    "top1_top3_uplift_pp": 1.3541666666666643,
+    "top1_top3_uplift_worst_fold_pp": 0.78125,
+    "top1_top3_uplift_best_fold_pp": 1.9965277777777786
+  },
+  "promotion_rule": "Require >=2.0pp pooled top1_top3 uplift vs baseline direct and no fold worse than -0.5pp.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
