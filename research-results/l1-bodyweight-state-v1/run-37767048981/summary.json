@@ -1,0 +1,46 @@
+{
+  "contract": "L1_BODYWEIGHT_STATE_V1",
+  "question": "Does horse-relative current bodyweight state add information beyond existing raw body_weight/body_weight_diff, especially together with speed residual form?",
+  "variants": {
+    "BASELINE": "existing core4, which already contains raw current body_weight/body_weight_diff",
+    "WEIGHT_CHANGE_ONLY": "current change, horse-relative deviation, recent weight trajectory, layoff-adjusted change, field-relative change",
+    "WEIGHT_OPTIMAL_ZONE": "distance from strictly-prior top3/win bodyweight zones",
+    "WEIGHT_FULL": "all engineered horse-relative bodyweight state",
+    "SPEED_REGIME": "speed residual regime only",
+    "WEIGHT_PLUS_SPEED": "all weight state + speed residual regime",
+    "WEIGHT_SPEED_INTERACTION": "weight + speed plus explicit fixed current-state interactions"
+  },
+  "leakage_guards": [
+    "Current body weight is a pre-race observation and may be used for the current race.",
+    "Top3/win weight zones use outcomes only from strictly prior horse dates.",
+    "Same-horse same-date rows are never ordered within a day.",
+    "All variants use the identical model seed within each fold.",
+    "No odds or popularity are used.",
+    "2026 is sealed."
+  ],
+  "best_nonbaseline": {
+    "architecture": "WEIGHT_PLUS_SPEED",
+    "head": "RANK_GRADED",
+    "folds": 5,
+    "races": 17280,
+    "top1_top3_pct": 60.63078703703704,
+    "top1_top3_pct_worst": 59.34606481481482,
+    "top1_top3_pct_std": 1.048811658118077,
+    "top1_win_pct": 29.24189814814815,
+    "top1_win_pct_worst": 28.125,
+    "top1_win_pct_std": 0.6414480915471797,
+    "winner_top3_capture_pct": 60.63078703703704,
+    "winner_top3_capture_pct_worst": 58.73842592592593,
+    "winner_top3_capture_pct_std": 1.0893780198648246,
+    "winner_top6_capture_pct": 83.58217592592592,
+    "winner_top6_capture_pct_worst": 82.37847222222221,
+    "winner_top6_capture_pct_std": 0.8074109247502392,
+    "top1_top3_uplift_pp": 0.9722222222222214,
+    "top1_top3_uplift_worst_fold_pp": 0.08680555555556424,
+    "top1_top3_uplift_best_fold_pp": 1.9675925925925952
+  },
+  "promotion_rule": "Require >=2.0pp pooled top1_top3 uplift vs baseline and no fold worse than -0.5pp.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
