@@ -1,0 +1,29 @@
+{
+  "contract": "L2_TRIFECTA_DEPTH_ROUTER_V1",
+  "purpose": "Predict where the winning trifecta lies as a percentile of the complete final trifecta odds board, then quantify candidate-space compression.",
+  "years": [2021, 2022, 2023, 2024, 2025],
+  "expanding_walkforward_test_years": [2022, 2023, 2024, 2025],
+  "selection_years": [2022, 2023, 2024],
+  "holdout_year": 2025,
+  "locked_years": [2026],
+  "target_bands": {"P00_02":"0-2%","P02_10":"2-10%","P10_25":"10-25%","P25_100":"25-100%"},
+  "feature_sets": ["FIELD_ONLY","TRI_MARKET","ALL_MARKET","MARKET_RACE"],
+  "models": ["LOGIT","EXTRA_TREES"],
+  "winner_dependent_features": false,
+  "strict_complete_trifecta_board": true,
+  "feature_extraction_once": true,
+  "parallel_cpu": true,
+  "promotion_gate": {
+    "holdout_logloss_improvement_vs_prior_pct_min": 2.0,
+    "holdout_deep25_auc_min": 0.62,
+    "holdout_shallow2_auc_min": 0.62
+  },
+  "cost": {
+    "standard_github_cpu_only": true,
+    "gpu": false,
+    "paid_runner": false,
+    "github_artifact": false,
+    "github_cache": false,
+    "paid_persistent_storage": false
+  }
+}
