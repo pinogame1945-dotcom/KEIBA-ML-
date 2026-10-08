@@ -1,0 +1,109 @@
+{
+  "contract": "L2_TRIFECTA_DEPTH_ROUTER_V1_RESULT",
+  "races": 13182,
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "target_bands": {
+    "P00_02": "top 2%",
+    "P02_10": "2-10%",
+    "P10_25": "10-25%",
+    "P25_100": "25-100%"
+  },
+  "selection_rule": "choose lowest mean multiclass log loss on expanding walk-forward tests 2022-2024; 2025 untouched until final evaluation",
+  "selected": {
+    "feature_set": "ALL_MARKET",
+    "model": "EXTRA_TREES",
+    "selection_2022_2024": {
+      "feature_set": "ALL_MARKET",
+      "model": "EXTRA_TREES",
+      "selection_log_loss": 1.3014183051936183,
+      "selection_macro_f1": 0.32034494789140716,
+      "selection_ordinal_mae": 0.9733415065068298,
+      "selection_deep_auc": 0.6866971536449787,
+      "selection_shallow_auc": 0.6715748210760696
+    },
+    "holdout_2025": {
+      "test_year": 2025,
+      "feature_set": "ALL_MARKET",
+      "model": "EXTRA_TREES",
+      "train_races": 10859,
+      "test_races": 2323,
+      "accuracy": 0.3250107619457598,
+      "balanced_accuracy": 0.3243883902633328,
+      "macro_f1": 0.2966653517966448,
+      "log_loss": 1.3213971931680255,
+      "ordinal_mae": 1.0305639259578132,
+      "shallow2_auc": 0.6543943832710375,
+      "shallow2_brier": 0.20900588157452799,
+      "deep25_auc": 0.6854222714478112,
+      "deep25_brier": 0.11823673048773269
+    },
+    "prior_2025": {
+      "test_year": 2025,
+      "feature_set": "PRIOR",
+      "model": "PRIOR",
+      "train_races": 10859,
+      "test_races": 2323,
+      "accuracy": 0.3572965992251399,
+      "balanced_accuracy": 0.25,
+      "macro_f1": 0.13162067871868063,
+      "log_loss": 1.3112523842414203,
+      "ordinal_mae": 0.772707705553164,
+      "shallow2_auc": 0.5,
+      "shallow2_brier": 0.22012857755133647,
+      "deep25_auc": 0.5,
+      "deep25_brier": 0.11312214537429818
+    },
+    "logloss_improvement_vs_prior_pct": -0.7736732492177023
+  },
+  "verdict": "RESEARCH_ONLY",
+  "promotion_gate": {
+    "logloss_improvement_vs_prior_pct_min": 2.0,
+    "deep25_auc_min": 0.62,
+    "shallow2_auc_min": 0.62
+  },
+  "parallelism": {
+    "feature_extraction_processes": 3,
+    "model_fold_processes": 3
+  },
+  "input_counters_by_year": {
+    "2021": {
+      "race_seen": 3456,
+      "incomplete_universe": 859,
+      "ready": 2580,
+      "non_single_winner": 17
+    },
+    "2022": {
+      "race_seen": 3456,
+      "ready": 2980,
+      "incomplete_universe": 466,
+      "non_single_winner": 10
+    },
+    "2023": {
+      "race_seen": 3456,
+      "incomplete_universe": 626,
+      "ready": 2817,
+      "non_single_winner": 13
+    },
+    "2024": {
+      "race_seen": 3456,
+      "incomplete_universe": 960,
+      "ready": 2482,
+      "non_single_winner": 12,
+      "no_trifecta_odds": 2
+    },
+    "2025": {
+      "race_seen": 3456,
+      "incomplete_universe": 1113,
+      "ready": 2323,
+      "non_single_winner": 19,
+      "no_trifecta_odds": 1
+    }
+  },
+  "2026_locked": true
+}
