@@ -1,0 +1,88 @@
+{
+  "contract": "L2_TRIFECTA_ODDS_RANK_CONTROL_V1_RESULT",
+  "races": 13182,
+  "target": "winning trifecta rank percentile within complete final-odds board",
+  "purpose": "separate real market-shape signal from the mechanical effect of field size / ticket count",
+  "top_controlled_signals": [
+    {
+      "feature": "entropy_norm",
+      "spearman_vs_rank_pct": 0.33666630160024935,
+      "fieldsize_controlled_rank_corr": 0.34458081621182546,
+      "bottom75_minus_top2_smd": 1.0025147175372766
+    },
+    {
+      "feature": "effective_tickets",
+      "spearman_vs_rank_pct": 0.16866647253939923,
+      "fieldsize_controlled_rank_corr": 0.3372638934944636,
+      "bottom75_minus_top2_smd": 0.47300527630653566
+    },
+    {
+      "feature": "hhi",
+      "spearman_vs_rank_pct": -0.16866647253939923,
+      "fieldsize_controlled_rank_corr": -0.33726389349446356,
+      "bottom75_minus_top2_smd": -0.31563321508360215
+    },
+    {
+      "feature": "top30_share",
+      "spearman_vs_rank_pct": -0.17353409490308955,
+      "fieldsize_controlled_rank_corr": -0.3349926700182748,
+      "bottom75_minus_top2_smd": -0.41650333528894834
+    },
+    {
+      "feature": "median_to_top1",
+      "spearman_vs_rank_pct": -0.32797219219957824,
+      "fieldsize_controlled_rank_corr": -0.33388962922942184,
+      "bottom75_minus_top2_smd": -0.44039162276280075
+    },
+    {
+      "feature": "median_odds",
+      "spearman_vs_rank_pct": -0.23010951335122892,
+      "fieldsize_controlled_rank_corr": -0.33298493144423735,
+      "bottom75_minus_top2_smd": -0.5541871179931654
+    },
+    {
+      "feature": "top10_share",
+      "spearman_vs_rank_pct": -0.18107892121590274,
+      "fieldsize_controlled_rank_corr": -0.3214543737287983,
+      "bottom75_minus_top2_smd": -0.42040788545091584
+    },
+    {
+      "feature": "top10_odds",
+      "spearman_vs_rank_pct": 0.16878313843704962,
+      "fieldsize_controlled_rank_corr": 0.32032546292242536,
+      "bottom75_minus_top2_smd": 0.4718516308003904
+    },
+    {
+      "feature": "win_top3_share",
+      "spearman_vs_rank_pct": -0.2015022978968356,
+      "fieldsize_controlled_rank_corr": -0.3039829079020845,
+      "bottom75_minus_top2_smd": -0.5554918720481211
+    },
+    {
+      "feature": "top1_share",
+      "spearman_vs_rank_pct": -0.18295241726385197,
+      "fieldsize_controlled_rank_corr": -0.30135477584468146,
+      "bottom75_minus_top2_smd": -0.40107316540686705
+    },
+    {
+      "feature": "top1_odds",
+      "spearman_vs_rank_pct": 0.18268984359674348,
+      "fieldsize_controlled_rank_corr": 0.3011153260283666,
+      "bottom75_minus_top2_smd": 0.4733484391909954
+    },
+    {
+      "feature": "p90_odds",
+      "spearman_vs_rank_pct": -0.2211902913027466,
+      "fieldsize_controlled_rank_corr": -0.2859696372765736,
+      "bottom75_minus_top2_smd": -0.6124952276954927
+    }
+  ],
+  "counters": {
+    "race_seen": 17280,
+    "incomplete_universe": 4024,
+    "ready": 13182,
+    "non_single_winner": 71,
+    "no_trifecta_odds": 3
+  },
+  "2026_locked": true
+}
