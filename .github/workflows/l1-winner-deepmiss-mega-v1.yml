@@ -1,0 +1,93 @@
+name: L1 Winner Deep Miss Mega V1
+
+on:
+  push:
+    branches:
+      - research/l1-winner-deepmiss-mega-v1-20261008
+    paths:
+      - .github/triggers/l1-winner-deepmiss-mega-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l1-winner-deepmiss-mega-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
+      GENERATION_ID: bf811fa2eab73db0
+      PYTHONUNBUFFERED: "1"
+      KAGGLE_DOWNLOAD_PARALLEL: "4"
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l1_winner_reason_mining_v1.py research/run_l1_winner_deepmiss_mega_v1.py research/resolve_snapshot_manifest_remote_v1.py
+          grep -q '2026_locked' research/run_l1_winner_deepmiss_mega_v1.py
+          grep -q 'uses_odds.*False' research/run_l1_winner_deepmiss_mega_v1.py
+          grep -q 'RESCUE_WORKERS' research/run_l1_winner_deepmiss_mega_v1.py
+          echo DEEPMISS_MEGA_STATIC_GUARDS_OK
+
+      - name: Install standard CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check kaggle
+          python -m pip install --disable-pip-version-check -r ml/requirements.txt
+
+      - name: Run deep miss mega study
+        shell: bash
+        run: |
+          set -euo pipefail
+          cp research/run_l1_latent_ability_v1.sh /tmp/deepmiss-run.sh
+          sed -i 's/l1-latent-ability-v1/l1-winner-deepmiss-mega-v1/g' /tmp/deepmiss-run.sh
+          sed -i 's/l1-latent-ability/l1-winner-deepmiss-mega/g' /tmp/deepmiss-run.sh
+          sed -i 's/run_l1_latent_ability_v1.py/run_l1_winner_deepmiss_mega_v1.py/g' /tmp/deepmiss-run.sh
+          sed -i 's#test -s "$RESULT_ROOT/fold-metrics.csv"#test -s "$RESULT_ROOT/winner-rank-bins.csv"#' /tmp/deepmiss-run.sh
+          sed -i 's#test -s "$RESULT_ROOT/pooled-metrics.csv"#test -s "$RESULT_ROOT/rescue-metrics.csv"#' /tmp/deepmiss-run.sh
+          bash /tmp/deepmiss-run.sh
+
+      - name: Runtime policy
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No paid runner or GPU."
+          echo "Kaggle read-only; metadata first; 404 non-retryable."
+          echo "2019-2025 snapshots downloaded once and reused."
+          echo "Rescue variants parallelized inside one standard runner."
+          echo "2026 sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l1-winner-deepmiss-mega-v1/run-$GITHUB_RUN_ID"
+          for f in summary.json winner-rank-bins.csv deepmiss-family-enrichment.csv deepmiss-family-lift.csv deepmiss-feature-lift.csv deepmiss-strength.csv rescue-metrics.csv; do
+            test -s "$result/$f"
+          done
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive deep miss mega run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
