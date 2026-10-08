@@ -1,0 +1,2 @@
+triggered_at=2026-10-08T15:35:00+09:00
+purpose=L1_RESIDUAL_REGIME_V2
