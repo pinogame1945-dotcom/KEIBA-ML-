@@ -1,0 +1,2 @@
+triggered_at=2026-10-08T09:21:00+09:00
+purpose=L1_GATED_PAIRWISE_V1
