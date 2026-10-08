@@ -1,0 +1,2 @@
+triggered_at=2026-10-08T10:20:00+09:00
+purpose=L1_STATE_TRANSITION_V1
