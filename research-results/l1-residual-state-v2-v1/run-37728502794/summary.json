@@ -1,0 +1,67 @@
+{
+  "contract": "L1_RESIDUAL_STATE_V2",
+  "question": "Can strictly OOS condition-adjusted expected-performance residual states break the L1 top1 podium ceiling?",
+  "variants": {
+    "BASELINE": "core4 direct static features",
+    "RESIDUAL_V1": "V1 lag/state + simple network expectation residuals",
+    "V2_FINISH_RESIDUAL": "V1 raw lag/state + OOS expected finish-percentile residual state",
+    "V2_MULTI_RESIDUAL": "V1 raw lag/state + OOS finish/speed/last3f residual states",
+    "HYBRID_V1_V2_MULTI": "V1 residual state + all V2 OOS residual states"
+  },
+  "v2_expectation": {
+    "features": "STRUCTURAL pre-race L1 features only; no odds/popularity",
+    "targets": [
+      "finish percentile",
+      "race-relative finish speed",
+      "race-relative last3f speed"
+    ],
+    "training": "For race year Y, expectation models use only Y-1 for 2020 or Y-2,Y-1 for 2021-2025.",
+    "2019": "No V2 expectation residual because no earlier snapshot year is available.",
+    "same_day_duplicates": "Never ordered within day; duplicate OOS residuals are averaged only for future-date state updates."
+  },
+  "strictness": [
+    "Every V2 expectation is out-of-sample by calendar year.",
+    "Every residual state feature is shifted by at least one horse race date.",
+    "Current-race outcome never enters its own features.",
+    "Final L1 walk-forward remains two prior years -> next unknown year, 2021-2025.",
+    "No odds or popularity are used.",
+    "2026 is sealed."
+  ],
+  "best_nonbaseline": {
+    "variant": "RESIDUAL_V1",
+    "head": "RANK_GRADED",
+    "folds": 5,
+    "races": 17280,
+    "top1_win_pct": 29.427083333333332,
+    "top1_win_pct_worst": 28.414351851851855,
+    "top1_win_pct_std": 0.7989465210843653,
+    "top1_top3_pct": 60.97222222222222,
+    "top1_top3_pct_worst": 59.28819444444444,
+    "top1_top3_pct_std": 1.1405602573372817,
+    "winner_top3_capture_pct": 60.561342592592595,
+    "winner_top3_capture_pct_worst": 58.27546296296296,
+    "winner_top3_capture_pct_std": 1.1790511020308976,
+    "winner_top6_capture_pct": 83.38541666666667,
+    "winner_top6_capture_pct_worst": 81.79976851851852,
+    "winner_top6_capture_pct_std": 1.1229536238831572,
+    "top3_podium_precision_pct": 49.589120370370374,
+    "top3_podium_precision_pct_worst": 48.389274691358025,
+    "top3_podium_precision_pct_std": 0.6834967396517808,
+    "top6_podium_precision_pct": 38.267892280290596,
+    "top6_podium_precision_pct_worst": 37.88646119712536,
+    "top6_podium_precision_pct_std": 0.2576361132174581,
+    "mean_winner_rank": 3.689825360239995,
+    "mean_winner_rank_worst": 3.8190476190476192,
+    "mean_winner_rank_std": 0.07490731522880403,
+    "winner_mrr": 0.4958145131559443,
+    "winner_mrr_worst": 0.48330367335651264,
+    "winner_mrr_std": 0.007334589097212053,
+    "top1_top3_uplift_pp": 1.2673611111111072,
+    "top1_top3_uplift_worst_fold_pp": 0.6944444444444429,
+    "top1_top3_uplift_best_fold_pp": 1.5914351851851833
+  },
+  "promotion_rule": "Require >=2.0pp pooled top1_top3 uplift and no fold worse than -0.5pp.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
