@@ -1,0 +1,78 @@
+{
+  "contract": "L1_PAIRWISE_RESOLVER_V1",
+  "question": "Can direct A-vs-B learning resolve disagreement among six strong L1 top1 candidates?",
+  "primary_anchor": "core4__TOP3_BINARY",
+  "test_years": [
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "candidate_heads": [
+    "core4__WIN_BINARY",
+    "core4__TOP3_BINARY",
+    "core4__RANK_GRADED",
+    "structural__WIN_BINARY",
+    "structural__TOP3_BINARY",
+    "structural__RANK_GRADED"
+  ],
+  "pairwise_targets": {
+    "PAIR_TOP3": "train only pairs where podium status differs",
+    "PAIR_UTILITY": "podium status dominates; finish order breaks same-class ties",
+    "PAIR_BLEND": "fixed 50/50 tournament score blend"
+  },
+  "strictness": [
+    "Base L1 candidate scores are outer-fold OOS.",
+    "Resolver for year Y trains only on earlier outer-fold OOS years.",
+    "Strict policy chooses strategy only from prior resolver OOS performance; 2022 uses a predeclared default.",
+    "No odds or popularity are inputs.",
+    "2026 is sealed."
+  ],
+  "diagnostic_oracle": {
+    "baseline_top1_top3_pct": 60.25028935185185,
+    "oracle_top1_top3_pct": 75.49189814814815
+  },
+  "exploratory_best_strategy": {
+    "feature_group": "STRUCTURE",
+    "resolver": "PAIR_BLEND",
+    "folds": 4,
+    "races": 13824,
+    "top1_top3_pct": 60.691550925925924,
+    "top1_top3_pct_worst": 59.143518518518526,
+    "top1_top3_pct_std": 1.01014467909208,
+    "top1_win_pct": 28.80497685185185,
+    "top1_win_pct_worst": 28.153935185185187,
+    "top1_win_pct_std": 0.7673281600796358,
+    "uplift_pp": 0.44126157407407407,
+    "uplift_pp_worst": -0.3761574074074074,
+    "uplift_pp_std": 0.7135838478978856,
+    "changed_pct": 19.929108796296298,
+    "changed_pct_worst": 16.984953703703702,
+    "changed_pct_std": 2.080354798364653,
+    "rescued_baseline_miss_pct": 14.638990913478903,
+    "rescued_baseline_miss_pct_worst": 13.462922966162708,
+    "rescued_baseline_miss_pct_std": 0.7173517226964696,
+    "damaged_baseline_hit_pct": 8.92169816445149,
+    "damaged_baseline_hit_pct_worst": 6.676342525399129,
+    "damaged_baseline_hit_pct_std": 1.5289220628529194,
+    "disagreement_top3_pct": 54.98213246639437,
+    "disagreement_top3_pct_worst": 53.53319057815846,
+    "disagreement_top3_pct_std": 1.152532300185821,
+    "disagreement_baseline_top3_pct": 54.10793594564596,
+    "disagreement_baseline_top3_pct_worst": 53.1403604587657,
+    "disagreement_baseline_top3_pct_std": 0.7162764069356146,
+    "disagreement_uplift_pp": 0.8741965207484003,
+    "disagreement_uplift_pp_worst": -0.6959314775160599,
+    "disagreement_uplift_pp_std": 1.3944225510219546
+  },
+  "strict_policy": {
+    "races": 13824,
+    "top1_top3_pct": 60.481770833333336,
+    "uplift_pp": 0.23148148148148148,
+    "disagreement_uplift_pp": 0.43950006867188574
+  },
+  "promotion_rule": "Require >=2.0pp strict-policy uplift and no material year collapse before considering a new L1 architecture.",
+  "ability_uses_odds": false,
+  "2026_locked": true,
+  "promotion": false
+}
