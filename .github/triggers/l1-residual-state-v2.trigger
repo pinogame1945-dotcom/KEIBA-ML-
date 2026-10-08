@@ -1,0 +1,2 @@
+triggered_at=2026-10-08T12:36:00+09:00
+purpose=L1_RESIDUAL_STATE_V2
