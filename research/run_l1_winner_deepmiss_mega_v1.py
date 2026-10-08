@@ -48,7 +48,7 @@ def build_oos_frame(test_year,get):
         ["_race_id","model_score","_horse_id"],ascending=[True,False,True],kind="mergesort"
     )
     ranked["model_rank"]=ranked.groupby("_race_id",sort=False).cumcount()+1
-    rank_map={(r,h):int(k) for r,h,k in ranked.itertuples(index=False,name=None)}
+    rank_map={(r,h):int(k) for r,h,k in ranked[["_race_id","_horse_id","model_rank"]].itertuples(index=False,name=None)}
     test["model_rank"]=[rank_map[(r,h)] for r,h in test[["_race_id","_horse_id"]].itertuples(index=False,name=None)]
     test["field_size"]=test.groupby("_race_id")["_horse_id"].transform("size").astype("int16")
     test["model_rank_norm"]=(test["model_rank"]/test["field_size"]).astype("float32")
