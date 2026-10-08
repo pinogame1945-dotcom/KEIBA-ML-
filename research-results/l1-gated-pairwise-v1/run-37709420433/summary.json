@@ -1,0 +1,96 @@
+{
+  "contract": "L1_GATED_PAIRWISE_V1",
+  "question": "Can collapse risk gate pairwise intervention tightly enough to preserve correct anchors and rescue only dangerous disagreements?",
+  "strictness": [
+    "All six candidate L1 heads are outer-fold OOS.",
+    "Collapse model for year Y trains only on earlier outer-fold OOS years.",
+    "Pairwise model for year Y trains only on earlier outer-fold OOS years.",
+    "Gate/pair strategy for year Y is selected only from prior resolver OOS years; 2022 uses a predeclared default.",
+    "Gate fraction uses only the current year's risk-score rank, never current labels.",
+    "No odds or popularity are inputs.",
+    "2026 is sealed."
+  ],
+  "grid": {
+    "gate_groups": [
+      "MODEL_ONLY",
+      "HISTORY_AUTO",
+      "STRUCTURE",
+      "ALL_NUMERIC"
+    ],
+    "pair_groups": [
+      "MODEL_ONLY",
+      "HISTORY_AUTO",
+      "STRUCTURE",
+      "ALL_NUMERIC"
+    ],
+    "resolvers": [
+      "PAIR_TOP3",
+      "PAIR_UTILITY",
+      "PAIR_BLEND"
+    ],
+    "gate_fractions": [
+      0.1,
+      0.2,
+      0.3,
+      0.4,
+      0.5
+    ],
+    "pair_margin_mins": [
+      0.0,
+      0.03,
+      0.06,
+      0.1
+    ]
+  },
+  "exploratory_best": {
+    "gate_group": "STRUCTURE",
+    "pair_group": "ALL_NUMERIC",
+    "resolver": "PAIR_UTILITY",
+    "gate_fraction": 0.5,
+    "pair_margin_min": 0.0,
+    "folds": 4,
+    "races": 13824,
+    "top1_top3_pct": 60.86516203703704,
+    "top1_top3_pct_worst": 59.114583333333336,
+    "top1_top3_pct_std": 1.1285649593898393,
+    "top1_win_pct": 28.971354166666668,
+    "top1_win_pct_worst": 28.29861111111111,
+    "top1_win_pct_std": 0.4229760968183939,
+    "uplift_pp": 0.6148726851851852,
+    "uplift_pp_worst": -0.40509259259259256,
+    "uplift_pp_std": 0.6697026576828206,
+    "changed_pct": 16.42795138888889,
+    "changed_pct_worst": 14.699074074074073,
+    "changed_pct_std": 1.0007506850864103,
+    "intervention_pct": 16.42795138888889,
+    "intervention_pct_worst": 14.699074074074073,
+    "intervention_pct_std": 1.0007506850864103,
+    "rescued_baseline_miss_pct": 12.605573403987197,
+    "rescued_baseline_miss_pct_worst": 11.735061195104391,
+    "rescued_baseline_miss_pct_std": 1.0167292876802025,
+    "damaged_baseline_hit_pct": 7.290748874616601,
+    "damaged_baseline_hit_pct_worst": 5.853894533139816,
+    "damaged_baseline_hit_pct_std": 1.0984388921344388,
+    "disagreement_top3_pct": 55.30248531597728,
+    "disagreement_top3_pct_worst": 53.4796573875803,
+    "disagreement_top3_pct_std": 1.1007462159618158,
+    "disagreement_baseline_top3_pct": 54.10793594564596,
+    "disagreement_baseline_top3_pct_worst": 53.1403604587657,
+    "disagreement_baseline_top3_pct_std": 0.7162764069356146,
+    "disagreement_uplift_pp": 1.1945493703313215,
+    "disagreement_uplift_pp_worst": -0.7494646680942184,
+    "disagreement_uplift_pp_std": 1.2885243142457314,
+    "net_rescues": 85
+  },
+  "strict_policy": {
+    "races": 13824,
+    "top1_top3_pct": 60.57581018518518,
+    "uplift_pp": 0.3255208333333333,
+    "changed_pct": 5.772569444444445,
+    "net_rescues": 45
+  },
+  "promotion_rule": "Require >=2.0pp strict-policy uplift and no material fold collapse.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
