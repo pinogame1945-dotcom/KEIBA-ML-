@@ -93,7 +93,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          result="research-results/l1-residual-regime-full-pairwise-v1-v1/run-$GITHUB_RUN_ID"
+          result="research-results/l1-residual-regime-full-pairwise-v1/run-$GITHUB_RUN_ID"
           test -s "$result/summary.json"
           test -s "$result/fold-metrics.csv"
           test -s "$result/pooled-metrics.csv"
