@@ -1,0 +1,51 @@
+{
+  "contract": "L1_SAMEDAY_TRACK_BIAS_V1",
+  "question": "Does strictly prior same-day same-venue/surface bias add new current-environment information, alone or combined with speed residual state?",
+  "variants": {
+    "BASELINE": "existing core4",
+    "SPEED_REGIME": "speed residual regime only",
+    "DAY_BIAS": "prior-race same-day aggregate front/inner/last3f/speed bias",
+    "DAY_BIAS_STYLE_FIT": "day bias + each current horse's pre-race style/inside fit",
+    "SPEED_PLUS_DAY_BIAS": "speed residual + day bias/style fit",
+    "SPEED_DAY_INTERACTION": "same plus explicit fixed speed-residual x day-bias interactions"
+  },
+  "bias_signals": {
+    "front": "completed prior race top3 horses' pre-race forward-style score vs field mean",
+    "inner": "completed prior race top3 horse-number inner score vs field mean",
+    "last3f": "completed prior race top3 last3f speed vs field mean",
+    "speed_adv": "completed prior race top3 finish speed vs race median"
+  },
+  "leakage_guards": [
+    "For current race R, only lower race_no results from the same date+venue+surface are visible.",
+    "If multiple races share the same race_no stage, all are scored before any of those outcomes update bias.",
+    "Running-style bias uses each completed prior runner's pre-race STYLE features; no current-race result-derived corner order is fabricated.",
+    "All variants use the identical model seed within each fold.",
+    "No odds or popularity are used.",
+    "2026 is sealed."
+  ],
+  "best_nonbaseline": {
+    "architecture": "SPEED_PLUS_DAY_BIAS",
+    "head": "RANK_GRADED",
+    "folds": 5,
+    "races": 17280,
+    "top1_top3_pct": 60.804398148148145,
+    "top1_top3_pct_worst": 59.34606481481482,
+    "top1_top3_pct_std": 1.2842268397601015,
+    "top1_win_pct": 29.444444444444443,
+    "top1_win_pct_worst": 28.67476851851852,
+    "top1_win_pct_std": 0.8379421805280431,
+    "winner_top3_capture_pct": 60.8275462962963,
+    "winner_top3_capture_pct_worst": 58.62268518518518,
+    "winner_top3_capture_pct_std": 1.1564521520908022,
+    "winner_top6_capture_pct": 83.77893518518519,
+    "winner_top6_capture_pct_worst": 82.14699074074075,
+    "winner_top6_capture_pct_std": 1.022292827925935,
+    "top1_top3_uplift_pp": 1.0648148148148096,
+    "top1_top3_uplift_worst_fold_pp": 0.3761574074074119,
+    "top1_top3_uplift_best_fold_pp": 1.6782407407407405
+  },
+  "promotion_rule": "Require >=2.0pp pooled top1_top3 uplift vs baseline and no fold worse than -0.5pp.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "2026_locked": true
+}
