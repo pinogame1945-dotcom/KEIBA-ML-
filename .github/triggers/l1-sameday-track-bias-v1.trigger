@@ -1,0 +1,2 @@
+triggered_at=2026-10-10T01:05:00+09:00
+purpose=L1_SAMEDAY_TRACK_BIAS_V1
