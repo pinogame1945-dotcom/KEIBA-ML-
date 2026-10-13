@@ -1,0 +1,199 @@
+{
+  "contract": "L1_NEGATIVE_EVIDENCE_PENALTY_V1",
+  "ability_model": "SPEED_PLUS_DAY_BIAS exact walk-forward reproduction",
+  "negative_evidence": {
+    "definition": "Past underperformance severity = max(0, pre-race network expected pairwise score - realized finish percentile).",
+    "condition_axes": [
+      "all",
+      "surface",
+      "venue",
+      "distance_band",
+      "direction",
+      "track_condition",
+      "race_class",
+      "weight_rule",
+      "course_layout",
+      "surface_distance",
+      "venue_surface",
+      "surface_going"
+    ],
+    "same_day_guard": "all rows for one horse/date are snapshotted before any same-date outcomes update state",
+    "target_is_not_plain_miss": true
+  },
+  "penalty_head": {
+    "inputs": "negative-evidence summaries only",
+    "event_target": "underperformance >= 0.2",
+    "severity_target": "continuous underperformance severity",
+    "blend": "0.65 event probability + 0.35 predicted severity"
+  },
+  "final_score": "within-race ability rank score - lambda * penalty score",
+  "strict_policy": {
+    "selection": "2021 lambda=0.50, later years choose among 0.25/0.50/0.75 using only earlier OOS fold Top1->Top3",
+    "result": {
+      "variant": "PENALTY_STRICT",
+      "folds": 5,
+      "races": 17280,
+      "top1_top3_pct": 60.65972222222222,
+      "top1_top3_pct_worst": 58.70949074074075,
+      "top1_top3_pct_std": 1.4635140927428936,
+      "top1_win_pct": 29.322916666666668,
+      "top1_win_pct_worst": 27.89351851851852,
+      "top1_win_pct_std": 1.1217899255984671,
+      "winner_top3_capture_pct": 60.70023148148148,
+      "winner_top3_capture_pct_worst": 58.13078703703704,
+      "winner_top3_capture_pct_std": 1.3259009913209991,
+      "winner_top6_capture_pct": 83.69212962962963,
+      "winner_top6_capture_pct_worst": 82.34953703703704,
+      "winner_top6_capture_pct_std": 1.0765444431606803,
+      "top1_top3_uplift_vs_ability_pp": 0.0,
+      "top1_top3_uplift_worst_fold_pp": -0.2604166666666785,
+      "top1_top3_uplift_best_fold_pp": 0.17361111111110716
+    },
+    "choices": [
+      {
+        "test_year": 2021,
+        "lambda": 0.5
+      },
+      {
+        "test_year": 2022,
+        "lambda": 0.5
+      },
+      {
+        "test_year": 2023,
+        "lambda": 0.5
+      },
+      {
+        "test_year": 2024,
+        "lambda": 0.5
+      },
+      {
+        "test_year": 2025,
+        "lambda": 0.5
+      }
+    ]
+  },
+  "best_exploratory": {
+    "variant": "PENALTY_25",
+    "folds": 5,
+    "races": 17280,
+    "top1_top3_pct": 60.66550925925926,
+    "top1_top3_pct_worst": 58.68055555555556,
+    "top1_top3_pct_std": 1.514899955442604,
+    "top1_win_pct": 29.45601851851852,
+    "top1_win_pct_worst": 28.096064814814813,
+    "top1_win_pct_std": 1.1350561731867905,
+    "winner_top3_capture_pct": 60.7349537037037,
+    "winner_top3_capture_pct_worst": 58.188657407407405,
+    "winner_top3_capture_pct_std": 1.323575202251498,
+    "winner_top6_capture_pct": 83.78472222222223,
+    "winner_top6_capture_pct_worst": 82.4363425925926,
+    "winner_top6_capture_pct_std": 1.0001031432575525,
+    "top1_top3_uplift_vs_ability_pp": 0.00578703703703809,
+    "top1_top3_uplift_worst_fold_pp": 0.0,
+    "top1_top3_uplift_best_fold_pp": 0.028935185185183343
+  },
+  "market_diagnostic_note": "Market is used only after prediction to audit whether penalty reduces unsupported AI promotion.",
+  "2025_market_diagnostics": {
+    "ABILITY": {
+      "test_year": 2025,
+      "variant": "ABILITY",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 8972,
+      "top6_ai_up_share_pct": 43.299068577771344,
+      "top6_ai_up_top3_pct": 27.485510477039675,
+      "top6_ai_up_miss_pct": 72.51448952296033,
+      "top6_ai_up3_horses": 2866,
+      "top6_ai_up3_share_pct": 13.831378794459727,
+      "top6_ai_up3_top3_pct": 18.527564549895324,
+      "top6_ai_up3_miss_pct": 81.47243545010468,
+      "top1_market_disagree_horses": 1320,
+      "top1_market_disagree_top3_pct": 49.015151515151516,
+      "top1_market_agree_top3_pct": 69.10112359550563
+    },
+    "EVIDENCE_25": {
+      "test_year": 2025,
+      "variant": "EVIDENCE_25",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 8974,
+      "top6_ai_up_share_pct": 43.308720621591625,
+      "top6_ai_up_top3_pct": 27.512814798306216,
+      "top6_ai_up_miss_pct": 72.48718520169379,
+      "top6_ai_up3_horses": 2867,
+      "top6_ai_up3_share_pct": 13.836204816369866,
+      "top6_ai_up3_top3_pct": 18.521102197418905,
+      "top6_ai_up3_miss_pct": 81.47889780258109,
+      "top1_market_disagree_horses": 1320,
+      "top1_market_disagree_top3_pct": 49.015151515151516,
+      "top1_market_agree_top3_pct": 69.10112359550563
+    },
+    "PENALTY_25": {
+      "test_year": 2025,
+      "variant": "PENALTY_25",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 8978,
+      "top6_ai_up_share_pct": 43.32802470923218,
+      "top6_ai_up_top3_pct": 27.478280240588106,
+      "top6_ai_up_miss_pct": 72.5217197594119,
+      "top6_ai_up3_horses": 2870,
+      "top6_ai_up3_share_pct": 13.850682882100285,
+      "top6_ai_up3_top3_pct": 18.536585365853657,
+      "top6_ai_up3_miss_pct": 81.46341463414635,
+      "top1_market_disagree_horses": 1320,
+      "top1_market_disagree_top3_pct": 49.015151515151516,
+      "top1_market_agree_top3_pct": 69.10112359550563
+    },
+    "PENALTY_50": {
+      "test_year": 2025,
+      "variant": "PENALTY_50",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 9021,
+      "top6_ai_up_share_pct": 43.53554365136818,
+      "top6_ai_up_top3_pct": 27.491408934707906,
+      "top6_ai_up_miss_pct": 72.5085910652921,
+      "top6_ai_up3_horses": 2902,
+      "top6_ai_up3_share_pct": 14.005115583224748,
+      "top6_ai_up3_top3_pct": 18.676774638180564,
+      "top6_ai_up3_miss_pct": 81.32322536181944,
+      "top1_market_disagree_horses": 1323,
+      "top1_market_disagree_top3_pct": 48.601662887377174,
+      "top1_market_agree_top3_pct": 68.96390060947023
+    },
+    "PENALTY_75": {
+      "test_year": 2025,
+      "variant": "PENALTY_75",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 9110,
+      "top6_ai_up_share_pct": 43.96505960137059,
+      "top6_ai_up_top3_pct": 27.607025246981337,
+      "top6_ai_up_miss_pct": 72.39297475301866,
+      "top6_ai_up3_horses": 2935,
+      "top6_ai_up3_share_pct": 14.16437430625935,
+      "top6_ai_up3_top3_pct": 18.705281090289606,
+      "top6_ai_up3_miss_pct": 81.2947189097104,
+      "top1_market_disagree_horses": 1346,
+      "top1_market_disagree_top3_pct": 48.439821693907874,
+      "top1_market_agree_top3_pct": 69.00473933649289
+    },
+    "PENALTY_STRICT": {
+      "test_year": 2025,
+      "variant": "PENALTY_STRICT",
+      "top6_horses": 20721,
+      "top6_ai_up_horses": 9021,
+      "top6_ai_up_share_pct": 43.53554365136818,
+      "top6_ai_up_top3_pct": 27.491408934707906,
+      "top6_ai_up_miss_pct": 72.5085910652921,
+      "top6_ai_up3_horses": 2902,
+      "top6_ai_up3_share_pct": 14.005115583224748,
+      "top6_ai_up3_top3_pct": 18.676774638180564,
+      "top6_ai_up3_miss_pct": 81.32322536181944,
+      "top1_market_disagree_horses": 1323,
+      "top1_market_disagree_top3_pct": 48.601662887377174,
+      "top1_market_agree_top3_pct": 68.96390060947023
+    }
+  },
+  "promotion_rule": "Exploratory promotion requires >=1.0pp pooled Top1->Top3 uplift vs ABILITY and worst fold >=-0.5pp. Strict policy is reported separately.",
+  "promotion": false,
+  "ability_uses_odds": false,
+  "market_is_evaluation_only": true,
+  "2026_locked": true
+}
