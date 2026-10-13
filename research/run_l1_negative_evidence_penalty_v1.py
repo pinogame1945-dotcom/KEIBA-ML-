@@ -465,8 +465,20 @@ def main():
         ability_train=attach_state(train_base,merged_train,fit_cols+spd_cols)
         ability_valid=attach_state(valid_base,merged_valid,fit_cols+spd_cols)
 
-        seed=6100000+test*100
+        seed=5100000+test*100
         ability_pred,_=fit_direct_rank(ability_train,ability_valid,seed)
+        expected_top1_top3={
+            2021:59.34606481481482,
+            2022:60.90856481481482,
+            2023:59.432870370370374,
+            2024:62.673611111111114,
+            2025:61.660879629629626,
+        }[test]
+        reproduced=top1_metrics(ability_pred,"_score")["top1_top3_pct"]
+        if abs(reproduced-expected_top1_top3)>1e-9:
+            raise SystemExit(
+                f"ABILITY reproduction drift year={test} expected={expected_top1_top3} got={reproduced}"
+            )
         ability_pred["ability_rank01"]=rank01(ability_pred,"_score")
 
         neg_train=pd.concat([neg_by_year[y] for y in train_years],ignore_index=True,copy=False)
