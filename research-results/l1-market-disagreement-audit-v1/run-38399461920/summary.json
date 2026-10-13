@@ -1,0 +1,85 @@
+{
+  "contract": "L1_MARKET_DISAGREEMENT_AUDIT_V1",
+  "model": "SPEED_PLUS_DAY_BIAS exact walk-forward reproduction",
+  "years": [
+    2021,
+    2022,
+    2023,
+    2024,
+    2025
+  ],
+  "races": 17280,
+  "horses_with_market": 235871,
+  "definition": {
+    "AI_UP": "AI rank is better (smaller) than final popularity rank",
+    "SAME": "same rank",
+    "AI_DOWN": "AI rank is worse (larger) than final popularity rank",
+    "miss": "actual finish outside top3"
+  },
+  "primary_top6": {
+    "ai_up": {
+      "scope": "AI_TOP6",
+      "agreement": "AI_UP",
+      "horses": 44609,
+      "races": 17004,
+      "top3_rate_pct": 27.364433186128363,
+      "miss_rate_pct": 72.63556681387165,
+      "win_rate_pct": 7.79887466654711,
+      "avg_ai_rank": 3.5564348001524357,
+      "avg_market_rank": 5.82510255777982,
+      "avg_final_odds": 20.023661144612074,
+      "misses": 32402,
+      "share_of_scope_misses_pct": 50.78285400830656
+    },
+    "ai_down": {
+      "scope": "AI_TOP6",
+      "agreement": "AI_DOWN",
+      "horses": 25782,
+      "races": 15328,
+      "top3_rate_pct": 44.6241563881778,
+      "miss_rate_pct": 55.375843611822205,
+      "win_rate_pct": 16.87999379411993,
+      "avg_ai_rank": 4.260181521992087,
+      "avg_market_rank": 2.6436661236521606,
+      "avg_final_odds": 6.547052206966099,
+      "misses": 14277,
+      "share_of_scope_misses_pct": 22.375989342528015
+    },
+    "miss_rate_difference_up_minus_down_pp": 17.259723202049443
+  },
+  "top1_note": {
+    "ai_up": {
+      "scope": "AI_TOP1",
+      "agreement": "AI_UP",
+      "horses": 6565,
+      "races": 6565,
+      "top3_rate_pct": 47.707539984767706,
+      "miss_rate_pct": 52.29246001523229,
+      "win_rate_pct": 17.547600913937547,
+      "avg_ai_rank": 1.0,
+      "avg_market_rank": 2.8904798172124906,
+      "avg_final_odds": 5.5827570449352635,
+      "misses": 3433,
+      "share_of_scope_misses_pct": 50.68654953491806
+    },
+    "same_market_rank1": {
+      "scope": "AI_TOP1",
+      "agreement": "SAME",
+      "horses": 10715,
+      "races": 10715,
+      "top3_rate_pct": 68.82874475034998,
+      "miss_rate_pct": 31.17125524965002,
+      "win_rate_pct": 36.73355109659356,
+      "avg_ai_rank": 1.0,
+      "avg_market_rank": 1.0,
+      "avg_final_odds": 2.4072235184321045,
+      "misses": 3340,
+      "share_of_scope_misses_pct": 49.31345046508194
+    },
+    "why_no_ai_down": "An AI-ranked #1 horse cannot have AI rank worse than market rank #1; for AI top1 only AI_UP or SAME are possible."
+  },
+  "interpretation_guard": "Raw ALL-horse miss rates mix very different AI ranks. Use AI-rank-by-agreement.csv for like-for-like rank comparisons.",
+  "market_is_evaluation_only": true,
+  "model_uses_market": false,
+  "2026_locked": true
+}
