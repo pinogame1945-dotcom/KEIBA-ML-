@@ -205,7 +205,7 @@ def main():
         pred["_year"]=test
         pred=pred.merge(
             market_by_year[test],
-            on=["_race_id","_horse_id"],
+            on=["_race_id","_horse_id","_year"],
             how="left",
             validate="one_to_one",
         )
