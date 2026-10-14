@@ -1,0 +1,122 @@
+{
+  "contract": "L1_MARKET_DISAGREEMENT_EDGE_MAP_V1",
+  "question": "How often do AI Top3 and final-market Top3 disagree, and in those disagreements does the AI-only horse beat the market-only horse—especially when Correction Risk is low?",
+  "market_is_evaluation_only_for_ai_rank": true,
+  "risk_market_teacher_is_historical_only": true,
+  "current_market_not_used_by_ai_or_risk": true,
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "pooled_position_agreement": {
+    "top1_match_pct": 62.42684354272337,
+    "top3_set_exact_pct": 36.57822863831448,
+    "top3_order_exact_pct": 15.694498634412797,
+    "mean_top3_overlap": 2.254877097151775
+  },
+  "year_position_agreement": [
+    {
+      "test_year": 2023,
+      "races": 3412,
+      "top1_match_pct": 61.01992966002344,
+      "top3_set_exact_pct": 35.66822977725674,
+      "top3_order_exact_pct": 14.976553341148884,
+      "mean_top3_overlap": 2.2485345838218054
+    },
+    {
+      "test_year": 2024,
+      "races": 3416,
+      "top1_match_pct": 63.34894613583138,
+      "top3_set_exact_pct": 37.295081967213115,
+      "top3_order_exact_pct": 16.305620608899297,
+      "mean_top3_overlap": 2.2640515222482436
+    },
+    {
+      "test_year": 2025,
+      "races": 3424,
+      "top1_match_pct": 62.90887850467289,
+      "top3_set_exact_pct": 36.76985981308411,
+      "top3_order_exact_pct": 15.800233644859812,
+      "mean_top3_overlap": 2.2520443925233646
+    }
+  ],
+  "overlap2_paired_summary": [
+    {
+      "test_year": 2023,
+      "pairs": 1840,
+      "ai_unique_ahead_pct": 42.5,
+      "ai_unique_top3_pct": 30.0,
+      "market_unique_top3_pct": 42.880434782608695,
+      "top3_edge_pp": -12.880434782608695,
+      "ai_unique_win_pct": 9.130434782608695,
+      "market_unique_win_pct": 14.83695652173913,
+      "win_edge_pp": -5.7065217391304355,
+      "mean_ai_unique_risk": 0.1634614439220984,
+      "mean_ai_unique_odds": 12.885706521739131,
+      "mean_market_unique_odds": 5.9995652173913046
+    },
+    {
+      "test_year": 2024,
+      "pairs": 1784,
+      "ai_unique_ahead_pct": 40.190582959641254,
+      "ai_unique_top3_pct": 30.493273542600896,
+      "market_unique_top3_pct": 43.27354260089686,
+      "top3_edge_pp": -12.780269058295964,
+      "ai_unique_win_pct": 7.511210762331838,
+      "market_unique_win_pct": 16.535874439461885,
+      "win_edge_pp": -9.024663677130047,
+      "mean_ai_unique_risk": 0.16346808766442264,
+      "mean_ai_unique_odds": 12.660874439461884,
+      "mean_market_unique_odds": 5.893890134529149
+    },
+    {
+      "test_year": 2025,
+      "pairs": 1778,
+      "ai_unique_ahead_pct": 40.607424071991,
+      "ai_unique_top3_pct": 30.59617547806524,
+      "market_unique_top3_pct": 42.80089988751406,
+      "top3_edge_pp": -12.204724409448822,
+      "ai_unique_win_pct": 7.142857142857142,
+      "market_unique_win_pct": 15.241844769403826,
+      "win_edge_pp": -8.098987626546684,
+      "mean_ai_unique_risk": 0.16385382220530326,
+      "mean_ai_unique_odds": 12.380483689538808,
+      "mean_market_unique_odds": 6.110236220472441
+    }
+  ],
+  "strict_lowrisk_ai_unique": [
+    {
+      "test_year": 2024,
+      "train_years": "2023",
+      "selected_max_ai_unique_risk": 0.3,
+      "train_pairs": 1624,
+      "train_top3_edge_pp": -12.376847290640399,
+      "test_pairs": 1571,
+      "test_pair_share_pct": 88.06053811659193,
+      "test_ai_ahead_pct": 40.73838319541693,
+      "test_ai_top3_pct": 31.826861871419474,
+      "test_market_top3_pct": 43.66645448758752,
+      "test_top3_edge_pp": -11.839592616168048,
+      "test_ai_win_pct": 7.89306174411203,
+      "test_market_win_pct": 16.868236791852322
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2023|2024",
+      "selected_max_ai_unique_risk": 0.15,
+      "train_pairs": 1972,
+      "train_top3_edge_pp": -11.916835699797161,
+      "test_pairs": 951,
+      "test_pair_share_pct": 53.48706411698538,
+      "test_ai_ahead_pct": 41.95583596214511,
+      "test_ai_top3_pct": 35.01577287066246,
+      "test_market_top3_pct": 45.2155625657203,
+      "test_top3_edge_pp": -10.199789695057838,
+      "test_ai_win_pct": 7.676130389064142,
+      "test_market_win_pct": 16.929547844374344
+    }
+  ],
+  "interpretation": "Disagreement is an edge only if AI-only selections beat equally-sized market-only selections out of sample; disagreement by itself is not treated as value.",
+  "2026_locked": true
+}
