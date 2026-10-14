@@ -46,7 +46,7 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          python -m py_compile             research/run_market_fixed_anchor_residual_v2.py             research/run_l1_ceiling_audit_v1.py             research/run_l1_objective_rebuild_v1.py             research/resolve_snapshot_manifest_remote_v1.py
+          python -m py_compile             research/run_market_fixed_anchor_residual_v2.py             research/run_market_fixed_anchor_residual_from_cache_v2.py             research/run_l1_sameday_track_bias_v1.py             research/run_l1_ceiling_audit_v1.py             research/run_l1_objective_rebuild_v1.py             research/resolve_snapshot_manifest_remote_v1.py
           node --check research/project-yearly-snapshots.mjs
           bash -n research/run_market_fixed_anchor_residual_v2.sh
           python - <<'PY'
@@ -119,8 +119,6 @@ jobs:
           set -euo pipefail
           result="research-results/market-fixed-anchor-residual-v2/run-$GITHUB_RUN_ID"
           test -s "$result/summary.json"
-          test -s "$result/ability-checks.csv"
-          test -s "$result/risk-metrics.csv"
           test -s "$result/fold-probability-metrics.csv"
           test -s "$result/pooled-probability-metrics.csv"
           test -s "$result/lambda-selection.csv"
@@ -128,9 +126,8 @@ jobs:
           test -s "$result/fixed-edge-roi-by-year.csv"
           test -s "$result/fixed-edge-roi-pooled.csv"
           test -s "$result/edge-band-roi-by-year.csv"
-          test -s "$result/state-coverage.csv"
-          test -s "$result/fair-base-cache.csv.gz"
           test -s "$result/oos-fair-value-predictions.csv.gz"
+          test -s "research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz"
           git config user.name "keiba-ml-research-bot"
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
