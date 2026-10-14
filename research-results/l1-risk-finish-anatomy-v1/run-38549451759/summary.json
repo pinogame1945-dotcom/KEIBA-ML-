@@ -1,0 +1,88 @@
+{
+  "contract": "L1_RISK_FINISH_ANATOMY_V1",
+  "question": "How does individual Correction Risk interact with original AI rank and realized finish, horse by horse and race by race?",
+  "market_is_teacher_only": true,
+  "model_uses_current_market": false,
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "rank_signal": [
+    {
+      "ai_rank": 1,
+      "low_risk_top3_pct": 80.96618357487922,
+      "high_risk_top3_pct": 45.472061657032754,
+      "gap_pp": 35.49412191784647,
+      "within_rank_top3_auc_lowrisk": 0.6238301095688138
+    },
+    {
+      "ai_rank": 2,
+      "low_risk_top3_pct": 67.6328502415459,
+      "high_risk_top3_pct": 33.04431599229287,
+      "gap_pp": 34.58853424925302,
+      "within_rank_top3_auc_lowrisk": 0.6114783856930311
+    },
+    {
+      "ai_rank": 3,
+      "low_risk_top3_pct": 52.75362318840579,
+      "high_risk_top3_pct": 27.26396917148362,
+      "gap_pp": 25.48965401692217,
+      "within_rank_top3_auc_lowrisk": 0.5934223359618377
+    },
+    {
+      "ai_rank": 4,
+      "low_risk_top3_pct": 45.02415458937198,
+      "high_risk_top3_pct": 24.855491329479765,
+      "gap_pp": 20.168663259892217,
+      "within_rank_top3_auc_lowrisk": 0.5762657374702442
+    },
+    {
+      "ai_rank": 5,
+      "low_risk_top3_pct": 31.014492753623188,
+      "high_risk_top3_pct": 19.07514450867052,
+      "gap_pp": 11.939348244952669,
+      "within_rank_top3_auc_lowrisk": 0.5532497037986855
+    },
+    {
+      "ai_rank": 6,
+      "low_risk_top3_pct": 22.48062015503876,
+      "high_risk_top3_pct": 17.971014492753625,
+      "gap_pp": 4.509605662285136,
+      "within_rank_top3_auc_lowrisk": 0.535671659564689
+    }
+  ],
+  "strict_surgical_swap": [
+    {
+      "test_year": 2024,
+      "train_years": "2023",
+      "selected_top_k": 4,
+      "selected_min_risk_advantage": 0.1,
+      "train_mean_top3_uplift_pp": 0.3761574074074048,
+      "test_replacement_rate_pct": 6.394675925925926,
+      "baseline_top3_pct": 62.673611111111114,
+      "test_top3_pct": 62.35532407407407,
+      "test_top3_uplift_pp": -0.3182870370370452,
+      "baseline_win_pct": 30.960648148148145,
+      "test_win_pct": 30.64236111111111,
+      "test_win_uplift_pp": -0.31828703703703454
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2023|2024",
+      "selected_top_k": 2,
+      "selected_min_risk_advantage": 0.15,
+      "train_mean_top3_uplift_pp": 0.14467592592592027,
+      "test_replacement_rate_pct": 1.5046296296296295,
+      "baseline_top3_pct": 61.660879629629626,
+      "test_top3_pct": 61.68981481481482,
+      "test_top3_uplift_pp": 0.02893518518519045,
+      "baseline_win_pct": 29.25347222222222,
+      "test_win_pct": 29.34027777777778,
+      "test_win_uplift_pp": 0.08680555555555713
+    }
+  ],
+  "interpretation_rule": "Risk is evaluated as confidence information first. Reordering is promoted only if a strictly-OOS surgical policy is stable.",
+  "storage_policy": "Full horse-level frames stay ephemeral on the free runner; only compact aggregate diagnostics and representative cases are committed.",
+  "2026_locked": true
+}
