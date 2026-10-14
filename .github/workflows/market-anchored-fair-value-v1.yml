@@ -24,6 +24,8 @@ jobs:
       DATASET_REF: pino1945/keiba-ml-snapshot-bf811fa2eab73db0
       GENERATION_ID: bf811fa2eab73db0
       PYTHONUNBUFFERED: "1"
+      KAGGLE_DOWNLOAD_PARALLEL: "4"
+      PROJECTION_PARALLEL: "4"
 
     steps:
       - uses: actions/checkout@v4
