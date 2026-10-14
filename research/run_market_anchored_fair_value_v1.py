@@ -153,7 +153,6 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--year-file",action="append",required=True,help="YEAR:PATH")
     ap.add_argument("--out-dir",required=True)
-    ap.add_argument("--backfill-root",required=True)
     a=ap.parse_args()
     paths={}
     for spec in a.year_file:
