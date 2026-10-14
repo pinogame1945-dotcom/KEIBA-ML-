@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,csv,gc,json,math
+import argparse,concurrent.futures,csv,gc,json,math
 from pathlib import Path
 
 import numpy as np
@@ -188,75 +188,80 @@ class BiasState:
         if summary is not None:
             self.items.append(summary)
 
+def _build_same_day_bias_year(year,path):
+    src=read_bias_source(path,year)
+    src["front_score"]=infer_front_score(src)
+
+    race_meta=(
+        src.groupby("_race_id",as_index=False)
+           .agg(
+               _race_date=("_race_date","first"),
+               venue_code=("venue_code","first"),
+               surface=("surface","first"),
+               race_no=("race_no","first"),
+           )
+    )
+
+    feature_rows=[]
+    for (date,venue,surface),meta_grp in race_meta.groupby(
+        ["_race_date","venue_code","surface"],sort=True
+    ):
+        state=BiasState()
+        meta_grp=meta_grp.sort_values(["race_no","_race_id"],na_position="last")
+        for race_no,batch in meta_grp.groupby("race_no",sort=True,dropna=False):
+            snap=state.snapshot()
+            pending=[]
+            for rid in batch["_race_id"].tolist():
+                race=src[src["_race_id"]==rid].copy()
+                row=race[["_race_id","_horse_id"]].copy()
+                for k,v in snap.items():
+                    row[k]=v
+                row["horse_front_score"]=pd.to_numeric(race["front_score"],errors="coerce").to_numpy()
+                n=len(race)
+                hno=pd.to_numeric(race["horse_number"],errors="coerce")
+                row["horse_inner_score"]=(1.0-(hno-1.0)/max(1.0,float(n-1))).clip(0.0,1.0).to_numpy()
+                row["fit_front_mean"]=(row["horse_front_score"]*snap["daybias_front_gap_mean"]).astype("float32")
+                row["fit_front_ewma"]=(row["horse_front_score"]*snap["daybias_front_gap_ewma"]).astype("float32")
+                row["fit_inner_mean"]=(row["horse_inner_score"]*snap["daybias_inner_gap_mean"]).astype("float32")
+                row["fit_inner_ewma"]=(row["horse_inner_score"]*snap["daybias_inner_gap_ewma"]).astype("float32")
+                feature_rows.append(row)
+                pending.append(race_summary(race))
+            for summary in pending:
+                state.update(summary)
+
+    y=pd.concat(feature_rows,ignore_index=True)
+    if y.duplicated(["_race_id","_horse_id"]).any():
+        raise RuntimeError(f"duplicate day-bias key year={year}")
+    cov={
+        "year":year,
+        "rows":len(y),
+        "races":int(y["_race_id"].nunique()),
+        "prior_race_any_pct":100*float((y["daybias_prior_races"]>0).mean()),
+        "prior_race_2plus_pct":100*float((y["daybias_prior_races"]>=2).mean()),
+        "front_bias_cov_pct":100*float(y["daybias_front_gap_ewma"].notna().mean()),
+        "inner_bias_cov_pct":100*float(y["daybias_inner_gap_ewma"].notna().mean()),
+        "last3_bias_cov_pct":100*float(y["daybias_last3_gap_ewma"].notna().mean()),
+    }
+    return year,y,cov
+
 def build_same_day_bias(paths):
     by_year={}
     coverage=[]
-    for year in YEARS:
-        src=read_bias_source(paths[year],year)
-        src["front_score"]=infer_front_score(src)
-
-        # Race ordering is strictly chronological inside each date/venue.
-        race_meta=(
-            src.groupby("_race_id",as_index=False)
-               .agg(
-                   _race_date=("_race_date","first"),
-                   venue_code=("venue_code","first"),
-                   surface=("surface","first"),
-                   race_no=("race_no","first"),
-               )
-        )
-        if race_meta.duplicated(["_race_date","venue_code","surface","race_no"],keep=False).any():
-            # Same race_no duplicates are processed as a batch below, so no arbitrary ordering leaks.
-            pass
-
-        feature_rows=[]
-        for (date,venue,surface),meta_grp in race_meta.groupby(
-            ["_race_date","venue_code","surface"],sort=True
-        ):
-            state=BiasState()
-            meta_grp=meta_grp.sort_values(["race_no","_race_id"],na_position="last")
-            for race_no,batch in meta_grp.groupby("race_no",sort=True,dropna=False):
-                # Every race at the same stage sees the same state BEFORE any same-stage result update.
-                snap=state.snapshot()
-                pending=[]
-                for rid in batch["_race_id"].tolist():
-                    race=src[src["_race_id"]==rid].copy()
-                    row=race[["_race_id","_horse_id"]].copy()
-                    for k,v in snap.items():
-                        row[k]=v
-                    row["horse_front_score"]=pd.to_numeric(race["front_score"],errors="coerce").to_numpy()
-                    n=len(race)
-                    hno=pd.to_numeric(race["horse_number"],errors="coerce")
-                    row["horse_inner_score"]=(1.0-(hno-1.0)/max(1.0,float(n-1))).clip(0.0,1.0).to_numpy()
-                    row["fit_front_mean"]=(row["horse_front_score"]*snap["daybias_front_gap_mean"]).astype("float32")
-                    row["fit_front_ewma"]=(row["horse_front_score"]*snap["daybias_front_gap_ewma"]).astype("float32")
-                    row["fit_inner_mean"]=(row["horse_inner_score"]*snap["daybias_inner_gap_mean"]).astype("float32")
-                    row["fit_inner_ewma"]=(row["horse_inner_score"]*snap["daybias_inner_gap_ewma"]).astype("float32")
-                    feature_rows.append(row)
-                    pending.append(race_summary(race))
-                for summary in pending:
-                    state.update(summary)
-
-        y=pd.concat(feature_rows,ignore_index=True)
-        if y.duplicated(["_race_id","_horse_id"]).any():
-            raise SystemExit(f"duplicate day-bias key year={year}")
-        by_year[year]=y
-        coverage.append({
-            "year":year,
-            "rows":len(y),
-            "races":int(y["_race_id"].nunique()),
-            "prior_race_any_pct":100*float((y["daybias_prior_races"]>0).mean()),
-            "prior_race_2plus_pct":100*float((y["daybias_prior_races"]>=2).mean()),
-            "front_bias_cov_pct":100*float(y["daybias_front_gap_ewma"].notna().mean()),
-            "inner_bias_cov_pct":100*float(y["daybias_inner_gap_ewma"].notna().mean()),
-            "last3_bias_cov_pct":100*float(y["daybias_last3_gap_ewma"].notna().mean()),
-        })
-        print(
-            f"DAY_BIAS_READY year={year} rows={len(y)} races={y['_race_id'].nunique()} "
-            f"prior_any={coverage[-1]['prior_race_any_pct']:.2f} "
-            f"front_cov={coverage[-1]['front_bias_cov_pct']:.2f}",
-            flush=True,
-        )
+    workers=min(4,len(YEARS))
+    print(f"DAY_BIAS_PARALLEL workers={workers} years={len(YEARS)}",flush=True)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as ex:
+        futs=[ex.submit(_build_same_day_bias_year,year,paths[year]) for year in YEARS]
+        for fut in concurrent.futures.as_completed(futs):
+            year,y,cov=fut.result()
+            by_year[year]=y
+            coverage.append(cov)
+            print(
+                f"DAY_BIAS_READY year={year} rows={len(y)} races={y['_race_id'].nunique()} "
+                f"prior_any={cov['prior_race_any_pct']:.2f} "
+                f"front_cov={cov['front_bias_cov_pct']:.2f}",
+                flush=True,
+            )
+    coverage.sort(key=lambda z:z["year"])
     return by_year,coverage
 
 def bias_cols(frame,with_fit=False):
