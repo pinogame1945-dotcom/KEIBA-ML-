@@ -1,0 +1,2 @@
+triggered_at=2026-10-14T20:16:00+09:00
+purpose=L1_RISK_ON_MARKET_RANK_V1
