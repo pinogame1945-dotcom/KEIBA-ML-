@@ -423,7 +423,9 @@ def main():
         return np.asarray(res.x,dtype=float),stats,float(res.fun)
 
     def predict_anchor(df,features,beta,stats):
-        q=df.sort_values(["_race_id","_horse_id"]).reset_index()
+        q=df.reset_index(drop=True).copy()
+        q["__pos"]=np.arange(len(q),dtype=int)
+        q=q.sort_values(["_race_id","_horse_id"]).reset_index(drop=True)
         x=transform_x(q,features,stats)
         z=np.log(q["market_prob_norm"].clip(1e-12,1.0).to_numpy(dtype=float))+x.dot(beta)
         rid=q["_race_id"].astype(str).to_numpy()
@@ -434,7 +436,7 @@ def main():
         sums=np.add.reduceat(ez,starts)
         p=ez/np.repeat(sums,sizes)
         out=np.empty(len(df),dtype=float)
-        out[q["index"].to_numpy(dtype=int)]=p
+        out[q["__pos"].to_numpy(dtype=int)]=p
         return out
 
     def race_nll(df,p):
