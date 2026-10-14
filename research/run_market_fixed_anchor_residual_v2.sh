@@ -162,4 +162,4 @@ for f in summary.json ability-checks.csv risk-metrics.csv fold-probability-metri
 done
 
 rm -rf "$ROOT"
-echo "MARKET_FIXED_ANCHOR_RESIDUAL_V1_DONE result=$RESULT"
+echo "MARKET_FIXED_ANCHOR_RESIDUAL_V2_DONE result=$RESULT"
