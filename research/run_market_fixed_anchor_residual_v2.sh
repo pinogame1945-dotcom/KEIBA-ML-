@@ -104,9 +104,9 @@ PY
       echo "SNAPSHOT_DOWNLOAD_OK year=$year remote=$remote"
     ) &
     download_pids+=("$!")
-    if (( \${#download_pids[@]} >= DL_PARALLEL )); then wait_oldest download_pids; fi
+    if (( ${#download_pids[@]} >= DL_PARALLEL )); then wait_oldest download_pids; fi
   done < "$ROOT/requested.tsv"
-  for pid in "\${download_pids[@]}"; do wait "$pid"; done
+  for pid in "${download_pids[@]}"; do wait "$pid"; done
 
   python - "$ROOT/requested.tsv" "$ROOT" "$CPU" <<'PY'
 import concurrent.futures,gzip,hashlib,json,os,sys
@@ -151,9 +151,9 @@ PY
       echo "UNION_PROJECTION_OK year=$year"
     ) &
     projection_pids+=("$!")
-    if (( \${#projection_pids[@]} >= PROJ_PARALLEL )); then wait_oldest projection_pids; fi
+    if (( ${#projection_pids[@]} >= PROJ_PARALLEL )); then wait_oldest projection_pids; fi
   done < "$ROOT/requested.tsv"
-  for pid in "\${projection_pids[@]}"; do wait "$pid"; done
+  for pid in "${projection_pids[@]}"; do wait "$pid"; done
 
   while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
     rm -f "$ROOT/$remote"
@@ -166,7 +166,7 @@ PY
   done
 
   python research/run_market_fixed_anchor_residual_v2.py \
-    "\${args[@]}" \
+    "${args[@]}" \
     --out-dir "$RESULT" \
     --cache-only
 
