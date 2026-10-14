@@ -301,6 +301,7 @@ def main():
             "distill_is_ai_top1","distill_is_ai_top3","distill_is_ai_top6","risk",
             "rank_gap_norm","abs_rank_gap_norm","top3_overlap_norm","ai_unique_top3",
             "market_unique_top3","top1_match","risk_x_abs_gap","ability_x_market_gap",
+            "ability_x_disagree_level","risk_x_disagree_level","rankgap_x_disagree_level",
         ],
     }
 
@@ -334,6 +335,10 @@ def main():
         z["top1_match"]=z["_race_id"].astype(str).map(match).fillna(0).astype(int)
         z["risk_x_abs_gap"]=z["risk"]*z["abs_rank_gap_norm"]
         z["ability_x_market_gap"]=z["distill_score_z"]*z["rank_gap_norm"]
+        z["disagree_level"]=(3.0-z["top3_overlap"].clip(0,3))/3.0
+        z["ability_x_disagree_level"]=z["distill_score_z"]*z["disagree_level"]
+        z["risk_x_disagree_level"]=z["risk"]*z["disagree_level"]
+        z["rankgap_x_disagree_level"]=z["rank_gap_norm"]*z["disagree_level"]
         z["target_win"]=z["_is_win"].astype(int)
         z["target_top3"]=z["_is_top3"].astype(int)
         return z
@@ -351,7 +356,8 @@ def main():
         "distill_score_z","distill_score_gap_to_best","distill_is_ai_top1","distill_is_ai_top3",
         "distill_is_ai_top6","risk","rank_gap_norm","abs_rank_gap_norm","top3_overlap",
         "top3_overlap_norm","ai_unique_top3","market_unique_top3","top1_match",
-        "risk_x_abs_gap","ability_x_market_gap",
+        "risk_x_abs_gap","ability_x_market_gap","disagree_level",
+        "ability_x_disagree_level","risk_x_disagree_level","rankgap_x_disagree_level",
     ]
 
     out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
