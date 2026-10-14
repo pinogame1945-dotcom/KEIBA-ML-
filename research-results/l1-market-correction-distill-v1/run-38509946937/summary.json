@@ -1,0 +1,100 @@
+{
+  "contract": "L1_MARKET_CORRECTION_DISTILL_V1",
+  "question": "Can pre-race information predict the direction/magnitude of the final market's correction to the exact OOS AI ranking?",
+  "teacher_label": "final market rank is historical supervision only; never a student input",
+  "strictness": "Ability teacher predictions are OOS. Correction model for year Y uses only OOS teacher-labeled years < Y.",
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "variants": {
+    "RANK_ONLY": "AI rank/score geometry only",
+    "FULL_PRERACE": "current L1 pre-race feature space + AI rank/score geometry",
+    "FULL_PRERACE_NEG": "FULL_PRERACE plus strictly-prior negative-evidence summaries"
+  },
+  "primary_over3_top6": [
+    {
+      "variant": "RANK_ONLY",
+      "years": "2023|2024|2025",
+      "n": 62168,
+      "prevalence_pct": 13.59863595418865,
+      "roc_auc": 0.7290416660591361,
+      "average_precision": 0.2777621171640133,
+      "recall_at_prevalence_pct": 30.684136559752,
+      "top_decile_enrichment": 2.357840003029384
+    },
+    {
+      "variant": "FULL_PRERACE",
+      "years": "2023|2024|2025",
+      "n": 62168,
+      "prevalence_pct": 13.59863595418865,
+      "roc_auc": 0.7886350736567974,
+      "average_precision": 0.3526253879011996,
+      "recall_at_prevalence_pct": 37.79350848450363,
+      "top_decile_enrichment": 2.9692001373608234
+    },
+    {
+      "variant": "FULL_PRERACE_NEG",
+      "years": "2023|2024|2025",
+      "n": 62168,
+      "prevalence_pct": 13.59863595418865,
+      "roc_auc": 0.7893056045426066,
+      "average_precision": 0.3522530382713205,
+      "recall_at_prevalence_pct": 38.04205101158152,
+      "top_decile_enrichment": 2.983389030770883
+    }
+  ],
+  "best_over3_predictor": {
+    "variant": "FULL_PRERACE_NEG",
+    "years": "2023|2024|2025",
+    "n": 62168,
+    "prevalence_pct": 13.59863595418865,
+    "roc_auc": 0.7893056045426066,
+    "average_precision": 0.3522530382713205,
+    "recall_at_prevalence_pct": 38.04205101158152,
+    "top_decile_enrichment": 2.983389030770883
+  },
+  "market_distilled_rerank": [
+    {
+      "variant": "RANK_ONLY",
+      "years": "2023|2024|2025",
+      "base_ai_top1_top3_pct": 61.25578703703704,
+      "distilled_top1_top3_pct": 61.25578703703704,
+      "uplift_pp": 0.0,
+      "positive_years": 0
+    },
+    {
+      "variant": "FULL_PRERACE",
+      "years": "2023|2024|2025",
+      "base_ai_top1_top3_pct": 61.25578703703704,
+      "distilled_top1_top3_pct": 61.30401234567901,
+      "uplift_pp": 0.04822530864197697,
+      "positive_years": 2
+    },
+    {
+      "variant": "FULL_PRERACE_NEG",
+      "years": "2023|2024|2025",
+      "base_ai_top1_top3_pct": 61.25578703703704,
+      "distilled_top1_top3_pct": 61.28472222222222,
+      "uplift_pp": 0.028935185185180973,
+      "positive_years": 2
+    }
+  ],
+  "best_rerank": {
+    "variant": "FULL_PRERACE",
+    "years": "2023|2024|2025",
+    "base_ai_top1_top3_pct": 61.25578703703704,
+    "distilled_top1_top3_pct": 61.30401234567901,
+    "uplift_pp": 0.04822530864197697,
+    "positive_years": 2
+  },
+  "interpretation_rule": {
+    "auc_near_0_5": "market correction is not predictable from these pre-race features",
+    "full_beats_rank_only": "existing horse/race features contain information about future market correction beyond rank geometry",
+    "rerank_positive": "predicted market correction recovers some of market's edge without using current market"
+  },
+  "market_is_teacher_only": true,
+  "model_uses_current_market": false,
+  "2026_locked": true
+}
