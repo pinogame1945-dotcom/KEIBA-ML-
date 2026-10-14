@@ -153,6 +153,7 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--year-file",action="append",required=True,help="YEAR:PATH")
     ap.add_argument("--out-dir",required=True)
+    ap.add_argument("--cache-only",action="store_true")
     a=ap.parse_args()
     paths={}
     for spec in a.year_file:
@@ -367,6 +368,16 @@ def main():
     if cache_path.stat().st_size>95*1024*1024:
         raise SystemExit(f"compact cache unexpectedly too large: {cache_path.stat().st_size}")
     print(f"FAIR_BASE_CACHE_READY rows={len(cache)} bytes={cache_path.stat().st_size}",flush=True)
+    if a.cache_only:
+        (out/"cache-summary.json").write_text(json.dumps({
+            "contract":"MARKET_FIXED_ANCHOR_RESIDUAL_V2_CACHE",
+            "rows":int(len(cache)),
+            "years":sorted(int(x) for x in cache["year"].unique()),
+            "bytes":int(cache_path.stat().st_size),
+            "2026_locked":True
+        },ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        print("MARKET_FIXED_ANCHOR_RESIDUAL_V2_CACHE_ONLY_COMPLETE",flush=True)
+        return
 
     def chronological_split(train):
         races=train[["_race_date","_race_id"]].drop_duplicates().sort_values(["_race_date","_race_id"]).reset_index(drop=True)
