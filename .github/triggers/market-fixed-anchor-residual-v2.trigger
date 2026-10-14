@@ -1,8 +1,4 @@
-triggered_at=2026-10-15T00:45:00+09:00
-purpose=MARKET_FIXED_ANCHOR_RESIDUAL_V2_RETRY1
-fix=prediction_positional_index
-ability_workers=2
-risk_workers=2
-l1_threads=2
-projection_parallel=4
-preserve_cache_on_failure=true
+triggered_at=2026-10-15T08:43:00+09:00
+purpose=MARKET_FIXED_ANCHOR_RESIDUAL_V2_CACHE_CHECKPOINT_RETRY
+speed=parallel_day_bias+stable_cache+lightweight_residual
+2026_locked=true
