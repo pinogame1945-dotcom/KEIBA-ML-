@@ -77,6 +77,27 @@ jobs:
           set -euo pipefail
           bash research/run_market_fixed_anchor_residual_v2.sh
 
+      - name: Preserve reusable fair-base cache on downstream failure
+        if: failure()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/market-fixed-anchor-residual-v2/run-$GITHUB_RUN_ID"
+          cache="$result/fair-base-cache.csv.gz"
+          if [[ -s "$cache" ]]; then
+            stable="research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz"
+            mkdir -p "$(dirname "$stable")"
+            cp "$cache" "$stable"
+            git config user.name "keiba-ml-research-bot"
+            git config user.email "actions@users.noreply.github.com"
+            git pull --rebase origin "$GITHUB_REF_NAME"
+            git add "$stable"
+            if ! git diff --cached --quiet; then
+              git commit -m "research: preserve reusable fair-base cache"
+              git push origin "HEAD:$GITHUB_REF_NAME"
+            fi
+          fi
+
       - name: Cost guard
         if: always()
         shell: bash
