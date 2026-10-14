@@ -1,0 +1,87 @@
+{
+  "contract": "L1_CONFIDENCE_CALIBRATED_RANKING_V1",
+  "question": "Can market-correction risk be folded back into the original L1 ranking through probability calibration rather than hard rank swapping?",
+  "architecture": "Original Ability remains the backbone; risk is an uncertainty modifier inside a strictly-OOS top3 probability calibrator.",
+  "market_is_teacher_only": true,
+  "model_uses_current_market": false,
+  "pooled_ranking": [
+    {
+      "variant": "BASE_ABILITY",
+      "years": "2023|2024|2025",
+      "top1_top3_pct": 61.25578703703704,
+      "top1_win_pct": 29.639274691358025,
+      "winner_top3_capture_pct": 61.147912603012024,
+      "winner_top6_capture_pct": 83.80999073240396,
+      "positive_top1_top3_years": 0,
+      "top1_top3_uplift_pp": 0.0
+    },
+    {
+      "variant": "GRID_TOP3",
+      "years": "2023|2024|2025",
+      "top1_top3_pct": 61.25578703703704,
+      "top1_win_pct": 29.494598765432098,
+      "winner_top3_capture_pct": 61.12865591131166,
+      "winner_top6_capture_pct": 83.80999073240396,
+      "positive_top1_top3_years": 2,
+      "top1_top3_uplift_pp": 0.0
+    },
+    {
+      "variant": "MONO_TOP3",
+      "years": "2023|2024|2025",
+      "top1_top3_pct": 61.323302469135804,
+      "top1_win_pct": 29.484953703703706,
+      "winner_top3_capture_pct": 61.25386616081526,
+      "winner_top6_capture_pct": 83.81000743378446,
+      "positive_top1_top3_years": 2,
+      "top1_top3_uplift_pp": 0.06751543209876587
+    },
+    {
+      "variant": "BLEND50",
+      "years": "2023|2024|2025",
+      "top1_top3_pct": 61.37152777777777,
+      "top1_win_pct": 29.648919753086417,
+      "winner_top3_capture_pct": 61.147912603012024,
+      "winner_top6_capture_pct": 83.80999073240396,
+      "positive_top1_top3_years": 3,
+      "top1_top3_uplift_pp": 0.11574074074073337
+    }
+  ],
+  "best_simple_variant": {
+    "variant": "BLEND50",
+    "years": "2023|2024|2025",
+    "top1_top3_pct": 61.37152777777777,
+    "top1_win_pct": 29.648919753086417,
+    "winner_top3_capture_pct": 61.147912603012024,
+    "winner_top6_capture_pct": 83.80999073240396,
+    "positive_top1_top3_years": 3,
+    "top1_top3_uplift_pp": 0.11574074074073337
+  },
+  "strict_blend": [
+    {
+      "test_year": 2024,
+      "selected_alpha": 0.0,
+      "train_selection_years": "2023",
+      "baseline_top1_top3_pct": 62.673611111111114,
+      "races": 3456,
+      "top1_top3_pct": 62.03703703703704,
+      "top1_win_pct": 30.23726851851852,
+      "winner_top3_capture_pct": 61.52512998266898,
+      "winner_top6_capture_pct": 84.63316002310803,
+      "uplift_pp": -0.6365740740740762
+    },
+    {
+      "test_year": 2025,
+      "selected_alpha": 0.5,
+      "train_selection_years": "2023|2024",
+      "baseline_top1_top3_pct": 61.660879629629626,
+      "races": 3456,
+      "top1_top3_pct": 61.71875,
+      "top1_win_pct": 29.427083333333332,
+      "winner_top3_capture_pct": 61.467359907567875,
+      "winner_top6_capture_pct": 83.39110340843443,
+      "uplift_pp": 0.05787037037037379
+    }
+  ],
+  "promotion_rule": "Promote only with material pooled improvement, multi-year stability, and no meaningful winner-capture regression.",
+  "2026_locked": true
+}
