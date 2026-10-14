@@ -71,10 +71,13 @@ wait_oldest() {
 rm -rf "$ROOT"
 mkdir -p "$ROOT" "$PROJ" "$RESULT"
 
-FILES="$ROOT/files.json"
-kaggle_transient "files"   bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _   "$DATASET_REF" "$FILES"
+STABLE_CACHE="research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz"
 
-python - "$FILES" <<'PY'
+if [[ ! -s "$STABLE_CACHE" ]]; then
+  FILES="$ROOT/files.json"
+  kaggle_transient "files" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$DATASET_REF" "$FILES"
+
+  python - "$FILES" <<'PY'
 import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
 names=[str(x.get("name") or "") for x in rows]
@@ -83,25 +86,29 @@ if "manifest.json" not in names:
 print("KAGGLE_METADATA_OK files=",len(names))
 PY
 
-kaggle_transient "download:manifest.json"   kaggle datasets download "$DATASET_REF" -f manifest.json -p "$ROOT" --unzip --quiet --force
-test -s "$ROOT/manifest.json"
+  kaggle_transient "download:manifest.json" kaggle datasets download "$DATASET_REF" -f manifest.json -p "$ROOT" --unzip --quiet --force
+  test -s "$ROOT/manifest.json"
 
-python research/resolve_snapshot_manifest_remote_v1.py   --manifest "$ROOT/manifest.json"   --files-json "$FILES"   --generation-id "$GENERATION_ID"   --output "$ROOT/requested.tsv"
+  python research/resolve_snapshot_manifest_remote_v1.py \
+    --manifest "$ROOT/manifest.json" \
+    --files-json "$FILES" \
+    --generation-id "$GENERATION_ID" \
+    --output "$ROOT/requested.tsv"
 
-download_pids=()
-while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
-  [[ -n "$remote" ]] || continue
-  (
-    kaggle_transient "download:$remote"       kaggle datasets download "$DATASET_REF" -f "$remote" -p "$ROOT" --unzip --quiet --force
-    test -s "$ROOT/$remote"
-    echo "SNAPSHOT_DOWNLOAD_OK year=$year remote=$remote"
-  ) &
-  download_pids+=("$!")
-  if (( ${#download_pids[@]} >= DL_PARALLEL )); then wait_oldest download_pids; fi
-done < "$ROOT/requested.tsv"
-for pid in "${download_pids[@]}"; do wait "$pid"; done
+  download_pids=()
+  while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
+    [[ -n "$remote" ]] || continue
+    (
+      kaggle_transient "download:$remote" kaggle datasets download "$DATASET_REF" -f "$remote" -p "$ROOT" --unzip --quiet --force
+      test -s "$ROOT/$remote"
+      echo "SNAPSHOT_DOWNLOAD_OK year=$year remote=$remote"
+    ) &
+    download_pids+=("$!")
+    if (( \${#download_pids[@]} >= DL_PARALLEL )); then wait_oldest download_pids; fi
+  done < "$ROOT/requested.tsv"
+  for pid in "\${download_pids[@]}"; do wait "$pid"; done
 
-python - "$ROOT/requested.tsv" "$ROOT" "$CPU" <<'PY'
+  python - "$ROOT/requested.tsv" "$ROOT" "$CPU" <<'PY'
 import concurrent.futures,gzip,hashlib,json,os,sys
 req,root,workers=sys.argv[1:]
 items=[line.rstrip("\n").split("\t") for line in open(req,encoding="utf-8") if line.strip()]
@@ -132,32 +139,62 @@ with concurrent.futures.ThreadPoolExecutor(max_workers=min(len(items),max(1,int(
     for msg in ex.map(check,items): print(msg,flush=True)
 PY
 
-projection_pids=()
-while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
-  (
-    node research/project-yearly-snapshots.mjs       --inputs "$ROOT/$remote"       --output "$PROJ/y$year.jsonl.gz"       --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE       --prediction-phase FINAL
+  projection_pids=()
+  while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
+    (
+      node research/project-yearly-snapshots.mjs \
+        --inputs "$ROOT/$remote" \
+        --output "$PROJ/y$year.jsonl.gz" \
+        --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE \
+        --prediction-phase FINAL
+      test -s "$PROJ/y$year.jsonl.gz"
+      echo "UNION_PROJECTION_OK year=$year"
+    ) &
+    projection_pids+=("$!")
+    if (( \${#projection_pids[@]} >= PROJ_PARALLEL )); then wait_oldest projection_pids; fi
+  done < "$ROOT/requested.tsv"
+  for pid in "\${projection_pids[@]}"; do wait "$pid"; done
+
+  while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
+    rm -f "$ROOT/$remote"
+  done < "$ROOT/requested.tsv"
+
+  args=()
+  for year in 2019 2020 2021 2022 2023 2024 2025; do
     test -s "$PROJ/y$year.jsonl.gz"
-    echo "UNION_PROJECTION_OK year=$year"
-  ) &
-  projection_pids+=("$!")
-  if (( ${#projection_pids[@]} >= PROJ_PARALLEL )); then wait_oldest projection_pids; fi
-done < "$ROOT/requested.tsv"
-for pid in "${projection_pids[@]}"; do wait "$pid"; done
+    args+=(--year-file "$year:$PROJ/y$year.jsonl.gz")
+  done
 
-while IFS=$'\t' read -r year logical remote mode sha rows min_date max_date; do
-  rm -f "$ROOT/$remote"
-done < "$ROOT/requested.tsv"
+  python research/run_market_fixed_anchor_residual_v2.py \
+    "\${args[@]}" \
+    --out-dir "$RESULT" \
+    --cache-only
 
+  test -s "$RESULT/fair-base-cache.csv.gz"
+  mkdir -p "$(dirname "$STABLE_CACHE")"
+  cp "$RESULT/fair-base-cache.csv.gz" "$STABLE_CACHE"
 
-args=()
-for year in 2019 2020 2021 2022 2023 2024 2025; do
-  test -s "$PROJ/y$year.jsonl.gz"
-  args+=(--year-file "$year:$PROJ/y$year.jsonl.gz")
-done
+  git config user.name "keiba-ml-research-bot"
+  git config user.email "actions@users.noreply.github.com"
+  git add "$STABLE_CACHE"
+  if ! git diff --cached --quiet; then
+    git commit -m "research: persist fixed-anchor fair-base cache"
+    git push origin "HEAD:$GITHUB_REF_NAME"
+  fi
+  echo "STABLE_FAIR_BASE_CACHE_COMMITTED path=$STABLE_CACHE"
+else
+  echo "STABLE_FAIR_BASE_CACHE_REUSED path=$STABLE_CACHE"
+fi
 
-python research/run_market_fixed_anchor_residual_v2.py   "${args[@]}"   --out-dir "$RESULT"
+test -s "$STABLE_CACHE"
 
-for f in summary.json ability-checks.csv risk-metrics.csv fold-probability-metrics.csv pooled-probability-metrics.csv lambda-selection.csv residual-coefficients.csv fixed-edge-roi-by-year.csv fixed-edge-roi-pooled.csv edge-band-roi-by-year.csv state-coverage.csv fair-base-cache.csv.gz oos-fair-value-predictions.csv.gz; do
+rm -rf "$RESULT"
+mkdir -p "$RESULT"
+python research/run_market_fixed_anchor_residual_from_cache_v2.py \
+  --cache "$STABLE_CACHE" \
+  --out-dir "$RESULT"
+
+for f in summary.json fold-probability-metrics.csv pooled-probability-metrics.csv lambda-selection.csv residual-coefficients.csv fixed-edge-roi-by-year.csv fixed-edge-roi-pooled.csv edge-band-roi-by-year.csv oos-fair-value-predictions.csv.gz; do
   test -s "$RESULT/$f"
 done
 
