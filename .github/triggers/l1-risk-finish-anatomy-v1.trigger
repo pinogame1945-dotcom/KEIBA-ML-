@@ -1,0 +1,2 @@
+triggered_at=2026-10-14T19:14:00+09:00
+purpose=L1_RISK_FINISH_ANATOMY_V1
