@@ -1,0 +1,365 @@
+{
+  "contract": "L1_MARKET_CORRECTION_DEEPDIVE_V1",
+  "primary_variant": "FULL_PRERACE",
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "market_is_teacher_only": true,
+  "model_uses_current_market": false,
+  "risk_head": {
+    "mean_auc_2023_2025": 0.7888895463790417,
+    "mean_average_precision_2023_2025": 0.35272223863020374
+  },
+  "risk_extremes": [
+    {
+      "test_year": 2022,
+      "high_risk_n": 346,
+      "high_risk_top3_pct": 47.398843930635834,
+      "high_risk_market_over3_pct": 30.057803468208093,
+      "low_risk_n": 346,
+      "low_risk_top3_pct": 81.21387283236994,
+      "low_risk_market_over3_pct": 0.0,
+      "top3_gap_low_minus_high_pp": 33.8150289017341
+    },
+    {
+      "test_year": 2023,
+      "high_risk_n": 346,
+      "high_risk_top3_pct": 41.040462427745666,
+      "high_risk_market_over3_pct": 34.971098265895954,
+      "low_risk_n": 346,
+      "low_risk_top3_pct": 80.05780346820809,
+      "low_risk_market_over3_pct": 0.2890173410404624,
+      "top3_gap_low_minus_high_pp": 39.01734104046242
+    },
+    {
+      "test_year": 2024,
+      "high_risk_n": 346,
+      "high_risk_top3_pct": 47.398843930635834,
+      "high_risk_market_over3_pct": 35.54913294797688,
+      "low_risk_n": 346,
+      "low_risk_top3_pct": 83.23699421965318,
+      "low_risk_market_over3_pct": 0.0,
+      "top3_gap_low_minus_high_pp": 35.83815028901734
+    },
+    {
+      "test_year": 2025,
+      "high_risk_n": 346,
+      "high_risk_top3_pct": 47.398843930635834,
+      "high_risk_market_over3_pct": 33.52601156069364,
+      "low_risk_n": 346,
+      "low_risk_top3_pct": 79.47976878612717,
+      "low_risk_market_over3_pct": 0.0,
+      "top3_gap_low_minus_high_pp": 32.08092485549133
+    }
+  ],
+  "strict_veto_policy": {
+    "rows": [
+      {
+        "test_year": 2023,
+        "train_policy_years": "2022",
+        "selected_quantile": 0.8,
+        "selected_threshold": 0.09739671681761454,
+        "selected_mode": "MIN_RISK_TOP3",
+        "baseline_top1_top3_pct": 59.432870370370374,
+        "test_n": 3456,
+        "test_top3_pct": 58.68055555555556,
+        "test_win_pct": 27.864583333333332,
+        "test_threshold": 0.09739671681761454,
+        "test_mode": "MIN_RISK_TOP3",
+        "test_flagged_races": 825,
+        "test_replaced_races": 590,
+        "test_replacement_rate_pct": 17.07175925925926,
+        "uplift_pp": -0.7523148148148167
+      },
+      {
+        "test_year": 2024,
+        "train_policy_years": "2022|2023",
+        "selected_quantile": 0.9,
+        "selected_threshold": 0.17457704600655333,
+        "selected_mode": "NEXT_SAFE",
+        "baseline_top1_top3_pct": 62.673611111111114,
+        "test_n": 3456,
+        "test_top3_pct": 61.979166666666664,
+        "test_win_pct": 30.729166666666668,
+        "test_threshold": 0.17457704600655333,
+        "test_mode": "NEXT_SAFE",
+        "test_flagged_races": 368,
+        "test_replaced_races": 246,
+        "test_replacement_rate_pct": 7.118055555555555,
+        "uplift_pp": -0.69444444444445
+      },
+      {
+        "test_year": 2025,
+        "train_policy_years": "2022|2023|2024",
+        "selected_quantile": 0.9,
+        "selected_threshold": 0.177148103340065,
+        "selected_mode": "MIN_RISK_TOP3",
+        "baseline_top1_top3_pct": 61.660879629629626,
+        "test_n": 3456,
+        "test_top3_pct": 61.25578703703704,
+        "test_win_pct": 29.108796296296298,
+        "test_threshold": 0.177148103340065,
+        "test_mode": "MIN_RISK_TOP3",
+        "test_flagged_races": 374,
+        "test_replaced_races": 285,
+        "test_replacement_rate_pct": 8.246527777777779,
+        "uplift_pp": -0.4050925925925881
+      }
+    ],
+    "mean_uplift_pp": -0.6172839506172849,
+    "positive_years": 0
+  },
+  "outcome_meta": {
+    "ability_geom_mean_top1_top3_pct": 60.48418209876544,
+    "ability_geom_plus_risk_mean_top1_top3_pct": 60.889274691358025,
+    "uplift_pp": 0.4050925925925881,
+    "ability_geom_mean_logloss": 0.711839955830256,
+    "ability_geom_plus_risk_mean_logloss": 0.7216730882249921
+  },
+  "top_stable_features": [
+    {
+      "feature": "distill_ai_rank01",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 1.0,
+      "mean_gain_share": 0.31853810204432526,
+      "max_gain_share": 0.3412006122063881
+    },
+    {
+      "feature": "distill_score_z",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 2.0,
+      "mean_gain_share": 0.12022032357876812,
+      "max_gain_share": 0.13642915413618806
+    },
+    {
+      "feature": "auto_field_recent_avg_finish_field_count",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 3.0,
+      "mean_gain_share": 0.04715897321603685,
+      "max_gain_share": 0.05785436729498905
+    },
+    {
+      "feature": "auto_field_network_elo_rating_field_count",
+      "domain": "NETWORK",
+      "years_present_top120": 3,
+      "mean_rank": 4.0,
+      "mean_gain_share": 0.03267995510352359,
+      "max_gain_share": 0.03407082541027865
+    },
+    {
+      "feature": "auto_field_recent_avg_finish_diff_mean",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 5.333333333333333,
+      "mean_gain_share": 0.0209632168647555,
+      "max_gain_share": 0.02344149133194991
+    },
+    {
+      "feature": "distill_ai_rank",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 6.0,
+      "mean_gain_share": 0.01892657532991144,
+      "max_gain_share": 0.030078146250037754
+    },
+    {
+      "feature": "auto_field_recent_top3_rate_diff_median",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 7.666666666666667,
+      "mean_gain_share": 0.015084958142372012,
+      "max_gain_share": 0.019039322873224254
+    },
+    {
+      "feature": "auto_history_distance_m_rolling_5_mean",
+      "domain": "DISTANCE",
+      "years_present_top120": 3,
+      "mean_rank": 8.666666666666666,
+      "mean_gain_share": 0.01048298259383397,
+      "max_gain_share": 0.01086256166672352
+    },
+    {
+      "feature": "days_since_last_start",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 10.0,
+      "mean_gain_share": 0.010117276359885774,
+      "max_gain_share": 0.011286072609919878
+    },
+    {
+      "feature": "distill_score_gap_to_best",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 10.333333333333334,
+      "mean_gain_share": 0.009495645130228521,
+      "max_gain_share": 0.009799772263135454
+    },
+    {
+      "feature": "opponent_recent_avg_starts",
+      "domain": "NETWORK",
+      "years_present_top120": 3,
+      "mean_rank": 12.666666666666666,
+      "mean_gain_share": 0.008911172553965094,
+      "max_gain_share": 0.013899499262693337
+    },
+    {
+      "feature": "age",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 12.333333333333334,
+      "mean_gain_share": 0.008704107344603145,
+      "max_gain_share": 0.008986992027996854
+    },
+    {
+      "feature": "opponent_current_field_avg_elo",
+      "domain": "NETWORK",
+      "years_present_top120": 3,
+      "mean_rank": 12.666666666666666,
+      "mean_gain_share": 0.008117067376943458,
+      "max_gain_share": 0.009129965633600932
+    },
+    {
+      "feature": "horse_front_score",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 15.0,
+      "mean_gain_share": 0.0065503344486313635,
+      "max_gain_share": 0.007167594320792566
+    },
+    {
+      "feature": "auto_field_recent_avg_last_3f_field_count",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 27.333333333333332,
+      "mean_gain_share": 0.006342012562444501,
+      "max_gain_share": 0.009945309972400805
+    },
+    {
+      "feature": "auto_field_recent_avg_finish_diff_median",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 16.0,
+      "mean_gain_share": 0.005949011041771254,
+      "max_gain_share": 0.007292658974083672
+    },
+    {
+      "feature": "auto_field_recent_top3_rate_rank",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 38.666666666666664,
+      "mean_gain_share": 0.005775090742351355,
+      "max_gain_share": 0.013255951143214526
+    },
+    {
+      "feature": "previous_finish_position",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 18.0,
+      "mean_gain_share": 0.005605476239605094,
+      "max_gain_share": 0.006645280518719931
+    },
+    {
+      "feature": "_score",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 20.333333333333332,
+      "mean_gain_share": 0.0048746129983123394,
+      "max_gain_share": 0.005744155263472623
+    },
+    {
+      "feature": "auto_finish_same_venue_median",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 19.666666666666668,
+      "mean_gain_share": 0.0047094226467692115,
+      "max_gain_share": 0.005026167311698391
+    },
+    {
+      "feature": "auto_field_recent_avg_speed_mps_rank",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 23.0,
+      "mean_gain_share": 0.004389972681097064,
+      "max_gain_share": 0.004809553705992718
+    },
+    {
+      "feature": "body_weight",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 25.0,
+      "mean_gain_share": 0.004226689378642231,
+      "max_gain_share": 0.004747892526040307
+    },
+    {
+      "feature": "auto_finish_same_class_success_rate",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 29.333333333333332,
+      "mean_gain_share": 0.004063186344377312,
+      "max_gain_share": 0.004732349955165376
+    },
+    {
+      "feature": "auto_field_recent_avg_speed_mps_diff_mean",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 30.666666666666668,
+      "mean_gain_share": 0.0038208373990316533,
+      "max_gain_share": 0.004473757900698477
+    },
+    {
+      "feature": "actor_jockey_all_win_rate",
+      "domain": "ACTOR",
+      "years_present_top120": 3,
+      "mean_rank": 35.666666666666664,
+      "mean_gain_share": 0.0037946609086536207,
+      "max_gain_share": 0.005182573849748063
+    },
+    {
+      "feature": "auto_history_distance_m_ewma",
+      "domain": "DISTANCE",
+      "years_present_top120": 3,
+      "mean_rank": 35.333333333333336,
+      "mean_gain_share": 0.003699043076180592,
+      "max_gain_share": 0.0048505097583932824
+    },
+    {
+      "feature": "horse_inner_score",
+      "domain": "AI_GEOMETRY",
+      "years_present_top120": 3,
+      "mean_rank": 33.333333333333336,
+      "mean_gain_share": 0.003648413043559369,
+      "max_gain_share": 0.00451987884365922
+    },
+    {
+      "feature": "auto_field_recent_top3_rate_zscore",
+      "domain": "RECENT",
+      "years_present_top120": 3,
+      "mean_rank": 32.666666666666664,
+      "mean_gain_share": 0.003606243991408104,
+      "max_gain_share": 0.0049849237009502705
+    },
+    {
+      "feature": "auto_history_finish_position_last",
+      "domain": "OTHER",
+      "years_present_top120": 3,
+      "mean_rank": 33.666666666666664,
+      "mean_gain_share": 0.00357212609903947,
+      "max_gain_share": 0.004317079558314813
+    },
+    {
+      "feature": "auto_pair_distance_vs_recent_mean_normalized_diff",
+      "domain": "DISTANCE",
+      "years_present_top120": 3,
+      "mean_rank": 32.0,
+      "mean_gain_share": 0.003541774180377816,
+      "max_gain_share": 0.0039059303788062387
+    }
+  ],
+  "decision_rule": "Risk becomes an L1 confidence head only if tiers are stable OOS and either strict veto or outcome-meta adds reproducible actual-result value.",
+  "2026_locked": true
+}
