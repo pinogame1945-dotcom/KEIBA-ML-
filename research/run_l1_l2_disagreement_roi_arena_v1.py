@@ -1,0 +1,1323 @@
+#!/usr/bin/env python3
+import argparse,csv,gc,itertools,json,math
+from collections import defaultdict
+from pathlib import Path
+
+import lightgbm as lgb
+import numpy as np
+import pandas as pd
+
+from run_l1_objective_rebuild_v1 import YEARS,TEST_YEARS,LOCKED_YEAR,read_year,select_variant
+from run_l1_ceiling_audit_v1 import strip_forbidden
+from run_l1_state_transition_v1 import build_state_features,attach_state
+from run_l1_residual_regime_full_pairwise_v1 import build_regime_features,fit_direct_rank,top1_metrics
+from run_l1_sameday_track_bias_v1 import build_same_day_bias,bias_cols,speed_cols
+from run_l1_negative_evidence_penalty_v1 import read_market_year
+from run_l1_market_correction_distill_v1 import market_rank_frame,add_ai_context
+from run_l1_market_correction_deepdive_v1 import fit_risk_full
+from build_l2_market_helpers_v1 import (
+    load_day,load_odds_day,iter_decoded_odds,payout_map,horse_number_map,canonical_numbers
+)
+
+CAL_YEARS=(2023,2024,2025)
+STRICT_BLEND_YEARS=(2024,2025)
+ALPHAS=(0.0,0.25,0.50,0.75,1.0)
+EXPECTED_ABILITY={
+    2021:59.34606481481482,
+    2022:60.90856481481482,
+    2023:59.432870370370374,
+    2024:62.673611111111114,
+    2025:61.660879629629626,
+}
+META_COLS=("distill_ai_rank01","distill_score_z","distill_score_gap_to_best","distill_field_size","risk")
+META_CONSTRAINTS=(1,1,-1,0,-1)
+
+def write_csv(path,rows):
+    path=Path(path); path.parent.mkdir(parents=True,exist_ok=True)
+    if not rows:
+        path.write_text("",encoding="utf-8"); return
+    fields=[]
+    for r in rows:
+        for k in r:
+            if k not in fields: fields.append(k)
+    with path.open("w",newline="",encoding="utf-8") as f:
+        w=csv.DictWriter(f,fieldnames=fields); w.writeheader(); w.writerows(rows)
+
+def logloss(y,p):
+    y=np.asarray(y,dtype=float); p=np.clip(np.asarray(p,dtype=float),1e-6,1-1e-6)
+    return float(-np.mean(y*np.log(p)+(1-y)*np.log(1-p)))
+
+def brier(y,p):
+    y=np.asarray(y,dtype=float); p=np.asarray(p,dtype=float)
+    return float(np.mean((y-p)**2))
+
+def auc_rank(y,p):
+    y=np.asarray(y,dtype=int); p=np.asarray(p,dtype=float)
+    pos=int(y.sum()); neg=len(y)-pos
+    if pos==0 or neg==0: return np.nan
+    r=pd.Series(p).rank(method="average").to_numpy()
+    return float((r[y==1].sum()-pos*(pos+1)/2)/(pos*neg))
+
+def meta_params(seed):
+    return dict(
+        n_estimators=260,learning_rate=0.035,num_leaves=23,min_child_samples=160,
+        subsample=0.9,colsample_bytree=0.9,reg_alpha=1.0,reg_lambda=10.0,
+        random_state=seed,n_jobs=-1,verbosity=-1,
+    )
+
+def fit_mono_top3(train,valid,seed):
+    xtr=train[list(META_COLS)].apply(pd.to_numeric,errors="coerce").astype("float32")
+    xva=valid[list(META_COLS)].apply(pd.to_numeric,errors="coerce").astype("float32")
+    y=train["_is_top3"].astype(int).to_numpy()
+    m=lgb.LGBMClassifier(
+        objective="binary",
+        monotone_constraints=list(META_CONSTRAINTS),
+        monotone_constraints_method="advanced",
+        **meta_params(seed),
+    )
+    m.fit(xtr,y)
+    p=np.asarray(m.predict_proba(xva)[:,1],dtype=float)
+    gain=m.booster_.feature_importance(importance_type="gain")
+    imp=sorted(zip(META_COLS,gain),key=lambda z:z[1],reverse=True)
+    del m,xtr,xva; gc.collect()
+    return p,imp
+
+def rank_bin(rank):
+    r=int(rank)
+    if r<=3: return str(r)
+    if r<=6: return "4_6"
+    if r<=10: return "7_10"
+    return "11P"
+
+def fit_grid(train,valid,bins=5,smooth=80.0):
+    tr=train.copy(); va=valid.copy()
+    tr["_rb"]=tr["distill_ai_rank"].map(rank_bin)
+    va["_rb"]=va["distill_ai_rank"].map(rank_bin)
+    out=np.zeros(len(va),dtype=float)
+    global_rate=float(tr["_is_top3"].mean())
+    for rb in sorted(set(tr["_rb"]).union(set(va["_rb"]))):
+        t=tr[tr["_rb"]==rb].copy()
+        v=va[va["_rb"]==rb].copy()
+        if v.empty: continue
+        prior=float(t["_is_top3"].mean()) if len(t) else global_rate
+        if len(t)<bins*20:
+            out[v.index]=prior
+            continue
+        # Training-only quantile cutpoints. Duplicates collapse safely.
+        qs=np.linspace(0,1,bins+1)[1:-1]
+        edges=sorted(set(float(t["risk"].quantile(q)) for q in qs))
+        def bucket(s):
+            return np.searchsorted(edges,np.asarray(s,dtype=float),side="right")
+        t["_qb"]=bucket(t["risk"])
+        vb=bucket(v["risk"])
+        stats=t.groupby("_qb")["_is_top3"].agg(["sum","count"]).to_dict("index")
+        pred=[]
+        for b in vb:
+            st=stats.get(int(b),{"sum":0.0,"count":0.0})
+            pred.append((float(st["sum"])+smooth*prior)/(float(st["count"])+smooth))
+        out[v.index]=pred
+    return out
+
+def metrics_from_score(df,score_col,variant,test_year):
+    x=df.copy()
+    x["__score"]=pd.to_numeric(x[score_col],errors="coerce").fillna(-1e30)
+    x=x.sort_values(["_race_id","__score","_horse_id"],ascending=[True,False,True])
+    x["__rank"]=x.groupby("_race_id",sort=False).cumcount()+1
+    top=x[x["__rank"]==1]
+    winners=x[x["_finish"]==1]
+    return {
+        "test_year":test_year,"variant":variant,
+        "races":int(x["_race_id"].nunique()),
+        "top1_top3_pct":100*float(top["_is_top3"].mean()),
+        "top1_win_pct":100*float(top["_is_win"].mean()),
+        "winner_top3_capture_pct":100*float((winners["__rank"]<=3).mean()),
+        "winner_top6_capture_pct":100*float((winners["__rank"]<=6).mean()),
+    },x[["_race_id","_horse_id","distill_ai_rank","__rank"]]
+
+def calibration_metrics(df,pcol,variant,test_year):
+    y=df["_is_top3"].astype(int).to_numpy()
+    p=df[pcol].to_numpy(dtype=float)
+    return {
+        "test_year":test_year,"variant":variant,"n":len(df),
+        "top3_prevalence_pct":100*float(y.mean()),
+        "auc":auc_rank(y,p),"logloss":logloss(y,p),"brier":brier(y,p),
+    }
+
+def rank_movement(base_rank,new_rank):
+    z=base_rank.merge(new_rank,on=["_race_id","_horse_id"],suffixes=("_base","_new"))
+    d=(z["__rank_new"]-z["distill_ai_rank_base"]).abs()
+    return {
+        "mean_abs_rank_move":float(d.mean()),
+        "pct_unchanged":100*float((d==0).mean()),
+        "pct_move_3plus":100*float((d>=3).mean()),
+    }
+
+def main():
+    ap=argparse.ArgumentParser()
+    ap.add_argument("--year-file",action="append",required=True,help="YEAR:PATH")
+    ap.add_argument("--out-dir",required=True)
+    ap.add_argument("--backfill-root",required=True)
+    a=ap.parse_args()
+    paths={}
+    for spec in a.year_file:
+        y,p=spec.split(":",1); paths[int(y)]=p
+    if set(paths)!=set(YEARS): raise SystemExit(f"year file mismatch {sorted(paths)}")
+    if LOCKED_YEAR in paths: raise SystemExit("2026 sealed")
+
+    print(json.dumps({
+        "contract":"L1_CONFIDENCE_CALIBRATED_RANKING_V1_RUNTIME",
+        "architecture":"Ability -> strictly-OOS market-correction risk -> top3 probability calibration -> final L1 ranking",
+        "market_role":"FINAL market is historical teacher for the risk head only; never an inference input",
+        "ranking_rule":"No hard VETO. Confidence modifies calibrated probability; final rank follows calibrated score.",
+        "meta_constraints":{
+            "ability_rank01":"+","ability_score_z":"+","gap_to_best":"-","risk":"-","field_size":"free"
+        },
+        "secondary_layer":"year Y calibrator trains only on risk predictions/outcomes from years < Y",
+        "2026_locked":True,
+    },separators=(",",":")),flush=True)
+
+    bias_by_year,_=build_same_day_bias(paths)
+    state_by_year,_,_,_,state_cov=build_state_features(paths)
+    regime_by_year,regime_cols=build_regime_features(state_by_year)
+    spd_cols=speed_cols(regime_cols)
+    fit_cols=bias_cols(bias_by_year[2021],with_fit=True)
+    markets={y:market_rank_frame(read_market_year(paths[y],y)) for y in TEST_YEARS}
+
+    base_cache={}
+    def get_base(year):
+        if year not in base_cache:
+            raw=strip_forbidden(read_year(paths[year],year))
+            base_cache[year]=select_variant(raw,"core4")
+            del raw; gc.collect()
+        return base_cache[year]
+
+    # Exact OOS ability frames first.
+    oos={}
+    ability_checks=[]
+    for test in TEST_YEARS:
+        tr_years=(test-2,test-1)
+        train_base=pd.concat([get_base(y) for y in tr_years],ignore_index=True,copy=False)
+        valid_base=get_base(test).copy()
+        btr=pd.concat([bias_by_year[y] for y in tr_years],ignore_index=True,copy=False)
+        bva=bias_by_year[test]
+        rtr=pd.concat([regime_by_year[y] for y in tr_years],ignore_index=True,copy=False)
+        rva=regime_by_year[test]
+        mtr=btr.merge(rtr[["_race_id","_horse_id",*spd_cols]],on=["_race_id","_horse_id"],how="left",validate="one_to_one")
+        mva=bva.merge(rva[["_race_id","_horse_id",*spd_cols]],on=["_race_id","_horse_id"],how="left",validate="one_to_one")
+        tr=attach_state(train_base,mtr,fit_cols+spd_cols)
+        va=attach_state(valid_base,mva,fit_cols+spd_cols)
+        pred,_=fit_direct_rank(tr,va,5100000+test*100)
+        got=top1_metrics(pred,"_score")["top1_top3_pct"]
+        if abs(got-EXPECTED_ABILITY[test])>1e-9:
+            raise SystemExit(f"ABILITY reproduction drift year={test} expected={EXPECTED_ABILITY[test]} got={got}")
+        ctx=add_ai_context(pred)
+        ctx=ctx.merge(markets[test],on=["_race_id","_horse_id"],how="left",validate="one_to_one")
+        if ctx["market_rank"].notna().mean()<0.99: raise SystemExit(f"market coverage too low year={test}")
+        ctx["market_rank"]=pd.to_numeric(ctx["market_rank"],errors="coerce")
+        ctx["_target_gap"]=ctx["market_rank"]-ctx["distill_ai_rank"]
+        ctx["_target_gap_clip"]=ctx["_target_gap"].clip(-6,6)
+        ctx["_target_up"]=(ctx["_target_gap"]>0).astype(int)
+        ctx["_target_over3"]=(ctx["_target_gap"]>=3).astype(int)
+        feat=va.copy().merge(
+            ctx[["_race_id","_horse_id","_score","distill_ai_rank","distill_field_size","distill_ai_rank01",
+                 "distill_score_z","distill_score_gap_to_best","distill_is_ai_top1","distill_is_ai_top3",
+                 "distill_is_ai_top6","market_rank","final_win_odds","_target_gap","_target_gap_clip",
+                 "_target_up","_target_over3"]],
+            on=["_race_id","_horse_id"],how="left",validate="one_to_one",
+        )
+        oos[test]=feat
+        ability_checks.append({"test_year":test,"races":int(ctx["_race_id"].nunique()),"top1_top3_pct":got})
+        print(f"ABILITY_OOS_READY year={test} rows={len(feat)} top1_top3={got:.6f}",flush=True)
+        del train_base,valid_base,btr,bva,rtr,rva,mtr,mva,tr,va,pred,ctx; gc.collect()
+
+    # Strict market-correction risk prediction for 2022-2025. Only FULL_PRERACE is needed.
+    risk_oos={}
+    risk_rows=[]
+    risk_imp=[]
+    for test in (2022,2023,2024,2025):
+        teacher_years=tuple(y for y in TEST_YEARS if y<test)
+        tr=pd.concat([oos[y] for y in teacher_years],ignore_index=True,copy=False)
+        va=oos[test].copy()
+        cols=[c for c in va.columns if not c.startswith("neg_")]
+        risk,imp=fit_risk_full(tr[cols],va[cols],8500000+test*100)
+        va=va.copy(); va["risk"]=risk
+        risk_oos[test]=va
+        scope=va[va["distill_ai_rank"]<=6]
+        risk_rows.append({
+            "test_year":test,"teacher_years":"|".join(map(str,teacher_years)),
+            "top6_risk_auc":auc_rank(scope["_target_over3"],scope["risk"]),
+            "top6_risk_logloss":logloss(scope["_target_over3"],scope["risk"]),
+        })
+        total=sum(float(g) for _,g in imp) or 1.0
+        for rank,(f,g) in enumerate(imp[:80],1):
+            risk_imp.append({"test_year":test,"rank":rank,"feature":f,"gain":float(g),"share":float(g)/total})
+        print(f"RISK_OOS_READY year={test} auc={risk_rows[-1]['top6_risk_auc']:.4f}",flush=True)
+        del tr,va; gc.collect()
+
+
+    # Integrated L1->L2 disagreement ROI arena.
+    # The horse-strength/risk heads remain strictly OOS. Final odds and payouts enter only here,
+    # after the horse prediction is frozen, to evaluate how the disagreement should actually be bought.
+    ANALYSIS_YEARS=(2022,2023,2024,2025)
+    PRIMARY_YEARS=(2023,2024,2025)
+    STAKE=100.0
+    RISK_MAXS=(0.05,0.075,0.10,0.15,0.20,0.30,1.0)
+    WIN_MIN_ODDS=(0.0,4.0,6.0,8.0,10.0,12.0,15.0,20.0)
+    WIN_MAX_ODDS=(20.0,30.0,50.0,9999.0)
+    TRIO_MIN_ODDS=(0.0,10.0,20.0,30.0,50.0,80.0,120.0,200.0)
+    TRIO_MAX_ODDS=(100.0,200.0,500.0,99999.0)
+
+    def pct(v):
+        v=np.asarray(v,dtype=float)
+        return 100.0*float(np.mean(v)) if len(v) else np.nan
+
+    def roi(stake,ret):
+        return 100.0*float(ret)/float(stake) if stake else np.nan
+
+    def ticket_defs(nums,unique_no=None,common_nos=None):
+        nums=tuple(int(x) for x in nums)
+        common_nos=tuple(int(x) for x in (common_nos or ()))
+        out={
+            "WIN_TOP3_FLAT":[("WIN",(x,)) for x in nums],
+            "QUINELLA_TOP3_BOX":[("QUINELLA",canonical_numbers("QUINELLA",x)) for x in itertools.combinations(nums,2)],
+            "EXACTA_TOP3_BOX":[("EXACTA",x) for x in itertools.permutations(nums,2)],
+            "TRIO_TOP3":[("TRIO",canonical_numbers("TRIO",nums))],
+            "TRIFECTA_TOP3_BOX":[("TRIFECTA",x) for x in itertools.permutations(nums,3)],
+        }
+        if unique_no is not None and len(common_nos)==2:
+            out["WIN_UNIQUE"]=[("WIN",(int(unique_no),))]
+            out["QUINELLA_UNIQUE_LINKS"]=[
+                ("QUINELLA",canonical_numbers("QUINELLA",(int(unique_no),int(x))))
+                for x in common_nos
+            ]
+            out["EXACTA_UNIQUE_LINKS"]=[
+                ("EXACTA",p)
+                for x in common_nos
+                for p in ((int(unique_no),int(x)),(int(x),int(unique_no)))
+            ]
+        return out
+
+    def bootstrap_roi(df,reps=500,seed=20261014):
+        if df.empty:return (np.nan,np.nan)
+        race=df.groupby("race_id",as_index=False).agg(stake=("stake_yen","sum"),ret=("return_yen","sum"))
+        a_stake=race["stake"].to_numpy(float); a_ret=race["ret"].to_numpy(float)
+        n=len(race); rng=np.random.default_rng(seed); vals=[]
+        for _ in range(reps):
+            idx=rng.integers(0,n,size=n)
+            s=float(a_stake[idx].sum()); r=float(a_ret[idx].sum())
+            vals.append(100.0*r/s if s else 0.0)
+        return float(np.quantile(vals,.025)),float(np.quantile(vals,.975))
+
+    backfill=Path(a.backfill_root)
+    eval_rows=[]
+    pair_meta=[]
+    coverage=defaultdict(int)
+
+    for test in ANALYSIS_YEARS:
+        df=risk_oos[test].copy()
+        df["risk"]=pd.to_numeric(df["risk"],errors="coerce").clip(0,1)
+        df["ai_rank_int"]=pd.to_numeric(df["distill_ai_rank"],errors="coerce").round().astype("Int64")
+        df["market_rank_int"]=pd.to_numeric(df["market_rank"],errors="coerce").round().astype("Int64")
+        df["race_date"]=df["features"].map(lambda x: None) if "features" in df.columns else None
+        # race_date is already a safe pre-race feature in the projected frame.
+        if "race_date" in df.columns:
+            pass
+        elif "features_race_date" in df.columns:
+            df["race_date"]=df["features_race_date"]
+        else:
+            date_col=next((x for x in ("feature_race_date","_race_date") if x in df.columns),None)
+            if date_col is not None: df["race_date"]=df[date_col]
+
+        # Recover the race date directly from the source projected file if the selected variant omitted it.
+        date_map={}
+        import gzip as _gzip
+        opener=_gzip.open if str(paths[test]).endswith(".gz") else open
+        with opener(paths[test],"rt",encoding="utf-8") as fh:
+            for line in fh:
+                if not line.strip(): continue
+                r=json.loads(line)
+                rid=str(r.get("race_id") or "")
+                d=str((r.get("features") or {}).get("race_date") or r.get("race_date") or "")[:10]
+                if rid and len(d)==10: date_map[rid]=d
+        df["race_date"]=df["_race_id"].astype(str).map(date_map)
+        if df["race_date"].isna().any():
+            raise SystemExit(f"race date coverage failed year={test}")
+
+        groups={str(rid):g.copy() for rid,g in df.groupby("_race_id",sort=False)}
+        bydate=defaultdict(list)
+        for rid,d in df[["_race_id","race_date"]].drop_duplicates().itertuples(index=False):
+            bydate[str(d)].append(str(rid))
+
+        for di,(date,rids) in enumerate(sorted(bydate.items()),1):
+            wanted=set(rids)
+            day=load_day(backfill/"data"/"daily"/f"{date}.jsonl.gz",wanted)
+            oddday=load_odds_day(backfill/"data"/"odds"/"daily"/f"{date}.jsonl.gz",wanted)
+            for rid in rids:
+                g=groups[rid].copy()
+                ai3=g[g["ai_rank_int"]<=3].sort_values(["ai_rank_int","_horse_id"]).head(3)
+                mk3=g[g["market_rank_int"]<=3].sort_values(["market_rank_int","_horse_id"]).head(3)
+                if len(ai3)!=3 or len(mk3)!=3:
+                    coverage["bad_top3"]+=1; continue
+                pack=day.get(rid); orec=oddday.get(rid)
+                if pack is None or orec is None:
+                    coverage["missing_pack_or_odds"]+=1; continue
+                hno=horse_number_map(pack)
+                ai_ids=list(ai3["_horse_id"].astype(str)); mk_ids=list(mk3["_horse_id"].astype(str))
+                if any(x not in hno for x in set(ai_ids+mk_ids)):
+                    coverage["horse_number_missing"]+=1; continue
+                ai_set=set(ai_ids); mk_set=set(mk_ids); common=ai_set&mk_set
+                overlap=len(common)
+                ai_only=ai_set-mk_set; mk_only=mk_set-ai_set
+                ai_unique=next(iter(ai_only)) if overlap==2 and len(ai_only)==1 else None
+                mk_unique=next(iter(mk_only)) if overlap==2 and len(mk_only)==1 else None
+                ai_unique_risk=float(g.loc[g["_horse_id"].astype(str)==ai_unique,"risk"].iloc[0]) if ai_unique else np.nan
+                mk_unique_risk=float(g.loc[g["_horse_id"].astype(str)==mk_unique,"risk"].iloc[0]) if mk_unique else np.nan
+                common_nos=[hno[x] for x in sorted(common)] if overlap==2 else []
+                ai_nums=[hno[x] for x in ai_ids]; mk_nums=[hno[x] for x in mk_ids]
+                adefs=ticket_defs(ai_nums,hno[ai_unique] if ai_unique else None,common_nos)
+                mdefs=ticket_defs(mk_nums,hno[mk_unique] if mk_unique else None,common_nos)
+                wanted_keys=set(k for rows in adefs.values() for k in rows)|set(k for rows in mdefs.values() for k in rows)
+                odds_map={}
+                for bet,nums,price in iter_decoded_odds(orec):
+                    k=(bet,nums)
+                    if k in wanted_keys: odds_map[k]=float(price)
+                payouts,present=payout_map(pack)
+
+                pair_meta.append({
+                    "year":test,"race_id":rid,"race_date":date,"overlap":overlap,
+                    "ai_unique_horse":ai_unique or "","market_unique_horse":mk_unique or "",
+                    "ai_unique_risk":ai_unique_risk,"market_unique_risk":mk_unique_risk,
+                    "ai_unique_market_rank":int(g.loc[g["_horse_id"].astype(str)==ai_unique,"market_rank_int"].iloc[0]) if ai_unique else np.nan,
+                    "market_unique_ai_rank":int(g.loc[g["_horse_id"].astype(str)==mk_unique,"ai_rank_int"].iloc[0]) if mk_unique else np.nan,
+                })
+
+                for side,defs in (("AI",adefs),("MARKET",mdefs)):
+                    for template,keys in defs.items():
+                        if not keys: continue
+                        bet_type=keys[0][0]
+                        if bet_type not in present:
+                            coverage[f"payout_missing_{bet_type}"]+=1; continue
+                        prices=[odds_map.get(k) for k in keys]
+                        if any(p is None or not math.isfinite(float(p)) or float(p)<=0 for p in prices):
+                            coverage[f"price_missing_{template}"]+=1; continue
+                        ret=sum(float(payouts.get(k,0.0)) for k in keys)
+                        hit=int(ret>0)
+                        row={
+                            "year":test,"race_id":rid,"race_date":date,"overlap":overlap,
+                            "side":side,"template":template,"bet_type":bet_type,
+                            "tickets":len(keys),"stake_yen":STAKE*len(keys),"return_yen":ret,
+                            "hit":hit,"roi_pct":roi(STAKE*len(keys),ret),
+                            "mean_ticket_odds":float(np.mean(prices)),
+                            "min_ticket_odds":float(np.min(prices)),
+                            "max_ticket_odds":float(np.max(prices)),
+                            "atomic_odds":float(prices[0]) if len(keys)==1 else np.nan,
+                            "ai_unique_risk":ai_unique_risk,
+                            "market_unique_risk":mk_unique_risk,
+                        }
+                        eval_rows.append(row)
+            if di%60==0:
+                print(f"L1L2_MARKET_PROGRESS year={test} dates={di}/{len(bydate)} eval_rows={len(eval_rows)}",flush=True)
+        print(f"L1L2_MARKET_YEAR_READY year={test} races={len(groups)}",flush=True)
+
+    ev=pd.DataFrame(eval_rows)
+    pm=pd.DataFrame(pair_meta)
+    if ev.empty: raise SystemExit("no L2 evaluation rows")
+
+    # Direct year-by-year ROI comparison, including sample size and coverage.
+    yearly=[]
+    base_races={y:int(pm.loc[pm["year"]==y,"race_id"].nunique()) for y in ANALYSIS_YEARS}
+    for (y,ov,tpl,side),q in ev.groupby(["year","overlap","template","side"],sort=True):
+        stake=float(q["stake_yen"].sum()); ret=float(q["return_yen"].sum())
+        yearly.append({
+            "year":int(y),"overlap":int(ov),"template":tpl,"side":side,
+            "races":int(q["race_id"].nunique()),"tickets":int(q["tickets"].sum()),
+            "coverage_pct":100.0*q["race_id"].nunique()/base_races[int(y)],
+            "race_hit_rate_pct":pct(q["hit"]),
+            "stake_yen":stake,"return_yen":ret,"profit_yen":ret-stake,"roi_pct":roi(stake,ret),
+        })
+
+    # Clean overlap=2 paired delta table: same race, same ticket counts, only the unique horse differs.
+    pair_direct=[]
+    ov2=ev[ev["overlap"]==2].copy()
+    for (y,tpl),q in ov2.groupby(["year","template"],sort=True):
+        ai=q[q["side"]=="AI"].set_index("race_id")
+        mk=q[q["side"]=="MARKET"].set_index("race_id")
+        ids=ai.index.intersection(mk.index)
+        a0=ai.loc[ids]; m0=mk.loc[ids]
+        if not len(ids): continue
+        ast=float(a0["stake_yen"].sum()); art=float(a0["return_yen"].sum())
+        mst=float(m0["stake_yen"].sum()); mrt=float(m0["return_yen"].sum())
+        pair_direct.append({
+            "year":int(y),"template":tpl,"paired_races":int(len(ids)),
+            "ai_tickets":int(a0["tickets"].sum()),"market_tickets":int(m0["tickets"].sum()),
+            "ai_roi_pct":roi(ast,art),"market_roi_pct":roi(mst,mrt),
+            "ai_minus_market_roi_pp":roi(ast,art)-roi(mst,mrt),
+            "ai_profit_yen":art-ast,"market_profit_yen":mrt-mst,
+            "ai_hit_rate_pct":pct(a0["hit"]),"market_hit_rate_pct":pct(m0["hit"]),
+        })
+
+    # Pooled 2023-2025 with race bootstrap CIs.
+    pooled=[]
+    prim=ev[ev["year"].isin(PRIMARY_YEARS)].copy()
+    for (ov,tpl,side),q in prim.groupby(["overlap","template","side"],sort=True):
+        stake=float(q["stake_yen"].sum()); ret=float(q["return_yen"].sum())
+        lo,hi=bootstrap_roi(q,reps=700,seed=20261014+int(ov)+len(tpl)+len(side))
+        pooled.append({
+            "overlap":int(ov),"template":tpl,"side":side,
+            "races":int(q["race_id"].nunique()),"tickets":int(q["tickets"].sum()),
+            "race_hit_rate_pct":pct(q["hit"]),"stake_yen":stake,"return_yen":ret,
+            "profit_yen":ret-stake,"roi_pct":roi(stake,ret),"roi_ci_low":lo,"roi_ci_high":hi,
+        })
+
+    # Risk x odds map for the clean atomic AI unique win ticket.
+    win=ov2[(ov2["template"]=="WIN_UNIQUE")&(ov2["side"]=="AI")].copy()
+    win["risk_bin"]=pd.cut(
+        win["ai_unique_risk"],[-1e-12,.05,.075,.10,.15,.20,.30,1.000001],
+        labels=["LE5","5_7.5","7.5_10","10_15","15_20","20_30","30P"],include_lowest=True,right=True
+    )
+    win["odds_bin"]=pd.cut(
+        win["atomic_odds"],[0,4,6,8,10,12,15,20,30,50,1e9],
+        labels=["LT4","4_6","6_8","8_10","10_12","12_15","15_20","20_30","30_50","50P"],
+        include_lowest=True,right=False
+    )
+    risk_odds=[]
+    for (rb,ob),q in win[win["year"].isin(PRIMARY_YEARS)].groupby(["risk_bin","odds_bin"],observed=True):
+        stake=float(q["stake_yen"].sum()); ret=float(q["return_yen"].sum())
+        risk_odds.append({
+            "risk_bin":str(rb),"win_odds_bin":str(ob),"bets":int(len(q)),
+            "years":int(q["year"].nunique()),"win_rate_pct":pct(q["hit"]),
+            "mean_odds":float(q["atomic_odds"].mean()),"roi_pct":roi(stake,ret),
+            "profit_yen":ret-stake,
+        })
+
+    # Threshold view without selecting rules on the test year.
+    threshold_rows=[]
+    atomic=ov2[(ov2["template"].isin(["WIN_UNIQUE","TRIO_TOP3"]))].copy()
+    for tpl,mins,maxs in (
+        ("WIN_UNIQUE",WIN_MIN_ODDS,WIN_MAX_ODDS),
+        ("TRIO_TOP3",TRIO_MIN_ODDS,TRIO_MAX_ODDS),
+    ):
+        q0=atomic[(atomic["template"]==tpl)&(atomic["side"]=="AI")]
+        for y in ANALYSIS_YEARS:
+            qy=q0[q0["year"]==y]
+            for rmax in RISK_MAXS:
+                for omin in mins:
+                    for omax in maxs:
+                        q=qy[(qy["ai_unique_risk"]<=rmax)&(qy["atomic_odds"]>=omin)&(qy["atomic_odds"]<omax)]
+                        if q.empty: continue
+                        s=float(q["stake_yen"].sum()); ret=float(q["return_yen"].sum())
+                        threshold_rows.append({
+                            "year":y,"template":tpl,"risk_max":rmax,"odds_min":omin,"odds_max":omax,
+                            "bets":int(len(q)),"hit_rate_pct":pct(q["hit"]),"roi_pct":roi(s,ret),
+                            "profit_yen":ret-s,
+                        })
+
+    thdf=pd.DataFrame(threshold_rows)
+    # Strict OOS policy: prior years only, robust ROI, minimum 100 bets per training year.
+    strict=[]
+    for test in PRIMARY_YEARS:
+        for tpl in ("WIN_UNIQUE","TRIO_TOP3"):
+            train_years=[y for y in ANALYSIS_YEARS if y<test]
+            cand=[]
+            for keys,g in thdf[(thdf["template"]==tpl)&(thdf["year"].isin(train_years))].groupby(["risk_max","odds_min","odds_max"]):
+                by={int(r.year):r for r in g.itertuples(index=False)}
+                if any(y not in by or by[y].bets<100 for y in train_years): continue
+                rois=[float(by[y].roi_pct) for y in train_years]
+                bets=sum(int(by[y].bets) for y in train_years)
+                cand.append({
+                    "risk_max":float(keys[0]),"odds_min":float(keys[1]),"odds_max":float(keys[2]),
+                    "robust_roi":min(rois),"mean_roi":float(np.mean(rois)),"train_bets":bets,
+                })
+            if not cand:
+                strict.append({"test_year":test,"template":tpl,"status":"NO_POLICY_WITH_100_BETS_PER_TRAIN_YEAR"})
+                continue
+            pick=max(cand,key=lambda z:(z["robust_roi"],z["mean_roi"],z["train_bets"],-z["risk_max"]))
+            qa=atomic[(atomic["year"]==test)&(atomic["template"]==tpl)&(atomic["side"]=="AI")].copy()
+            qa=qa[
+                (qa["ai_unique_risk"]<=pick["risk_max"])&
+                (qa["atomic_odds"]>=pick["odds_min"])&
+                (qa["atomic_odds"]<pick["odds_max"])
+            ]
+            # Compare market alternative on exactly the same race IDs.
+            qm=atomic[(atomic["year"]==test)&(atomic["template"]==tpl)&(atomic["side"]=="MARKET")]
+            qm=qm[qm["race_id"].isin(set(qa["race_id"]))]
+            a_s=float(qa["stake_yen"].sum()); a_r=float(qa["return_yen"].sum())
+            m_s=float(qm["stake_yen"].sum()); m_r=float(qm["return_yen"].sum())
+            strict.append({
+                "test_year":test,"template":tpl,"status":"OK",
+                "train_years":"|".join(map(str,train_years)),
+                "selected_risk_max":pick["risk_max"],"selected_odds_min":pick["odds_min"],
+                "selected_odds_max":pick["odds_max"],"train_robust_roi":pick["robust_roi"],
+                "train_mean_roi":pick["mean_roi"],"train_bets":pick["train_bets"],
+                "test_bets":int(len(qa)),"test_ai_hit_rate_pct":pct(qa["hit"]) if len(qa) else np.nan,
+                "test_ai_roi_pct":roi(a_s,a_r) if a_s else np.nan,
+                "test_market_alt_roi_pct":roi(m_s,m_r) if m_s else np.nan,
+                "test_ai_minus_market_roi_pp":(roi(a_s,a_r)-roi(m_s,m_r)) if a_s and m_s else np.nan,
+                "test_ai_profit_yen":a_r-a_s if a_s else np.nan,
+            })
+
+    # Aggregate agreement share for context.
+    agree=[]
+    for y in PRIMARY_YEARS:
+        q=pm[pm["year"]==y]
+        total=q["race_id"].nunique()
+        for ov,z in q.groupby("overlap"):
+            agree.append({"year":y,"overlap":int(ov),"races":int(z["race_id"].nunique()),"race_share_pct":100*z["race_id"].nunique()/total})
+
+    out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
+    write_csv(out/"ability-checks.csv",ability_checks)
+    write_csv(out/"risk-metrics.csv",risk_rows)
+    write_csv(out/"agreement-coverage.csv",agree)
+    write_csv(out/"yearly-template-roi.csv",yearly)
+    write_csv(out/"overlap2-direct-roi.csv",pair_direct)
+    write_csv(out/"pooled-template-roi.csv",pooled)
+    write_csv(out/"ai-unique-win-risk-odds-grid.csv",risk_odds)
+    write_csv(out/"atomic-threshold-grid.csv",threshold_rows)
+    write_csv(out/"strict-oos-value-policy.csv",strict)
+    write_csv(out/"coverage-counters.csv",[{"name":k,"count":v} for k,v in sorted(coverage.items())])
+    write_csv(out/"state-coverage.csv",state_cov)
+
+    summary={
+        "contract":"L1_L2_DISAGREEMENT_ROI_ARENA_V1",
+        "question":"When AI Top3 disagrees with final-market Top3, can Ability+Correction Risk plus market price turn that disagreement into profitable betting decisions?",
+        "prediction_stage":"Ability and Correction Risk are frozen strictly OOS before final market odds/payout evaluation.",
+        "primary_clean_test":"Top3 overlap=2: the two common horses stay fixed; AI-only and market-only horses are substituted at identical ticket counts.",
+        "templates":[
+            "WIN_UNIQUE","QUINELLA_UNIQUE_LINKS","EXACTA_UNIQUE_LINKS",
+            "WIN_TOP3_FLAT","QUINELLA_TOP3_BOX","EXACTA_TOP3_BOX","TRIO_TOP3","TRIFECTA_TOP3_BOX"
+        ],
+        "strict_policy_rule":"For WIN_UNIQUE and TRIO_TOP3 only: select risk/odds thresholds from prior years, require >=100 bets in every training year, maximize worst training-year ROI; test year untouched.",
+        "agreement_coverage":agree,
+        "overlap2_direct_roi":pair_direct,
+        "strict_oos_value_policy":strict,
+        "cost_policy":"standard GitHub ubuntu-latest CPU only; no artifact/cache/GPU/paid storage",
+        "2026_locked":True,
+    }
+    (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print("===== OVERLAP2 DIRECT ROI =====")
+    print(pd.DataFrame(pair_direct).to_csv(index=False))
+    print("===== STRICT OOS VALUE POLICY =====")
+    print(pd.DataFrame(strict).to_csv(index=False))
+    print("L1_L2_DISAGREEMENT_ROI_ARENA_V1_COMPLETE")
+    return
+
+    # Market-disagreement edge map.
+    # Goal: quantify how often AI Top3 and final-market Top3 actually disagree,
+    # and whether the AI-only horses beat the market-only horses in realized outcomes.
+    PRIMARY_YEARS=(2023,2024,2025)
+    RISK_EDGES=[-1e-12,0.02,0.05,0.075,0.10,0.15,0.20,0.30,1.000001]
+    RISK_LABELS=["LT2","2_5","5_7_5","7_5_10","10_15","15_20","20_30","30P"]
+    THRESHOLDS=(0.02,0.05,0.075,0.10,0.15,0.20,0.30,1.0)
+
+    position_rows=[]
+    overlap_rows=[]
+    unique_rows=[]
+    pair_rows=[]
+    pair_bin_rows=[]
+    threshold_rows=[]
+    strict_rows=[]
+    case_rows=[]
+
+    def pct_arr(v):
+        vv=np.asarray(v,dtype=float)
+        return 100.0*float(np.mean(vv)) if len(vv) else np.nan
+
+    all_pair_year={}
+
+    for test in PRIMARY_YEARS:
+        df=risk_oos[test].copy()
+        df["risk"]=pd.to_numeric(df["risk"],errors="coerce").clip(0,1)
+        df["finish_num"]=pd.to_numeric(df["_finish"],errors="coerce")
+        df["market_rank_int"]=pd.to_numeric(df["market_rank"],errors="coerce").round().astype("Int64")
+        df["ai_rank_int"]=pd.to_numeric(df["distill_ai_rank"],errors="coerce").round().astype("Int64")
+
+        race_records=[]
+        unique_records=[]
+        pair_records=[]
+
+        for rid,g in df.groupby("_race_id",sort=False):
+            ga=g.sort_values(["ai_rank_int","_horse_id"])
+            gm=g.sort_values(["market_rank_int","_horse_id"])
+            ai3=ga[ga["ai_rank_int"]<=3].head(3)
+            mk3=gm[gm["market_rank_int"]<=3].head(3)
+            if len(ai3)!=3 or len(mk3)!=3:
+                continue
+
+            ai_ids=list(ai3["_horse_id"].astype(str))
+            mk_ids=list(mk3["_horse_id"].astype(str))
+            ai_set=set(ai_ids); mk_set=set(mk_ids)
+            overlap=len(ai_set & mk_set)
+            ai_only=ai_set-mk_set
+            mk_only=mk_set-ai_set
+
+            top1_match=int(ai_ids[0]==mk_ids[0])
+            ordered_exact=int(ai_ids==mk_ids)
+            set_exact=int(overlap==3)
+
+            ai_actual_top3=int(ai3["_is_top3"].sum())
+            mk_actual_top3=int(mk3["_is_top3"].sum())
+            ai_winner=int(ai3["_is_win"].max())
+            mk_winner=int(mk3["_is_win"].max())
+
+            race_records.append({
+                "test_year":test,"race_id":rid,"overlap":overlap,
+                "top1_match":top1_match,"top3_set_exact":set_exact,"top3_order_exact":ordered_exact,
+                "ai_top3_actual_count":ai_actual_top3,"market_top3_actual_count":mk_actual_top3,
+                "ai_winner_capture":ai_winner,"market_winner_capture":mk_winner,
+                "ai_top3_minus_market":ai_actual_top3-mk_actual_top3,
+            })
+
+            for side,ids in (("AI_ONLY",ai_only),("MARKET_ONLY",mk_only)):
+                for hid in ids:
+                    q=g[g["_horse_id"].astype(str)==hid].iloc[0]
+                    unique_records.append({
+                        "test_year":test,"race_id":rid,"overlap":overlap,"side":side,
+                        "horse_id":hid,"ai_rank":int(q["ai_rank_int"]),"market_rank":int(q["market_rank_int"]),
+                        "risk":float(q["risk"]),"actual_finish":float(q["finish_num"]) if pd.notna(q["finish_num"]) else np.nan,
+                        "actual_top3":int(q["_is_top3"]),"actual_win":int(q["_is_win"]),
+                        "final_win_odds":float(q["final_win_odds"]) if pd.notna(q["final_win_odds"]) else np.nan,
+                    })
+
+            # With overlap=2 there is exactly one AI-only horse and one market-only horse:
+            # the cleanest direct head-to-head disagreement test.
+            if overlap==2 and len(ai_only)==1 and len(mk_only)==1:
+                ah=next(iter(ai_only)); mh=next(iter(mk_only))
+                arow=g[g["_horse_id"].astype(str)==ah].iloc[0]
+                mrow=g[g["_horse_id"].astype(str)==mh].iloc[0]
+                af=float(arow["finish_num"]) if pd.notna(arow["finish_num"]) else np.nan
+                mf=float(mrow["finish_num"]) if pd.notna(mrow["finish_num"]) else np.nan
+                pair_records.append({
+                    "test_year":test,"race_id":rid,
+                    "ai_horse":ah,"market_horse":mh,
+                    "ai_rank":int(arow["ai_rank_int"]),"ai_market_rank":int(arow["market_rank_int"]),
+                    "market_ai_rank":int(mrow["ai_rank_int"]),"market_rank":int(mrow["market_rank_int"]),
+                    "ai_risk":float(arow["risk"]),"market_horse_risk":float(mrow["risk"]),
+                    "risk_diff_ai_minus_market":float(arow["risk"]-mrow["risk"]),
+                    "ai_finish":af,"market_finish":mf,
+                    "ai_ahead":int(af<mf) if np.isfinite(af) and np.isfinite(mf) else 0,
+                    "ai_top3":int(arow["_is_top3"]),"market_top3":int(mrow["_is_top3"]),
+                    "ai_win":int(arow["_is_win"]),"market_win":int(mrow["_is_win"]),
+                    "ai_odds":float(arow["final_win_odds"]) if pd.notna(arow["final_win_odds"]) else np.nan,
+                    "market_odds":float(mrow["final_win_odds"]) if pd.notna(mrow["final_win_odds"]) else np.nan,
+                })
+
+        rr=pd.DataFrame(race_records)
+        uu=pd.DataFrame(unique_records)
+        pp=pd.DataFrame(pair_records)
+        all_pair_year[test]=pp
+
+        position_rows.append({
+            "test_year":test,"races":int(len(rr)),
+            "top1_match_pct":pct_arr(rr["top1_match"]),
+            "top3_set_exact_pct":pct_arr(rr["top3_set_exact"]),
+            "top3_order_exact_pct":pct_arr(rr["top3_order_exact"]),
+            "mean_top3_overlap":float(rr["overlap"].mean()),
+        })
+
+        for ov,q in rr.groupby("overlap",sort=True):
+            overlap_rows.append({
+                "test_year":test,"overlap":int(ov),"races":int(len(q)),
+                "race_share_pct":100.0*len(q)/len(rr),
+                "ai_mean_actual_top3":float(q["ai_top3_actual_count"].mean()),
+                "market_mean_actual_top3":float(q["market_top3_actual_count"].mean()),
+                "ai_minus_market_top3_per_race":float(q["ai_top3_minus_market"].mean()),
+                "ai_winner_capture_pct":pct_arr(q["ai_winner_capture"]),
+                "market_winner_capture_pct":pct_arr(q["market_winner_capture"]),
+            })
+
+        if len(uu):
+            for (ov,side),q in uu.groupby(["overlap","side"],sort=True):
+                unique_rows.append({
+                    "test_year":test,"overlap":int(ov),"side":str(side),"horses":int(len(q)),
+                    "top3_pct":pct_arr(q["actual_top3"]),"win_pct":pct_arr(q["actual_win"]),
+                    "mean_finish":float(q["actual_finish"].mean()),
+                    "mean_risk":float(q["risk"].mean()),
+                    "mean_odds":float(q["final_win_odds"].mean()),
+                    "mean_ai_rank":float(q["ai_rank"].mean()),
+                    "mean_market_rank":float(q["market_rank"].mean()),
+                })
+
+        if len(pp):
+            pair_rows.append({
+                "test_year":test,"pairs":int(len(pp)),
+                "ai_unique_ahead_pct":pct_arr(pp["ai_ahead"]),
+                "ai_unique_top3_pct":pct_arr(pp["ai_top3"]),
+                "market_unique_top3_pct":pct_arr(pp["market_top3"]),
+                "top3_edge_pp":pct_arr(pp["ai_top3"])-pct_arr(pp["market_top3"]),
+                "ai_unique_win_pct":pct_arr(pp["ai_win"]),
+                "market_unique_win_pct":pct_arr(pp["market_win"]),
+                "win_edge_pp":pct_arr(pp["ai_win"])-pct_arr(pp["market_win"]),
+                "mean_ai_unique_risk":float(pp["ai_risk"].mean()),
+                "mean_ai_unique_odds":float(pp["ai_odds"].mean()),
+                "mean_market_unique_odds":float(pp["market_odds"].mean()),
+            })
+            pp["ai_risk_bin"]=pd.cut(pp["ai_risk"],bins=RISK_EDGES,labels=RISK_LABELS,include_lowest=True,right=False)
+            for b,q in pp.groupby("ai_risk_bin",observed=True,sort=True):
+                pair_bin_rows.append({
+                    "test_year":test,"ai_unique_risk_bin":str(b),"pairs":int(len(q)),
+                    "mean_ai_risk":float(q["ai_risk"].mean()),
+                    "ai_ahead_pct":pct_arr(q["ai_ahead"]),
+                    "ai_top3_pct":pct_arr(q["ai_top3"]),
+                    "market_top3_pct":pct_arr(q["market_top3"]),
+                    "top3_edge_pp":pct_arr(q["ai_top3"])-pct_arr(q["market_top3"]),
+                    "ai_win_pct":pct_arr(q["ai_win"]),
+                    "market_win_pct":pct_arr(q["market_win"]),
+                })
+            for th in THRESHOLDS:
+                q=pp[pp["ai_risk"]<=th]
+                if len(q):
+                    threshold_rows.append({
+                        "test_year":test,"max_ai_unique_risk":th,"pairs":int(len(q)),
+                        "pair_share_pct":100.0*len(q)/len(pp),
+                        "ai_ahead_pct":pct_arr(q["ai_ahead"]),
+                        "ai_top3_pct":pct_arr(q["ai_top3"]),
+                        "market_top3_pct":pct_arr(q["market_top3"]),
+                        "top3_edge_pp":pct_arr(q["ai_top3"])-pct_arr(q["market_top3"]),
+                        "ai_win_pct":pct_arr(q["ai_win"]),
+                        "market_win_pct":pct_arr(q["market_win"]),
+                        "win_edge_pp":pct_arr(q["ai_win"])-pct_arr(q["market_win"]),
+                    })
+
+            # Compact representative cases: lowest-risk AI-only horses and biggest finish wins/losses.
+            tmp=pp.copy()
+            tmp["finish_margin"]=tmp["market_finish"]-tmp["ai_finish"]
+            picks=pd.concat([
+                tmp.nsmallest(10,"ai_risk"),
+                tmp.nlargest(8,"finish_margin"),
+                tmp.nsmallest(8,"finish_margin"),
+            ],ignore_index=True).drop_duplicates(["race_id"])
+            for _,r in picks.iterrows():
+                case_rows.append({k:r[k] for k in [
+                    "test_year","race_id","ai_horse","market_horse","ai_rank","ai_market_rank",
+                    "market_ai_rank","market_rank","ai_risk","market_horse_risk",
+                    "ai_finish","market_finish","ai_ahead","ai_top3","market_top3",
+                    "ai_win","market_win","ai_odds","market_odds"
+                ]})
+
+        print(f"EDGE_MAP_YEAR_READY year={test} races={len(rr)} overlap2_pairs={len(pp)}",flush=True)
+
+    # Strict threshold selection for overlap=2:
+    # choose max AI-only risk using prior years only, requiring >=100 training pairs.
+    for test in (2024,2025):
+        train=pd.concat([all_pair_year[y] for y in PRIMARY_YEARS if y<test],ignore_index=True)
+        cand=[]
+        for th in THRESHOLDS:
+            q=train[train["ai_risk"]<=th]
+            if len(q)<100: continue
+            cand.append({
+                "threshold":th,"n":int(len(q)),
+                "top3_edge_pp":pct_arr(q["ai_top3"])-pct_arr(q["market_top3"]),
+                "ahead_pct":pct_arr(q["ai_ahead"]),
+                "win_edge_pp":pct_arr(q["ai_win"])-pct_arr(q["market_win"]),
+            })
+        if not cand:
+            continue
+        # Prefer actual Top3 edge, then head-to-head, then win edge; conservative tie break = lower threshold.
+        pick=max(cand,key=lambda x:(x["top3_edge_pp"],x["ahead_pct"],x["win_edge_pp"],-x["threshold"]))
+        te=all_pair_year[test]
+        q=te[te["ai_risk"]<=pick["threshold"]]
+        strict_rows.append({
+            "test_year":test,
+            "train_years":"|".join(map(str,[y for y in PRIMARY_YEARS if y<test])),
+            "selected_max_ai_unique_risk":pick["threshold"],
+            "train_pairs":pick["n"],"train_top3_edge_pp":pick["top3_edge_pp"],
+            "test_pairs":int(len(q)),"test_pair_share_pct":100.0*len(q)/len(te) if len(te) else np.nan,
+            "test_ai_ahead_pct":pct_arr(q["ai_ahead"]) if len(q) else np.nan,
+            "test_ai_top3_pct":pct_arr(q["ai_top3"]) if len(q) else np.nan,
+            "test_market_top3_pct":pct_arr(q["market_top3"]) if len(q) else np.nan,
+            "test_top3_edge_pp":(pct_arr(q["ai_top3"])-pct_arr(q["market_top3"])) if len(q) else np.nan,
+            "test_ai_win_pct":pct_arr(q["ai_win"]) if len(q) else np.nan,
+            "test_market_win_pct":pct_arr(q["market_win"]) if len(q) else np.nan,
+        })
+
+    out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
+    write_csv(out/"position-agreement.csv",position_rows)
+    write_csv(out/"top3-overlap-summary.csv",overlap_rows)
+    write_csv(out/"unique-horse-outcomes.csv",unique_rows)
+    write_csv(out/"overlap2-paired-summary.csv",pair_rows)
+    write_csv(out/"overlap2-risk-bins.csv",pair_bin_rows)
+    write_csv(out/"overlap2-risk-thresholds.csv",threshold_rows)
+    write_csv(out/"strict-lowrisk-ai-unique.csv",strict_rows)
+    write_csv(out/"case-study-pairs.csv",case_rows)
+    write_csv(out/"ability-checks.csv",ability_checks)
+    write_csv(out/"risk-metrics.csv",risk_rows)
+    write_csv(out/"state-coverage.csv",state_cov)
+
+    pooled_pos={
+        "top1_match_pct":float(np.average([r["top1_match_pct"] for r in position_rows],weights=[r["races"] for r in position_rows])),
+        "top3_set_exact_pct":float(np.average([r["top3_set_exact_pct"] for r in position_rows],weights=[r["races"] for r in position_rows])),
+        "top3_order_exact_pct":float(np.average([r["top3_order_exact_pct"] for r in position_rows],weights=[r["races"] for r in position_rows])),
+        "mean_top3_overlap":float(np.average([r["mean_top3_overlap"] for r in position_rows],weights=[r["races"] for r in position_rows])),
+    }
+    summary={
+        "contract":"L1_MARKET_DISAGREEMENT_EDGE_MAP_V1",
+        "question":"How often do AI Top3 and final-market Top3 disagree, and in those disagreements does the AI-only horse beat the market-only horse—especially when Correction Risk is low?",
+        "market_is_evaluation_only_for_ai_rank":True,
+        "risk_market_teacher_is_historical_only":True,
+        "current_market_not_used_by_ai_or_risk":True,
+        "primary_years":list(PRIMARY_YEARS),
+        "pooled_position_agreement":pooled_pos,
+        "year_position_agreement":position_rows,
+        "overlap2_paired_summary":pair_rows,
+        "strict_lowrisk_ai_unique":strict_rows,
+        "interpretation":"Disagreement is an edge only if AI-only selections beat equally-sized market-only selections out of sample; disagreement by itself is not treated as value.",
+        "2026_locked":True,
+    }
+    (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print("===== POSITION AGREEMENT =====")
+    print(pd.DataFrame(position_rows).to_csv(index=False))
+    print("===== OVERLAP2 PAIRED =====")
+    print(pd.DataFrame(pair_rows).to_csv(index=False))
+    print("===== STRICT LOW-RISK AI UNIQUE =====")
+    print(pd.DataFrame(strict_rows).to_csv(index=False))
+    print("L1_MARKET_DISAGREEMENT_EDGE_MAP_V1_COMPLETE")
+    return
+
+    # Detailed horse/race anatomy: no hard rerank is imposed here.
+    # All analysis uses each horse's strictly-OOS risk and realized finish.
+    PRIMARY_YEARS=(2023,2024,2025)
+    RISK_EDGES=[-1e-12,0.02,0.05,0.10,0.15,0.20,0.30,0.40,1.000001]
+    RISK_LABELS=["LT2","2_5","5_10","10_15","15_20","20_30","30_40","40P"]
+    GAP_EDGES=[-1.000001,-0.15,-0.10,-0.05,0.0,0.05,0.10,0.15,0.20,1.000001]
+    GAP_LABELS=["LE_-15","-15_-10","-10_-5","-5_0","0_5","5_10","10_15","15_20","20P"]
+    DELTAS=(0.00,0.025,0.05,0.075,0.10,0.15,0.20)
+    TOPKS=(2,3,4,5,6)
+
+    rank_risk_rows=[]
+    fixed_bin_rows=[]
+    within_rank_rows=[]
+    pair_rows=[]
+    pair_threshold_rows=[]
+    race_shape_rows=[]
+    swap_rows=[]
+    strict_swap_rows=[]
+    finish_profile_rows=[]
+    case_rows=[]
+
+    def pct(v):
+        return 100.0*float(np.mean(v)) if len(v) else np.nan
+
+    def summarize_horses(g, extra=None):
+        fnum=pd.to_numeric(g["_finish"],errors="coerce")
+        row={
+            "n":int(len(g)),
+            "mean_risk":float(g["risk"].mean()) if len(g) else np.nan,
+            "actual_top3_pct":pct(g["_is_top3"].astype(int)),
+            "actual_win_pct":pct(g["_is_win"].astype(int)),
+            "mean_finish":float(fnum.mean()) if len(g) else np.nan,
+            "median_finish":float(fnum.median()) if len(g) else np.nan,
+            "market_over3_pct":pct(g["_target_over3"].astype(int)),
+            "mean_market_rank":float(pd.to_numeric(g["market_rank"],errors="coerce").mean()),
+        }
+        if extra: row.update(extra)
+        return row
+
+    def make_pair_frame(df):
+        z=df[df["distill_ai_rank"]<=6][
+            ["_race_id","_horse_id","distill_ai_rank","risk","_finish","_is_top3","_is_win"]
+        ].copy()
+        a=z.rename(columns={
+            "_horse_id":"upper_horse","distill_ai_rank":"upper_rank","risk":"upper_risk",
+            "_finish":"upper_finish","_is_top3":"upper_top3","_is_win":"upper_win"
+        })
+        b=z.rename(columns={
+            "_horse_id":"lower_horse","distill_ai_rank":"lower_rank","risk":"lower_risk",
+            "_finish":"lower_finish","_is_top3":"lower_top3","_is_win":"lower_win"
+        })
+        p=a.merge(b,on="_race_id",how="inner")
+        p=p[p["upper_rank"]<p["lower_rank"]].copy()
+        p["upper_finish"]=pd.to_numeric(p["upper_finish"],errors="coerce")
+        p["lower_finish"]=pd.to_numeric(p["lower_finish"],errors="coerce")
+        p["risk_diff"]=p["upper_risk"]-p["lower_risk"]
+        p["lower_ahead"]=(p["lower_finish"]<p["upper_finish"]).astype(int)
+        p["lower_top3_upper_miss"]=((p["lower_top3"]==1)&(p["upper_top3"]==0)).astype(int)
+        p["upper_top3_lower_miss"]=((p["upper_top3"]==1)&(p["lower_top3"]==0)).astype(int)
+        p["pair"]=p["upper_rank"].astype(int).astype(str)+"v"+p["lower_rank"].astype(int).astype(str)
+        p["gap_bucket"]=pd.cut(p["risk_diff"],bins=GAP_EDGES,labels=GAP_LABELS,include_lowest=True,right=False)
+        return p
+
+    def choose_lowest_risk(df,k,delta):
+        top=df[df["distill_ai_rank"]<=k].sort_values(["_race_id","risk","distill_ai_rank","_horse_id"]).copy()
+        cand=top.groupby("_race_id",sort=False).first().reset_index()
+        base=df[df["distill_ai_rank"]==1][
+            ["_race_id","_horse_id","risk","_finish","_is_top3","_is_win"]
+        ].copy().rename(columns={
+            "_horse_id":"base_horse","risk":"base_risk","_finish":"base_finish",
+            "_is_top3":"base_top3","_is_win":"base_win"
+        })
+        cand=cand.merge(base,on="_race_id",how="inner",validate="one_to_one")
+        cand["risk_advantage"]=cand["base_risk"]-cand["risk"]
+        cand["replace"]=(cand["risk_advantage"]>=delta)&(cand["_horse_id"]!=cand["base_horse"])
+        cand["sel_top3"]=np.where(cand["replace"],cand["_is_top3"],cand["base_top3"]).astype(int)
+        cand["sel_win"]=np.where(cand["replace"],cand["_is_win"],cand["base_win"]).astype(int)
+        return cand
+
+    pair_cache={}
+    for test in PRIMARY_YEARS:
+        df=risk_oos[test].copy()
+        df["risk"]=pd.to_numeric(df["risk"],errors="coerce").clip(0,1)
+        df["finish_num"]=pd.to_numeric(df["_finish"],errors="coerce")
+        df["risk_fixed_bin"]=pd.cut(df["risk"],bins=RISK_EDGES,labels=RISK_LABELS,include_lowest=True,right=False)
+
+        # 1) Same AI rank, individual risk deciles.
+        for rank in range(1,11):
+            g=df[df["distill_ai_rank"]==rank].copy()
+            if g.empty: continue
+            order=g["risk"].rank(method="first",pct=True)
+            g["risk_decile"]=np.minimum(10,np.ceil(order*10).astype(int))
+            within_rank_rows.append({
+                "test_year":test,"ai_rank":rank,"n":int(len(g)),
+                "top3_auc_low_risk":auc_rank(g["_is_top3"].astype(int),-g["risk"]),
+                "win_auc_low_risk":auc_rank(g["_is_win"].astype(int),-g["risk"]),
+                "risk_finish_spearman":float(g[["risk","finish_num"]].corr(method="spearman").iloc[0,1]),
+            })
+            for dec,q in g.groupby("risk_decile",sort=True):
+                rank_risk_rows.append(summarize_horses(q,{
+                    "test_year":test,"ai_rank":rank,"risk_decile":int(dec),
+                    "risk_min":float(q["risk"].min()),"risk_max":float(q["risk"].max()),
+                }))
+
+        # 2) Fixed risk ranges, retaining original rank.
+        rank_group=np.select(
+            [df["distill_ai_rank"]==1,df["distill_ai_rank"]==2,df["distill_ai_rank"]==3,
+             df["distill_ai_rank"]==4,df["distill_ai_rank"]==5,df["distill_ai_rank"]==6,
+             df["distill_ai_rank"].between(7,10)],
+            ["1","2","3","4","5","6","7_10"],default="11P"
+        )
+        df["rank_group"]=rank_group
+        for (rg,rb),q in df.groupby(["rank_group","risk_fixed_bin"],observed=True,sort=False):
+            fixed_bin_rows.append(summarize_horses(q,{
+                "test_year":test,"rank_group":str(rg),"risk_bin":str(rb),
+            }))
+
+        # 3) Finish profiles by AI rank: winners/top3/miss get different risk distributions.
+        for rank in range(1,11):
+            g=df[df["distill_ai_rank"]==rank]
+            for label,mask in (
+                ("WIN",g["_is_win"]==1),
+                ("TOP3",g["_is_top3"]==1),
+                ("MISS_TOP3",g["_is_top3"]==0),
+            ):
+                q=g[mask]
+                if q.empty: continue
+                finish_profile_rows.append({
+                    "test_year":test,"ai_rank":rank,"outcome":label,"n":int(len(q)),
+                    "risk_mean":float(q["risk"].mean()),"risk_median":float(q["risk"].median()),
+                    "risk_p10":float(q["risk"].quantile(.10)),"risk_p90":float(q["risk"].quantile(.90)),
+                })
+
+        # 4) Pairwise: does a lower-ranked but lower-risk horse beat the higher-ranked horse?
+        p=make_pair_frame(df)
+        pair_cache[test]=p
+        for (pair,bucket),q in p.groupby(["pair","gap_bucket"],observed=True,sort=False):
+            pair_rows.append({
+                "test_year":test,"pair":str(pair),"risk_gap_bucket":str(bucket),"n":int(len(q)),
+                "mean_risk_diff":float(q["risk_diff"].mean()),
+                "lower_finishes_ahead_pct":pct(q["lower_ahead"]),
+                "lower_top3_upper_miss_pct":pct(q["lower_top3_upper_miss"]),
+                "upper_top3_lower_miss_pct":pct(q["upper_top3_lower_miss"]),
+            })
+        for delta in DELTAS:
+            q=p[p["risk_diff"]>=delta]
+            if len(q):
+                pair_threshold_rows.append({
+                    "test_year":test,"pair":"ALL_TOP6","min_upper_minus_lower_risk":delta,"n":int(len(q)),
+                    "lower_finishes_ahead_pct":pct(q["lower_ahead"]),
+                    "lower_top3_upper_miss_pct":pct(q["lower_top3_upper_miss"]),
+                    "upper_top3_lower_miss_pct":pct(q["upper_top3_lower_miss"]),
+                })
+            for pair,q0 in p.groupby("pair",sort=False):
+                q=q0[q0["risk_diff"]>=delta]
+                if len(q)<100: continue
+                pair_threshold_rows.append({
+                    "test_year":test,"pair":str(pair),"min_upper_minus_lower_risk":delta,"n":int(len(q)),
+                    "lower_finishes_ahead_pct":pct(q["lower_ahead"]),
+                    "lower_top3_upper_miss_pct":pct(q["lower_top3_upper_miss"]),
+                    "upper_top3_lower_miss_pct":pct(q["upper_top3_lower_miss"]),
+                })
+
+        # 5) Race-level risk shapes.
+        top6=df[df["distill_ai_rank"]<=6].copy()
+        for rid,g in top6.groupby("_race_id",sort=False):
+            g=g.sort_values("distill_ai_rank")
+            r1=g[g["distill_ai_rank"]==1].iloc[0]
+            lower=g[g["distill_ai_rank"]>1]
+            best_lower=lower.sort_values(["risk","distill_ai_rank"]).iloc[0]
+            winner=g[g["_is_win"]==1]
+            race_shape_rows.append({
+                "test_year":test,"race_id":rid,
+                "top1_risk":float(r1["risk"]),"top1_top3":int(r1["_is_top3"]),"top1_win":int(r1["_is_win"]),
+                "min_lower_risk":float(best_lower["risk"]),"min_lower_rank":int(best_lower["distill_ai_rank"]),
+                "top1_minus_best_lower_risk":float(r1["risk"]-best_lower["risk"]),
+                "top3_mean_risk":float(g[g["distill_ai_rank"]<=3]["risk"].mean()),
+                "top6_mean_risk":float(g["risk"].mean()),"top6_risk_std":float(g["risk"].std(ddof=0)),
+                "highrisk_top3_count":int((g[g["distill_ai_rank"]<=3]["risk"]>=.15).sum()),
+                "winner_ai_rank":int(winner["distill_ai_rank"].iloc[0]) if len(winner) else 99,
+                "winner_risk":float(winner["risk"].iloc[0]) if len(winner) else np.nan,
+            })
+
+        # 6) Surgical swap grid: only swap if a lower-ranked candidate is materially safer.
+        base_top3=float(df[df["distill_ai_rank"]==1]["_is_top3"].mean())*100
+        base_win=float(df[df["distill_ai_rank"]==1]["_is_win"].mean())*100
+        for k in TOPKS:
+            for delta in DELTAS:
+                q=choose_lowest_risk(df,k,delta)
+                swap_rows.append({
+                    "test_year":test,"top_k":k,"min_risk_advantage":delta,
+                    "races":int(len(q)),"replacements":int(q["replace"].sum()),
+                    "replacement_rate_pct":pct(q["replace"]),
+                    "top1_top3_pct":pct(q["sel_top3"]),"top1_win_pct":pct(q["sel_win"]),
+                    "baseline_top3_pct":base_top3,"baseline_win_pct":base_win,
+                    "top3_uplift_pp":pct(q["sel_top3"])-base_top3,
+                    "win_uplift_pp":pct(q["sel_win"])-base_win,
+                })
+
+        # 7) Compact concrete examples: strongest risk conflicts and controls.
+        rs=pd.DataFrame([r for r in race_shape_rows if r["test_year"]==test])
+        conflict=rs.sort_values("top1_minus_best_lower_risk",ascending=False).head(15)
+        control=rs.sort_values("top1_risk",ascending=True).head(10)
+        chosen=set(conflict["race_id"]).union(set(control["race_id"]))
+        ex=df[(df["_race_id"].isin(chosen))&(df["distill_ai_rank"]<=6)].copy()
+        for _,r in ex.sort_values(["_race_id","distill_ai_rank"]).iterrows():
+            category="CONFLICT" if r["_race_id"] in set(conflict["race_id"]) else "LOW_RISK_TOP1_CONTROL"
+            case_rows.append({
+                "test_year":test,"case_type":category,"race_id":r["_race_id"],
+                "horse_id":r["_horse_id"],"ai_rank":int(r["distill_ai_rank"]),
+                "risk":float(r["risk"]),"actual_finish":float(r["finish_num"]) if pd.notna(r["finish_num"]) else "",
+                "actual_top3":int(r["_is_top3"]),"actual_win":int(r["_is_win"]),
+                "market_rank":float(r["market_rank"]),"final_win_odds":float(r["final_win_odds"]) if pd.notna(r["final_win_odds"]) else "",
+            })
+
+        print(f"ANATOMY_YEAR_READY year={test} horses={len(df)} pairs={len(p)}",flush=True)
+
+    # Strict OOS surgical policy: select K/delta using only prior anatomy years.
+    for test in (2024,2025):
+        hist=[r for r in swap_rows if r["test_year"]<test]
+        candidates=[]
+        for k in TOPKS:
+            for delta in DELTAS:
+                vals=[r for r in hist if r["top_k"]==k and abs(r["min_risk_advantage"]-delta)<1e-12]
+                candidates.append({
+                    "top_k":k,"delta":delta,
+                    "mean_top3_uplift":float(np.mean([r["top3_uplift_pp"] for r in vals])),
+                    "mean_win_uplift":float(np.mean([r["win_uplift_pp"] for r in vals])),
+                    "mean_replacement_rate":float(np.mean([r["replacement_rate_pct"] for r in vals])),
+                })
+        # Top3 first, then win, then fewer replacements, then smaller K.
+        pick=max(candidates,key=lambda r:(r["mean_top3_uplift"],r["mean_win_uplift"],-r["mean_replacement_rate"],-r["top_k"],r["delta"]))
+        observed=next(r for r in swap_rows if r["test_year"]==test and r["top_k"]==pick["top_k"] and abs(r["min_risk_advantage"]-pick["delta"])<1e-12)
+        strict_swap_rows.append({
+            "test_year":test,"train_years":"|".join(map(str,sorted(set(r["test_year"] for r in hist)))),
+            "selected_top_k":pick["top_k"],"selected_min_risk_advantage":pick["delta"],
+            "train_mean_top3_uplift_pp":pick["mean_top3_uplift"],
+            "test_replacement_rate_pct":observed["replacement_rate_pct"],
+            "baseline_top3_pct":observed["baseline_top3_pct"],
+            "test_top3_pct":observed["top1_top3_pct"],"test_top3_uplift_pp":observed["top3_uplift_pp"],
+            "baseline_win_pct":observed["baseline_win_pct"],
+            "test_win_pct":observed["top1_win_pct"],"test_win_uplift_pp":observed["win_uplift_pp"],
+        })
+
+    # Race-shape aggregate bins; raw race IDs are not committed except representative examples.
+    rs=pd.DataFrame(race_shape_rows)
+    race_shape_agg=[]
+    rs["top1_risk_bin"]=pd.cut(rs["top1_risk"],bins=RISK_EDGES,labels=RISK_LABELS,include_lowest=True,right=False)
+    rs["adv_bin"]=pd.cut(rs["top1_minus_best_lower_risk"],bins=GAP_EDGES,labels=GAP_LABELS,include_lowest=True,right=False)
+    for (y,b),q in rs.groupby(["test_year","top1_risk_bin"],observed=True):
+        race_shape_agg.append({
+            "test_year":int(y),"view":"TOP1_RISK","bucket":str(b),"n":int(len(q)),
+            "top1_top3_pct":pct(q["top1_top3"]),"top1_win_pct":pct(q["top1_win"]),
+            "winner_outside_top3_pct":pct(q["winner_ai_rank"]>3),
+            "winner_outside_top6_pct":pct(q["winner_ai_rank"]>6),
+            "mean_winner_risk":float(q["winner_risk"].mean()),
+        })
+    for (y,b),q in rs.groupby(["test_year","adv_bin"],observed=True):
+        race_shape_agg.append({
+            "test_year":int(y),"view":"TOP1_MINUS_BEST_LOWER_RISK","bucket":str(b),"n":int(len(q)),
+            "top1_top3_pct":pct(q["top1_top3"]),"top1_win_pct":pct(q["top1_win"]),
+            "winner_outside_top3_pct":pct(q["winner_ai_rank"]>3),
+            "winner_outside_top6_pct":pct(q["winner_ai_rank"]>6),
+            "mean_winner_risk":float(q["winner_risk"].mean()),
+        })
+
+    out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
+    write_csv(out/"ability-checks.csv",ability_checks)
+    write_csv(out/"risk-metrics.csv",risk_rows)
+    write_csv(out/"rank-risk-deciles.csv",rank_risk_rows)
+    write_csv(out/"fixed-risk-bins.csv",fixed_bin_rows)
+    write_csv(out/"within-rank-signal.csv",within_rank_rows)
+    write_csv(out/"finish-risk-profiles.csv",finish_profile_rows)
+    write_csv(out/"pairwise-risk-inversions.csv",pair_rows)
+    write_csv(out/"pairwise-thresholds.csv",pair_threshold_rows)
+    write_csv(out/"race-risk-shapes.csv",race_shape_agg)
+    write_csv(out/"surgical-swap-grid.csv",swap_rows)
+    write_csv(out/"strict-surgical-swap.csv",strict_swap_rows)
+    write_csv(out/"case-study-horses.csv",case_rows)
+    write_csv(out/"state-coverage.csv",state_cov)
+
+    # Compact summary for fast review.
+    primary_signal=[]
+    for rank in range(1,7):
+        rows=[r for r in rank_risk_rows if r["ai_rank"]==rank and r["test_year"] in PRIMARY_YEARS]
+        low=[r for r in rows if r["risk_decile"]==1]
+        high=[r for r in rows if r["risk_decile"]==10]
+        primary_signal.append({
+            "ai_rank":rank,
+            "low_risk_top3_pct":float(np.mean([r["actual_top3_pct"] for r in low])),
+            "high_risk_top3_pct":float(np.mean([r["actual_top3_pct"] for r in high])),
+            "gap_pp":float(np.mean([r["actual_top3_pct"] for r in low])-np.mean([r["actual_top3_pct"] for r in high])),
+            "within_rank_top3_auc_lowrisk":float(np.mean([
+                r["top3_auc_low_risk"] for r in within_rank_rows if r["ai_rank"]==rank and r["test_year"] in PRIMARY_YEARS
+            ])),
+        })
+    summary={
+        "contract":"L1_RISK_FINISH_ANATOMY_V1",
+        "question":"How does individual Correction Risk interact with original AI rank and realized finish, horse by horse and race by race?",
+        "market_is_teacher_only":True,
+        "model_uses_current_market":False,
+        "primary_years":list(PRIMARY_YEARS),
+        "rank_signal":primary_signal,
+        "strict_surgical_swap":strict_swap_rows,
+        "interpretation_rule":"Risk is evaluated as confidence information first. Reordering is promoted only if a strictly-OOS surgical policy is stable.",
+        "storage_policy":"Full horse-level frames stay ephemeral on the free runner; only compact aggregate diagnostics and representative cases are committed.",
+        "2026_locked":True,
+    }
+    (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print("===== RANK SIGNAL =====")
+    print(json.dumps(primary_signal,ensure_ascii=False,indent=2))
+    print("===== STRICT SURGICAL SWAP =====")
+    print(pd.DataFrame(strict_swap_rows).to_csv(index=False))
+    print("L1_RISK_FINISH_ANATOMY_V1_COMPLETE")
+    return
+
+    for test in CAL_YEARS:
+        hist_years=tuple(y for y in risk_oos if y<test)
+        tr=pd.concat([risk_oos[y] for y in hist_years],ignore_index=True,copy=False)
+        va=risk_oos[test].copy()
+
+        p_mono,imp=fit_mono_top3(tr,va,9300000+test*100)
+        p_grid=fit_grid(tr,va,bins=5,smooth=80.0)
+        va["p_mono"]=p_mono
+        va["p_grid"]=p_grid
+        cal_scored[test]=va
+
+        # Base score preserving exact original order.
+        base_score=va["distill_ai_rank01"].astype(float)
+        va["score_base"]=base_score
+        va["score_mono"]=va["p_mono"]
+        va["score_grid"]=va["p_grid"]
+        va["score_blend50"]=0.50*base_score+0.50*va["p_mono"]
+
+        variants=[
+            ("BASE_ABILITY","score_base",None),
+            ("GRID_TOP3","score_grid","p_grid"),
+            ("MONO_TOP3","score_mono","p_mono"),
+            ("BLEND50","score_blend50","p_mono"),
+        ]
+        base_rank=None
+        for name,scol,pcol in variants:
+            met,ranks=metrics_from_score(va,scol,name,test)
+            ranking_rows.append(met)
+            if name=="BASE_ABILITY":
+                base_rank=ranks.rename(columns={"__rank":"__rank_base","distill_ai_rank":"distill_ai_rank_base"})
+            else:
+                rr=ranks.rename(columns={"__rank":"__rank_new"})
+                mv=rank_movement(base_rank,rr)
+                move_rows.append({"test_year":test,"variant":name,**mv})
+            if pcol:
+                calib_rows.append(calibration_metrics(va,pcol,name,test))
+
+        total=sum(float(g) for _,g in imp) or 1.0
+        for rank,(f,g) in enumerate(imp,1):
+            meta_imp.append({"test_year":test,"rank":rank,"feature":f,"gain":float(g),"share":float(g)/total})
+
+        # Candidate blend scores are evaluated OOS in each calibration year.
+        for alpha in ALPHAS:
+            va[f"blend_{alpha:.2f}"]=alpha*base_score+(1-alpha)*va["p_mono"]
+            met,_=metrics_from_score(va,f"blend_{alpha:.2f}",f"BLEND_{alpha:.2f}",test)
+            alpha_search.append({"test_year":test,"alpha":alpha,**{k:v for k,v in met.items() if k not in ("test_year","variant")}})
+        print(
+            f"CALIBRATION_READY year={test} base={ranking_rows[-4]['top1_top3_pct']:.4f} "
+            f"mono={ranking_rows[-2]['top1_top3_pct']:.4f} blend50={ranking_rows[-1]['top1_top3_pct']:.4f}",
+            flush=True,
+        )
+        del tr; gc.collect()
+
+    # Strict blend selection can start in 2024 because 2023 is the first nested-OOS calibrated year.
+    for test in STRICT_BLEND_YEARS:
+        hist=[r for r in alpha_search if r["test_year"]<test]
+        by_alpha={}
+        for alpha in ALPHAS:
+            vals=[r for r in hist if abs(r["alpha"]-alpha)<1e-12]
+            by_alpha[alpha]=(
+                float(np.mean([r["top1_top3_pct"] for r in vals])),
+                float(np.mean([r["top1_win_pct"] for r in vals])),
+            )
+        # Prefer better Top3, then win, then larger alpha to preserve original L1 when tied.
+        chosen=max(ALPHAS,key=lambda alpha:(by_alpha[alpha][0],by_alpha[alpha][1],alpha))
+        va=cal_scored[test].copy()
+        va["strict_score"]=chosen*va["distill_ai_rank01"]+(1-chosen)*va["p_mono"]
+        met,_=metrics_from_score(va,"strict_score","STRICT_BLEND",test)
+        base=next(r for r in ranking_rows if r["test_year"]==test and r["variant"]=="BASE_ABILITY")
+        strict_blend_rows.append({
+            "test_year":test,"selected_alpha":chosen,
+            "train_selection_years":"|".join(map(str,sorted(set(r["test_year"] for r in hist)))),
+            "baseline_top1_top3_pct":base["top1_top3_pct"],
+            **{k:v for k,v in met.items() if k not in ("test_year","variant")},
+            "uplift_pp":met["top1_top3_pct"]-base["top1_top3_pct"],
+        })
+
+    out=Path(a.out_dir); out.mkdir(parents=True,exist_ok=True)
+    write_csv(out/"ability-checks.csv",ability_checks)
+    write_csv(out/"risk-metrics.csv",risk_rows)
+    write_csv(out/"ranking-metrics.csv",ranking_rows)
+    write_csv(out/"calibration-metrics.csv",calib_rows)
+    write_csv(out/"rank-movement.csv",move_rows)
+    write_csv(out/"alpha-search.csv",alpha_search)
+    write_csv(out/"strict-blend.csv",strict_blend_rows)
+    write_csv(out/"risk-feature-importance.csv",risk_imp)
+    write_csv(out/"meta-feature-importance.csv",meta_imp)
+    write_csv(out/"state-coverage.csv",state_cov)
+
+    # Pooled simple variants over 2023-2025.
+    pooled=[]
+    for variant in ("BASE_ABILITY","GRID_TOP3","MONO_TOP3","BLEND50"):
+        vals=[r for r in ranking_rows if r["variant"]==variant]
+        pooled.append({
+            "variant":variant,
+            "years":"|".join(map(str,CAL_YEARS)),
+            "top1_top3_pct":float(np.mean([r["top1_top3_pct"] for r in vals])),
+            "top1_win_pct":float(np.mean([r["top1_win_pct"] for r in vals])),
+            "winner_top3_capture_pct":float(np.mean([r["winner_top3_capture_pct"] for r in vals])),
+            "winner_top6_capture_pct":float(np.mean([r["winner_top6_capture_pct"] for r in vals])),
+            "positive_top1_top3_years":int(sum(
+                r["top1_top3_pct"] >
+                next(b["top1_top3_pct"] for b in ranking_rows if b["variant"]=="BASE_ABILITY" and b["test_year"]==r["test_year"])
+                for r in vals
+            )),
+        })
+    base=next(r for r in pooled if r["variant"]=="BASE_ABILITY")
+    for r in pooled: r["top1_top3_uplift_pp"]=r["top1_top3_pct"]-base["top1_top3_pct"]
+    write_csv(out/"pooled-ranking.csv",pooled)
+
+    best=max([r for r in pooled if r["variant"]!="BASE_ABILITY"],key=lambda r:r["top1_top3_pct"])
+    summary={
+        "contract":"L1_CONFIDENCE_CALIBRATED_RANKING_V1",
+        "question":"Can market-correction risk be folded back into the original L1 ranking through probability calibration rather than hard rank swapping?",
+        "architecture":"Original Ability remains the backbone; risk is an uncertainty modifier inside a strictly-OOS top3 probability calibrator.",
+        "market_is_teacher_only":True,
+        "model_uses_current_market":False,
+        "pooled_ranking":pooled,
+        "best_simple_variant":best,
+        "strict_blend":strict_blend_rows,
+        "promotion_rule":"Promote only with material pooled improvement, multi-year stability, and no meaningful winner-capture regression.",
+        "2026_locked":True,
+    }
+    (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    print("===== POOLED RANKING =====")
+    print((out/"pooled-ranking.csv").read_text())
+    print("===== STRICT BLEND =====")
+    print((out/"strict-blend.csv").read_text())
+    print("L1_CONFIDENCE_CALIBRATED_RANKING_V1_COMPLETE")
+
+if __name__=="__main__":
+    main()
