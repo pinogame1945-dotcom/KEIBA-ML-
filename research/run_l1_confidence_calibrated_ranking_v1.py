@@ -314,14 +314,14 @@ def main():
     for test in STRICT_BLEND_YEARS:
         hist=[r for r in alpha_search if r["test_year"]<test]
         by_alpha={}
-        for a in ALPHAS:
-            vals=[r for r in hist if abs(r["alpha"]-a)<1e-12]
-            by_alpha[a]=(
+        for alpha in ALPHAS:
+            vals=[r for r in hist if abs(r["alpha"]-alpha)<1e-12]
+            by_alpha[alpha]=(
                 float(np.mean([r["top1_top3_pct"] for r in vals])),
                 float(np.mean([r["top1_win_pct"] for r in vals])),
             )
         # Prefer better Top3, then win, then larger alpha to preserve original L1 when tied.
-        chosen=max(ALPHAS,key=lambda a:(by_alpha[a][0],by_alpha[a][1],a))
+        chosen=max(ALPHAS,key=lambda alpha:(by_alpha[alpha][0],by_alpha[alpha][1],alpha))
         va=cal_scored[test].copy()
         va["strict_score"]=chosen*va["distill_ai_rank01"]+(1-chosen)*va["p_mono"]
         met,_=metrics_from_score(va,"strict_score","STRICT_BLEND",test)
