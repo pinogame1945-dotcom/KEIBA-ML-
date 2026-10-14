@@ -413,7 +413,7 @@ def main():
 
     def zone_mask(z,zone):
         if zone=="ALL": return pd.Series(True,index=z.index)
-        if zone=="AI_TOP3": return z["is_ai_top3"].eq(1)
+        if zone=="AI_TOP3": return pd.to_numeric(z["distill_ai_rank"],errors="coerce").le(3)
         if zone=="DISAGREE": return z["distill_ai_rank"].ne(z["market_rank"])
         if zone=="AI_UNIQUE_TOP3": return z["ai_unique_top3"].eq(1)
         if zone=="OVERLAP2_AI_UNIQUE": return z["ai_unique_top3"].eq(1)&z["top3_overlap"].eq(2)
@@ -544,6 +544,10 @@ def main():
     models=pd.DataFrame(model_rows)
     values=pd.DataFrame(value_rows)
     preds=pd.concat(prediction_frames,ignore_index=True)
+    pooled_required={"target_win","final_win_odds","market_rank","distill_ai_rank","risk","top3_overlap","ai_unique_top3"}
+    missing_pooled=sorted(pooled_required-set(preds.columns))
+    if missing_pooled:
+        raise SystemExit(f"pooled frame missing required columns: {missing_pooled}")
 
     # Pooled OOS summaries preserve the exact per-year OOS predictions.
     pooled_models=[]
