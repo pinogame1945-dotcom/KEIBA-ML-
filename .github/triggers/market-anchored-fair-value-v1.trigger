@@ -1,3 +1,6 @@
-triggered_at=2026-10-14T21:16:00+09:00
-purpose=MARKET_ANCHORED_FAIR_VALUE_V1
+triggered_at=2026-10-14T22:34:00+09:00
+purpose=MARKET_ANCHORED_FAIR_VALUE_V1_RETRY1
+fix=pooled_zone_mask_missing_column
 parallel_model_workers=4
+download_parallel=4
+projection_parallel=4
