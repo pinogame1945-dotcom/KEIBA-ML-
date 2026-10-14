@@ -1,0 +1,242 @@
+{
+  "contract": "L1_RISK_ON_MARKET_RANK_V1",
+  "question": "If the market taught the Correction Risk head, does that same risk still stratify actual outcomes after conditioning on the market's own odds rank?",
+  "market_is_teacher_only": true,
+  "model_uses_current_market": false,
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "ai_rank_signal": [
+    {
+      "ai_rank": 1,
+      "low_risk_top3_pct": 80.96618357487922,
+      "high_risk_top3_pct": 45.472061657032754,
+      "gap_pp": 35.49412191784647,
+      "within_rank_top3_auc_lowrisk": 0.6238301095688138
+    },
+    {
+      "ai_rank": 2,
+      "low_risk_top3_pct": 67.6328502415459,
+      "high_risk_top3_pct": 33.04431599229287,
+      "gap_pp": 34.58853424925302,
+      "within_rank_top3_auc_lowrisk": 0.6114783856930311
+    },
+    {
+      "ai_rank": 3,
+      "low_risk_top3_pct": 52.75362318840579,
+      "high_risk_top3_pct": 27.26396917148362,
+      "gap_pp": 25.48965401692217,
+      "within_rank_top3_auc_lowrisk": 0.5934223359618377
+    },
+    {
+      "ai_rank": 4,
+      "low_risk_top3_pct": 45.02415458937198,
+      "high_risk_top3_pct": 24.855491329479765,
+      "gap_pp": 20.168663259892217,
+      "within_rank_top3_auc_lowrisk": 0.5762657374702442
+    },
+    {
+      "ai_rank": 5,
+      "low_risk_top3_pct": 31.014492753623188,
+      "high_risk_top3_pct": 19.07514450867052,
+      "gap_pp": 11.939348244952669,
+      "within_rank_top3_auc_lowrisk": 0.5532497037986855
+    },
+    {
+      "ai_rank": 6,
+      "low_risk_top3_pct": 22.48062015503876,
+      "high_risk_top3_pct": 17.971014492753625,
+      "gap_pp": 4.509605662285136,
+      "within_rank_top3_auc_lowrisk": 0.535671659564689
+    }
+  ],
+  "market_rank_signal": [
+    {
+      "market_rank": 1,
+      "low_risk_top3_pct": 81.5891472868217,
+      "high_risk_top3_pct": 58.64734299516908,
+      "gap_pp": 22.941804291652616,
+      "within_market_rank_top3_auc_lowrisk": 0.5911505213622584
+    },
+    {
+      "market_rank": 2,
+      "low_risk_top3_pct": 63.49300517549212,
+      "high_risk_top3_pct": 48.30524660150545,
+      "gap_pp": 15.18775857398667,
+      "within_market_rank_top3_auc_lowrisk": 0.5539647650644283
+    },
+    {
+      "market_rank": 3,
+      "low_risk_top3_pct": 50.678294573643406,
+      "high_risk_top3_pct": 37.68115942028985,
+      "gap_pp": 12.997135153353554,
+      "within_market_rank_top3_auc_lowrisk": 0.5513791048879573
+    },
+    {
+      "market_rank": 4,
+      "low_risk_top3_pct": 38.89105476077474,
+      "high_risk_top3_pct": 32.10819009100101,
+      "gap_pp": 6.78286466977373,
+      "within_market_rank_top3_auc_lowrisk": 0.5310754051248759
+    },
+    {
+      "market_rank": 5,
+      "low_risk_top3_pct": 25.222331457499944,
+      "high_risk_top3_pct": 25.363161442534548,
+      "gap_pp": -0.1408299850346033,
+      "within_market_rank_top3_auc_lowrisk": 0.5027752895311345
+    },
+    {
+      "market_rank": 6,
+      "low_risk_top3_pct": 18.4645286686103,
+      "high_risk_top3_pct": 21.649207855899835,
+      "gap_pp": -3.184679187289536,
+      "within_market_rank_top3_auc_lowrisk": 0.4959137379688965
+    }
+  ],
+  "market_plus_risk_meta": [
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "variant": "MARKET_RANK_ONLY",
+      "n": 47274,
+      "auc": 0.7979112033954029,
+      "logloss": 0.42442810983439794,
+      "brier": 0.13659290400038301
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "variant": "MARKET_RANK_PLUS_RISK",
+      "n": 47274,
+      "auc": 0.799363471129835,
+      "logloss": 0.4229810582603268,
+      "brier": 0.13590769819297432
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "variant": "MARKET_ODDS_ONLY",
+      "n": 47274,
+      "auc": 0.8153526331294093,
+      "logloss": 0.4089436002392105,
+      "brier": 0.13174400655915902
+    },
+    {
+      "test_year": 2023,
+      "train_years": "2022",
+      "variant": "MARKET_ODDS_PLUS_RISK",
+      "n": 47274,
+      "auc": 0.8150367343502497,
+      "logloss": 0.40918712838794763,
+      "brier": 0.1318932920661516
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "variant": "MARKET_RANK_ONLY",
+      "n": 46767,
+      "auc": 0.802241032450086,
+      "logloss": 0.42271062692873,
+      "brier": 0.13566270550316875
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "variant": "MARKET_RANK_PLUS_RISK",
+      "n": 46767,
+      "auc": 0.8041973321630533,
+      "logloss": 0.4207236540842131,
+      "brier": 0.13486251846504704
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "variant": "MARKET_ODDS_ONLY",
+      "n": 46767,
+      "auc": 0.8203802123002116,
+      "logloss": 0.40638556346839927,
+      "brier": 0.13043661726890873
+    },
+    {
+      "test_year": 2024,
+      "train_years": "2022|2023",
+      "variant": "MARKET_ODDS_PLUS_RISK",
+      "n": 46767,
+      "auc": 0.8201740958341003,
+      "logloss": 0.4064614013384938,
+      "brier": 0.1304702276591161
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "variant": "MARKET_RANK_ONLY",
+      "n": 47513,
+      "auc": 0.8005755313070197,
+      "logloss": 0.42059978172626583,
+      "brier": 0.13502015915059595
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "variant": "MARKET_RANK_PLUS_RISK",
+      "n": 47513,
+      "auc": 0.8038510407616816,
+      "logloss": 0.41782928390070806,
+      "brier": 0.13383904616183537
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "variant": "MARKET_ODDS_ONLY",
+      "n": 47513,
+      "auc": 0.8176072910375863,
+      "logloss": 0.40519706344109185,
+      "brier": 0.13021785942833214
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2022|2023|2024",
+      "variant": "MARKET_ODDS_PLUS_RISK",
+      "n": 47513,
+      "auc": 0.8177474961936104,
+      "logloss": 0.4051357695006315,
+      "brier": 0.13019086009310687
+    }
+  ],
+  "strict_surgical_swap": [
+    {
+      "test_year": 2024,
+      "train_years": "2023",
+      "selected_top_k": 4,
+      "selected_min_risk_advantage": 0.1,
+      "train_mean_top3_uplift_pp": 0.3761574074074048,
+      "test_replacement_rate_pct": 6.394675925925926,
+      "baseline_top3_pct": 62.673611111111114,
+      "test_top3_pct": 62.35532407407407,
+      "test_top3_uplift_pp": -0.3182870370370452,
+      "baseline_win_pct": 30.960648148148145,
+      "test_win_pct": 30.64236111111111,
+      "test_win_uplift_pp": -0.31828703703703454
+    },
+    {
+      "test_year": 2025,
+      "train_years": "2023|2024",
+      "selected_top_k": 2,
+      "selected_min_risk_advantage": 0.15,
+      "train_mean_top3_uplift_pp": 0.14467592592592027,
+      "test_replacement_rate_pct": 1.5046296296296295,
+      "baseline_top3_pct": 61.660879629629626,
+      "test_top3_pct": 61.68981481481482,
+      "test_top3_uplift_pp": 0.02893518518519045,
+      "baseline_win_pct": 29.25347222222222,
+      "test_win_pct": 29.34027777777778,
+      "test_win_uplift_pp": 0.08680555555555713
+    }
+  ],
+  "interpretation_rule": "Risk is evaluated as confidence information first. Reordering is promoted only if a strictly-OOS surgical policy is stable.",
+  "storage_policy": "Full horse-level frames stay ephemeral on the free runner; only compact aggregate diagnostics and representative cases are committed.",
+  "2026_locked": true
+}
