@@ -1,0 +1,24 @@
+{
+  "contract": "MARKET_ANCHORED_FAIR_VALUE_V1",
+  "question": "Can strictly-OOS Ability and Correction Risk improve the market's win probability enough to identify genuinely underpriced horses?",
+  "target": "actual win only",
+  "market_role": "FINAL odds/rank are L2 pricing inputs; they are not used by the upstream Ability model.",
+  "risk_role": "Correction Risk is generated strictly OOS from historical market-teacher labels before the current market is combined.",
+  "probability_models": [
+    "MARKET_DIRECT",
+    "LOGIT: MARKET_ONLY -> +ABILITY -> +RISK -> +DISAGREEMENT",
+    "LGBM: MARKET_ONLY -> +ABILITY -> +RISK -> +DISAGREEMENT"
+  ],
+  "calibration": "Each test year uses a chronological 80/20 fit/calibration split of prior-year data only; isotonic calibration is fit only on the prior calibration slice.",
+  "parallelization": "Eight model tasks per fold run with up to four concurrent workers; upstream OOS Ability/Risk is computed once and reused.",
+  "fair_odds": "1 / calibrated predicted win probability",
+  "value_edge": "calibrated win probability * final win odds - 1",
+  "roi_policy": "ROI never trains the probability model. Fixed edge thresholds are reported without test-year threshold optimization.",
+  "primary_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "2026_locked": true,
+  "promotion": false
+}
