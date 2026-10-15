@@ -16,6 +16,9 @@ on:
       - "scripts/archived-council-smoke.py"
       - "research/replay-seven-kings-kaggle.sh"
       - "scripts/seven-king-replay-smoke.py"
+      - "research/replay-saved-l17.py"
+      - "scripts/l17-saved-p3-smoke.py"
+      - "scripts/github-readonly-archive.py"
       - ".github/workflows/single-race-inference-smoke.yml"
   workflow_dispatch:
 
@@ -40,6 +43,8 @@ jobs:
           python3 -m py_compile research/score-one-race.py research/replay-seven-kings.py research/replay-one-race-id.py
           bash -n research/replay-seven-kings-kaggle.sh
           python3 scripts/seven-king-replay-smoke.py
+          python3 scripts/l17-saved-p3-smoke.py
+          python3 -m py_compile scripts/github-readonly-archive.py
           python3 scripts/archived-council-smoke.py
           node scripts/single-race-engine-smoke.mjs
       - name: Existing L1 feature tests
