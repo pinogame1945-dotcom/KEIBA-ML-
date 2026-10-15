@@ -1,0 +1,96 @@
+name: L2.2 Trifecta Jackpot Anatomy descriptive study
+
+on:
+  push:
+    branches: [research/l2.2-trifecta-jackpot-anatomy-20261016]
+    paths:
+      - l2_2/trifecta_jackpot_anatomy.py
+      - l2_2/TRIFECTA_JACKPOT_ANATOMY.md
+      - .github/workflows/l2-2-trifecta-jackpot-anatomy.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l22-jackpot-anatomy-20261016
+  cancel-in-progress: false
+
+jobs:
+  all-historical-race-anatomy:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/l2.2-trifecta-jackpot-anatomy-20261016
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Standard CPU-only dependencies
+        run: python -m pip install --disable-pip-version-check pandas numpy
+      - name: Verify safety, freeze and code
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e 9655c717333636b5cc931f672e12dbc377e396bc^{commit}
+          python -m py_compile l2_2/trifecta_jackpot_anatomy.py
+          python l2_2/trifecta_jackpot_anatomy.py --selftest
+          python - <<'PY'
+          from pathlib import Path
+          s=Path(".github/workflows/l2-2-trifecta-jackpot-anatomy.yml").read_text()
+          runners=[x.strip() for x in s.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest"]
+          refs=[x.strip() for x in s.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("actions/cache" in r or "actions/upload-artifact" in r for r in refs)
+          assert "gpu" not in " ".join(runners) and "self-hosted" not in " ".join(runners)
+          print("SAFE_ONLY_FREE_STANDARD_CPU")
+          PY
+      - name: Fetch exact race pack paths from pinned BACKFILL manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin 0d4af461b77f0060dd9c789dd2da646026fada47
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = 0d4af461b77f0060dd9c789dd2da646026fada47
+          python -u l2_2/trifecta_jackpot_anatomy.py --prepare \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/pinned-history --sparse-paths out/jackpot_race_pack_paths.txt
+      - name: Retrieve authoritative race packs exactly once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/jackpot_race_pack_paths.txt
+      - name: Analyze all 3 years in parallel using local race packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-2-trifecta-jackpot-anatomy-v1/run-$GITHUB_RUN_ID"
+          python -u l2_2/trifecta_jackpot_anatomy.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/pinned-history --out-dir "$out"
+          for path in summary.json all_races_outcome_anatomy.csv.gz outcome_anatomy_frequency.csv pre_race_context_jackpot_rates.csv largest_trifecta_example_races.csv; do
+            test -s "$out/$path"
+          done
+          test "$(du -sm "$out" | cut -f1)" -le 6
+      - name: Erase temporary pinned historical source
+        if: always()
+        run: rm -rf out/pinned-history out/jackpot_race_pack_paths.txt
+      - name: Persist compact descriptive study output
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-2-trifecta-jackpot-anatomy-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin research/l2.2-trifecta-jackpot-anatomy-20261016
+          git add "$out"
+          git commit -m "research(l2.2): all-year factual trifecta jackpot outcome anatomy $GITHUB_RUN_ID"
+          git push origin HEAD:research/l2.2-trifecta-jackpot-anatomy-20261016
