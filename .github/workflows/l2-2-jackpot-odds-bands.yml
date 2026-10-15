@@ -1,0 +1,91 @@
+name: L2.2 Jackpot odds-band capture CPU lab
+
+on:
+  push:
+    branches: [research/l2.2-jackpot-odds-bands-v1-20261016]
+    paths:
+      - l2_2/jackpot_final_odds_bands.py
+      - l2_2/JACKPOT_ODDS_BANDS.md
+      - .github/workflows/l2-2-jackpot-odds-bands.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l22-jackpot-odds-bands-20261016
+  cancel-in-progress: false
+
+jobs:
+  odds-band-research:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/l2.2-jackpot-odds-bands-v1-20261016
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install only standard free CPU dependencies
+        run: python -m pip install --disable-pip-version-check pandas numpy
+      - name: Verify free runner safety and unit tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e 9655c717333636b5cc931f672e12dbc377e396bc^{commit}
+          python -m py_compile l2_2/jackpot_final_odds_bands.py
+          python l2_2/jackpot_final_odds_bands.py --selftest
+          python - <<'PY'
+          from pathlib import Path
+          s=Path(".github/workflows/l2-2-jackpot-odds-bands.yml").read_text()
+          assert [l.strip() for l in s.splitlines() if l.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any(x in s for x in ("actions/cache@", "actions/upload-artifact@", "self-hosted"))
+          PY
+      - name: Resolve pinned official BACKFILL files from real manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/odds-pinned
+          git init -q out/odds-pinned
+          git -C out/odds-pinned remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/odds-pinned sparse-checkout init --no-cone
+          git -C out/odds-pinned sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          git -C out/odds-pinned fetch --depth=1 --filter=blob:none origin 0d4af461b77f0060dd9c789dd2da646026fada47
+          git -C out/odds-pinned checkout -q --detach FETCH_HEAD
+          test "$(git -C out/odds-pinned rev-parse HEAD)" = 0d4af461b77f0060dd9c789dd2da646026fada47
+          python l2_2/jackpot_final_odds_bands.py --prepare \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/odds-pinned --sparse-paths out/odds-files-from-manifest.txt
+      - name: Download the exact historical files once
+        run: |
+          set -euo pipefail
+          git -C out/odds-pinned sparse-checkout set --no-cone --stdin < out/odds-files-from-manifest.txt
+      - name: Three-year whole-market odds filter and forward evaluation
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-2-jackpot-odds-bands-v1/run-$GITHUB_RUN_ID"
+          python -u l2_2/jackpot_final_odds_bands.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/odds-pinned --out-dir "$out"
+          test -s "$out/summary.json"
+          test -s "$out/atomic_odds_bins.csv"
+          test -s "$out/odds_band_policies.csv"
+          test "$(du -sm "$out" | cut -f1)" -le 3
+      - name: Remove entire local pinned history
+        if: always()
+        run: rm -rf out/odds-pinned out/odds-files-from-manifest.txt
+      - name: Persist small research output without paid artifacts
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-2-jackpot-odds-bands-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin research/l2.2-jackpot-odds-bands-v1-20261016
+          git add "$out"
+          git commit -m "research(l2.2): audited final-odds ticket filter outcomes $GITHUB_RUN_ID"
+          git push origin HEAD:research/l2.2-jackpot-odds-bands-v1-20261016

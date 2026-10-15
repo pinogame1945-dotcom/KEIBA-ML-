@@ -1,0 +1,11 @@
+# L2.2 Jackpot odds-band reduction — prespecified full-year experiment
+
+Goal: reduce the fixed 1+2 market-popularity 2-horse TRIFECTA multi with 6–9 popularity opponents, measured over ALL 2023/2024/2025 races, from ~24 tickets/race while preserving a meaningful share of the historical 592 jackpot captures. Calculate exact official winning refunds including all multiple payout outcomes (correct earlier lower bound). No hindsight-derived buy rules.
+
+Market final odds tiers (strict intervals, left-inclusive right-exclusive): <10, 10–29.9, 30–49.9, 50–74.9, 75–99.9, 100–149.9, 150–199.9, 200–299.9, 300–499.9, 500–999.9, 1000–1999.9, 2000–4999.9, 5000–9999.9, >=10000. Report all years and full 3-year pool. Evaluate prespecified floors 0/30/50/75/100/150/200/300/500/1000; additional finite windows 100–300,100–500,100–1000,150–500,200–1000,300–1000,300–2000,500–2000. NEVER tune retrospectively as if OOS.
+
+Separately record raw complete physical tickets vs quoted-ticket subset; if a historical FINAL quote is missing, **do not** assert the ticket is outside a price band or invent a numeric price. Note exact winning refund separately and how much winning payout was excluded by unavailable ticket quotes. Track quote-to-realized-payout disagreements without dropping wins, dead-heat all paid physical combinations counted.
+
+A valid chronological attempt chooses highest TRAIN ROI amongst a fixed group of policies provided it saves >=30% of priced tickets, keeps >=45% of priced 100x+ jackpot winners, and has >=500 training tickets and >=20 training jackpot hits. Train 2023 to test 2024; train 2023+2024 to test 2025. If no qualifying policy, do not force a test bet. This still risks multiple testing and FINAL price lookahead; positivity would not prove executable real betting profit. The fixed-2024 rule cannot learn from 2024 or 2025.
+
+TECH: fresh isolated research branch off the published payout calculation, unchanged L2.1 freeze. Reuse all 2023-25 predictions from repository and exactly pinned BACKFILL race and odds manifests, no filename guessing. Download once locally per runner using sparse checkout. Process each year parallel 3 free standard CPU processes. NO paid GPU/runner/cache/artifacts or storage. Results small compact JSON and CSV in branch (no bulk tickets).
