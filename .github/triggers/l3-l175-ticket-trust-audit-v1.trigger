@@ -1,1 +1,3 @@
-v1\nfixed-standard-50-only\nread-only-king-outsider-oos-trust\n2023-2025\n
+v2
+retry-ci-static-guard
+2023-2025
