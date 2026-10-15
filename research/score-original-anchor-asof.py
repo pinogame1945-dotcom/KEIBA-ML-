@@ -60,12 +60,37 @@ def calc(original,mobile,companions,now=None):
     horses=companions.get("horses")
     if not isinstance(horses,list) or len(horses)!=len(active):
         raise ValueError("ORIGINAL_ABILITY_RISK_FIELD_COVERAGE")
+    # Canonical horse identity must come from the *official* pre-start
+    # KEIBA-MOBILE card; joining by only number could silently attach a
+    # different model horse when a race key, identity, or entry changed.
+    card_by_number={}
+    for entry in mobile.get("entries") or []:
+        if entry.get("entryStatus")!="ACTIVE":continue
+        n=L21.no(entry.get("horseNo"),"mobile_official")
+        hid=entry.get("canonicalHorseId")
+        if n in card_by_number or not isinstance(hid,str) or not hid:
+            raise ValueError("OFFICIAL_JRA_HORSE_ID_MISSING_OR_DUPLICATE")
+        card_by_number[n]=hid
+    if set(card_by_number)!=active:
+        raise ValueError("OFFICIAL_JRA_STARTER_ID_FIELD_DRIFT")
+    forbidden_exact={"target_win","target_top3","finish","finish_position",
+       "result_status","payout","final_win_odds","final_market_rank",
+       "is_win","is_top3","target_rank","target_over3","actual_finish"}
+    forbidden_prefixes=("target_","_target_","payout_","result_","finish_",
+                        "final_","postrace_","outcome_")
     records={};ids=set();ranks=set()
     for row in horses:
+        if (any(k in forbidden_exact or k.startswith(forbidden_prefixes)
+                for k in row)
+            or any(k in forbidden_exact or k.startswith(forbidden_prefixes)
+                for k in companions if k!="horses")):
+            raise ValueError("POSTRACE_OR_OUTCOME_COLUMNS_FORBIDDEN_IN_PREBET_COMPANIONS")
         number=L21.no(row.get("horse_number"),"ability_risk")
         hid=row.get("horse_id")
         if number in records or number not in active or not isinstance(hid,str) or not hid or hid in ids:
             raise ValueError("ORIGINAL_ABILITY_RISK_HORSE_OR_NUMBER_DRIFT")
+        if hid!=card_by_number[number]:
+            raise ValueError("ORIGINAL_ABILITY_RISK_VS_OFFICIAL_JRA_HORSE_ID_DRIFT")
         ids.add(hid)
         rank=row.get("distill_ai_rank")
         if type(rank) is not int or not 1<=rank<=len(active) or rank in ranks:
