@@ -258,9 +258,7 @@ def payout_bands(joined):
         z=joined[(joined.year.eq(year))&(joined.rule.eq(rule))]
         winners=z[z["return"]>0].copy()
         if len(winners)==0:continue
-        wins=winners["return"].to_numpy(float)
-        wins.sort()
-        wins=wins[::-1]
+        wins=np.sort(winners["return"].to_numpy(dtype=float).copy())[::-1]
         for n in (1,3,5,10,20,50):
             out.append({
                 "year":year,"rule":rule,"highest_hit_count":n,
