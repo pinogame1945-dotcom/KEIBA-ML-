@@ -51,7 +51,11 @@ quotes={"contract":"KEIBA_JRA_COMBINATION_ODDS_ASOF_V1",
     "observed_at":"2025-01-06T13:32:00+09:00",
     "bet_cutoff_at":"2025-01-06T14:25:00+09:00",
     "scheduled_start_at":"2025-01-06T14:30:00+09:00",
-    "rows":[]}
+    "rows":[],
+    "win_odds_rows":[{"raceKey":key,"betType":"WIN","selection1":n,
+        "selection2":None,"selection3":None,"odds":float(n+2),
+        "oddsMin":None,"oddsMax":None,"observedAt":"2025-01-06T13:32:00+09:00",
+        "sourceUrl":"https://www.jra.go.jp/test"} for n in range(1,9)]}
 def add(kind,nums,price):
     quote={"raceKey":key,"betType":kind,"selection1":nums[0],
         "selection2":nums[1],"selection3":nums[2] if len(nums)==3 else None,
@@ -106,6 +110,9 @@ reject(lambda a,b,c:c["rows"][0].update(betType="TRIFECTA"),"INVALID_HORSE_NUMBE
 reject(lambda a,b,c:c["rows"].append(copy.deepcopy(c["rows"][0])),"DUPLICATE_PHYSICAL_QUOTE")
 reject(lambda a,b,c:c["rows"][0].update(sourceUrl="https://example.org"),"UNTRUSTED_JRA_SOURCE_URL")
 reject(lambda a,b,c:c["rows"][0].update(odds=float("nan")),"NONFINITE_combination_odds")
+reject(lambda a,b,c:c["win_odds_rows"][0].update(odds=15.0),"ORIGINAL_ANCHOR_WIN_PRICE_NOT_EQUAL_ACTUAL_JRA_SAME_SNAPSHOT")
+reject(lambda a,b,c:c["win_odds_rows"].pop(),"WIN_ODDS_SAME_SNAPSHOT_COMPLETE_FIELD_REQUIRED")
+reject(lambda a,b,c:c["win_odds_rows"][0].update(observedAt="2025-01-06T13:31:00+09:00"),"ORIGINAL_WIN_QUOTE_NOT_SAME_COMBO_SNAPSHOT")
 missing=copy.deepcopy(quotes)
 missing["rows"]=[r for r in missing["rows"] if not(r["betType"]=="TRIO" and r["selection1"]==1 and r["selection2"]==2 and r["selection3"]==3)]
 blocked=mod.execute(card,features,missing)
