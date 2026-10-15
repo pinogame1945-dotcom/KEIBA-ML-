@@ -2,6 +2,7 @@
 """Score all registered models for one race. No result/odds or auto-training."""
 from __future__ import annotations
 import argparse,csv,gzip,hashlib,json,math,sys
+from datetime import date
 from pathlib import Path
 
 def read_json(path):
@@ -34,8 +35,15 @@ def ranked(horses,values):
              "score":float(values[h])} for i,h in enumerate(ordered)]
 
 def guard_metadata(meta,race):
-    if meta.get("feature_schema_version") not in (None,race["feature_schema_version"]):
-        raise ValueError("feature schema mismatch")
+    source_schema=meta.get("dataset_contract") or {}
+    version=meta.get("feature_schema_version",source_schema.get("feature_schema_version"))
+    if version is None or version!=race["feature_schema_version"]:
+        raise ValueError("feature schema mismatch or unverified model provenance")
+    if source_schema:
+        if source_schema.get("ml_dataset_version")!=3 or source_schema.get("leakage_policy")!="STRICT_PRIOR_DATE_ONLY":
+            raise ValueError("model leakage/dataset policy mismatch")
+    if meta.get("ability_uses_odds") is True:
+        raise ValueError("market/odds-dependent model cannot be used in no-market inference")
     if meta.get("prediction_phase")!=race["phase"]:
         raise ValueError("prediction phase mismatch")
     if meta.get("feature_sets")!=race["features_by_horse"][0]["feature_sets"]:
@@ -68,6 +76,11 @@ def score_lightgbm(spec,race,root):
     if not isinstance(features,list) or not features or len(set(features))!=len(features):
         raise ValueError("missing/nonunique ordered feature schema")
     df=pd.DataFrame([r["features"] for r in race["features_by_horse"]])
+    # Match train-staged-lightgbm.py::flatten(): date is removed and replaced
+    # with month and day-of-year. Never use source-row order or outcome labels.
+    asof_date=date.fromisoformat(race["race_date"])
+    if "race_month" in features:df["race_month"]=asof_date.month
+    if "race_day_of_year" in features:df["race_day_of_year"]=asof_date.timetuple().tm_yday
     missing=[f for f in features if f not in df.columns]
     if missing:raise ValueError("model features absent: "+",".join(missing[:12]))
     df=df[features].copy()
