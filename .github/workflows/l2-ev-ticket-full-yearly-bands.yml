@@ -1,0 +1,42 @@
+name: L2 EV All Ticket Odds Bands Year By Year Exact V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-ev-ticket-full-yearly-bands.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  full-yearly-report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Validate no new downloads and build complete exact yearly tables
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/build_ev_ticket_band_yearly_exact_report_v1.py
+          test -s research-results/l2-ticket-odds-band-profit-v1/ev-every-ticket-strategy-broad-odds-profit.csv
+          test -s research-results/l2-ticket-odds-band-profit-v1/ev-every-ticket-strategy-fine-odds-profit.csv.gz
+          python research/build_ev_ticket_band_yearly_exact_report_v1.py
+          test -s research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv
+          test -s research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_通常13区間.csv
+          test -s research-results/l2-ticket-odds-band-profit-v1/EV軸_全券種_全20オッズ帯_検証年推移_完全版.md
+      - name: Commit exact value reporting only
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l2-ticket-odds-band-profit-v1/EV軸_*
+          git commit -m "research: archive exact ticket odds profit for all 152 ways by 2023, 2024, 2025"
+          git push origin "HEAD:$GITHUB_REF_NAME"
