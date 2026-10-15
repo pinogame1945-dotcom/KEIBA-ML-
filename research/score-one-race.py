@@ -13,10 +13,14 @@ def sha256(path):
         for block in iter(lambda:f.read(1024*1024),b""):h.update(block)
     return h.hexdigest()
 
-def read_csv(path):
+def read_score_rows(path):
     opener=gzip.open if str(path).endswith(".gz") else open
     with opener(path,"rt",encoding="utf-8",newline="") as f:
-        yield from csv.DictReader(f)
+        if str(path).endswith((".jsonl",".jsonl.gz")):
+            for line in f:
+                if line.strip():yield json.loads(line)
+        else:
+            yield from csv.DictReader(f)
 
 def ranked(horses,values):
     if set(values)!=set(h["horse_id"] for h in horses):
@@ -89,11 +93,16 @@ def score_archived(spec,race,root):
     guard_metadata(meta,race)
     field=spec["score_field"]
     selected={}
-    for row in read_csv(path):
+    orientation=spec.get("score_direction","desc")
+    if orientation not in ("asc","desc"):raise ValueError("invalid score_direction")
+    for row in read_score_rows(path):
         if str(row.get(spec.get("race_field","race_id")))==race["race_id"]:
+            if spec.get("required_contract") and row.get("contract")!=spec["required_contract"]:
+                raise ValueError("archived score contract mismatch")
             hid=str(row.get(spec.get("horse_field","horse_id")) or "")
             if hid in selected:raise ValueError("duplicate archived horse: "+hid)
-            selected[hid]=float(row[field])
+            raw=float(row[field])
+            selected[hid]=raw if orientation=="desc" else -raw
     if not selected:raise ValueError("race missing from score archive")
     return selected
 
