@@ -1,0 +1,189 @@
+{
+  "contract": "KEIBA_L2_2_PAIR_DEPENDENCE_V1",
+  "frozen_l21": "9655c717333636b5cc931f672e12dbc377e396bc",
+  "pinned_backfill": "0d4af461b77f0060dd9c789dd2da646026fada47",
+  "year_2026_sealed": true,
+  "retrospective_final_odds_not_live_executable": true,
+  "explicit_year_training": {
+    "2024": [
+      2023
+    ],
+    "2025": [
+      2023,
+      2024
+    ]
+  },
+  "quoted_candidates": {
+    "2023": 651539,
+    "2024": 665028,
+    "2025": 665944
+  },
+  "cohort_definition": [
+    "bet_type",
+    "market_top3_count_ge2",
+    "all_members_AI_top6",
+    "favorite_win_prob_ge0.33"
+  ],
+  "baseline_model": "normalized market win odds => Plackett-Luce joint finish order",
+  "conditional_model": "prior year observed / Harville expected, shrink 25 expected wins to family ratio; family shrink 40; clip .6..1.4",
+  "primary_policy": "RELATION_115_CAP8",
+  "quote_cap": 2000.0,
+  "all_strategies": {
+    "BASE_PL_115_CAP8": [
+      "raw",
+      1.15,
+      8
+    ],
+    "RELATION_115_CAP8": [
+      "relation",
+      1.15,
+      8
+    ],
+    "RELATION_130_CAP8": [
+      "relation",
+      1.3,
+      8
+    ],
+    "RELATION_115_CAP20": [
+      "relation",
+      1.15,
+      20
+    ]
+  },
+  "all_l21_original_tickets": 13479,
+  "selected_cell_counts": {
+    "2024": 28,
+    "2025": 28
+  },
+  "train_audit": {
+    "2023": {
+      "priced": 651539,
+      "races": 3456
+    },
+    "2024": {
+      "priced": 665028,
+      "races": 3456,
+      "quote_missing": 370,
+      "winner_quote_missing": 8
+    },
+    "2025": {
+      "priced": 665944,
+      "races": 3456,
+      "quote_missing": 308,
+      "winner_quote_missing": 4
+    }
+  },
+  "test_audit": {
+    "2024": {
+      "priced": 665028,
+      "frozen_l21_overlap": 4366,
+      "races_bought_BASE_PL_115_CAP8": 3442,
+      "races_bought_RELATION_115_CAP8": 3339,
+      "races_bought_RELATION_130_CAP8": 2943,
+      "races_bought_RELATION_115_CAP20": 3339,
+      "races": 3456,
+      "quote_too_high": 17600,
+      "quote_missing": 370,
+      "winner_quote_missing": 8
+    },
+    "2025": {
+      "priced": 665944,
+      "races_bought_BASE_PL_115_CAP8": 3444,
+      "races_bought_RELATION_115_CAP8": 3351,
+      "races_bought_RELATION_130_CAP8": 3005,
+      "races_bought_RELATION_115_CAP20": 3351,
+      "races": 3456,
+      "frozen_l21_overlap": 4304,
+      "quote_too_high": 17092,
+      "quote_missing": 308,
+      "winner_quote_missing": 4
+    }
+  },
+  "forward": {
+    "2024": {
+      "BASE_PL_115_CAP8": {
+        "tickets": 26818,
+        "hits": 327,
+        "stake_yen": 2681800,
+        "return_yen": 2280750,
+        "profit_yen": -401050,
+        "roi_pct": 85.04549183384295,
+        "biggest3_share_pct": 13.607365998026966,
+        "roi_without_biggest3_pct": 73.47304049518979
+      },
+      "RELATION_115_CAP8": {
+        "tickets": 23742,
+        "hits": 170,
+        "stake_yen": 2374200,
+        "return_yen": 1945620,
+        "profit_yen": -428580,
+        "roi_pct": 81.94844579226687,
+        "biggest3_share_pct": 19.758740144529764,
+        "roi_without_biggest3_pct": 65.75646533569203
+      },
+      "RELATION_130_CAP8": {
+        "tickets": 17498,
+        "hits": 99,
+        "stake_yen": 1749800,
+        "return_yen": 1368810,
+        "profit_yen": -380990,
+        "roi_pct": 78.22665447479712,
+        "biggest3_share_pct": 28.08497892329834,
+        "roi_without_biggest3_pct": 56.25671505314893
+      },
+      "RELATION_115_CAP20": {
+        "tickets": 45890,
+        "hits": 378,
+        "stake_yen": 4589000,
+        "return_yen": 4365380,
+        "profit_yen": -223620,
+        "roi_pct": 95.12704292874264,
+        "biggest3_share_pct": 9.310987817784477,
+        "roi_without_biggest3_pct": 86.26977555022881
+      }
+    },
+    "2025": {
+      "BASE_PL_115_CAP8": {
+        "tickets": 27052,
+        "hits": 307,
+        "stake_yen": 2705200,
+        "return_yen": 1721820,
+        "profit_yen": -983380,
+        "roi_pct": 63.64852875942629,
+        "biggest3_share_pct": 10.541171551033209,
+        "roi_without_biggest3_pct": 56.939228153186455
+      },
+      "RELATION_115_CAP8": {
+        "tickets": 23968,
+        "hits": 159,
+        "stake_yen": 2396800,
+        "return_yen": 1480060,
+        "profit_yen": -916740,
+        "roi_pct": 61.75150200267023,
+        "biggest3_share_pct": 22.575436130967663,
+        "roi_without_biggest3_pct": 47.81083110814419
+      },
+      "RELATION_130_CAP8": {
+        "tickets": 17808,
+        "hits": 96,
+        "stake_yen": 1780800,
+        "return_yen": 1145850,
+        "profit_yen": -634950,
+        "roi_pct": 64.34467654986523,
+        "biggest3_share_pct": 29.160012218004102,
+        "roi_without_biggest3_pct": 45.581761006289305
+      },
+      "RELATION_115_CAP20": {
+        "tickets": 46098,
+        "hits": 370,
+        "stake_yen": 4609800,
+        "return_yen": 3410020,
+        "profit_yen": -1199780,
+        "roi_pct": 73.97327432860428,
+        "biggest3_share_pct": 9.857420191083923,
+        "roi_without_biggest3_pct": 66.68141784893054
+      }
+    }
+  },
+  "warning": "Exploratory multiple comparison; closing odds retrospective; 2026 held out. Cannot infer profitable live strategy."
+}
