@@ -1,0 +1,36 @@
+name: One-shot reproduce 7 existing LightGBM scores for one actual race
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-seven-king-model-reproduction.yml"
+permissions:
+  contents: read
+jobs:
+  replay-provenance:
+    runs-on: ubuntu-latest
+    timeout-minutes: 24
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free-only resource guard
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN" || { echo "::error::Kaggle access missing";exit 1; }
+          available=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
+          test "$available" -gt 4500000 || { echo "::error::runner free ephemeral space below guard";exit 1; }
+          python -m pip install --no-cache-dir --disable-pip-version-check -q kaggle lightgbm==4.7.0 pandas==3.0.6
+      - name: Read exact saved snapshot once and reuse for 7 original models
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/prove-existing-trained-kings.sh "$RUNNER_TEMP/seven-king-reproduction"
+      - name: Disclosure
+        if: always()
+        run: |
+          echo "No GPU/paid runner, paid storage, Actions Artifact or Cache. Existing score validation only: models were early-stopped on 2025 labels and cannot count as 2025 blind forecasts."
