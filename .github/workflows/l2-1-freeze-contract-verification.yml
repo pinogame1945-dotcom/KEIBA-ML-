@@ -1,0 +1,42 @@
+name: KEIBA L2.1 Frozen Contract Verification
+
+on:
+  push:
+    branches:
+      - freeze/l2.1-standard50-to-l3-20261015
+    paths:
+      - contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json
+      - docs/L2_1_FREEZE_TO_L3_HANDOFF_20261015.md
+      - scripts/verify_keiba_l2_1_freeze.py
+      - .github/workflows/l2-1-freeze-contract-verification.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: keiba-l2-1-frozen-contract
+  cancel-in-progress: false
+
+jobs:
+  verify-freeze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify freeze without dependencies or external storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile scripts/verify_keiba_l2_1_freeze.py
+          python scripts/verify_keiba_l2_1_freeze.py
+      - name: Confirm runner and artifact policy
+        shell: bash
+        run: |
+          echo "Standard free CPU; no cache, upload-artifact, GPU, Kaggle or paid storage."
+          echo "2026 sealed; descriptive in-sample 2023-2025 only."
