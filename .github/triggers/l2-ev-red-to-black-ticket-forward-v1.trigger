@@ -1,1 +1,2 @@
 Experiment v1 approved: include profitable AND unprofitable odds bins and seven actual ticket types with frozen EV anchor. Use 2023 to fit 2024, 2023+2024 to fit 2025. Compare ticket scores/ranking, ticket caps and 1–3x stake sizes, no lookahead, 2026 sealed. Free standard GitHub CPU only, pinned BACKFILL metadata-first official prices.
+Retry v2: empty priced-candidate race is a legitimate no-purchase without fabricated odds or output-target leakage.
