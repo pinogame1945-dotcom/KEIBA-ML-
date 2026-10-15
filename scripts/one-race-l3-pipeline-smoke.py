@@ -94,7 +94,8 @@ with tempfile.TemporaryDirectory() as d:
     shortage_obj=json.loads((d/"budget/L3-fixed100-paper-portfolio.json").read_text())
     assert shortage_obj["status"]=="INSUFFICIENT_BUDGET_DO_NOT_DROP_TICKETS"
     assert shortage_obj["tickets"]==[]
-    broken={**card,"odds_rows":odds[:-1]}
+    broken={**card,"odds_rows":[r for r in odds if not(
+        r["betType"]=="QUINELLA" and r["selection1"]==1 and r["selection2"]==5)]}
     bad=put("partial.json",broken)
     subset=module.run(rid,d/"partial",bad,orig,cash,l1)
     assert subset["status"]=="BLOCKED_UPSTREAM_OR_BUDGET",subset
