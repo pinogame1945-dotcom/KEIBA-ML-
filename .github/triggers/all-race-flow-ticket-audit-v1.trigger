@@ -1,0 +1,7 @@
+contract=ALL_RACE_FLOW_TICKET_AUDIT_V1
+runs=2023,2024,2025
+all_races=10368
+method=OOS_CACHED_ONLY
+cost=free_standard_CPU
+payouts=NOT_IN_CACHED_INPUT
+2026=SEALED
