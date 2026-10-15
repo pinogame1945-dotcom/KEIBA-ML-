@@ -1,0 +1,58 @@
+name: One-shot fast real race 7King Outsider replay (free CPU)
+
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-fast-real-race.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  integrated:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Direct GitHub metadata-verified three-file BACKFILL restore
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 scripts/prepare-proven-real-race.py "$RUNNER_TEMP/proven-real-race"
+      - name: Analyze exact same 16-horse race using saved 7 King and 13 Outsider
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/analyze-one-race.py \
+            --race 202507010212 \
+            --source-root "$RUNNER_TEMP/proven-real-race" \
+            --history-from 2025-01-05 \
+            --github-saved \
+            --require-scored \
+            --output-dir "$RUNNER_TEMP/one-race-all-models"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"one-race-all-models"
+          feature=json.loads((root/"features.json").read_text())
+          result=json.loads((root/"analysis.json").read_text())
+          assert result["race_id"]=="202507010212"
+          assert result["starters"]==16
+          assert result["saved_seven_kings"]["status"]=="GITHUB_ARCHIVED_7KING_REPLAY"
+          assert result["saved_seven_kings"]["seven_king_count"]==7
+          assert result["saved_seven_kings"]["outsider_model_count"]==13
+          assert len(result["horses"])==16
+          assert all(len(h["saved_seven_king_ranks"])==7 for h in result["horses"])
+          assert all("saved_outsider_points" in h for h in result["horses"])
+          assert all("target" not in h and "market_outcome" not in h
+                     for h in feature["features_by_horse"])
+          print("FAST_REAL_ONE_RACE_ALL_MODELS_PASS",
+                result["race_id"],"starters",result["starters"],
+                "7kings",result["saved_seven_kings"]["seven_king_count"],
+                "outsiders",result["saved_seven_kings"]["outsider_model_count"])
+          PY
