@@ -20,6 +20,8 @@ on:
       - "research/market_context_v1.py"
       - "scripts/market-context-v1-smoke.py"
       - "research/bridge-keiba-mobile-odds.py"
+      - "research/replay-final-market-oos-v2.py"
+      - "scripts/final-market-oos-v2-smoke.py"
       - "scripts/mobile-jra-bridge-smoke.py"
       - "research/audit-seven-king-bundles.py"
       - "research/verify-trained-kings-vs-saved-scores.py"
@@ -58,6 +60,7 @@ jobs:
           python3 scripts/l17-saved-p3-smoke.py
           python3 scripts/market-context-v1-smoke.py
           python3 scripts/mobile-jra-bridge-smoke.py
+          python3 scripts/final-market-oos-v2-smoke.py
           python3 -m py_compile research/audit-seven-king-bundles.py research/verify-trained-kings-vs-saved-scores.py research/predict-prior-year-seven-kings.py
           python3 scripts/single-race-snapshot-extraction-smoke.py
           bash -n scripts/score-known-race-kaggle.sh
