@@ -1,0 +1,49 @@
+name: Summarize 3040 Original Odds Line Red-to-Black Counts
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-odds-red-to-black-summary-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-odds-red-to-black-summary-v1
+  cancel-in-progress: false
+
+jobs:
+  aggregate-existing-results:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Verify standard CPU and existing source result files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/summarize_l2_odds_band_red_to_black_v1.py
+          test -s research-results/l2-frozen-odds-l1-lenses-v1/run-38694334351/all_3040_lines_x_existing_axes_yearly.csv.gz
+          test -s research-results/l2-frozen-odds-l1-lenses-v1/run-38694334351/odds_band_x_existing_axes_yearly.csv
+          echo "STANDARD_CPU_EXISTING_RESEARCH_ONLY_NO_DOWNLOAD_NO_CACHE"
+      - name: Count every original red-to-black odds line and 7x20 bet-type odds band
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -u research/summarize_l2_odds_band_red_to_black_v1.py
+      - name: Save only compact checked summary without paid artifacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l2-frozen-odds-l1-lenses-v1/run-38694334351/RED_TO_BLACK_ALL_ODDS_BANDS_SUMMARY_JA.md \
+                  research-results/l2-frozen-odds-l1-lenses-v1/run-38694334351/red_to_black_counts_summary.json
+          git commit -m "research: exact red-to-black counts and all-band audit"
+          git push origin "HEAD:$GITHUB_REF_NAME"
