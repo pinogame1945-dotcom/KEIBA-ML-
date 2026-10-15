@@ -64,6 +64,53 @@ Use `--require-scored` to fail explicitly if no verifiable model predicted.
 No GitHub Actions artifact/cache or paid compute is required. The command only
 **reads** BACKFILL and Kaggle; output files are small and local.
 
+## Kaggleなしの既存7王＋13 Outsider（GitHub保存済み）
+
+**20モデルの保存済み予想を、1レースIDだけで再生できる。**
+
+正本はすでにGitHubの `research/l1-council-rebuild-v1-20261004`
+ブランチに保存済みの2021〜2025年度別アーカイブ。各年の7王
+`rank_matrix` は、既存の7王スコアをtie-safe再順位した後に生成された。
+`outsider_support` と別保存の13体 `ballots.csv.gz` は照合して一致を要求する。
+
+```sh
+python3 research/analyze-one-race.py \
+  --race 202507010212 \
+  --source-root ../KEIBA-BACKFILL \
+  --history-from 2021-01-01 \
+  --github-saved \
+  --output-dir out/race-202507010212 \
+  --require-scored
+```
+
+`--github-saved` はGitHubの既存コミットから該当年の既製zip
+（Council約0.8MB／Outsider ballot約0.55MB）だけを取得し、
+ローカルsession内に再利用する。Git tree一覧で**実在するファイルと
+サイズを確認してから**取得。Kaggle・rolecmp router・GPU・課金保存なし。
+
+最終 `analysis.json` には全馬の `model_ranks`、
+7王別順位・13 Outsider別Top3票順位・累計投票点をまとめる。
+7王の公式L2.1ルールに**勝手に置換せず**、M127_S0の純粋7王比較順位
+として記録する。Outsiderの「Top3外」は順位を捏造せずnullのまま。
+
+**重要：この7王と13 Outsiderは保存済みのhistorical OOF評価を再生
+している。** `prediction_phase=FINAL` の事後保存レース入力を学習検証に
+使っているため、レース発走前の取得時刻を完全再現したと主張しない。
+`--history-from` を短縮した実データsmokeは特徴量接続確認であり、
+学習時点の全履歴と完全一致する証明ではない。
+
+### 実レースでの確認済み範囲
+
+- BACKFILL実データ 2025-01-05/06 2日分を抜き出し、
+  **202507010212、16頭**の特徴量生成・結果非参照・モデル欠落表示が
+  無料CPU CI成功（run `38729589817`）。
+- GitHub研究アーカイブから直接、
+  **202506010101、16頭**の7王順位と**13 Outsider票**の一貫性検証に成功
+  （run `38730555347`）。結果・確定オッズは順位に投入しない。
+- この2経路を同一レースで結合する無料CPU実証は別workflowで管理する。
+- 2019以前など保存済みfold外のレースは、特徴量生成と保存済み20モデル
+  予測再生を混同しない。モデルが存在しない場合は `UNAVAILABLE`。
+
 ## All-model registry
 
 `models/one-race-registry.json` に各研究系統の登録枠がある。以下の形式で **実体を確認したときだけ** 種別を変更する。
@@ -148,6 +195,7 @@ bash research/replay-seven-kings-kaggle.sh 202505010111 out/archived-seven-king.
 - [x] 全頭の特徴量、結果非参照、EARLY限定
 - [x] LightGBM/保存済みOOF/登録済みアンサンブルの接続口
 - [x] 1コマンドで特徴量・全モデル状態・保存済み7王（任意）を統合するJSON出力
+- [x] Githubからの保存済み7王＋13 Outsiderを1フラグで取得・計算（2021〜2025、各既製アーカイブの年別）
 - [x] 7王・Outsider・L1.75・L2.1の配備不足を欠落ステータスで報告
 - [x] 保存済み7王scoreをKaggle一覧から直接取得し、全7体順位を再生するコマンドを実装（実リモート検証は未実施）
 - [ ] 実際に利用できる研究モデル実体・保存済みOOF scoreの実ダウンロードと本番レジストリ登録
