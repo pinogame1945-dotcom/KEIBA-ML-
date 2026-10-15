@@ -9,6 +9,9 @@ on:
       - "research/score-one-race.py"
       - "scripts/single-race-engine-smoke.mjs"
       - "models/one-race-registry.json"
+      - "research/replay-seven-kings.py"
+      - "research/replay-seven-kings-kaggle.sh"
+      - "scripts/seven-king-replay-smoke.py"
       - ".github/workflows/single-race-inference-smoke.yml"
   workflow_dispatch:
 
@@ -30,7 +33,9 @@ jobs:
           node --check src/single-race-engine.mjs
           node --check src/single-race-historical-extra.mjs
           node --check research/predict-one-race.mjs
-          python3 -m py_compile research/score-one-race.py
+          python3 -m py_compile research/score-one-race.py research/replay-seven-kings.py
+          bash -n research/replay-seven-kings-kaggle.sh
+          python3 scripts/seven-king-replay-smoke.py
           node scripts/single-race-engine-smoke.mjs
       - name: Existing L1 feature tests
         run: npm run smoke:all
