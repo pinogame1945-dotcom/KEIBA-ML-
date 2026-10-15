@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """Read existing 7 king horse-level historical score snapshots; no new training."""
-import argparse,gzip,json,sys
+import argparse,gzip,json,sys,math
 from pathlib import Path
 
 EXPERTS=("core4","pedlegacy","condition","full","light","pedv1","condrc")
@@ -11,22 +11,49 @@ def read(path):
         for line in f:
             if line.strip():yield json.loads(line)
 
+def finite(value):
+    try:
+        result=float(value)
+        return result if math.isfinite(result) else None
+    except (ValueError,TypeError):
+        return None
+
 def load_one(path,race_id):
-    result={}
+    rows={}
     for row in read(path):
         if str(row.get("race_id") or "")!=race_id:continue
         if row.get("contract")!=CONTRACT:
             raise ValueError("unexpected score contract "+str(row.get("contract")))
         hid=str(row.get("horse_id") or "")
-        rank=int(row.get("predicted_rank") or 0)
-        if not hid or rank<1 or hid in result:raise ValueError("bad/doubled horse score "+hid)
+        if not hid or hid in rows:
+            raise ValueError("bad/doubled horse score "+hid)
         if row.get("race_date") and str(row["race_date"])[:4]!=race_id[:4]:
             raise ValueError("score date/year drift")
-        result[hid]={"rank":rank,"horse_no":row.get("horse_number")}
-    if not result:raise ValueError("no saved score for target race "+race_id+" in "+path)
-    if sorted(item["rank"] for item in result.values())!=list(range(1,len(result)+1)):
-        raise ValueError("non-contiguous rank score file: "+path)
-    return result
+        phase=str(row.get("prediction_phase") or "")
+        if phase!="FINAL":
+            raise ValueError("archived seven-king source must declare FINAL research phase")
+        if row.get("target") is not None or row.get("market_outcome") is not None:
+            raise ValueError("model scoring must not read labels")
+        # Apply exact 2026-10-04 rerank_l1_score_safe_v1.py rule, never
+        # trust predicted_rank tie order from the archive producer.
+        margin=finite(row.get("raw_margin_logit"))
+        prob=finite(row.get("raw_win_probability"))
+        score=margin if margin is not None else prob
+        if score is None:raise ValueError("raw score unavailable for tie-safe re-ranking")
+        rows[hid]={
+            "score":score,"model_raw_margin_logit":margin,
+            "model_raw_win_probability":prob,
+            "race_normalized_win_probability":finite(row.get("race_normalized_win_probability")),
+            "horse_no":row.get("horse_number"),
+            "model_sha256":str(row.get("model_sha256") or ""),
+            "contribution_family":row.get("family_contribution_logit"),
+            "historical_unsafely_tied_rank":row.get("predicted_rank"),
+        }
+    if not rows:raise ValueError("no saved score for target race "+race_id+" in "+path)
+    ordered=sorted(rows,key=lambda hid:(-rows[hid]["score"],hid))
+    for index,hid in enumerate(ordered,start=1):
+        rows[hid]["rank"]=index
+    return rows
 
 def predict(race_id,paths):
     data={name:load_one(paths[name],race_id) for name in EXPERTS}
@@ -46,6 +73,9 @@ def predict(race_id,paths):
              -sum(r==1 for r in arr),hid)
         rankings.append({"horse_id":hid,"horse_number":next(iter(horse_nums),None),
                          "king_ranks":ranks,"rank_sum":sum(arr),
+                         "king_raw_probabilities":{e:data[e][hid]["model_raw_win_probability"] for e in EXPERTS},
+                         "king_normalized_probabilities":{e:data[e][hid]["race_normalized_win_probability"] for e in EXPERTS},
+                         "king_score_logit":{e:data[e][hid]["model_raw_margin_logit"] for e in EXPERTS},
                          "_tie_key":key})
     rankings.sort(key=lambda row:row["_tie_key"])
     for i,row in enumerate(rankings,start=1):
@@ -53,10 +83,12 @@ def predict(race_id,paths):
         del row["_tie_key"]
     return {"contract":"KEIBA_ARCHIVED_7KING_ONE_RACE_V1","race_id":race_id,
             "origin":"HISTORICAL_SAVED_OOF_REPLAY_NOT_NEW_INFERENCE",
+            "prediction_phase":"FINAL_ARCHIVED_UNVERIFIED_TIMESTAMPS",
+            "tie_safe_rule":"raw_margin_logit (fallback raw_win_probability) descending, horse_id ascending",
             "expert_names":list(EXPERTS),"model_count":len(EXPERTS),
             "horses":rankings,"rank_sum_comparator":
               "M127_S0 from experimental council rebuild: rank sum, top6/top3/top1 tie-breaks, horse ID. This is NOT official 7-king router or L2.1 ANCHOR_FULL.",
-            "verification_note":"The individual scores were previously computed for this historical race. Model fold provenance must be audited before interpreting as true as-of forecasts."}
+            "verification_note":"Source 7-king workflow trains on two earlier calendar years and scores the held-out year. However FINAL phase snapshots derive from completed archives and input publication times were not independently proven; not confirmed live-bet deployable."}
 
 def main():
     p=argparse.ArgumentParser()
