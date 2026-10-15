@@ -41,7 +41,8 @@ jobs:
           from pathlib import Path
           s=Path(".github/workflows/l2-2-jackpot-odds-bands.yml").read_text()
           assert [l.strip() for l in s.splitlines() if l.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
-          assert not any(x in s for x in ("actions/cache@", "actions/upload-artifact@", "self-hosted"))
+          assert not any(l.strip().startswith("- uses:") and ("actions/cache" in l or "actions/upload-artifact" in l) for l in s.splitlines())
+          assert not any(l.strip().startswith("runs-on:") and ("self-hosted" in l or "gpu" in l) for l in s.splitlines())
           PY
       - name: Resolve pinned official BACKFILL files from real manifests
         shell: bash
