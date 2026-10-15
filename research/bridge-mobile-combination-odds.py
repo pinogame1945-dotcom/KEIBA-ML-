@@ -26,10 +26,20 @@ def convert(payload):
         raise ValueError("FINAL_OR_UNVERIFIED_CAPTURE")
     rows=payload.get("odds_rows")
     if not isinstance(rows,list):raise ValueError("MISSING_ORIGINAL_ODDSROWS")
+    wins=[r for r in rows if r.get("betType")=="WIN"]
+    if len(wins)!=len(active):
+        raise ValueError("MISSING_FULL_SAME_CAPTURE_WIN_ODDS")
+    win_numbers=[r.get("selection1") for r in wins]
+    if (any(type(n) is not int for n in win_numbers)
+        or set(win_numbers)!=active or len(set(win_numbers))!=len(wins)):
+        raise ValueError("WIN_PRICE_HORSE_NUMBER_DRIFT")
+    if any(r.get("selection2") is not None or r.get("selection3") is not None
+           for r in wins):
+        raise ValueError("INVALID_WIN_PRICE_ARITY")
     combos=[r for r in rows if r.get("betType") in TYPES]
     if not combos or set(r["betType"] for r in combos)!=set(TYPES):
         raise ValueError("MISSING_ONE_OR_MORE_L21_BET_TYPES")
-    times={str(r.get("observedAt") or "") for r in combos}
+    times={str(r.get("observedAt") or "") for r in combos+wins}
     if len(times)!=1:raise ValueError("ODDS_TIMES_MIXED")
     stamp=next(iter(times))
     observed=mod.timestamp(stamp,"original_oddrow_observed")
@@ -37,9 +47,9 @@ def convert(payload):
     checked=mod.timestamp(provenance.get("final_probe_checked_at"),"final_probe")
     if not observed<=checked<cutoff<start:
         raise ValueError("FINAL_PROBE_ODDS_OR_CUTOFF_NOT_IN_TIME")
-    if any(r.get("raceKey")!=race["raceKey"] for r in combos):
+    if any(r.get("raceKey")!=race["raceKey"] for r in combos+wins):
         raise ValueError("ODDS_RACE_KEY_MISMATCH")
-    if any(r.get("sourceUrl")!=race.get("sourceUrl") for r in combos):
+    if any(r.get("sourceUrl")!=race.get("sourceUrl") for r in combos+wins):
         raise ValueError("ODDS_JRA_RACE_CARD_SOURCE_URL_MISMATCH")
     out={
       "contract":"KEIBA_JRA_COMBINATION_ODDS_ASOF_V1",
@@ -52,6 +62,7 @@ def convert(payload):
       "bet_cutoff_at":provenance["bet_cutoff_at"],
       "scheduled_start_at":f'{race["raceDate"]}T{race["startTime"]}:00+09:00',
       "rows":combos,
+      "win_odds_rows":wins,
       "verification_note":"The JRA final-state probe and timestamps are asserted by the offline export. Authenticity and a server-side timestamp are not independently attested."
     }
     mod.combine_quote(out,rid,active,race["raceKey"],start)
