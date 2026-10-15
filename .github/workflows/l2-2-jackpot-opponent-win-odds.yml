@@ -1,0 +1,79 @@
+name: L2.2 Opponent horse win odds CPU research
+
+on:
+  push:
+    branches: [research/l2.2-jackpot-opponent-win-odds-v1-20261016]
+    paths:
+      - l2_2/jackpot_opponent_win_odds.py
+      - .github/workflows/l2-2-jackpot-opponent-win-odds.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l22-opponent-win-odds-20261016
+  cancel-in-progress: false
+
+jobs:
+  win-odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/l2.2-jackpot-opponent-win-odds-v1-20261016
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install basic CPU runtime
+        run: python -m pip install --disable-pip-version-check pandas numpy
+      - name: Unit checks
+        run: |
+          set -euo pipefail
+          python -m py_compile l2_2/jackpot_opponent_win_odds.py
+          python l2_2/jackpot_opponent_win_odds.py --selftest
+      - name: Read pinned official race-day manifest
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-race-pack
+          git init -q out/pinned-race-pack
+          git -C out/pinned-race-pack remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-race-pack sparse-checkout init --no-cone
+          git -C out/pinned-race-pack sparse-checkout set --no-cone data/manifest.json
+          git -C out/pinned-race-pack fetch --depth=1 --filter=blob:none origin 0d4af461b77f0060dd9c789dd2da646026fada47
+          git -C out/pinned-race-pack checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-race-pack rev-parse HEAD)" = 0d4af461b77f0060dd9c789dd2da646026fada47
+          python l2_2/jackpot_opponent_win_odds.py --prepare \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/pinned-race-pack --sparse-paths out/pinned-race-packs.list
+      - name: Download only actual manifest files once
+        run: |
+          set -euo pipefail
+          git -C out/pinned-race-pack sparse-checkout set --no-cone --stdin < out/pinned-race-packs.list
+      - name: Evaluate 2023-25 by horse's own win-odds band
+        run: |
+          set -euo pipefail
+          output="research-results/l2-2-jackpot-opponent-win-odds-v1/run-$GITHUB_RUN_ID"
+          python -u l2_2/jackpot_opponent_win_odds.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/pinned-race-pack --out-dir "$output"
+          test -s "$output/summary.json"
+          test -s "$output/opponent_win_odds_bins.csv"
+          test -s "$output/opponent_win_odds_windows.csv"
+          test "$(du -sm "$output" | cut -f1)" -le 4
+      - name: Delete local pinned source
+        if: always()
+        run: rm -rf out/pinned-race-pack out/pinned-race-packs.list
+      - name: Save compact findings
+        if: success()
+        run: |
+          set -euo pipefail
+          output="research-results/l2-2-jackpot-opponent-win-odds-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin research/l2.2-jackpot-opponent-win-odds-v1-20261016
+          git add "$output"
+          git commit -m "research(l2.2): contender win-odds trifecta results $GITHUB_RUN_ID"
+          git push origin HEAD:research/l2.2-jackpot-opponent-win-odds-v1-20261016

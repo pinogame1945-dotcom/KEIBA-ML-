@@ -1,0 +1,3 @@
+# Opponent horse WIN-odds cohort
+
+Historical FINAL win odds (not trifecta ticket odds) for market ranks 1+2, 1+3, 2+3 anchored, opponent popularity ranks >=4, full 6-way trifecta permutation, 100JPY tickets. Purchase every candidate of each band including losers. Year-by-year and historical train-to-next-year validation. Pinned BACKFILL manifest, free CPU, 2026 sealed, L2.1 unchanged. No speculative filenames and no paid artifact/cache. Annual 2023-25 benchmark matches 239574 lines, 940 physical winning tickets, 16936420JPY paid, 594 jackpot winning tickets.
