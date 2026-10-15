@@ -38,6 +38,7 @@ def year_calc(year, races, predictions, root):
     rr=races[races.year.eq(year)].copy()
     pred=predictions[predictions.year.eq(year)].copy()
     pred_groups=pred.groupby("_race_id",sort=False)
+    race_by_id=rr.set_index("race_id")
     assert_ok(len(rr)==RACES_YEAR,"race count drift "+str(year))
     dates=rr[["race_id","race_date"]].groupby("race_date")["race_id"].apply(list)
     totals=defaultdict(Counter)
@@ -45,7 +46,7 @@ def year_calc(year, races, predictions, root):
     for day,ids in dates.items():
         packs=load_day(root/"data"/"daily"/f"{day}.jsonl.gz",set(ids))
         for rid in ids:
-            row=rr.loc[rr.race_id.eq(rid)].iloc[0]
+            row=race_by_id.loc[rid]
             pack=packs.get(rid)
             assert_ok(pack is not None,"missing pack "+rid)
             horse_no=horse_number_map(pack)
