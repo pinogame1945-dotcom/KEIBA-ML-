@@ -62,7 +62,7 @@ def race(rid):
     if tab is None:raise ValueError('no race results table '+rid)
     ranks={};chosen=set();pops={};horses=0
     for tr in tab.select('tr'):
-        td=tr.find_all('td',recursive=False)
+        td=tr.find_all('td')
         if len(td)<18:continue
         a=[clean(x) for x in td]
         if not(a[0].isdigit() and a[2].isdigit()):continue
@@ -76,8 +76,8 @@ def race(rid):
     combos=[]
     for tab in soup.select('table.pay_table_01'):
         for tr in tab.select('tr'):
-            th=tr.find_all('th',recursive=False)
-            td=tr.find_all('td',recursive=False)
+            th=tr.find_all('th')
+            td=tr.find_all('td')
             if not th or '三連複' not in clean(th[0]):continue
             if len(td)<2:continue
             bets=re.findall(r'\d{1,2}[-－]\d{1,2}[-－]\d{1,2}',clean(td[0]))
