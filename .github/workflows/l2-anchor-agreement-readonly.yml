@@ -18,7 +18,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           ref: ${{ github.ref_name }}
-      - name: Calculate existing selection overlap without new payouts
+      - name: Extract exact win/place ROI of matching top-ranked selections from saved research
         shell: bash
         run: |
           python - <<'PY'
@@ -39,4 +39,47 @@ jobs:
                   k=sum(len(set(r[a+"_horse"] for a in subset))==1 for r in records)
                   counts["AND".join(subset)]={"count":k,"pct":round(100*k/n,6)}
               print("AGREEMENT_RESULT",json.dumps({"year":year,"races":n,"metrics":counts},ensure_ascii=False),flush=True)
+
+          # Reuse two saved CSV.gz outputs. No re-fetch of BACKFILL, no odds guesses.
+          ceiling_path="research-results/l2-value-anchor-betfrontier-v1/run-38679077074/per-race-max-payout-ceiling.csv.gz"
+          with gzip.open(ceiling_path,"rt",encoding="utf-8",newline="") as f:
+              payouts={r["race_id"]:r for r in csv.DictReader(f)}
+          assert len(payouts)==10368
+          cases={
+              "ALL":lambda r:True,
+              "EV_AND_CALIBRATED_1_SAME":lambda r:r["VALUE_EV_horse"]==r["AI_PROB_TOP_horse"],
+              "EV_AND_CALIBRATED_1_BOTH_FAVORITE":lambda r:r["VALUE_EV_horse"]==r["AI_PROB_TOP_horse"]==r["MARKET_TOP_horse"],
+              "EV_AND_CALIBRATED_1_SAME_NOT_FAVORITE":lambda r:r["VALUE_EV_horse"]==r["AI_PROB_TOP_horse"] and r["VALUE_EV_horse"]!=r["MARKET_TOP_horse"],
+              "EV_AND_CALIBRATED_1_DIFFERENT":lambda r:r["VALUE_EV_horse"]!=r["AI_PROB_TOP_horse"],
+              "EV_AND_RAW_1_SAME":lambda r:r["VALUE_EV_horse"]==r["AI_RAW_TOP_horse"],
+          }
+          for year in ("2023-2025","2023","2024","2025"):
+              yr=rows if year=="2023-2025" else [r for r in rows if r["year"]==year]
+              for case,condition in cases.items():
+                  part=[r for r in yr if condition(r)]
+                  n=len(part)
+                  if not n:continue
+                  checks=[(r,payouts[r["race_id"]]) for r in part]
+                  assert all(r["VALUE_EV_horse"]==p["selected_horse_id"] for r,p in checks), "race/horse identity drift"
+                  win=sum(float(p["max_paid_WIN_yen"]) for r,p in checks)
+                  place=sum(float(p["max_paid_PLACE_yen"]) for r,p in checks)
+                  assert all((float(p["max_paid_WIN_yen"])>0)==(int(r["VALUE_EV_win"])==1) for r,p in checks), "win drift"
+                  avg_o=sum(float(r["VALUE_EV_odds"]) for r in part)/n
+                  values=[float(r["VALUE_EV_p"])*float(r["VALUE_EV_odds"]) for r in part]
+                  result={
+                      "year":year, "group":case, "races":n,"percent_all_year_races":round(100*n/len(yr),5),
+                      "win_hitrate_pct":round(100*sum(int(r["VALUE_EV_win"]) for r in part)/n,5),
+                      "top3_pct":round(100*sum(int(r["VALUE_EV_top3"]) for r in part)/n,5),
+                      "win_stake_yen":100*n,"win_return_yen":round(win,2),
+                      "win_profit_yen":round(win-100*n,2),
+                      "WIN_ROI_PCT":round(win/n,5),
+                      "PLACE_ROI_PCT":round(place/n,5),
+                      "avg_win_odds":round(avg_o,5),
+                      "avg_predicted_EV_multiplier":round(sum(values)/n,5),
+                      "predicted_EV_positive_pct":round(100*sum(v>1 for v in values)/n,5),
+                      "predicted_EV_over_110_pct":round(100*sum(v>=1.1 for v in values)/n,5),
+                  }
+                  print("SAVED_EXACT_PAYOUT_ROI",json.dumps(result,ensure_ascii=False),flush=True)
+          assert round(sum(float(p["max_paid_WIN_yen"]) for p in payouts.values())/10368,6)==86.898148, "win baseline drift"
+          assert round(sum(float(p["max_paid_PLACE_yen"]) for p in payouts.values())/10368,6)==83.490548, "place baseline drift"
           PY
