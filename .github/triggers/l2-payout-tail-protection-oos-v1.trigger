@@ -1,0 +1,12 @@
+contract=L2_PAYOFF_TAIL_PROTECTION_V1
+base_run=38680436244
+method=clipped_return_5_25_100_raw,hurdle_probability_times_payout,rare_tail_component
+rule_count=5
+years=2024,2025
+strict_prior_train_calibration=true
+coverage=70,80,90
+2024_selection=locked_to_2025
+use_cached_data_only=true
+runner=ubuntu-latest_standard_free_cpu
+no_artifacts_no_cache=true
+2026=SEALED
