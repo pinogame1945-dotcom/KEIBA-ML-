@@ -46,13 +46,18 @@ jobs:
           assert result["saved_seven_kings"]["status"]=="GITHUB_ARCHIVED_7KING_REPLAY"
           assert result["saved_seven_kings"]["seven_king_count"]==7
           assert result["saved_seven_kings"]["outsider_model_count"]==13
+          assert result["saved_l17_podium"]["status"]=="ARCHIVED_OOS_P3",result["saved_l17_podium"]
+          assert result["saved_l17_podium"]["score_rows"]==10
+          assert result["saved_l17_podium"]["trained_on_prior_years"]==[2021,2022,2023,2024]
           assert len(result["horses"])==16
           assert all(len(h["saved_seven_king_ranks"])==7 for h in result["horses"])
           assert all("saved_outsider_points" in h for h in result["horses"])
+          assert sum("l17_saved_p3_oos" in h for h in result["horses"])==10
           assert all("target" not in h and "market_outcome" not in h
                      for h in feature["features_by_horse"])
           print("FAST_REAL_ONE_RACE_ALL_MODELS_PASS",
                 result["race_id"],"starters",result["starters"],
                 "7kings",result["saved_seven_kings"]["seven_king_count"],
-                "outsiders",result["saved_seven_kings"]["outsider_model_count"])
+                "outsiders",result["saved_seven_kings"]["outsider_model_count"],
+                "L17_OOS_P3",result["saved_l17_podium"]["score_rows"])
           PY
