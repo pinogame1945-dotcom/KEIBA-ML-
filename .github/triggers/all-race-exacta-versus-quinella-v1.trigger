@@ -1,0 +1,8 @@
+experiment=ALL_RACE_EXACTA_VS_QUINELLA_V1
+control_quinella_run=38674401344
+all_races=10368
+2023_2024_2025=true
+directions=forward,reverse,both
+bet_yen=100
+backfill_pinned_sha=0d4af461b77f0060dd9c789dd2da646026fada47
+2026=SEALED
