@@ -30,11 +30,24 @@ def all_packs(path,ids,odds=False):
             rid=str(record.get("race_id") if odds else (record.get("race") or {}).get("race_id"))
             if rid in ids:yield rid,record
 
-def audit(pred,pack,oddspack):
+def council_presence(path):
+    x={}
+    with gzip.open(path,"rt",encoding="utf-8") as f:
+        for line in f:
+            rec=json.loads(line)
+            rid=str(rec.get("race_id") or "")
+            if rid in MISSING:
+                ids=[str(k) for k in rec.get("horses") or []]
+                x[rid]=ids
+    if set(x)!=set(MISSING):raise ValueError("COUNCIL_RACE_COVERAGE_DRIFT")
+    return x
+
+def audit(pred,pack,oddspack,council):
     ids=set(MISSING)
     predicted=panel(pred)
     entries=dict(all_packs(pack,ids,False))
     prices=dict(all_packs(oddspack,ids,True))
+    council_ids=council_presence(council)
     if set(entries)!=ids or set(prices)!=ids:
         raise ValueError("DAILY_PACK_TARGET_RACE_NOT_COMPLETE")
     cases=[]
@@ -56,6 +69,8 @@ def audit(pred,pack,oddspack):
            "original_panel_horse_count":len(predicted.get(rid,set())),
            "backfill_start_entries":sum(x.get("entry_status")=="STARTED" for x in active),
            "backfill_numbered_entries":sum(x.get("horse_number") is not None for x in active),
+           "saved_7king_council_includes_missing_horse":missing_id in council_ids[rid],
+           "saved_7king_council_horse_count":len(council_ids[rid]),
            "odds_record_kind":odds.get("odds_kind"),
            "odds_record_source_status":odds.get("source_status"),
            "win_price_present_for_missing_horse":bool(match),
@@ -77,15 +92,17 @@ def audit(pred,pack,oddspack):
 
 def main():
     p=argparse.ArgumentParser()
-    for name in ("predictions","race-pack","odds-pack","output"):
+    for name in ("predictions","race-pack","odds-pack","council","output"):
         p.add_argument("--"+name,required=True)
     x=p.parse_args()
-    z=audit(x.predictions,x.race_pack,x.odds_pack)
+    z=audit(x.predictions,x.race_pack,x.odds_pack,x.council)
     dst=Path(x.output);dst.parent.mkdir(parents=True,exist_ok=True)
     dst.write_text(json.dumps(z,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     for case in z["cases"]:
         print("STARTED_HORSE_OOS_MISSING",case["race_id"],case["horse_number"],
               case["horse_id"],"group1_odds_exists",case["win_price_present_for_missing_horse"],
-              "price_keys",case["win_odds_raw_keys"],"entry",
+              "price_keys",case["win_odds_raw_keys"],
+              "saved_7king_has_horse",case["saved_7king_council_includes_missing_horse"],
+              "7king_field",case["saved_7king_council_horse_count"],"entry",
               case["entry_nonresult_fields"],flush=True)
 if __name__=="__main__":main()
