@@ -1,0 +1,2514 @@
+{
+  "contract": "READONLY_3040_FIXED_RED_TO_BLACK_DETAIL_V1",
+  "no_experiment_changed": true,
+  "source_run": "38692491374",
+  "scope": "ALL 3040 fixed strategies originally evaluated, black 245 is report-only posthoc partition",
+  "baseline_2024_2025_negative_to_positive_only": true,
+  "per_policy": [
+    {
+      "policy": "BASE",
+      "red_to_black": 0,
+      "both_years_positive": 0,
+      "both_years_positive_min_100_tickets_each": 0,
+      "original_3yr_black_to_red": 0,
+      "sum_profit_delta_non_dedup_yen": 0,
+      "sum_after_profit_non_dedup_yen": 0,
+      "median_tickets_converted": 0
+    },
+    {
+      "policy": "PROB_90",
+      "red_to_black": 12,
+      "both_years_positive": 1,
+      "both_years_positive_min_100_tickets_each": 1,
+      "original_3yr_black_to_red": 4,
+      "sum_profit_delta_non_dedup_yen": 3157850,
+      "sum_after_profit_non_dedup_yen": 1261600,
+      "median_tickets_converted": 4437
+    },
+    {
+      "policy": "PROB_75",
+      "red_to_black": 25,
+      "both_years_positive": 1,
+      "both_years_positive_min_100_tickets_each": 1,
+      "original_3yr_black_to_red": 5,
+      "sum_profit_delta_non_dedup_yen": 3907370,
+      "sum_after_profit_non_dedup_yen": 846780,
+      "median_tickets_converted": 1700
+    },
+    {
+      "policy": "PROB_50",
+      "red_to_black": 70,
+      "both_years_positive": 7,
+      "both_years_positive_min_100_tickets_each": 7,
+      "original_3yr_black_to_red": 21,
+      "sum_profit_delta_non_dedup_yen": 15543410,
+      "sum_after_profit_non_dedup_yen": 6567160,
+      "median_tickets_converted": 2254
+    },
+    {
+      "policy": "PROB_25",
+      "red_to_black": 182,
+      "both_years_positive": 57,
+      "both_years_positive_min_100_tickets_each": 42,
+      "original_3yr_black_to_red": 25,
+      "sum_profit_delta_non_dedup_yen": 33671250,
+      "sum_after_profit_non_dedup_yen": 6556730,
+      "median_tickets_converted": 1294
+    },
+    {
+      "policy": "PROB_10",
+      "red_to_black": 457,
+      "both_years_positive": 161,
+      "both_years_positive_min_100_tickets_each": 98,
+      "original_3yr_black_to_red": 12,
+      "sum_profit_delta_non_dedup_yen": 68564810,
+      "sum_after_profit_non_dedup_yen": 10154100,
+      "median_tickets_converted": 452
+    },
+    {
+      "policy": "MARKET_90",
+      "red_to_black": 3,
+      "both_years_positive": 0,
+      "both_years_positive_min_100_tickets_each": 0,
+      "original_3yr_black_to_red": 4,
+      "sum_profit_delta_non_dedup_yen": 20910,
+      "sum_after_profit_non_dedup_yen": 8480,
+      "median_tickets_converted": 1044
+    },
+    {
+      "policy": "MARKET_75",
+      "red_to_black": 14,
+      "both_years_positive": 0,
+      "both_years_positive_min_100_tickets_each": 0,
+      "original_3yr_black_to_red": 8,
+      "sum_profit_delta_non_dedup_yen": 5651550,
+      "sum_after_profit_non_dedup_yen": 2764760,
+      "median_tickets_converted": 4271
+    },
+    {
+      "policy": "MARKET_50",
+      "red_to_black": 53,
+      "both_years_positive": 1,
+      "both_years_positive_min_100_tickets_each": 1,
+      "original_3yr_black_to_red": 10,
+      "sum_profit_delta_non_dedup_yen": 10480510,
+      "sum_after_profit_non_dedup_yen": 3696840,
+      "median_tickets_converted": 895
+    },
+    {
+      "policy": "MARKET_25",
+      "red_to_black": 146,
+      "both_years_positive": 21,
+      "both_years_positive_min_100_tickets_each": 21,
+      "original_3yr_black_to_red": 11,
+      "sum_profit_delta_non_dedup_yen": 39508870,
+      "sum_after_profit_non_dedup_yen": 8718230,
+      "median_tickets_converted": 675
+    },
+    {
+      "policy": "MARKET_10",
+      "red_to_black": 246,
+      "both_years_positive": 87,
+      "both_years_positive_min_100_tickets_each": 72,
+      "original_3yr_black_to_red": 12,
+      "sum_profit_delta_non_dedup_yen": 61104740,
+      "sum_after_profit_non_dedup_yen": 14108620,
+      "median_tickets_converted": 387
+    },
+    {
+      "policy": "LEARNED_90",
+      "red_to_black": 15,
+      "both_years_positive": 0,
+      "both_years_positive_min_100_tickets_each": 0,
+      "original_3yr_black_to_red": 1,
+      "sum_profit_delta_non_dedup_yen": 3106630,
+      "sum_after_profit_non_dedup_yen": 573320,
+      "median_tickets_converted": 3603
+    },
+    {
+      "policy": "LEARNED_75",
+      "red_to_black": 29,
+      "both_years_positive": 2,
+      "both_years_positive_min_100_tickets_each": 2,
+      "original_3yr_black_to_red": 6,
+      "sum_profit_delta_non_dedup_yen": 10707230,
+      "sum_after_profit_non_dedup_yen": 4768590,
+      "median_tickets_converted": 3316
+    },
+    {
+      "policy": "LEARNED_50",
+      "red_to_black": 85,
+      "both_years_positive": 9,
+      "both_years_positive_min_100_tickets_each": 8,
+      "original_3yr_black_to_red": 18,
+      "sum_profit_delta_non_dedup_yen": 20225670,
+      "sum_after_profit_non_dedup_yen": 3377030,
+      "median_tickets_converted": 1185
+    },
+    {
+      "policy": "LEARNED_25",
+      "red_to_black": 123,
+      "both_years_positive": 47,
+      "both_years_positive_min_100_tickets_each": 44,
+      "original_3yr_black_to_red": 26,
+      "sum_profit_delta_non_dedup_yen": 30851870,
+      "sum_after_profit_non_dedup_yen": 4045190,
+      "median_tickets_converted": 1370
+    },
+    {
+      "policy": "LEARNED_10",
+      "red_to_black": 298,
+      "both_years_positive": 73,
+      "both_years_positive_min_100_tickets_each": 55,
+      "original_3yr_black_to_red": 19,
+      "sum_profit_delta_non_dedup_yen": 85873650,
+      "sum_after_profit_non_dedup_yen": 6698290,
+      "median_tickets_converted": 541
+    },
+    {
+      "policy": "HYBRID_90",
+      "red_to_black": 9,
+      "both_years_positive": 1,
+      "both_years_positive_min_100_tickets_each": 1,
+      "original_3yr_black_to_red": 3,
+      "sum_profit_delta_non_dedup_yen": 291000,
+      "sum_after_profit_non_dedup_yen": 222710,
+      "median_tickets_converted": 1710
+    },
+    {
+      "policy": "HYBRID_75",
+      "red_to_black": 25,
+      "both_years_positive": 1,
+      "both_years_positive_min_100_tickets_each": 1,
+      "original_3yr_black_to_red": 4,
+      "sum_profit_delta_non_dedup_yen": 11189700,
+      "sum_after_profit_non_dedup_yen": 5584290,
+      "median_tickets_converted": 2009
+    },
+    {
+      "policy": "HYBRID_50",
+      "red_to_black": 90,
+      "both_years_positive": 8,
+      "both_years_positive_min_100_tickets_each": 8,
+      "original_3yr_black_to_red": 3,
+      "sum_profit_delta_non_dedup_yen": 38408720,
+      "sum_after_profit_non_dedup_yen": 10660060,
+      "median_tickets_converted": 1360
+    },
+    {
+      "policy": "HYBRID_25",
+      "red_to_black": 123,
+      "both_years_positive": 49,
+      "both_years_positive_min_100_tickets_each": 48,
+      "original_3yr_black_to_red": 26,
+      "sum_profit_delta_non_dedup_yen": 29689970,
+      "sum_after_profit_non_dedup_yen": 5765560,
+      "median_tickets_converted": 1376
+    },
+    {
+      "policy": "HYBRID_10",
+      "red_to_black": 418,
+      "both_years_positive": 149,
+      "both_years_positive_min_100_tickets_each": 76,
+      "original_3yr_black_to_red": 28,
+      "sum_profit_delta_non_dedup_yen": 75439790,
+      "sum_after_profit_non_dedup_yen": 9331800,
+      "median_tickets_converted": 131
+    }
+  ],
+  "top_both_years_min100tickets_each": [
+    {
+      "policy": "MARKET_10",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "119324",
+      "before_roi_pct": "72.69677516677282",
+      "before_profit_yen": "-3257930",
+      "after_tickets": "18232",
+      "after_roi_pct": "201.4907854322071",
+      "after_profit_yen": "1850380",
+      "after_profit_2024_yen": "833570",
+      "after_profit_2025_yen": "1016810",
+      "tickets_2024": 9365,
+      "tickets_2025": 8867
+    },
+    {
+      "policy": "MARKET_10",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123910",
+      "before_roi_pct": "73.26785570171899",
+      "before_profit_yen": "-3312380",
+      "after_tickets": "20233",
+      "after_roi_pct": "181.5637819403944",
+      "after_profit_yen": "1650280",
+      "after_profit_2024_yen": "729370",
+      "after_profit_2025_yen": "920910",
+      "tickets_2024": 10407,
+      "tickets_2025": 9826
+    },
+    {
+      "policy": "MARKET_10",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123926",
+      "before_roi_pct": "73.25839613963171",
+      "before_profit_yen": "-3313980",
+      "after_tickets": "20243",
+      "after_roi_pct": "181.4740898088228",
+      "after_profit_yen": "1649280",
+      "after_profit_2024_yen": "728970",
+      "after_profit_2025_yen": "920310",
+      "tickets_2024": 10411,
+      "tickets_2025": 9832
+    },
+    {
+      "policy": "MARKET_25",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "119324",
+      "before_roi_pct": "72.69677516677282",
+      "before_profit_yen": "-3257930",
+      "after_tickets": "33964",
+      "after_roi_pct": "139.15263219879873",
+      "after_profit_yen": "1329780",
+      "after_profit_2024_yen": "653030",
+      "after_profit_2025_yen": "676750",
+      "tickets_2024": 18584,
+      "tickets_2025": 15380
+    },
+    {
+      "policy": "MARKET_25",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123910",
+      "before_roi_pct": "73.26785570171899",
+      "before_profit_yen": "-3312380",
+      "after_tickets": "38851",
+      "after_roi_pct": "129.6082468919719",
+      "after_profit_yen": "1150310",
+      "after_profit_2024_yen": "686060",
+      "after_profit_2025_yen": "464250",
+      "tickets_2024": 21346,
+      "tickets_2025": 17505
+    },
+    {
+      "policy": "MARKET_25",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123926",
+      "before_roi_pct": "73.25839613963171",
+      "before_profit_yen": "-3313980",
+      "after_tickets": "38970",
+      "after_roi_pct": "129.21247113163972",
+      "after_profit_yen": "1138410",
+      "after_profit_2024_yen": "678960",
+      "after_profit_2025_yen": "459450",
+      "tickets_2024": 21417,
+      "tickets_2025": 17553
+    },
+    {
+      "policy": "MARKET_10",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "5000+",
+      "before_tickets": "139219",
+      "before_roi_pct": "53.67234357379381",
+      "before_profit_yen": "-6449690",
+      "after_tickets": "17826",
+      "after_roi_pct": "163.3327723549871",
+      "after_profit_yen": "1128970",
+      "after_profit_2024_yen": "81190",
+      "after_profit_2025_yen": "1047780",
+      "tickets_2024": 9724,
+      "tickets_2025": 8102
+    },
+    {
+      "policy": "HYBRID_10",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123910",
+      "before_roi_pct": "73.26785570171899",
+      "before_profit_yen": "-3312380",
+      "after_tickets": "11055",
+      "after_roi_pct": "180.6576209859792",
+      "after_profit_yen": "891670",
+      "after_profit_2024_yen": "799290",
+      "after_profit_2025_yen": "92380",
+      "tickets_2024": 7463,
+      "tickets_2025": 3592
+    },
+    {
+      "policy": "HYBRID_10",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123926",
+      "before_roi_pct": "73.25839613963171",
+      "before_profit_yen": "-3313980",
+      "after_tickets": "11070",
+      "after_roi_pct": "180.41282746160795",
+      "after_profit_yen": "890170",
+      "after_profit_2024_yen": "797890",
+      "after_profit_2025_yen": "92280",
+      "tickets_2024": 7477,
+      "tickets_2025": 3593
+    },
+    {
+      "policy": "HYBRID_25",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_THIRD",
+      "odds_band": "5000+",
+      "before_tickets": "187095",
+      "before_roi_pct": "86.12394772709051",
+      "before_profit_yen": "-2596140",
+      "after_tickets": "43722",
+      "after_roi_pct": "119.93298568226523",
+      "after_profit_yen": "871510",
+      "after_profit_2024_yen": "125050",
+      "after_profit_2025_yen": "746460",
+      "tickets_2024": 22705,
+      "tickets_2025": 21017
+    },
+    {
+      "policy": "PROB_25",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "88067",
+      "before_roi_pct": "84.91977698797507",
+      "before_profit_yen": "-1328070",
+      "after_tickets": "29759",
+      "after_roi_pct": "116.5647367183037",
+      "after_profit_yen": "492950",
+      "after_profit_2024_yen": "324710",
+      "after_profit_2025_yen": "168240",
+      "tickets_2024": 15749,
+      "tickets_2025": 14010
+    },
+    {
+      "policy": "PROB_25",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "88057",
+      "before_roi_pct": "84.92942071612705",
+      "before_profit_yen": "-1327070",
+      "after_tickets": "29761",
+      "after_roi_pct": "116.55690332986123",
+      "after_profit_yen": "492750",
+      "after_profit_2024_yen": "324510",
+      "after_profit_2025_yen": "168240",
+      "tickets_2024": 15751,
+      "tickets_2025": 14010
+    },
+    {
+      "policy": "PROB_25",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "83712",
+      "before_roi_pct": "84.41967698776759",
+      "before_profit_yen": "-1304260",
+      "after_tickets": "28680",
+      "after_roi_pct": "116.59135285913528",
+      "after_profit_yen": "475840",
+      "after_profit_2024_yen": "313040",
+      "after_profit_2025_yen": "162800",
+      "tickets_2024": 15146,
+      "tickets_2025": 13534
+    },
+    {
+      "policy": "LEARNED_25",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIO",
+      "odds_band": "1000-2000",
+      "before_tickets": "30109",
+      "before_roi_pct": "84.49599787438972",
+      "before_profit_yen": "-466810",
+      "after_tickets": "9442",
+      "after_roi_pct": "150.21817411565345",
+      "after_profit_yen": "474160",
+      "after_profit_2024_yen": "228840",
+      "after_profit_2025_yen": "245320",
+      "tickets_2024": 4932,
+      "tickets_2025": 4510
+    },
+    {
+      "policy": "LEARNED_75",
+      "order": "MARKET",
+      "k": "7",
+      "family": "TRIFECTA_THIRD",
+      "odds_band": "5000+",
+      "before_tickets": "17851",
+      "before_roi_pct": "81.82790880062741",
+      "before_profit_yen": "-324390",
+      "after_tickets": "10290",
+      "after_roi_pct": "141.95432458697763",
+      "after_profit_yen": "431710",
+      "after_profit_2024_yen": "44450",
+      "after_profit_2025_yen": "387260",
+      "tickets_2024": 7018,
+      "tickets_2025": 3272
+    },
+    {
+      "policy": "LEARNED_75",
+      "order": "AI_PROB",
+      "k": "7",
+      "family": "TRIFECTA_THIRD",
+      "odds_band": "5000+",
+      "before_tickets": "17843",
+      "before_roi_pct": "81.86459676063443",
+      "before_profit_yen": "-323590",
+      "after_tickets": "10318",
+      "after_roi_pct": "141.5691025392518",
+      "after_profit_yen": "428910",
+      "after_profit_2024_yen": "42450",
+      "after_profit_2025_yen": "386460",
+      "tickets_2024": 7038,
+      "tickets_2025": 3280
+    },
+    {
+      "policy": "HYBRID_50",
+      "order": "AI_PROB",
+      "k": "7",
+      "family": "TRIFECTA_THIRD",
+      "odds_band": "5000+",
+      "before_tickets": "17843",
+      "before_roi_pct": "81.86459676063443",
+      "before_profit_yen": "-323590",
+      "after_tickets": "10341",
+      "after_roi_pct": "141.2542307320375",
+      "after_profit_yen": "426610",
+      "after_profit_2024_yen": "120350",
+      "after_profit_2025_yen": "306260",
+      "tickets_2024": 6259,
+      "tickets_2025": 4082
+    },
+    {
+      "policy": "HYBRID_50",
+      "order": "MARKET",
+      "k": "7",
+      "family": "TRIFECTA_THIRD",
+      "odds_band": "5000+",
+      "before_tickets": "17851",
+      "before_roi_pct": "81.82790880062741",
+      "before_profit_yen": "-324390",
+      "after_tickets": "10349",
+      "after_roi_pct": "141.14503816793894",
+      "after_profit_yen": "425810",
+      "after_profit_2024_yen": "121950",
+      "after_profit_2025_yen": "303860",
+      "tickets_2024": 6243,
+      "tickets_2025": 4106
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123926",
+      "before_roi_pct": "73.25839613963171",
+      "before_profit_yen": "-3313980",
+      "after_tickets": "15151",
+      "after_roi_pct": "126.92627549336677",
+      "after_profit_yen": "407960",
+      "after_profit_2024_yen": "303980",
+      "after_profit_2025_yen": "103980",
+      "tickets_2024": 11675,
+      "tickets_2025": 3476
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "2000-5000",
+      "before_tickets": "123910",
+      "before_roi_pct": "73.26785570171899",
+      "before_profit_yen": "-3312380",
+      "after_tickets": "15201",
+      "after_roi_pct": "126.50878231695283",
+      "after_profit_yen": "402960",
+      "after_profit_2024_yen": "300880",
+      "after_profit_2025_yen": "102080",
+      "tickets_2024": 11706,
+      "tickets_2025": 3495
+    },
+    {
+      "policy": "HYBRID_25",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIO",
+      "odds_band": "1000-2000",
+      "before_tickets": "30109",
+      "before_roi_pct": "84.49599787438972",
+      "before_profit_yen": "-466810",
+      "after_tickets": "10855",
+      "after_roi_pct": "132.88162137263933",
+      "after_profit_yen": "356930",
+      "after_profit_2024_yen": "107760",
+      "after_profit_2025_yen": "249170",
+      "tickets_2024": 6292,
+      "tickets_2025": 4563
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "MARKET",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "88057",
+      "before_roi_pct": "84.92942071612705",
+      "before_profit_yen": "-1327070",
+      "after_tickets": "21026",
+      "after_roi_pct": "116.41063445258251",
+      "after_profit_yen": "345050",
+      "after_profit_2024_yen": "196410",
+      "after_profit_2025_yen": "148640",
+      "tickets_2024": 6820,
+      "tickets_2025": 14206
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "AI_PROB",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "88067",
+      "before_roi_pct": "84.91977698797507",
+      "before_profit_yen": "-1328070",
+      "after_tickets": "21030",
+      "after_roi_pct": "116.38849262957679",
+      "after_profit_yen": "344650",
+      "after_profit_2024_yen": "196210",
+      "after_profit_2025_yen": "148440",
+      "tickets_2024": 6822,
+      "tickets_2025": 14208
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIO",
+      "odds_band": "1000-2000",
+      "before_tickets": "30109",
+      "before_roi_pct": "84.49599787438972",
+      "before_profit_yen": "-466810",
+      "after_tickets": "4313",
+      "after_roi_pct": "179.39717134245305",
+      "after_profit_yen": "342440",
+      "after_profit_2024_yen": "214140",
+      "after_profit_2025_yen": "128300",
+      "tickets_2024": 2213,
+      "tickets_2025": 2100
+    },
+    {
+      "policy": "LEARNED_10",
+      "order": "AI_RAW",
+      "k": "10",
+      "family": "TRIFECTA_FIRST",
+      "odds_band": "500-1000",
+      "before_tickets": "83712",
+      "before_roi_pct": "84.41967698776759",
+      "before_profit_yen": "-1304260",
+      "after_tickets": "20166",
+      "after_roi_pct": "115.17603887731826",
+      "after_profit_yen": "306040",
+      "after_profit_2024_yen": "162340",
+      "after_profit_2025_yen": "143700",
+      "tickets_2024": 6441,
+      "tickets_2025": 13725
+    }
+  ],
+  "family_selected": {
+    "PROB_10": [
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 109,
+        "both_eval_years_profitable": 44,
+        "both_eval_years_profitable_min_100_tickets_each": 29,
+        "sum_non_dedup_after_profit_yen": 852030,
+        "sum_non_dedup_after_stake_yen": 7431700,
+        "sum_non_dedup_delta_yen": 5710930
+      },
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 67,
+        "both_eval_years_profitable": 22,
+        "both_eval_years_profitable_min_100_tickets_each": 7,
+        "sum_non_dedup_after_profit_yen": 3249600,
+        "sum_non_dedup_after_stake_yen": 13988200,
+        "sum_non_dedup_delta_yen": 19988280
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 47,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 145060,
+        "sum_non_dedup_after_stake_yen": 1879200,
+        "sum_non_dedup_delta_yen": 1601930
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 42,
+        "both_eval_years_profitable": 30,
+        "both_eval_years_profitable_min_100_tickets_each": 15,
+        "sum_non_dedup_after_profit_yen": 888680,
+        "sum_non_dedup_after_stake_yen": 11332700,
+        "sum_non_dedup_delta_yen": 14991310
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 41,
+        "both_eval_years_profitable": 6,
+        "both_eval_years_profitable_min_100_tickets_each": 6,
+        "sum_non_dedup_after_profit_yen": 2059280,
+        "sum_non_dedup_after_stake_yen": 6109700,
+        "sum_non_dedup_delta_yen": 12263410
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 39,
+        "both_eval_years_profitable": 11,
+        "both_eval_years_profitable_min_100_tickets_each": 11,
+        "sum_non_dedup_after_profit_yen": 392680,
+        "sum_non_dedup_after_stake_yen": 1359900,
+        "sum_non_dedup_delta_yen": 1449700
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 35,
+        "both_eval_years_profitable": 18,
+        "both_eval_years_profitable_min_100_tickets_each": 18,
+        "sum_non_dedup_after_profit_yen": 706990,
+        "sum_non_dedup_after_stake_yen": 2945500,
+        "sum_non_dedup_delta_yen": 5486300
+      },
+      {
+        "family": "WIDE",
+        "flipped_lines": 34,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 86860,
+        "sum_non_dedup_after_stake_yen": 2243200,
+        "sum_non_dedup_delta_yen": 1369680
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 29,
+        "both_eval_years_profitable": 20,
+        "both_eval_years_profitable_min_100_tickets_each": 5,
+        "sum_non_dedup_after_profit_yen": 1007280,
+        "sum_non_dedup_after_stake_yen": 3196000,
+        "sum_non_dedup_delta_yen": 3641800
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 10,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 760760,
+        "sum_non_dedup_after_stake_yen": 1182500,
+        "sum_non_dedup_delta_yen": 1976620
+      },
+      {
+        "family": "PLACE",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 290,
+        "sum_non_dedup_after_stake_yen": 11600,
+        "sum_non_dedup_delta_yen": 29170
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 4590,
+        "sum_non_dedup_after_stake_yen": 46000,
+        "sum_non_dedup_delta_yen": 55680
+      }
+    ],
+    "PROB_25": [
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 51,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 3089190,
+        "sum_non_dedup_after_stake_yen": 25502000,
+        "sum_non_dedup_delta_yen": 13589340
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 30,
+        "both_eval_years_profitable": 5,
+        "both_eval_years_profitable_min_100_tickets_each": 5,
+        "sum_non_dedup_after_profit_yen": 506560,
+        "sum_non_dedup_after_stake_yen": 9428800,
+        "sum_non_dedup_delta_yen": 4240560
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 22,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 634640,
+        "sum_non_dedup_after_stake_yen": 2863600,
+        "sum_non_dedup_delta_yen": 1124940
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 22,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 911020,
+        "sum_non_dedup_after_stake_yen": 11222800,
+        "sum_non_dedup_delta_yen": 5282220
+      },
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 20,
+        "both_eval_years_profitable": 15,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 86860,
+        "sum_non_dedup_after_stake_yen": 1077700,
+        "sum_non_dedup_delta_yen": 243910
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 20,
+        "both_eval_years_profitable": 5,
+        "both_eval_years_profitable_min_100_tickets_each": 5,
+        "sum_non_dedup_after_profit_yen": 461340,
+        "sum_non_dedup_after_stake_yen": 3684000,
+        "sum_non_dedup_delta_yen": 1786410
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 527690,
+        "sum_non_dedup_after_stake_yen": 2456000,
+        "sum_non_dedup_delta_yen": 1756070
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 306720,
+        "sum_non_dedup_after_stake_yen": 5801200,
+        "sum_non_dedup_delta_yen": 5581150
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 8580,
+        "sum_non_dedup_after_stake_yen": 42900,
+        "sum_non_dedup_delta_yen": 34390
+      },
+      {
+        "family": "PLACE",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 400,
+        "sum_non_dedup_after_stake_yen": 4800,
+        "sum_non_dedup_delta_yen": 6260
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 23730,
+        "sum_non_dedup_after_stake_yen": 107200,
+        "sum_non_dedup_delta_yen": 26000
+      }
+    ],
+    "PROB_50": [
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 32080,
+        "sum_non_dedup_after_stake_yen": 1063200,
+        "sum_non_dedup_delta_yen": 317510
+      },
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 430050,
+        "sum_non_dedup_after_stake_yen": 9648400,
+        "sum_non_dedup_delta_yen": 2531620
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 10,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 4933150,
+        "sum_non_dedup_after_stake_yen": 33079500,
+        "sum_non_dedup_delta_yen": 10083900
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 9,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 284570,
+        "sum_non_dedup_after_stake_yen": 3572800,
+        "sum_non_dedup_delta_yen": 918610
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 174740,
+        "sum_non_dedup_after_stake_yen": 1155400,
+        "sum_non_dedup_delta_yen": 287260
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 482100,
+        "sum_non_dedup_after_stake_yen": 2911100,
+        "sum_non_dedup_delta_yen": 710440
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 204550,
+        "sum_non_dedup_after_stake_yen": 1698900,
+        "sum_non_dedup_delta_yen": 638860
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 15470,
+        "sum_non_dedup_after_stake_yen": 402000,
+        "sum_non_dedup_delta_yen": 26340
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3870,
+        "sum_non_dedup_after_stake_yen": 201800,
+        "sum_non_dedup_delta_yen": 16700
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 6580,
+        "sum_non_dedup_after_stake_yen": 9100,
+        "sum_non_dedup_delta_yen": 12170
+      }
+    ],
+    "MARKET_10": [
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 65,
+        "both_eval_years_profitable": 12,
+        "both_eval_years_profitable_min_100_tickets_each": 12,
+        "sum_non_dedup_after_profit_yen": 10358420,
+        "sum_non_dedup_after_stake_yen": 23922700,
+        "sum_non_dedup_delta_yen": 42574770
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 42,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 878000,
+        "sum_non_dedup_after_stake_yen": 3601700,
+        "sum_non_dedup_delta_yen": 5552980
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 39,
+        "both_eval_years_profitable": 24,
+        "both_eval_years_profitable_min_100_tickets_each": 24,
+        "sum_non_dedup_after_profit_yen": 1010160,
+        "sum_non_dedup_after_stake_yen": 2069100,
+        "sum_non_dedup_delta_yen": 4263840
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 29,
+        "both_eval_years_profitable": 21,
+        "both_eval_years_profitable_min_100_tickets_each": 7,
+        "sum_non_dedup_after_profit_yen": 578200,
+        "sum_non_dedup_after_stake_yen": 1523600,
+        "sum_non_dedup_delta_yen": 1821190
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 28,
+        "both_eval_years_profitable": 12,
+        "both_eval_years_profitable_min_100_tickets_each": 12,
+        "sum_non_dedup_after_profit_yen": 141010,
+        "sum_non_dedup_after_stake_yen": 1642800,
+        "sum_non_dedup_delta_yen": 827030
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 648530,
+        "sum_non_dedup_after_stake_yen": 3396100,
+        "sum_non_dedup_delta_yen": 4206500
+      },
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 288200,
+        "sum_non_dedup_after_stake_yen": 604300,
+        "sum_non_dedup_delta_yen": 905180
+      },
+      {
+        "family": "WIDE",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 114330,
+        "sum_non_dedup_after_stake_yen": 230100,
+        "sum_non_dedup_delta_yen": 408490
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 37380,
+        "sum_non_dedup_after_stake_yen": 311500,
+        "sum_non_dedup_delta_yen": 278160
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 54390,
+        "sum_non_dedup_after_stake_yen": 955100,
+        "sum_non_dedup_delta_yen": 266600
+      }
+    ],
+    "LEARNED_50": [
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 21,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 558110,
+        "sum_non_dedup_after_stake_yen": 8584600,
+        "sum_non_dedup_delta_yen": 8721440
+      },
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 19,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 52790,
+        "sum_non_dedup_after_stake_yen": 802400,
+        "sum_non_dedup_delta_yen": 352070
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 12,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1142680,
+        "sum_non_dedup_after_stake_yen": 6341400,
+        "sum_non_dedup_delta_yen": 3906310
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 668550,
+        "sum_non_dedup_after_stake_yen": 11656300,
+        "sum_non_dedup_delta_yen": 5059360
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 8,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 283530,
+        "sum_non_dedup_after_stake_yen": 2196900,
+        "sum_non_dedup_delta_yen": 1094170
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 516870,
+        "sum_non_dedup_after_stake_yen": 2869200,
+        "sum_non_dedup_delta_yen": 745210
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 92320,
+        "sum_non_dedup_after_stake_yen": 993600,
+        "sum_non_dedup_delta_yen": 244240
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 25990,
+        "sum_non_dedup_after_stake_yen": 390100,
+        "sum_non_dedup_delta_yen": 37380
+      },
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 28810,
+        "sum_non_dedup_after_stake_yen": 465300,
+        "sum_non_dedup_delta_yen": 52520
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 7380,
+        "sum_non_dedup_after_stake_yen": 8300,
+        "sum_non_dedup_delta_yen": 12970
+      }
+    ],
+    "HYBRID_10": [
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 58,
+        "both_eval_years_profitable": 20,
+        "both_eval_years_profitable_min_100_tickets_each": 5,
+        "sum_non_dedup_after_profit_yen": 362860,
+        "sum_non_dedup_after_stake_yen": 4324200,
+        "sum_non_dedup_delta_yen": 2530630
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 56,
+        "both_eval_years_profitable": 24,
+        "both_eval_years_profitable_min_100_tickets_each": 9,
+        "sum_non_dedup_after_profit_yen": 724200,
+        "sum_non_dedup_after_stake_yen": 1179600,
+        "sum_non_dedup_delta_yen": 4859190
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 52,
+        "both_eval_years_profitable": 16,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 259420,
+        "sum_non_dedup_after_stake_yen": 2437400,
+        "sum_non_dedup_delta_yen": 2059650
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 48,
+        "both_eval_years_profitable": 26,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 1318550,
+        "sum_non_dedup_after_stake_yen": 8681400,
+        "sum_non_dedup_delta_yen": 11807620
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 47,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 1474670,
+        "sum_non_dedup_after_stake_yen": 2139000,
+        "sum_non_dedup_delta_yen": 8005600
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 35,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 791590,
+        "sum_non_dedup_after_stake_yen": 5444700,
+        "sum_non_dedup_delta_yen": 17134120
+      },
+      {
+        "family": "WIDE",
+        "flipped_lines": 35,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 101790,
+        "sum_non_dedup_after_stake_yen": 2238800,
+        "sum_non_dedup_delta_yen": 1387690
+      },
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 30,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 13,
+        "sum_non_dedup_after_profit_yen": 3189510,
+        "sum_non_dedup_after_stake_yen": 22061500,
+        "sum_non_dedup_delta_yen": 21713730
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 29,
+        "both_eval_years_profitable": 22,
+        "both_eval_years_profitable_min_100_tickets_each": 7,
+        "sum_non_dedup_after_profit_yen": 731650,
+        "sum_non_dedup_after_stake_yen": 3114600,
+        "sum_non_dedup_delta_yen": 3366170
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 24,
+        "both_eval_years_profitable": 11,
+        "both_eval_years_profitable_min_100_tickets_each": 11,
+        "sum_non_dedup_after_profit_yen": 371760,
+        "sum_non_dedup_after_stake_yen": 2030300,
+        "sum_non_dedup_delta_yen": 2518370
+      },
+      {
+        "family": "PLACE",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 2100,
+        "sum_non_dedup_after_stake_yen": 16000,
+        "sum_non_dedup_delta_yen": 27510
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3700,
+        "sum_non_dedup_after_stake_yen": 18500,
+        "sum_non_dedup_delta_yen": 29510
+      }
+    ],
+    "HYBRID_25": [
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 24,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 166890,
+        "sum_non_dedup_after_stake_yen": 4792700,
+        "sum_non_dedup_delta_yen": 2413080
+      },
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 22,
+        "both_eval_years_profitable": 15,
+        "both_eval_years_profitable_min_100_tickets_each": 15,
+        "sum_non_dedup_after_profit_yen": 1254110,
+        "sum_non_dedup_after_stake_yen": 19069300,
+        "sum_non_dedup_delta_yen": 7231900
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 21,
+        "both_eval_years_profitable": 15,
+        "both_eval_years_profitable_min_100_tickets_each": 15,
+        "sum_non_dedup_after_profit_yen": 1829660,
+        "sum_non_dedup_after_stake_yen": 10152600,
+        "sum_non_dedup_delta_yen": 7183640
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1219060,
+        "sum_non_dedup_after_stake_yen": 5894000,
+        "sum_non_dedup_delta_yen": 8912450
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 14,
+        "both_eval_years_profitable": 11,
+        "both_eval_years_profitable_min_100_tickets_each": 11,
+        "sum_non_dedup_after_profit_yen": 575160,
+        "sum_non_dedup_after_stake_yen": 2984600,
+        "sum_non_dedup_delta_yen": 1509070
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 10,
+        "both_eval_years_profitable": 6,
+        "both_eval_years_profitable_min_100_tickets_each": 6,
+        "sum_non_dedup_after_profit_yen": 412380,
+        "sum_non_dedup_after_stake_yen": 2071300,
+        "sum_non_dedup_delta_yen": 1628240
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 249760,
+        "sum_non_dedup_after_stake_yen": 2459800,
+        "sum_non_dedup_delta_yen": 600840
+      },
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 22890,
+        "sum_non_dedup_after_stake_yen": 830900,
+        "sum_non_dedup_delta_yen": 113810
+      },
+      {
+        "family": "PLACE",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 320,
+        "sum_non_dedup_after_stake_yen": 29700,
+        "sum_non_dedup_delta_yen": 30890
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 26290,
+        "sum_non_dedup_after_stake_yen": 137500,
+        "sum_non_dedup_delta_yen": 31200
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 9040,
+        "sum_non_dedup_after_stake_yen": 36700,
+        "sum_non_dedup_delta_yen": 34850
+      }
+    ],
+    "HYBRID_50": [
+      {
+        "family": "TRIFECTA_FIRST",
+        "flipped_lines": 29,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 213280,
+        "sum_non_dedup_after_stake_yen": 2237900,
+        "sum_non_dedup_delta_yen": 1519890
+      },
+      {
+        "family": "EXACTA_FIRST",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 37340,
+        "sum_non_dedup_after_stake_yen": 844000,
+        "sum_non_dedup_delta_yen": 118690
+      },
+      {
+        "family": "TRIFECTA_THIRD",
+        "flipped_lines": 14,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 7684240,
+        "sum_non_dedup_after_stake_yen": 39073500,
+        "sum_non_dedup_delta_yen": 18217770
+      },
+      {
+        "family": "TRIO",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 527610,
+        "sum_non_dedup_after_stake_yen": 3745600,
+        "sum_non_dedup_delta_yen": 1191990
+      },
+      {
+        "family": "QUINELLA",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 165340,
+        "sum_non_dedup_after_stake_yen": 1164800,
+        "sum_non_dedup_delta_yen": 277860
+      },
+      {
+        "family": "EXACTA_BOTH",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 610340,
+        "sum_non_dedup_after_stake_yen": 2952600,
+        "sum_non_dedup_delta_yen": 838680
+      },
+      {
+        "family": "EXACTA_SECOND",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 283550,
+        "sum_non_dedup_after_stake_yen": 1619900,
+        "sum_non_dedup_delta_yen": 717860
+      },
+      {
+        "family": "TRIFECTA_ANY",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1127370,
+        "sum_non_dedup_after_stake_yen": 28202800,
+        "sum_non_dedup_delta_yen": 15441250
+      },
+      {
+        "family": "TRIFECTA_SECOND",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 5010,
+        "sum_non_dedup_after_stake_yen": 559800,
+        "sum_non_dedup_delta_yen": 73160
+      },
+      {
+        "family": "WIN",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 5980,
+        "sum_non_dedup_after_stake_yen": 9700,
+        "sum_non_dedup_delta_yen": 11570
+      }
+    ]
+  },
+  "odds_selected": {
+    "PROB_10": [
+      {
+        "odds_band": "10-15",
+        "flipped_lines": 65,
+        "both_eval_years_profitable": 30,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 157760,
+        "sum_non_dedup_after_stake_yen": 820000,
+        "sum_non_dedup_delta_yen": 1851130
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 58,
+        "both_eval_years_profitable": 41,
+        "both_eval_years_profitable_min_100_tickets_each": 41,
+        "sum_non_dedup_after_profit_yen": 864830,
+        "sum_non_dedup_after_stake_yen": 7613500,
+        "sum_non_dedup_delta_yen": 7448380
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 49,
+        "both_eval_years_profitable": 16,
+        "both_eval_years_profitable_min_100_tickets_each": 16,
+        "sum_non_dedup_after_profit_yen": 1847230,
+        "sum_non_dedup_after_stake_yen": 7812700,
+        "sum_non_dedup_delta_yen": 10728810
+      },
+      {
+        "odds_band": "3-5",
+        "flipped_lines": 44,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 20990,
+        "sum_non_dedup_after_stake_yen": 264400,
+        "sum_non_dedup_delta_yen": 541970
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 33,
+        "both_eval_years_profitable": 16,
+        "both_eval_years_profitable_min_100_tickets_each": 16,
+        "sum_non_dedup_after_profit_yen": 300370,
+        "sum_non_dedup_after_stake_yen": 2730500,
+        "sum_non_dedup_delta_yen": 2562660
+      },
+      {
+        "odds_band": "7-10",
+        "flipped_lines": 33,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 73870,
+        "sum_non_dedup_after_stake_yen": 2047100,
+        "sum_non_dedup_delta_yen": 1199020
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 30,
+        "both_eval_years_profitable": 30,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 88800,
+        "sum_non_dedup_after_stake_yen": 214500,
+        "sum_non_dedup_delta_yen": 285660
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 30,
+        "both_eval_years_profitable": 7,
+        "both_eval_years_profitable_min_100_tickets_each": 7,
+        "sum_non_dedup_after_profit_yen": 1810800,
+        "sum_non_dedup_after_stake_yen": 15144700,
+        "sum_non_dedup_delta_yen": 19244460
+      },
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 25,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 274820,
+        "sum_non_dedup_after_stake_yen": 583600,
+        "sum_non_dedup_delta_yen": 726430
+      },
+      {
+        "odds_band": "1.5-2",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1990,
+        "sum_non_dedup_after_stake_yen": 124900,
+        "sum_non_dedup_delta_yen": 270440
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 113490,
+        "sum_non_dedup_after_stake_yen": 1181300,
+        "sum_non_dedup_delta_yen": 1022970
+      },
+      {
+        "odds_band": "2-3",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3600,
+        "sum_non_dedup_after_stake_yen": 91500,
+        "sum_non_dedup_delta_yen": 99090
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 13,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 280230,
+        "sum_non_dedup_after_stake_yen": 2052700,
+        "sum_non_dedup_delta_yen": 1868360
+      },
+      {
+        "odds_band": "20-30",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 17550,
+        "sum_non_dedup_after_stake_yen": 1329000,
+        "sum_non_dedup_delta_yen": 847850
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 137010,
+        "sum_non_dedup_after_stake_yen": 792400,
+        "sum_non_dedup_delta_yen": 2035110
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 159520,
+        "sum_non_dedup_after_stake_yen": 560000,
+        "sum_non_dedup_delta_yen": 690000
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3932690,
+        "sum_non_dedup_after_stake_yen": 8083800,
+        "sum_non_dedup_delta_yen": 16949520
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 10020,
+        "sum_non_dedup_after_stake_yen": 89100,
+        "sum_non_dedup_delta_yen": 22850
+      },
+      {
+        "odds_band": "2000-5000",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 58530,
+        "sum_non_dedup_after_stake_yen": 190500,
+        "sum_non_dedup_delta_yen": 170100
+      }
+    ],
+    "PROB_25": [
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 33,
+        "both_eval_years_profitable": 17,
+        "both_eval_years_profitable_min_100_tickets_each": 17,
+        "sum_non_dedup_after_profit_yen": 1080490,
+        "sum_non_dedup_after_stake_yen": 11266900,
+        "sum_non_dedup_delta_yen": 5942390
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 31,
+        "both_eval_years_profitable": 15,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 51300,
+        "sum_non_dedup_after_stake_yen": 590800,
+        "sum_non_dedup_delta_yen": 254020
+      },
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 25,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 170460,
+        "sum_non_dedup_after_stake_yen": 1425900,
+        "sum_non_dedup_delta_yen": 622070
+      },
+      {
+        "odds_band": "10-15",
+        "flipped_lines": 19,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 15640,
+        "sum_non_dedup_after_stake_yen": 1046700,
+        "sum_non_dedup_delta_yen": 706040
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 17,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 160720,
+        "sum_non_dedup_after_stake_yen": 1238300,
+        "sum_non_dedup_delta_yen": 1285790
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 324330,
+        "sum_non_dedup_after_stake_yen": 3088700,
+        "sum_non_dedup_delta_yen": 1367320
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 14,
+        "both_eval_years_profitable": 12,
+        "both_eval_years_profitable_min_100_tickets_each": 12,
+        "sum_non_dedup_after_profit_yen": 2699500,
+        "sum_non_dedup_after_stake_yen": 19451100,
+        "sum_non_dedup_delta_yen": 9470310
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 13,
+        "both_eval_years_profitable": 5,
+        "both_eval_years_profitable_min_100_tickets_each": 5,
+        "sum_non_dedup_after_profit_yen": 400410,
+        "sum_non_dedup_after_stake_yen": 7532400,
+        "sum_non_dedup_delta_yen": 3002390
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1340320,
+        "sum_non_dedup_after_stake_yen": 14482100,
+        "sum_non_dedup_delta_yen": 10147270
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 8010,
+        "sum_non_dedup_after_stake_yen": 429200,
+        "sum_non_dedup_delta_yen": 79700
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 263470,
+        "sum_non_dedup_after_stake_yen": 1364800,
+        "sum_non_dedup_delta_yen": 736740
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 18280,
+        "sum_non_dedup_after_stake_yen": 164100,
+        "sum_non_dedup_delta_yen": 31110
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 23730,
+        "sum_non_dedup_after_stake_yen": 107200,
+        "sum_non_dedup_delta_yen": 26000
+      },
+      {
+        "odds_band": "7-10",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 70,
+        "sum_non_dedup_after_stake_yen": 2800,
+        "sum_non_dedup_delta_yen": 100
+      }
+    ],
+    "PROB_50": [
+      {
+        "odds_band": "7-10",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 17210,
+        "sum_non_dedup_after_stake_yen": 494500,
+        "sum_non_dedup_delta_yen": 260370
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 66170,
+        "sum_non_dedup_after_stake_yen": 1326900,
+        "sum_non_dedup_delta_yen": 558460
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 8,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 687270,
+        "sum_non_dedup_after_stake_yen": 4791900,
+        "sum_non_dedup_delta_yen": 1358580
+      },
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 23430,
+        "sum_non_dedup_after_stake_yen": 1702000,
+        "sum_non_dedup_delta_yen": 189800
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 5137270,
+        "sum_non_dedup_after_stake_yen": 33906400,
+        "sum_non_dedup_delta_yen": 10495040
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 113500,
+        "sum_non_dedup_after_stake_yen": 6286400,
+        "sum_non_dedup_delta_yen": 1447070
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 311280,
+        "sum_non_dedup_after_stake_yen": 2139800,
+        "sum_non_dedup_delta_yen": 794600
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 12130,
+        "sum_non_dedup_after_stake_yen": 537400,
+        "sum_non_dedup_delta_yen": 26400
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 52410,
+        "sum_non_dedup_after_stake_yen": 897700,
+        "sum_non_dedup_delta_yen": 86150
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 126330,
+        "sum_non_dedup_after_stake_yen": 752800,
+        "sum_non_dedup_delta_yen": 227360
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 19810,
+        "sum_non_dedup_after_stake_yen": 878900,
+        "sum_non_dedup_delta_yen": 98370
+      },
+      {
+        "odds_band": "3-5",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 350,
+        "sum_non_dedup_after_stake_yen": 27500,
+        "sum_non_dedup_delta_yen": 1210
+      }
+    ],
+    "MARKET_10": [
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 49,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 9,
+        "sum_non_dedup_after_profit_yen": 228450,
+        "sum_non_dedup_after_stake_yen": 1558200,
+        "sum_non_dedup_delta_yen": 1468140
+      },
+      {
+        "odds_band": "20-30",
+        "flipped_lines": 32,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 233000,
+        "sum_non_dedup_after_stake_yen": 1089700,
+        "sum_non_dedup_delta_yen": 2477170
+      },
+      {
+        "odds_band": "10-15",
+        "flipped_lines": 27,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 21980,
+        "sum_non_dedup_after_stake_yen": 724000,
+        "sum_non_dedup_delta_yen": 1650260
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 21,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 1176180,
+        "sum_non_dedup_after_stake_yen": 2414200,
+        "sum_non_dedup_delta_yen": 4375140
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 18,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 650920,
+        "sum_non_dedup_after_stake_yen": 3512200,
+        "sum_non_dedup_delta_yen": 4420430
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 101520,
+        "sum_non_dedup_after_stake_yen": 550500,
+        "sum_non_dedup_delta_yen": 1265060
+      },
+      {
+        "odds_band": "7-10",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 72610,
+        "sum_non_dedup_after_stake_yen": 361000,
+        "sum_non_dedup_delta_yen": 508810
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 881880,
+        "sum_non_dedup_after_stake_yen": 7989800,
+        "sum_non_dedup_delta_yen": 5649500
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 13,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1530,
+        "sum_non_dedup_after_stake_yen": 198800,
+        "sum_non_dedup_delta_yen": 120720
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 316390,
+        "sum_non_dedup_after_stake_yen": 5001400,
+        "sum_non_dedup_delta_yen": 2800130
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 227140,
+        "sum_non_dedup_after_stake_yen": 612300,
+        "sum_non_dedup_delta_yen": 1354400
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 109300,
+        "sum_non_dedup_after_stake_yen": 516600,
+        "sum_non_dedup_delta_yen": 451110
+      },
+      {
+        "odds_band": "2000-5000",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 5152970,
+        "sum_non_dedup_after_stake_yen": 6116800,
+        "sum_non_dedup_delta_yen": 15148830
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 272030,
+        "sum_non_dedup_after_stake_yen": 342100,
+        "sum_non_dedup_delta_yen": 487220
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 4656390,
+        "sum_non_dedup_after_stake_yen": 7076900,
+        "sum_non_dedup_delta_yen": 18861310
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 6330,
+        "sum_non_dedup_after_stake_yen": 192500,
+        "sum_non_dedup_delta_yen": 66510
+      }
+    ],
+    "LEARNED_50": [
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 22,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 65160,
+        "sum_non_dedup_after_stake_yen": 1917000,
+        "sum_non_dedup_delta_yen": 429900
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 14,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 110160,
+        "sum_non_dedup_after_stake_yen": 424400,
+        "sum_non_dedup_delta_yen": 2432540
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 10,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 783560,
+        "sum_non_dedup_after_stake_yen": 5120800,
+        "sum_non_dedup_delta_yen": 1518910
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 8,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 48520,
+        "sum_non_dedup_after_stake_yen": 1668700,
+        "sum_non_dedup_delta_yen": 449400
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 102060,
+        "sum_non_dedup_after_stake_yen": 1658100,
+        "sum_non_dedup_delta_yen": 722330
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 164960,
+        "sum_non_dedup_after_stake_yen": 1063500,
+        "sum_non_dedup_delta_yen": 850880
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 609270,
+        "sum_non_dedup_after_stake_yen": 3360500,
+        "sum_non_dedup_delta_yen": 1939340
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 14150,
+        "sum_non_dedup_after_stake_yen": 428900,
+        "sum_non_dedup_delta_yen": 117600
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 925660,
+        "sum_non_dedup_after_stake_yen": 16899100,
+        "sum_non_dedup_delta_yen": 9886700
+      },
+      {
+        "odds_band": "2000-5000",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 553260,
+        "sum_non_dedup_after_stake_yen": 1543200,
+        "sum_non_dedup_delta_yen": 1836100
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 160,
+        "sum_non_dedup_after_stake_yen": 196000,
+        "sum_non_dedup_delta_yen": 41000
+      },
+      {
+        "odds_band": "3-5",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 110,
+        "sum_non_dedup_after_stake_yen": 27900,
+        "sum_non_dedup_delta_yen": 970
+      }
+    ],
+    "HYBRID_10": [
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 52,
+        "both_eval_years_profitable": 43,
+        "both_eval_years_profitable_min_100_tickets_each": 28,
+        "sum_non_dedup_after_profit_yen": 2056380,
+        "sum_non_dedup_after_stake_yen": 5791000,
+        "sum_non_dedup_delta_yen": 9814270
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 45,
+        "both_eval_years_profitable": 30,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 89700,
+        "sum_non_dedup_after_stake_yen": 375000,
+        "sum_non_dedup_delta_yen": 368140
+      },
+      {
+        "odds_band": "7-10",
+        "flipped_lines": 45,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 61620,
+        "sum_non_dedup_after_stake_yen": 1985500,
+        "sum_non_dedup_delta_yen": 1194750
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 37,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 221460,
+        "sum_non_dedup_after_stake_yen": 690600,
+        "sum_non_dedup_delta_yen": 5065630
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 34,
+        "both_eval_years_profitable": 14,
+        "both_eval_years_profitable_min_100_tickets_each": 14,
+        "sum_non_dedup_after_profit_yen": 1126190,
+        "sum_non_dedup_after_stake_yen": 2878200,
+        "sum_non_dedup_delta_yen": 7915860
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 31,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 113980,
+        "sum_non_dedup_after_stake_yen": 2950700,
+        "sum_non_dedup_delta_yen": 2270760
+      },
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 25,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 224770,
+        "sum_non_dedup_after_stake_yen": 657200,
+        "sum_non_dedup_delta_yen": 874770
+      },
+      {
+        "odds_band": "10-15",
+        "flipped_lines": 19,
+        "both_eval_years_profitable": 12,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 49300,
+        "sum_non_dedup_after_stake_yen": 262300,
+        "sum_non_dedup_delta_yen": 474410
+      },
+      {
+        "odds_band": "3-5",
+        "flipped_lines": 19,
+        "both_eval_years_profitable": 15,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 11280,
+        "sum_non_dedup_after_stake_yen": 158400,
+        "sum_non_dedup_delta_yen": 280540
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 19,
+        "both_eval_years_profitable": 6,
+        "both_eval_years_profitable_min_100_tickets_each": 6,
+        "sum_non_dedup_after_profit_yen": 1021650,
+        "sum_non_dedup_after_stake_yen": 13662100,
+        "sum_non_dedup_delta_yen": 8915980
+      },
+      {
+        "odds_band": "20-30",
+        "flipped_lines": 16,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 76180,
+        "sum_non_dedup_after_stake_yen": 1762900,
+        "sum_non_dedup_delta_yen": 1168220
+      },
+      {
+        "odds_band": "1.5-2",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3300,
+        "sum_non_dedup_after_stake_yen": 112500,
+        "sum_non_dedup_delta_yen": 247040
+      },
+      {
+        "odds_band": "2-3",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 3600,
+        "sum_non_dedup_after_stake_yen": 91500,
+        "sum_non_dedup_delta_yen": 99090
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 325650,
+        "sum_non_dedup_after_stake_yen": 1846600,
+        "sum_non_dedup_delta_yen": 4379050
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 12,
+        "both_eval_years_profitable": 9,
+        "both_eval_years_profitable_min_100_tickets_each": 9,
+        "sum_non_dedup_after_profit_yen": 205810,
+        "sum_non_dedup_after_stake_yen": 7628700,
+        "sum_non_dedup_delta_yen": 2684520
+      },
+      {
+        "odds_band": "2000-5000",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 2375180,
+        "sum_non_dedup_after_stake_yen": 8428200,
+        "sum_non_dedup_delta_yen": 20722160
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 6,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 137020,
+        "sum_non_dedup_after_stake_yen": 582500,
+        "sum_non_dedup_delta_yen": 667500
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 24300,
+        "sum_non_dedup_after_stake_yen": 590100,
+        "sum_non_dedup_delta_yen": 1529840
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 1204430,
+        "sum_non_dedup_after_stake_yen": 3232000,
+        "sum_non_dedup_delta_yen": 6767260
+      }
+    ],
+    "HYBRID_25": [
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 30,
+        "both_eval_years_profitable": 12,
+        "both_eval_years_profitable_min_100_tickets_each": 12,
+        "sum_non_dedup_after_profit_yen": 384520,
+        "sum_non_dedup_after_stake_yen": 5403600,
+        "sum_non_dedup_delta_yen": 3194300
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 23,
+        "both_eval_years_profitable": 7,
+        "both_eval_years_profitable_min_100_tickets_each": 7,
+        "sum_non_dedup_after_profit_yen": 582880,
+        "sum_non_dedup_after_stake_yen": 3322800,
+        "sum_non_dedup_delta_yen": 3921750
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 13,
+        "both_eval_years_profitable_min_100_tickets_each": 13,
+        "sum_non_dedup_after_profit_yen": 365300,
+        "sum_non_dedup_after_stake_yen": 4470100,
+        "sum_non_dedup_delta_yen": 1573320
+      },
+      {
+        "odds_band": "10-15",
+        "flipped_lines": 13,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 31400,
+        "sum_non_dedup_after_stake_yen": 375800,
+        "sum_non_dedup_delta_yen": 393960
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 11,
+        "both_eval_years_profitable": 3,
+        "both_eval_years_profitable_min_100_tickets_each": 3,
+        "sum_non_dedup_after_profit_yen": 868660,
+        "sum_non_dedup_after_stake_yen": 16326200,
+        "sum_non_dedup_delta_yen": 5551680
+      },
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 10,
+        "both_eval_years_profitable": 10,
+        "both_eval_years_profitable_min_100_tickets_each": 10,
+        "sum_non_dedup_after_profit_yen": 183040,
+        "sum_non_dedup_after_stake_yen": 1309900,
+        "sum_non_dedup_delta_yen": 436280
+      },
+      {
+        "odds_band": "200-300",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 135680,
+        "sum_non_dedup_after_stake_yen": 3222400,
+        "sum_non_dedup_delta_yen": 1397140
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 5,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 33770,
+        "sum_non_dedup_after_stake_yen": 601100,
+        "sum_non_dedup_delta_yen": 235830
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 2758330,
+        "sum_non_dedup_after_stake_yen": 11705800,
+        "sum_non_dedup_delta_yen": 12020600
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 374170,
+        "sum_non_dedup_after_stake_yen": 1308100,
+        "sum_non_dedup_delta_yen": 847440
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 47490,
+        "sum_non_dedup_after_stake_yen": 383600,
+        "sum_non_dedup_delta_yen": 86780
+      },
+      {
+        "odds_band": "1.5-2",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 230,
+        "sum_non_dedup_after_stake_yen": 24800,
+        "sum_non_dedup_delta_yen": 24940
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 90,
+        "sum_non_dedup_after_stake_yen": 4900,
+        "sum_non_dedup_delta_yen": 5950
+      }
+    ],
+    "HYBRID_50": [
+      {
+        "odds_band": "15-20",
+        "flipped_lines": 23,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 67280,
+        "sum_non_dedup_after_stake_yen": 2139700,
+        "sum_non_dedup_delta_yen": 461090
+      },
+      {
+        "odds_band": "30-50",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 184560,
+        "sum_non_dedup_after_stake_yen": 1810800,
+        "sum_non_dedup_delta_yen": 1286530
+      },
+      {
+        "odds_band": "5-7",
+        "flipped_lines": 15,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 2890,
+        "sum_non_dedup_after_stake_yen": 438800,
+        "sum_non_dedup_delta_yen": 60530
+      },
+      {
+        "odds_band": "500-1000",
+        "flipped_lines": 14,
+        "both_eval_years_profitable": 4,
+        "both_eval_years_profitable_min_100_tickets_each": 4,
+        "sum_non_dedup_after_profit_yen": 1198990,
+        "sum_non_dedup_after_stake_yen": 14745600,
+        "sum_non_dedup_delta_yen": 6276890
+      },
+      {
+        "odds_band": "5000+",
+        "flipped_lines": 7,
+        "both_eval_years_profitable": 2,
+        "both_eval_years_profitable_min_100_tickets_each": 2,
+        "sum_non_dedup_after_profit_yen": 8493380,
+        "sum_non_dedup_after_stake_yen": 56726400,
+        "sum_non_dedup_delta_yen": 28960650
+      },
+      {
+        "odds_band": "1000-2000",
+        "flipped_lines": 4,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 533920,
+        "sum_non_dedup_after_stake_yen": 2088300,
+        "sum_non_dedup_delta_yen": 1017240
+      },
+      {
+        "odds_band": "300-500",
+        "flipped_lines": 3,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 118530,
+        "sum_non_dedup_after_stake_yen": 760600,
+        "sum_non_dedup_delta_yen": 219560
+      },
+      {
+        "odds_band": "100-150",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 8160,
+        "sum_non_dedup_after_stake_yen": 335700,
+        "sum_non_dedup_delta_yen": 9600
+      },
+      {
+        "odds_band": "150-200",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 38840,
+        "sum_non_dedup_after_stake_yen": 509500,
+        "sum_non_dedup_delta_yen": 60670
+      },
+      {
+        "odds_band": "3-5",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 920,
+        "sum_non_dedup_after_stake_yen": 51000,
+        "sum_non_dedup_delta_yen": 3050
+      },
+      {
+        "odds_band": "50-75",
+        "flipped_lines": 2,
+        "both_eval_years_profitable": 1,
+        "both_eval_years_profitable_min_100_tickets_each": 1,
+        "sum_non_dedup_after_profit_yen": 4590,
+        "sum_non_dedup_after_stake_yen": 399700,
+        "sum_non_dedup_delta_yen": 24190
+      },
+      {
+        "odds_band": "75-100",
+        "flipped_lines": 1,
+        "both_eval_years_profitable": 0,
+        "both_eval_years_profitable_min_100_tickets_each": 0,
+        "sum_non_dedup_after_profit_yen": 8000,
+        "sum_non_dedup_after_stake_yen": 404500,
+        "sum_non_dedup_delta_yen": 28720
+      }
+    ]
+  },
+  "years_selection": "2023 training only, 2024 evaluated on 2023, 2025 evaluated on 2023-2024",
+  "does_not_forecast_black_bands": true,
+  "original_245_are_posthoc_for_reporting_only": true,
+  "no_net_profit_for_all_3040_union": true,
+  "not_independent_future_proof": "2024/2025 previously inspected; odds are historical FINAL"
+}
