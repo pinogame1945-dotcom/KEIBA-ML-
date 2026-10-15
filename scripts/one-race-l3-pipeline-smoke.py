@@ -9,7 +9,7 @@ spec=importlib.util.spec_from_file_location("keiba_orchestrator",script)
 module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
 
 rid="202507010212"
-key="SYNTHETIC_JRA_RACE_CARD",url="https://www.jra.go.jp/test"
+key="SYNTHETIC_JRA_RACE_CARD";url="https://www.jra.go.jp/test"
 observed="2025-01-06T13:32:00+09:00"
 def row(bt,seq,price):
     return {"raceKey":key,"betType":bt,"selection1":seq[0],
