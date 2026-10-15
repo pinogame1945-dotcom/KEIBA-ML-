@@ -1,6 +1,6 @@
 {
   "contract": "KEIBA_ONE_RACE_MODEL_REGISTRY_V1",
-  "note": "Explicit catalog of researched model candidates; unconfigured means the executable model or verified as-of OOF score was not promoted. Do not mistake catalog coverage for callable inference. Same-day form dependent candidates need timestamped prior-race results.",
+  "note": "Explicit catalog of researched model candidates; unconfigured means the executable model or verified as-of OOF score was not promoted. Do not mistake catalog coverage for callable inference. Same-day form dependent candidates need timestamped prior-race results. Council should only be registered after its exact published vote/tie-safe rule is independently reproduced; do not substitute mean-rank.",
   "models": [
     {
       "name": "KING:core4_no_pedigree",
@@ -195,20 +195,5 @@
       "comment": "L2.1 frozen selection depends on horse-level scores and pre-race ticket odds; separate from ability inference."
     }
   ],
-  "ensembles": [
-    {
-      "name": "SEVEN_KING_PLACEHOLDER",
-      "members": [
-        "KING:core4_no_pedigree",
-        "KING:no_auto_full_pedigree_legacy",
-        "KING:jockey_trainer_condition",
-        "KING:no_auto_full",
-        "KING:no_auto_jockey",
-        "KING:no_auto_full_pedigree_v1",
-        "KING:jockey_trainer_condition_plus_raceclass"
-      ],
-      "method": "rank_average",
-      "status": "NOT_ORIGINAL_FORMULA_PLACEHOLDER"
-    }
-  ]
+  "ensembles": []
 }
