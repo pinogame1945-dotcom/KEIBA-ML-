@@ -53,17 +53,30 @@ def load_original(path):
 
 def frame(pred_path,picks):
     d,p=ranklab.load_predictions(pred_path,picks)
-    mandatory=("risk","distill_score_z","market_prob_norm","rank_gap_norm","top3_overlap",
-               "distill_ai_rank","P__ANCHOR_FULL","market_rank")
-    src=pd.read_csv(pred_path,usecols=["_race_id","_horse_id",*mandatory[:5]],
+    # The compact OOS predictions intentionally omit ability score-z.
+    # Recover the original PRIOR-RACE ability-z from archived frozen fair-base
+    # cache; do not invent a rank-based substitute.
+    direct=("risk","market_prob_norm","top3_overlap")
+    src=pd.read_csv(pred_path,usecols=["_race_id","_horse_id",*direct],
                     compression="infer",dtype={"_race_id":str,"_horse_id":str},
                     low_memory=False)
     assert not src.duplicated(["_race_id","_horse_id"]).any()
-    for col in mandatory[:5]:
+    for col in direct:
         src[col]=pd.to_numeric(src[col],errors="raise")
         assert src[col].notna().all(),("missing source",col)
+    cache=Path("research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz")
+    assert cache.is_file(),("source cache missing",str(cache))
+    z=pd.read_csv(cache,usecols=["_race_id","_horse_id","distill_score_z"],
+                  compression="infer",dtype={"_race_id":str,"_horse_id":str},
+                  low_memory=False)
+    assert not z.duplicated(["_race_id","_horse_id"]).any()
+    z["distill_score_z"]=pd.to_numeric(z["distill_score_z"],errors="raise")
+    assert z["distill_score_z"].notna().all()
+    before=len(d)
     d=d.merge(src,on=["_race_id","_horse_id"],validate="one_to_one")
-    assert len(d)==len(src)
+    assert len(d)==before
+    d=d.merge(z,on=["_race_id","_horse_id"],how="left",validate="one_to_one")
+    assert len(d)==before and d["distill_score_z"].notna().all(), "historical ability cache key drift"
     assert d["risk"].between(0,1).all()
     assert d["market_prob_norm"].ge(0).all()
     return d,p
