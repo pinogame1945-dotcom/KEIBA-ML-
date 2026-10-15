@@ -263,7 +263,7 @@ def main() -> None:
     a = p.parse_args()
     raw = "\n".join(filter(None, [
         a.race_ids,
-        Path(a.ids_file).read_text(encoding="utf-8") if a.ids_file else None,
+        "\n".join(line.split("#", 1)[0] for line in Path(a.ids_file).read_text(encoding="utf-8").splitlines()) if a.ids_file else None,
     ]))
     try:
         ids = parse_ids(raw)
