@@ -1,0 +1,67 @@
+name: L3 V1 Frozen Ticket Money Allocation - Free CPU
+
+on:
+  push:
+    branches:
+      - research/l3-money-allocation-v1-20261015
+    paths:
+      - .github/triggers/l3-money-allocation-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l3-money-allocation-v1
+  cancel-in-progress: false
+
+jobs:
+  frozen-l2-ticket-allocation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout dedicated L3 branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Setup free standard CPU Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable L2.1 contract and costs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_keiba_l2_1_freeze.py
+          python - <<'PY'
+          from pathlib import Path
+          w=Path(".github/workflows/l3-money-allocation-v1.yml").read_text()
+          assert [x.strip() for x in w.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          assert "upload-artifact" not in w and "actions/cache" not in w
+          assert "gpu" not in w.lower() and "self-hosted" not in w
+          assert not any(x in w for x in ("pip install","kaggle datasets download"))
+          print("FREE_STANDARD_CPU_REPO_DATA_ONLY_NO_PAID_STORAGE_OR_GPU")
+          PY
+          python -m py_compile research/run_l3_money_allocation_v1.py
+          python -m unittest discover -s tests -p 'test_l3_money_allocation_v1.py' -v
+      - name: Run full 2023-25 13479-ticket equal-budget comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l3-money-allocation-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l3_money_allocation_v1.py --out-dir "$dest"
+          test -s "$dest/comparison.csv"
+          test -s "$dest/summary.json"
+          test -s "$dest/ticket_stakes.csv.gz"
+          test "$(du -sm "$dest" | cut -f1)" -le 8
+      - name: Persist compact research results only
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l3-money-allocation-v1/run-$GITHUB_RUN_ID"
+          git config user.name keiba-ml-research-bot
+          git config user.email actions@users.noreply.github.com
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research(l3): equal-budget allocation evaluation $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
