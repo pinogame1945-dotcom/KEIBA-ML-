@@ -9,7 +9,7 @@ PROJ="$ROOT/projected"
 RESULT="research-results/market-fixed-anchor-residual-v2/run-${GITHUB_RUN_ID:?GITHUB_RUN_ID required}"
 CPU="${L1_THREADS:-$(nproc)}"
 DL_PARALLEL="${KAGGLE_DOWNLOAD_PARALLEL:-2}"
-PROJ_PARALLEL="${PROJECTION_PARALLEL:-$CPU}"
+PROJ_PARALLEL="${PROJECTION_PARALLEL:-2}"
 (( DL_PARALLEL > 7 )) && DL_PARALLEL=7
 (( DL_PARALLEL < 1 )) && DL_PARALLEL=1
 (( PROJ_PARALLEL > 7 )) && PROJ_PARALLEL=7
@@ -146,7 +146,8 @@ PY
         --inputs "$ROOT/$remote" \
         --output "$PROJ/y$year.jsonl.gz" \
         --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE \
-        --prediction-phase FINAL
+        --prediction-phase FINAL \
+        --gzip-level 1
       test -s "$PROJ/y$year.jsonl.gz"
       echo "UNION_PROJECTION_OK year=$year"
     ) &
