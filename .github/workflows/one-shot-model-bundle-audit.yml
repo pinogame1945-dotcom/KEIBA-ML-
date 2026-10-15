@@ -1,0 +1,85 @@
+name: One-shot audit archived trained 7-King models (free CPU)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-model-bundle-audit.yml"
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      YEAR: "2025"
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free-only preflight
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN" || { echo "::error::existing Kaggle token unavailable, stop"; exit 1; }
+          free_kb=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
+          test "$free_kb" -gt 4000000 || { echo "::error::ephemeral disk safety guard";exit 1; }
+          python -m pip install --no-cache-dir --disable-pip-version-check -q kaggle lightgbm==4.7.0 pandas==3.0.6
+      - name: Resolve exact Kaggle remote names and size from metadata only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/king-bundles"
+          mkdir -p "$root"
+          transient() {
+            local label="$1"; shift
+            local i rc
+            for i in 1 2 3 4; do
+              set +e
+              "$@" 2>"$RUNNER_TEMP/kaggle.err"
+              rc=$?
+              set -e
+              if [ "$rc" = 0 ]; then return 0; fi
+              cat "$RUNNER_TEMP/kaggle.err" >&2
+              if grep -Eqi '404|not found' "$RUNNER_TEMP/kaggle.err"; then
+                echo "::error::metadata drift/nonexistent file, no retry: $label" >&2
+                return "$rc"
+              fi
+              if ! grep -Eqi '429|502|503|504|timed out|connection reset|temporary failure' "$RUNNER_TEMP/kaggle.err"; then
+                echo "::error::nontransient error $label" >&2
+                return "$rc"
+              fi
+              test "$i" -lt 4 || return "$rc"
+              sleep $((2**i))
+            done
+          }
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y$YEAR-v1"
+            mkdir -p "$root/$alias"
+            transient "metadata:$ref" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$root/$alias/files.json"
+            python3 - "$root/$alias/files.json" "$alias" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          wanted={"model.txt","model.json","schema.json","candidate.json"}
+          names={x.get("name"):x.get("size") for x in data}
+          if not wanted.issubset(names): raise SystemExit("MODEL_BUNDLE_METADATA_MISSING "+sys.argv[2]+" "+str(sorted(wanted-set(names))))
+          maxes={"model.txt":10000000,"model.json":3000000,"schema.json":3000000,"candidate.json":500000}
+          for n in sorted(wanted):
+              value=names[n]
+              try:size=int(value)
+              except (TypeError,ValueError):raise SystemExit("UNKNOWN_MODEL_FILE_SIZE "+n)
+              if not 1<=size<=maxes[n]:raise SystemExit("MODEL_FILE_OVER_BUDGET "+n+" "+str(size))
+              print("VERIFIED_REMOTE_FILE",sys.argv[2],n,size)
+          PY
+            for name in model.txt model.json schema.json candidate.json; do
+              test ! -s "$root/$alias/$name" || continue
+              transient "download:$alias:$name" kaggle datasets download "$ref" -f "$name" -p "$root/$alias" --unzip --quiet
+              test -s "$root/$alias/$name" || { echo "::error::METADATA_DRIFT_AFTER_DOWNLOAD:$name";exit 1; }
+            done
+          done
+          python3 research/audit-seven-king-bundles.py --root "$root" --year "$YEAR"
+      - name: Cost disclosure
+        if: always()
+        run: |
+          echo "Standard public-repo GitHub Actions CPU only. All downloaded models are ephemeral and not uploaded as cache/artifact/dataset."
