@@ -1,0 +1,20 @@
+{
+  "contract": "ALL_RACE_FLOW_TICKET_AUDIT_V1",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "rules": "fixed market-rank / AI win-prob partner lists; favorites/AI expected-value axes",
+  "stake_per_ticket_yen": 100,
+  "total_strategies": 64,
+  "2026_locked": true,
+  "model_refit": false,
+  "trained_router": false,
+  "no_after_result_selection": "BOTH_WIN_MISS slice is a diagnostic only; it CANNOT be identified at bet time",
+  "quinella_limitation": "Exact second place absent: potential captures are upper bounds, not winning quinella tickets",
+  "trio_limitation": "top3 labels recover candidate hit coverage; exact payouts not in source; ambiguous ties excluded from certain-hit column",
+  "payout_and_roi": "UNAVAILABLE. Never infer ROI from win odds or call theoretical coverage profitable.",
+  "payout_next_step": "Fetch matching authoritative BACKFILL exact payouts and horse number maps to settle generated tickets; need confirmation of free resource bounds before large data transfer."
+}
