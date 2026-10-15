@@ -87,6 +87,7 @@ def tickets_by_year(year, pred, picks, races, root, line_index, source):
             union={}
             seen_return={}
             gate_cache={}
+            horse_signals=None
             for tid,ticket,card in fixed.create_cards(group,pack,market,rid,axis,info):
                 line=tuple(map(str,tid))
                 requirements=line_index.get(line)
@@ -95,8 +96,9 @@ def tickets_by_year(year, pred, picks, races, root, line_index, source):
                 if ticket in seen_return:assert seen_return[ticket]==returned
                 seen_return[ticket]=returned
                 if ticket not in gate_cache:
-                    horse,no_map=lens_horses(group,pack)
-                    gate_cache[ticket]=lens.gate_flags(ticket,horse,anchor_no)
+                    if horse_signals is None:
+                        horse_signals,_=lens_horses(group,pack)
+                    gate_cache[ticket]=lens.gate_flags(ticket,horse_signals,anchor_no)
                 gate=gate_cache[ticket]
                 matched=[pol for pol,name in requirements if gate[name]]
                 if not matched:continue
@@ -141,10 +143,6 @@ def lens_horses(group,pack):
         ascending=[False,True,True],kind="mergesort")
     pr=dict(zip(rank["_horse_id"].astype(str),range(1,len(rank)+1)))
     horse={}
-    for row in group.itertuples(index=False):
-        # pandas tuple attributes for _horse_id are normalized by itertuples;
-        # use DataFrame rows instead for stable identity.
-        break
     for _,row in group.iterrows():
         hid=str(row["_horse_id"])
         horse[no[hid]]={
