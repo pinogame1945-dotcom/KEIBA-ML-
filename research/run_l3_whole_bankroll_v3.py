@@ -172,7 +172,8 @@ def write_table(out, name, rows):
     if not rows:
         raise AssertionError(("empty report", name))
     with (out/name).open("w",newline="",encoding="utf-8") as f:
-        w = csv.DictWriter(f, fieldnames=list(rows[0]))
+        all_fields = list(dict.fromkeys(field for row in rows for field in row))
+        w = csv.DictWriter(f, fieldnames=all_fields)
         w.writeheader()
         w.writerows(rows)
 
