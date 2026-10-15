@@ -40,7 +40,7 @@ def bad(fn,code):
 bad(lambda m:m["race"].update(canonicalRaceId=None),"CANONICAL_NETKEIBA")
 bad(lambda m:m["race"].update(raceStatus="COMPLETED"),"CANCELLED_FINISHED")
 bad(lambda m:m["race"].update(scheduleStatus="RESCHEDULED"),"CANCELLED_FINISHED")
-bad(lambda m:m["race"].update(status="OFFICIAL"),"ALREADY_OFFICIAL")
+bad(lambda m:m["race"].update(status="SCHEDULED"),"RACE_CARD_NOT_YET_OFFICIAL")
 bad(lambda m:m["race"].update(startTime=None),"SCHEDULED_START")
 bad(lambda m:m["entries"][0].update(horseNo=None),"ACTIVE_ENTRY_NOT_NUMBERED")
 bad(lambda m:m["odds_rows"][0].update(raceKey="WRONG"),"ODDS_RACE_KEY_DRIFT")
