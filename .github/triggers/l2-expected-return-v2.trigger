@@ -13,3 +13,5 @@ no_live_promotion=true
 no_2026=true
 free_standard_cpu=true
 no_artifacts_cache=true
+
+missing_odds_audit=true
