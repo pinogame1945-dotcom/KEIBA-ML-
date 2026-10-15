@@ -48,5 +48,5 @@ bad(lambda m:m["odds_rows"][0].update(observedAt="2025-01-06T13:10:00+09:00"),"M
 bad(lambda m:m["odds_rows"][0].update(observedAt="2025-01-06T15:00:00+09:00"),"MIXED_WIN_CAPTURE_TIMES")
 bad(lambda m:m["odds_rows"][0].update(selection1=4),"PARTIAL_OR_EXTRANEOUS")
 bad(lambda m:m["odds_rows"].pop(0),"PARTIAL_OR_EXTRANEOUS")
-bad(lambda m:m["race"].update(canonicalRaceId="202607010212"),"2026_SEALED")
+bad(lambda m:m["race"].update(canonicalRaceId="202607010212"),"2026_RESULT_REPLAY_SEALED")
 print("KEIBA_MOBILE_JRA_WIN_MARKET_BRIDGE_TEST_PASS")
