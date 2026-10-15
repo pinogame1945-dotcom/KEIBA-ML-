@@ -1,0 +1,162 @@
+name: L2 Fixed 152x20 Original Ticket Pruning Walkforward V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-fixed-ticket-pruning-3040-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-fixed-ticket-pruning-3040-v1
+  cancel-in-progress: false
+
+jobs:
+  freeze-all152-validate-3040-prune-tickets:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Check out frozen research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Install standard Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Refuse GPUs paid runners and paid artifact/cache storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_ev_ticket_red_to_black_forward_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          content=Path(".github/workflows/l2-fixed-ticket-pruning-3040-v1.yml").read_text()
+          runners=[x.strip() for x in content.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest"]
+          action_refs=[x.strip() for x in content.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in action_refs)
+          print("FREE_GITHUB_STANDARD_CPU_NO_CACHE_NO_PAID_ARTIFACT")
+          PY
+      - name: Load only NumPy Pandas dependencies
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Get authoritative manifests from single pinned BACKFILL commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          manifest=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          import pandas as pd
+          r=pd.read_csv("research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz",
+                        compression="infer",usecols=["year","_race_date"])
+          assert set(map(int,r.year))=={2023,2024,2025}
+          dates=sorted(set(r._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350,len(dates)
+          includes={"data/manifest.json","data/odds/manifest.json"}
+          unavailable=[]
+          for day in dates:
+              official=manifest["days"].get(day)
+              assert official and official.get("status")=="SUCCESS",("race pack manifest drift",day)
+              path=official.get("file")
+              assert path and path.startswith("data/daily/") and path.endswith(".jsonl.gz"),(day,path)
+              includes.add(path)
+              info=odds["days"].get(day)
+              assert info,("odds metadata day missing",day)
+              if info.get("status")!="SUCCESS":
+                  unavailable.append((day,info.get("status")))
+                  continue
+              opath=info.get("file")
+              assert opath and opath.startswith("data/odds/daily/") and opath.endswith(".jsonl.gz"),(day,opath)
+              includes.add(opath)
+          if unavailable:
+              # Missing price groups/races are not purchase candidates and are
+              # counted as explicit missing data; never infer invented odds.
+              raise ValueError("Price-bearing race days unavailable; fail closed: "+str(unavailable[:20]))
+          Path("out/pinned-sparse-paths.txt").write_text("\n".join("/"+p for p in sorted(includes))+"\n")
+          print("MANIFEST_DRIVEN_HISTORICAL_DAYS",len(dates),"REMOTE_REAL_FILES",len(includes))
+          PY
+      - name: Fetch all 2023-2025 official exact dividends and all seven ticket prices once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/odds/manifest.json
+          test -s out/pinned-history/data/manifest.json
+          echo "METADATA_RESOLVED_SINGLE_REMOTE_FILE_PER_DATE_READY"
+      - name: Fail closed on original ticket definitions and learning invariants
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_fixed_ticket_pruning_3040_v1.py
+          python - <<'PY'
+          import csv,sys
+          sys.path.insert(0,"research")
+          import run_l2_fixed_ticket_pruning_3040_v1 as m
+          assert len(m.POLICIES)==21
+          assert len(m.BINS)==20
+          assert m.bin_name(0)=="0-1.5"
+          assert m.bin_name(1.5)=="1.5-2"
+          assert m.bin_name(5000)=="5000+"
+          assert set(m.MODES)=={"PROB","MARKET","LEARNED","HYBRID"}
+          path="research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv"
+          with open(path,encoding="utf-8",newline="") as f:
+            r=list(csv.DictReader(f))
+          assert len(r)==3040
+          assert sum(int(x["2023-2025_損益円"])>0 for x in r)==245
+          print("FROZEN_152_TEMPLATES_X_20_BANDS_245_PLUS_2795_OTHER")
+          PY
+      - name: Train prior years only and prune only the already-original tickets
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-fixed-ticket-pruning-3040-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_fixed_ticket_pruning_3040_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --bands research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv \
+            --old-union research-results/l2-ev-profitable-bands-coverage-v1/run-38688106154/union-unique-races-and-deduped-purchases-by-year.csv \
+            --backfill-root out/pinned-history --out-dir "$out"
+          for f in summary.json all_3040_fixed_lines_before_after_2024_2025.csv.gz \
+                   deduped_original_245_and_all_tickets_union_before_after.csv \
+                   all_245_original_black_lines_pruning_preservation.csv \
+                   red_lines_changed_to_black_2024_25.csv.gz \
+                   red_to_black_preservation_audit_all_policies.csv; do
+            test -s "$out/$f"
+          done
+      - name: Erase temporary historical working files
+        if: always()
+        shell: bash
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Persist only compact research aggregate, never historical dataset or paid artifacts
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-fixed-ticket-pruning-3040-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: exact original-3040 ticket pruning OOS results $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
