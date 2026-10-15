@@ -21,31 +21,20 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-      - name: Bounded sparse checkout of immutable research rank matrix
+      - name: Resolve verified saved 2025 archive files from Github
         shell: bash
         run: |
           set -euo pipefail
-          git clone --quiet --depth=1 --filter=blob:none --sparse \
-            --branch research/l1-council-rebuild-v1-20261004 \
-            https://github.com/pinogame1945-dotcom/KEIBA-ML-.git \
-            "$RUNNER_TEMP/l1-historical-saved-matrix"
-          cd "$RUNNER_TEMP/l1-historical-saved-matrix"
-          git sparse-checkout set --no-cone \
-            "/research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz" \
-            "/research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
-          a="research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
-          b="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
-          test -s "$a" && test -s "$b"
-          [ "$(stat -c%s "$a")" -lt 2000000 ]
-          [ "$(stat -c%s "$b")" -lt 2000000 ]
-          echo "SAVED_ARCHIVE_BYTES $(stat -c%s "$a") $(stat -c%s "$b")"
+          bash scripts/fetch-saved-council-github.sh 2025 "$RUNNER_TEMP/archived-scores"
+          bash scripts/fetch-saved-council-github.sh 2025 "$RUNNER_TEMP/archived-scores"
+          test -s "$RUNNER_TEMP/archived-scores/council-y2025.jsonl.gz"
+          test -s "$RUNNER_TEMP/archived-scores/outsider-ballots-y2025.csv.gz"
       - name: Select a real saved 2025 race and replay 20 separate research signals
         shell: bash
         run: |
           set -euo pipefail
-          root="$RUNNER_TEMP/l1-historical-saved-matrix/research-results"
-          council="$root/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
-          ballots="$root/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
+          council="$RUNNER_TEMP/archived-scores/council-y2025.jsonl.gz"
+          ballots="$RUNNER_TEMP/archived-scores/outsider-ballots-y2025.csv.gz"
           race_id=$(python3 - "$council" <<'PY'
           import gzip,json,sys
           with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
