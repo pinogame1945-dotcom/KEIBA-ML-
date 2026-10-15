@@ -162,7 +162,7 @@ def main(args):
     computed={period:{k(pair,seg):make_summary(rows,(pair,seg)) for pair,seg in combos}
               for period,rows in records.items()}
     focus="1+2|6-9"
-    check(all(computed["2023-2025"][focus]["all"][field]==value
+    need(all(computed["2023-2025"][focus]["all"][field]==value
               for field,value in EXPECTED_12_6_9.items()),
           "fixed 1+2 and 6-9 family disagrees with earlier complete paid ledger")
     def training_pick(trainyears):
