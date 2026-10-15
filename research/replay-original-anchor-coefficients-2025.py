@@ -162,11 +162,41 @@ def execute(cache,coeff,lambdas,predictions,race_id,fail_threshold=5e-7):
                   for hid,p in sorted(probabilities.items())],
     }
 
+def export_original_2025_parameters(cache,coeff,lambdas):
+    normal,ntrain=build_2025_normalizer(file_rows(cache))
+    beta,lam=read_beta(coeff,lambdas)
+    if set(beta)!=set(normal):
+        raise ValueError("SAVED_MODEL_AND_TRAINING_STANDARDIZER_FEATURE_DRIFT")
+    return {
+      "contract":"KEIBA_ORIGINAL_ANCHOR_FULL_PRIOR_TRAINED_PARAMS_V1",
+      "source_original_archived_research":SOURCE,
+      "variant":VARIANT,"trained_only_on_years":[2022,2023,2024],
+      "heldout_2025_model_selected_no_later_than":"2024-12-31",
+      "original_train_horses":ntrain,
+      "selected_lambda":lam,"coefficients":beta,
+      "standardizer":normal,"features_in_original_order":list(FEATURES),
+      "original_input_phase":"FINAL_HISTORICAL",
+      "market_quote_asof_required":True,
+      "prerace_risk_model_unavailable_or_not_yet_verified":True,
+      "prerace_ability_model_unavailable_or_not_yet_verified":True,
+      "not_promoted_or_authenticated_for_live_betting":True,
+      "no_roi_based_model_selection":True,
+      "must_refuse_missing_prior_asof_companion_features":True
+    }
+
 def main():
     p=argparse.ArgumentParser()
     for k in ("cache","coefficients","lambda-selection","predictions","race","out"):
         p.add_argument("--"+k,required=True)
+    p.add_argument("--export-parameters",
+                   help="Optional ephemeral JSON of verified original training-only ANCHOR_FULL weights/normalizer; no live promotion")
     a=p.parse_args()
+    if a.export_parameters:
+        model=export_original_2025_parameters(a.cache,a.coefficients,a.lambda_selection)
+        destination=Path(a.export_parameters)
+        destination.parent.mkdir(parents=True,exist_ok=True)
+        destination.write_text(json.dumps(model,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+        print("ORIGINAL_ANCHOR_FULL_PRIOR_PARAMETER_EXPORT",model["original_train_horses"])
     out=execute(a.cache,a.coefficients,a.lambda_selection,a.predictions,a.race)
     target=Path(a.out);target.parent.mkdir(parents=True,exist_ok=True)
     target.write_text(json.dumps(out,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
