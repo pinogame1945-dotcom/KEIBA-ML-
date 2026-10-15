@@ -32,7 +32,9 @@ def run_day(a):
     blocked=[]
     for rid in sorted(rows):
         try:
-            result=m.replay_one(rid,a.predictions,a.ability_cache,a.picks,a.race_pack,a.odds_pack)
+            result=m.replay_one(
+                rid,a.predictions,a.ability_cache,a.picks,a.race_pack,a.odds_pack,
+                retrospective_dnf_scope=a.retrospective_dnf_source_scope)
             result=m.compare(result,a.baseline_covered,a.baseline_uncovered,rid)
         except ValueError as exc:
             # An archived OOS prediction can legitimately be absent for a
@@ -52,6 +54,11 @@ def run_day(a):
         "date":"2025-01-06","races":len(output),"requested_races":len(rows),
         "blocked_races":len(blocked),"blocked_cases":blocked,
         "status":"ALL_RACES_MATCH" if not blocked else "PARTIAL_RACE_SOURCE_BLOCKS",
+        "retrospective_dnf_source_scope":a.retrospective_dnf_source_scope,
+        "dnf_exclusion_is_postresult_hindsight":a.retrospective_dnf_source_scope,
+        "races_using_future_dnf_status":sum(bool(r["retrospective_dnf_omitted_horse_ids"]) for r in output),
+        "dnf_horses_excluded_as_in_original_oos":sum(len(r["retrospective_dnf_omitted_horse_ids"]) for r in output),
+        "NOT_PREBET_PERFORMANCE_EVALUATION":True,
         "physical_tickets":count,
         "original_research_parity":all(r["original_saved_ticket_set_exact"] for r in output),
         "odds_phase":"FINAL_HISTORICAL_NOT_TRADEABLE",
@@ -64,6 +71,8 @@ def run_day(a):
 
 def main():
     p=argparse.ArgumentParser()
+    p.add_argument("--retrospective-dnf-source-scope",action="store_true",
+                   help="HISTORICAL AUDIT ONLY: reproduce original post-result DNF label-filtered ticket universe. FORBIDDEN for prebet.")
     for f in ("predictions","ability-cache","picks","race-pack","odds-pack",
               "baseline-covered","baseline-uncovered","output"):
         p.add_argument("--"+f,required=True)
