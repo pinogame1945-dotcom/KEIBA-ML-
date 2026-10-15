@@ -7,6 +7,7 @@ on:
       - ".github/workflows/one-shot-real-l21-ticket-parity.yml"
       - "research/l21-replay-real-final-one-race.py"
       - "scripts/l21-real-day-parity.py"
+      - "research/audit-l21-five-started-omissions.py"
 permissions:
   contents: read
 jobs:
@@ -74,6 +75,11 @@ jobs:
             --baseline-covered "$root/original-known-tickets.csv.gz" \
             --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
             --output "$root/whole-day-parity.json"
+          python3 research/audit-l21-five-started-omissions.py \
+            --predictions "$root/historical-oos.csv.gz" \
+            --race-pack "$root/race-pack.jsonl.gz" \
+            --odds-pack "$root/odds-pack.jsonl.gz" \
+            --output "$root/five-started-omissions.json"
           python3 - <<'PY'
           import os,json
           from pathlib import Path
