@@ -137,8 +137,10 @@ def _validate_race(bundle):
     if not isinstance(signals.get("model_version"), str) or not signals["model_version"]:
         raise ValueError("L175_MODEL_VERSION_REQUIRED")
     signal_at = iso(signals.get("observed_at"), "L175_P3_ASOF")
-    if signal_at > observed:
-        raise ValueError("L175_P3_AFTER_MARKET_QUOTE")
+    if signal_at >= cutoff:
+        raise ValueError("L175_P3_NOT_BEFORE_BET_CUTOFF")
+    if race_id.startswith("2026") and signal_at > dt.datetime.now(dt.timezone.utc):
+        raise ValueError("2026_FUTURE_L175_P3_NOT_YET_OBSERVED")
     horses = signals.get("horses")
     if not isinstance(horses, list) or not horses:
         raise ValueError("L175_HORSE_P3_EMPTY")
