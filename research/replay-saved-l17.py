@@ -45,7 +45,7 @@ def replay(race, csvfile, summary_file):
     if len(horses)<3 or len({x["horse_id"] for x in horses})!=len(horses):
         raise ValueError("historical race horse IDs missing or duplicated")
     expected={x["horse_id"] for x in horses}
-    score_by_horse={h["horse_id"]:h.get("saved_outsider_points") for h in horses}
+    score_by_horse={h["horse_id"]:h.get("saved_outsider_points",h.get("outsider_points")) for h in horses}
     all_rows={}
     opener=gzip.open if str(csvfile).endswith(".gz") else open
     with opener(csvfile,"rt",encoding="utf-8",newline="") as f:
