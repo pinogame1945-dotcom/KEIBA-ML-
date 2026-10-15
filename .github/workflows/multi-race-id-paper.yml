@@ -1,0 +1,92 @@
+name: Multi-race ID batch paper pipeline (free CPU)
+on:
+  workflow_dispatch:
+    inputs:
+      race_ids:
+        description: "1..60 IDs, comma or whitespace separated (2022-2025 only)"
+        required: true
+        type: string
+        default: "202506050811"
+      input_manifest_path:
+        description: "Optional checked-in as-of input-manifest JSON path, no FINAL odds"
+        required: false
+        type: string
+  push:
+    branches:
+      - feature/multi-race-id-pipeline-20261016
+    paths:
+      - .github/workflows/multi-race-id-paper.yml
+      - config/race-ids.txt
+
+permissions:
+  contents: read
+
+jobs:
+  no-network-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Syntax, ID batch, two-race one-pass extraction and L3 fail-closed
+        run: |
+          set -euo pipefail
+          python3 -m py_compile research/run-races-by-id.py research/extract-races-snapshot.py
+          bash -n scripts/score-known-race-kaggle.sh
+          python3 scripts/multi-race-id-smoke.py
+
+  previous-year-seven-kings-and-paper-l3:
+    needs: no-network-contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      RACE_IDS_INPUT: ${{ inputs.race_ids }}
+      INPUT_MANIFEST_PATH: ${{ inputs.input_manifest_path }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free runner and bounded disk preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.event.repository.private }}" = "false" || { echo "::error::Only public repository standard CPU free run allowed"; exit 1; }
+          df -h "$RUNNER_TEMP"
+          test -n "$KAGGLE_API_TOKEN" || { echo "::error::Read-only Kaggle secret not provided"; exit 1; }
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 9000000 || { echo "::error::Available free ephemeral disk below 9GB"; exit 1; }
+      - name: Install original 7 model inference dependencies
+        shell: bash
+        run: python3 -m pip install -q --no-cache-dir --disable-pip-version-check kaggle lightgbm==4.7.0 pandas==3.0.6
+      - name: Score specified race IDs and flow each into frozen paper L2.1 L3
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=(--session-dir "$RUNNER_TEMP/keiba-multi-session" --out-dir "$RUNNER_TEMP/keiba-multi-results")
+          if [ "$GITHUB_EVENT_NAME" = "workflow_dispatch" ]; then
+            args+=(--race-ids "$RACE_IDS_INPUT")
+          else
+            args+=(--ids-file "config/race-ids.txt")
+          fi
+          if [ -n "$INPUT_MANIFEST_PATH" ]; then
+            args+=(--input-manifest "$INPUT_MANIFEST_PATH")
+          fi
+          python3 research/run-races-by-id.py "${args[@]}"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"keiba-multi-results/batch-summary.json").read_text())
+          assert 1<=report["race_count"]<=60
+          assert report["actual_bets_placed"] is False
+          assert report["replay_is_verified_prebet"] is False
+          assert report["freeze_l21_unmodified"] is True
+          print("BATCH_ID_PAPER_HANDOFF_COMPLETE",json.dumps(report["summary"],ensure_ascii=False),flush=True)
+          for row in report["races"]:
+              print("BATCH_RACE_FINAL_STATE",row["race_id"],row["seven_king_status"],row["l21_l3_status"],flush=True)
+          PY
+      - name: Free-only cost statement
+        if: always()
+        run: |
+          echo "Standard GitHub public CPU, runner-local temporary snapshot/model files only."
+          echo "No GPU, paid artifacts/cache, external storage purchases, or real wagers."
+          echo "Historical archive phase FINAL: do NOT relabel as authenticated prebet."
