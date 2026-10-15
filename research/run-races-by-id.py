@@ -133,11 +133,6 @@ def run_batch(race_ids: list[str], session: Path, out_root: Path,
                 results[rid]["seven_king_status"] = "BLOCKED_SNAPSHOT_BATCH_EXTRACT"
                 results[rid]["seven_king_error"] = str(exc)[-800:]
             continue
-        finally:
-            # Multiple years may exceed free runner disk. Safe because all
-            # desired race features have already been extracted locally.
-            if "remote" in locals() and len(by_year) > 1:
-                release_snapshot(session, remote)
         for rid in ids:
             output = out_root / rid / "prior-year-seven-kings.json"
             score = execute(["bash", "scripts/score-known-race-kaggle.sh",
@@ -163,6 +158,12 @@ def run_batch(race_ids: list[str], session: Path, out_root: Path,
             except (ValueError, KeyError, OSError) as exc:
                 results[rid]["seven_king_status"] = "BLOCKED_KINGS_OUTPUT_VALIDATION"
                 results[rid]["seven_king_error"] = str(exc)
+
+        # Release the large downloaded year snapshot only after all selected
+        # race features and seven scores have been computed. One year at a time
+        # keeps even four target years within the free runner's local disk.
+        if len(by_year) > 1:
+            release_snapshot(session, remote)
 
     for rid in race_ids:
         record = results[rid]
