@@ -11,6 +11,7 @@ on:
       - "models/one-race-registry.json"
       - "research/replay-seven-kings.py"
       - "research/replay-archived-council.py"
+      - "research/replay-one-race-id.py"
       - "research/analyze-one-race.py"
       - "scripts/archived-council-smoke.py"
       - "research/replay-seven-kings-kaggle.sh"
@@ -36,7 +37,7 @@ jobs:
           node --check src/single-race-engine.mjs
           node --check src/single-race-historical-extra.mjs
           node --check research/predict-one-race.mjs
-          python3 -m py_compile research/score-one-race.py research/replay-seven-kings.py
+          python3 -m py_compile research/score-one-race.py research/replay-seven-kings.py research/replay-one-race-id.py
           bash -n research/replay-seven-kings-kaggle.sh
           python3 scripts/seven-king-replay-smoke.py
           python3 scripts/archived-council-smoke.py
