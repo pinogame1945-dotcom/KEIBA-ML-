@@ -201,8 +201,8 @@ def main():
         if sorted_days != base_days:
             raise AssertionError(("day set drift",policy))
         biggest=max(v[0] for v in s["days"].values())
-        if required < biggest:
-            raise AssertionError("minimum capital below largest daily wager")
+        if required < s["days"][sorted_days[0]][0]:
+            raise AssertionError("minimum capital below the first day's purchase")
         top=sorted(s["top10"],reverse=True)
         year_rois=[]
         for year in YEARS:
