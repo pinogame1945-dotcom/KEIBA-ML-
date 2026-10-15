@@ -108,6 +108,16 @@ blocked=mod.execute(card,features,missing)
 assert blocked["status"]=="BLOCKED_INCOMPLETE_QUOTE_BOOK"
 assert blocked["ticket_quote_missing_unique_count"]>0
 assert blocked["tickets"]==[] and blocked["baseline_total_stake_yen"]==0
+f_spec=importlib.util.spec_from_file_location("l21_view",
+    Path("research/l21-format-price-preview.py").resolve())
+formatter=importlib.util.module_from_spec(f_spec);f_spec.loader.exec_module(formatter)
+preview=formatter.render(result)
+assert "凍結買い目" in preview and "物理的な購入候補" in preview
+assert "馬連" in preview and "三連複" in preview and "三連単" in preview
+assert "重複排除前" in preview
+blocked_preview=formatter.render(blocked)
+assert "購入候補は出力しない" in blocked_preview
+assert "不足した物理オッズ" in blocked_preview
 print("FROZEN_L21_50_GATES_AND_9_TEMPLATE_STRICT_PREBET_PRICING_PASS",
       "paper_unique_tickets",result["physical_ticket_count"],
       "strict_subset",strict_results["physical_ticket_count"])
