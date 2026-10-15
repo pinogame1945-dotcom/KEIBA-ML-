@@ -167,6 +167,8 @@ def combine_quote(source, rid, active, race_key, start):
     cutoff=timestamp(source.get("bet_cutoff_at"),"bet_cutoff")
     if not t<cutoff<start:
         raise ValueError("QUOTE_NOT_BEFORE_BET_CUTOFF_OR_START")
+    if rid.startswith("2026") and t>datetime.datetime.now(datetime.timezone.utc):
+        raise ValueError("2026_FUTURE_OBSERVATION_NOT_YET_MADE")
     if timestamp(source.get("scheduled_start_at"),"market_start")!=start:
         raise ValueError("MARKET_RACE_START_TIME_DRIFT")
     rows=source.get("rows")
@@ -221,8 +223,8 @@ def combine_quote(source, rid, active, race_key, start):
 def validate_live_card(payload):
     race=payload.get("race") or {}
     rid=str(race.get("canonicalRaceId") or "")
-    if not re.fullmatch(r"202[2-5]\d{8}",rid):
-        raise ValueError("L21_ONLY_2022_2025_EXISTING_RACES_2026_SEALED")
+    if not re.fullmatch(r"202[2-6]\d{8}",rid):
+        raise ValueError("L21_ONLY_2022_2026_RACE_IDS")
     if (race.get("raceStatus")!="SCHEDULED" or race.get("scheduleStatus")!="ACTIVE"
         or race.get("status")!="OFFICIAL"):
         raise ValueError("RESULT_OR_CANCELLED_RACE_NOT_LIVE")
@@ -230,6 +232,10 @@ def validate_live_card(payload):
     if not re.fullmatch(r"\d{4}-\d\d-\d\d",str(d)) or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d",str(clock)):
         raise ValueError("LIVE_START_TIME_MISSING")
     start=timestamp(f"{d}T{clock}:00+09:00","live_start")
+    # 2026 results remain sealed, but FUTURE 2026 live races are not
+    # historical post-result backtests.
+    if rid.startswith("2026") and start<=datetime.datetime.now(datetime.timezone.utc):
+        raise ValueError("2026_HISTORICAL_RACE_REPLAY_SEALED_ONLY_FUTURE_PREBET_ALLOWED")
     entries=payload.get("entries")
     if not isinstance(entries,list) or len(entries)<3:raise ValueError("LIVE_ENTRIES_MISSING")
     active=set()
@@ -263,6 +269,8 @@ def execute(card,model,quotes,policy="STANDARD"):
         raise ValueError("L21_ORIGINAL_ANCHOR_WIN_ODDS_NOT_SAME_MARKET_SNAPSHOT")
     if not observed<=model_time<cutoff:
         raise ValueError("L21_ORIGINAL_ANCHOR_COMPUTED_OUTSIDE_QUOTE_TO_CUTOFF")
+    if rid.startswith("2026") and model_time>datetime.datetime.now(datetime.timezone.utc):
+        raise ValueError("2026_MODEL_OUTPUT_FROM_FUTURE_NOT_ALLOWED")
     if model.get("canonical_race_key")!=race["raceKey"]:
         raise ValueError("L21_ORIGINAL_AXIS_RACE_KEY_DRIFT")
     # Exact historic sort_horses: AI_PROB by P then market rank then horse ID;
