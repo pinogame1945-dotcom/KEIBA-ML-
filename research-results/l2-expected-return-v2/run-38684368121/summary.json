@@ -1,0 +1,360 @@
+{
+  "contract": "L2_EXPECTED_RETURN_V2_ALL_TICKET_PRICES",
+  "cohort_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "model_eval_years": [
+    2024,
+    2025
+  ],
+  "total_races": 10368,
+  "selection_axis": "Frozen ANCHOR_FULL, based on final win odds",
+  "bet_types": [
+    "WIN",
+    "PLACE",
+    "QUINELLA",
+    "WIDE",
+    "EXACTA",
+    "TRIO",
+    "TRIFECTA"
+  ],
+  "models": [
+    "LOWEST_PRICE",
+    "MARKET_PL",
+    "AI_PL",
+    "BLEND_PL",
+    "TICKET_CALIBRATED"
+  ],
+  "ticket_budgets": [
+    1,
+    2,
+    3
+  ],
+  "skip_percent_targets": [
+    0,
+    10,
+    20
+  ],
+  "joint_probs": "Full ordered top-3 Plackett-Luce from market/AI win probabilities, plus prior-year binary calibration.",
+  "price_time": "FINAL ODDS: research retrospective only, not pre-off available.",
+  "place_wide_warning": "PLACE and WIDE use conservative LOWER bounds of odds intervals; not validated as executable prices, and excluded from promotion.",
+  "price_missing_rule": "Missing/unreadable exact quote => no evaluated ticket, never imputed.",
+  "outcome_source": "Actual official payouts, never final quote as a payout substitute.",
+  "previous_year_calibration": "2024 train 2023, 2025 train 2023+2024. Thresholds from prior-year score distribution.",
+  "selection_rule": "Select with 2024 evidence only, lock then report 2025. Both previously inspected => exploratory.",
+  "best_2024_policies_locked_to_2025": [
+    {
+      "mandate": "BUY_90",
+      "selected": {
+        "scope": "TRIFECTA",
+        "method": "MARKET_PL",
+        "budget": "3",
+        "target_skip_pct": "10"
+      },
+      "2024": {
+        "bet_races": "3113",
+        "bet_coverage_pct": 90.07523148148148,
+        "stake_yen": 933900.0,
+        "payout_yen": 1242130.0,
+        "profit_yen": 308230.0,
+        "roi_pct": 133.00460434736053
+      },
+      "locked_2025": {
+        "bet_races": "3188",
+        "bet_coverage_pct": 92.24537037037037,
+        "stake_yen": 956400.0,
+        "payout_yen": 611110.0,
+        "profit_yen": -345290.0,
+        "roi_pct": 63.89690506064408
+      }
+    },
+    {
+      "mandate": "BUY_80",
+      "selected": {
+        "scope": "TRIFECTA",
+        "method": "MARKET_PL",
+        "budget": "3",
+        "target_skip_pct": "10"
+      },
+      "2024": {
+        "bet_races": "3113",
+        "bet_coverage_pct": 90.07523148148148,
+        "stake_yen": 933900.0,
+        "payout_yen": 1242130.0,
+        "profit_yen": 308230.0,
+        "roi_pct": 133.00460434736053
+      },
+      "locked_2025": {
+        "bet_races": "3188",
+        "bet_coverage_pct": 92.24537037037037,
+        "stake_yen": 956400.0,
+        "payout_yen": 611110.0,
+        "profit_yen": -345290.0,
+        "roi_pct": 63.89690506064408
+      }
+    },
+    {
+      "mandate": "BUY_70",
+      "selected": {
+        "scope": "TRIFECTA",
+        "method": "MARKET_PL",
+        "budget": "3",
+        "target_skip_pct": "10"
+      },
+      "2024": {
+        "bet_races": "3113",
+        "bet_coverage_pct": 90.07523148148148,
+        "stake_yen": 933900.0,
+        "payout_yen": 1242130.0,
+        "profit_yen": 308230.0,
+        "roi_pct": 133.00460434736053
+      },
+      "locked_2025": {
+        "bet_races": "3188",
+        "bet_coverage_pct": 92.24537037037037,
+        "stake_yen": 956400.0,
+        "payout_yen": 611110.0,
+        "profit_yen": -345290.0,
+        "roi_pct": 63.89690506064408
+      }
+    }
+  ],
+  "price_availability": [
+    {
+      "year": 2023,
+      "bet_type": "EXACTA",
+      "quoted_candidates": 28406,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.8,
+      "max_quote": 2067.7,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 977
+    },
+    {
+      "year": 2023,
+      "bet_type": "PLACE",
+      "quoted_candidates": 3456,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.0,
+      "max_quote": 12.7,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 1677
+    },
+    {
+      "year": 2023,
+      "bet_type": "QUINELLA",
+      "quoted_candidates": 14203,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.2,
+      "max_quote": 729.8,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 977
+    },
+    {
+      "year": 2023,
+      "bet_type": "TRIFECTA",
+      "quoted_candidates": 133566,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 2.5,
+      "max_quote": 19727.2,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 857
+    },
+    {
+      "year": 2023,
+      "bet_type": "TRIO",
+      "quoted_candidates": 22261,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.1,
+      "max_quote": 1561.1,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 857
+    },
+    {
+      "year": 2023,
+      "bet_type": "WIDE",
+      "quoted_candidates": 14203,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.0,
+      "max_quote": 171.1,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 2442
+    },
+    {
+      "year": 2023,
+      "bet_type": "WIN",
+      "quoted_candidates": 3456,
+      "races_with_quotes": 3456,
+      "race_coverage_pct": 100.0,
+      "min_quote": 1.1,
+      "max_quote": 129.0,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 753
+    },
+    {
+      "year": 2024,
+      "bet_type": "EXACTA",
+      "quoted_candidates": 29782,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.6,
+      "max_quote": 8621.7,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 837
+    },
+    {
+      "year": 2024,
+      "bet_type": "PLACE",
+      "quoted_candidates": 3454,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.0,
+      "max_quote": 43.3,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 1416
+    },
+    {
+      "year": 2024,
+      "bet_type": "QUINELLA",
+      "quoted_candidates": 14891,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.1,
+      "max_quote": 2454.4,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 837
+    },
+    {
+      "year": 2024,
+      "bet_type": "TRIFECTA",
+      "quoted_candidates": 150498,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 2.4,
+      "max_quote": 306890.3,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 846
+    },
+    {
+      "year": 2024,
+      "bet_type": "TRIO",
+      "quoted_candidates": 25083,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.1,
+      "max_quote": 7013.9,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 844
+    },
+    {
+      "year": 2024,
+      "bet_type": "WIDE",
+      "quoted_candidates": 14891,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.0,
+      "max_quote": 470.4,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 2202
+    },
+    {
+      "year": 2024,
+      "bet_type": "WIN",
+      "quoted_candidates": 3454,
+      "races_with_quotes": 3454,
+      "race_coverage_pct": 99.9421,
+      "min_quote": 1.1,
+      "max_quote": 384.0,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 575
+    },
+    {
+      "year": 2025,
+      "bet_type": "EXACTA",
+      "quoted_candidates": 29972,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.3,
+      "max_quote": 4342.1,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 825
+    },
+    {
+      "year": 2025,
+      "bet_type": "PLACE",
+      "quoted_candidates": 3455,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.0,
+      "max_quote": 47.4,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 1373
+    },
+    {
+      "year": 2025,
+      "bet_type": "QUINELLA",
+      "quoted_candidates": 14986,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.1,
+      "max_quote": 1612.6,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 824
+    },
+    {
+      "year": 2025,
+      "bet_type": "TRIFECTA",
+      "quoted_candidates": 152754,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 2.2,
+      "max_quote": 52800.8,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 774
+    },
+    {
+      "year": 2025,
+      "bet_type": "TRIO",
+      "quoted_candidates": 25459,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.2,
+      "max_quote": 4294.5,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 770
+    },
+    {
+      "year": 2025,
+      "bet_type": "WIDE",
+      "quoted_candidates": 14986,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.0,
+      "max_quote": 391.8,
+      "quote_quality": "LOWER_BOUND_INTERVAL",
+      "winning_tickets_observed": 2099
+    },
+    {
+      "year": 2025,
+      "bet_type": "WIN",
+      "quoted_candidates": 3455,
+      "races_with_quotes": 3455,
+      "race_coverage_pct": 99.9711,
+      "min_quote": 1.1,
+      "max_quote": 297.4,
+      "quote_quality": "FINAL_SINGLE_PRICE",
+      "winning_tickets_observed": 589
+    }
+  ],
+  "models_deployable": false,
+  "2026_sealed": true,
+  "free_standard_cpu_only": true
+}
