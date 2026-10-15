@@ -60,12 +60,30 @@ def audit(pred,pack,oddspack,council):
         no=int(row["horse_number"])
         race=entries[rid].get("race") or {}
         odds=prices[rid]
+        pack=entries[rid]
+        status_rows=[]
+        for collection_name in ("results","result","race_results"):
+            source=pack.get(collection_name) or []
+            if isinstance(source,dict):
+                source=list(source.values())
+            for record in source if isinstance(source,list) else []:
+                if not isinstance(record,dict):continue
+                if (str(record.get("horse_id") or "")==missing_id or
+                    str(record.get("horse_number") or "")==str(no)):
+                    status_rows.append({"source":collection_name,
+                        "finish_position":record.get("finish_position"),
+                        "finish_raw":record.get("finish_raw"),
+                        "result_status":record.get("result_status"),
+                        "entry_status":record.get("entry_status"),
+                        "status":record.get("status")})
         winbook=(odds.get("odds") or {}).get("1") or {}
         match={k:v for k,v in winbook.items() if str(k).isdigit() and int(k)==no}
         # For historical investigation ONLY use statuses and pricing evidence.
         case={
            "race_id":rid,"horse_id":missing_id,"horse_number":no,
            "entry_status":row.get("entry_status"),
+           "historical_result_status_rows":status_rows,
+           "pack_top_level_keys":sorted(pack),
            "original_panel_horse_count":len(predicted.get(rid,set())),
            "backfill_start_entries":sum(x.get("entry_status")=="STARTED" for x in active),
            "backfill_numbered_entries":sum(x.get("horse_number") is not None for x in active),
@@ -104,6 +122,8 @@ def main():
               "price_keys",case["win_odds_raw_keys"],
               "raw_win_odds",str(case["win_odds_raw_values"])[:300],
               "saved_7king_has_horse",case["saved_7king_council_includes_missing_horse"],
-              "7king_field",case["saved_7king_council_horse_count"],"entry",
+              "7king_field",case["saved_7king_council_horse_count"],
+              "historical_result_status",case["historical_result_status_rows"],
+              "pack_keys",case["pack_top_level_keys"],"entry",
               case["entry_nonresult_fields"],flush=True)
 if __name__=="__main__":main()
