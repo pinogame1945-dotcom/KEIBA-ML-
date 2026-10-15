@@ -1,7 +1,7 @@
 {
   "contract": "KEIBA_L3_WHOLE_BANKROLL_V3_OFFICIAL_INTEGRATION_V1",
   "l3_version": "3.0.0",
-  "adoption_status": "OFFICIAL_L3_VERSION_SELECTED_INTEGRATION_NOT_YET_EXECUTABLE",
+  "adoption_status": "OFFICIAL_L3_V3_REVERSE_P3_ALLOCATOR_IMPLEMENTED_UPSTREAM_ASOF_PENDING",
   "adoption_date": "2026-10-16",
   "source_research": {
     "branch": "research/l3-whole-bankroll-v3-20261015",
@@ -27,14 +27,15 @@
     "shortage_action": "INSUFFICIENT_BUDGET_ALL_OR_NONE",
     "capital_check": "RESERVE_ALL_REQUIRED_SAME_DAY_STAKES_BEFORE_SAME_DAY_PAYOUT_CREDIT",
     "credit_future_payouts_early": false,
-    "bankroll_changes_stake_amount": false
+    "bankroll_changes_stake_amount": false,
+    "target_base_stake_yen_per_ticket": 200,
+    "selected_policy_max_ticket_stake_yen": 300,
+    "race_budget_policy": "MIN_OF_USER_RACE_CAP_EXPOSURE_CAP_AND_200YEN_TIMES_TICKET_COUNT",
+    "same_day_all_or_none": true
   },
-  "chosen_stake_policy": null,
-  "selected_policy_rule": "REQUIRES_EXPLICIT_USER_SELECTION_FROM_RESEARCHED_POLICIES",
-  "historical_primary_candidate_not_auto_selected": "REVERSE_P3_RACE_MAX300",
-  "historical_alternative_not_auto_selected": "P3_OUTSIDER_RACE_MAX300",
-  "no_policy_status": "BLOCKED_L3_V3_STAKE_POLICY_UNSELECTED",
-  "one_race_status": "NOT_YET_PROVEN",
+  "chosen_stake_policy": "REVERSE_P3_RACE_MAX300",
+  "selected_policy_rule": "USER_EXPLICIT_ADOPTION_2026_10_16",
+  "one_race_status": "GITHUB_SIDE_L3_ALLOCATOR_IMPLEMENTED_PENDING_GENUINE_UPSTREAM_L1_AND_L2",
   "live_race_data_source": "GITHUB_WORKFLOWS_NOT_ANDROID_APP",
   "compute_pipeline": [
     "github_race_data_collection",
@@ -65,10 +66,16 @@
   },
   "limitations": {
     "research_success_is_not_live_proof": true,
-    "V3_does_not_itself_select_one_of_26_money_policies": true,
+    "V3_does_not_itself_select_one_of_26_money_policies": false,
     "historical_stakes_are_from_v2_not_single_race_online_inference": true,
     "current_one_race_fixed100_paper_is_not_v3": true,
-    "realtime_collector_and_publish_consumer_integration_not_completed": true
+    "realtime_collector_and_publish_consumer_integration_not_completed": true,
+    "V3_is_not_complete_upstream_L1_L2_inference": true,
+    "V3_runtime_stake_policy_is_user_selected_not_an_independent_profitable_strategy_proof": true
   },
-  "repository_change_policy": "ONLY_THIS_DEDICATED_BRANCH; do not merge/change main or frozen L2.1 during contract adoption"
+  "repository_change_policy": "ONLY_THIS_DEDICATED_BRANCH; do not merge/change main or frozen L2.1 during contract adoption",
+  "source_code": "research/l3_v3_operational.py",
+  "input_contract": "KEIBA_L3_V3_RUNTIME_CONFIG_V1",
+  "output_contract": "KEIBA_L3_V3_OPERATIONAL_V1",
+  "test_source": "tests/test_l3_v3_operational.py"
 }
