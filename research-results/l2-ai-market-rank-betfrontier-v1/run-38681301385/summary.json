@@ -1,0 +1,358 @@
+{
+  "contract": "L2_AI_MARKET_RANK_BET_FRONTIER_V1",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "axes": [
+    "AI_RAW_TOP",
+    "AI_PROB_TOP",
+    "MARKET_TOP",
+    "VALUE_EV"
+  ],
+  "partner_rankings": [
+    "AI_RAW",
+    "AI_PROB",
+    "MARKET"
+  ],
+  "fixed_templates_per_axis": 122,
+  "no_skip": true,
+  "no_odds_filter": true,
+  "stake_per_ticket_yen": 100,
+  "selection_definitions": {
+    "AI_RAW_TOP": "minimum distill_ai_rank, deterministic market/id tie break",
+    "AI_PROB_TOP": "maximum P__ANCHOR_FULL, deterministic market/id tie break",
+    "MARKET_TOP": "minimum market_rank then final_win_odds then horse_id",
+    "VALUE_EV": "frozen ANCHOR_FULL maximum P__ANCHOR_FULL * final_win_odds"
+  },
+  "warning_market_anchor": "P__ANCHOR_FULL is not market independent: q_market * exp(delta) normalized.",
+  "raw_ai_rank_source": "distill_ai_rank, the L1 distillation ranking stored in frozen 2023-2025 OOS predictions",
+  "post_result_leakage_exclusion": "No result or payout participates in anchor/partner ticket selection.",
+  "all_race_price": "Exact BACKFILL payouts pinned SHA 0d4af461b77f0060dd9c789dd2da646026fada47",
+  "match_reference_roi": 88.888889,
+  "best_five_per_axis": [
+    {
+      "axis": "VALUE_EV",
+      "family": "TRIO",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 8.352623,
+      "roi_pct": 88.888889,
+      "profit_yen": -115200.0
+    },
+    {
+      "axis": "VALUE_EV",
+      "family": "EXACTA_FIRST",
+      "partner_order": "MARKET",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 9.645062,
+      "roi_pct": 88.713349,
+      "profit_yen": -234040.0
+    },
+    {
+      "axis": "VALUE_EV",
+      "family": "EXACTA_FIRST",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 9.606481,
+      "roi_pct": 87.805266,
+      "profit_yen": -252870.0
+    },
+    {
+      "axis": "VALUE_EV",
+      "family": "TRIO",
+      "partner_order": "MARKET",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 8.236883,
+      "roi_pct": 87.668789,
+      "profit_yen": -127850.0
+    },
+    {
+      "axis": "VALUE_EV",
+      "family": "WIN",
+      "partner_order": "SINGLE",
+      "other_horses_k": 0,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 18.489583,
+      "roi_pct": 86.898148,
+      "profit_yen": -135840.0
+    },
+    {
+      "axis": "AI_PROB_TOP",
+      "family": "PLACE",
+      "partner_order": "SINGLE",
+      "other_horses_k": 0,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 65.094522,
+      "roi_pct": 85.340471,
+      "profit_yen": -151990.0
+    },
+    {
+      "axis": "MARKET_TOP",
+      "family": "PLACE",
+      "partner_order": "SINGLE",
+      "other_horses_k": 0,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 65.055941,
+      "roi_pct": 85.108989,
+      "profit_yen": -154390.0
+    },
+    {
+      "axis": "AI_RAW_TOP",
+      "family": "PLACE",
+      "partner_order": "SINGLE",
+      "other_horses_k": 0,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 60.97608,
+      "roi_pct": 84.850502,
+      "profit_yen": -157070.0
+    },
+    {
+      "axis": "MARKET_TOP",
+      "family": "TRIO",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 9.365355,
+      "roi_pct": 82.462384,
+      "profit_yen": -181830.0
+    },
+    {
+      "axis": "AI_PROB_TOP",
+      "family": "TRIO",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 1.0,
+      "hit_rate_pct": 9.35571,
+      "roi_pct": 82.082369,
+      "profit_yen": -185770.0
+    },
+    {
+      "axis": "AI_PROB_TOP",
+      "family": "WIDE",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 3,
+      "avg_tickets_per_race": 3.0,
+      "hit_rate_pct": 55.883488,
+      "roi_pct": 81.895898,
+      "profit_yen": -563110.0
+    },
+    {
+      "axis": "MARKET_TOP",
+      "family": "TRIFECTA_SECOND",
+      "partner_order": "AI_RAW",
+      "other_horses_k": 3,
+      "avg_tickets_per_race": 6.0,
+      "hit_rate_pct": 5.459105,
+      "roi_pct": 81.818737,
+      "profit_yen": -1131020.0
+    },
+    {
+      "axis": "AI_PROB_TOP",
+      "family": "QUINELLA",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 27.276235,
+      "roi_pct": 81.771798,
+      "profit_yen": -377980.0
+    },
+    {
+      "axis": "AI_RAW_TOP",
+      "family": "WIDE",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 3,
+      "avg_tickets_per_race": 3.0,
+      "hit_rate_pct": 52.758488,
+      "roi_pct": 81.727752,
+      "profit_yen": -568340.0
+    },
+    {
+      "axis": "MARKET_TOP",
+      "family": "TRIO",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 3,
+      "avg_tickets_per_race": 3.0,
+      "hit_rate_pct": 20.428241,
+      "roi_pct": 81.692387,
+      "profit_yen": -569440.0
+    },
+    {
+      "axis": "MARKET_TOP",
+      "family": "QUINELLA",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 27.295525,
+      "roi_pct": 81.684992,
+      "profit_yen": -379780.0
+    },
+    {
+      "axis": "AI_PROB_TOP",
+      "family": "QUINELLA",
+      "partner_order": "MARKET",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 27.256944,
+      "roi_pct": 81.664255,
+      "profit_yen": -380210.0
+    },
+    {
+      "axis": "AI_RAW_TOP",
+      "family": "QUINELLA",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 25.72338,
+      "roi_pct": 81.440972,
+      "profit_yen": -384840.0
+    },
+    {
+      "axis": "AI_RAW_TOP",
+      "family": "WIDE",
+      "partner_order": "MARKET",
+      "other_horses_k": 3,
+      "avg_tickets_per_race": 3.0,
+      "hit_rate_pct": 52.662037,
+      "roi_pct": 81.375064,
+      "profit_yen": -579310.0
+    },
+    {
+      "axis": "AI_RAW_TOP",
+      "family": "WIDE",
+      "partner_order": "AI_PROB",
+      "other_horses_k": 2,
+      "avg_tickets_per_race": 2.0,
+      "hit_rate_pct": 45.322145,
+      "roi_pct": 81.097126,
+      "profit_yen": -391970.0
+    }
+  ],
+  "best_profitable_template_counts": {
+    "AI_PROB_TOP": 0,
+    "AI_RAW_TOP": 0,
+    "MARKET_TOP": 0,
+    "VALUE_EV": 0
+  },
+  "per_axis_top1": [
+    {
+      "year": "2023-2025",
+      "axis": "AI_RAW_TOP",
+      "races": 10368,
+      "win_races": 3073,
+      "win_pct": 29.639275,
+      "top3_races": 6351,
+      "top3_pct": 61.255787,
+      "avg_final_odds": 3.565461,
+      "median_final_odds": 2.9,
+      "avg_market_rank": 1.705729
+    },
+    {
+      "year": "2023-2025",
+      "axis": "AI_PROB_TOP",
+      "races": 10368,
+      "win_races": 3498,
+      "win_pct": 33.738426,
+      "top3_races": 6776,
+      "top3_pct": 65.354938,
+      "avg_final_odds": 2.634635,
+      "median_final_odds": 2.5,
+      "avg_market_rank": 1.0489
+    },
+    {
+      "year": "2023-2025",
+      "axis": "MARKET_TOP",
+      "races": 10368,
+      "win_races": 3488,
+      "win_pct": 33.641975,
+      "top3_races": 6772,
+      "top3_pct": 65.316358,
+      "avg_final_odds": 2.624614,
+      "median_final_odds": 2.5,
+      "avg_market_rank": 1.003376
+    },
+    {
+      "year": "2023-2025",
+      "axis": "VALUE_EV",
+      "races": 10368,
+      "win_races": 1917,
+      "win_pct": 18.489583,
+      "top3_races": 4512,
+      "top3_pct": 43.518519,
+      "avg_final_odds": 11.542959,
+      "median_final_odds": 6.8,
+      "avg_market_rank": 3.873843
+    }
+  ],
+  "market_vs_ai_disagreement": [
+    {
+      "year": "2023-2025",
+      "selector_a": "AI_RAW_TOP",
+      "selector_b": "MARKET_TOP",
+      "races": 10368,
+      "same_horse_races": 6476,
+      "same_horse_pct": 62.46142,
+      "disagree_races": 3892,
+      "A_only_wins": 693,
+      "B_only_wins": 1108,
+      "A_only_top3": 832,
+      "B_only_top3": 1253,
+      "both_top3": 1031,
+      "neither_top3": 776
+    },
+    {
+      "year": "2023-2025",
+      "selector_a": "AI_PROB_TOP",
+      "selector_b": "MARKET_TOP",
+      "races": 10368,
+      "same_horse_races": 9935,
+      "same_horse_pct": 95.823688,
+      "disagree_races": 433,
+      "A_only_wins": 100,
+      "B_only_wins": 90,
+      "A_only_top3": 114,
+      "B_only_top3": 110,
+      "both_top3": 128,
+      "neither_top3": 81
+    },
+    {
+      "year": "2023-2025",
+      "selector_a": "VALUE_EV",
+      "selector_b": "MARKET_TOP",
+      "races": 10368,
+      "same_horse_races": 2340,
+      "same_horse_pct": 22.569444,
+      "disagree_races": 8028,
+      "A_only_wins": 929,
+      "B_only_wins": 2500,
+      "A_only_top3": 1168,
+      "B_only_top3": 3428,
+      "both_top3": 1614,
+      "neither_top3": 1818
+    },
+    {
+      "year": "2023-2025",
+      "selector_a": "AI_RAW_TOP",
+      "selector_b": "AI_PROB_TOP",
+      "races": 10368,
+      "same_horse_races": 6479,
+      "same_horse_pct": 62.490355,
+      "disagree_races": 3889,
+      "A_only_wins": 680,
+      "B_only_wins": 1105,
+      "A_only_top3": 842,
+      "B_only_top3": 1267,
+      "both_top3": 1012,
+      "neither_top3": 768
+    }
+  ],
+  "free_standard_runner_only": true,
+  "2026_locked": true,
+  "interpretation": "Rank and payout comparisons are observational; no forward-validated switching policy."
+}
