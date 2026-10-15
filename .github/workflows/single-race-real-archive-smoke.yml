@@ -1,10 +1,7 @@
 name: Single race real BACKFILL two-day smoke (free CPU)
 
+# Deliberately manual: large BACKFILL partial clones must not repeat on every PR commit.
 on:
-  pull_request:
-    paths:
-      - ".github/workflows/single-race-real-archive-smoke.yml"
-      - "scripts/prepare-real-archive-pair.py"
   workflow_dispatch:
 
 permissions:
