@@ -49,6 +49,11 @@ def from_mobile(payload):
         raise ValueError("MISSING_JRA_WIN_ODDS")
     win=[r for r in rows if r.get("betType")=="WIN"]
     if not win:raise ValueError("MISSING_WIN_PRODUCT")
+    quoted_numbers=[r.get("selection1") for r in win]
+    if (any(isinstance(n,bool) or not isinstance(n,int) for n in quoted_numbers)
+        or len(quoted_numbers)!=len(nums)
+        or set(quoted_numbers)!=set(nums)):
+        raise ValueError("PARTIAL_OR_EXTRANEOUS_WIN_QUOTE_VS_ACTIVE_ENTRIES")
     when={str(r.get("observedAt") or "") for r in win}
     if len(when)!=1:raise ValueError("MIXED_WIN_CAPTURE_TIMES")
     captured=next(iter(when))
