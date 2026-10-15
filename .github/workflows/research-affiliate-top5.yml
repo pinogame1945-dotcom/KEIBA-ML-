@@ -1,4 +1,4 @@
-name: Research affiliate selected races vs favorite top5
+name: Research affiliate fixed picklist vs historical popularity top5
 on:
   push:
     branches: ["research/affiliate-top5-20261015"]
@@ -7,14 +7,60 @@ on:
       - "research/affiliate_top5/**"
   workflow_dispatch:
 permissions:
-  contents: read
+  contents: write
+concurrency:
+  group: research-affiliate-top5-backfill-20261015
+  cancel-in-progress: true
 jobs:
   compare:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
-      - name: Install small parsers
-        run: python -m pip install --disable-pip-version-check -q requests beautifulsoup4
-      - name: Compute same-race popularity top5 trio returns (195 fixed races)
-        run: python research/affiliate_top5/analyze.py
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Verify CPU and zero paid storage
+        run: |
+          set -euo pipefail
+          python -m py_compile research/affiliate_top5/local_backfill.py
+          test "$(grep -c 'runs-on: ubuntu-latest' .github/workflows/research-affiliate-top5.yml)" -eq 1
+          ! grep -Eq 'upload-artifact|actions/cache|runs-on:.*gpu|self-hosted' .github/workflows/research-affiliate-top5.yml
+      - name: Read pinned BACKFILL metadata only, no public scraping
+        run: |
+          set -euo pipefail
+          SHA=a80f2c1994e10ddcf76efaa996c97147b1223e1f
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python research/affiliate_top5/local_backfill.py \
+            --targets research/affiliate_top5/targets.txt --root out/pinned-history \
+            --prepare-paths out/pinned-sparse-paths.txt
+      - name: Download actual existing manifest names once per day
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          python research/affiliate_top5/local_backfill.py \
+            --targets research/affiliate_top5/targets.txt --root out/pinned-history \
+            --output research/affiliate_top5/results
+      - name: Remove ephemeral historical source
+        if: always()
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Commit small CSV and summary to research branch, no artifact or cache
+        if: success()
+        run: |
+          set -euo pipefail
+          test -s research/affiliate_top5/results/summary.json
+          test "$(du -sm research/affiliate_top5/results | cut -f1)" -le 3
+          git config user.name keiba-ml-research-bot
+          git config user.email actions@users.noreply.github.com
+          git add research/affiliate_top5/results/
+          git diff --cached --quiet || {
+            git commit -m "research: fixed blog-race market popularity top5 payout comparison"
+            git push origin "HEAD:$GITHUB_REF_NAME"
+          }
