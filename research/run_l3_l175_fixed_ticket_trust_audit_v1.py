@@ -269,8 +269,8 @@ def main():
     summary["signal_rank_association"]={}
     for col in ("min_p3","mean_p3","mean_p3_delta","support_sum","support_min"):
         summary["signal_rank_association"][col]=dict(
-            spearman_hit=float(known[col].corr(known.hit,method="spearman")),
-            spearman_per100_return=float(known[col].corr(known.payout_yen,method="spearman")))
+            spearman_hit=float(known[col].rank(method="average").corr(known.hit.rank(method="average"))),
+            spearman_per100_return=float(known[col].rank(method="average").corr(known.payout_yen.rank(method="average"))))
     summary["ticket_group_counts"]={str(k):int(v) for k,v in known.bet_type.value_counts().items()}
     # Keep a compact exact joined ledger for reproducibility, not hidden cherry-picked rows.
     cols=["year","race_id","bet_type","selection","ticket_odds","odds_band","hit",
