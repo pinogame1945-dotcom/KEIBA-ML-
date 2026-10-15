@@ -93,3 +93,34 @@ done
 python3 research/verify-trained-kings-vs-saved-scores.py \
   --snapshot "$ROOT/snapshot/$remote" \
   --bundles "$ROOT/kings" --race 202507010212
+# Separately prove a model selection timeline with no 2025 labels: each
+# 2024 model was trained on 2022-23 and early-stopped on 2024, *before*
+# the 2025 target race. Historical FINAL input is still NOT timestamped live.
+mkdir -p "$ROOT/previous-year-kings"
+for alias in core4 pedlegacy condition full light pedv1 condrc;do
+  year=2024
+  ref="pino1945/keiba-l15-7k-$alias-y$year-v1"
+  d="$ROOT/previous-year-kings/$alias"
+  mkdir -p "$d"
+  transient "prev:list:$alias" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$d/files.json"
+  python3 - "$d/files.json" "$alias" <<'PY'
+import json,sys
+rows=json.load(open(sys.argv[1],encoding="utf-8"))
+for name,limit in (("model.txt",10000000),("model.json",3000000),("schema.json",3000000)):
+    candidates=[r for r in rows if r.get("name")==name]
+    if len(candidates)!=1:raise SystemExit("missing previous-year model metadata "+sys.argv[2]+" "+name)
+    try:size=int(candidates[0]["size"])
+    except (TypeError,ValueError):raise SystemExit("missing previous-year model file size")
+    if not 1<=size<=limit:raise SystemExit("previous-year model size cap exceeded")
+    print("PREVIOUS_YEAR_MODEL_REMOTE",sys.argv[2],name,size)
+PY
+  for name in model.txt model.json schema.json;do
+    test ! -s "$d/$name" || continue
+    transient "prev:download:$alias:$name" kaggle datasets download "$ref" -f "$name" -p "$d" --unzip --quiet
+    test -s "$d/$name" || { echo "::error::download metadata drift $alias $name"; exit 1; }
+  done
+done
+python3 research/predict-prior-year-seven-kings.py \
+  --snapshot "$ROOT/snapshot/$remote" \
+  --bundles "$ROOT/previous-year-kings" --race 202507010212 \
+  --output "$ROOT/previous-year-new-prediction.json"
