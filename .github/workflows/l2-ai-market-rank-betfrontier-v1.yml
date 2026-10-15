@@ -39,9 +39,11 @@ jobs:
           python - <<'PY'
           from pathlib import Path
           wf=Path(".github/workflows/l2-ai-market-rank-betfrontier-v1.yml").read_text()
-          assert "    runs-on: ubuntu-latest" in wf
-          assert "actions/cache" not in wf and "upload-artifact" not in wf
-          assert "gpu" not in wf.lower() and "self-hosted" not in wf.lower()
+          runners=[line.strip() for line in wf.splitlines() if line.strip().startswith("runs-on:")]
+          uses=[line.strip() for line in wf.splitlines() if line.strip().startswith("- uses:")]
+          assert runners == ["runs-on: ubuntu-latest"], runners
+          assert not any("actions/cache" in item or "upload-artifact" in item for item in uses)
+          assert not any("gpu" in line.lower() or "self-hosted" in line.lower() for line in runners)
           print("FREE_STANDARD_RUNNER_NO_PAID_STORAGE_OK")
           PY
       - name: Install only NumPy and Pandas
