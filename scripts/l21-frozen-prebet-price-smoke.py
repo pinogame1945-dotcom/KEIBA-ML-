@@ -24,7 +24,7 @@ rid="202507010212"
 key="m_jra_test"
 card={"race":{"raceKey":key,"canonicalRaceId":rid,
     "raceDate":"2025-01-06","startTime":"14:30",
-    "raceStatus":"SCHEDULED","scheduleStatus":"ACTIVE","status":"SCHEDULED"},
+    "raceStatus":"SCHEDULED","scheduleStatus":"ACTIVE","status":"OFFICIAL"},
     "entries":[{"raceKey":key,"horseNo":n,"entryStatus":"ACTIVE"} for n in range(1,9)]}
     # source features are deliberately synthetic, not a derived 7 King proxy.
 names=("raw","market")
