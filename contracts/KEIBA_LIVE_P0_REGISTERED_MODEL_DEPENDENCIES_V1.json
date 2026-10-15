@@ -1,0 +1,350 @@
+{
+  "contract": "KEIBA_LIVE_P0_REGISTERED_MODEL_DEPENDENCIES_V1",
+  "audited_at": "2026-10-16",
+  "source": {
+    "repository": "pinogame1945-dotcom/KEIBA-ML-",
+    "branch": "feature/single-race-engine-20261015",
+    "pr": 7,
+    "pr_status": "CLOSED_UNMERGED",
+    "source_commit": "f9eedf6c2d82719571619b39b14816155b6f2cd0",
+    "blob_sha": "764c07c777f1fe888702693ef5e1230f01b0164f",
+    "path": "models/one-race-registry.json"
+  },
+  "summary": {
+    "count": 31,
+    "model_kinds": {
+      "unconfigured": 31
+    },
+    "families": {
+      "7KING": 7,
+      "OUTSIDER_HORSE": 5,
+      "OUTSIDER_NONHORSE": 6,
+      "OUTSIDER_TRANSITION": 7,
+      "L1_7KING_COUNCIL": 1,
+      "L1_OUTSIDER": 1,
+      "L1_7KING_FULLFIELD_L17": 1,
+      "L1_75_MARKET_CONTEXT": 1,
+      "L1_ABILITY_RAW": 1,
+      "L1_CORRECTION_RISK": 1
+    },
+    "has_live_deployed_promoted_model": false
+  },
+  "note": "This is the candidate registry from closed unmerged PR7. Unconfigured is not a future-race executable scorer. Exact feature-to-model mapping requires trained bundle/schema; do not infer from family name.",
+  "models": [
+    {
+      "name": "KING:core4_no_pedigree",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_legacy",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:jockey_trainer_condition",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:no_auto_full",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:no_auto_jockey",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_v1",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "KING:jockey_trainer_condition_plus_raceclass",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "registry_kind": "unconfigured",
+      "declared_reason": "Promoted scorer or verified per-year archived horse-level score missing",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_style",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_lap",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_network",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_distance",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_backfill",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_daytrend",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_raceshape",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_gatecourse",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_jockey",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_field",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_chimera",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_rotation",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_classmove",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_weightchange",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_bodychange",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_disttransition",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_coursetransition",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "OUTSIDER:outsider_opponentgap",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1",
+      "registry_kind": "unconfigured",
+      "declared_reason": null,
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_7KING_COUNCIL",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "Historic seven king members need promoted original scorer bundles/horse-level OOF score archive.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_OUTSIDER",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "Outsider score archives and all component models not promoted.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_7KING_FULLFIELD_L17",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "Frozen full-field research scores are not an inference bundle.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_75_MARKET_CONTEXT",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "Requires market-context scorer/odds snapshot; not applicable to no-odds EARLY.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_ABILITY_RAW",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "distill_ai_rank from historical OOF archive is not an executable model.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    },
+    {
+      "name": "L1_CORRECTION_RISK",
+      "family": null,
+      "source_contract": null,
+      "registry_kind": "unconfigured",
+      "declared_reason": "Risk model not promoted.",
+      "live_model_artifact": "NOT_VERIFIED",
+      "exact_feature_dependency_list": null,
+      "live_input_contract_status": "BLOCKED_PENDING_ORIGINAL_MODEL_ARTIFACT"
+    }
+  ],
+  "exclusive_pipeline_inputs": [
+    "KEIBA_ANCHOR_FULL_P0_19_FEATURE_ASOF_REQUIREMENTS_V1",
+    "KEIBA_L2_1_FIXED_PURCHASE_V1",
+    "L3 V3 REVERSE_P3_RACE_MAX300"
+  ]
+}
