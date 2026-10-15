@@ -26,7 +26,7 @@ jobs:
       PYTHONUNBUFFERED: "1"
       L1_THREADS: "2"
       KAGGLE_DOWNLOAD_PARALLEL: "4"
-      PROJECTION_PARALLEL: "4"
+      PROJECTION_PARALLEL: "2"
 
     steps:
       - uses: actions/checkout@v4
