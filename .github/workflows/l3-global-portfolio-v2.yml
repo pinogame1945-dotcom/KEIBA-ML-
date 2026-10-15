@@ -1,0 +1,71 @@
+name: L3 V2 Whole-Portfolio ROI Research - Free CPU
+
+on:
+  push:
+    branches:
+      - research/l3-global-portfolio-v2-20261015
+    paths:
+      - .github/triggers/l3-global-portfolio-v2.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l3-global-portfolio-v2
+  cancel-in-progress: false
+
+jobs:
+  entire-l2-portfolio:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout isolated global-portfolio research
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Standard CPU Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cost safety, frozen rules, and tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_keiba_l2_1_freeze.py
+          python - <<'PY'
+          from pathlib import Path
+          w=Path(".github/workflows/l3-global-portfolio-v2.yml").read_text()
+          assert [x.strip() for x in w.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          action_refs=[x.strip() for x in w.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in action_refs)
+          assert "pip install" not in w and "kaggle datasets download" not in w
+          print("FREE_CPU_ONLY_EXISTING_GIT_HISTORY_NO_GPU_NO_EXTRA_PAID_STORAGE")
+          PY
+          python -m py_compile research/run_l3_global_portfolio_v2.py
+          python -m unittest discover -s tests -p 'test_l3_global_portfolio_v2.py' -v
+      - name: Evaluate entire 13479-ticket money portfolio in one pass
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-global-portfolio-v2/run-$GITHUB_RUN_ID"
+          python -u research/run_l3_global_portfolio_v2.py --out-dir "$out"
+          test -s "$out/summary.json"
+          test -s "$out/whole_portfolio_comparison.csv"
+          test -s "$out/yearly_portfolio_comparison.csv"
+          test -s "$out/monthly_portfolio_profit.csv"
+          test -s "$out/paired_daily_bootstrap.csv"
+          test -s "$out/full_portfolio_stakes.csv.gz"
+          test "$(du -sm "$out" | cut -f1)" -le 16
+      - name: Save compact integrated research result
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-global-portfolio-v2/run-$GITHUB_RUN_ID"
+          git config user.name keiba-ml-research-bot
+          git config user.email actions@users.noreply.github.com
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research(l3): whole-portfolio ROI and risk comparison $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
