@@ -207,7 +207,7 @@ def build_model(kind):
         loss="squared_error",**common)
     raise ValueError(kind)
 
-def put_result(rows,y,rule,method,policy,budget,mask,stake,ret,ref,score,oracle=False):
+def put_result(rows,y,rule,method,policy,budget,mask,stake,ret,oracle=False):
     assert_ok(len(mask)==len(stake)==len(ret),"bad policy input")
     keep=~mask
     original_cost=float(stake.sum())
@@ -302,10 +302,10 @@ def eval_one_rule(rule,features,outcomes):
                     continue
                 deployed,analytic,threshold=select_test_masks(str_,ste_,budget)
                 put_result(rows,yr,rule,kind,"PRIOR_ONLY_CUTOFF",
-                           budget,deployed,stake,reward,train,str_,ste_)
+                           budget,deployed,stake,reward)
                 if budget:
                     put_result(rows,yr,rule,kind,"RETROSPECTIVE_SCORE_QUOTA",
-                               budget,analytic,stake,reward,train,str_,ste_)
+                               budget,analytic,stake,reward)
             score_rows.append(pd.DataFrame({
                 "year":yr,"race_id":test.race_id,"rule":rule,"model":kind,
                 "skip_score":ste_,"stake":stake,"return":reward,
@@ -409,7 +409,7 @@ def main():
                 mask=np.zeros(len(g),dtype=bool)
                 if n:mask[order[:n]]=True
                 put_result(oracle,yr,rule,"RESULT_AWARE_ORACLE","POST_RESULT_QUOTA",
-                           p,mask,stake,ret,g,None,None,oracle=True)
+                           p,mask,stake,ret,oracle=True)
     oracle=pd.DataFrame(oracle)
     diagnostics=describe_univariate(feat,plys)
     feat.to_csv(out/"race-feature-snapshot.csv.gz",index=False,compression="gzip")
