@@ -202,7 +202,7 @@ def validate_live_card(payload):
     if not re.fullmatch(r"202[2-5]\d{8}",rid):
         raise ValueError("L21_ONLY_2022_2025_EXISTING_RACES_2026_SEALED")
     if (race.get("raceStatus")!="SCHEDULED" or race.get("scheduleStatus")!="ACTIVE"
-        or race.get("status")!="SCHEDULED"):
+        or race.get("status")!="OFFICIAL"):
         raise ValueError("RESULT_OR_CANCELLED_RACE_NOT_LIVE")
     d=race.get("raceDate");clock=race.get("startTime")
     if not re.fullmatch(r"\d{4}-\d\d-\d\d",str(d)) or not re.fullmatch(r"(?:[01]\d|2[0-3]):[0-5]\d",str(clock)):
