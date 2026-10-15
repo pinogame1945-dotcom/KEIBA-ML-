@@ -1,0 +1,67 @@
+name: L3 V3 Entire-Portfolio Bankroll and Stress - Free CPU
+
+on:
+  push:
+    branches:
+      - research/l3-whole-bankroll-v3-20261015
+    paths:
+      - .github/triggers/l3-whole-bankroll-v3.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l3-whole-bankroll-v3
+  cancel-in-progress: false
+
+jobs:
+  whole-bankroll:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout isolated L3 bankroll branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - name: Standard CPU Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Cost and frozen-L2 safety guards with tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/verify_keiba_l2_1_freeze.py
+          python - <<'PY'
+          from pathlib import Path
+          w=Path(".github/workflows/l3-whole-bankroll-v3.yml").read_text()
+          assert [x.strip() for x in w.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          a=[x.strip() for x in w.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in a)
+          print("FREE_STANDARD_CPU_EXISTING_INPUT_ONLY_NO_GPU_NO_PAID_RUNNER_NO_CACHE")
+          PY
+          python -m py_compile research/run_l3_whole_bankroll_v3.py
+          python -m unittest discover -s tests -p 'test_l3_whole_bankroll_v3.py' -v
+      - name: Evaluate whole 13479-ticket portfolio for full 2023-25 bankroll survival
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-whole-bankroll-v3/run-$GITHUB_RUN_ID"
+          python -u research/run_l3_whole_bankroll_v3.py --out-dir "$out"
+          for f in summary.json global_capital_and_risk.csv annual_capital_and_risk.csv bankroll_feasibility_all_policies.csv hypothetical_payout_haircut_stress.csv day_bootstrap_capital_and_roi_sensitivity.csv; do
+            test -s "$out/$f"
+          done
+          test "$(du -sm "$out" | cut -f1)" -le 6
+      - name: Save compact research reports only
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-whole-bankroll-v3/run-$GITHUB_RUN_ID"
+          git config user.name keiba-ml-research-bot
+          git config user.email actions@users.noreply.github.com
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research(l3): whole-portfolio prefunding and stress outcomes $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
