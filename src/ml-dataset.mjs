@@ -564,7 +564,7 @@ export function createMlDatasetProcessor({
       String(a?.race?.race_id??"").localeCompare(String(b?.race?.race_id??"")));
     if(!day.length)throw new Error("predictDay requires one race or more");
     const date=dateValue??stableRaceDate(day[0]);
-    if(!date||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))
+    if(!date||!/^\d{4}-\d{2}-\d{2}$/.test(date))
       throw new Error("predictDay invalid date");
     if(latestCommittedDate!==null&&latestCommittedDate>=date)
       throw new Error("AS_OF_LEAKAGE: history contains target or later date");
@@ -574,14 +574,14 @@ export function createMlDatasetProcessor({
       if("results" in row||"payouts" in row||"laps" in row)
         throw new Error("AS_OF_LEAKAGE: target has post-race arrays");
       const raceId=String(row?.race?.race_id??"");
-      if(!/^\\d{12}$/.test(raceId))throw new Error("invalid race id");
+      if(!/^\d{12}$/.test(raceId))throw new Error("invalid race id");
       const entryIds=new Set();
       const raceOutput=[];
       for(const entry of row.entries??[]){
         const status=String(entry?.entry_status??"").toUpperCase();
         if(status==="SCRATCHED"||status==="EXCLUDED")continue;
         const horseId=String(entry?.horse_id??"");
-        if(!/^\\d+$/.test(horseId)||entryIds.has(horseId))
+        if(!/^\d+$/.test(horseId)||entryIds.has(horseId))
           throw new Error("missing/duplicated canonical horse ID in "+raceId);
         entryIds.add(horseId);
         if("result" in entry||"finish_position" in entry||
