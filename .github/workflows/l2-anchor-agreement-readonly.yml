@@ -82,4 +82,40 @@ jobs:
                   print("SAVED_EXACT_PAYOUT_ROI",json.dumps(result,ensure_ascii=False),flush=True)
           assert round(sum(float(p["max_paid_WIN_yen"]) for p in payouts.values())/10368,6)==86.898148, "win baseline drift"
           assert round(sum(float(p["max_paid_PLACE_yen"]) for p in payouts.values())/10368,6)==83.490548, "place baseline drift"
+
+          # Single-pass distribution across historical EV x calibrated-probability consensus.
+          buckets=(
+              ("1.0-1.4",1.0,1.5),
+              ("1.5-1.9",1.5,2.0),
+              ("2.0-2.9",2.0,3.0),
+              ("3.0-4.9",3.0,5.0),
+              ("5.0+",5.0,float("inf")),
+          )
+          for year in ("2023-2025","2023","2024","2025"):
+              annual=rows if year=="2023-2025" else [r for r in rows if r["year"]==year]
+              for scope,cond in (
+                  ("CONSENSUS_ALL",lambda r:r["VALUE_EV_horse"]==r["AI_PROB_TOP_horse"]),
+                  ("CONSENSUS_FAVORITE",lambda r:r["VALUE_EV_horse"]==r["AI_PROB_TOP_horse"]==r["MARKET_TOP_horse"]),
+              ):
+                  selected=[r for r in annual if cond(r)]
+                  n=len(selected)
+                  if not n:continue
+                  sorted_odds=sorted(float(r["VALUE_EV_odds"]) for r in selected)
+                  median=(sorted_odds[(n-1)//2]+sorted_odds[n//2])/2
+                  for name,low,high in buckets:
+                      seg=[r for r in selected if low<=float(r["VALUE_EV_odds"])<high]
+                      if not seg:continue
+                      wins=sum(float(payouts[r["race_id"]]["max_paid_WIN_yen"]) for r in seg)
+                      places=sum(float(payouts[r["race_id"]]["max_paid_PLACE_yen"]) for r in seg)
+                      count=len(seg)
+                      result={
+                        "year":year,"scope":scope,"band":name,"n":count,
+                        "within_scope_pct":round(100*count/n,3),
+                        "win_rate_pct":round(100*sum(int(r["VALUE_EV_win"]) for r in seg)/count,3),
+                        "win_roi_pct":round(wins/count,3),
+                        "place_roi_pct":round(places/count,3),
+                        "win_profit_yen":round(wins-100*count,1),
+                        "overall_scope_median_odds":round(median,2),
+                      }
+                      print("SAVED_ODDS_BUCKET",json.dumps(result,ensure_ascii=False),flush=True)
           PY
