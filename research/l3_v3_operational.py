@@ -80,6 +80,9 @@ def _validate_race(bundle):
         raise ValueError("HISTORICAL_FINAL_ODDS_NOT_ALLOWED")
     observed = iso(l2.get("quote_observed_at"), "ODDS_OBSERVED")
     cutoff = iso(l2.get("bet_cutoff_at"), "BET_CUTOFF")
+    jst = dt.timezone(dt.timedelta(hours=9))
+    if cutoff.astimezone(jst).date().isoformat() != race_date:
+        raise ValueError("BET_CUTOFF_RACE_DATE_DRIFT")
     if not observed < cutoff:
         raise ValueError("ODDS_NOT_BEFORE_CUTOFF")
     if race_id.startswith("2026"):
@@ -167,9 +170,13 @@ def _validate_race(bundle):
     if (set(signals) - {"contract", "race_id", "source", "observed_before_bet",
                         "model_version", "observed_at", "horses", "source_independently_verified"}):
         raise ValueError("UNEXPECTED_L175_SIGNAL_FIELDS")
+    now_utc = dt.datetime.now(dt.timezone.utc)
     source_verified = (signals.get("source_independently_verified") is True and
         l2.get("source_authenticity_independently_verified") is True and
-        l2["status"] == "PREBET_QUOTE_VALIDATED_VERIFIED")
+        l2["status"] == "PREBET_QUOTE_VALIDATED_VERIFIED" and
+        observed <= now_utc < cutoff)
+    # Historic race replay may generate a research paper portfolio, but must
+    # NEVER be displayed as a current pre-start purchase-ready quote.
     enriched = []
     for row in tickets:
         values = [by_no[n] for n in row["selection_numbers"]]
