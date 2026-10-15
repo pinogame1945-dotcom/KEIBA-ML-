@@ -1,0 +1,145 @@
+name: L3 L1.75 Ticket Trust Audit - Frozen L2 Standard
+
+on:
+  push:
+    branches:
+      - research/l3-l175-ticket-trust-audit-v1-20261015
+    paths:
+      - .github/triggers/l3-l175-ticket-trust-audit-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l3-l175-frozen-ticket-trust-audit
+  cancel-in-progress: false
+
+jobs:
+  frozen-ticket-trust:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    steps:
+      - name: Check out frozen L2 evidence branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Standard CPU Python only
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Strict cost and code guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l3_l175_fixed_ticket_trust_audit_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l3-l175-frozen-ticket-trust-audit-v1.yml")
+          s=p.read_text()
+          assert [x.strip() for x in s.splitlines() if "runs-on:" in x]==["runs-on: ubuntu-latest"]
+          assert "actions/upload-artifact" not in s and "actions/cache" not in s
+          assert "KAGGLE_API_TOKEN" not in s
+          src=Path("research/run_l3_l175_fixed_ticket_trust_audit_v1.py").read_text()
+          assert "target_top3" not in src and '"finish"' not in src and '"y3"' not in src
+          assert "STABLE_MEDIUM" in src and "STABLE_STRICT" in src
+          print("FREE_STANDARD_CPU_NO_GPU_NO_PAID_CACHE_NO_ARTIFACT_NO_NEW_BETS")
+          PY
+      - name: Install minimal CPU libraries
+        shell: bash
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Restore frozen 7-King plus Outsider OOS podium signals
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/l175-source
+          git fetch --depth=1 origin research/l16-outsider-support-safe-v1-20260930:refs/remotes/origin/l175-source
+          git show origin/l175-source:research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/predictions.csv.gz > out/l175-source/predictions.csv.gz
+          test -s out/l175-source/predictions.csv.gz
+          python - <<'PY'
+          import csv,gzip
+          with gzip.open("out/l175-source/predictions.csv.gz","rt") as f:
+              fields=csv.DictReader(f).fieldnames
+          assert {"year","race_id","horse_id","rank","score","p3","p3_rank_baseline","p3_delta"}.issubset(fields)
+          print("OOS_2023_2024_2025_L175_SAFE_COLUMNS_AVAILABLE")
+          PY
+      - name: Obtain historical race and odds remote paths from pinned BACKFILL manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json,pandas as pd
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          a=json.loads((root/"data/manifest.json").read_text())
+          b=json.loads((root/"data/odds/manifest.json").read_text())
+          r=pd.read_csv("research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz",
+                        usecols=["year","_race_date"],compression="infer")
+          assert set(map(int,r.year))=={2023,2024,2025}
+          dates=sorted(set(r._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350,len(dates)
+          needed={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              race=a["days"].get(day)
+              odds=b["days"].get(day)
+              assert race and race.get("status")=="SUCCESS",("race manifest drift",day)
+              assert odds and odds.get("status")=="SUCCESS",("odds manifest drift",day)
+              for val,prefix in [(race.get("file"),"data/daily/"),
+                                  (odds.get("file"),"data/odds/daily/")]:
+                  assert isinstance(val,str) and val.startswith(prefix) and val.endswith(".jsonl.gz"),(day,val)
+                  needed.add(val)
+          Path("out/pinned-sparse-paths.txt").write_text("\n".join("/"+p for p in sorted(needed))+"\n")
+          print("EXISTING_METADATA_PATHS",len(needed),"DAYS",len(dates))
+          PY
+      - name: Retrieve each metadata-resolved historical file once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Replay exact frozen STANDARD 50 physical tickets and join L1.75 scores
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-l175-frozen-ticket-trust-audit-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l3_l175_fixed_ticket_trust_audit_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --accepted-lines research-results/l2-hindsight-stable-black-union-v1/run-38701489066/retained_original_black_and_red_to_black_candidate_lines.csv \
+            --stable-portfolio research-results/l2-hindsight-stable-black-union-v1/run-38701489066/three_year_stable_black_only_dedup_portfolio.csv \
+            --l175-predictions out/l175-source/predictions.csv.gz \
+            --backfill-root out/pinned-history \
+            --out-dir "$out"
+          test -s "$out/summary.json"
+          test -s "$out/trust_hit_roi_by_tier_year_and_context.csv"
+          test -s "$out/joined_ticket_trust_complete.csv.gz"
+          test -s "$out/tickets_missing_l175_signal.csv.gz"
+          test "$(du -sm "$out" | cut -f1)" -le 5
+      - name: Remove disposable source and history
+        if: always()
+        shell: bash
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt out/l175-source
+      - name: Save compact reproducible research result only
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l3-l175-frozen-ticket-trust-audit-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: L1.75 trust strata versus frozen L2 physical ticket outcomes $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
