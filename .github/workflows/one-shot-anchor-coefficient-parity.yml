@@ -6,6 +6,9 @@ on:
     paths:
       - ".github/workflows/one-shot-anchor-coefficient-parity.yml"
       - "research/replay-original-anchor-coefficients-2025.py"
+      - "research/anchor-original-feature-geometry.py"
+      - "research/score-original-anchor-asof.py"
+      - "scripts/original-anchor-real-feature-parity.py"
 permissions:
   contents: read
 jobs:
@@ -44,6 +47,12 @@ jobs:
             --predictions "$root/saved-oos.csv.gz" \
             --race 202507010212 --out "$root/proven.json" \
             --export-parameters "$root/original-prior-anchor-asof-params.json"
+          python3 scripts/original-anchor-real-feature-parity.py \
+            --cache "$root/fair-base.csv.gz" \
+            --predictions "$root/saved-oos.csv.gz" \
+            --parameters "$root/original-prior-anchor-asof-params.json" \
+            --race 202507010212 \
+            --output "$root/19-feature-real-final-parity.json"
           python3 - <<'PY'
           import os,json
           from pathlib import Path
@@ -60,6 +69,13 @@ jobs:
           assert z["heldout_year"]==2025
           assert not z["prediction_prebet_time_verified"]
           assert z["horse_count"]==16,z
+          geometry=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-anchor"/"19-feature-real-final-parity.json").read_text())
+          assert geometry["horses"]==16
+          assert geometry["max_19_feature_abs_error"]<1e-10
+          assert geometry["max_original_pwin_error"]<5e-7
+          assert geometry["never_validated_as_of_or_prebet"]
+          print("REAL_19_ANCHOR_FEATURES_FORMULA_AND_ORIGINAL_COEFFICIENTS_PASS",
+                geometry["race_id"],geometry["horses"],geometry["max_original_pwin_error"])
           print("REAL_2025_FROZEN_ANCHOR_FULL_PROBABILITIES_REPRODUCED",
                 z["race_id"],z["horse_count"],z["max_absolute_prob_difference"])
           PY
