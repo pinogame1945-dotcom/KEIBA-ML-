@@ -174,12 +174,15 @@ def main():
                 } for _,row in gf.iterrows()}
                 # generate original 152 templates. Any duplicate template ticket
                 # is deduplicated only in group portfolio, not in 3040 lines.
-                by_ticket={}; all_lines=defaultdict(set)
+                by_ticket={}; by_ticket_band={}; all_lines=defaultdict(set)
                 obs=dict(index.loc[rid]);obs["race_id"]=rid
                 for tid,ticket,card in fixed.create_cards(gf,pack,market,rid,axis,obs):
                     assert tid in originals,("NON_ORIGINAL_LINE",tid)
                     all_lines[tid].add(ticket)
                     by_ticket[ticket]=int(card[1])
+                    if ticket in by_ticket_band:
+                        assert by_ticket_band[ticket]==tid[3],('ticket band drift',rid,ticket)
+                    by_ticket_band[ticket]=tid[3]
                 flags={t:gate_flags(t,horse,an) for t in by_ticket}
                 for tid,ts in all_lines.items():
                     for ticket in ts:
@@ -195,7 +198,7 @@ def main():
                     _,seq=ticket
                     # look up cached original line band with one existing template
                     # no reprice or payout approximation
-                    priceband=next(tid[3] for tid,ts in all_lines.items() if ticket in ts)
+                    priceband=by_ticket_band[ticket]
                     for gate in GATES:
                         if f[gate]:update(fam[gate,ticket[0],priceband],ticket,refund,rid)
                 for scope in SCOPE:
