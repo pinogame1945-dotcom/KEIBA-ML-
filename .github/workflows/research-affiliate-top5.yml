@@ -17,4 +17,4 @@ jobs:
       - name: Install small parsers
         run: python -m pip install --disable-pip-version-check -q requests beautifulsoup4
       - name: Compute same-race popularity top5 trio returns (195 fixed races)
-        run: PROBE_ONLY=1 python research/affiliate_top5/analyze.py
+        run: python research/affiliate_top5/analyze.py
