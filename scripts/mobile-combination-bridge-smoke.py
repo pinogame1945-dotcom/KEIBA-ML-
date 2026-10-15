@@ -12,7 +12,7 @@ rid="202507010212";race_key="SYNTH_JRA_KEY";url="https://www.jra.go.jp/test"
 payload={
     "race":{"raceKey":race_key,"canonicalRaceId":rid,"raceDate":"2025-01-06",
             "startTime":"14:30","raceStatus":"SCHEDULED","scheduleStatus":"ACTIVE",
-            "status":"SCHEDULED","sourceUrl":url},
+            "status":"OFFICIAL","sourceUrl":url},
     "entries":[{"raceKey":race_key,"horseNo":i,"entryStatus":"ACTIVE"} for i in (1,2,3)],
     "capture":{"source_system":"KEIBA_MOBILE_JRA","final_probe_checked":True,
                "is_final":False,"source_status":"LIVE",
