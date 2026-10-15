@@ -10,7 +10,7 @@ permissions:
 jobs:
   replay-provenance:
     runs-on: ubuntu-latest
-    timeout-minutes: 30
+    timeout-minutes: 35
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
     steps:
@@ -23,9 +23,9 @@ jobs:
           set -euo pipefail
           test -n "$KAGGLE_API_TOKEN" || { echo "::error::Kaggle access missing";exit 1; }
           available=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
-          test "$available" -gt 4500000 || { echo "::error::runner free ephemeral space below guard";exit 1; }
+          test "$available" -gt 9000000 || { echo "::error::runner free ephemeral space below guard";exit 1; }
           python -m pip install --no-cache-dir --disable-pip-version-check -q kaggle lightgbm==4.7.0 pandas==3.0.6
-      - name: Reproduce saved models and score using all 7 previous-year models on one shared snapshot
+      - name: Reproduce seven saved models and compare real 2025 predictions from prior-year models
         shell: bash
         run: |
           set -euo pipefail
