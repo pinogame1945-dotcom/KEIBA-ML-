@@ -42,24 +42,25 @@ print("SNAPSHOT_MANIFEST_REMOTE_RESOLVED",found[0]["name"],found[0]["size"])
 PY
 transient "snapshot:manifest" kaggle datasets download "$SNAP_REF" -f manifest.json -p "$ROOT/snapshot" --unzip --quiet
 test -s "$ROOT/snapshot/manifest.json"
-remote="$(python3 - "$ROOT/snapshot/manifest.json" "$META" "$YEAR" <<'PY'
+python3 research/resolve_snapshot_manifest_remote_v1.py \
+  --manifest "$ROOT/snapshot/manifest.json" --files-json "$META" \
+  --generation-id eb13d4096519167b --years "$YEAR" \
+  --output "$ROOT/snapshot/resolved.tsv"
+remote="$(python3 - "$ROOT/snapshot/resolved.tsv" "$META" <<'PY'
 import json,sys
-manifest=json.load(open(sys.argv[1],encoding="utf-8"))
+from pathlib import Path
+lines=Path(sys.argv[1]).read_text(encoding="utf-8").strip().splitlines()
+if len(lines)!=1:raise SystemExit("metadata resolver must identify exactly one year")
+fields=lines[0].split("\t")
+if len(fields)!=8:raise SystemExit("invalid manifest resolution row")
+name=fields[2]
 files=json.load(open(sys.argv[2],encoding="utf-8"))
-year=int(sys.argv[3])
-if manifest.get("generation",{}).get("generation_id")!="eb13d4096519167b":
-    raise SystemExit("snapshot generation contract drift")
-found=[x for x in manifest.get("years",[]) if int(x.get("year",-1))==year]
-if len(found)!=1:raise SystemExit("snapshot year not unique")
-formal=str(found[0].get("file") or "")
-listed=[x for x in files if x.get("name")==formal]
-if len(listed)!=1:raise SystemExit("snapshot formal file absent from metadata")
-raw=listed[0].get("size")
-try:size=int(raw)
-except (TypeError,ValueError):raise SystemExit("unknown snapshot file size")
-if not 1<=size<=550000000:raise SystemExit("snapshot too large for one ephemeral free runner budget: "+str(size))
-if not formal.endswith((".jsonl",".jsonl.gz")):raise SystemExit("invalid manifest snapshot format")
-print(formal)
+rows=[row for row in files if row.get("name")==name]
+if len(rows)!=1:raise SystemExit("snapshot resolved name not uniquely in Kaggle metadata")
+try:size=int(rows[0]["size"])
+except (TypeError,ValueError):raise SystemExit("snapshot size missing")
+if not 1<=size<=550000000:raise SystemExit("snapshot exceeds ephemeral free runner quota: "+str(size))
+print(name)
 PY
 )"
 echo "SNAPSHOT_EXACT_REMOTE_SELECTED $remote"
