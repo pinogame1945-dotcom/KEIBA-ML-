@@ -308,7 +308,7 @@ def one_race(a):
             grab=subprocess.run([
                 sys.executable,str(ROOT/"scripts"/"github-readonly-archive.py"),
                 "--repo","pinogame1945-dotcom/KEIBA-ML-",
-                "--ref","research/l1-council-rebuild-v1-20261004",
+                "--ref","freeze/l2.1-standard50-to-l3-20261015",
                 "--path",src+"/"+name,
                 "--dest",str(p),"--max-bytes",str(max_bytes)
             ],cwd=ROOT,capture_output=True,text=True)
