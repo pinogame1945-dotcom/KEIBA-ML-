@@ -70,6 +70,9 @@ test "$available_kb" -gt 9000000 || { echo "::error::insufficient free ephemeral
 echo "SNAPSHOT_EXACT_REMOTE_SELECTED $remote"
 transient "snapshot:year:$YEAR" kaggle datasets download "$SNAP_REF" -f "$remote" -p "$ROOT/snapshot" --unzip --quiet
 test -s "$ROOT/snapshot/$remote"
+python3 research/extract-race-snapshot.py \
+  --input "$ROOT/snapshot/$remote" --race 202507010212 \
+  --output "$ROOT/one-race-features.jsonl"
 # Compact original Council matrix contains all seven corrected rankings
 # for the same race, so downloading ~700MB of full-year score.jsonl is wasteful.
 COUNCIL_PATH="research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
@@ -103,7 +106,7 @@ PY
   done
 done
 python3 research/verify-trained-kings-vs-saved-scores.py \
-  --snapshot "$ROOT/snapshot/$remote" \
+  --snapshot "$ROOT/one-race-features.jsonl" \
   --bundles "$ROOT/kings" --race 202507010212 \
   --council-file "$ROOT/council-y2025.jsonl.gz"
 # Separately prove a model selection timeline with no 2025 labels: each
@@ -134,7 +137,7 @@ PY
   done
 done
 python3 research/predict-prior-year-seven-kings.py \
-  --snapshot "$ROOT/snapshot/$remote" \
+  --snapshot "$ROOT/one-race-features.jsonl" \
   --bundles "$ROOT/previous-year-kings" --race 202507010212 \
   --output "$ROOT/previous-year-new-prediction.json"
 # Join newly computed 7-way 2024-model scores to the previously proven
