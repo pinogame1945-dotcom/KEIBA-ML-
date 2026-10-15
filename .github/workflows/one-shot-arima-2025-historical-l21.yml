@@ -1,0 +1,57 @@
+name: One-shot 2025 Arima historical L2.1 audit (FINAL research only)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-arima-2025-historical-l21.yml"
+permissions:
+  contents: read
+jobs:
+  retrospective-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Read historical source files once to ephemeral runner
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/arima-2025-retrospective"
+          mkdir -p "$root"
+          test "$(df -Pk "$root" | tail -1 | awk '{print $4}')" -gt 2000000 || { echo "::error::free disk guard";exit 1; }
+          get() {
+            python3 scripts/github-readonly-archive.py --repo "$1" --ref "$2" --path "$3" --dest "$root/$4" --max-bytes "$5"
+          }
+          base="pinogame1945-dotcom/KEIBA-ML-"
+          frozen="freeze/l2.1-standard50-to-l3-20261015"
+          get "$base" "$frozen" research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz historical-oos.csv.gz 11000000
+          get "$base" "$frozen" research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz fair-base.csv.gz 20000000
+          get "$base" "$frozen" research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz original-anchor-picks.csv.gz 1500000
+          get "pinogame1945-dotcom/KEIBA-BACKFILL" "03950cfe132abeca15ef17dbc7c6885ceb1591b7" data/daily/2025-12-28.jsonl.gz race-pack.jsonl.gz 3500000
+          get "pinogame1945-dotcom/KEIBA-BACKFILL" "03950cfe132abeca15ef17dbc7c6885ceb1591b7" data/odds/daily/2025-12-28.jsonl.gz odds-pack.jsonl.gz 8000000
+          python3 - <<'PY'
+          import importlib.util,json,os
+          from pathlib import Path
+          base=Path(os.environ["RUNNER_TEMP"])/"arima-2025-retrospective"
+          file=Path("research/l21-replay-real-final-one-race.py").resolve()
+          spec=importlib.util.spec_from_file_location("one_race_retrospective",file)
+          module=importlib.util.module_from_spec(spec);spec.loader.exec_module(module)
+          result=module.replay_one("202506050811",base/"historical-oos.csv.gz",base/"fair-base.csv.gz",
+                                    base/"original-anchor-picks.csv.gz",base/"race-pack.jsonl.gz",base/"odds-pack.jsonl.gz")
+          assert result["race_id"]=="202506050811"
+          assert result["retrospective_dnf_result_used_to_match_archived_population"] is False
+          assert result["source_odds_kind"]=="FINAL" and result["FORBIDDEN_FOR_LIVE_BETTING"] is True
+          print("ARIMA_2025_HISTORICAL_FINAL_ORIGINAL_L21",
+                "axis_horse_number",result["anchor_horse_number"],
+                "physical_ticket_count",result["ticket_count"],
+                "hypothetical_flat100_yen",result["ticket_count"]*100,flush=True)
+          for t in result["tickets"]:
+             print("ARIMA_HISTORICAL_FINAL_TICKET",t["bet_type"],t["selection"],t["ticket_odds"],"strict",t["strict"],flush=True)
+          print("NOT_VALID_L3_BECAUSE_HISTORICAL_FINAL_ODDS_NOT_AUTHENTICATED_PREBET",flush=True)
+          PY
+      - name: Free-only disclosure
+        if: always()
+        run: |
+          echo "GitHub public free standard CPU, runner-local transient data, no paid artifacts/cache/GPU."
+          echo "Historical market FINAL-only audit; DO NOT feed past FINAL odds to L3 as PRE_RACE."
