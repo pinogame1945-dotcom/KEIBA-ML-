@@ -1,0 +1,97 @@
+name: L2 EV Actual Paid Ticket Odds Spectrum V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-ev-winning-ticket-odds-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-winning-ticket-odds-v1
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free CPU, no paid storage, no leaks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_ev_winning_ticket_payout_odds_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          t=Path(".github/workflows/l2-ev-winning-ticket-odds-v1.yml").read_text()
+          assert [x.strip() for x in t.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in t.splitlines() if x.strip().startswith("- uses:"))
+          print("STANDARD_FREE_CPU_ONLY")
+          PY
+      - name: Install only minimal dataframe dependencies
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Reuse archived horse predictions and fetch pinned historical dividend source once
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$pred" out/backfill/.git/info/sparse-checkout <<'PY'
+          import pandas as pd,sys
+          d=pd.read_csv(sys.argv[1],usecols=["year","_race_date"])
+          assert set(d.year.astype(int))=={2023,2024,2025}
+          days=sorted(set(d._race_date.astype(str).str[:10]))
+          assert 200<=len(days)<=500
+          with open(sys.argv[2],"w") as f:
+              for day in days: f.write("/data/daily/"+day+".jsonl.gz\n")
+          print("REQUIRED_HISTORICAL_DAYS",len(days))
+          PY
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+      - name: Compute exact paid-ticket multiplier histograms 82 strategies 3 years
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-winning-ticket-odds-v1/run-$GITHUB_RUN_ID"
+          python research/run_ev_winning_ticket_payout_odds_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --backfill-root out/backfill --out-dir "$out"
+          test -s "$out/winning-ticket-actual-payout-odds-bands.csv"
+          test -s "$out/selected-horse-win-odds-bands-real-roi.csv"
+          test -s "$out/all-template-verified-totals.csv"
+      - name: Delete historical checkout and transient data
+        if: always()
+        run: rm -rf out/backfill
+      - name: Commit compact distribution statistics only to isolated research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-winning-ticket-odds-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive exact winning ticket payout odds distribution $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
