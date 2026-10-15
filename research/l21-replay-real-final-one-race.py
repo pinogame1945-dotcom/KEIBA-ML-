@@ -40,7 +40,7 @@ def valid_rank(raw,label):
         raise ValueError("INVALID_INTEGER_RANK_"+label)
     return int(x)
 
-def research_frame(rid,pred,ability,picks,race_pack):
+def research_frame(rid,pred,ability,picks,race_pack,retrospective_dnf_scope=False):
     year=int(rid[:4])
     raw=[r for r in csv_rows(pred) if r.get("_race_id")==rid and int(r.get("year") or 0)==year]
     z=[r for r in csv_rows(ability) if r.get("_race_id")==rid and int(r.get("year") or 0)==year]
@@ -57,6 +57,25 @@ def research_frame(rid,pred,ability,picks,race_pack):
             if not 1<=n<=24 or n in number.values() or hid in number:
                 raise ValueError("BACKFILL_HORSE_NUMBER_DRIFT")
             number[hid]=n
+    historical_dnf_omitted=[]
+    if retrospective_dnf_scope and (set(number)-set(original)):
+        # Explicit RESEARCH-ONLY source-protocol replay of the original
+        # label-filtered OOS prediction universe. Using this at betting time
+        # would introduce future knowledge, so NEVER route to PREBET or L3.
+        lost=set(number)-set(original)
+        if set(original)-set(number):
+            raise ValueError("OOS_HAS_EXTRA_HORSES_NOT_A_RETROSPECTIVE_DNF_CASE")
+        entry_by_hid={str(e.get("horse_id")):e for e in (race_pack.get("entries") or [])}
+        finish_by_hid={str(r.get("horse_id")):r for r in (race_pack.get("results") or [])}
+        for missing_hid in sorted(lost):
+            en=entry_by_hid.get(missing_hid) or {}
+            result=finish_by_hid.get(missing_hid) or {}
+            if (en.get("entry_status")!="STARTED"
+                or result.get("result_status")!="DNF"
+                or result.get("finish_position") is not None):
+                raise ValueError("CANNOT_RECONCILE_MISSING_HORSE_WITH_PROVEN_DNF_RESULT")
+            historical_dnf_omitted.append(missing_hid)
+        number={hid:n for hid,n in number.items() if hid not in lost}
     if (not raw or len(raw)!=len(original) or len(z)!=len(ability_by_id) or
         set(original)!=set(ability_by_id) or set(number)!=set(original) or axis[0] not in number):
         raise ValueError("ORIGINAL_FEATURE_OR_PACK_HORSE_ID_COVERAGE_DRIFT "+
@@ -93,7 +112,7 @@ def research_frame(rid,pred,ability,picks,race_pack):
     # *not* reconstructed from the new 7-King committee.
     probs=sorted(horse, key=lambda n:(-horse[n]["P__ANCHOR_FULL"],horse[n]["market_rank"],horse[n]["horse_id"]))
     for i,n in enumerate(probs,1):horse[n]["P_rank"]=i
-    return horse,number[axis[0]],axis[0]
+    return horse,number[axis[0]],axis[0],historical_dnf_omitted
 
 def historical_price(kind,nums,oddspack):
     seq="".join(f"{n:02d}" for n in nums)
@@ -112,7 +131,8 @@ def band(value):
             return name(lo)+"-"+name(hi)
     return "5000+" if value>=5000 else "UNKNOWN"
 
-def replay_one(rid,pred,ability,picks,pack_path,odds_path):
+def replay_one(rid,pred,ability,picks,pack_path,odds_path,
+               retrospective_dnf_scope=False):
     if not re.fullmatch(r"202[3-5]\d{8}",rid):
         raise ValueError("RESEARCH_REPLAY_ONLY_2023_2025_2026_SEALED")
     frozen,standard,strict=l21.source_contract()
@@ -120,7 +140,8 @@ def replay_one(rid,pred,ability,picks,pack_path,odds_path):
     oddspack=race_in_pack(odds_path,rid,True)
     if oddspack.get("odds_kind")!="FINAL" or oddspack.get("source_status")!="result":
         raise ValueError("ONLY_EXPLICIT_HISTORICAL_FINAL_CAN_BE_REPLAYED")
-    horse,axis,hid=research_frame(rid,pred,ability,picks,pack)
+    horse,axis,hid,historical_dnf_omitted=research_frame(
+        rid,pred,ability,picks,pack,retrospective_dnf_scope)
     active=set(horse)
     ranked={
       "AI_PROB":sorted(active,key=lambda n:(-horse[n]["P__ANCHOR_FULL"],horse[n]["market_rank"],horse[n]["horse_id"])),
@@ -158,6 +179,10 @@ def replay_one(rid,pred,ability,picks,pack_path,odds_path):
     return {"contract":"KEIBA_L21_HISTORICAL_FINAL_REPRODUCTION_V1",
       "race_id":rid,"anchor_horse_id":hid,"anchor_horse_number":axis,
       "from_original_anchor_full":True,
+      "retrospective_dnf_result_used_to_match_archived_population":
+          bool(historical_dnf_omitted),
+      "retrospective_dnf_omitted_horse_ids":historical_dnf_omitted,
+      "FORBIDDEN_FOR_LIVE_BETTING":True,
       "all_model_outputs_historical_final_not_verified_bet_time":True,
       "source_odds_kind":"FINAL","official_live_execution":False,
       "ticket_count":len(tickets),"tickets":tickets}
