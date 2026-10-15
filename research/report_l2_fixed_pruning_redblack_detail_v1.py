@@ -104,7 +104,7 @@ def main():
     write(out/"all_policies_deduplicated_union_revenue.csv",union2)
     outcome=dict(contract="READONLY_3040_FIXED_RED_TO_BLACK_DETAIL_V1",
         no_experiment_changed=True,source_run="38692491374",scope="ALL 3040 fixed strategies originally evaluated, black 245 is report-only posthoc partition",
-        2024_2025_baseline_negative_to_positive_only=True,
+        baseline_2024_2025_negative_to_positive_only=True,
         per_policy=pa,
         top_both_years_min100tickets_each=[{k:r[k] for k in ("policy","order","k","family","odds_band","before_tickets","before_roi_pct","before_profit_yen","after_tickets","after_roi_pct","after_profit_yen","after_profit_2024_yen","after_profit_2025_yen","tickets_2024","tickets_2025")} for r in sorted(meaningful,key=lambda z:asf(z,"after_profit_yen"),reverse=True)[:25]],
         family_selected={p:group_counts([r for r in converted if r["policy"]==p],"family") for p in KEEP},
