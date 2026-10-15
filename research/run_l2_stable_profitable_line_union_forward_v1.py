@@ -370,17 +370,18 @@ def main():
     write(out/"accepted_stable_lines_by_training_year.csv",all_accepted)
     manifest=dict(contract="EV152X20_STABLE_PROFIT_LINES_ONLY_EXACT_UNION_WF_V1",
         policy_thresholds=POLICIES,
-        prelim=BASIC,selected_counts={str(y):{k:len(v) for k,v in a.items()}
-                      for y,a in ((2024,sel24),(2025,sel25))},
-        initial_prefilter={2024:len(prelim24),2025:len(prelim25)},
-        "immutable_bet_templates":"Original 152 styles × original 20 final-quote bins; no newly generated bet.",
-        "selection":"previous years only, plus exact training payout top3 concentration. Reject unstable and nonprofitable lines, do not use future year for rule adoption.",
-        "diagnostic_only":"2023-25 hindsight-black245 compared but NEVER used as selector",
-        "final_policy_selection":"NONE: report all three prespecified variants; do not cherry-pick ROI from 2024/2025",
-        "no_2026":True,"bet_unit_yen":100,
-        "warning_final_odds":"Historical final odds only; untradeable as pre-close price proof",
-        "warning_research":"Hypothesis and thresholds set after observing earlier 2023-2025 research; strictly prior-year algorithm alone is not a clean untouched external holdout",
-        "runner":"free standard CPU. pinned BACKFILL, no paid artifacts/caches")
+        prelim=BASIC,
+        selected_counts={str(y):{k:len(v) for k,v in selections.items()}
+                      for y,selections in ((2024,sel24),(2025,sel25))},
+        initial_prefilter={"2024":len(prelim24),"2025":len(prelim25)},
+        immutable_bet_templates="Original 152 styles x original 20 final-quote bins; no newly generated bet.",
+        selection="previous years only, plus exact training payout top3 concentration. Reject unstable and nonprofitable lines, do not use future year for rule adoption.",
+        diagnostic_only="2023-25 hindsight-black245 compared but NEVER used as selector",
+        final_policy_selection="NONE: report all three prespecified variants; do not cherry-pick ROI from 2024/2025",
+        no_2026=True,bet_unit_yen=100,
+        warning_final_odds="Historical final odds only; untradeable as pre-close price proof",
+        warning_research="Hypothesis and thresholds set after observing earlier 2023-2025 research; strictly prior-year algorithm alone is not a clean untouched external holdout",
+        runner="free standard CPU. pinned BACKFILL, no paid artifacts/caches")
     (out/"summary.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("STABLE_POLICY_PORTFOLIOS",json.dumps(rows,ensure_ascii=False),flush=True)
     print("STABLE_EXACT_UNION_COMPLETE",flush=True)
