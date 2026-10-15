@@ -26,6 +26,8 @@ on:
       - "scripts/format-one-race-smoke.py"
       - "research/l21-frozen-prebet-price.py"
       - "scripts/l21-frozen-prebet-price-smoke.py"
+      - "research/bridge-mobile-combination-odds.py"
+      - "scripts/mobile-combination-bridge-smoke.py"
       - "contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json"
       - "scripts/mobile-jra-bridge-smoke.py"
       - "research/audit-seven-king-bundles.py"
@@ -68,6 +70,8 @@ jobs:
           python3 scripts/final-market-oos-v2-smoke.py
           python3 scripts/format-one-race-smoke.py
           python3 scripts/l21-frozen-prebet-price-smoke.py
+          python3 scripts/mobile-combination-bridge-smoke.py
+          python3 scripts/verify_keiba_l2_1_freeze.py
           python3 -m py_compile research/audit-seven-king-bundles.py research/verify-trained-kings-vs-saved-scores.py research/predict-prior-year-seven-kings.py
           python3 scripts/single-race-snapshot-extraction-smoke.py
           bash -n scripts/score-known-race-kaggle.sh
