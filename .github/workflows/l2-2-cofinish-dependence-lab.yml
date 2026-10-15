@@ -1,0 +1,97 @@
+name: L2.2 Co-Finish Dependence CPU Laboratory
+
+on:
+  push:
+    branches:
+      - research/l2.2-cofinish-dependence-v1-20261016
+    paths:
+      - l2_2/cofinish_dependence_lab.py
+      - l2_2/COFINISH_RESEARCH.md
+      - .github/workflows/l2-2-cofinish-dependence-lab.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l22-cofinish-research-20261016
+  cancel-in-progress: false
+
+jobs:
+  cofinish-full-validation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/l2.2-cofinish-dependence-v1-20261016
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Standard CPU dependency install
+        run: python -m pip install --disable-pip-version-check pandas numpy
+      - name: Preflight model, reproducibility, costs
+        shell: bash
+        run: |
+          set -euo pipefail
+          git cat-file -e 9655c717333636b5cc931f672e12dbc377e396bc^{commit}
+          python -m py_compile l2_2/market_distortion_lab.py l2_2/cofinish_dependence_lab.py
+          python l2_2/cofinish_dependence_lab.py --selftest
+          python - <<'PY'
+          from pathlib import Path
+          text=Path(".github/workflows/l2-2-cofinish-dependence-lab.yml").read_text()
+          assert [ln.strip() for ln in text.splitlines() if ln.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          assert not any(ln.strip().startswith("- uses: ") and ("upload-artifact" in ln or "actions/cache" in ln) for ln in text.splitlines())
+          assert not any(ln.strip().startswith("runs-on:") and ("gpu" in ln or "self-hosted" in ln) for ln in text.splitlines())
+          print("ONLY_FREE_STANDARD_CPU_NO_CHARGEABLE_STORAGE")
+          PY
+      - name: Manifest-only pinned BACKFILL checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin 0d4af461b77f0060dd9c789dd2da646026fada47
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = 0d4af461b77f0060dd9c789dd2da646026fada47
+          python l2_2/market_distortion_lab.py --prepare \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --backfill-root out/pinned-history --sparse-paths out/cofinish_remote_paths.txt
+      - name: Fetch each metadata-confirmed file once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/cofinish_remote_paths.txt
+      - name: Run pooled exact joint probability and all forward tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="research-results/l2-2-cofinish-dependence-v1/run-$GITHUB_RUN_ID"
+          python -u l2_2/cofinish_dependence_lab.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --joined research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/joined_ticket_trust_complete.csv.gz \
+            --missing research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/tickets_missing_l175_signal.csv.gz \
+            --backfill-root out/pinned-history --out-dir "$output"
+          test -s "$output/summary.json"
+          test -s "$output/forward_portfolios.csv"
+          test -s "$output/joint_profile_by_year.csv"
+          test "$(du -sm "$output" | cut -f1)" -le 4
+      - name: Delete disposable full historical files
+        if: always()
+        run: rm -rf out/pinned-history out/cofinish_remote_paths.txt
+      - name: Commit compact immutable experiment outputs
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-2-cofinish-dependence-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin research/l2.2-cofinish-dependence-v1-20261016
+          git add "$result"
+          git commit -m "research(l2.2): conditional joint-outcome and exact paid odds validation $GITHUB_RUN_ID"
+          git push origin HEAD:research/l2.2-cofinish-dependence-v1-20261016
