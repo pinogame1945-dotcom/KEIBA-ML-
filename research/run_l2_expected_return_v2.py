@@ -194,6 +194,10 @@ def one_year(year,raw,picks,root):
                          ",".join(map(str,ticket)),len(numbers),price,quality,
                          max(0,pm),max(0,pa),max(0,pb),float(pay),int(pay>0)))
     assert_ok(n_races==RACES_YEAR,f"{year} races {n_races} != {RACES_YEAR}")
+    print('QUOTE_AUDIT_YEAR',year,'covered_races',len(set(r[1] for r in rows)),
+          'quoted_tickets',len(rows),
+          'missing_by_kind',dict((str(k),v) for k,v in missing.items()),
+          'raw_examples',sample_raw.get(year,{}),flush=True)
     return rows,missing,sample_raw
 
 def to_dataframe(parts):
@@ -208,8 +212,12 @@ def to_dataframe(parts):
     assert_ok(allr.year.isin(YEARS).all(),"2026 leakage")
     assert_ok(allr.duplicated(["race_id","bet_type","ticket"]).sum()==0,
         "ticket duplicate")
-    assert_ok(allr.groupby("year").race_id.nunique().to_dict()=={
-        2023:RACES_YEAR,2024:RACES_YEAR,2025:RACES_YEAR},"race odds coverage drift")
+    present=allr.groupby("year").race_id.nunique().to_dict()
+    print("V2_QUOTES_YEAR_COVERAGE",json.dumps(present),flush=True)
+    # Missing quotes are not imputed. We keep full 3456-year denominators
+    # and expose unavailable races in every policy result.
+    assert_ok(set(present)==set(YEARS) and min(present.values())>=RACES_YEAR*.70,
+       f"insufficient odds coverage to evaluate fairly: {present}")
     return allr
 
 def logit(x):
