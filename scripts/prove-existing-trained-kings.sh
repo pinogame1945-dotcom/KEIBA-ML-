@@ -136,3 +136,34 @@ python3 research/predict-prior-year-seven-kings.py \
   --snapshot "$ROOT/snapshot/$remote" \
   --bundles "$ROOT/previous-year-kings" --race 202507010212 \
   --output "$ROOT/previous-year-new-prediction.json"
+# Join newly computed 7-way 2024-model scores to the previously proven
+# historical saved 7King + 13 Outsider + L1.7 OOS signal on SAME 16 horses.
+# BACKFILL has only two real days for integration smoke; standalone prior-year
+# model scores above use the original 2025 full-history FINAL snapshot.
+python3 scripts/prepare-proven-real-race.py "$ROOT/backfill"
+python3 research/analyze-one-race.py \
+  --race 202507010212 --source-root "$ROOT/backfill" --history-from 2025-01-05 \
+  --github-saved --prior-year-models "$ROOT/previous-year-new-prediction.json" \
+  --require-scored --output-dir "$ROOT/integrated"
+python3 - "$ROOT/integrated/analysis.json" <<'PY'
+import json,sys
+r=json.load(open(sys.argv[1],encoding="utf-8"))
+assert r["race_id"]=="202507010212" and r["starters"]==16
+assert r["saved_seven_kings"]["status"]=="GITHUB_ARCHIVED_7KING_REPLAY"
+assert r["saved_seven_kings"]["outsider_model_count"]==13
+assert r["saved_l17_podium"]["status"]=="ARCHIVED_OOS_P3"
+assert r["prior_year_new_model_inference"]["status"]=="ORIGINAL_MODELS_SCORED_NOT_VERIFIED_PREBET"
+assert len(r["horses"])==16
+for h in r["horses"]:
+    assert len(h["prior_year_king_ranks"])==7
+    assert len(h["saved_seven_king_ranks"])==7
+    assert "saved_outsider_points" in h
+print("ALL_REGISTERED_EXISTING_AND_PRIOR_YEAR_TRAINED_MODELS_INTEGRATED_PASS",
+      r["race_id"],r["starters"],"7 prior-year new inferences",
+      "7 original archived rankings","13 outsider ballots","10 L1.7 OOS probabilities")
+for h in sorted(r["horses"],key=lambda a:a["prior_year_king_rank_sum"])[:6]:
+    print("NEW_PRIOR_YEAR_RANK",h["prior_year_king_rank_sum"],
+          h.get("horse_number"),h.get("horse_name"),h["horse_id"],
+          "archived_original_rank",h.get("archived_rank_sum_comparator_rank"))
+PY
+
