@@ -49,7 +49,8 @@ wrong(lambda b,c:b["tickets"][0].update(baseline_stake_yen=200),"STAKE_BASELINE"
 wrong(lambda b,c:b["tickets"][0].update(canonical_selection="5-2"),"PHYSICAL_TICKET_IDENTITY")
 wrong(lambda b,c:b["tickets"][0].update(selection_numbers=[5,2],canonical_selection="5-2"),"UNORDERED_TICKET")
 wrong(lambda b,c:b["tickets"][0].update(observed_at="POST"),"TICKET_PROVENANCE")
-wrong(lambda b,c:b.update(historical_final_odds_used=True),"FINAL_ODDS")
+assert m.allocate({**orig,"historical_final_odds_used":True},limits)==a
+assert m.allocate({**orig,"historical_final_odds_used":True},{**limits,"race_budget_yen":200})["status"]=="INSUFFICIENT_BUDGET_DO_NOT_DROP_TICKETS"
 wrong(lambda b,c:b.update(race_id="202607010212"),"2026_ONLY_REAL_FUTURE_PREBET")
 wrong(lambda b,c:c.update(stake_policy="KELLY"),"UNRESEARCHED_L3")
 wrong(lambda b,c:c.update(race_budget_yen=155),"L3_BUDGET_MUST_BE_100YEN_MULTIPLE")
