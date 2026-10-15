@@ -92,7 +92,9 @@ def official_ranks(group,pack,race_id):
     for horse_id,raw in group[["_horse_id","market_rank"]].itertuples(index=False,name=None):
         hid=str(horse_id)
         rank=int(raw)
-        check(1<=rank<=len(group),f"{race_id}: invalid market rank {rank}")
+        # Archived market ranks may retain gaps / pre-scratch positions.
+        # Do not fabricate renumbered popularity after withdrawals.
+        check(1<=rank<=30,f"{race_id}: invalid market rank {rank}")
         m[num_map[hid]]=rank
     return m,num_map
 
