@@ -69,3 +69,31 @@ jobs:
                     horse["horse_id"],horse["king_ranks"],
                     "outsider_points",horse["outsider_points"])
           PY
+      - name: Verify race-ID-only end-to-end command on existing real 2025 race
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/replay-one-race-id.py \
+            --race 'https://race.netkeiba.com/race/shutuba.html?race_id=202506010101' \
+            --council-file "$RUNNER_TEMP/archived-scores/council-y2025.jsonl.gz" \
+            --ballots-file "$RUNNER_TEMP/archived-scores/outsider-ballots-y2025.csv.gz" \
+            --output-dir "$RUNNER_TEMP/one-race-id-only"
+          python3 - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"one-race-id-only"/"race-id-archive-analysis.json"
+          x=json.loads(p.read_text(encoding="utf-8"))
+          assert x["contract"]=="KEIBA_RACE_ID_ONLY_ARCHIVE_REPLAY_V1"
+          assert x["status"]=="HISTORICAL_OOF_REPLAY_ONLY"
+          assert x["race_id"]=="202506010101"
+          assert x["runners"]==16
+          assert len(x["horses"])==16
+          assert all(len(h["historical_7king_individual_ranks"])==7 for h in x["horses"])
+          assert all(len(h["historical_13outsider_top3_votes"])==13 for h in x["horses"])
+          assert x["result_or_payout_used"] is False
+          assert x["not_live_prediction"] is True
+          print("REAL_RACE_ID_ONLY_20_SIGNAL_PASS",x["race_id"],x["runners"],"horses")
+          for h in x["horses"][:5]:
+              print("ARCHIVED_RANK",h["historical_7king_rank_sum_rank"],h["horse_id"],
+                    "OUT_POINTS",h["historical_outsider_points"])
+          PY
