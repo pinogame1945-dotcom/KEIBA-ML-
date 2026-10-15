@@ -114,6 +114,8 @@ export async function runOneRace({
 }){
   const root=resolve(sourceRoot);
   const id=parseRaceId(raceId);
+  if(Number(id.slice(0,4))>=2026)
+    throw new Error("2026_SEALED: historical post-race archive replay is prohibited; live timestamped pre-race inference must use a separate interface");
   if(!DATE_RE.test(historyFrom))throw new Error("invalid history-from date");
   const phase=normalizePredictionPhase(predictionPhase);
   if(phase!=="EARLY")throw new Error(
