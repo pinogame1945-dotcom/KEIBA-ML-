@@ -75,9 +75,9 @@ def groups(path):
         selected[tid]=record
     positive={tid:r for tid,r in selected.items() if r["plus_total"]}
     assert len(positive)==245,len(positive)
-    assert sum(r["plus_all"] for r in positive)==11
-    assert sum(r["robust"] for r in positive)==39
-    assert sum(r["plus_all"] and r["robust"] for r in positive)==7
+    assert sum(r["plus_all"] for r in positive.values())==11
+    assert sum(r["robust"] for r in positive.values())==39
+    assert sum(r["plus_all"] and r["robust"] for r in positive.values())==7
     return positive,selected
 
 def category_match(r,category):
