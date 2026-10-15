@@ -1,0 +1,14 @@
+contract=L2_ONLINE_BUY_RATE_STABILITY_V1
+base_payoff_run=38680436244
+score_run=38682123161
+eval_years=2024,2025
+warmup_races_each_year=144
+no_future_day_score_or_outcome_for_decisions=true
+five_bet_rules=true
+six_frozen_score_combinations=true
+six_online_threshold_variants=true
+purchase_rate_target=75_to_90_pct
+policy_chosen_2024_locked_2025=true
+free_standard_cpu=true
+no_artifact_no_cache=true
+2026_sealed=true
