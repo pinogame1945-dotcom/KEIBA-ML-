@@ -1,0 +1,62 @@
+{
+  "contract": "EV152X20_STABLE_PROFIT_LINES_ONLY_EXACT_UNION_WF_V1",
+  "policy_thresholds": {
+    "COVERAGE": {
+      "n": 250,
+      "hits": 15,
+      "min_roi": 100.0,
+      "max1": 0.4,
+      "max3": 0.7,
+      "minus3_roi": 85.0,
+      "require_all_years_positive": false
+    },
+    "ROBUST": {
+      "n": 500,
+      "hits": 25,
+      "min_roi": 105.0,
+      "max1": 0.3,
+      "max3": 0.55,
+      "minus3_roi": 95.0,
+      "require_all_years_positive": false
+    },
+    "STRICT": {
+      "n": 1000,
+      "hits": 40,
+      "min_roi": 110.0,
+      "max1": 0.2,
+      "max3": 0.4,
+      "minus3_roi": 100.0,
+      "require_all_years_positive": true
+    }
+  },
+  "prelim": {
+    "min_n": 250,
+    "min_hits": 15,
+    "min_roi_pct": 100.0
+  },
+  "selected_counts": {
+    "2024": {
+      "COVERAGE": 662,
+      "ROBUST": 185,
+      "STRICT": 69
+    },
+    "2025": {
+      "COVERAGE": 520,
+      "ROBUST": 136,
+      "STRICT": 7
+    }
+  },
+  "initial_prefilter": {
+    "2024": 755,
+    "2025": 576
+  },
+  "immutable_bet_templates": "Original 152 styles x original 20 final-quote bins; no newly generated bet.",
+  "selection": "previous years only, plus exact training payout top3 concentration. Reject unstable and nonprofitable lines, do not use future year for rule adoption.",
+  "diagnostic_only": "2023-25 hindsight-black245 compared but NEVER used as selector",
+  "final_policy_selection": "NONE: report all three prespecified variants; do not cherry-pick ROI from 2024/2025",
+  "no_2026": true,
+  "bet_unit_yen": 100,
+  "warning_final_odds": "Historical final odds only; untradeable as pre-close price proof",
+  "warning_research": "Hypothesis and thresholds set after observing earlier 2023-2025 research; strictly prior-year algorithm alone is not a clean untouched external holdout",
+  "runner": "free standard CPU. pinned BACKFILL, no paid artifacts/caches"
+}
