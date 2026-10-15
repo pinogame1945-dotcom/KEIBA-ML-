@@ -32,6 +32,9 @@ on:
       - "scripts/l3-one-race-money-smoke.py"
       - "research/run-one-race-paper-pipeline.py"
       - "scripts/one-race-l3-pipeline-smoke.py"
+      - "research/replay-original-anchor-coefficients-2025.py"
+      - "research/score-original-anchor-asof.py"
+      - "scripts/original-anchor-asof-smoke.py"
       - "contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json"
       - "scripts/mobile-jra-bridge-smoke.py"
       - "research/audit-seven-king-bundles.py"
@@ -77,6 +80,7 @@ jobs:
           python3 scripts/mobile-combination-bridge-smoke.py
           python3 scripts/l3-one-race-money-smoke.py
           python3 scripts/one-race-l3-pipeline-smoke.py
+          python3 scripts/original-anchor-asof-smoke.py
           python3 scripts/verify_keiba_l2_1_freeze.py
           python3 -m py_compile research/audit-seven-king-bundles.py research/verify-trained-kings-vs-saved-scores.py research/predict-prior-year-seven-kings.py
           python3 scripts/single-race-snapshot-extraction-smoke.py
