@@ -1,0 +1,36 @@
+name: Single race inference safety tests
+on:
+  pull_request:
+    paths:
+      - "src/ml-dataset.mjs"
+      - "src/single-race-engine.mjs"
+      - "src/single-race-historical-extra.mjs"
+      - "research/predict-one-race.mjs"
+      - "research/score-one-race.py"
+      - "scripts/single-race-engine-smoke.mjs"
+      - "models/one-race-registry.json"
+      - ".github/workflows/single-race-inference-smoke.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Parser syntax and one-race replay smoke
+        run: |
+          node --check src/ml-dataset.mjs
+          node --check src/single-race-engine.mjs
+          node --check src/single-race-historical-extra.mjs
+          node --check research/predict-one-race.mjs
+          python3 -m py_compile research/score-one-race.py
+          node scripts/single-race-engine-smoke.mjs
+      - name: Existing L1 feature tests
+        run: npm run smoke:all
