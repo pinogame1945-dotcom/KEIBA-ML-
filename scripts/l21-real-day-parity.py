@@ -19,7 +19,12 @@ def run_day(a):
             if not line.strip():continue
             race=json.loads(line).get("race") or {}
             rid=str(race.get("race_id") or "")
-            if rid.startswith("2025") and race.get("race_date")=="2025-01-06":
+            # The remote pack was manifest-pinned to 2025-01-06. Race
+            # date may be under 'date', 'race_date' or absent in BACKFILL.
+            observed=race.get("race_date") or race.get("date")
+            if observed and str(observed)[:10]!="2025-01-06":
+                raise ValueError("BACKFILL_PACK_RACE_DATE_DRIFT")
+            if rid.startswith("2025"):
                 rows.append(rid)
     if len(rows)<8 or len(rows)!=len(set(rows)) or any(len(rid)!=12 for rid in rows):
         raise ValueError("PROVEN_HISTORICAL_DAY_RACE_SET_INCOMPLETE_OR_DUPLICATED")
