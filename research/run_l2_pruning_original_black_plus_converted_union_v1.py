@@ -18,14 +18,14 @@ def readcsv(path):
         return list(csv.DictReader(f))
 def tid(row):
     return row["order"],int(row["k"]),row["family"],row["odds_band"]
-def accumulate(dest,year,portfolio,cards):
+def accumulate(dest,year,portfolio,tickets,cards):
     a=dest[year,portfolio]
-    n=len(cards)
+    n=len(tickets)
     a["tickets"]+=n
-    a["hits"]+=sum(cards[t][1]>0 for t in cards)
-    a["return_yen"]+=sum(cards[t][1] for t in cards)
+    a["hits"]+=sum(cards[t][1]>0 for t in tickets)
+    a["return_yen"]+=sum(cards[t][1] for t in tickets)
     a["races_bought"]+=int(n>0)
-    a["hit_races"]+=int(any(cards[t][1]>0 for t in cards))
+    a["hit_races"]+=int(any(cards[t][1]>0 for t in tickets))
 def calc_year(year,pred,picks,races,root,stats,limits,history,flips,acc):
     groups=pred[pred.year.eq(year)].groupby("_race_id",sort=False)
     yrows=races[races.year.eq(year)]
