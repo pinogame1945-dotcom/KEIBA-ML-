@@ -1,0 +1,87 @@
+name: L2 Online Stable Purchase Frontier V1
+
+on:
+  push:
+    branches:
+      - research/l2-stable-purchase-online-oos-v1-20261015
+    paths:
+      - .github/triggers/l2-stable-purchase-online-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-stable-purchase-online-v1
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_stable_purchase_online_v1.py
+          python -m py_compile research/run_all_race_flow_ticket_audit_v1.py
+          python -m py_compile research/build_l2_market_helpers_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-stable-purchase-online-v1.yml").read_text()
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert [x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any(u.startswith("actions/cache") or u.startswith("actions/upload-artifact") for u in uses)
+          print("FREE_STANDARD_CPU_GUARD_OK")
+          PY
+      - name: Install CPU-only research dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Assert reusable prior OOS cache (no downloads)
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l2-skip-value-batch-v1/run-38680436244"
+          test -s "$root/race-feature-snapshot.csv.gz"
+          test -s "$root/all-10-rules-settled-per-race.csv.gz"
+          test -s "$root/per-race-oos-skip-scores.csv.gz"
+          test -s "$root/all-model-year-cutoff-and-quota.csv"
+          test -s "research-results/l2-payout-tail-protection-oos-v1/run-38682123161/new-oos-price-tail-and-payoff-scores.csv.gz"
+          echo "PRIOR_SCORES_READY no-Kaggle/no-Backfill-download"
+      - name: Online score-only rolling quantile purchases for five bet families
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="research-results/l2-skip-value-batch-v1/run-38680436244"
+          out="research-results/l2-stable-purchase-online-v1/run-$GITHUB_RUN_ID"
+          export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
+          pred_root="research-results/l2-payout-tail-protection-oos-v1/run-38682123161"
+          python research/run_l2_stable_purchase_online_v1.py --base-root "$root" --predict-root "$pred_root" --out "$out"
+          test -s "$out/summary.json"
+          test -s "$out/year-by-year-chronological-policies.csv"
+          test -s "$out/diagnostic-two-year-frontier-NOT-selection.csv"
+          test -s "$out/2024-selected-locked-2025.csv"
+          test -s "$out/frozen-payout-score-calibration-diagnostic.csv"
+          test -s "$out/selected-streaming-decisions-audit.csv.gz"
+      - name: Archive exact settlement summaries
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-stable-purchase-online-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive strictly chronological stable purchase rate frontier run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
