@@ -1,0 +1,44 @@
+name: L3 V3 Official Operational Contract - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/l3-v3-official-github-producer-20261016
+    paths:
+      - 'research/l3_v3_operational.py'
+      - 'tests/test_l3_v3_operational.py'
+      - '.github/workflows/l3-v3-official-operational-ci.yml'
+      - 'contracts/KEIBA_L3_V3_OFFICIAL_INTEGRATION_V1.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  v3-operational-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Ensure free CPU and no priced artifact/cache calls
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          p=Path('.github/workflows/l3-v3-official-operational-ci.yml')
+          text=p.read_text()
+          assert 'runs-on: ubuntu-latest' in text
+          assert 'upload-artifact' not in text
+          assert 'actions/cache' not in text
+          assert 'cache: ' not in text
+          assert 'GPU' not in text
+          print('FREE_CPU_NO_ARTIFACT_NO_CACHE')
+          PY
+      - name: Verify frozen L2.1 purchase contract
+        run: python scripts/verify_keiba_l2_1_freeze.py
+      - name: Python syntax check
+        run: python -m py_compile research/l3_v3_operational.py tests/test_l3_v3_operational.py
+      - name: Exact V2 REVERSE_P3_RACE_MAX300 parity and V3 funding tests
+        run: python -m unittest discover -s tests -p test_l3_v3_operational.py -v
