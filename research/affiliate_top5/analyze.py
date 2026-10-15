@@ -4,6 +4,7 @@ import concurrent.futures as cf
 import csv, json, re, sys, time
 from pathlib import Path
 from datetime import datetime
+import os
 import requests
 from bs4 import BeautifulSoup
 
@@ -95,6 +96,13 @@ def race(rid):
             'popular5':pay,'pop_hit':int(pay>0),'url':url}
 
 def main():
+    if os.getenv('PROBE_ONLY'):
+        q=fetch('https://db.netkeiba.com/race/202605040305/')
+        print('PROBE title',q.title.get_text(' ',strip=True) if q.title else 'no title')
+        print('PROBE tables',[(t.get('class'),len(t.select('tr')),len(t.find_all('td'))) for t in q.find_all('table')][:10])
+        for t in q.select('table.race_table_01'):
+            print('PROBE head',[(len(tr.find_all('td')),len(tr.find_all('th')),tr.get_text(' ',strip=True)[:200]) for tr in t.select('tr')[:5]])
+        print('PROBE pay',[(t.get('class'),t.get_text(' ',strip=True)[:300]) for t in q.find_all('table') if '三連複' in t.get_text(' ',strip=True)][:3]);return
     inp=targets();dmap={};fails=[]
     print('REQUESTED',len(inp),'DISTINCT_DAYS',len(set(r['date'] for r in inp)),flush=True)
     with cf.ThreadPoolExecutor(max_workers=3) as ex:
