@@ -1,0 +1,45 @@
+name: Two-port race ID real source test
+on:
+  push:
+    branches:
+      - feature/multi-race-id-pipeline-20261016
+    paths:
+      - .github/workflows/two-port-race-ids.yml
+      - research/execute-races-by-id.py
+      - scripts/two-port-id-smoke.py
+      - config/two-port-race-ids.txt
+permissions:
+  contents: read
+jobs:
+  both-ports:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check two ID input routes offline
+        run: |
+          set -euo pipefail
+          python3 -m py_compile research/execute-races-by-id.py
+          python3 scripts/two-port-id-smoke.py
+      - name: Replay genuine original ANCHOR and frozen L2.1 historical FINAL tickets
+        run: |
+          set -euo pipefail
+          python3 research/execute-races-by-id.py --mode historical --ids-file config/two-port-race-ids.txt --session-dir "$RUNNER_TEMP/two-port-cache" --out-dir "$RUNNER_TEMP/two-port-output"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          report=json.loads((Path(os.environ["RUNNER_TEMP"])/"two-port-output/summary.json").read_text())
+          for r in report["races"]:
+              print("REAL_HISTORICAL_FROZEN_L21",r["race_id"],r["status"],"anchor",r.get("anchor_horse_number"),"tickets",r.get("frozen_ticket_count"),"yen",r.get("paper_stake_yen"),"reason",r.get("reason",""),flush=True)
+          assert report["bets_placed"] is False
+          arima=report["races"][0]
+          assert arima["race_id"]=="202506050811"
+          assert arima["status"]=="HISTORICAL_FINAL_FLAT100_AUDIT_ONLY",arima
+          assert arima["anchor_horse_number"]==3
+          assert arima["frozen_ticket_count"]==6
+          assert arima["paper_stake_yen"]==600
+          print("TWO_PORT_HISTORICAL_REAL_COMPLETED",report["complete"],report["blocked"],flush=True)
+          PY
+      - name: Resource rule
+        if: always()
+        run: echo "Public standard CPU and runner temporary files only; NO paid runner, GPU, Artifact or cache. Historical FINAL research not live."
