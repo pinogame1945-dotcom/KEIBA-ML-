@@ -1,0 +1,23 @@
+{
+  "contract": "ALL_RACE_ONE_PICK_V1",
+  "objective": "Beat market favorite ROI while betting exactly one 100-yen win ticket in every race.",
+  "no_skip": true,
+  "no_edge_threshold": true,
+  "no_odds_filter": true,
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races_per_year": 3456,
+  "pooled_races": 10368,
+  "stake_per_race_yen": 100,
+  "selection_rule": "For each anchor model, choose horse maximizing predicted win probability * final win odds.",
+  "primary_strategy": "ANCHOR_ABILITY_RISK",
+  "primary_reason": "Chosen before ROI comparison because ANCHOR_ABILITY_RISK had the best pooled probability logloss among anchor residual variants.",
+  "market_favorite_pooled_roi_pct": 79.44926697530865,
+  "primary_pooled_roi_pct": 84.73379629629629,
+  "primary_roi_uplift_pp": 5.2845293209876445,
+  "payout_note": "Return uses final decimal win odds * 100 on winners, consistent with the existing Fair Value study; exact payout audit is separate.",
+  "2026_locked": true
+}
