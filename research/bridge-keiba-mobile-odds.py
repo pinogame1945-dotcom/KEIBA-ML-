@@ -17,7 +17,7 @@ def from_mobile(payload):
     if not isinstance(race,dict):raise ValueError("MISSING_JRA_RACE")
     rid=str(race.get("canonicalRaceId") or "")
     if not re.fullmatch(r"202[1-6]\d{8}",rid):
-        raise ValueError("CANONICAL_NETKEIBA_RACE_ID_REQUIRED_2026_SEALED")
+        raise ValueError("CANONICAL_NETKEIBA_RACE_ID_REQUIRED")
     if race.get("raceStatus")!="SCHEDULED" or race.get("scheduleStatus")!="ACTIVE":
         raise ValueError("CANCELLED_FINISHED_OR_RESCHEDULED_RACE_FORBIDDEN")
     if race.get("status")!="OFFICIAL":
@@ -30,6 +30,8 @@ def from_mobile(payload):
         raise ValueError("MISSING_SCHEDULED_START_CLOCK")
     scheduled=f"{iso_date}T{time}:00+09:00"
     read_iso(scheduled,"scheduled_start_at")
+    if rid.startswith("2026") and read_iso(scheduled,"scheduled_start_at")<=datetime.datetime.now(datetime.timezone.utc):
+        raise ValueError("2026_RESULT_REPLAY_SEALED_ONLY_FUTURE_ODDS")
     entries=payload.get("entries")
     if not isinstance(entries,list) or len(entries)<3:
         raise ValueError("MISSING_NUMBERED_ENTRY_CARD")
@@ -57,6 +59,8 @@ def from_mobile(payload):
     when={str(r.get("observedAt") or "") for r in win}
     if len(when)!=1:raise ValueError("MIXED_WIN_CAPTURE_TIMES")
     captured=next(iter(when))
+    if rid.startswith("2026") and read_iso(captured,"win_observed_at")>datetime.datetime.now(datetime.timezone.utc):
+        raise ValueError("2026_WIN_SNAPSHOT_TIME_NOT_YET_OBSERVED")
     if not read_iso(captured,"win_observed_at")<read_iso(scheduled,"scheduled_start_at"):
         raise ValueError("MOBILE_WIN_ODDS_POST_START")
     if any(r.get("raceKey")!=race["raceKey"] for r in win):
