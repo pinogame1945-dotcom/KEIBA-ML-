@@ -1,0 +1,1 @@
+Full 2023-2025 per-ticket final odds floor grid across seven bet kinds; fixed pre-race selections and all purchase-cap portfolios. Evaluate by year and train on prior years. Only free standard CPU; no paid storage.
