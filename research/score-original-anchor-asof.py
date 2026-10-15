@@ -20,6 +20,7 @@ def module(file,name):
 BRIDGE=module("bridge-mobile-combination-odds.py","original_2025_anchor_mobile_bridge")
 L21=module("l21-frozen-prebet-price.py","original_2025_anchor_l21")
 MODEL=module("replay-original-anchor-coefficients-2025.py","original_2025_anchor_params")
+GEOM=module("anchor-original-feature-geometry.py","original_original_anchor_features")
 CONTRACT="KEIBA_L1_ORIGINAL_ABILITY_RISK_ASOF_V1"
 RESULT="KEIBA_ORIGINAL_ANCHOR_FULL_ASOF_PAPER_V1"
 
@@ -84,48 +85,11 @@ def calc(original,mobile,companions,now=None):
         if n in wins:raise ValueError("DUPLICATED_WIN_ODDS")
         wins[n]=L21.number(row["odds"],"win")
     if set(wins)!=active:raise ValueError("JRA_WIN_QUOTE_NOT_COMPLETE")
-    best=min(wins.values())
-    if sum(v==best for v in wins.values())!=1:
-        raise ValueError("MARKET_TOP1_TIE_WITHOUT_OFFICIAL_POPULARITY_UNRESOLVED")
-    order=sorted(active,key=lambda n:(wins[n],records[n]["horse_id"]))
-    market_rank={}
-    for i,n in enumerate(order):
-        market_rank[n]=1+next(j for j,m in enumerate(order) if wins[m]==wins[n])
-    win_inv={n:1/wins[n] for n in active}
-    inv_sum=math.fsum(win_inv.values())
-    market={n:win_inv[n]/inv_sum for n in active}
-    overlap=sum(records[n]["distill_ai_rank"]<=3 and market_rank[n]<=3 for n in active)
-    top1_match=int(next(n for n in active if records[n]["distill_ai_rank"]==1)==
-                   next(n for n in active if market_rank[n]==1))
+    geometric=GEOM.build_geometry(records,wins)
     full=[]
-    count=len(active)
-    for n in sorted(active):
-        h=records[n]
-        ai=h["distill_ai_rank"];mr=market_rank[n]
-        gap=(mr-ai)/count
-        ngap=abs(mr-ai)/count
-        disagree=(3-max(0,min(3,overlap)))/3
-        feat={
-          "field_size":count,
-          "distill_ai_rank01":1-(ai-1)/max(1,count-1),
-          "distill_score_z":h["distill_score_z"],
-          "distill_score_gap_to_best":h["distill_score_gap_to_best"],
-          "distill_is_ai_top1":float(ai==1),
-          "distill_is_ai_top3":float(ai<=3),
-          "distill_is_ai_top6":float(ai<=6),
-          "risk":h["risk"],
-          "rank_gap_norm":gap,"abs_rank_gap_norm":ngap,
-          "top3_overlap_norm":overlap/3,
-          "ai_unique_top3":int(ai<=3 and mr>3),
-          "market_unique_top3":int(ai>3 and mr<=3),
-          "top1_match":top1_match,
-          "risk_x_abs_gap":h["risk"]*ngap,
-          "ability_x_market_gap":h["distill_score_z"]*gap,
-          "ability_x_disagree_level":h["distill_score_z"]*disagree,
-          "risk_x_disagree_level":h["risk"]*disagree,
-          "rankgap_x_disagree_level":gap*disagree,
-        }
-        z=math.log(market[n])
+    for n,assembled in sorted(geometric.items()):
+        feat=assembled["features"]
+        z=math.log(assembled["market_prob_norm"])
         for f in MODEL.FEATURES:
             unit=normal[f]
             sd=L21.number(unit["std"],"original_standardizer_sd")
@@ -133,10 +97,12 @@ def calc(original,mobile,companions,now=None):
             mean=L21.number(unit["mean"],"original_standardizer_mean")
             weight=L21.number(beta[f],"original_beta")
             z+=(feat[f]-mean)/sd*weight
+        h=records[n]
         full.append({"horse_id":h["horse_id"],"horse_number":n,
-                     "win_odds_at_cutoff":wins[n],"market_rank":mr,
-                     "market_prob_norm":market[n],
-                     "distill_ai_rank":ai,
+                     "win_odds_at_cutoff":wins[n],
+                     "market_rank":assembled["market_rank"],
+                     "market_prob_norm":assembled["market_prob_norm"],
+                     "distill_ai_rank":h["distill_ai_rank"],
                      "distill_score_z":h["distill_score_z"],
                      "risk":h["risk"],"_logit":z})
     maximum=max(x["_logit"] for x in full)
