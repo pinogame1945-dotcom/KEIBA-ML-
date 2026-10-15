@@ -172,6 +172,26 @@ python3 research/analyze-one-race.py \
 - 2019以前など保存済みfold外のレースは、特徴量生成と保存済み20モデル
   予測再生を混同しない。モデルが存在しない場合は `UNAVAILABLE`。
 
+## 任意の2022〜2025年レースIDから7王を再推論する入口
+
+`scripts/score-known-race-kaggle.sh` は **12桁のnetkeiba IDまたはnetkeibaのレースURL** を受け付ける。2022〜2025年の正本snapshotがKaggleに存在することをmetadataで確認し、対象年より1年前に選択済みの7王モデルだけを呼び出す（2025年レースなら2024年モデル）。2026年は封印。
+
+```sh
+# すでにKAGGLE_API_TOKENが設定された無料標準CPU環境で:
+bash scripts/score-known-race-kaggle.sh 202507010212 \
+  "${RUNNER_TEMP:-/tmp}/keiba-one-race-session" \
+  "${RUNNER_TEMP:-/tmp}/prior-7k.json"
+```
+
+同じrunner内では、取得済みの年度別snapshotと学習済み7モデルを使い回す。正本snapshotはmanifestの論理名とKaggle metadataのremote実在名を先に照合し、1度だけ取得して**結果を含めない1レース分の特徴量へストリーミング抽出**する。全年度の結果行列やscoreをモデルごとに再取得しない。標準runnerの無料一時ディスクが9GB未満なら開始せず、2.3GB超のsnapshotも停止。有料Artifact/Cache/Dataset/Model保存はしない。
+
+**GitHubのActionsタブから操作する専用workflow**：`one-race-previous-year-king-prediction.yml`（`workflow_dispatch`、race_id入力）。ログへ全頭の7王別順位と参考比較順位を出力。対象は2022〜2025年の保存済みレースだけで、レース当日のライブ予想や買い目には接続しない。
+
+今回の正式運用区分：
+- `MODEL_REPRODUCTION`：保存済みの同年検証モデル出力が元のCouncil順位と全頭一致したか
+- `PRIOR_YEAR_MODEL_INFERENCE`：モデル選択が**レース前の年に完了済み**で、7モデルの新しいpredicted scoresを計算
+- `LIVE_PREBET_VERIFIED`：まだ未達。時刻付き当日データ・過去履歴完全性・オッズ・L1.75を接続後に別途立証する
+
 ## 7王の本当の新規再推論まで検証成功（2026-10-15）
 
 **run `38737339808`: `202507010212`、実在16頭。**
