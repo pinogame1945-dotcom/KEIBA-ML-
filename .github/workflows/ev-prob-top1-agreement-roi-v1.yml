@@ -1,0 +1,101 @@
+name: EV and Market-Adjusted Probability Top1 Agreement ROI V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/ev-prob-top1-agreement-roi-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-prob-top1-agreement-roi-v1
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free-only runner guard and Python compilation
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_ev_prob_agreement_roi_v1.py research/run_l2_value_anchor_bet_frontier_v1.py research/run_all_race_flow_ticket_audit_v1.py research/build_l2_market_helpers_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/ev-prob-top1-agreement-roi-v1.yml").read_text()
+          runners=[s.strip() for s in wf.splitlines() if s.strip().startswith("runs-on:")]
+          uses=[s.strip() for s in wf.splitlines() if s.strip().startswith("- uses:")]
+          assert runners==["runs-on: ubuntu-latest"]
+          assert not any(x.startswith("- uses: actions/cache") or "upload-artifact" in x for x in uses)
+          print("FREE_STANDARD_CPU_NO_PAID_CACHE_OK")
+          PY
+      - name: Install NumPy and Pandas only
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Acquire historical daily payouts once from pinned BACKFILL commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$pred" out/backfill/.git/info/sparse-checkout <<'PY'
+          import pandas as pd,sys
+          q=pd.read_csv(sys.argv[1],compression="infer",usecols=["year","_race_date"])
+          assert set(q.year.astype(int))=={2023,2024,2025}
+          dates=sorted(set(q._race_date.astype(str).str[:10]))
+          assert 200<=len(dates)<=500
+          with open(sys.argv[2],"w") as f:
+              for d in dates:f.write("/data/daily/"+d+".jsonl.gz\n")
+          print("DATES",len(dates))
+          PY
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+          echo "PINNED_BACKFILL_PAYOUTS_OK"
+      - name: Compute conditional payout ROI on all 2023-2025 races
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          racewise="research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz"
+          out="research-results/ev-prob-top1-agreement-roi-v1/run-$GITHUB_RUN_ID"
+          python research/run_ev_prob_agreement_roi_v1.py --predictions "$pred" --racewise "$racewise" --backfill-root out/backfill --out-dir "$out"
+          test -s "$out/summary.json"
+          test -s "$out/conditional-headline-roi.csv"
+          test -s "$out/conditional-exact-roi-all-82-templates.csv"
+      - name: Remove temporary historical checkout
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out/backfill
+          echo "No paid runner, cache, artifact or stored dataset. 2026 sealed."
+      - name: Persist research results only on research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/ev-prob-top1-agreement-roi-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive EV prob agreement exact ROI $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
