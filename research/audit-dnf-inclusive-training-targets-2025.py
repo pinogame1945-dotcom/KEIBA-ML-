@@ -22,7 +22,14 @@ def load_saved(r):
         for row in csv.DictReader(f):
             if row.get("year")!="2025":continue
             rid=row["_race_id"];hid=row["_horse_id"]
-            obs.setdefault(rid,set()).add(hid)
+            try:win=int(float(row["target_win"]));top3=int(float(row["target_top3"]))
+            except (TypeError,ValueError) as exc:
+                raise ValueError("INVALID_ARCHIVED_OOS_TRAINING_LABEL") from exc
+            if win not in (0,1) or top3 not in (0,1) or win>top3:
+                raise ValueError("ARCHIVED_OOS_WIN_TOP3_LABEL_DRIFT")
+            panel=obs.setdefault(rid,{})
+            if hid in panel:raise ValueError("DUPLICATE_ARCHIVED_OOS_LABEL")
+            panel[hid]={"target_win":win,"target_top3":top3}
     return obs
 
 def generate(pack,predictions):
@@ -55,15 +62,18 @@ def generate(pack,predictions):
                 dnfs.add((rid,hid))
                 actual_dnf.append(hid)
             else:
-                try:f=int(float(finish))
-                except (TypeError,ValueError) as e:
-                    raise ValueError("UNKNOWN_FINISH_FOR_STARTED_"+rid+"_"+hid) from e
-                if f<1:raise ValueError("INVALID_FINISH_FOR_STARTED_"+rid)
-                win=int(f==1);top3=int(f<=3)
+                # BACKFILL result records do not necessarily expose a
+                # numeric finish_position under that exact key. For
+                # *historical training targets only*, use the original
+                # already-archived labeled OOS winner/podium flags.
+                historic=saved.get(rid,{}).get(hid)
+                if historic is None:
+                    raise ValueError("FINISHER_MISSING_FROM_ORIGINAL_OOS_"+rid+"_"+hid)
+                win=historic["target_win"];top3=historic["target_top3"]
             labels.append({"race_id":rid,"horse_id":hid,"horse_number":no,
                            "target_win":win,"target_top3":top3,
                            "training_only_derived_from_result":True})
-        missing_now=set(numbered)-saved.get(rid,set())
+        missing_now=set(numbered)-set(saved.get(rid,{}))
         missing.update((rid,hid) for hid in missing_now)
         if missing_now!=set(actual_dnf):
             raise ValueError("FINISH_FILTER_NOT_FULL_CAUSE_OF_ORIGINAL_OOS_HORSE_EXCLUSIONS_"+
