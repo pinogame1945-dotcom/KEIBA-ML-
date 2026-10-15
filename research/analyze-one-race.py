@@ -29,6 +29,25 @@ def one_race(a):
     models=json.loads(model_file.read_text(encoding="utf-8"))
     if feature["race_id"]!=models["race_id"]:
         raise RuntimeError("RACE_ID_DRIFT: feature and model score IDs differ")
+    horse_matrix={
+        h["horse_id"]:{
+            "horse_id":h["horse_id"],"horse_number":h.get("horse_number"),
+            "horse_name":h.get("horse_name"),
+            "feature_count":len(h["features"]),
+            "feature_non_null":sum(value is not None for value in h["features"].values()),
+            "model_ranks":{}
+        }
+        for h in feature["features_by_horse"]
+    }
+    for row in models["model_results"]:
+        if row["status"]!="SCORED":continue
+        for ranked in row["ranking"]:
+            hid=ranked["horse_id"]
+            if hid not in horse_matrix:raise RuntimeError("MODEL_HORSE_ID_DRIFT "+hid)
+            horse_matrix[hid]["model_ranks"][row["model"]]={
+                "rank":ranked["rank"],"score":ranked["score"],
+                "origin":row.get("origin")
+            }
     report={
         "contract":"KEIBA_ONE_RACE_COMBINED_ANALYSIS_V1",
         "race_id":feature["race_id"],
@@ -39,6 +58,7 @@ def one_race(a):
         "starters":len(feature["features_by_horse"]),
         "feature_schema_version":feature["feature_schema_version"],
         "models":models["model_results"],
+        "horses":[],
         "saved_seven_kings":{
             "status":"NOT_REQUESTED",
             "note":"Use --seven-kings to load existing saved horse-level scores from Kaggle metadata."
@@ -77,6 +97,11 @@ def one_race(a):
                         "saved_count":len(seven["horses"])
                     }
                 else:
+                    for z in seven["horses"]:
+                        item=horse_matrix[z["horse_id"]]
+                        item["saved_seven_king_ranks"]=z["king_ranks"]
+                        item["saved_seven_king_probabilities"]=z["king_raw_probabilities"]
+                        item["archived_rank_sum_comparator_rank"]=z["rank_sum_comparator_rank"]
                     report["saved_seven_kings"]={
                         "status":"ARCHIVED_OOF_REPLAY",
                         "source_contract":seven["contract"],
@@ -84,6 +109,10 @@ def one_race(a):
                         "rank_sum_is_official_router":False,
                         "horses":seven["horses"]
                     }
+    report["horses"]=sorted(horse_matrix.values(),
+        key=lambda h:(h["horse_number"] is None,
+                      h["horse_number"] if h["horse_number"] is not None else 999,
+                      h["horse_id"]))
     output=folder/"analysis.json"
     output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
