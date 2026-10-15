@@ -10,3 +10,5 @@ use_cached_data_only=true
 runner=ubuntu-latest_standard_free_cpu
 no_artifacts_no_cache=true
 2026=SEALED
+
+fix_numpy_readonly_array=true
