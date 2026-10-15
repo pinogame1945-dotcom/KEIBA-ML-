@@ -168,6 +168,51 @@ class L3Operational(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, expected):
                     v3.run(p)
 
+    def test_randomized_exact_v2_differential_parity(self):
+        import itertools
+        import random
+        random_generator = random.Random(20261016)
+        combinations = list(itertools.permutations(range(1, 19), 3))
+        for n in (1, 2, 3, 5, 8, 16, 30, 60, 120):
+            samples = []
+            for i in range(n):
+                nums = combinations[i]
+                row = {"bet_type": "TRIFECTA", "canonical_selection":
+                       "-".join(map(str, nums))}
+                p3 = random_generator.choice([None, .05, .05, .13, .2, .4, .4, .8])
+                samples.append((row, p3))
+            got = v3.reverse_p3_stakes(samples, 200 * n)
+            legacy = [
+                {"year": 2025, "race_id": RACE, "bet_type": row["bet_type"],
+                 "selection": row["canonical_selection"], "min_p3": p3,
+                 "support_min": None, "mean_p3_delta": None, "ticket_odds": None}
+                for row, p3 in samples
+            ]
+            before = v2.allocate(legacy, "REVERSE_P3", 300, 200 * n)
+            reference = {(key[2], key[3]): amount for key, amount in before.items()}
+            with self.subTest(n=n):
+                self.assertEqual(got, reference)
+
+    def test_command_line_generates_json(self):
+        import json
+        import subprocess
+        import tempfile
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp)
+            input_path = path / "github-produced.json"
+            output_path = path / "l3-v3.json"
+            input_path.write_text(json.dumps(make_input(make_race())), encoding="utf-8")
+            done = subprocess.run(
+                [sys.executable, str(ROOT / "research/l3_v3_operational.py"),
+                 "--input", str(input_path), "--output", str(output_path)],
+                capture_output=True, text=True, check=False)
+            self.assertEqual(done.returncode, 0, done.stderr)
+            value = json.loads(output_path.read_text(encoding="utf-8"))
+            self.assertEqual(value["contract"], v3.CONTRACT)
+            self.assertEqual(value["policy"], "REVERSE_P3_RACE_MAX300")
+            self.assertEqual(value["races"][0]["portfolio_total_yen"], 1000)
+            self.assertFalse(value["actual_bets_placed"])
+
     def test_duplicate_races_not_double_bought(self):
         race = make_race()
         with self.assertRaisesRegex(ValueError, "DUPLICATE_RACE_ID"):
