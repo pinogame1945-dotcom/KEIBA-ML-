@@ -66,10 +66,14 @@ def research_frame(rid,pred,ability,picks,race_pack,retrospective_dnf_scope=Fals
         if set(original)-set(number):
             raise ValueError("OOS_HAS_EXTRA_HORSES_NOT_A_RETROSPECTIVE_DNF_CASE")
         entry_by_hid={str(e.get("horse_id")):e for e in (race_pack.get("entries") or [])}
-        finish_by_hid={str(r.get("horse_id")):r for r in (race_pack.get("results") or [])}
+        finish_by_hid={str(r.get("horse_id")):r for r in (race_pack.get("results") or [])
+                       if r.get("horse_id") is not None}
+        finish_by_number={str(r.get("horse_number")):r for r in (race_pack.get("results") or [])
+                          if r.get("horse_number") is not None}
         for missing_hid in sorted(lost):
             en=entry_by_hid.get(missing_hid) or {}
-            result=finish_by_hid.get(missing_hid) or {}
+            result=(finish_by_hid.get(missing_hid)
+                    or finish_by_number.get(str(number[missing_hid])) or {})
             if (en.get("entry_status")!="STARTED"
                 or result.get("result_status")!="DNF"
                 or result.get("finish_position") is not None):
