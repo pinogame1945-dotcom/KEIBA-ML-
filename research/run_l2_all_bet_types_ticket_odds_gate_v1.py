@@ -23,6 +23,7 @@ from pathlib import Path
 
 import pandas as pd
 import run_l2_value_anchor_bet_frontier_v1 as prior
+import run_l2_ai_market_rank_betfrontier_v1 as prior_rank
 from build_l2_market_helpers_v1 import load_day,load_odds_day,horse_number_map,canonical_numbers
 from run_all_race_flow_ticket_audit_v1 import YEARS,RACES_YEAR,TOTAL_RACES,get_inputs,assert_ok
 
@@ -98,6 +99,8 @@ def ticket_price(ticket,odds):
     key=(str(nums[0]) if len(nums)==1 else "".join(f"{x:02d}" for x in nums))
     group=(odds.get("odds") or {}).get(BET_TO_GROUP[kind]) or {}
     raw=group.get(key)
+    if raw is None and len(nums)==1:
+        raw=group.get(f"{nums[0]:02d}")
     return parse_price(raw,kind)
 
 def template_candidates(anchors,orders,number):
@@ -163,13 +166,9 @@ def year_task(year,data,picks,races,root):
                 "AI_PROB":sort_horses(g,"AI_PROB"),
                 "MARKET":sort_horses(g,"MARKET"),
                 "AI_RAW":g.sort_values(["distill_ai_rank","market_rank","_horse_id"],
-                                      ascending=[True,True,True],kind="mergesort")["_horse_id"].astype(str).tolist()
-                    if "distill_ai_rank" in g.columns else [],}
-            # The archived raw-AI axis is authoritative; raw full-field ranks
-            # live in the independent all-race source, not residual predictions.
-            if not ordered["AI_RAW"]:
-                ordered["AI_RAW"]=sort_horses(g,"AI_PROB")
-                meta["raw_order_unavailable_races"]+=1
+                                      ascending=[True,True,True],kind="mergesort")["_horse_id"].astype(str).tolist()}
+            assert_ok(ordered["AI_RAW"][0]==str(row["AI_RAW_TOP_horse"]),
+                      "raw AI full-field rank diverged: "+rid)
             anchors={
                 "EV":picks["ANCHOR_FULL"][rid],
                 "AI_PROB":str(row["AI_PROB_TOP_horse"]),
@@ -255,7 +254,7 @@ def summarize(records):
     meta=defaultdict(Counter); prices=defaultdict(Counter)
     for year,a,b,c,d,e in records:
         for tpl,cnt in a.items():
-            agg[(str(year),*tpl)].update(cnt);agg[("2023-2025",*tpl)].update(cnt)
+            agg[(str(year),*tpl[0],tpl[1])].update(cnt);agg[("2023-2025",*tpl[0],tpl[1])].update(cnt)
         for tpl,cnt in b.items():
             baseline[(str(year),tpl)].update(cnt);baseline[("2023-2025",tpl)].update(cnt)
         for k,cnt in c.items():
@@ -342,7 +341,7 @@ def main():
     ap.add_argument("--out-dir",required=True)
     a=ap.parse_args()
     out=Path(a.out_dir);out.mkdir(parents=True,exist_ok=True)
-    d,picks=get_inputs(a.predictions,a.picks)
+    d,picks=prior_rank.load_predictions(a.predictions,a.picks)
     race_dtype={"race_id":str,**{name+"_horse":str for name in AXES if name!="EV"}}
     race_dtype["VALUE_EV_horse"]=str
     races=pd.read_csv(a.racewise,compression="infer",dtype=race_dtype)
