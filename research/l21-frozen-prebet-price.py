@@ -233,7 +233,14 @@ def execute(card,model,quotes,policy="STANDARD"):
     # Time alignment for ORIGINAL model data. Never admit models computed
     # after the quote/bet cutoff (even when the quote itself is PRE_RACE).
     feature_time=timestamp(model.get("features_observed_at"),"model_feature_observed_at")
-    if feature_time>cutoff:raise ValueError("L21_FEATURES_AFTER_BET_CUTOFF")
+    win_quote_time=timestamp(model.get("win_odds_observed_at"),"original_win_quote_observed_at")
+    model_time=timestamp(model.get("anchor_computed_at"),"original_anchor_computed_at")
+    if feature_time>observed:
+        raise ValueError("L21_HORSE_FEATURES_AFTER_QUOTE_SNAPSHOT")
+    if win_quote_time!=observed:
+        raise ValueError("L21_ORIGINAL_ANCHOR_WIN_ODDS_NOT_SAME_MARKET_SNAPSHOT")
+    if not observed<=model_time<cutoff:
+        raise ValueError("L21_ORIGINAL_ANCHOR_COMPUTED_OUTSIDE_QUOTE_TO_CUTOFF")
     if model.get("canonical_race_key")!=race["raceKey"]:
         raise ValueError("L21_ORIGINAL_AXIS_RACE_KEY_DRIFT")
     # Exact historic sort_horses: AI_PROB by P then market rank then horse ID;
