@@ -1,0 +1,541 @@
+{
+  "contract": "KEIBA_L2_1_FIXED_PURCHASE_V1",
+  "version": "2.1.0",
+  "frozen_utc": "2026-10-15",
+  "status": "FROZEN_RESEARCH_POLICY_FOR_L3_HANDOFF",
+  "freeze_rule": "DO_NOT_MUTATE; successor versions must use new identifier and new branch",
+  "source_branch": "research/l3-l175-ticket-trust-audit-v1-20261015",
+  "source_head_commit": "10201aa92d9c958ba6035e40347753295dbc93cc",
+  "reference_l2_head_commit": "eccd08cb166cb596356ce3f8bdfb5d5f7f5a6253",
+  "intended_next_stage": "L3_STAKE_SIZING_ONLY",
+  "primary_policy": "STANDARD",
+  "secondary_diagnostic_policy": "STRICT_SUBSET_NOT_ADDITIONAL_BUYS",
+  "ticket_policy": {
+    "anchor": "EXACT_EXISTING_ANCHOR_FULL; no replacement, re-ranking or L1/L1.75 feedback",
+    "source_picks_csv": "research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz",
+    "ticket_generator": "research/run_l2_fixed_ticket_pruning_3040_v1.py:create_cards",
+    "gates": "research/run_l2_all_fixed_odds_band_lenses_v1.py:gate_flags",
+    "line_gate_selection": "literal frozen lists below, evaluated with runtime pre-race horse features only",
+    "ranking_sources": [
+      "AI_PROB",
+      "AI_RAW",
+      "MARKET"
+    ],
+    "line_key_format": "partner_order|other_horses_k|bet_family|ticket_odds_band",
+    "physical_dedup_key": [
+      "year_or_date",
+      "race_id",
+      "bet_type",
+      "canonical_selection"
+    ],
+    "stake_baseline_yen_per_ticket": 100,
+    "bet_types_live_in_policy": [
+      "QUINELLA",
+      "TRIO",
+      "TRIFECTA"
+    ],
+    "avoid_any_extra_gate_or_skip": true,
+    "strict_counts_against_standard_only": true,
+    "ticket_features_market_cutoff_guard": "Historical study uses FINAL prices; live execution requires an auditable bet-cutoff timestamped odds snapshot, not synthetic final quotes.",
+    "missing_odds": "FAIL_CLOSED with separate reason count; don't invent quote or 404-guess alternate remote names"
+  },
+  "frozen_rules": {
+    "STANDARD": [
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_0"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_M1"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "AGREEMENT_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ALL"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RAW_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RISK_LT040"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RISK_LT060"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "ABILITY_Z_GE_M1"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "ALL"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "RISK_LT040"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|30-50",
+        "gate": "RISK_LT060"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "ALL"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "AI_PROB|3|TRIO|15-20",
+        "gate": "RISK_LT060"
+      },
+      {
+        "line": "AI_PROB|5|QUINELLA|15-20",
+        "gate": "MARKET_UNDERVALUE_GE_2"
+      },
+      {
+        "line": "AI_RAW|2|TRIFECTA_THIRD|20-30",
+        "gate": "ABILITY_Z_GE_0"
+      },
+      {
+        "line": "AI_RAW|3|QUINELLA|15-20",
+        "gate": "MARKET_UNDERVALUE_GE_2"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_0"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_M1"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "AGREEMENT_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ALL"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RAW_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RISK_LT040"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RISK_LT060"
+      },
+      {
+        "line": "MARKET|3|TRIFECTA_FIRST|200-300",
+        "gate": "AGREEMENT_TOP6"
+      },
+      {
+        "line": "MARKET|3|TRIFECTA_FIRST|200-300",
+        "gate": "RAW_TOP6"
+      },
+      {
+        "line": "MARKET|5|QUINELLA|15-20",
+        "gate": "MARKET_UNDERVALUE_GE_2"
+      }
+    ],
+    "STRICT_SUBSET": [
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_0"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_M1"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "AGREEMENT_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "ALL"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RAW_TOP6"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RISK_LT040"
+      },
+      {
+        "line": "AI_PROB|2|TRIO|15-20",
+        "gate": "RISK_LT060"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_0"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ABILITY_Z_GE_M1"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "AGREEMENT_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "ALL"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "CALIBRATED_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MARKET_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MARKET_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "MODEL_WIN_P_GE_003"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RAW_TOP10"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RAW_TOP6"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RISK_LT040"
+      },
+      {
+        "line": "MARKET|2|TRIO|15-20",
+        "gate": "RISK_LT060"
+      }
+    ]
+  },
+  "rule_counts": {
+    "STANDARD": 50,
+    "STRICT_SUBSET": 26,
+    "unique_standard_original_lines": 9
+  },
+  "unique_standard_original_lines": [
+    "AI_PROB|2|TRIO|15-20",
+    "AI_PROB|2|TRIO|30-50",
+    "AI_PROB|3|TRIO|15-20",
+    "AI_PROB|5|QUINELLA|15-20",
+    "AI_RAW|2|TRIFECTA_THIRD|20-30",
+    "AI_RAW|3|QUINELLA|15-20",
+    "MARKET|2|TRIO|15-20",
+    "MARKET|3|TRIFECTA_FIRST|200-300",
+    "MARKET|5|QUINELLA|15-20"
+  ],
+  "families_as_code": [
+    "QUINELLA",
+    "TRIO",
+    "TRIFECTA_FIRST",
+    "TRIFECTA_THIRD"
+  ],
+  "research_baseline": {
+    "validation_scope": "2023-2025 historical final odds, training+selection+evaluation on SAME THREE YEARS, not OOS or live",
+    "STANDARD_ALL": {
+      "available_races": 10368,
+      "races_bought": 6877,
+      "tickets": 13479,
+      "winning_tickets": 376,
+      "stake_yen": 1347900,
+      "return_yen": 1471660,
+      "profit_yen": 123760,
+      "roi_pct": 109.18169003635285,
+      "roi_minus_biggest3_pct": 102.61517916759404
+    },
+    "STRICT_ALL": {
+      "available_races": 10368,
+      "races_bought": 1402,
+      "tickets": 1431,
+      "winning_tickets": 98,
+      "stake_yen": 143100,
+      "return_yen": 169290,
+      "profit_yen": 26190,
+      "roi_pct": 118.30188679245283,
+      "roi_minus_biggest3_pct": 114.14395527603075
+    },
+    "STANDARD_BY_YEAR": {
+      "2023": {
+        "available_races": 3456,
+        "races_bought": 2377,
+        "tickets": 4363,
+        "winning_tickets": 143,
+        "stake_yen": 436300,
+        "return_yen": 474650,
+        "profit_yen": 38350,
+        "roi_pct": 108.78982351592941,
+        "roi_minus_biggest3_pct": 90.14898005959202
+      },
+      "2024": {
+        "available_races": 3456,
+        "races_bought": 2233,
+        "tickets": 4584,
+        "winning_tickets": 120,
+        "stake_yen": 458400,
+        "return_yen": 533180,
+        "profit_yen": 74780,
+        "roi_pct": 116.31326352530542,
+        "roi_minus_biggest3_pct": 97.4694589877836
+      },
+      "2025": {
+        "available_races": 3456,
+        "races_bought": 2267,
+        "tickets": 4532,
+        "winning_tickets": 113,
+        "stake_yen": 453200,
+        "return_yen": 463830,
+        "profit_yen": 10630,
+        "roi_pct": 102.34554280670785,
+        "roi_minus_biggest3_pct": 84.09973521624008
+      }
+    },
+    "STRICT_BY_YEAR": {
+      "2023": {
+        "available_races": 3456,
+        "races_bought": 500,
+        "tickets": 512,
+        "winning_tickets": 37,
+        "stake_yen": 51200,
+        "return_yen": 63570,
+        "profit_yen": 12370,
+        "roi_pct": 124.16015625,
+        "roi_minus_biggest3_pct": 112.5390625
+      },
+      "2024": {
+        "available_races": 3456,
+        "races_bought": 465,
+        "tickets": 476,
+        "winning_tickets": 30,
+        "stake_yen": 47600,
+        "return_yen": 51220,
+        "profit_yen": 3620,
+        "roi_pct": 107.60504201680672,
+        "roi_minus_biggest3_pct": 95.65126050420169
+      },
+      "2025": {
+        "available_races": 3456,
+        "races_bought": 437,
+        "tickets": 443,
+        "winning_tickets": 31,
+        "stake_yen": 44300,
+        "return_yen": 54500,
+        "profit_yen": 10200,
+        "roi_pct": 123.02483069977427,
+        "roi_minus_biggest3_pct": 109.75169300225734
+      }
+    },
+    "2026_sealed": true,
+    "unit_yen": 100,
+    "strict_is_subset": true
+  },
+  "l175_diagnostic_only": {
+    "source_run_id": 38710197503,
+    "score_source": "L1.7 7-King + Outsider past-only WF OOS podium calibrator run-36747215581",
+    "scope": "L1.75 signals attached to preexisting tickets; NO L2 bet changes",
+    "covered": 13264,
+    "total": 13479,
+    "uncovered": 215,
+    "coverage_percent": 98.40492618146747,
+    "metric": "minimum model top3 probability of horse participants, rank quintile per bet type",
+    "Q4_hist_hit_percent": 3.00865,
+    "Q4_hist_roi_percent": 144.67469,
+    "Q5_hist_hit_percent": 3.63499,
+    "Q5_hist_roi_percent": 113.15032,
+    "confidence_note": "L1.75 podium p3 is horse-level, not exact ticket hit probability; Q1-Q5 thresholds fit 2023-25 data and not deployable stake rules."
+  },
+  "evidence_files": [
+    {
+      "path": "research-results/l2-hindsight-stable-black-union-v1/run-38701489066/retained_original_black_and_red_to_black_candidate_lines.csv",
+      "git_blob_sha": "b0979fd670146c94834e4c9e2d2ad854b8a1fe48"
+    },
+    {
+      "path": "research-results/l2-hindsight-stable-black-union-v1/run-38701489066/three_year_stable_black_only_dedup_portfolio.csv",
+      "git_blob_sha": "a40ff6b0d11e0e07edbf0e725d3b1e616210d108"
+    },
+    {
+      "path": "research-results/l2-hindsight-stable-black-union-v1/run-38701489066/summary.json",
+      "git_blob_sha": "c92bc278b2e4f3174268377ed38ecbac09fd2e62"
+    },
+    {
+      "path": "research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/summary.json",
+      "git_blob_sha": "414c5562818bb99fb95268c7de6a2c0a4145edb9"
+    },
+    {
+      "path": "research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/trust_hit_roi_by_tier_year_and_context.csv",
+      "git_blob_sha": "f5f3364791b62978cc68cc6022efdb6469d0f375"
+    },
+    {
+      "path": "research/run_l2_hindsight_stable_black_union_v1.py",
+      "git_blob_sha": "6950eb216e21afd5d9129fe08651747c1b480628"
+    },
+    {
+      "path": "research/run_l2_fixed_ticket_pruning_3040_v1.py",
+      "git_blob_sha": "9845ef5c11e74d4e668b463674e3eef15c344702"
+    },
+    {
+      "path": "research/run_l2_all_fixed_odds_band_lenses_v1.py",
+      "git_blob_sha": "2a36c0411835db7a29359894a9bc8eb2ab715e2f"
+    },
+    {
+      "path": "research/run_l3_l175_fixed_ticket_trust_audit_v1.py",
+      "git_blob_sha": "d7870a376ad54581c32aa43739da1f882d471fe7"
+    }
+  ],
+  "data_safety": {
+    "training_years": [
+      2023,
+      2024,
+      2025
+    ],
+    "sealed_years": [
+      2026
+    ],
+    "unknown_future_year_hindsight_selection": false,
+    "no_result_or_payout_in_ticket_gate": true,
+    "historical_result_used_only_for_research_selection_and_evaluation": true,
+    "legacy_404_guess_download_forbidden": true,
+    "cost": "GitHub Actions standard free CPU only; no GPU/paid runner/paid storage/artifacts/cache"
+  },
+  "handoff_rule": "L3 may size bets but must emit one row per L2.1 physical ticket; if budget cannot cover minimum legal unit on all tickets, flag INSUFFICIENT_BUDGET instead of secretly skipping tickets."
+}
