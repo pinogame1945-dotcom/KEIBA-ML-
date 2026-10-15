@@ -158,5 +158,5 @@ jobs:
           git config user.email "actions@users.noreply.github.com"
           git pull --rebase origin "$GITHUB_REF_NAME"
           git add "$out"
-          git commit -m "research: archive real race coverage of pooled profitable EV odds bands $GITHUB_RUN_ID"
+          git commit -m "research: archive 2024-25 OOS EV ticket red-to-black policies $GITHUB_RUN_ID"
           git push origin "HEAD:$GITHUB_REF_NAME"
