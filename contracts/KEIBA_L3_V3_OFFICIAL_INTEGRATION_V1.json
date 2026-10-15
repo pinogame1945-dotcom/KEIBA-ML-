@@ -1,0 +1,74 @@
+{
+  "contract": "KEIBA_L3_WHOLE_BANKROLL_V3_OFFICIAL_INTEGRATION_V1",
+  "l3_version": "3.0.0",
+  "adoption_status": "OFFICIAL_L3_VERSION_SELECTED_INTEGRATION_NOT_YET_EXECUTABLE",
+  "adoption_date": "2026-10-16",
+  "source_research": {
+    "branch": "research/l3-whole-bankroll-v3-20261015",
+    "commit": "a12faef90c112713e3e0e6d460fe2482fafb6037",
+    "historical_run": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38718781530",
+    "contract": "KEIBA_L3_WHOLE_BANKROLL_V3",
+    "scope": "2023-2025 retrospective, 13479 tickets, 6877 races, 26 fixed comparator stake policies"
+  },
+  "frozen_l2_1": {
+    "contract": "KEIBA_L2_1_FIXED_PURCHASE_V1",
+    "version": "2.1.0",
+    "policy": "STANDARD",
+    "source_commit": "9655c717333636b5cc931f672e12dbc377e396bc",
+    "may_reorder_horses": false,
+    "may_add_remove_or_replace_tickets": false,
+    "may_modify_odds_or_frozen_gates": false
+  },
+  "v3_bankroll_rules": {
+    "ticket_stakes_must_be_decided_before_bankroll_check": true,
+    "stake_unit_yen": 100,
+    "minimum_stake_per_kept_ticket_yen": 100,
+    "silently_drop_or_zero_a_ticket": false,
+    "shortage_action": "INSUFFICIENT_BUDGET_ALL_OR_NONE",
+    "capital_check": "RESERVE_ALL_REQUIRED_SAME_DAY_STAKES_BEFORE_SAME_DAY_PAYOUT_CREDIT",
+    "credit_future_payouts_early": false,
+    "bankroll_changes_stake_amount": false
+  },
+  "chosen_stake_policy": null,
+  "selected_policy_rule": "REQUIRES_EXPLICIT_USER_SELECTION_FROM_RESEARCHED_POLICIES",
+  "historical_primary_candidate_not_auto_selected": "REVERSE_P3_RACE_MAX300",
+  "historical_alternative_not_auto_selected": "P3_OUTSIDER_RACE_MAX300",
+  "no_policy_status": "BLOCKED_L3_V3_STAKE_POLICY_UNSELECTED",
+  "one_race_status": "NOT_YET_PROVEN",
+  "live_race_data_source": "GITHUB_WORKFLOWS_NOT_ANDROID_APP",
+  "compute_pipeline": [
+    "github_race_data_collection",
+    "existing_L1_ai_raw",
+    "existing_L1_75_anchor_and_ev",
+    "frozen_L2_1_standard",
+    "L3_V3_selected_stake_policy_then_bankroll_gate",
+    "publish_versioned_json"
+  ],
+  "mobile_role": "READ_ONLY_RENDER_GITHUB_PUBLISHED_OUTPUT",
+  "exported_views": [
+    "ai_raw_ranking",
+    "expected_value_ai_ranking",
+    "L3_v3_ticket_amounts",
+    "diagnostics_provenance"
+  ],
+  "user_scope": [
+    "one_race_id",
+    "multiple_race_ids",
+    "future_same_day_races_if_upstream_sources_are_verified"
+  ],
+  "data_guards": {
+    "historical_2026_outcome_backtest_forbidden": true,
+    "historical_final_odds_must_not_be_presented_as_live_quotes": true,
+    "missing_required_original_ai_or_market_input": "BLOCKED",
+    "no_fake_substitute_rankings": true,
+    "no_actual_bet_placement": true
+  },
+  "limitations": {
+    "research_success_is_not_live_proof": true,
+    "V3_does_not_itself_select_one_of_26_money_policies": true,
+    "historical_stakes_are_from_v2_not_single_race_online_inference": true,
+    "current_one_race_fixed100_paper_is_not_v3": true,
+    "realtime_collector_and_publish_consumer_integration_not_completed": true
+  },
+  "repository_change_policy": "ONLY_THIS_DEDICATED_BRANCH; do not merge/change main or frozen L2.1 during contract adoption"
+}
