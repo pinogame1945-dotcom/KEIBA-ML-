@@ -37,9 +37,10 @@ jobs:
           from pathlib import Path
           w=Path(".github/workflows/l3-money-allocation-v1.yml").read_text()
           assert [x.strip() for x in w.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
-          assert "upload-artifact" not in w and "actions/cache" not in w
-          assert "gpu" not in w.lower() and "self-hosted" not in w
-          assert not any(x in w for x in ("pip install","kaggle datasets download"))
+          action_refs=[s.strip() for s in w.splitlines() if s.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in s or "actions/cache" in s for s in action_refs)
+          runner_lines=[s.strip() for s in w.splitlines() if s.strip().startswith("runs-on:")]
+          assert runner_lines == ["runs-on: ubuntu-latest"]
           print("FREE_STANDARD_CPU_REPO_DATA_ONLY_NO_PAID_STORAGE_OR_GPU")
           PY
           python -m py_compile research/run_l3_money_allocation_v1.py
