@@ -42,11 +42,19 @@ jobs:
             --coefficients "$root/coefficients.csv" \
             --lambda-selection "$root/lambda.csv" \
             --predictions "$root/saved-oos.csv.gz" \
-            --race 202507010212 --out "$root/proven.json"
+            --race 202507010212 --out "$root/proven.json" \
+            --export-parameters "$root/original-prior-anchor-asof-params.json"
           python3 - <<'PY'
           import os,json
           from pathlib import Path
           z=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-anchor"/"proven.json").read_text())
+          model=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-anchor"/"original-prior-anchor-asof-params.json").read_text())
+          assert model["trained_only_on_years"] == [2022,2023,2024]
+          assert model["variant"]=="ANCHOR_FULL"
+          assert model["market_quote_asof_required"] is True
+          assert model["prerace_risk_model_unavailable_or_not_yet_verified"] is True
+          assert set(model["coefficients"])==set(model["standardizer"])
+          assert len(model["coefficients"])==19
           assert z["original_anchored_probs_match"]
           assert z["training_data_years"] == [2022,2023,2024]
           assert z["heldout_year"]==2025
