@@ -21,4 +21,13 @@ python3 scripts/github-readonly-archive.py \
 python3 scripts/github-readonly-archive.py \
   --repo "$REPO" --ref "$REF" --path "$BALLOTS" --dest "$dst2" --max-bytes 2000000
 test -s "$dst1" && test -s "$dst2"
+if [[ "$YEAR" != "2021" ]];then
+  L17_BASE="$ROOT/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581"
+  python3 scripts/github-readonly-archive.py \
+    --repo "$REPO" --ref "$REF" --path "$L17_BASE/predictions.csv.gz" \
+    --dest "$OUT/l17-oof-all.csv.gz" --max-bytes 3000000
+  python3 scripts/github-readonly-archive.py \
+    --repo "$REPO" --ref "$REF" --path "$L17_BASE/summary.json" \
+    --dest "$OUT/l17-fold-summary.json" --max-bytes 200000
+fi
 echo "ARCHIVED_GITHUB_SAVED_SCORE_READY $YEAR $dst1 $dst2"
