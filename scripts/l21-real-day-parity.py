@@ -29,9 +29,19 @@ def run_day(a):
     if len(rows)<8 or len(rows)!=len(set(rows)) or any(len(rid)!=12 for rid in rows):
         raise ValueError("PROVEN_HISTORICAL_DAY_RACE_SET_INCOMPLETE_OR_DUPLICATED")
     output=[]
+    blocked=[]
     for rid in sorted(rows):
-        result=m.replay_one(rid,a.predictions,a.ability_cache,a.picks,a.race_pack,a.odds_pack)
-        result=m.compare(result,a.baseline_covered,a.baseline_uncovered,rid)
+        try:
+            result=m.replay_one(rid,a.predictions,a.ability_cache,a.picks,a.race_pack,a.odds_pack)
+            result=m.compare(result,a.baseline_covered,a.baseline_uncovered,rid)
+        except ValueError as exc:
+            # An archived OOS prediction can legitimately be absent for a
+            # BACKFILL STARTED entry. Such a race must NOT be silently
+            # filled with a 7-King proxy or counted as a validated race.
+            blocked.append({"race_id":rid,"status":"BLOCKED_NOT_REPRODUCIBLE",
+                            "reason":str(exc)})
+            print("REAL_L21_DATE_RACE_BLOCKED",rid,str(exc)[:600],flush=True)
+            continue
         output.append(result)
         print("REAL_L21_DATE_PARITY",rid,"axis",result["anchor_horse_number"],
               "tickets",result["ticket_count"],flush=True)
@@ -39,7 +49,10 @@ def run_day(a):
     if count<3:raise ValueError("REAL_DAY_TOO_FEW_TICKETS_TO_PROVE_PORTFOLIO")
     return {
         "contract":"KEIBA_L21_ALL_RACES_ONE_DATE_REAL_FINAL_REPRODUCTION_V1",
-        "date":"2025-01-06","races":len(output),"physical_tickets":count,
+        "date":"2025-01-06","races":len(output),"requested_races":len(rows),
+        "blocked_races":len(blocked),"blocked_cases":blocked,
+        "status":"ALL_RACES_MATCH" if not blocked else "PARTIAL_RACE_SOURCE_BLOCKS",
+        "physical_tickets":count,
         "original_research_parity":all(r["original_saved_ticket_set_exact"] for r in output),
         "odds_phase":"FINAL_HISTORICAL_NOT_TRADEABLE",
         "live_quote_confirmed":False,
@@ -59,6 +72,7 @@ def main():
     out=Path(a.output);out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("WHOLE_REAL_HISTORICAL_DATE_L21_FROZEN_TICKET_PARITY_PASS",
-          result["date"],result["races"],result["physical_tickets"],flush=True)
+          result["date"],result["races"],result["physical_tickets"],
+          "BLOCKED",result["blocked_races"],flush=True)
 
 if __name__=="__main__":main()
