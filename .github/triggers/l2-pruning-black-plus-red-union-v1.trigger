@@ -9,3 +9,5 @@ free_standard_cpu_only=true
 2026_sealed=true
 
 training_stat_typo_fixed=true
+
+portfolio_accounting_function_fixed=true
