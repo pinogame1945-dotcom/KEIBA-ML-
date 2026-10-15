@@ -70,6 +70,14 @@ test "$available_kb" -gt 9000000 || { echo "::error::insufficient free ephemeral
 echo "SNAPSHOT_EXACT_REMOTE_SELECTED $remote"
 transient "snapshot:year:$YEAR" kaggle datasets download "$SNAP_REF" -f "$remote" -p "$ROOT/snapshot" --unzip --quiet
 test -s "$ROOT/snapshot/$remote"
+# Compact original Council matrix contains all seven corrected rankings
+# for the same race, so downloading ~700MB of full-year score.jsonl is wasteful.
+COUNCIL_PATH="research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
+python3 scripts/github-readonly-archive.py \
+  --repo pinogame1945-dotcom/KEIBA-ML- \
+  --ref research/l1-council-rebuild-v1-20261004 \
+  --path "$COUNCIL_PATH" \
+  --dest "$ROOT/council-y2025.jsonl.gz" --max-bytes 2000000
 for alias in core4 pedlegacy condition full light pedv1 condrc;do
   ref="pino1945/keiba-l15-7k-$alias-y$YEAR-v1"
   d="$ROOT/kings/$alias"
@@ -80,13 +88,6 @@ import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
 expected={"model.txt":10000000,"model.json":3000000,"schema.json":3000000,
           "candidate.json":500000}
-# The Kaggle publisher stores logical .jsonl.gz as .jsonl in some versions;
-# use the actual metadata name only; never hit a guessed alternate URL.
-score=[r for r in rows if str(r.get("name") or "") in ("score.jsonl.gz","score.jsonl")]
-if len(score)!=1:raise SystemExit("no unique score logical file in metadata "+sys.argv[2])
-Path=__import__("pathlib").Path
-Path(sys.argv[1]).parent.joinpath("score-remote.txt").write_text(score[0]["name"]+"\n")
-expected[score[0]["name"]]=100000000
 for name,limit in expected.items():
     match=[r for r in rows if r.get("name")==name]
     if len(match)!=1:raise SystemExit("king remote absent in metadata "+sys.argv[2]+" "+name)
@@ -95,8 +96,7 @@ for name,limit in expected.items():
     if not 1<=size<=limit:raise SystemExit("file cap exceeded "+name)
     print("KING_REAL_REMOTE",sys.argv[2],name,size)
 PY
-  score_remote="$(cat "$d/score-remote.txt")"
-  for name in model.txt model.json schema.json candidate.json "$score_remote";do
+  for name in model.txt model.json schema.json candidate.json;do
     test ! -s "$d/$name" || continue
     transient "king:download:$alias:$name" kaggle datasets download "$ref" -f "$name" -p "$d" --unzip --quiet
     test -s "$d/$name" || { echo "::error::metadata drift after download $alias $name" >&2; exit 1; }
@@ -104,7 +104,8 @@ PY
 done
 python3 research/verify-trained-kings-vs-saved-scores.py \
   --snapshot "$ROOT/snapshot/$remote" \
-  --bundles "$ROOT/kings" --race 202507010212
+  --bundles "$ROOT/kings" --race 202507010212 \
+  --council-file "$ROOT/council-y2025.jsonl.gz"
 # Separately prove a model selection timeline with no 2025 labels: each
 # 2024 model was trained on 2022-23 and early-stopped on 2024, *before*
 # the 2025 target race. Historical FINAL input is still NOT timestamped live.
