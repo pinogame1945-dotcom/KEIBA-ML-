@@ -1,7 +1,13 @@
 name: Single race real BACKFILL two-day smoke (free CPU)
 
-# Deliberately manual: large BACKFILL partial clones must not repeat on every PR commit.
+# One-shot push of THIS workflow file only. Subsequent code commits never
+# rerun large BACKFILL sparse clones; manual workflow_dispatch is optional.
 on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/single-race-real-archive-smoke.yml"
   workflow_dispatch:
 
 permissions:
@@ -10,7 +16,7 @@ permissions:
 jobs:
   real-archive-smoke:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 20
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -32,7 +38,7 @@ jobs:
           python3 scripts/prepare-real-archive-pair.py \
             "$RUNNER_TEMP/keiba-backfill-partial" \
             "$RUNNER_TEMP/keiba-backfill-smoke"
-      - name: Real 2025 source packs to one-race features (no model retraining)
+      - name: Real one-race BACKFILL-to-20-saved-model integrated replay (no retraining)
         shell: bash
         env:
           RACE_ID: ${{ steps.make_pair.outputs.race_id }}
@@ -43,6 +49,8 @@ jobs:
             --race "$RACE_ID" \
             --source-root "$RUNNER_TEMP/keiba-backfill-smoke" \
             --history-from "$HISTORY_FROM" \
+            --github-saved \
+            --require-scored \
             --output-dir "$RUNNER_TEMP/single-race-real-results"
           python3 - <<'PY'
           import json,os
@@ -58,7 +66,18 @@ jobs:
                      for h in f["features_by_horse"])
           assert not any(m["status"]=="SCORED" for m in r["models"]), \
               "No promoted model binaries exist, do not invent scores"
-          print("REAL_BACKFILL_ONE_RACE_FEATURES_PASS",
-                r["race_id"],r["starters"],"horses",
-                len(r["models"]),"explicit candidate statuses")
+          archived=r["saved_seven_kings"]
+          assert archived["status"]=="GITHUB_ARCHIVED_7KING_REPLAY",archived
+          assert archived["outsider_status"]=="VERIFIED_SAVED_BALLOTS"
+          assert archived["seven_king_count"]==7
+          assert archived["outsider_model_count"]==13
+          assert len(r["horses"])==r["starters"]
+          assert all(len(h["saved_seven_king_ranks"])==7 for h in r["horses"])
+          assert all(h["archived_rank_sum_comparator_rank"]>=1 for h in r["horses"])
+          print("REAL_ONE_RACE_ALL_SAVED_MODEL_REPLAY_PASS",
+                r["race_id"],r["starters"],"horses",7,"kings",13,"outsiders")
+          for h in sorted(r["horses"],key=lambda row:row["archived_rank_sum_comparator_rank"])[:6]:
+              print("REAL_REPLAY_RANK",h["archived_rank_sum_comparator_rank"],
+                    h["horse_number"],h["horse_name"],h["horse_id"],
+                    "OUTSIDER_POINTS",h.get("saved_outsider_points"))
           PY
