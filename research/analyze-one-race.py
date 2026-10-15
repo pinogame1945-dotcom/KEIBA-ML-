@@ -64,6 +64,10 @@ def one_race(a):
             "status":"NOT_REQUESTED",
             "note":"Only prior-year model selection can be valid for original target-year evaluation; historical FINAL race features still need timestamp verification."
         },
+        "archived_final_market_fair_value":{
+            "status":"NOT_REQUESTED","not_prebet":True,
+            "note":"Separate unpromoted FINAL-odds research model. NEVER treat as live L1.75 price."
+        },
         "saved_l17_podium":{
             "status":"NOT_REQUESTED",
             "note":"L1.7 saved fold OOS podium probability, not L1.75 and not a 2025-trained deployment model"
@@ -284,6 +288,69 @@ def one_race(a):
         key=lambda h:(h["horse_number"] is None,
                       h["horse_number"] if h["horse_number"] is not None else 999,
                       h["horse_id"]))
+    if a.github_fair_value:
+        if a.market_win_snapshot:
+            raise ValueError("MUST_NOT_MIX_ARCHIVED_FINAL_MARKET_MODEL_WITH_PRESTART_QUOTES")
+        year=int(report["race_id"][:4])
+        if year<2023 or year>2025:
+            raise ValueError("FAIR_OOS_VALID_ONLY_2023_TO_2025_2026_SEALED")
+        src="research-results/market-fixed-anchor-residual-v2/run-38659856085"
+        dest=folder/"_saved_market_fair_session"
+        dest.mkdir(exist_ok=True)
+        files=(
+            ("oos-fair-value-predictions.csv.gz",11000000),
+            ("summary.json",150000),
+            ("lambda-selection.csv",150000)
+        )
+        success=True
+        for name,max_bytes in files:
+            p=dest/name
+            grab=subprocess.run([
+                sys.executable,str(ROOT/"scripts"/"github-readonly-archive.py"),
+                "--repo","pinogame1945-dotcom/KEIBA-ML-",
+                "--ref","research/l1-council-rebuild-v1-20261004",
+                "--path",src+"/"+name,
+                "--dest",str(p),"--max-bytes",str(max_bytes)
+            ],cwd=ROOT,capture_output=True,text=True)
+            if grab.returncode:
+                report["archived_final_market_fair_value"]={
+                    "status":"BLOCKED","reason":"GITHUB_FAIR_OOS_SOURCE_UNAVAILABLE",
+                    "detail":(grab.stderr or grab.stdout)[-500:],
+                    "not_prebet":True
+                }
+                success=False
+                break
+        if success:
+            from importlib.util import spec_from_file_location,module_from_spec
+            spec=spec_from_file_location("fair_oos",
+                ROOT/"research"/"replay-final-market-oos-v2.py")
+            module=module_from_spec(spec)
+            spec.loader.exec_module(module)
+            try:
+                saved=module.replay(report,
+                    dest/"oos-fair-value-predictions.csv.gz",
+                    dest/"summary.json",dest/"lambda-selection.csv")
+            except ValueError as exc:
+                report["archived_final_market_fair_value"]={
+                    "status":"BLOCKED",
+                    "reason":"FAIR_OOS_RACE_FIELD_OR_FOLD_DRIFT",
+                    "detail":str(exc),
+                    "not_prebet":True
+                }
+            else:
+                for hid,vals in saved["horse_results"].items():
+                    horse_matrix[hid]["archived_final_market_oos_research"]=vals
+                report["archived_final_market_fair_value"]={
+                    "status":saved["status"],
+                    "source_research_contract":saved["source_research_contract"],
+                    "models":list(vals["oos_win_probabilities"]),
+                    "horse_count":saved["horse_count"],
+                    "trained_on_prior_years_only":True,
+                    "source_final_odds":True,
+                    "not_prebet":True,
+                    "not_production_l175":True,
+                    "do_not_use_for_live_betting":True,
+                }
     if a.market_win_snapshot:
         quote=json.loads(Path(a.market_win_snapshot).read_text(encoding="utf-8"))
         report=attach_win_market(report,quote)
@@ -304,6 +371,7 @@ def one_race(a):
         "prior_year_new_inference":report["prior_year_new_model_inference"]["status"],
         "l17_p3":report["saved_l17_podium"]["status"],
         "market_context":report["market_context"]["status"],
+        "historical_final_fair_oos":report["archived_final_market_fair_value"]["status"],
         "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
@@ -327,6 +395,8 @@ def main():
                    help="Restore existing saved seven king score files, strictly from Kaggle dataset listing")
     p.add_argument("--prior-year-models",
                    help="Verified JSON produced by seven prior-year trained model scorer; no target-year model selection")
+    p.add_argument("--github-fair-value",action="store_true",
+                   help="RESEARCH ONLY: read nonpromoted OOS final-odds fair-value predictions; never combine with current pre-race market")
     p.add_argument("--market-win-snapshot",
                    help="Original timestamped PRE_RACE JRA WIN OddsRow snapshot as KEIBA_JRA_WIN_ODDS_ASOF_V1; FINAL odds forbidden")
     p.add_argument("--require-scored",action="store_true")
