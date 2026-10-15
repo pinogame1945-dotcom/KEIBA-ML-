@@ -529,6 +529,81 @@ export function createMlDatasetProcessor({
       .filter(Number.isFinite),
   );
 
+  // Shared feature construction: training and inference must compute identical columns.
+  // This function reads history only; it cannot consult the target race's result.
+  function featureFor(row,entry,date) {
+    const horseId=String(entry?.horse_id??"");
+    const history=historyByHorse.get(horseId)??[];
+    const current={date,race:row.race??{},entry};
+    const historyFeatures=historySnapshot(
+      history,current,windows,horseStatsById,careerStartsByHorse.get(horseId)??0
+    );
+    const networkFeatures=networkSnapshot(row,horseId,eloByHorse);
+    const baseFeatures=currentFeatures(
+      row,entry,historyFeatures,networkFeatures,{includeBackfillFeatures}
+    );
+    const builderFeatures={
+      ...(pedigreeState?pedigreeState.snapshot(
+        lineageMap.get(horseId)??{sire_key:null,damsire_key:null},row.race??{}
+      ):{}),
+      ...(actorState?actorState.snapshot(entry,row.race??{}):{}),
+      ...(opponentState?opponentState.snapshot(row,entry):{}),
+      ...(timePaceState?timePaceState.snapshot(horseId):{}),
+    };
+    return includeAutoFeatures
+      ? addAutoPairFeatures({...baseFeatures,...builderFeatures,
+          ...autoHistorySnapshot(history,row.race??{},windows.auto_rolling)})
+      : {...baseFeatures,...builderFeatures};
+  }
+
+  let latestCommittedDate=null;
+  // Never take target-race results, dividends, laps, odds or same-day completed
+  // races as input to this scorer. Source data is redacted by the caller too.
+  function predictDay(dayRows,dateValue=null){
+    const day=[...(dayRows??[])].sort((a,b)=>
+      String(a?.race?.race_id??"").localeCompare(String(b?.race?.race_id??"")));
+    if(!day.length)throw new Error("predictDay requires one race or more");
+    const date=dateValue??stableRaceDate(day[0]);
+    if(!date||!/^\\d{4}-\\d{2}-\\d{2}$/.test(date))
+      throw new Error("predictDay invalid date");
+    if(latestCommittedDate!==null&&latestCommittedDate>=date)
+      throw new Error("AS_OF_LEAKAGE: history contains target or later date");
+    const result=[];
+    for(const row of day){
+      if(stableRaceDate(row)!==date)throw new Error("predictDay date mismatch");
+      if("results" in row||"payouts" in row||"laps" in row)
+        throw new Error("AS_OF_LEAKAGE: target has post-race arrays");
+      const raceId=String(row?.race?.race_id??"");
+      if(!/^\\d{12}$/.test(raceId))throw new Error("invalid race id");
+      const entryIds=new Set();
+      const raceOutput=[];
+      for(const entry of row.entries??[]){
+        const status=String(entry?.entry_status??"").toUpperCase();
+        if(status==="SCRATCHED"||status==="EXCLUDED")continue;
+        const horseId=String(entry?.horse_id??"");
+        if(!/^\\d+$/.test(horseId)||entryIds.has(horseId))
+          throw new Error("missing/duplicated canonical horse ID in "+raceId);
+        entryIds.add(horseId);
+        if("result" in entry||"finish_position" in entry||
+           "win_odds" in entry||"popularity" in entry)
+          throw new Error("AS_OF_LEAKAGE: forbidden target entry fields");
+        raceOutput.push({
+          ml_dataset_version:ML_DATASET_VERSION,
+          feature_schema_version:ML_FEATURE_SCHEMA_VERSION,
+          leakage_policy:ML_LEAKAGE_POLICY,
+          race_id:raceId,horse_id:horseId,
+          horse_number:entry.horse_number??null,
+          features:featureFor(row,entry,date),
+        });
+      }
+      if(!raceOutput.length)throw new Error("race has no eligible starters: "+raceId);
+      result.push(...(includeAutoFeatures
+        ?addFieldRelativeFeatures(raceOutput,AUTO_FIELD_RELATIVE_SPECS)
+        :raceOutput));
+    }
+    return result;
+  }
+
   function processDay(dayRows, dateValue = null, {
     startDate = null,
     endDate = null,
@@ -560,44 +635,7 @@ export function createMlDatasetProcessor({
         if (!raceId || !horseId) continue;
         const result = results.get(horseId) ?? null;
         if (!result || !isEligibleStarter(entry, result)) continue;
-        const history = historyByHorse.get(horseId) ?? [];
-        const current = { date, race: row.race ?? {}, entry };
-        const historyFeatures = historySnapshot(
-          history,
-          current,
-          windows,
-          horseStatsById,
-          careerStartsByHorse.get(horseId) ?? 0,
-        );
-        const networkFeatures = networkSnapshot(row, horseId, eloByHorse);
-        const baseFeatures = currentFeatures(
-          row,
-          entry,
-          historyFeatures,
-          networkFeatures,
-          { includeBackfillFeatures },
-        );
-        const builderFeatures = {
-          ...(pedigreeState
-            ? pedigreeState.snapshot(
-                lineageMap.get(horseId) ?? { sire_key: null, damsire_key: null },
-                row.race ?? {},
-              )
-            : {}),
-          ...(actorState ? actorState.snapshot(entry, row.race ?? {}) : {}),
-          ...(opponentState ? opponentState.snapshot(row, entry) : {}),
-          ...(timePaceState ? timePaceState.snapshot(horseId) : {}),
-        };
-        const features = includeAutoFeatures
-          ? addAutoPairFeatures({
-              ...baseFeatures,
-              ...builderFeatures,
-              ...autoHistorySnapshot(history, row.race ?? {}, windows.auto_rolling),
-            })
-          : {
-              ...baseFeatures,
-              ...builderFeatures,
-            };
+        const features=featureFor(row,entry,date);
         const inRange = (!startDate || date >= startDate) && (!endDate || date <= endDate);
         if (inRange) {
           raceOutput.push({
@@ -701,6 +739,7 @@ export function createMlDatasetProcessor({
     for (const evaluation of timePaceEvaluations) {
       timePaceState.commitRaceEvaluation(evaluation);
     }
+    latestCommittedDate=date;
     return out;
   }
 
@@ -708,6 +747,7 @@ export function createMlDatasetProcessor({
     windows,
     retainedHistoryLimit,
     processDay,
+    predictDay,
     debugStateSizes() {
       return {
         history_horses: historyByHorse.size,
