@@ -29,11 +29,13 @@ jobs:
           from pathlib import Path
           p=Path('.github/workflows/l3-v3-official-operational-ci.yml')
           text=p.read_text()
-          assert 'runs-on: ubuntu-latest' in text
-          assert 'upload-artifact' not in text
-          assert 'actions/cache' not in text
-          assert 'cache: ' not in text
-          assert 'GPU' not in text
+          entries=[line.strip() for line in text.splitlines()]
+          runners=[x for x in entries if x.startswith('runs-on:')]
+          assert runners == ['runs-on: ubuntu-latest']
+          actions=[x for x in entries if x.startswith('- uses:')]
+          assert not any(x.split('uses:',1)[1].strip().startswith(
+              ('actions/cache@', 'actions/upload-artifact@')) for x in actions)
+          assert not any(x.startswith('cache:') for x in entries)
           print('FREE_CPU_NO_ARTIFACT_NO_CACHE')
           PY
       - name: Verify frozen L2.1 purchase contract
