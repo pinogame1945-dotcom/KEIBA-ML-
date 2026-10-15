@@ -39,7 +39,7 @@ def main():
     check(True, c["ticket_policy"]["avoid_any_extra_gate_or_skip"], "no discretionary skip")
     check(True, c["ticket_policy"]["strict_counts_against_standard_only"], "STRICT subset only")
     check(100, c["ticket_policy"]["stake_baseline_yen_per_ticket"], "100-yen evaluation")
-    assert "FINAL prices" in c["research_baseline"]["validation_scope"]
+    assert "historical final odds" in c["research_baseline"]["validation_scope"]
     assert "FINAL" in c["ticket_policy"]["ticket_features_market_cutoff_guard"]
 
     for x in c["evidence_files"]:
