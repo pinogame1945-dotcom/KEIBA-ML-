@@ -12,7 +12,7 @@ rowtime="2025-01-06T13:00:00+09:00"
 payload={
     "race":{"raceKey":"2025_JRA_01_02_12","canonicalRaceId":"202507010212",
         "raceDate":"2025-01-06","startTime":"14:30","raceStatus":"SCHEDULED",
-        "scheduleStatus":"ACTIVE","status":"SCHEDULED"},
+        "scheduleStatus":"ACTIVE","status":"OFFICIAL"},
     "entries":[{"raceKey":"2025_JRA_01_02_12","entryStatus":"ACTIVE","horseNo":i}
                for i in (1,2,3)]+
               [{"raceKey":"2025_JRA_01_02_12","entryStatus":"SCRATCHED","horseNo":4}],
