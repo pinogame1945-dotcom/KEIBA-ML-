@@ -59,6 +59,10 @@ def one_race(a):
         "feature_schema_version":feature["feature_schema_version"],
         "models":models["model_results"],
         "horses":[],
+        "saved_l17_podium":{
+            "status":"NOT_REQUESTED",
+            "note":"L1.7 saved fold OOS podium probability, not L1.75 and not a 2025-trained deployment model"
+        },
         "saved_seven_kings":{
             "status":"NOT_REQUESTED",
             "note":"Use --seven-kings to load existing saved horse-level scores from Kaggle metadata."
@@ -144,6 +148,48 @@ def one_race(a):
                     "note":"Archived FINAL-phase research scores (not a live re-prediction). Results/final market odds not used."
                 }
                 report["files"]["archived_council"]=str(archived_file)
+    if a.github_saved and a.council_archive and a.outsider_ballots:
+        if feature["race_id"][:4]=="2021":
+            report["saved_l17_podium"]={"status":"NO_PRIOR_TRAINING_YEAR"}
+        elif report["saved_seven_kings"]["status"]=="GITHUB_ARCHIVED_7KING_REPLAY":
+            cache=folder/"_saved_council_session"
+            out=folder/"l17-saved-podium.json"
+            executed=subprocess.run([
+                sys.executable,str(ROOT/"research"/"replay-saved-l17.py"),
+                "--race-report",str(folder/"council-saved-ranks.json"),
+                "--predictions",str(cache/"l17-oof-all.csv.gz"),
+                "--summary",str(cache/"l17-fold-summary.json"),
+                "--output",str(out)
+            ],cwd=ROOT,capture_output=True,text=True)
+            if executed.returncode:
+                report["saved_l17_podium"]={
+                    "status":"BLOCKED","reason":"L17_OOF_PROVENANCE_OR_SCORE_DRIFT",
+                    "detail":(executed.stderr or executed.stdout)[-900:]
+                }
+            else:
+                l17=json.loads(out.read_text(encoding="utf-8"))
+                scores=l17["model_scores"]
+                for hid,record in scores.items():
+                    h=horse_matrix[hid]
+                    h["l17_saved_p3_oos"]=record["p3_oos"]
+                    h["l17_saved_p3_baseline"]=record["p3_rank_baseline"]
+                    h["l17_saved_p3_delta"]=record["p3_delta"]
+                    h["l17_original_consensus_rank"]=record["l17_consensus_rank"]
+                    h["model_ranks"]["L17:OUTSIDER_PODIUM_P3"]={
+                        "rank":record["l17_consensus_rank"],
+                        "score":record["p3_oos"],
+                        "origin":l17["prediction_origin"],
+                        "metric":"PODIUM_PROBABILITY_NOT_ABILITY_RANK"
+                    }
+                report["saved_l17_podium"]={
+                    "status":"ARCHIVED_OOS_P3",
+                    "trained_on_prior_years":l17["prior_train_years"],
+                    "score_rows":len(scores),
+                    "no_rerank":True,
+                    "source":l17["model_name"],
+                    "not_l175":True,
+                    "note":"Score replay only; excludes source CSV finish and y3 labels"
+                }
     if a.seven_kings:
         if not os.environ.get("KAGGLE_API_TOKEN"):
             report["saved_seven_kings"]={
@@ -196,6 +242,7 @@ def one_race(a):
         "models_ready":models["scored_models"],
         "models_missing_or_blocked":models["blocked_or_missing_models"],
         "seven_kings":report["saved_seven_kings"]["status"],
+        "l17_p3":report["saved_l17_podium"]["status"],
         "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
