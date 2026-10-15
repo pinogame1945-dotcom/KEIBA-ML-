@@ -194,7 +194,29 @@ def combine_quote(source, rid, active, race_key, start):
         n=number(r.get("odds"),"combination_odds")
         if not 1<=n<=1000000:raise ValueError("INVALID_COMBINATION_PRICE")
         prices[ticket]=n
-    return prices,t,cutoff
+    win_rows=source.get("win_odds_rows")
+    if not isinstance(win_rows,list) or len(win_rows)!=len(active):
+        raise ValueError("WIN_ODDS_SAME_SNAPSHOT_COMPLETE_FIELD_REQUIRED")
+    win_prices={}
+    for row in win_rows:
+        n=no(row.get("selection1"),"win_quote")
+        if (row.get("betType")!="WIN" or row.get("raceKey")!=race_key or
+            row.get("selection2") is not None or row.get("selection3") is not None or
+            n not in active or n in win_prices):
+            raise ValueError("ORIGINAL_WIN_QUOTE_RACE_OR_FIELD_DRIFT")
+        if timestamp(row.get("observedAt"),"win_row_observed")!=t:
+            raise ValueError("ORIGINAL_WIN_QUOTE_NOT_SAME_COMBO_SNAPSHOT")
+        if row.get("oddsMin") is not None or row.get("oddsMax") is not None:
+            raise ValueError("INVALID_WIN_QUOTE_RANGE")
+        u=urlparse(str(row.get("sourceUrl") or ""))
+        if u.scheme!="https" or u.hostname not in ("www.jra.go.jp","jra.go.jp","www.jra.jp","jra.jp"):
+            raise ValueError("WIN_SOURCE_MUST_BE_OFFICIAL_JRA")
+        price=number(row.get("odds"),"win_odds")
+        if not 1<=price<=9999.9:raise ValueError("INVALID_WIN_ODDS_PRICE")
+        win_prices[n]=price
+    if set(win_prices)!=active:
+        raise ValueError("ORIGINAL_WIN_QUOTE_HORSE_COVERAGE_DRIFT")
+    return prices,win_prices,t,cutoff
 
 def validate_live_card(payload):
     race=payload.get("race") or {}
@@ -229,7 +251,7 @@ def execute(card,model,quotes,policy="STANDARD"):
         raise ValueError("NO_SUCH_FROZEN_POLICY")
     race,rid,active,start=validate_live_card(card)
     horse,axis=horse_features(model,rid,active)
-    prices,observed,cutoff=combine_quote(quotes,rid,active,race["raceKey"],start)
+    prices,win_prices,observed,cutoff=combine_quote(quotes,rid,active,race["raceKey"],start)
     # Time alignment for ORIGINAL model data. Never admit models computed
     # after the quote/bet cutoff (even when the quote itself is PRE_RACE).
     feature_time=timestamp(model.get("features_observed_at"),"model_feature_observed_at")
@@ -247,9 +269,11 @@ def execute(card,model,quotes,policy="STANDARD"):
     # MARKET by market rank and win odds then horse ID, AI_RAW by raw rank,
     # market rank, horse ID. Here field market_win_odds must be original
     # same-snapshot pre-cutoff quote, NOT archived FINAL prices.
-    for h in horse.values():
+    for n,h in horse.items():
         v=number(h.get("win_odds_at_cutoff"),"win_odds_at_cutoff")
         if v<1:raise ValueError("INVALID_WIN_ODDS_AT_CUTOFF")
+        if abs(v-win_prices[n])>1e-8:
+            raise ValueError("ORIGINAL_ANCHOR_WIN_PRICE_NOT_EQUAL_ACTUAL_JRA_SAME_SNAPSHOT")
     orders={
        "AI_PROB":sorted(active,key=lambda n:(-horse[n]["P__ANCHOR_FULL"],horse[n]["market_rank"],horse[n]["horse_id"])),
        "AI_RAW":sorted(active,key=lambda n:(horse[n]["distill_ai_rank"],horse[n]["market_rank"],horse[n]["horse_id"])),
