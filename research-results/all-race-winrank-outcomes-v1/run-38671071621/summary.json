@@ -1,0 +1,33 @@
+{
+  "contract": "ALL_RACE_WINRANK_OUTCOMES_V1",
+  "source": "MARKET_FIXED_ANCHOR_RESIDUAL_V2 OOS predictions, reused without model fitting",
+  "benchmark": "ALL_RACE_ONE_PICK_V1 Run 38668174639 (exact original selectors)",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "winning_horses": 10383,
+  "dead_heat_races": 15,
+  "no_skip": true,
+  "winner_market_rank": "market_rank as supplied in OOS data (odds popularity rank)",
+  "winner_ai_prob_rank": "P__ANCHOR_FULL descending, ties by market_rank then horse_id",
+  "winner_ai_value_rank": "P__ANCHOR_FULL * final_win_odds descending (purchase selection rank)",
+  "market_favorite_rule": "minimum market_rank, minimum final_win_odds, horse_id",
+  "ai_pick_rule": "maximum P__ANCHOR_FULL * final_win_odds; ties by probability, market_rank, horse_id",
+  "four_outcomes": {
+    "MARKET_ONLY": 2500,
+    "AI_ONLY": 929,
+    "BOTH_HIT": 988,
+    "BOTH_MISS": 5951
+  },
+  "winner_rank_denominator": "winning horses (dead heats count as two); outcome denominator is races",
+  "topk_race_capture": "counts races with at least one real winner in the top K",
+  "market_hits": 3488,
+  "ai_hits": 1917,
+  "note": "Retrospective outcome and ranking audit only; no new betting strategy or profitable switch inferred.",
+  "odds_caveat": "final_win_odds are after-race closing odds, not necessarily wager-time observable",
+  "locked_year": 2026,
+  "parallel_workers": 3
+}
