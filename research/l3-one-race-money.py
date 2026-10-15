@@ -25,7 +25,7 @@ def allocate(tickets,config):
     if tickets.get("contract")!=IN or tickets.get("frozen_policy")!="KEIBA_L2_1_FIXED_PURCHASE_V1" or tickets.get("frozen_version")!="2.1.0":
         raise ValueError("NOT_ORIGINAL_FROZEN_L21_TICKETS")
     rid=str(tickets.get("race_id") or "")
-    if not re.fullmatch(r"202[2-5]\d{8}",rid):
+    if not re.fullmatch(r"202[2-6]\d{8}",rid):
         raise ValueError("RACE_ID_INVALID_OR_2026_SEALED")
     if tickets.get("policy")!="STANDARD":
         raise ValueError("L3_ONLY_FROZEN_STANDARD_POLICY")
