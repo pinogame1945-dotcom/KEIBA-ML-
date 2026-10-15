@@ -57,7 +57,7 @@ def _validate_race(bundle):
     if not isinstance(bundle, dict):
         raise ValueError("BAD_RACE_BUNDLE")
     race_date = bundle.get("race_date")
-    if not isinstance(race_date, str) or not re.fullmatch(r"20\\d\\d-\\d\\d-\\d\\d", race_date):
+    if not isinstance(race_date, str) or not re.fullmatch(r"20\d\d-\d\d-\d\d", race_date):
         raise ValueError("RACE_DATE_REQUIRED")
     try:
         dt.date.fromisoformat(race_date)
@@ -67,7 +67,7 @@ def _validate_race(bundle):
     if not isinstance(l2, dict):
         raise ValueError("FROZEN_L2_1_REQUIRED")
     race_id = l2.get("race_id")
-    if not isinstance(race_id, str) or not re.fullmatch(r"\\d{12}", race_id) or race_id[:4] != race_date[:4]:
+    if not isinstance(race_id, str) or not re.fullmatch(r"\d{12}", race_id) or race_id[:4] != race_date[:4]:
         raise ValueError("RACE_ID_OR_YEAR_DRIFT")
     if (l2.get("contract") != L21 or
             l2.get("frozen_policy") != "KEIBA_L2_1_FIXED_PURCHASE_V1" or
