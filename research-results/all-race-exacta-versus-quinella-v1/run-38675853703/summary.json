@@ -1,0 +1,37 @@
+{
+  "contract": "ALL_RACE_EXACTA_VS_QUINELLA_V1",
+  "historical_years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "pinned_backfill_sha": "0d4af461b77f0060dd9c789dd2da646026fada47",
+  "matched_quinella_regression": "PASSED: full 128 all/slice yearly baselines identical to prior run",
+  "templates_excluding_control": 96,
+  "pooled_profitable_template_count": 0,
+  "pooled_best": {
+    "direction": "FORWARD_FIRST_FIXED",
+    "partner_order": "MARKET",
+    "anchor_rule": "VALUE_AXIS",
+    "other_horses_k": 7,
+    "roi_pct": 84.77146,
+    "hit_race_pct": 17.235725,
+    "stake_yen": 7211000,
+    "profit_yen": -1098130.0
+  },
+  "directions": {
+    "FORWARD_FIRST_FIXED": "chosen axis first, each of its k partners second",
+    "REVERSE_SECOND_FIXED": "chosen axis second, each of its k partners first",
+    "BOTH_DIRECTIONS": "both ordered bets, deduplicated",
+    "QUINELLA_BASELINE": "the previous undirected bet on identical horse pairs"
+  },
+  "same_selection_rules": true,
+  "no_skip": true,
+  "2026_locked": true,
+  "payout_source": "pinned full race packs exact settled 100 yen JRA dividends, no odds proxy for exacta",
+  "ai_win_hedge": "combined analysis includes old final-odds WIN payout proxy",
+  "both_win_miss_slice": "retrospective diagnostic, not observable at bet time",
+  "final_odds_selection": "ANCHOR_FULL based on closing odds, so no live operability proven",
+  "multiple_testing": "Best of 96 templates is exploratory until walk-forward bet-rule validation"
+}
