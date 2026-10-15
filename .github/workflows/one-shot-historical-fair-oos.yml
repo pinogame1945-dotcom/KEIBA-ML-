@@ -1,0 +1,60 @@
+name: One-shot historical FINAL OOS fair-value attachment audit (free CPU)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-historical-fair-oos.yml"
+permissions:
+  contents: read
+jobs:
+  fair-archive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Prepare exact known 16-horse real BACKFILL race
+        run: |
+          set -euo pipefail
+          python3 scripts/prepare-proven-real-race.py "$RUNNER_TEMP/real"
+      - name: Join historical original kings, outsider and nonpromoted final-market probabilities
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/analyze-one-race.py \
+            --race 202507010212 \
+            --source-root "$RUNNER_TEMP/real" \
+            --history-from 2025-01-05 \
+            --github-saved --github-fair-value \
+            --require-scored --output-dir "$RUNNER_TEMP/fair-oos-race"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          result=json.loads((Path(os.environ["RUNNER_TEMP"])/"fair-oos-race"/"analysis.json").read_text())
+          assert result["race_id"]=="202507010212"
+          assert result["starters"]==16
+          assert result["saved_seven_kings"]["status"]=="GITHUB_ARCHIVED_7KING_REPLAY"
+          assert result["archived_final_market_fair_value"]["status"]=="HISTORICAL_FINAL_ODDS_OOS_RESEARCH_REPLAY", result["archived_final_market_fair_value"]
+          assert result["archived_final_market_fair_value"]["not_prebet"]
+          assert result["archived_final_market_fair_value"]["not_production_l175"]
+          assert result["market_context"]["status"]=="NOT_PROVIDED"
+          for horse in result["horses"]:
+              v=horse["archived_final_market_oos_research"]
+              assert len(v["oos_win_probabilities"])==4
+              assert v["source_kind"]=="FINAL_HISTORICAL_ODDS_ONLY"
+          print("REAL_RACE_FINAL_FAIR_RESEARCH_ATTACH_PASS",result["race_id"],len(result["horses"]),
+                "7 archived kings","13 outsiders","4 final-market OOS research variants")
+          for h in sorted(result["horses"],key=lambda h:h["archived_rank_sum_comparator_rank"])[:6]:
+              row=h["archived_final_market_oos_research"]["oos_win_probabilities"]
+              print("HISTORICAL_FINAL_OOS_ONLY",h["horse_number"],h["horse_name"],
+                    "market",round(row["MARKET_DIRECT"],5),
+                    "full",round(row["ANCHOR_FULL"],5))
+          PY
+      - name: Free resource and research-only disclosure
+        if: always()
+        run: |
+          echo "Free public GitHub standard CPU runner, no artifacts/cache/GPU or paid cloud."
+          echo "FINAL MARKET OOS prices are POSTRACE KNOWABLE and unpromoted; no live bet EV claim."
