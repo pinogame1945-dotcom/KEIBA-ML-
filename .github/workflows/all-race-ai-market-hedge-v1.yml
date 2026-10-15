@@ -1,0 +1,81 @@
+name: All Race AI Market Hedge V1
+
+on:
+  push:
+    branches:
+      - research/all-race-ai-market-hedge-v1-20261015
+    paths:
+      - .github/triggers/all-race-ai-market-hedge-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: all-race-ai-market-hedge-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_all_race_ai_market_hedge_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/all-race-ai-market-hedge-v1.yml").read_text()
+          assert [x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(x.startswith("actions/cache") or x.startswith("actions/upload-artifact") for x in uses)
+          src=Path("research/run_all_race_ai_market_hedge_v1.py").read_text()
+          assert "N_TOTAL=N_YEAR*len(YEARS)" in src and "2026 sealed" in src
+          print("STATIC_COST_GUARDS_OK")
+          PY
+      - name: Install lightweight dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Single-load market vs AI hedge evaluation
+        shell: bash
+        run: |
+          set -euo pipefail
+          picks="research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz"
+          test -s "$picks"
+          output="research-results/all-race-ai-market-hedge-v1/run-$GITHUB_RUN_ID"
+          python research/run_all_race_ai_market_hedge_v1.py --picks "$picks" --out-dir "$output"
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Public repo standard CPU ubuntu-latest only; no GPU / paid runner."
+          echo "Already committed 650 KB picks input only; no Kaggle or network datasets."
+          echo "No artifact upload / cache; compact CSV results committed on this research branch only."
+          echo "2026 sealed; no strategy training."
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="research-results/all-race-ai-market-hedge-v1/run-$GITHUB_RUN_ID"
+          test -s "$output/summary.json"
+          test -s "$output/agree-vs-disagree-roi.csv"
+          test -s "$output/hedge-strategies.csv"
+          test -s "$output/outcome-breakdown.csv"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$output"
+          git commit -m "research: archive all-race market AI hedge run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
