@@ -1,0 +1,106 @@
+{
+  "contract": "KEIBA_L2_2_STATISTICAL_V1",
+  "freeze_sha": "9655c717333636b5cc931f672e12dbc377e396bc",
+  "backfill_sha": "0d4af461b77f0060dd9c789dd2da646026fada47",
+  "year_2026_sealed": true,
+  "read_only_l21": true,
+  "test_train_years": {
+    "2024": [
+      2023
+    ],
+    "2025": [
+      2023,
+      2024
+    ]
+  },
+  "arms": [
+    "CROSS_POOL",
+    "PLACEMENT",
+    "SHAPE",
+    "CROWD"
+  ],
+  "data_caveat": "FINAL historical closing odds, not live execution prices",
+  "multiple_testing_warning": true,
+  "candidate_horses": "union top6 market/top6 frozen AI, cap9",
+  "max_new_tickets_per_race": 8,
+  "selected_conditions": {
+    "2024": 5,
+    "2025": 1
+  },
+  "training_audit": {
+    "2023": {
+      "priced_tickets": 651539
+    },
+    "2024": {
+      "priced_tickets": 665028,
+      "missing_prices": 370,
+      "unpriced_winning_tickets": 8
+    },
+    "2025": {
+      "priced_tickets": 665944,
+      "missing_prices": 308,
+      "unpriced_winning_tickets": 4
+    }
+  },
+  "test_audit": {
+    "2024": {
+      "priced_tickets": 665028,
+      "races_bought": 3328,
+      "overlap_l21": 76,
+      "missing_prices": 370,
+      "unpriced_winning_tickets": 8
+    },
+    "2025": {
+      "priced_tickets": 665944,
+      "races_bought": 358,
+      "missing_prices": 308,
+      "unpriced_winning_tickets": 4
+    }
+  },
+  "forward": {
+    "2024": {
+      "all": {
+        "n": 18964,
+        "hits": 133,
+        "paid": 1287840,
+        "profit": -608560,
+        "roi": 0.6790972368698587,
+        "top3": 169370,
+        "top3_ratio": 0.1315147844452727,
+        "minus3": 0.5897859101455389
+      },
+      "cap8": {
+        "n": 16220,
+        "hits": 119,
+        "paid": 1128700,
+        "profit": -493300,
+        "roi": 0.695869297163995,
+        "top3": 169370,
+        "top3_ratio": 0.1500575883760078,
+        "minus3": 0.5914488286066585
+      }
+    },
+    "2025": {
+      "all": {
+        "n": 1299,
+        "hits": 18,
+        "paid": 127890,
+        "profit": -2010,
+        "roi": 0.984526558891455,
+        "top3": 27700,
+        "top3_ratio": 0.2165923840800688,
+        "minus3": 0.7712856043110085
+      },
+      "cap8": {
+        "n": 1265,
+        "hits": 18,
+        "paid": 127890,
+        "profit": 1390,
+        "roi": 1.01098814229249,
+        "top3": 27700,
+        "top3_ratio": 0.2165923840800688,
+        "minus3": 0.7920158102766799
+      }
+    }
+  }
+}
