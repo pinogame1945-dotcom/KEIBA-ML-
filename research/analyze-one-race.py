@@ -68,6 +68,64 @@ def one_race(a):
         },
         "disclaimer":"This is a historical race reconstruction, not verified timestamped live odds or pre-race racecard. Historical OOF replays are not new model inference."
     }
+    if a.outsider_ballots and not a.council_archive:
+        raise ValueError("--outsider-ballots requires --council-archive")
+    if a.council_archive:
+        if a.seven_kings:
+            raise ValueError("Choose one saved-score source: --council-archive OR --seven-kings")
+        archived_file=folder/"council-saved-ranks.json"
+        args=[sys.executable,str(ROOT/"research"/"replay-archived-council.py"),
+              "--race",feature["race_id"],
+              "--council-file",str(Path(a.council_archive).resolve()),
+              "--output",str(archived_file)]
+        if a.outsider_ballots:
+            args.extend(["--ballots-file",str(Path(a.outsider_ballots).resolve())])
+        execute=subprocess.run(args,cwd=ROOT,capture_output=True,text=True)
+        if execute.returncode:
+            report["saved_seven_kings"]={
+                "status":"BLOCKED",
+                "reason":"GITHUB_ARCHIVE_REPLAY_FAILED",
+                "detail":(execute.stderr or execute.stdout)[-1000:]
+            }
+        else:
+            archive=json.loads(archived_file.read_text(encoding="utf-8"))
+            expected=set(horse_matrix)
+            actual={h["horse_id"] for h in archive["horses"]}
+            if expected!=actual or len(archive["horses"])!=len(expected):
+                report["saved_seven_kings"]={
+                    "status":"BLOCKED","reason":"HORSE_ID_COVERAGE_DRIFT",
+                    "expected_count":len(expected),"archived_count":len(archive["horses"])
+                }
+            else:
+                for item in archive["horses"]:
+                    horse=horse_matrix[item["horse_id"]]
+                    horse["saved_seven_king_ranks"]=item["king_ranks"]
+                    horse["archived_rank_sum_comparator_rank"]=item["pure_7king_rank_sum_comparator_rank"]
+                    for king,rank in item["king_ranks"].items():
+                        horse["model_ranks"]["KING:"+king]={
+                            "rank":rank,"score":None,
+                            "origin":"HISTORICAL_SAVED_FINAL_OOF_REPLAY"
+                        }
+                    if archive["outsider_status"]=="VERIFIED_SAVED_BALLOTS":
+                        horse["saved_outsider_points"]=item["outsider_points"]
+                        horse["saved_outsider_votes"]=item["outsider_votes"]
+                        for candidate,rank in item["outsider_top3_from_each"].items():
+                            if rank is None:continue
+                            horse["model_ranks"]["OUTSIDER:"+candidate]={
+                                "rank":rank,"score":None,
+                                "origin":"HISTORICAL_SAVED_FINAL_TOP3_BALLOT_ONLY"
+                            }
+                report["saved_seven_kings"]={
+                    "status":"GITHUB_ARCHIVED_7KING_REPLAY",
+                    "source_contract":archive["contract"],
+                    "source_prediction_phase":archive["source_prediction_phase"],
+                    "outsider_status":archive["outsider_status"],
+                    "seven_king_count":len(archive["expert_order"]),
+                    "outsider_model_count":len(archive.get("outsider_ballots") or {}),
+                    "rank_sum_is_official_router":False,
+                    "note":"Archived FINAL-phase research scores (not a live re-prediction). Results/final market odds not used."
+                }
+                report["files"]["archived_council"]=str(archived_file)
     if a.seven_kings:
         if not os.environ.get("KAGGLE_API_TOKEN"):
             report["saved_seven_kings"]={
@@ -120,9 +178,10 @@ def one_race(a):
         "models_ready":models["scored_models"],
         "models_missing_or_blocked":models["blocked_or_missing_models"],
         "seven_kings":report["saved_seven_kings"]["status"],
+        "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
-    if a.require_scored and models["scored_models"]==0 and report["saved_seven_kings"]["status"]!="ARCHIVED_OOF_REPLAY":
+    if a.require_scored and models["scored_models"]==0 and report["saved_seven_kings"]["status"] not in ("ARCHIVED_OOF_REPLAY","GITHUB_ARCHIVED_7KING_REPLAY"):
         raise SystemExit("No verified model score available; refusing to label feature-only results as predictions")
 
 def main():
@@ -132,6 +191,10 @@ def main():
     p.add_argument("--history-from",default="2021-01-01")
     p.add_argument("--registry",default=str(ROOT/"models"/"one-race-registry.json"))
     p.add_argument("--output-dir",default="out/one-race-analysis")
+    p.add_argument("--council-archive",
+                   help="Existing Github research archive races/yYYYY.jsonl.gz (historical ranks)")
+    p.add_argument("--outsider-ballots",
+                   help="Existing Github research archive yYYYY/ballots.csv.gz (13 candidates)")
     p.add_argument("--seven-kings",action="store_true",
                    help="Restore existing saved seven king score files, strictly from Kaggle dataset listing")
     p.add_argument("--require-scored",action="store_true")
