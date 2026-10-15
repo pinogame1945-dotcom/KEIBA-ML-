@@ -1,0 +1,57 @@
+name: Predict one archived race using prior-year frozen 7King models (free CPU)
+on:
+  workflow_dispatch:
+    inputs:
+      race_id:
+        description: "2022-2025 netkeiba 12-digit ID (2026 results sealed)"
+        type: string
+        required: true
+        default: "202507010212"
+permissions:
+  contents: read
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Read-only free CPU preflight
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN" || { echo "::error::Kaggle read-only secret missing";exit 1; }
+          free_kb=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
+          test "$free_kb" -gt 9000000 || { echo "::error::free ephemeral space below 9 GB guard";exit 1; }
+          python -m pip install -q --no-cache-dir --disable-pip-version-check kaggle lightgbm==4.7.0 pandas==3.0.6
+      - name: Score original previous-year LightGBM 7 Kings without target-year model selection
+        shell: bash
+        env:
+          RACE_ID: ${{ inputs.race_id }}
+        run: |
+          set -euo pipefail
+          bash scripts/score-known-race-kaggle.sh "$RACE_ID" \
+            "$RUNNER_TEMP/keiba-model-session" \
+            "$RUNNER_TEMP/keiba-model-session/prior-year-score.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          src=Path(os.environ["RUNNER_TEMP"])/"keiba-model-session/prior-year-score.json"
+          x=json.loads(src.read_text(encoding="utf-8"))
+          assert x["model_count"]==7
+          assert x["model_parameters_selected_before_target"] is True
+          assert x["historically_verified_live_bet"] is False
+          print("GENUINE_PREVIOUS_YEAR_MODEL_PARAMETERS_SINGLE_RACE_PASS",
+                x["race_id"],x["horse_count"],"horses")
+          for h in x["horses"]:
+              print("PRIOR_YEAR_7KING",h["prior_year_7king_rank_sum_comparator_rank"],
+                    h["horse_id"],h["king_ranks"])
+          PY
+      - name: Cost and provenance disclosure
+        if: always()
+        run: |
+          echo "Public GitHub free standard CPU only. Runner-local temporary download, no billed storage, Actions Artifact or Cache, no GPU."
+          echo "Original research FINAL snapshot may contain race-day data without independently verified pre-bet publication timestamps."
