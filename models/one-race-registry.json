@@ -1,7 +1,164 @@
 {
   "contract": "KEIBA_ONE_RACE_MODEL_REGISTRY_V1",
-  "note": "This registry advertises known research families. Unconfigured is NOT a callable inference model. Provide verified persisted model bundle/metadata or OOS archival score sources before declaring ranked outputs.",
+  "note": "Explicit catalog of researched model candidates; unconfigured means the executable model or verified as-of OOF score was not promoted. Do not mistake catalog coverage for callable inference. Same-day form dependent candidates need timestamped prior-race results.",
   "models": [
+    {
+      "name": "KING:core4_no_pedigree",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_legacy",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:jockey_trainer_condition",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:no_auto_full",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:no_auto_jockey",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_v1",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "KING:jockey_trainer_condition_plus_raceclass",
+      "kind": "unconfigured",
+      "family": "7KING",
+      "source_contract": "L15_ROLE_ROUTER_EXPERIMENT_V2",
+      "reason": "Promoted scorer or verified per-year archived horse-level score missing"
+    },
+    {
+      "name": "OUTSIDER:outsider_style",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_lap",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_network",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_distance",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_backfill",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_HORSE",
+      "source_contract": "L1_OUTSIDER_ARENA_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_daytrend",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_raceshape",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_gatecourse",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_jockey",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_field",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_chimera",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_NONHORSE",
+      "source_contract": "L1_OUTSIDER_NONHORSE_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_rotation",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_classmove",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_weightchange",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_bodychange",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_disttransition",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_coursetransition",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
+    {
+      "name": "OUTSIDER:outsider_opponentgap",
+      "kind": "unconfigured",
+      "family": "OUTSIDER_TRANSITION",
+      "source_contract": "L1_OUTSIDER_TRANSITION_V1"
+    },
     {
       "name": "L1_7KING_COUNCIL",
       "kind": "unconfigured",
@@ -38,5 +195,20 @@
       "comment": "L2.1 frozen selection depends on horse-level scores and pre-race ticket odds; separate from ability inference."
     }
   ],
-  "ensembles": []
+  "ensembles": [
+    {
+      "name": "SEVEN_KING_PLACEHOLDER",
+      "members": [
+        "KING:core4_no_pedigree",
+        "KING:no_auto_full_pedigree_legacy",
+        "KING:jockey_trainer_condition",
+        "KING:no_auto_full",
+        "KING:no_auto_jockey",
+        "KING:no_auto_full_pedigree_v1",
+        "KING:jockey_trainer_condition_plus_raceclass"
+      ],
+      "method": "rank_average",
+      "status": "NOT_ORIGINAL_FORMULA_PLACEHOLDER"
+    }
+  ]
 }
