@@ -153,7 +153,9 @@ def analyze_year(year,frame,root_text):
             winner_ranks=[ranks[n] for n in chosen]
             official=positions(pack)
             favs=[no_to_hid[n] for n,rank in ranks.items() if rank==1]
-            check(favs,f"{rid}: no market first favorite")
+            # With scratched/withdrawn runners the archived rank-1 horse may
+            # not be in active horse-level predictions. Audit, never re-rank.
+            if not favs:audit["archived_rank1_absent"]+=1
             fav_finish=min((official.get(h) for h in favs if official.get(h) is not None),
                            default=None)
             if len(favs)>1:audit["tied_favorites"]+=1
@@ -190,7 +192,8 @@ def analyze_year(year,frame,root_text):
                 num_market_6plus=count_6plus,
                 num_market_10plus=count_10plus,
                 market_favorite_in_trifecta=int(1 in winner_ranks),
-                market_favorite_finish=finish_tier(fav_finish),
+                market_favorite_finish=(finish_tier(fav_finish) if favs
+                                        else "ARCHIVED_RANK1_ABSENT"),
                 winner_contains_top3=int(count_top3>0),
                 field_size=field,
                 field_size_band=field_band(field),
