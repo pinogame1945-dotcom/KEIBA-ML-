@@ -79,7 +79,14 @@ for alias in core4 pedlegacy condition full light pedv1 condrc;do
 import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
 expected={"model.txt":10000000,"model.json":3000000,"schema.json":3000000,
-          "candidate.json":500000,"score.jsonl.gz":100000000}
+          "candidate.json":500000}
+# The Kaggle publisher stores logical .jsonl.gz as .jsonl in some versions;
+# use the actual metadata name only; never hit a guessed alternate URL.
+score=[r for r in rows if str(r.get("name") or "") in ("score.jsonl.gz","score.jsonl")]
+if len(score)!=1:raise SystemExit("no unique score logical file in metadata "+sys.argv[2])
+Path=__import__("pathlib").Path
+Path(sys.argv[1]).parent.joinpath("score-remote.txt").write_text(score[0]["name"]+"\n")
+expected[score[0]["name"]]=100000000
 for name,limit in expected.items():
     match=[r for r in rows if r.get("name")==name]
     if len(match)!=1:raise SystemExit("king remote absent in metadata "+sys.argv[2]+" "+name)
@@ -88,7 +95,8 @@ for name,limit in expected.items():
     if not 1<=size<=limit:raise SystemExit("file cap exceeded "+name)
     print("KING_REAL_REMOTE",sys.argv[2],name,size)
 PY
-  for name in model.txt model.json schema.json candidate.json score.jsonl.gz;do
+  score_remote="$(cat "$d/score-remote.txt")"
+  for name in model.txt model.json schema.json candidate.json "$score_remote";do
     test ! -s "$d/$name" || continue
     transient "king:download:$alias:$name" kaggle datasets download "$ref" -f "$name" -p "$d" --unzip --quiet
     test -s "$d/$name" || { echo "::error::metadata drift after download $alias $name" >&2; exit 1; }
