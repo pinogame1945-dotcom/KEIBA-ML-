@@ -1,0 +1,8 @@
+study=AI_VALUE_ANCHOR_OFFICIAL_POSITION_V1
+all_races=10368
+years=2023,2024,2025
+expected_ai_first=1917
+expected_ai_not_first=8451
+pinned_BACKFILL_SHA=0d4af461b77f0060dd9c789dd2da646026fada47
+runner=ubuntu-latest
+2026=SEALED
