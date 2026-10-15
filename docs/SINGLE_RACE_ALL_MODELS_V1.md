@@ -30,6 +30,40 @@ node research/predict-one-race.mjs \
 
 標準ではEARLYのみ。アーカイブのFINAL天候・馬体重は、いつ発表されたかが分からないため、現段階で当日予想の根拠に流用しない。実際の金曜時点の出走取消や延期を正確に再現できるとは限らず、**史実のレース出馬表を結果ページから再構成した模擬予想**として扱う。
 
+## Integrated one-race command (recommended)
+
+```sh
+python3 research/analyze-one-race.py \
+  --race 'https://race.netkeiba.com/race/shutuba.html?race_id=202505020811' \
+  --source-root ../KEIBA-BACKFILL \
+  --history-from 2021-01-01 \
+  --output-dir out/one-race-example
+```
+
+Outputs `features.json` (all horses × features), `model-rankings.json`
+(each declared model scored or explicitly unavailable), and `analysis.json`
+(the combined machine-readable report). A model's `UNAVAILABLE` status is
+not a poor prediction; it means the model artifact has not been promoted.
+
+With an already-configured Kaggle CLI and the repository's authorized API
+credential, `--seven-kings` also adds **historical saved OOF rankings** from
+the verified seven king Kaggle datasets; it is **not** a newly run live model.
+The EARLY feature panel and FINAL archived 7-king output have separate origin
+labels and cannot be presented as if they were the same prediction phase.
+
+```sh
+python3 research/analyze-one-race.py \
+  --race 202505020811 \
+  --source-root ../KEIBA-BACKFILL \
+  --history-from 2021-01-01 \
+  --seven-kings \
+  --output-dir out/one-race-example
+```
+
+Use `--require-scored` to fail explicitly if no verifiable model predicted.
+No GitHub Actions artifact/cache or paid compute is required. The command only
+**reads** BACKFILL and Kaggle; output files are small and local.
+
 ## All-model registry
 
 `models/one-race-registry.json` に各研究系統の登録枠がある。以下の形式で **実体を確認したときだけ** 種別を変更する。
@@ -113,6 +147,7 @@ bash research/replay-seven-kings-kaggle.sh 202505010111 out/archived-seven-king.
 - [x] 過去日限定の特徴量生成器、履歴完全性ゲート
 - [x] 全頭の特徴量、結果非参照、EARLY限定
 - [x] LightGBM/保存済みOOF/登録済みアンサンブルの接続口
+- [x] 1コマンドで特徴量・全モデル状態・保存済み7王（任意）を統合するJSON出力
 - [x] 7王・Outsider・L1.75・L2.1の配備不足を欠落ステータスで報告
 - [x] 保存済み7王scoreをKaggle一覧から直接取得し、全7体順位を再生するコマンドを実装（実リモート検証は未実施）
 - [ ] 実際に利用できる研究モデル実体・保存済みOOF scoreの実ダウンロードと本番レジストリ登録
