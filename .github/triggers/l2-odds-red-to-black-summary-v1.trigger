@@ -1,0 +1,1 @@
+Aggregate finished run 38694334351 into exact counts of original 3yr red line to black after each frozen L1 feature filter. Include all 3040 EV anchor templates x 20 odds bins and deduplicated 7 bet types x 20 odds bins, no sample size cutoffs, all years profits. Standard free CPU, no Kaggle, no results refitting.
