@@ -1,0 +1,42 @@
+name: L2 Anchor Top1 Agreement Readonly
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/workflows/l2-anchor-agreement-readonly.yml
+
+permissions:
+  contents: read
+
+jobs:
+  agreement:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+      - name: Calculate existing selection overlap without new payouts
+        shell: bash
+        run: |
+          python - <<'PY'
+          import csv,gzip,json,itertools,collections
+          path="research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz"
+          cols=("AI_RAW_TOP","AI_PROB_TOP","MARKET_TOP","VALUE_EV")
+          with gzip.open(path,"rt",encoding="utf-8",newline="") as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==10368
+          for year in ("2023-2025","2023","2024","2025"):
+              records=rows if year=="2023-2025" else [r for r in rows if r["year"]==year]
+              n=len(records)
+              counts={}
+              for a,b in itertools.combinations(cols,2):
+                  k=sum(r[a+"_horse"]==r[b+"_horse"] for r in records)
+                  counts[a+"_VS_"+b]={"count":k,"pct":round(100*k/n,6)}
+              for subset in (("VALUE_EV","AI_RAW_TOP","AI_PROB_TOP"),("VALUE_EV","AI_RAW_TOP","MARKET_TOP"),("VALUE_EV","AI_PROB_TOP","MARKET_TOP"),("AI_RAW_TOP","AI_PROB_TOP","MARKET_TOP"),cols):
+                  k=sum(len(set(r[a+"_horse"] for a in subset))==1 for r in records)
+                  counts["AND".join(subset)]={"count":k,"pct":round(100*k/n,6)}
+              print("AGREEMENT_RESULT",json.dumps({"year":year,"races":n,"metrics":counts},ensure_ascii=False),flush=True)
+          PY
