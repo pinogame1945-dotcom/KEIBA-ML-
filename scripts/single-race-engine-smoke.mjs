@@ -124,6 +124,20 @@ try {
   assert.equal(scored.model_results[1].ranking[0].horse_id,"2222222222");
   assert.equal(scored.model_results[3].ranking[0].horse_id,"1111111111");
 
+  const combined=spawnSync("python3",[
+    "research/analyze-one-race.py",
+    "--race","https://race.netkeiba.com/race/shutuba.html?race_id=202305010102",
+    "--source-root",dir,"--history-from","2023-01-01",
+    "--registry",join(modelDir,"registry.json"),"--output-dir",join(dir,"combined"),
+    "--require-scored",
+  ],{encoding:"utf8"});
+  assert.equal(combined.status,0,combined.stderr);
+  const combinedReport=JSON.parse(await readFile(join(dir,"combined","analysis.json"),"utf8"));
+  assert.equal(combinedReport.race_id,"202305010102");
+  assert.equal(combinedReport.starters,2);
+  assert.equal(combinedReport.models.filter(x=>x.status==="SCORED").length,3);
+  assert.equal(combinedReport.saved_seven_kings.status,"NOT_REQUESTED");
+
   const metadata=JSON.parse(await readFile(join(modelDir,"meta.json"),"utf8"));
   metadata.split.valid_end="2023-01-02";
   await writeFile(join(modelDir,"meta.json"),JSON.stringify(metadata));
