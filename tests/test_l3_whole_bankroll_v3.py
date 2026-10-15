@@ -42,6 +42,18 @@ class Bankroll(unittest.TestCase):
         self.assertEqual(m.minimum_initial_cash(days)[0],1500)
         self.assertEqual(m.first_shortage(days,1400)["days_completed"],0)
 
+    def test_mixed_complete_and_shortfall_csv_schema(self):
+        from tempfile import TemporaryDirectory
+        with TemporaryDirectory() as temp:
+            m.write_table(Path(temp), "mixed.csv", [
+                {"status":"INSUFFICIENT_BUDGET","shortage_yen":100},
+                {"status":"COMPLETE","shortage_yen":0,"final_cash_yen":500},
+            ])
+            import csv
+            with (Path(temp)/"mixed.csv").open() as stream:
+                out=list(csv.DictReader(stream))
+            self.assertEqual(out[1]["final_cash_yen"],"500")
+
     def test_empty_dates_and_order(self):
         days={"2023-01-03":[200,100,1],
               "2023-01-01":[100,100,1]}
