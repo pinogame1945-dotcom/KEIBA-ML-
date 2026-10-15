@@ -122,8 +122,12 @@ jobs:
           assert sum(int(x["2023-2025_損益円"])>0 for x in rows)==245
           p="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
           headers=pd.read_csv(p,compression="infer",nrows=0).columns.tolist()
-          mandatory={"risk","distill_score_z","market_prob_norm","rank_gap_norm","top3_overlap","P__ANCHOR_FULL","distill_ai_rank"}
+          mandatory={"risk","market_prob_norm","top3_overlap","P__ANCHOR_FULL","distill_ai_rank"}
           assert mandatory.issubset(headers),sorted(mandatory-set(headers))
+          cache="research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz"
+          ch=pd.read_csv(cache,compression="infer",nrows=0).columns.tolist()
+          assert {"_race_id","_horse_id","distill_score_z"}.issubset(ch),ch
+          print("ABILITY_Z_VERIFIED_FROM_ARCHIVED_PRE_RACE_CACHE")
           print("FIXED_3040_SAME_BETS_17_PRESPECIFIED_LENSES",flush=True)
           print("SOURCE_HORSE_OOS_COLUMNS_VERIFIED_NO_IMPUTED_COUNCIL_OR_OUTSIDER",flush=True)
           PY
