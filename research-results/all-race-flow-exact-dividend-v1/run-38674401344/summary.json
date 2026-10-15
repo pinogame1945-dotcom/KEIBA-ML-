@@ -1,0 +1,25 @@
+{
+  "contract": "ALL_RACE_FLOW_EXACT_DIVIDEND_V1",
+  "backfill_source_sha": "0d4af461b77f0060dd9c789dd2da646026fada47",
+  "historical_scope": "2023-2025, all 10368 races, no hindsight selection",
+  "fixed_templates": 64,
+  "pooled_templates_gt_100pct": 0,
+  "pooled_best_roi_pct": 83.530702,
+  "pooled_best_variant": {
+    "bet_type": "QUINELLA",
+    "partner_order": "MARKET",
+    "anchor_rule": "TWO_AXES_WITH_SINGLE_FALLBACK",
+    "other_horses_k": 3,
+    "roi_pct": 83.530702,
+    "hit_race_pct": 16.628086,
+    "stake_yen": 1504800,
+    "profit_yen": -247830.0
+  },
+  "source": "BACKFILL pinned full race pack payouts, 100 JPY actual payout",
+  "no_price_filter": true,
+  "no_skip": true,
+  "2026_locked": true,
+  "lookahead_warning": "Final odds used for ANCHOR_FULL value bet; this is retrospective not bet-time replay.",
+  "hindsight_warning": "BOTH_WIN_MISS analysis not actionable because actual winner is unknown pre-race.",
+  "multiple_tests_warning": "Many fixed templates compared; best ROI is exploratory not out-of-sample strategy validation."
+}
