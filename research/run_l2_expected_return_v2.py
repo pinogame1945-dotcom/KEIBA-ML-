@@ -277,21 +277,40 @@ def select_tickets(group,scope,method,budget):
     return chosen,float(ranked.ev.iloc[0])
 
 def strategies(test):
-    # For every year, family, model, budget: store 1 ticket decision per
-    # race and the corresponding realized result. No target used to select.
+    """Per-race NumPy score sort ONCE per family/method, reuse all budgets."""
     rows=[]
-    all_groups={rid:df for rid,df in test.groupby("race_id",sort=False)}
-    for rid,g in all_groups.items():
+    for rid,g in test.groupby("race_id",sort=False):
         date=g.race_date.iloc[0];yr=int(g.year.iloc[0])
-        for scope in SUBGROUPS:
-            for method in METHODS:
+        kinds=g.bet_type.to_numpy(str)
+        ticket_ids=g.ticket.to_numpy(str)
+        payout=g.payout_yen.to_numpy(float)
+        price=g.quote_odds.to_numpy(float)
+        pm=g.p_market.to_numpy(float)
+        pa=g.p_ai.to_numpy(float)
+        pb=g.p_blend.to_numpy(float)
+        pc=g.p_calibrated.to_numpy(float)
+        scores={"LOWEST_PRICE":-price,
+                "MARKET_PL":pm*price,
+                "AI_PL":pa*price,
+                "BLEND_PL":pb*price,
+                "TICKET_CALIBRATED":pc*price}
+        groups={kind:np.where(kinds==kind)[0] for kind in ODDS_TYPES}
+        groups["ALL_TYPES"]=np.arange(len(g))
+        for scope,arr in groups.items():
+            if len(arr)==0:continue
+            for method,score in scores.items():
+                # stable deterministic tie break by physical bet group + ticket
+                order=np.lexsort((ticket_ids[arr],kinds[arr],-score[arr]))
+                idx=arr[order]
+                available=min(len(idx),max(BUDGETS))
+                paid=np.cumsum(payout[idx[:available]])
                 for b in BUDGETS:
-                    choice,score=select_tickets(g,scope,method,b)
-                    if choice is None:continue
-                    rows.append((yr,rid,date,scope,method,b,len(choice),
-                       float(choice.payout_yen.sum()),float(100*len(choice)),score,
-                       int(float(choice.payout_yen.sum())>0),
-                       "|".join(choice.bet_type.astype(str)+":"+choice.ticket.astype(str))))
+                    take=min(b,len(idx))
+                    ids=idx[:take]
+                    rows.append((yr,rid,date,scope,method,b,take,
+                         float(paid[take-1]),float(100*take),float(score[idx[0]]),
+                         int(paid[take-1]>0),
+                         "|".join(kinds[ids]+":"+ticket_ids[ids])))
     return pd.DataFrame(rows,columns=["year","race_id","race_date","scope","method",
                "budget","tickets","payout_yen","stake_yen","top_ticket_score",
                "race_hit","selected_ticket_ids"])
