@@ -1,0 +1,1 @@
+Reconstruct non-overlapping quoted final-ticket-odds ROI by bet kind and all EV-anchor purchase strategies entirely from the previously archived 2023-25 threshold grid; count all losing stakes. No recomputation or downloads.
