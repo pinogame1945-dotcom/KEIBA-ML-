@@ -28,6 +28,14 @@ with tempfile.TemporaryDirectory(prefix="seven-king-test-") as root:
     assert result["horses"][0]["king_raw_probabilities"]["core4"]==0.8
     first=Path(paths["core4"])
     with gzip.open(first,"rt",encoding="utf-8") as f:rows=[json.loads(l) for l in f]
+    for row in rows:
+        row["raw_margin_logit"]=0.0
+    rows.reverse()
+    with gzip.open(first,"wt",encoding="utf-8") as f:
+        for row in rows:f.write(json.dumps(row)+"\n")
+    tied=module.load_one(str(first),"202505010111")
+    assert tied["1111111111"]["rank"]==1
+    assert tied["2222222222"]["rank"]==2
     rows[1]["horse_id"]=rows[0]["horse_id"]
     with gzip.open(first,"wt",encoding="utf-8") as f:
         for row in rows:f.write(json.dumps(row)+"\n")
