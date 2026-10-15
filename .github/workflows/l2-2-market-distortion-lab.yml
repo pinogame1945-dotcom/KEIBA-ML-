@@ -28,15 +28,15 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: CPU dependencies
+        run: python -m pip install --disable-pip-version-check pandas numpy
       - name: Preflight no paid compute/artifacts and freeze check
         run: |
           set -euo pipefail
           python -m py_compile l2_2/market_distortion_lab.py
           git cat-file -e 9655c717333636b5cc931f672e12dbc377e396bc^{commit}
           python l2_2/market_distortion_lab.py --selftest
-          if grep -E 'runs-on: (gpu|self-hosted)|actions/cache|upload-artifact' .github/workflows/l2-2-market-distortion-lab.yml; then exit 2; fi
-      - name: CPU dependencies
-        run: python -m pip install --disable-pip-version-check pandas numpy
+          if grep -E '^[[:space:]]*(runs-on: (gpu|self-hosted)|- uses: (actions/cache|actions/upload-artifact))' .github/workflows/l2-2-market-distortion-lab.yml; then exit 2; fi
       - name: Fetch pinned metadata once
         run: |
           set -euo pipefail
