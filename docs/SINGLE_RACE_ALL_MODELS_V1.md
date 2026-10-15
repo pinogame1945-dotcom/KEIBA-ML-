@@ -172,6 +172,28 @@ python3 research/analyze-one-race.py \
 - 2019以前など保存済みfold外のレースは、特徴量生成と保存済み20モデル
   予測再生を混同しない。モデルが存在しない場合は `UNAVAILABLE`。
 
+## Trained 7王モデルの実体と厳密な年代ゲート（2026-10-15）
+
+**学習済み本体は実在する**。Kaggle `pino1945/keiba-l15-7k-{alias}-y{YEAR}-v1` に `model.txt`、`model.json`、`schema.json`、`candidate.json` があり、2025年の7体すべてを metadata-first で取得・SHA256検査・LightGBM上で1行推論まで成功（run `38735118335`）。
+
+| 7王 alias | 実モデルの特徴量 |
+|---|---:|
+| core4 | 649 |
+| pedlegacy | 470 |
+| condition | 423 |
+| full | 266 |
+| light | 164 |
+| pedv1 | 504 |
+| condrc | 457 |
+
+元の学習コード `research/train-staged-lightgbm.py` は**検証年の全結果でearly stopping**を実施するため、`y2025`モデルには2025年の評価結果で選ばれたbest_iterationが入る。モデルのフィッティングデータが2023〜2024年のみであっても、これは2025年当時に再現できた厳密な時系列ブラインド予想ではない。
+
+そこで、同じ2025年レースを本当に過去年選択済みモデルで評価する検証を追加した。2024年モデルは2022〜2023年でフィッティングし2024年でearly stoppingを行った既存モデル。**2025年の結果はモデル選択に使わない**。 `research/predict-prior-year-seven-kings.py` が7体を個別に呼び出し、7体順位・raw確率・M127_S0参考順位を保存する。あくまで2025年の保存済み`FINAL`特徴量スナップショットであり、`FINAL`属性の実際の公開時刻が検証できない限り「レース直前の完全な再現予想」とは宣言しない。
+
+Kaggle source `eb13d4096519167b` の2025年snapshotはmetadata上 **2,117,310,292バイト**の `snapshot-2025.jsonl`（manifest論理名は `.jsonl.gz`）。推測URLの順次試行は廃止し、既存 `resolve_snapshot_manifest_remote_v1.py` で両者をmetadataの実在値に正規解決する。**同一無料標準CPU runner**で一度のみ読み、7体および過去年7体で使い回す。9GB以上の無料一時空きディスク確認／モデルのサイズ上限／404即時停止／429一時障害のみ指数再試行。GPU、長期保存、Artifact/Cacheなし。
+
+完了するまでこれらを`MODEL_BINARIES_LOADABLE`、`REPLAY_NOT_PROVEN`と区別する。元の2025年モデルscoreと2025年既存予測の数値一致、および2024年モデルを使った2025年の新規モデル出力は個別にCI監査する。
+
 ## All-model registry
 
 `models/one-race-registry.json` に各研究系統の登録枠がある。以下の形式で **実体を確認したときだけ** 種別を変更する。
