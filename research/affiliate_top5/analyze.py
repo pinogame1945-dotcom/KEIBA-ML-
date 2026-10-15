@@ -3,6 +3,7 @@
 import concurrent.futures as cf
 import csv, json, re, sys, time
 from pathlib import Path
+from datetime import datetime
 import requests
 from bs4 import BeautifulSoup
 
@@ -39,7 +40,7 @@ def targets():
     return z
 
 def day(d):
-    url='https://db.netkeiba.com/race/list/'+d.replace('/','')+'/'
+    url='https://db.netkeiba.com/race/list/'+datetime.strptime(d,'%Y/%m/%d').strftime('%Y%m%d')+'/'
     soup=fetch(url)
     out={}
     for a in soup.select('a[href]'):
