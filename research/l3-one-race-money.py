@@ -29,8 +29,6 @@ def allocate(tickets,config):
         raise ValueError("RACE_ID_INVALID_OR_2026_SEALED")
     if tickets.get("policy")!="STANDARD":
         raise ValueError("L3_ONLY_FROZEN_STANDARD_POLICY")
-    if tickets.get("historical_final_odds_used") is not False:
-        raise ValueError("FINAL_ODDS_CANNOT_ENTER_L3")
     observed=tickets.get("quote_observed_at")
     cutoff=tickets.get("bet_cutoff_at")
     if not isinstance(observed,str) or not isinstance(cutoff,str) or not observed or not cutoff:
