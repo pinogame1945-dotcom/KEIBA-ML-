@@ -50,7 +50,9 @@ transient(){
   done
 }
 snap="$session/snapshot"
-transient "snapshot:files" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$snap_ref" "$snap/files.json"
+if [ ! -s "$snap/files.json" ];then
+  transient "snapshot:files" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$snap_ref" "$snap/files.json"
+fi
 python3 - "$snap/files.json" <<'PY'
 import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -90,6 +92,10 @@ if [ ! -s "$snap/$remote" ] || [ "$(stat -c%s "$snap/$remote")" != "$bytes" ];th
   transient "snapshot:$remote" kaggle datasets download "$snap_ref" -f "$remote" -p "$snap" --unzip --quiet
 fi
 test -s "$snap/$remote"
+if [ "${KEIBA_PREPARE_ONLY:-0}" = "1" ];then
+  echo "BATCH_SNAPSHOT_PREPARED $year $snap/$remote"
+  exit 0
+fi
 small="$session/races/$RACE/features.jsonl"
 if [ ! -s "$small" ];then
   python3 research/extract-race-snapshot.py --input "$snap/$remote" --race "$RACE" --output "$small"
@@ -99,7 +105,9 @@ for alias in core4 pedlegacy condition full light pedv1 condrc;do
   ref="pino1945/keiba-l15-7k-$alias-y$previous-v1"
   d="$session/models/y$previous/$alias"
   mkdir -p "$d"
-  transient "models:files:$alias" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$d/files.json"
+  if [ ! -s "$d/files.json" ];then
+    transient "models:files:$alias" bash -c 'kaggle datasets files "$1" --page-size 200 --format "json(name,size)" >"$2"' _ "$ref" "$d/files.json"
+  fi
   python3 - "$d/files.json" "$alias" <<'PY'
 import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
@@ -109,7 +117,13 @@ for name,limit in (("model.txt",10000000),("model.json",3000000),("schema.json",
         raise SystemExit("missing/over-limit source model "+sys.argv[2]+" "+name)
 PY
   for filename in model.txt model.json schema.json;do
-    if [ ! -s "$d/$filename" ];then
+    expected_bytes="$(python3 - "$d/files.json" "$filename" <<'PY'
+import json,sys
+rows=json.load(open(sys.argv[1],encoding='utf-8'))
+print(next(int(x['size']) for x in rows if x['name']==sys.argv[2]))
+PY
+)"
+    if [ ! -s "$d/$filename" ] || [ "$(stat -c%s "$d/$filename" 2>/dev/null || echo 0)" != "$expected_bytes" ];then
       transient "model:$alias:$filename" kaggle datasets download "$ref" -f "$filename" -p "$d" --unzip --quiet
     fi
     test -s "$d/$filename" || { echo "::error::metadata drift $alias $filename"; exit 1; }
