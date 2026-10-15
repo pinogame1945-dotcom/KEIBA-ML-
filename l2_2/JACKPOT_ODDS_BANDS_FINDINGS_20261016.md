@@ -49,7 +49,7 @@ Pooled 2024–25 forward test under selected rule: stake 6,840,600; returned 5,0
 
 ## Price-band fundamental pattern
 
-Under 100x there are 26,398 quoted physical lines and 343+? paid winning tickets including legitimate low-paying results, but none is a jackpot winner. Broad 100–500x slices can recover many 100x outcomes, but there are so many losers that the tote-pool margin cannot be overcome. Simply deleting the highest quoted tickets is not an ex-ante winning edge. 10–29.9× appears ROI >100% in a tiny 694-ticket pooled bin, driven by 2023 (153.33%) while 2024=98.13%, 2025=100.91%, with zero jackpot wins; not suitable as a main jackpot-profit claim.
+Under 100x there are 26,398 quoted physical lines and 343 winning tickets including legitimate low-paying results, but none is a jackpot winner. Broad 100–500x slices can recover many 100x outcomes, but there are so many losers that the tote-pool margin cannot be overcome. Simply deleting the highest quoted tickets is not an ex-ante winning edge. 10–29.9× appears ROI >100% in a tiny 694-ticket pooled bin, driven by 2023 (153.33%) while 2024=98.13%, 2025=100.91%, with zero jackpot wins; not suitable as a main jackpot-profit claim.
 
 ## Decision
 
