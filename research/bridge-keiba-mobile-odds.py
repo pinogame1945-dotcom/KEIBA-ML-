@@ -20,8 +20,8 @@ def from_mobile(payload):
         raise ValueError("CANONICAL_NETKEIBA_RACE_ID_REQUIRED_2026_SEALED")
     if race.get("raceStatus")!="SCHEDULED" or race.get("scheduleStatus")!="ACTIVE":
         raise ValueError("CANCELLED_FINISHED_OR_RESCHEDULED_RACE_FORBIDDEN")
-    if race.get("status")!="SCHEDULED":
-        raise ValueError("RACE_CARD_ALREADY_OFFICIAL_OR_FINISHED")
+    if race.get("status")!="OFFICIAL":
+        raise ValueError("RACE_CARD_NOT_YET_OFFICIAL")
     iso_date=race.get("raceDate")
     time=race.get("startTime")
     if not isinstance(iso_date,str) or not re.fullmatch(r"\d{4}-\d\d-\d\d",iso_date):
