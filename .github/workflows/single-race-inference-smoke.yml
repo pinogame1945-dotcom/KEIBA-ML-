@@ -17,6 +17,8 @@ on:
       - "research/replay-seven-kings-kaggle.sh"
       - "scripts/seven-king-replay-smoke.py"
       - "research/replay-saved-l17.py"
+      - "research/market_context_v1.py"
+      - "scripts/market-context-v1-smoke.py"
       - "research/audit-seven-king-bundles.py"
       - "research/verify-trained-kings-vs-saved-scores.py"
       - "research/predict-prior-year-seven-kings.py"
@@ -52,6 +54,7 @@ jobs:
           bash -n research/replay-seven-kings-kaggle.sh
           python3 scripts/seven-king-replay-smoke.py
           python3 scripts/l17-saved-p3-smoke.py
+          python3 scripts/market-context-v1-smoke.py
           python3 -m py_compile research/audit-seven-king-bundles.py research/verify-trained-kings-vs-saved-scores.py research/predict-prior-year-seven-kings.py
           python3 scripts/single-race-snapshot-extraction-smoke.py
           bash -n scripts/score-known-race-kaggle.sh
