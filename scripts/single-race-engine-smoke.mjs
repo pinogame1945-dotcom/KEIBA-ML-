@@ -136,6 +136,10 @@ try {
   assert.equal(combinedReport.race_id,"202305010102");
   assert.equal(combinedReport.starters,2);
   assert.equal(combinedReport.models.filter(x=>x.status==="SCORED").length,3);
+  assert.equal(combinedReport.horses.length,2);
+  assert.equal(combinedReport.horses[0].model_ranks.A.rank,2);
+  assert.equal(combinedReport.horses[0].model_ranks.B.rank,1);
+  assert.equal(combinedReport.horses[1].model_ranks.A_B.rank,1);
   assert.equal(combinedReport.saved_seven_kings.status,"NOT_REQUESTED");
 
   const metadata=JSON.parse(await readFile(join(modelDir,"meta.json"),"utf8"));
