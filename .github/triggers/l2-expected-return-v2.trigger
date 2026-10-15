@@ -1,0 +1,15 @@
+contract=L2_EXPECTED_RETURN_V2_ALL_TICKET_PRICES
+years=2023-2025
+races=10368
+seven_kinds=WIN,PLACE,QUINELLA,WIDE,EXACTA,TRIO,TRIFECTA
+prices=BACKFILL_PINNED_FINAL_ODDS
+payouts=BACKFILL_PINNED_OFFICIAL
+axis=FROZEN_ANCHOR_FULL
+joint_probability=PL_MARKET,PL_AI,PL_BLEND
+chronological_calibration=prior_only
+2024_selection_then_locked_2025=true
+missing_price=NO_IMPUTE
+no_live_promotion=true
+no_2026=true
+free_standard_cpu=true
+no_artifacts_cache=true
