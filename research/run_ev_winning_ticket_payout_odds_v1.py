@@ -26,10 +26,9 @@ def band(value,bins):
 
 def aggregate_one(year,pred,picks,races,root):
     group=pred.loc[pred.year.eq(year)].copy()
-    group["_race_date"]=group["_race_date"].astype(str).str[:10]
     indexed=group.groupby("_race_id",sort=False)
     relevant=races[races.year.eq(year)].set_index("race_id")
-    dates=group[["_race_id","_race_date"]].drop_duplicates().groupby("_race_date")["_race_id"].apply(list)
+    dates=(races[races.year.eq(year)].groupby("race_date")["race_id"].apply(list))
     assert_ok(len(relevant)==RACES_YEAR,"missing year races")
     winning=defaultdict(Counter)
     horses=defaultdict(Counter)
