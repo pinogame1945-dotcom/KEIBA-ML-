@@ -64,6 +64,13 @@ def research_frame(rid,pred,ability,picks,race_pack):
                  "ability_cache":len(z),"numbered_entries":len(number),
                  "pred_without_pack":sorted(set(original)-set(number))[:8],
                  "pack_without_pred":sorted(set(number)-set(original))[:8],
+                 "pack_unpredicted_entry_status":[{
+                     "horse_id":str(e.get("horse_id")),
+                     "horse_number":e.get("horse_number"),
+                     **{k:e.get(k) for k in ("entry_status","result_status",
+                       "status","finish_position","finish_raw","is_eligible","is_runner")}
+                    } for e in (race_pack.get("entries") or [])
+                    if str(e.get("horse_id")) in set(number)-set(original)][:8],
                  "pred_without_ability":sorted(set(original)-set(ability_by_id))[:8],
                  "ability_without_pred":sorted(set(ability_by_id)-set(original))[:8],
                  "axis_in_pack":axis[0] in number}))
