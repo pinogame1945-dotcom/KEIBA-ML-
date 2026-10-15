@@ -1,0 +1,15 @@
+study=L2_SKIP_VALUE_CHRONOLOGICAL_BATCH_V1
+races=10368
+years=2023,2024,2025
+train_2024=2023
+train_2025=2023,2024
+families=WIN,PLACE,QUINELLA,WIDE,EXACTA,TRIO,TRIFECTA
+strategies=10
+risk_models=classifier,utility_regressor,odds,market_rank,risk
+skip_rates_pct=0,5,10,15,20,30,40
+statistical_control=prior_year_cutoff
+oracle=post_result_only
+runner=ubuntu-latest standard cpu
+cache=none
+artifacts=none
+2026=SEALED
