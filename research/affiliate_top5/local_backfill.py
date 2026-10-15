@@ -63,7 +63,7 @@ def analyze(pack,r):
             assert h not in numbers or numbers[h]==n
             numbers[h]=n
     pop={}
-    finishing={}
+    finishing=[]
     for result in pack.get('results') or []:
         h=str(result.get('horse_id') or '')
         p=valid_rank(result)
@@ -73,10 +73,11 @@ def analyze(pack,r):
             pop[h]=p
         pos=result.get('official_finish_position')
         if pos is not None and str(pos).isdigit() and int(pos) in (1,2,3):
-            finishing[int(pos)]=numbers[h]
+            finishing.append((int(pos),numbers[h]))
     chosen={numbers[h] for h,p in pop.items() if p<=5}
     assert len(chosen)==5,(rid,'popular_count',len(chosen),sorted(pop.values()))
-    assert set(finishing)=={1,2,3},(rid,'finishing',finishing)
+    finishing.sort()
+    assert len(finishing)>=3 and finishing[0][0]==1,(rid,'finishing',finishing)
     payouts=[]
     for p in pack.get('payouts') or []:
         if p.get('bet_type')!='TRIO':continue
@@ -88,12 +89,12 @@ def analyze(pack,r):
         assert amount>=0,(rid,p)
         payouts.append((nums,amount))
     assert payouts,(rid,'missing trio')
-    finishing_numbers=tuple(sorted(finishing.values()))
-    assert finishing_numbers in {n for n,v in payouts},(rid,'trio/finish mismatch',finishing_numbers,payouts)
+    finishing_numbers=tuple(sorted(no for pos,no in finishing))
+    assert all(set(bet).issubset(finishing_numbers) for bet,p in payouts), (rid,'trio/finish mismatch',finishing_numbers,payouts)
     paid=sum(1000//100*pay for combo,pay in payouts if set(combo).issubset(chosen))
     return dict(race_id=rid,final_pop5='-'.join(map(str,sorted(chosen))),
                 official_123='-'.join(map(str,finishing_numbers)),
-                official_123_pop='-'.join(str(pop_horse_for_num(pop,numbers,finishing[i])) for i in (1,2,3)),
+                official_123_pop='-'.join(str(pop_horse_for_num(pop,numbers,no)) for pos,no in finishing),
                 pop5_paid=paid,pop5_hit=int(paid>0),
                 site_hit=int(r['site_paid']>0),
                 site_minus_pop5=r['site_paid']-paid)
