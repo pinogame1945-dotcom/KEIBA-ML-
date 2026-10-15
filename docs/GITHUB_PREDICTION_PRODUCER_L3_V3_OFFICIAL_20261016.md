@@ -18,9 +18,11 @@
 
 - 正本の研究コードは `research/l3-whole-bankroll-v3-20261015`（`a12faef90c112713e3e0e6d460fe2482fafb6037`）の `research/run_l3_whole_bankroll_v3.py`、実行成功は Actions `38718781530`。
 - V3は **V2で生成済みの26種の掛け金台帳を読み、全体資金残高・開催日の日初必要資金・資金不足・ドローダウン・払戻減額耐性を検証** するエンジン。単独の1レース推論器でも、26種から1つを自動選択するモデルでもない。
-- 掛け金が決まった後、V3は金額を独断で変えない。全購入券を100円単位・最低100円で扱う。資金不足なら `INSUFFICIENT_BUDGET` を示し、勝手な部分購入・0円化・レーススキップ・当日払戻の先取りはしない。
+- 掛け金配分方式は利用者が明示指定した `REVERSE_P3_RACE_MAX300` を正式採用。旧V2と同じ `min_p3` の逆方向優先（低いものを厚く）、同点の券キー順、欠損時の最低100円を維持する。配分後、V3の銀行口座判定は金額を独断で変えない。全購入券を100円単位・最低100円で扱う。資金不足なら `INSUFFICIENT_BUDGET` を示し、勝手な部分購入・0円化・レーススキップ・当日払戻の先取りはしない。
 - 当日全レースの資金制約を扱う場合、その開催日の対象券の必要原資を同日払戻前に確保する。単独レースでは利用可能な資金範囲を別途明示し、開催日全体の資金管理を実施したと偽らない。
-- **未確定の1点：L3の1券ごとの資金配分方式。** V3自体の研究結果は `recommended_production_policy: NONE`。最大歴史ROIの `REVERSE_P3_RACE_MAX300`、より低い歴史DD候補の `P3_OUTSIDER_RACE_MAX300` などは選択候補であって、選択済みではない。ユーザーが特定方式を正式指定するまでは `BLOCKED_L3_V3_STAKE_POLICY_UNSELECTED` とし、100円均等をV3と偽装しない。
+- **正式採用済み：** `REVERSE_P3_RACE_MAX300`。標準資金は `200円 × L2.1券数`、1券100〜300円。利用者が指定した1レース予算・1レース上限に従い、標準資金を超えて使わない。最低 `100円 × 全券数` を満たさなければ全件停止。26政策の研究比較結果は利益保証ではない。
+- **GitHub実行コード：** `research/l3_v3_operational.py`。入力はGitHubが生成した凍結L2.1馬券、オリジナルの馬別L1.75 as-of p3、レース予算・日次の利用可能資金。複数レースの同日必要金額を集計し、払戻前に一括資金判定する。未検証のソースは `PAPER_ONLY` とする。
+- **未完了：** レースIDだけから当日の本物のL1、L2.1時点データを自動生成してV3へ渡すGitHub上流処理。現時点のコード完成はL2.1出力→L3 V3部分であって、全体のライブ実行成功を意味しない。
 - 以前の1レース実装 `research/l3-one-race-money.py` は `BASELINE_FLAT_100_ALL_OR_NONE` の合成・紙上用で、**V3完成版ではない**。このファイルを無言で本番L3として流用・名称変更してはいけない。
 
 ## GitHub側からアプリへ渡すデータ
@@ -40,7 +42,7 @@
 
 1. GitHubに残存する1レース推論・L2.1・L3を棚卸しし、**GitHubで完結する**入力経路と、スマホの旧データ供給依存を分離。
 2. 過去の指定レースID単数/複数で同じ入出力形式が作れるようにする。2026年の過去結果検証は実施しない。
-3. L3 V3の資金配分方式が利用者により明示選択された後に、既存V2/V3のロジックから単独・複数レースの金額計算と資金検査を抽出・対照試験する。研究の26種を無断で自動最適化しない。
+3. 採用済み `REVERSE_P3_RACE_MAX300` の単独・複数レース金額計算とV3資金判定を GitHub側で実装・V2対照検証する（`research/l3_v3_operational.py` / `tests/test_l3_v3_operational.py`）。未確証の入力は `PAPER_ONLY` に止める。
 4. 当日のデータ取得可能性は開催日に確認する。それまで合成データで取得成功を偽証しない。アプリの受信表示接続はGitHub出力契約成立後に着手。
 
 ## 実施上の制約
@@ -48,3 +50,30 @@
 無料の標準GitHub Actions CPU runnerまで。GPU、有料runner、明示課金、無料かどうか不明な追加保存は実行しない。Kaggleは `manifest + metadata実在名→単一取得→runner session再利用`、404は設計/metadata driftとして停止。2026年結果でのモデル選択・ROI評価を禁止する。実馬券の購入は行わない。
 
 **今回の変更はこの仕様・契約を記録するのみ。** GitHubライブ収集器/配信器の実装、L3 V3単独金額算定器の完成、アプリ更新、既存ブランチのマージは完了と報告してはいけない。
+
+## 動作入口（L2.1入力をGitHubが生成した後）
+
+```bash
+python3 research/l3_v3_operational.py --input github-produced-input.json --output l3-v3-result.json
+```
+
+`github-produced-input.json` の最小契約：
+
+```json
+{
+  "contract": "KEIBA_L3_V3_RUNTIME_CONFIG_V1",
+  "policy": "REVERSE_P3_RACE_MAX300",
+  "races": [
+    {"race_date": "YYYY-MM-DD", "l2_1": "既存の凍結L2.1実際のJSONオブジェクト", "horse_p3": "元のL1.75の完全なas-of馬別p3オブジェクト"}
+  ],
+  "budget": {
+    "race_budget_yen": {"12桁レースID": 1500},
+    "max_race_exposure_yen": 3000,
+    "available_cash_by_date_yen": {"YYYY-MM-DD": 3000},
+    "already_reserved_same_day_yen": {"YYYY-MM-DD": 0},
+    "max_day_exposure_yen": 10000
+  }
+}
+```
+
+上記の文字列プレースホルダーは説明用であり、そのまま実行できるサンプルではない。`horse_p3` は `KEIBA_L175_HORSE_P3_ASOF_V1`、元の学習済みL1.75（`ORIGINAL_L175_PREBET_P3`）と取得時刻・モデルバージョン・horse_id対応が必要。どれも推測値で埋めない。資金が足りない開催日は全レース `BLOCKED`、正本馬券の一部購入を作らない。
