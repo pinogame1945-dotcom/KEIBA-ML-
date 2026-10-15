@@ -38,7 +38,7 @@ features={"contract":"KEIBA_L21_ORIGINAL_ANCHOR_FEATURES_PREBET_V1",
     "horses":[{"horse_id":f"horse{n}","horse_number":n,
         "P__ANCHOR_FULL":0.31 if n==1 else 0.14-n*0.005,
         "risk":0.09,"distill_score_z":0.45,
-        "distill_ai_rank":n,"market_rank":n,
+        "distill_ai_rank":{2:3,3:4,4:5,5:2}.get(n,n),"market_rank":n,
         "market_prob_norm":0.15,"win_odds_at_cutoff":float(n+2)}
         for n in range(1,9)]}
 quotes={"contract":"KEIBA_JRA_COMBINATION_ODDS_ASOF_V1",
