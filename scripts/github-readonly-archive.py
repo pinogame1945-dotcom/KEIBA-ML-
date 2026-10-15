@@ -50,7 +50,7 @@ def metadata(repo,ref,path):
     if ref.startswith("-") or not ref:raise ValueError("invalid ref")
     url=("https://api.github.com/repos/"+repo+"/contents/"+
          urllib.parse.quote(path,safe="/")+"?ref="+urllib.parse.quote(ref,safe=""))
-    data=json.loads(request_bytes(url,max_bytes=200_000))
+    data=json.loads(request_bytes(url,max_bytes=3_000_000))
     if not isinstance(data,dict) or data.get("type")!="file":
         raise ValueError("archive metadata is not a regular file: "+path)
     if data.get("path")!=path:
