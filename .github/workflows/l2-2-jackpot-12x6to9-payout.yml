@@ -1,0 +1,44 @@
+name: L2.2 Jackpot 1-2 by 6-9 Payouts (read-only)
+
+on:
+  push:
+    branches:
+      - research/l2.2-jackpot-12x6to9-payout-20261016
+    paths:
+      - l2_2/jackpot_12x6to9_payout.py
+      - .github/workflows/l2-2-jackpot-12x6to9-payout.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l22-jackpot-12x6to9-payout-20261016
+  cancel-in-progress: false
+
+jobs:
+  payout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: research/l2.2-jackpot-12x6to9-payout-20261016
+          fetch-depth: 1
+      - name: Compute all-real-race cost and payout from saved files
+        run: |
+          set -euo pipefail
+          python -u l2_2/jackpot_12x6to9_payout.py \
+            --output "research-results/l2-2-jackpot-12x6to9-payout-v1/run-$GITHUB_RUN_ID/summary.json"
+      - name: Save compact read-only arithmetic audit
+        run: |
+          set -euo pipefail
+          p="research-results/l2-2-jackpot-12x6to9-payout-v1/run-$GITHUB_RUN_ID/summary.json"
+          test -s "$p"
+          test "$(du -sm "$p" | cut -f1)" -le 1
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin research/l2.2-jackpot-12x6to9-payout-20261016
+          git add "$p"
+          git commit -m "research(l2.2): 1-2 favorite + 6-9 trifecta real payouts $GITHUB_RUN_ID"
+          git push origin HEAD:research/l2.2-jackpot-12x6to9-payout-20261016
