@@ -24,8 +24,15 @@ MAX_RETRIES=3
 HTTP_TRANSIENT={429,502,503,504}
 
 def request_bytes(url, *,max_bytes):
-    req=urllib.request.Request(url,headers={"User-Agent":"KEIBA-ML-readonly-archive",
-        "Accept":"application/vnd.github+json" if url.startswith("https://api.github.com/") else "application/octet-stream"})
+    headers={"User-Agent":"KEIBA-ML-readonly-archive",
+        "Accept":"application/vnd.github+json" if url.startswith("https://api.github.com/") else "application/octet-stream"}
+    # On free GitHub Actions, use the built-in read-only workflow token
+    # only for GitHub REST metadata; raw downloads remain public and no
+    # credential is logged or sent to Kaggle/other hosts.
+    if url.startswith("https://api.github.com/"):
+        token=os.environ.get("GITHUB_TOKEN")
+        if token:headers["Authorization"]="Bearer "+token
+    req=urllib.request.Request(url,headers=headers)
     for attempt in range(MAX_RETRIES+1):
         try:
             with urllib.request.urlopen(req,timeout=30) as result:
