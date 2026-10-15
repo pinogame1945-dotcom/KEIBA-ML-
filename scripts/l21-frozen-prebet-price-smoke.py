@@ -98,7 +98,7 @@ reject(lambda a,b,c:b["horses"][1].update(features_observed_at="2025-01-06T14:30
 reject(lambda a,b,c:b.update(features_observed_at="2025-01-06T14:26:00+09:00"),"L21_FEATURES_AFTER_BET_CUTOFF")
 reject(lambda a,b,c:c.update(observed_at="2025-01-06T14:30:00+09:00"),"QUOTE_NOT_BEFORE")
 reject(lambda a,b,c:c.update(is_final=True),"COMBINATION_QUOTES_NOT_AUTHORIZED")
-reject(lambda a,b,c:c["rows"][0].update(betType="TRIFECTA"),"WRONG_SELECTION_ARITY")
+reject(lambda a,b,c:c["rows"][0].update(betType="TRIFECTA"),"INVALID_HORSE_NUMBER_ticket")
 reject(lambda a,b,c:c["rows"].append(copy.deepcopy(c["rows"][0])),"DUPLICATE_PHYSICAL_QUOTE")
 reject(lambda a,b,c:c["rows"][0].update(sourceUrl="https://example.org"),"UNTRUSTED_JRA_SOURCE_URL")
 reject(lambda a,b,c:c["rows"][0].update(odds=float("nan")),"NONFINITE_combination_odds")
