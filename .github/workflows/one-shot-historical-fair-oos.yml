@@ -1,4 +1,4 @@
-name: One-shot verified frozen-source FINAL OOS fair-value audit (free CPU)
+name: One-shot real horse-by-horse FINAL-OOS diagnostic report (free CPU)
 on:
   push:
     branches:
@@ -53,6 +53,16 @@ jobs:
                     "market",round(row["MARKET_DIRECT"],5),
                     "full",round(row["ANCHOR_FULL"],5))
           PY
+      - name: Render real 16-horse readable market diagnostic table (historical FINAL research only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/format-one-race.py \
+            --analysis "$RUNNER_TEMP/fair-oos-race/analysis.json" \
+            --out "$RUNNER_TEMP/fair-oos-race/analysis.md" \
+            >"$RUNNER_TEMP/fair-oos-race/preview.txt"
+          test -s "$RUNNER_TEMP/fair-oos-race/analysis.md"
+          sed -n '1,33p' "$RUNNER_TEMP/fair-oos-race/analysis.md"
       - name: Free resource and research-only disclosure
         if: always()
         run: |
