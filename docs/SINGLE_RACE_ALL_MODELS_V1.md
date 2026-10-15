@@ -87,6 +87,26 @@ node research/predict-one-race.mjs \
 - 最初の接続試験はsynthetic fixtureのみ。未検証の実データ成功や実馬AI順位の生成を主張しない。
 - GitHub Actions は無料の標準CPU runnerまで。無断の有料保存や推論インフラを使わない。推論はローカルに保存し、Actions Artifact/Cacheへアップロードしない。
 
+
+## Saved 7王を実際に読み込む経路（2021〜2025）
+
+**新規モデル学習なし**で、保存済み7王 horse-level score を直接再利用する経路を追加した。
+
+```sh
+# 既存の Kaggle API token をこの端末の環境変数へ設定した状態で実行
+bash research/replay-seven-kings-kaggle.sh 202505010111 out/archived-seven-king.json
+```
+
+処理は7体それぞれについて、Kaggle Dataset のメタデータ一覧取得 → 実在する `score.jsonl.gz` または `score.jsonl` を1件特定 → 当該ファイル1件をダウンロード → runner内で使い回す。レガシーの `rolecmp` router Dataset は取得しない。404なら即時停止、429/一時的5xxのみ指数バックオフ。ファイルサイズが不明または100MB超の場合も事前に停止する。
+
+保存先は `mktemp` 配下で、正常終了・エラー時とも自動削除。レポートJSONだけを指定したローカルパスへ出力する。GitHub Actions Artifact や有料Storageへのアップロードはない。
+
+正本の7体名は `research/l1-council-rebuild-v1-20261004` の `EXPERTS` を使用：`core4`, `pedlegacy`, `condition`, `full`, `light`, `pedv1`, `condrc`。保存済みscoreの `L1_TO_L2_OUTPUT_CONTRACT_V1` と全馬一貫性・順位の連続性を検証する。
+
+7体の各順位はそのまま表示し、参考用に **rank-sum 7体比較順位** を算出する。これは2026-10-04研究 `order_for(mask=127,share=0)` の実装と対応するが、**凍結された7王routerやL2.1正式軸ではない**。別名を付けて識別する。
+
+保存済みfoldのもとの学習時点・早期停止の適格性を監査するまでは「その日その場で予想した」とは主張しない。これはあくまで**保存済み歴史的予想の再生**であり、2026の新規推論ではない。
+
 ## Progress
 
 - [x] レースIDまたはURLの解決、manifest実在パスから読み込み
@@ -94,7 +114,8 @@ node research/predict-one-race.mjs \
 - [x] 全頭の特徴量、結果非参照、EARLY限定
 - [x] LightGBM/保存済みOOF/登録済みアンサンブルの接続口
 - [x] 7王・Outsider・L1.75・L2.1の配備不足を欠落ステータスで報告
-- [ ] 実際に利用できる研究モデル実体・保存済みOOF scoreを確認して登録
+- [x] 保存済み7王scoreをKaggle一覧から直接取得し、全7体順位を再生するコマンドを実装（実リモート検証は未実施）
+- [ ] 実際に利用できる研究モデル実体・保存済みOOF scoreの実ダウンロードと本番レジストリ登録
 - [ ] 特徴量窓が異なる多数モデルを1パスで高速化して計算
 - [ ] アーカイブ1レースの実データ対照監査と同じ全頭スコアの再現
 - [ ] EARLYに続く当日FINAL（タイムスタンプ付きJRA事前情報）
