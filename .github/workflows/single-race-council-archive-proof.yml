@@ -1,0 +1,82 @@
+name: One-shot real 7 king + 13 Outsider archive replay (free CPU)
+
+# Push-trigger is limited to this file to avoid rerunning a large clone
+# on every subsequent PR commit.
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/single-race-council-archive-proof.yml"
+
+permissions:
+  contents: read
+
+jobs:
+  saved-prediction-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Bounded sparse checkout of immutable research rank matrix
+        shell: bash
+        run: |
+          set -euo pipefail
+          git clone --quiet --depth=1 --filter=blob:none --sparse \
+            --branch research/l1-council-rebuild-v1-20261004 \
+            https://github.com/pinogame1945-dotcom/KEIBA-ML-.git \
+            "$RUNNER_TEMP/l1-historical-saved-matrix"
+          cd "$RUNNER_TEMP/l1-historical-saved-matrix"
+          git sparse-checkout set --no-cone \
+            "/research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz" \
+            "/research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
+          a="research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
+          b="research-results/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
+          test -s "$a" && test -s "$b"
+          [ "$(stat -c%s "$a")" -lt 2000000 ]
+          [ "$(stat -c%s "$b")" -lt 2000000 ]
+          echo "SAVED_ARCHIVE_BYTES $(stat -c%s "$a") $(stat -c%s "$b")"
+      - name: Select a real saved 2025 race and replay 20 separate research signals
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/l1-historical-saved-matrix/research-results"
+          council="$root/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz"
+          ballots="$root/l16-outsider-support-safe-fast-v2/run-36724124925/y2025/ballots.csv.gz"
+          race_id=$(python3 - "$council" <<'PY'
+          import gzip,json,sys
+          with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
+              for line in f:
+                  if line.strip():
+                      row=json.loads(line)
+                      print(row["race_id"])
+                      break
+          PY
+          )
+          test "${#race_id}" = 12
+          python3 research/replay-archived-council.py \
+            --race "$race_id" --council-file "$council" \
+            --ballots-file "$ballots" \
+            --output "$RUNNER_TEMP/real-seven-outsider-report.json" \
+            > /dev/null
+          python3 - <<'PY'
+          import json,os
+          x=json.load(open(os.path.join(os.environ["RUNNER_TEMP"],"real-seven-outsider-report.json")))
+          assert x["source_prediction_phase"]=="FINAL_RESEARCH_NO_PRESERVED_PREBET_SNAPSHOTS"
+          assert x["outsider_status"]=="VERIFIED_SAVED_BALLOTS"
+          assert len(x["expert_order"])==7 and len(x["outsider_ballots"])==13
+          assert len(x["horses"])>=3
+          assert x["winner_or_payouts_used"] is False and x["final_market_odds_used"] is False
+          for horse in x["horses"]:
+              assert len(horse["king_ranks"])==7
+              assert len(horse["outsider_top3_from_each"])==13
+          print("REAL_SAVED_SEVEN_KING_THIRTEEN_OUTSIDER_REPLAY_PASS",
+                x["race_id"],len(x["horses"]),"horses")
+          for horse in x["horses"][:5]:
+              print("EXPERT_SUMMARY",horse["pure_7king_rank_sum_comparator_rank"],
+                    horse["horse_id"],horse["king_ranks"],
+                    "outsider_points",horse["outsider_points"])
+          PY
