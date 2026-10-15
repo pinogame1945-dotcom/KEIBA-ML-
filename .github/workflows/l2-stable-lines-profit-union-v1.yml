@@ -109,10 +109,13 @@ jobs:
           set -euo pipefail
           python -m py_compile research/run_l2_stable_profitable_line_union_forward_v1.py
           python - <<'PY'
-          import csv,sys
+          import csv,sys,inspect
           import pandas as pd
           sys.path.insert(0,"research")
           import run_l2_stable_profitable_line_union_forward_v1 as x
+          sig=list(inspect.signature(x.one_year).parameters)
+          assert sig==["year","pred","picks","races","root","history_needed","accepted","plus_from_hindsight"],sig
+          print("ONE_YEAR_CALL_SIGNATURE_EXACTLY_VALIDATED")
           assert len(x.GATES)==17 and len(x.POLICIES)==3
           assert x.YRS==(2023,2024,2025)
           original="research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv"
