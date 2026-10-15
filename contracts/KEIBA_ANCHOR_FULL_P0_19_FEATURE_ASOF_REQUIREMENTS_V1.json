@@ -1,0 +1,65 @@
+{
+  "contract": "KEIBA_ANCHOR_FULL_P0_19_FEATURE_ASOF_REQUIREMENTS_V1",
+  "audit_date": "2026-10-16",
+  "provenance": {
+    "repo": "pinogame1945-dotcom/KEIBA-ML-",
+    "source_pr": 7,
+    "ref": "f9eedf6c2d82719571619b39b14816155b6f2cd0",
+    "geometry_path": "research/anchor-original-feature-geometry.py",
+    "geometry_sha": "0e1c1f5c19c670097822f4912c7feeb7faf4edc9",
+    "original_coefficients_path": "research/replay-original-anchor-coefficients-2025.py",
+    "original_coefficients_sha": "86516680fd6084349049878dcd1a6384937371f7"
+  },
+  "status": "SOURCE_FEATURE_SET_PARITY_VERIFIED_MODEL_NOT_LIVE_PROMOTED",
+  "original_features_in_exact_order": [
+    "field_size",
+    "distill_ai_rank01",
+    "distill_score_z",
+    "distill_score_gap_to_best",
+    "distill_is_ai_top1",
+    "distill_is_ai_top3",
+    "distill_is_ai_top6",
+    "risk",
+    "rank_gap_norm",
+    "abs_rank_gap_norm",
+    "top3_overlap_norm",
+    "ai_unique_top3",
+    "market_unique_top3",
+    "top1_match",
+    "risk_x_abs_gap",
+    "ability_x_market_gap",
+    "ability_x_disagree_level",
+    "risk_x_disagree_level",
+    "rankgap_x_disagree_level"
+  ],
+  "upstream_primitives_required": [
+    "all official active starters canonical horse_id and horse_number",
+    "actual observed active field_size",
+    "original full-field distill_ai_rank per horse",
+    "original distill_score_z per horse",
+    "original distill_score_gap_to_best per horse",
+    "original fully specified Correction Risk per horse",
+    "same-capture JRA WIN price and rank for all horses",
+    "original 2025 prior-only coefficients and normalization trained on 2022-2024"
+  ],
+  "upstream_companion_contract": "KEIBA_L1_ORIGINAL_ABILITY_RISK_ASOF_V1",
+  "expected_value_axis": "argmax(P__ANCHOR_FULL * win_odds_at_cutoff) with exact established tie-break",
+  "not_substitutable": [
+    "L1.7 p3",
+    "7king saved ranks",
+    "2025 OOS full risk as 2026 live scores",
+    "historical FINAL win odds"
+  ],
+  "asof_gates": [
+    "verify observed_before_price",
+    "verify price_before_authenticated_cutoff",
+    "complete active field",
+    "no target results or post race columns",
+    "reject final odds"
+  ],
+  "evidence_limitations": [
+    "no true live 2026 all-horse L1 ability/risk model deployment verified",
+    "no authenticated official server as-of and cutoff verified",
+    "19 field calculation parity does not imply true live prediction or profit"
+  ]
+}
