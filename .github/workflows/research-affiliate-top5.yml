@@ -24,8 +24,15 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile research/affiliate_top5/local_backfill.py
-          test "$(grep -c 'runs-on: ubuntu-latest' .github/workflows/research-affiliate-top5.yml)" -eq 1
-          ! grep -Eq 'upload-artifact|actions/cache|runs-on:.*gpu|self-hosted' .github/workflows/research-affiliate-top5.yml
+          python - <<'PY'
+          from pathlib import Path
+          src=Path(".github/workflows/research-affiliate-top5.yml").read_text().splitlines()
+          runs=[x.strip() for x in src if x.strip().startswith("runs-on:")]
+          uses=[x.strip() for x in src if x.strip().startswith("- uses:")]
+          assert runs == ["runs-on: ubuntu-latest"], runs
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in uses),uses
+          print("FREE_CPU_NO_ARTIFACT_CACHE_OK")
+          PY
       - name: Read pinned BACKFILL metadata only, no public scraping
         run: |
           set -euo pipefail
