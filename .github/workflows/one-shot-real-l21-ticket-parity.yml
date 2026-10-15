@@ -78,6 +78,16 @@ jobs:
             --baseline-covered "$root/original-known-tickets.csv.gz" \
             --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
             --output "$root/whole-day-parity.json"
+          python3 scripts/l21-real-day-parity.py \
+            --predictions "$root/historical-oos.csv.gz" \
+            --ability-cache "$root/fair-base.csv.gz" \
+            --picks "$root/original-anchor-picks.csv.gz" \
+            --race-pack "$root/race-pack.jsonl.gz" \
+            --odds-pack "$root/odds-pack.jsonl.gz" \
+            --baseline-covered "$root/original-known-tickets.csv.gz" \
+            --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
+            --output "$root/retrospective-DNF-source-parity.json" \
+            --retrospective-dnf-source-scope
           python3 research/audit-l21-five-started-omissions.py \
             --predictions "$root/historical-oos.csv.gz" \
             --race-pack "$root/race-pack.jsonl.gz" \
@@ -101,6 +111,18 @@ jobs:
           assert day["live_quote_confirmed"] is False
           print("ORIGINAL_L21_COMPLETE_DAY_PARITY_PASS",
                 day["date"],day["races"],day["physical_tickets"])
+          bias=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-true-history/retrospective-DNF-source-parity.json").read_text())
+          assert bias["requested_races"]==24,bias
+          assert bias["races"]==24 and bias["blocked_races"]==0,bias
+          assert bias["original_research_parity"] is True
+          assert bias["races_using_future_dnf_status"]==5
+          assert bias["dnf_horses_excluded_as_in_original_oos"]==5
+          assert bias["dnf_exclusion_is_postresult_hindsight"] is True
+          assert bias["NOT_PREBET_PERFORMANCE_EVALUATION"] is True
+          print("RETROSPECTIVE_ORIGINAL_DNF_FILTERED_24R_PARITY_RESEARCH_ONLY",
+                bias["races"],"matched_tickets",bias["physical_tickets"],
+                "future_DNF_horse_exclusions",bias["dnf_horses_excluded_as_in_original_oos"])
+
           PY
       - name: No paid resources
         if: always()
