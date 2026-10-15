@@ -1,0 +1,95 @@
+name: All Race One Pick V1
+
+on:
+  push:
+    branches:
+      - research/all-race-one-pick-v1-20261015
+    paths:
+      - .github/triggers/all-race-one-pick-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: all-race-one-pick-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: \${{ github.ref_name }}
+          fetch-depth: 0
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_all_race_one_pick_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/all-race-one-pick-v1.yml").read_text()
+          runners=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["ubuntu-latest"],runners
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(u.startswith("actions/upload-artifact") for u in uses)
+          assert not any(u.startswith("actions/cache") for u in uses)
+          src=Path("research/run_all_race_one_pick_v1.py").read_text()
+          for token in ("ALL_RACE_ONE_PICK_V1","no_skip","MARKET_FAVORITE","ANCHOR_ABILITY_RISK"):
+              assert token in src
+          print("ALL_RACE_ONE_PICK_V1_STATIC_GUARDS_OK")
+          PY
+
+      - name: Install lightweight dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+
+      - name: Run all-race one-pick evaluation
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          result="research-results/all-race-one-pick-v1/run-$GITHUB_RUN_ID"
+          python research/run_all_race_one_pick_v1.py \
+            --predictions "$pred" \
+            --out-dir "$result"
+
+      - name: Cost guard
+        if: always()
+        shell: bash
+        run: |
+          echo "Standard GitHub-hosted ubuntu-latest CPU only."
+          echo "No GPU / paid runner."
+          echo "No actions/cache or upload-artifact."
+          echo "No Kaggle/network data download."
+          echo "Uses the committed compact OOS prediction file only."
+          echo "2026 remains sealed."
+
+      - name: Commit compact results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/all-race-one-pick-v1/run-$GITHUB_RUN_ID"
+          test -s "$result/summary.json"
+          test -s "$result/all-race-one-pick-summary.csv"
+          test -s "$result/market-rank-selection-distribution.csv"
+          test -s "$result/all-race-one-picks.csv.gz"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$result"
+          git commit -m "research: archive all-race one-pick run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
