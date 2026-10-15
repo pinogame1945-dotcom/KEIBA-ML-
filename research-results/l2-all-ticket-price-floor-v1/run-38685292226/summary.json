@@ -1,0 +1,91 @@
+{
+  "contract": "ALL_BET_KIND_PER_TICKET_ODDS_GATING_V1",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "buying_rule": "Only individual bet tickets with a quoted FINAL pre-settlement price above their own type specific min odds are bought",
+  "two_way_analysis": "Fixed 2023-25 price floors, temporal policy selection 2023->2024 and 2023+2024->2025",
+  "WARNING_FINAL_ODDS_RETROSPECTIVE": "FINAL historical odds are observed after betting closed. Not an executable live profitability claim",
+  "WARNING_OPTIMISTIC_BEST": "High ROI retrospective best policies suffer multiple-testing selection bias. Only chronological test can be considered validation",
+  "missing_final_odds_races": 0,
+  "raw_rank_fallback_races": 0,
+  "no_filtered_race_with_ticket": "A race is skipped only when zero candidate ticket passes its own odds floor",
+  "bet_families": [
+    "EXACTA",
+    "PLACE",
+    "QUINELLA",
+    "TRIFECTA",
+    "TRIO",
+    "WIDE",
+    "WIN"
+  ],
+  "axes": [
+    "EV",
+    "AI_PROB",
+    "MARKET",
+    "AI_RAW"
+  ],
+  "partner_rank_sources": [
+    "AI_PROB",
+    "MARKET",
+    "AI_RAW"
+  ],
+  "thresholds": [
+    0.0,
+    1.5,
+    2.0,
+    3.0,
+    5.0,
+    7.0,
+    10.0,
+    15.0,
+    20.0,
+    30.0,
+    50.0,
+    75.0,
+    100.0,
+    150.0,
+    200.0,
+    300.0,
+    500.0,
+    1000.0,
+    2000.0,
+    5000.0
+  ],
+  "portfolio_presets": {
+    "LOOSE": {
+      "WIN": 3,
+      "PLACE": 1.5,
+      "QUINELLA": 5,
+      "WIDE": 2,
+      "EXACTA": 10,
+      "TRIO": 10,
+      "TRIFECTA": 30
+    },
+    "BALANCED": {
+      "WIN": 5,
+      "PLACE": 2,
+      "QUINELLA": 10,
+      "WIDE": 3,
+      "EXACTA": 20,
+      "TRIO": 20,
+      "TRIFECTA": 75
+    },
+    "STRICT": {
+      "WIN": 10,
+      "PLACE": 3,
+      "QUINELLA": 20,
+      "WIDE": 5,
+      "EXACTA": 50,
+      "TRIO": 50,
+      "TRIFECTA": 200
+    }
+  },
+  "all_strategies": 638,
+  "2026_sealed": true,
+  "standard_cpu": true,
+  "payout_archive_commit": "0d4af461b77f0060dd9c789dd2da646026fada47"
+}
