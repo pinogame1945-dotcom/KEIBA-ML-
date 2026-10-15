@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-import argparse,csv,gc,json,math,os
+import argparse,concurrent.futures,csv,gc,json,math,os
 from pathlib import Path
 
 import lightgbm as lgb
@@ -93,14 +93,23 @@ def read_compact_state_source(path,year):
         raise SystemExit(f"empty compact state source year={year}")
     return df
 
+def _read_state_year_item(item):
+    year,path=item
+    return year,read_compact_state_source(path,year)
+
 def build_state_features(paths):
-    compact=[]
-    for year in YEARS:
-        df=read_compact_state_source(paths[year],year)
-        compact.append(df)
-        print(f"STATE_SOURCE_READY year={year} rows={len(df)} races={df['_race_id'].nunique()}",flush=True)
+    compact_by_year={}
+    workers=min(4,len(YEARS))
+    print(f"STATE_SOURCE_PARALLEL workers={workers} years={len(YEARS)}",flush=True)
+    with concurrent.futures.ProcessPoolExecutor(max_workers=workers) as ex:
+        futs=[ex.submit(_read_state_year_item,(year,paths[year])) for year in YEARS]
+        for fut in concurrent.futures.as_completed(futs):
+            year,df=fut.result()
+            compact_by_year[year]=df
+            print(f"STATE_SOURCE_READY year={year} rows={len(df)} races={df['_race_id'].nunique()}",flush=True)
+    compact=[compact_by_year[year] for year in YEARS]
     s=pd.concat(compact,ignore_index=True,copy=False)
-    del compact
+    del compact,compact_by_year
 
     race_n=s.groupby("_race_id")["_horse_id"].transform("size").astype(float)
     denom=(race_n-1.0).clip(lower=1.0)
