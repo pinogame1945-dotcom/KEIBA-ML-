@@ -16,7 +16,7 @@ def from_mobile(payload):
     race=payload.get("race")
     if not isinstance(race,dict):raise ValueError("MISSING_JRA_RACE")
     rid=str(race.get("canonicalRaceId") or "")
-    if not re.fullmatch(r"202[1-5]\d{8}",rid):
+    if not re.fullmatch(r"202[1-6]\d{8}",rid):
         raise ValueError("CANONICAL_NETKEIBA_RACE_ID_REQUIRED_2026_SEALED")
     if race.get("raceStatus")!="SCHEDULED" or race.get("scheduleStatus")!="ACTIVE":
         raise ValueError("CANCELLED_FINISHED_OR_RESCHEDULED_RACE_FORBIDDEN")
