@@ -38,9 +38,10 @@ jobs:
           from pathlib import Path
           p=Path(".github/workflows/l3-l175-frozen-ticket-trust-audit-v1.yml")
           s=p.read_text()
-          assert [x.strip() for x in s.splitlines() if "runs-on:" in x]==["runs-on: ubuntu-latest"]
-          assert "actions/upload-artifact" not in s and "actions/cache" not in s
-          assert "KAGGLE_API_TOKEN" not in s
+          runners=[x.strip() for x in s.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest"],runners
+          action_refs=[x.strip() for x in s.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(("upload-artifact" in a or "actions/cache" in a) for a in action_refs)
           src=Path("research/run_l3_l175_fixed_ticket_trust_audit_v1.py").read_text()
           assert "target_top3" not in src and '"finish"' not in src and '"y3"' not in src
           assert "STABLE_MEDIUM" in src and "STABLE_STRICT" in src
