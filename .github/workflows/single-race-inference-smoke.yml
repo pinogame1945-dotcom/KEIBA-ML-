@@ -26,6 +26,10 @@ on:
       - "scripts/format-one-race-smoke.py"
       - "research/l21-frozen-prebet-price.py"
       - "scripts/l21-frozen-prebet-price-smoke.py"
+      - "scripts/l21-18-horse-full-odds-smoke.py"
+      - "research/anchor-original-feature-geometry.py"
+      - "research/score-original-anchor-asof.py"
+      - "scripts/original-anchor-asof-smoke.py"
       - "research/bridge-mobile-combination-odds.py"
       - "scripts/mobile-combination-bridge-smoke.py"
       - "research/l3-one-race-money.py"
@@ -77,6 +81,7 @@ jobs:
           python3 scripts/final-market-oos-v2-smoke.py
           python3 scripts/format-one-race-smoke.py
           python3 scripts/l21-frozen-prebet-price-smoke.py
+          python3 scripts/l21-18-horse-full-odds-smoke.py
           python3 scripts/mobile-combination-bridge-smoke.py
           python3 scripts/l3-one-race-money-smoke.py
           python3 scripts/one-race-l3-pipeline-smoke.py
