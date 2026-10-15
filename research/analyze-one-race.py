@@ -363,6 +363,36 @@ def one_race(a):
         }
     output=folder/"analysis.json"
     output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+    # The one-race horse analysis may be used as a read-only identity gate
+    # for an independently supplied ORIGINAL ANCHOR_FULL and full live JRA
+    # market snapshot. Do NOT replace the frozen axis with seven kings.
+    if a.mobile_l21_capture or a.original_l21_features or a.l3_limits:
+        from importlib.util import spec_from_file_location,module_from_spec
+        loader=spec_from_file_location("l21_l3_runner",
+            ROOT/"research"/"run-one-race-paper-pipeline.py")
+        runner=module_from_spec(loader)
+        sys.modules[loader.name]=runner
+        loader.loader.exec_module(runner)
+        handoff=runner.run(
+            report["race_id"],folder/"l21-l3",
+            a.mobile_l21_capture,a.original_l21_features,a.l3_limits,
+            output)
+        report["l21_l3_paper_handoff"]={
+            "status":handoff["status"],
+            "stages":handoff["stages"],
+            "required_inputs_missing":handoff["required_inputs_missing"],
+            "path":str(folder/"l21-l3"/"pipeline-status.json"),
+            "no_live_bets_executed":True,
+        }
+    else:
+        report["l21_l3_paper_handoff"]={
+            "status":"BLOCKED_SOURCE_NOT_PROVIDED",
+            "required_inputs_missing":["original_ANCHOR_FULL_asof",
+                "same_JRA_WIN_QUINELLA_TRIO_TRIFECTA_prebet_quote",
+                "L3_budget_and_limits"],
+            "no_live_bets_executed":True,
+        }
+    output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
         "race_id":report["race_id"],"runners":report["starters"],
         "models_ready":models["scored_models"],
@@ -372,6 +402,7 @@ def one_race(a):
         "l17_p3":report["saved_l17_podium"]["status"],
         "market_context":report["market_context"]["status"],
         "historical_final_fair_oos":report["archived_final_market_fair_value"]["status"],
+        "frozen_l21_to_l3":report["l21_l3_paper_handoff"]["status"],
         "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
@@ -399,6 +430,12 @@ def main():
                    help="RESEARCH ONLY: read nonpromoted OOS final-odds fair-value predictions; never combine with current pre-race market")
     p.add_argument("--market-win-snapshot",
                    help="Original timestamped PRE_RACE JRA WIN OddsRow snapshot as KEIBA_JRA_WIN_ODDS_ASOF_V1; FINAL odds forbidden")
+    p.add_argument("--mobile-l21-capture",
+                   help="Original 4-product JRA full PRE_RACE KEIBA-MOBILE export; optional fail-closed L2+L3 integration")
+    p.add_argument("--original-l21-features",
+                   help="Exact timestamped ORIGINAL ANCHOR_FULL full-race horse features; prior-year seven king is NOT an acceptable substitute")
+    p.add_argument("--l3-limits",
+                   help="Flat100 money budget/max-ticket-count JSON; L3 blocks instead of trimming frozen L2.1 tickets")
     p.add_argument("--require-scored",action="store_true")
     one_race(p.parse_args())
 
