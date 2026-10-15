@@ -59,6 +59,10 @@ def one_race(a):
         "feature_schema_version":feature["feature_schema_version"],
         "models":models["model_results"],
         "horses":[],
+        "prior_year_new_model_inference":{
+            "status":"NOT_REQUESTED",
+            "note":"Only prior-year model selection can be valid for original target-year evaluation; historical FINAL race features still need timestamp verification."
+        },
         "saved_l17_podium":{
             "status":"NOT_REQUESTED",
             "note":"L1.7 saved fold OOS podium probability, not L1.75 and not a 2025-trained deployment model"
@@ -231,6 +235,50 @@ def one_race(a):
                         "rank_sum_is_official_router":False,
                         "horses":seven["horses"]
                     }
+    if a.prior_year_models:
+        saved=json.loads(Path(a.prior_year_models).read_text(encoding="utf-8"))
+        if (saved.get("contract")!="KEIBA_PRIOR_YEAR_MODEL_SINGLE_RACE_V1"
+            or saved.get("race_id")!=report["race_id"]
+            or saved.get("model_count")!=7
+            or saved.get("model_parameters_selected_before_target") is not True
+            or saved.get("input_outcome_labels_used") is not False):
+            raise ValueError("PRIOR_YEAR_FROZEN_MODEL_PROVENANCE_CONTRACT_DRIFT")
+        if saved.get("snapshot_prediction_phase")!="FINAL_ARCHIVED_TIMESTAMP_NOT_VERIFIED":
+            raise ValueError("PRIOR_YEAR_SNAPSHOT_PHASE_DRIFT")
+        model_names={m.get("alias") for m in saved["models"]}
+        if model_names!={"core4","pedlegacy","condition","full","light","pedv1","condrc"}:
+            raise ValueError("PRIOR_YEAR_7KING_MODEL_SET_DRIFT")
+        if any(str(m.get("model_selected_no_later_than") or "")>=report["race_date"]
+               for m in saved["models"]):
+            raise ValueError("PRIOR_YEAR_MODEL_SELECTION_NOT_PRIOR")
+        if len(saved["horses"])!=len(horse_matrix) or (
+            {h["horse_id"] for h in saved["horses"]}!=set(horse_matrix)):
+            raise ValueError("PRIOR_YEAR_PRED_HORSE_ID_COVERAGE_DRIFT")
+        for item in saved["horses"]:
+            hid=item["horse_id"]
+            row=horse_matrix[hid]
+            ranks=item["king_ranks"]
+            probs=item["king_raw_probabilities"]
+            if set(ranks)!=model_names or set(probs)!=model_names:
+                raise ValueError("PRIOR_YEAR_7KING_PER_HORSE_COVERAGE_DRIFT")
+            row["prior_year_king_rank_sum"]=item["prior_year_7king_rank_sum_comparator_rank"]
+            row["prior_year_king_ranks"]=ranks
+            row["prior_year_king_raw_probabilities"]=probs
+            for model_name in sorted(model_names):
+                row["model_ranks"]["PRIOR_YEAR_LGBM:"+model_name]={
+                    "rank":ranks[model_name],
+                    "score":probs[model_name],
+                    "origin":"ACTUAL_MODEL_INFERENCE_PRIOR_YEAR_PARAMETERS_ON_HISTORICAL_FINAL",
+                    "source_final_timing_verified":False
+                }
+        report["prior_year_new_model_inference"]={
+            "status":"ORIGINAL_MODELS_SCORED_NOT_VERIFIED_PREBET",
+            "model_count":7,
+            "model_selected_before_race":True,
+            "final_snapshot_prebet_timestamp_verified":False,
+            "not_official_frozen_council":True,
+            "not_l175":True,
+        }
     report["horses"]=sorted(horse_matrix.values(),
         key=lambda h:(h["horse_number"] is None,
                       h["horse_number"] if h["horse_number"] is not None else 999,
@@ -242,11 +290,12 @@ def one_race(a):
         "models_ready":models["scored_models"],
         "models_missing_or_blocked":models["blocked_or_missing_models"],
         "seven_kings":report["saved_seven_kings"]["status"],
+        "prior_year_new_inference":report["prior_year_new_model_inference"]["status"],
         "l17_p3":report["saved_l17_podium"]["status"],
         "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
-    if a.require_scored and models["scored_models"]==0 and report["saved_seven_kings"]["status"] not in ("ARCHIVED_OOF_REPLAY","GITHUB_ARCHIVED_7KING_REPLAY"):
+    if a.require_scored and models["scored_models"]==0 and report["saved_seven_kings"]["status"] not in ("ARCHIVED_OOF_REPLAY","GITHUB_ARCHIVED_7KING_REPLAY") and report["prior_year_new_model_inference"]["status"]!="ORIGINAL_MODELS_SCORED_NOT_VERIFIED_PREBET":
         raise SystemExit("No verified model score available; refusing to label feature-only results as predictions")
 
 def main():
@@ -264,6 +313,8 @@ def main():
                    help="Existing Github research archive yYYYY/ballots.csv.gz (13 candidates)")
     p.add_argument("--seven-kings",action="store_true",
                    help="Restore existing saved seven king score files, strictly from Kaggle dataset listing")
+    p.add_argument("--prior-year-models",
+                   help="Verified JSON produced by seven prior-year trained model scorer; no target-year model selection")
     p.add_argument("--require-scored",action="store_true")
     one_race(p.parse_args())
 
