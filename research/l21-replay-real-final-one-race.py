@@ -34,6 +34,12 @@ def race_in_pack(path,rid,market=False):
     if len(found)!=1:raise ValueError("BACKFILL_TARGET_RACE_NOT_UNIQUE_"+str(len(found)))
     return found[0]
 
+def valid_rank(raw,label):
+    x=l21.number(raw,label)
+    if not x.is_integer() or not 1<=x<=24:
+        raise ValueError("INVALID_INTEGER_RANK_"+label)
+    return int(x)
+
 def research_frame(rid,pred,ability,picks,race_pack):
     year=int(rid[:4])
     raw=[r for r in csv_rows(pred) if r.get("_race_id")==rid and int(r.get("year") or 0)==year]
@@ -64,8 +70,8 @@ def research_frame(rid,pred,ability,picks,race_pack):
           "market_prob_norm":l21.number(row.get("market_prob_norm"),"market_prob_norm"),
           "risk":l21.number(row.get("risk"),"risk"),
           "distill_score_z":l21.number(a.get("distill_score_z"),"distill_score_z"),
-          "distill_ai_rank":int(row["distill_ai_rank"]),
-          "market_rank":int(row["market_rank"]),
+          "distill_ai_rank":valid_rank(row["distill_ai_rank"],"distill_ai_rank"),
+          "market_rank":valid_rank(row["market_rank"],"market_rank"),
           "win_odds_at_cutoff":l21.number(row.get("final_win_odds"),"HISTORICAL_FINAL_WIN_PRICE"),
         }
         horse[n]=item
