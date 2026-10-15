@@ -1,0 +1,55 @@
+name: One-shot Arima 2025 7King previous-year models (free CPU)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-arima-2025-prior-7king.yml"
+permissions:
+  contents: read
+jobs:
+  original-prior-seven:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free CPU and ephemeral disk preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN" || { echo "::error::Kaggle token unavailable"; exit 1; }
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 9000000 || { echo "::error::free disk budget insufficient"; exit 1; }
+          python -m pip install -q --no-cache-dir --disable-pip-version-check kaggle lightgbm==4.7.0 pandas==3.0.6
+      - name: Run original previous-year frozen 7King models on 2025 Arima
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/score-known-race-kaggle.sh 202506050811 "$RUNNER_TEMP/keiba-arima-session" "$RUNNER_TEMP/arima-7king.json"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          src=Path(os.environ["RUNNER_TEMP"])/"arima-7king.json"
+          x=json.loads(src.read_text(encoding="utf-8"))
+          assert x["contract"]=="KEIBA_PRIOR_YEAR_MODEL_SINGLE_RACE_V1"
+          assert x["race_id"]=="202506050811" and x["model_count"]==7
+          assert x["model_parameters_selected_before_target"] is True
+          assert x["input_outcome_labels_used"] is False
+          print("ARIMA_2025_PRIOR_FROZEN_7KING_RESULTS",x["race_date"],"horses",x["horse_count"],flush=True)
+          print("NOT_VERIFIED_PREBET__2025_FINAL_SNAPSHOT_PROVENANCE_UNATTESTED",flush=True)
+          for h in x["horses"]:
+              print("ARIMA_7KING_RANK",h["prior_year_7king_rank_sum_comparator_rank"],
+                    "horse_id",h["horse_id"],"rank_sum",h["rank_sum"],
+                    "top1",h["top1_king_votes"],"top3",h["top3_king_votes"],
+                    "top6",h["top6_king_votes"],
+                    "king_ranks",json.dumps(h["king_ranks"],sort_keys=True),flush=True)
+          PY
+      - name: Read-only cost disclosure
+        if: always()
+        run: |
+          echo "Public GitHub standard free CPU only, transient local files only, no artifact/cache storage or GPU."
+          echo "Do not treat this 7King rank-sum as official L2.1 anchor or verified prebet timestamp."
