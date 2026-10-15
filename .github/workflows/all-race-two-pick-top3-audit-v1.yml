@@ -1,0 +1,79 @@
+name: All Race Two Pick Top3 Audit V1
+
+on:
+  push:
+    branches:
+      - research/top3-anchor-capture-20261015
+    paths:
+      - .github/triggers/all-race-two-pick-top3-audit-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: all-race-two-pick-top3-audit-v1
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate cost and source assumptions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_all_race_two_pick_top3_audit_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          workflow=Path(".github/workflows/all-race-two-pick-top3-audit-v1.yml").read_text()
+          assert [line.strip() for line in workflow.splitlines() if line.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          actions=[line.strip().split(":",1)[1].strip() for line in workflow.splitlines() if line.strip().startswith("- uses:")]
+          assert not any(a.startswith("actions/cache") or a.startswith("actions/upload-artifact") for a in actions)
+          print("STANDARD_CPU_COST_GUARD_OK")
+          PY
+      - name: Install minimal dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Reuse precommitted picks and OOS place labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          picks="research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz"
+          preds="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$picks"
+          test -s "$preds"
+          output="research-results/all-race-two-pick-top3-audit-v1/run-$GITHUB_RUN_ID"
+          python research/run_all_race_two_pick_top3_audit_v1.py --picks "$picks" --predictions "$preds" --out-dir "$output"
+      - name: Cost status
+        if: always()
+        shell: bash
+        run: |
+          echo "Only free standard GitHub CPU runner; no GPU and no paid cloud resource."
+          echo "No Kaggle reads, no cache, no artifact uploads; input files reused."
+          echo "No 2026 processing, no strategy training."
+      - name: Store compact results on research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          output="research-results/all-race-two-pick-top3-audit-v1/run-$GITHUB_RUN_ID"
+          test -s "$output/summary.json"
+          test -s "$output/top3-miss-capture-by-year.csv"
+          test -s "$output/all-races-top3-two-picks.csv.gz"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$output"
+          git commit -m "research: archive top3 two-pick capture $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
