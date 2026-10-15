@@ -102,6 +102,7 @@ def main():
         print("STARTED_HORSE_OOS_MISSING",case["race_id"],case["horse_number"],
               case["horse_id"],"group1_odds_exists",case["win_price_present_for_missing_horse"],
               "price_keys",case["win_odds_raw_keys"],
+              "raw_win_odds",str(case["win_odds_raw_values"])[:300],
               "saved_7king_has_horse",case["saved_7king_council_includes_missing_horse"],
               "7king_field",case["saved_7king_council_horse_count"],"entry",
               case["entry_nonresult_fields"],flush=True)
