@@ -95,7 +95,7 @@ def reject(edit,reason):
     except ValueError as exc:assert reason in str(exc),(reason,str(exc))
     else:raise AssertionError("UNSAFE_L21_INPUT_ACCEPTED "+reason)
 reject(lambda a,b,c:a["race"].update(status="SCHEDULED"),"RESULT_OR_CANCELLED")
-reject(lambda a,b,c:a["race"].update(canonicalRaceId="202607010212"),"2026_SEALED")
+reject(lambda a,b,c:a["race"].update(canonicalRaceId="202607010212"),"2026_HISTORICAL_RACE_REPLAY_SEALED")
 reject(lambda a,b,c:b.update(anchor_source="PRIOR_YEAR_7KING_PROXY"),"L21_ORIGINAL_HORSE_FEATURE")
 reject(lambda a,b,c:b.update(features_asof_asserted=False),"L21_ORIGINAL_HORSE_FEATURE")
 reject(lambda a,b,c:b.update(anchor_horse_id="not_actual"),"FROZEN_ANCHOR_ID_NOT_FOUND")
