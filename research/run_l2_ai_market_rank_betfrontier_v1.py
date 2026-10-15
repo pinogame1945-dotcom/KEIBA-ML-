@@ -120,14 +120,16 @@ def one_year(year, all_data, picks, root):
 
             for axis_name, hid in selected.items():
                 official = finishing[hid]
-                assert_ok(official is not None and official >= 1,
-                          "no finish for selected " + str(rid))
+                assert_ok(official is None or official >= 1,
+                          "invalid finish for selected " + str(rid))
                 is_win = int(by_horse.loc[hid, "target_win"])
                 is_top3 = int(by_horse.loc[hid, "target_top3"])
                 assert_ok(is_win == int(official == 1), "win target drift " + str(rid))
-                assert_ok(is_top3 == int(official <= 3), "top3 target drift " + str(rid))
-                bucket = {1: "FIRST", 2: "SECOND", 3: "THIRD"}.get(
-                    official, "FOURTH_PLUS")
+                assert_ok(is_top3 == int(official is not None and official <= 3),
+                          "top3 target drift " + str(rid))
+                bucket = ("NO_FINISH" if official is None else
+                          {1: "FIRST", 2: "SECOND", 3: "THIRD"}.get(
+                              official, "FOURTH_PLUS"))
                 axis_no = horse_map[hid]
                 row[axis_name + "_horse"] = hid
                 row[axis_name + "_finish"] = official
