@@ -18,7 +18,11 @@ payload={
                "is_final":False,"source_status":"LIVE",
                "final_probe_checked_at":"2025-01-06T13:31:00+09:00",
                "bet_cutoff_at":"2025-01-06T14:25:00+09:00"},
-    "odds_rows":[{"raceKey":race_key,"betType":bt,"selection1":a,"selection2":b,
+    "odds_rows":[{"raceKey":race_key,"betType":"WIN","selection1":i,
+                  "selection2":None,"selection3":None,"observedAt":"2025-01-06T13:30:00+09:00",
+                  "odds":float(i+2),"oddsMin":None,"oddsMax":None,"sourceUrl":url}
+                 for i in (1,2,3)]+
+                 [{"raceKey":race_key,"betType":bt,"selection1":a,"selection2":b,
                   "selection3":c,"observedAt":"2025-01-06T13:30:00+09:00",
                   "odds":v,"oddsMin":None,"oddsMax":None,"sourceUrl":url}
                  for bt,a,b,c,v in [
@@ -29,7 +33,7 @@ payload={
 }
 out=m.convert(payload)
 assert out["contract"]=="KEIBA_JRA_COMBINATION_ODDS_ASOF_V1"
-assert len(out["rows"])==3 and out["source_confirmed_prestart"] is True
+assert len(out["rows"])==3 and len(out["win_odds_rows"])==3 and out["source_confirmed_prestart"] is True
 def reject(fn,why):
     data=copy.deepcopy(payload);fn(data)
     try:m.convert(data)
@@ -42,7 +46,8 @@ reject(lambda x:x["capture"].update(final_probe_checked_at="2025-01-06T15:00:00+
 reject(lambda x:x["odds_rows"][0].update(observedAt="2025-01-06T12:00:00+09:00"),"ODDS_TIMES_MIXED")
 reject(lambda x:x["odds_rows"][0].update(raceKey="WRONG"),"ODDS_RACE_KEY_MISMATCH")
 reject(lambda x:x["odds_rows"][0].update(sourceUrl="https://example.net/"),"ODDS_JRA_RACE_CARD_SOURCE_URL")
-reject(lambda x:x["odds_rows"].pop(1),"MISSING_ONE_OR_MORE_L21_BET_TYPES")
+reject(lambda x:x["odds_rows"].pop(1),"MISSING_FULL_SAME_CAPTURE_WIN_ODDS")
+reject(lambda x:x["odds_rows"].pop(),"MISSING_ONE_OR_MORE_L21_BET_TYPES")
 reject(lambda x:x["race"].update(raceStatus="COMPLETED"),"RESULT_OR_CANCELLED_RACE")
 reject(lambda x:x["race"].update(status="SCHEDULED"),"RESULT_OR_CANCELLED_RACE")
 reject(lambda x:x["race"].update(canonicalRaceId="202607010212"),"2026_SEALED")
