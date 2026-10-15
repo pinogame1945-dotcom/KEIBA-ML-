@@ -1,0 +1,55 @@
+name: L2 Corrected Market AI Plus EV Top1 Joint Win Top3 Audit
+on:
+  push:
+    branches:
+      - research/l2-calibrated-value-two-horse-outcomes-20261015
+    paths:
+      - .github/triggers/l2-calibrated-value-two-horse-outcomes-v1.trigger
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: l2-calibrated-value-two-horse-outcomes-v1
+  cancel-in-progress: false
+jobs:
+  pairwise:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Verify free CPU and historical inputs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_calibrated_value_two_horse_outcomes_v1.py
+          test -s research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz
+          python - <<'PY'
+          from pathlib import Path
+          s=Path(".github/workflows/l2-calibrated-value-two-horse-outcomes-v1.yml").read_text()
+          assert "runs-on: ubuntu-latest" in s
+          assert "actions/cache" not in s and "actions/upload-artifact" not in s
+          print("FREE_CPU_AND_OOS_CACHE_READY")
+          PY
+      - name: Calculate entire 2023 to 2025 paired Top1 outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_l2_calibrated_value_two_horse_outcomes_v1.py \
+            --infile research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --out-dir "research-results/l2-calibrated-value-two-horse-outcomes-v1/run-$GITHUB_RUN_ID"
+      - name: Persist source-verifiable paired metrics
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="research-results/l2-calibrated-value-two-horse-outcomes-v1/run-$GITHUB_RUN_ID"
+          test -s "$dir/summary.json"
+          test -s "$dir/all-pairs-year-scope-outcome.csv"
+          git config user.name keiba-ml-research-bot
+          git config user.email actions@users.noreply.github.com
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dir"
+          git commit -m "research: save market-adjusted AI and EV dual top1 win/top3 coverage run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
