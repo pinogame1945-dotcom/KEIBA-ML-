@@ -1,0 +1,42 @@
+{
+  "contract": "KEIBA_ONE_RACE_MODEL_REGISTRY_V1",
+  "note": "This registry advertises known research families. Unconfigured is NOT a callable inference model. Provide verified persisted model bundle/metadata or OOS archival score sources before declaring ranked outputs.",
+  "models": [
+    {
+      "name": "L1_7KING_COUNCIL",
+      "kind": "unconfigured",
+      "comment": "Historic seven king members need promoted original scorer bundles/horse-level OOF score archive."
+    },
+    {
+      "name": "L1_OUTSIDER",
+      "kind": "unconfigured",
+      "comment": "Outsider score archives and all component models not promoted."
+    },
+    {
+      "name": "L1_7KING_FULLFIELD_L17",
+      "kind": "unconfigured",
+      "comment": "Frozen full-field research scores are not an inference bundle."
+    },
+    {
+      "name": "L1_75_MARKET_CONTEXT",
+      "kind": "unconfigured",
+      "comment": "Requires market-context scorer/odds snapshot; not applicable to no-odds EARLY."
+    },
+    {
+      "name": "L1_ABILITY_RAW",
+      "kind": "unconfigured",
+      "comment": "distill_ai_rank from historical OOF archive is not an executable model."
+    },
+    {
+      "name": "L1_CORRECTION_RISK",
+      "kind": "unconfigured",
+      "comment": "Risk model not promoted."
+    },
+    {
+      "name": "L2_1_ANCHOR_FULL",
+      "kind": "unconfigured",
+      "comment": "L2.1 frozen selection depends on horse-level scores and pre-race ticket odds; separate from ability inference."
+    }
+  ],
+  "ensembles": []
+}
