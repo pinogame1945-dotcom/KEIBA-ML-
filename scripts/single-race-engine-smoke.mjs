@@ -50,6 +50,7 @@ try {
   const features="BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE";
   const run=()=>runOneRace({sourceRoot:dir,raceId:"202305010102",
     historyFrom:"2023-01-01",featureSets:features});
+  await assert.rejects(()=>runOneRace({sourceRoot:dir,raceId:"202605010111",historyFrom:"2023-01-01"}),/2026_SEALED/);
   const result=await run();
   assert.equal(result.race_id,"202305010102");
   assert.equal(result.phase,"EARLY");
