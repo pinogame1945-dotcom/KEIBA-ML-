@@ -59,7 +59,14 @@ def research_frame(rid,pred,ability,picks,race_pack):
             number[hid]=n
     if (not raw or len(raw)!=len(original) or len(z)!=len(ability_by_id) or
         set(original)!=set(ability_by_id) or set(number)!=set(original) or axis[0] not in number):
-        raise ValueError("ORIGINAL_FEATURE_OR_PACK_HORSE_ID_COVERAGE_DRIFT")
+        raise ValueError("ORIGINAL_FEATURE_OR_PACK_HORSE_ID_COVERAGE_DRIFT "+
+            str({"race_id":rid,"archive_predictions":len(raw),
+                 "ability_cache":len(z),"numbered_entries":len(number),
+                 "pred_without_pack":sorted(set(original)-set(number))[:8],
+                 "pack_without_pred":sorted(set(number)-set(original))[:8],
+                 "pred_without_ability":sorted(set(original)-set(ability_by_id))[:8],
+                 "ability_without_pred":sorted(set(ability_by_id)-set(original))[:8],
+                 "axis_in_pack":axis[0] in number}))
     horse={}
     for hid,row in original.items():
         a=ability_by_id[hid]
