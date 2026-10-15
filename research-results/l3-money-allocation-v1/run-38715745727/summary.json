@@ -1,0 +1,620 @@
+{
+  "contract": "KEIBA_L3_MONEY_ALLOCATION_V1",
+  "source_l2_frozen_commit": "9655c717333636b5cc931f672e12dbc377e396bc",
+  "l2_was_selected_on_test_period": true,
+  "period": "2023-2025",
+  "2026_sealed": true,
+  "historical_odds_are_post_race_FINAL": true,
+  "price_based_policies_descriptive_only": [
+    "HIGH_FINAL_ODDS",
+    "LOW_FINAL_ODDS",
+    "P3_HIGH_FINAL_ODDS"
+  ],
+  "p3_is_not_exact_ticket_hit_probability": true,
+  "no_ticket_selection_or_zero_stakes": true,
+  "unknown_signal_ticket_count": 215,
+  "all_policies_spend_same_total_except_FLAT100": true,
+  "allocation": "Every race receives exactly 200 yen per ticket on average, min 100/max 300, original L2 tickets unchanged.",
+  "yearly": {
+    "FLAT100": {
+      "2023": {
+        "policy": "FLAT100",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 436300,
+        "payout_yen": 474650,
+        "profit_yen": 38350,
+        "roi_pct": 108.789824,
+        "roi_ex_top3_win_pct": 90.14898,
+        "max_daily_close_drawdown_yen": 56280,
+        "worst_day_profit_yen": -5700,
+        "daily_profit_stdev_yen": 7738.25
+      },
+      "2024": {
+        "policy": "FLAT100",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 458400,
+        "payout_yen": 533180,
+        "profit_yen": 74780,
+        "roi_pct": 116.313264,
+        "roi_ex_top3_win_pct": 97.469459,
+        "max_daily_close_drawdown_yen": 75120,
+        "worst_day_profit_yen": -5800,
+        "daily_profit_stdev_yen": 8573.52
+      },
+      "2025": {
+        "policy": "FLAT100",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 453200,
+        "payout_yen": 463830,
+        "profit_yen": 10630,
+        "roi_pct": 102.345543,
+        "roi_ex_top3_win_pct": 84.099735,
+        "max_daily_close_drawdown_yen": 46610,
+        "worst_day_profit_yen": -6200,
+        "daily_profit_stdev_yen": 7591.69
+      }
+    },
+    "FLAT200": {
+      "2023": {
+        "policy": "FLAT200",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 949300,
+        "profit_yen": 76700,
+        "roi_pct": 108.789824,
+        "roi_ex_top3_win_pct": 90.14898,
+        "max_daily_close_drawdown_yen": 112560,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 15476.49
+      },
+      "2024": {
+        "policy": "FLAT200",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1066360,
+        "profit_yen": 149560,
+        "roi_pct": 116.313264,
+        "roi_ex_top3_win_pct": 97.469459,
+        "max_daily_close_drawdown_yen": 150240,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 17147.04
+      },
+      "2025": {
+        "policy": "FLAT200",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 927660,
+        "profit_yen": 21260,
+        "roi_pct": 102.345543,
+        "roi_ex_top3_win_pct": 84.099735,
+        "max_daily_close_drawdown_yen": 93220,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 15183.39
+      }
+    },
+    "HASH_CONTROL": {
+      "2023": {
+        "policy": "HASH_CONTROL",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 1069270,
+        "profit_yen": 196670,
+        "roi_pct": 122.538391,
+        "roi_ex_top3_win_pct": 94.577126,
+        "max_daily_close_drawdown_yen": 115870,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 19376.46
+      },
+      "2024": {
+        "policy": "HASH_CONTROL",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1004380,
+        "profit_yen": 87580,
+        "roi_pct": 109.552792,
+        "roi_ex_top3_win_pct": 88.621291,
+        "max_daily_close_drawdown_yen": 187720,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 16189.5
+      },
+      "2025": {
+        "policy": "HASH_CONTROL",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 949220,
+        "profit_yen": 42820,
+        "roi_pct": 104.724184,
+        "roi_ex_top3_win_pct": 80.099294,
+        "max_daily_close_drawdown_yen": 118740,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 17035.26
+      }
+    },
+    "MIN_P3": {
+      "2023": {
+        "policy": "MIN_P3",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 974660,
+        "profit_yen": 102060,
+        "roi_pct": 111.696081,
+        "roi_ex_top3_win_pct": 86.313317,
+        "max_daily_close_drawdown_yen": 119450,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 19426.2
+      },
+      "2024": {
+        "policy": "MIN_P3",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1083240,
+        "profit_yen": 166440,
+        "roi_pct": 118.15445,
+        "roi_ex_top3_win_pct": 90.507199,
+        "max_daily_close_drawdown_yen": 164700,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 19705.11
+      },
+      "2025": {
+        "policy": "MIN_P3",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 1003470,
+        "profit_yen": 97070,
+        "roi_pct": 110.7094,
+        "roi_ex_top3_win_pct": 83.340688,
+        "max_daily_close_drawdown_yen": 110900,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 19254.3
+      }
+    },
+    "SUPPORT_MIN": {
+      "2023": {
+        "policy": "SUPPORT_MIN",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 1031390,
+        "profit_yen": 158790,
+        "roi_pct": 118.197341,
+        "roi_ex_top3_win_pct": 90.573,
+        "max_daily_close_drawdown_yen": 119450,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 20903.95
+      },
+      "2024": {
+        "policy": "SUPPORT_MIN",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1184200,
+        "profit_yen": 267400,
+        "roi_pct": 129.166667,
+        "roi_ex_top3_win_pct": 101.519415,
+        "max_daily_close_drawdown_yen": 131410,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 21256.92
+      },
+      "2025": {
+        "policy": "SUPPORT_MIN",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 984360,
+        "profit_yen": 77960,
+        "roi_pct": 108.601059,
+        "roi_ex_top3_win_pct": 81.84797,
+        "max_daily_close_drawdown_yen": 112150,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 18928.8
+      }
+    },
+    "DELTA_MEAN": {
+      "2023": {
+        "policy": "DELTA_MEAN",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 956860,
+        "profit_yen": 84260,
+        "roi_pct": 109.6562,
+        "roi_ex_top3_win_pct": 84.81664,
+        "max_daily_close_drawdown_yen": 112670,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 18609.6
+      },
+      "2024": {
+        "policy": "DELTA_MEAN",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1111940,
+        "profit_yen": 195140,
+        "roi_pct": 121.284904,
+        "roi_ex_top3_win_pct": 94.458988,
+        "max_daily_close_drawdown_yen": 135460,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 19922.93
+      },
+      "2025": {
+        "policy": "DELTA_MEAN",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 842400,
+        "profit_yen": -64000,
+        "roi_pct": 92.9391,
+        "roi_ex_top3_win_pct": 72.44925,
+        "max_daily_close_drawdown_yen": 140680,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 14360.52
+      }
+    },
+    "P3_SUPPORT": {
+      "2023": {
+        "policy": "P3_SUPPORT",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 983500,
+        "profit_yen": 110900,
+        "roi_pct": 112.709145,
+        "roi_ex_top3_win_pct": 87.326381,
+        "max_daily_close_drawdown_yen": 119450,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 19424.88
+      },
+      "2024": {
+        "policy": "P3_SUPPORT",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1072060,
+        "profit_yen": 155260,
+        "roi_pct": 116.934991,
+        "roi_ex_top3_win_pct": 89.28774,
+        "max_daily_close_drawdown_yen": 137330,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 19344.59
+      },
+      "2025": {
+        "policy": "P3_SUPPORT",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 948740,
+        "profit_yen": 42340,
+        "roi_pct": 104.671227,
+        "roi_ex_top3_win_pct": 78.189541,
+        "max_daily_close_drawdown_yen": 109150,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 17885.51
+      }
+    },
+    "REVERSE_P3": {
+      "2023": {
+        "policy": "REVERSE_P3",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 1103350,
+        "profit_yen": 230750,
+        "roi_pct": 126.443961,
+        "roi_ex_top3_win_pct": 98.482695,
+        "max_daily_close_drawdown_yen": 119450,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 22374.49
+      },
+      "2024": {
+        "policy": "REVERSE_P3",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1196180,
+        "profit_yen": 279380,
+        "roi_pct": 130.473386,
+        "roi_ex_top3_win_pct": 102.826134,
+        "max_daily_close_drawdown_yen": 172160,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 21931.35
+      },
+      "2025": {
+        "policy": "REVERSE_P3",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 1041980,
+        "profit_yen": 135580,
+        "roi_pct": 114.958076,
+        "roi_ex_top3_win_pct": 87.589365,
+        "max_daily_close_drawdown_yen": 101180,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 20052.86
+      }
+    },
+    "LOW_FINAL_ODDS": {
+      "2023": {
+        "policy": "LOW_FINAL_ODDS",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 874710,
+        "profit_yen": 2110,
+        "roi_pct": 100.241806,
+        "roi_ex_top3_win_pct": 83.927344,
+        "max_daily_close_drawdown_yen": 117120,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 11046.1
+      },
+      "2024": {
+        "policy": "LOW_FINAL_ODDS",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 1149210,
+        "profit_yen": 232410,
+        "roi_pct": 125.350131,
+        "roi_ex_top3_win_pct": 101.037304,
+        "max_daily_close_drawdown_yen": 125340,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 18946.55
+      },
+      "2025": {
+        "policy": "LOW_FINAL_ODDS",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 804010,
+        "profit_yen": -102390,
+        "roi_pct": 88.703663,
+        "roi_ex_top3_win_pct": 74.877538,
+        "max_daily_close_drawdown_yen": 116680,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 11215.49
+      }
+    },
+    "HIGH_FINAL_ODDS": {
+      "2023": {
+        "policy": "HIGH_FINAL_ODDS",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 1064590,
+        "profit_yen": 191990,
+        "roi_pct": 122.002063,
+        "roi_ex_top3_win_pct": 94.040798,
+        "max_daily_close_drawdown_yen": 117180,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 22356.62
+      },
+      "2024": {
+        "policy": "HIGH_FINAL_ODDS",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 987950,
+        "profit_yen": 71150,
+        "roi_pct": 107.760689,
+        "roi_ex_top3_win_pct": 81.386344,
+        "max_daily_close_drawdown_yen": 222150,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 18071.92
+      },
+      "2025": {
+        "policy": "HIGH_FINAL_ODDS",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 1045440,
+        "profit_yen": 139040,
+        "roi_pct": 115.339806,
+        "roi_ex_top3_win_pct": 87.971094,
+        "max_daily_close_drawdown_yen": 103500,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 20438.55
+      }
+    },
+    "P3_HIGH_FINAL_ODDS": {
+      "2023": {
+        "policy": "P3_HIGH_FINAL_ODDS",
+        "year": 2023,
+        "races": 2377,
+        "tickets": 4363,
+        "hits": 143,
+        "stake_yen": 872600,
+        "payout_yen": 1039770,
+        "profit_yen": 167170,
+        "roi_pct": 119.15769,
+        "roi_ex_top3_win_pct": 91.533349,
+        "max_daily_close_drawdown_yen": 115870,
+        "worst_day_profit_yen": -11400,
+        "daily_profit_stdev_yen": 21453.18
+      },
+      "2024": {
+        "policy": "P3_HIGH_FINAL_ODDS",
+        "year": 2024,
+        "races": 2233,
+        "tickets": 4584,
+        "hits": 120,
+        "stake_yen": 916800,
+        "payout_yen": 937400,
+        "profit_yen": 20600,
+        "roi_pct": 102.246946,
+        "roi_ex_top3_win_pct": 75.8726,
+        "max_daily_close_drawdown_yen": 222470,
+        "worst_day_profit_yen": -11600,
+        "daily_profit_stdev_yen": 17071.71
+      },
+      "2025": {
+        "policy": "P3_HIGH_FINAL_ODDS",
+        "year": 2025,
+        "races": 2267,
+        "tickets": 4532,
+        "hits": 113,
+        "stake_yen": 906400,
+        "payout_yen": 1044320,
+        "profit_yen": 137920,
+        "roi_pct": 115.21624,
+        "roi_ex_top3_win_pct": 87.847529,
+        "max_daily_close_drawdown_yen": 107640,
+        "worst_day_profit_yen": -12400,
+        "daily_profit_stdev_yen": 20402.4
+      }
+    }
+  },
+  "paired_day_resample_vs_flat200": {
+    "HASH_CONTROL": {
+      "observed_extra_profit_yen": 79550,
+      "resample_95pct_profit_diff_interval_yen": [
+        -129190,
+        287550
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "MIN_P3": {
+      "observed_extra_profit_yen": 118050,
+      "resample_95pct_profit_diff_interval_yen": [
+        -147830,
+        371490
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "SUPPORT_MIN": {
+      "observed_extra_profit_yen": 256630,
+      "resample_95pct_profit_diff_interval_yen": [
+        32350,
+        488620
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "DELTA_MEAN": {
+      "observed_extra_profit_yen": -32120,
+      "resample_95pct_profit_diff_interval_yen": [
+        -284930,
+        231180
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "P3_SUPPORT": {
+      "observed_extra_profit_yen": 60980,
+      "resample_95pct_profit_diff_interval_yen": [
+        -174770,
+        294000
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "REVERSE_P3": {
+      "observed_extra_profit_yen": 398190,
+      "resample_95pct_profit_diff_interval_yen": [
+        158910,
+        623860
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "LOW_FINAL_ODDS": {
+      "observed_extra_profit_yen": -115390,
+      "resample_95pct_profit_diff_interval_yen": [
+        -375530,
+        114210
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "HIGH_FINAL_ODDS": {
+      "observed_extra_profit_yen": 154660,
+      "resample_95pct_profit_diff_interval_yen": [
+        -82380,
+        405590
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    },
+    "P3_HIGH_FINAL_ODDS": {
+      "observed_extra_profit_yen": 78170,
+      "resample_95pct_profit_diff_interval_yen": [
+        -170600,
+        338650
+      ],
+      "resamples": 1000,
+      "causal_or_oos_claim": false
+    }
+  }
+}
