@@ -1,6 +1,6 @@
 {
   "contract": "KEIBA_ONE_RACE_MODEL_REGISTRY_V1",
-  "note": "Explicit catalog of researched model candidates; unconfigured means the executable model or verified as-of OOF score was not promoted. Do not mistake catalog coverage for callable inference. Same-day form dependent candidates need timestamped prior-race results. Council should only be registered after its exact published vote/tie-safe rule is independently reproduced; do not substitute mean-rank.",
+  "note": "Explicit catalog of researched model candidates; unconfigured means the executable model or verified as-of OOF score was not promoted. Do not mistake catalog coverage for callable inference. Same-day form dependent candidates need timestamped prior-race results. Council should only be registered after its exact published vote/tie-safe rule is independently reproduced; do not substitute mean-rank. L2.1 appears as a separate downstream ticket stage rather than a bogus ranking model.",
   "models": [
     {
       "name": "KING:core4_no_pedigree",
@@ -188,12 +188,35 @@
       "name": "L1_CORRECTION_RISK",
       "kind": "unconfigured",
       "comment": "Risk model not promoted."
-    },
-    {
-      "name": "L2_1_ANCHOR_FULL",
-      "kind": "unconfigured",
-      "comment": "L2.1 frozen selection depends on horse-level scores and pre-race ticket odds; separate from ability inference."
     }
   ],
-  "ensembles": []
+  "ensembles": [],
+  "pipeline_stages": [
+    {
+      "name": "L2.1 STANDARD",
+      "type": "fixed_ticket_policy",
+      "status": "NOT_YET_EXECUTABLE",
+      "frozen_contract": "contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json",
+      "immutable_anchor": "EXACT_EXISTING_ANCHOR_FULL",
+      "input_requirements": [
+        "ANCHOR_FULL",
+        "AI_PROB",
+        "AI_RAW",
+        "MARKET",
+        "P__ANCHOR_FULL",
+        "risk",
+        "distill_score_z",
+        "market_prob_norm",
+        "odds_as_of_pre_bet_cutoff_for_all_ticket_types"
+      ],
+      "note": "L2.1 is not another horse-ranking model. Exactly 50 STANDARD line×gate rules across 9 original templates. Needs horse-level evaluation + timestamped ticket odds; STRICT 26 is a subset, never additional buys."
+    },
+    {
+      "name": "L3",
+      "type": "stake_sizing_only",
+      "status": "NOT_YET_CONNECTED",
+      "depends_on": "L2.1 STANDARD",
+      "note": "Never modify anchor, tickets, bet type or gate; stake sizing only."
+    }
+  ]
 }
