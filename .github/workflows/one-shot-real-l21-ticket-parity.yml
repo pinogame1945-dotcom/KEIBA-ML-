@@ -40,6 +40,9 @@ jobs:
           get "$base" "$frozen" \
             research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
             historical-oos.csv.gz 11000000
+          get "$base" "research/l1-council-rebuild-v1-20261004" \
+            research-results/l1-council-rebuild-v1/run-37183263875/races/y2025.jsonl.gz \
+            council-y2025.jsonl.gz 2000000
           get "$base" "$frozen" \
             research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz \
             fair-base.csv.gz 20000000
@@ -79,6 +82,7 @@ jobs:
             --predictions "$root/historical-oos.csv.gz" \
             --race-pack "$root/race-pack.jsonl.gz" \
             --odds-pack "$root/odds-pack.jsonl.gz" \
+            --council "$root/council-y2025.jsonl.gz" \
             --output "$root/five-started-omissions.json"
           python3 - <<'PY'
           import os,json
