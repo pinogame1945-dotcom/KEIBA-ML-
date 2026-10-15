@@ -21,6 +21,10 @@ on:
       - "research/verify-trained-kings-vs-saved-scores.py"
       - "research/predict-prior-year-seven-kings.py"
       - "scripts/prove-existing-trained-kings.sh"
+      - "research/extract-race-snapshot.py"
+      - "scripts/single-race-snapshot-extraction-smoke.py"
+      - "scripts/score-known-race-kaggle.sh"
+      - ".github/workflows/one-race-previous-year-king-prediction.yml"
       - "scripts/l17-saved-p3-smoke.py"
       - "scripts/github-readonly-archive.py"
       - ".github/workflows/single-race-inference-smoke.yml"
@@ -49,6 +53,8 @@ jobs:
           python3 scripts/seven-king-replay-smoke.py
           python3 scripts/l17-saved-p3-smoke.py
           python3 -m py_compile research/audit-seven-king-bundles.py research/verify-trained-kings-vs-saved-scores.py research/predict-prior-year-seven-kings.py
+          python3 scripts/single-race-snapshot-extraction-smoke.py
+          bash -n scripts/score-known-race-kaggle.sh
           bash -n scripts/prove-existing-trained-kings.sh
           python3 -m py_compile scripts/github-readonly-archive.py
           python3 scripts/archived-council-smoke.py
