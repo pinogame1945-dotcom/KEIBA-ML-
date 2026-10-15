@@ -1,0 +1,6 @@
+triggered_at=2026-10-15T11:00:00+09:00
+purpose=ALL_RACE_WINRANK_OUTCOMES_V1
+all_races=true
+bet_selection=REUSE_V1_EXACT
+AI_RANK=P__ANCHOR_FULL_DESC
+2026=SEALED
