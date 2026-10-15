@@ -59,10 +59,14 @@ rows=[row for row in files if row.get("name")==name]
 if len(rows)!=1:raise SystemExit("snapshot resolved name not uniquely in Kaggle metadata")
 try:size=int(rows[0]["size"])
 except (TypeError,ValueError):raise SystemExit("snapshot size missing")
-if not 1<=size<=550000000:raise SystemExit("snapshot exceeds ephemeral free runner quota: "+str(size))
+if not 1<=size<=2300000000:raise SystemExit("snapshot exceeds ephemeral free runner quota: "+str(size))
 print(name)
 PY
 )"
+# The exact 2025 snapshot is 2.12 GB, and will be read only once.
+# Refuse unless runner-local included ephemeral disk is clearly sufficient.
+available_kb=$(df -Pk "$ROOT" | tail -1 | awk '{print $4}')
+test "$available_kb" -gt 9000000 || { echo "::error::insufficient free ephemeral disk for known 2.12GB 2025 file, stop before download";exit 1; }
 echo "SNAPSHOT_EXACT_REMOTE_SELECTED $remote"
 transient "snapshot:year:$YEAR" kaggle datasets download "$SNAP_REF" -f "$remote" -p "$ROOT/snapshot" --unzip --quiet
 test -s "$ROOT/snapshot/$remote"
