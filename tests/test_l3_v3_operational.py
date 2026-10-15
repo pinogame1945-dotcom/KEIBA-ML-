@@ -131,10 +131,11 @@ class L3Operational(unittest.TestCase):
         x["budget"]["max_day_exposure_yen"] = 900
         self.assertEqual(v3.run(x)["daily_bankroll"][0]["status"], "DAY_EXPOSURE_CAP_EXCEEDED")
 
-    def test_attested_sources_and_missing_signal(self):
+    def test_historical_replay_never_claims_live_even_with_boolean_flags(self):
         ok = v3.run(make_input(make_race(missing=False, verified=True)))
-        self.assertEqual(ok["status"], "READY_VERIFIED_SOURCE")
-        self.assertEqual(ok["races"][0]["status"], "READY_VERIFIED_SOURCE")
+        self.assertEqual(ok["status"], "BLOCKED_OR_PAPER_ONLY")
+        self.assertEqual(ok["races"][0]["status"], "PAPER_ONLY_SOURCE_OR_P3_UNVERIFIED")
+        self.assertEqual(ok["races"][0]["portfolio_total_yen"], 1000)
         missing = v3.run(make_input(make_race(missing=True, verified=True)))
         self.assertEqual(missing["races"][0]["status"], "PAPER_ONLY_SOURCE_OR_P3_UNVERIFIED")
 
@@ -157,6 +158,8 @@ class L3Operational(unittest.TestCase):
              "L175_P3_TICKET_HORSE_COVERAGE_MISSING"),
             (lambda p: p["budget"]["race_budget_yen"].update({RACE: 155}),
              "INVALID_RACE_BUDGET"),
+            (lambda p: p["races"][0].update(race_date="2025-01-07"),
+             "BET_CUTOFF_RACE_DATE_DRIFT"),
         ]
         for mutate, expected in scenarios:
             p = copy.deepcopy(baseline)
