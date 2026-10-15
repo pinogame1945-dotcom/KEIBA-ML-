@@ -1,0 +1,70 @@
+{
+  "contract": "L2_HINDSIGHT_ALL_3_YEARS_BLACK_PLUS_NEW_RED_TO_BLACK_THEN_STABILITY_V1",
+  "goal": "Generate all 152 original EV-axis ticket methods × 20 odds bands; filter individual tickets by only pre-race horse signals, reject every 2023/24/25 red or jackpot-unstable strategy, deduplicate true physical tickets and measure exact cost, return, ROI.",
+  "selection_period": [
+    2023,
+    2024,
+    2025
+  ],
+  "selection_is_hindsight": true,
+  "no_leaked_finish_in_ticket_gate": true,
+  "final_odds_warning": "Historical final quoted odds are not guaranteed to be available at bet cutoff; feasibility not independently verified",
+  "evaluation": "descriptive IN-SAMPLE final merged 2023-25 performance, not prospective heldout walkforward",
+  "original_black_lines_count": 245,
+  "original_all_three_year_black_count": 11,
+  "original_red_to_black_found_before_final_stability": 621,
+  "originally_unstable_group_not_automatically_adopted": true,
+  "candidate_three_year_black_line_gate_pairs": 237,
+  "selection_thresholds": {
+    "BASE_ORIGINAL_11": {
+      "n": 0,
+      "hits": 0,
+      "per_year_hits": 0,
+      "max1": 1.0,
+      "max3": 1.0,
+      "minus3_roi": 0
+    },
+    "ALL_YEAR_BLACK_CANDIDATES": {
+      "n": 0,
+      "hits": 0,
+      "per_year_hits": 0,
+      "max1": 1.0,
+      "max3": 1.0,
+      "minus3_roi": 0
+    },
+    "HITS30_NO_JACKPOT_GATE": {
+      "n": 500,
+      "hits": 30,
+      "per_year_hits": 8,
+      "max1": 1.0,
+      "max3": 1.0,
+      "minus3_roi": 0
+    },
+    "STABLE_MEDIUM": {
+      "n": 500,
+      "hits": 30,
+      "per_year_hits": 8,
+      "max1": 0.4,
+      "max3": 0.7,
+      "minus3_roi": 90
+    },
+    "STABLE_STRICT": {
+      "n": 800,
+      "hits": 50,
+      "per_year_hits": 12,
+      "max1": 0.3,
+      "max3": 0.55,
+      "minus3_roi": 100
+    }
+  },
+  "selected_line_gate_counts": {
+    "BASE_ORIGINAL_11": 11,
+    "ALL_YEAR_BLACK_CANDIDATES": 237,
+    "HITS30_NO_JACKPOT_GATE": 50,
+    "STABLE_MEDIUM": 50,
+    "STABLE_STRICT": 26
+  },
+  "physical_ticket_baseline_validation": "All 3 years exact against frozen original 245, all3040, and stable original11",
+  "sealed_year_2026": true,
+  "cost": "only free standard CPU and no artifacts/cache"
+}
