@@ -1,0 +1,9 @@
+goal=buy_original_black_plus_converted_red
+original_black=245
+red_converted_selected_per_policy=true
+source_run=38692491374
+physical_ticket_dedup=true
+compare_same_pruning_and_raw_original=true
+all_20_union=true
+free_standard_cpu_only=true
+2026_sealed=true
