@@ -1,0 +1,9 @@
+contract=L2_VALUE_ANCHOR_BET_FRONTIER_V1
+years=2023,2024,2025
+races=10368
+anchor=ANCHOR_FULL
+types=WIN,PLACE,QUINELLA,WIDE,EXACTA,TRIO,TRIFECTA
+oracle=POST_RESULT_ONLY
+price=100_jpy_per_ticket
+backfill_sha=0d4af461b77f0060dd9c789dd2da646026fada47
+2026_sealed=yes
