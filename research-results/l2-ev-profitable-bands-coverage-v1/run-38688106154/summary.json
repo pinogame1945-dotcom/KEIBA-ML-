@@ -1,0 +1,25 @@
+{
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "price_bands": 20,
+  "all_rules_examined": 3040,
+  "3_year_positive_rules": 245,
+  "3_consecutive_positive_rules": 11,
+  "positive_min500_10hits_rules": 39,
+  "consecutive_min500_10hits_rules": 7,
+  "union_definitions": {
+    "THREE_YEAR_TOTAL_PLUS": "All 245 retrospectively profitable rule/price combinations",
+    "ALL_THREE_YEARS_PLUS": "All 11 rule/price combinations that were profitable in 2023, 2024, and 2025 individually",
+    "THREE_YEAR_PLUS_N500_H10": "39 3-year pooled profitable combinations with >=500 tickets and >=10 winning tickets",
+    "ALL_THREE_YEARS_PLUS_N500_H10": "7 3-year individually profitable combinations with >=500 tickets and >=10 hits"
+  },
+  "portfolio_note": "Union deduplicates the same physical bet (kind, horse combination) inside each race; exact unit 100 yen; per-template lines overlap",
+  "retrospective_selection_warning": "These lines are chosen after seeing 2023-2025 returns; not a deployable future profitable strategy",
+  "odds_warning": "Uses historically archived final odds; pre-closing tradeability not established",
+  "year_2026_sealed": true,
+  "cost": "GitHub Actions standard CPU; no purchased resources"
+}
