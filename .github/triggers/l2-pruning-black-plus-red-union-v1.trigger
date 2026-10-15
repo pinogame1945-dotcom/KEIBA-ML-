@@ -7,3 +7,5 @@ compare_same_pruning_and_raw_original=true
 all_20_union=true
 free_standard_cpu_only=true
 2026_sealed=true
+
+training_stat_typo_fixed=true
