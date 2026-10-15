@@ -1,5 +1,18 @@
 # L2.1: 1レースの発走前組合せオッズ→凍結買い目の紙上価格付け
 
+## 実在した過去1日についての独立再現監査（2026-10-15追加）
+
+本番の発走前価格と**明確に分離**した`research/l21-replay-real-final-one-race.py`（単独1R）と`scripts/l21-real-day-parity.py`（同日全R）を追加。GitHubとBACKFILLの保存済み正本から、`ANCHOR_FULL`実選択馬、`P__ANCHOR_FULL`、Correction Risk、能力z値、元AI_RAW/市場順位、実際の馬番、**確定FINAL組合せオッズ**を取得し、50固定条件で物理券を再生成する。購入券セットを元のL3信頼度監査で保存された原券明細と独立に突き合わせる。結果や払戻は生成時に**参照しない**。価格の再現は最終オッズ同士であり、締切前価格での購入再現ではない。
+
+- 例示`202507010212`：元軸**馬番7**、**1枚の物理券**、元の保存済み購入明細と**完全一致**。
+- 2025-01-06の全24レースを照合：**19レース・27枚の物理券で元の保存済み購入セット/価格/STRICTラベルと完全一致**。
+- 残る**5レースは検証対象から黙って除外しない**。BACKFILLに`entry_status: STARTED`として登録された馬が、それぞれ1頭ずつ当該レースの元のOOS馬別予測には存在しない。元`ANCHOR_FULL`の予測対象とBACKFILLの馬番集合が一致しないため、`BLOCKED_NOT_REPRODUCIBLE`と具体的なhorse_id・欠落理由を監査結果に記録。2026結果や7王代理値で補完しない。
+- 7種類のGitHub sourceを**metadata-first＋Git blob SHAチェック**で1回だけrunnerへ取得し、同じ元データを19+5Rで再利用。推測404再試行なし、無料標準CPUのみ、Actions Artifact/Cacheなし。
+- 実行監査：`https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38744960177`。原券1R監査：`https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38744185891`。
+
+**この監査で証明できたこと**：凍結L2.1の9元テンプレート×50条件を元の本物のデータで再生成し、既存の物理券へ戻れること（対象19R）。**証明できないこと**：FINAL価格が実際の発走前に存在したこと、5Rの欠損馬がなぜ予測対象外か、LIVEオッズ発行者の署名/時刻、元のANCHOR_FULLの新規ライブ演算、2026未知年の性能。後者を完了せずにライブ購入を有効化しない。
+
+
 **段階**: SOURCE_CONTRACT + SYNTHETIC_CI_VALIDATED / REAL_LIVE_QUOTE_NOT_YET_VERIFIED
 
 L2.1正本（読み取り専用）: `contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json`。
