@@ -47,6 +47,23 @@ with tempfile.TemporaryDirectory(prefix="keiba-council-fixture-") as root:
     assert '"winner"' not in text
     assert '"podium"' not in text
     assert '"market_order"' not in text
+    q=importlib.util.spec_from_file_location("id_only","research/replay-one-race-id.py")
+    id_only=importlib.util.module_from_spec(q)
+    q.loader.exec_module(id_only)
+    assert id_only.parse_id("202505010101")=="202505010101"
+    assert id_only.parse_id("https://race.netkeiba.com/race/shutuba.html?race_id=202505010101")=="202505010101"
+    try:id_only.parse_id("https://evil.invalid/?race_id=202505010101")
+    except ValueError:pass
+    else:raise AssertionError("untrusted race URL host accepted")
+    id_report=id_only.render("202505010101",file,bpath)
+    assert id_report["model_families"]=={
+        "seven_king":7,"outsider_top3_ballot":13,
+        "scope":"archived individual ranks and Top3 votes only"
+    }
+    assert id_report["runners"]==3
+    assert id_report["not_live_prediction"] is True
+    assert "MUST_NEVER_LEAK" not in json.dumps(id_report)
+    assert all(len(h["historical_13outsider_top3_votes"])==13 for h in id_report["horses"])
     archive["outsider_support"][0][1]+=1
     with gzip.open(file,"wt",encoding="utf-8") as f:
         f.write(json.dumps(archive)+"\n")
