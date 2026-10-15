@@ -7,6 +7,7 @@ on:
       - .github/workflows/two-port-race-ids.yml
       - research/execute-races-by-id.py
       - scripts/two-port-id-smoke.py
+      - scripts/github-readonly-archive.py
       - scripts/two-port-today-synthetic-smoke.py
       - config/two-port-race-ids.txt
 permissions:
@@ -15,6 +16,8 @@ jobs:
   both-ports:
     runs-on: ubuntu-latest
     timeout-minutes: 20
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
     steps:
       - uses: actions/checkout@v4
       - name: Check two ID input routes offline
