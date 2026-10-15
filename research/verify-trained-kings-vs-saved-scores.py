@@ -70,8 +70,11 @@ def verify(snapshot,root,race_id):
             else:
                 dataframe[key]=pd.to_numeric(dataframe[key],errors="coerce")
         preds=booster.predict(dataframe,num_iteration=int(meta["best_iteration"]))
+        score_name=(folder/"score-remote.txt").read_text(encoding="utf-8").strip()
+        if score_name not in ("score.jsonl.gz","score.jsonl"):
+            raise ValueError("ARCHIVED_SCORE_RESOLVED_NAME_DRIFT "+alias)
         observed={}
-        for row in lines(folder/"score.jsonl.gz"):
+        for row in lines(folder/score_name):
             if str(row.get("race_id") or "")!=race_id:continue
             if row.get("contract")!="L1_TO_L2_OUTPUT_CONTRACT_V1":
                 raise ValueError("SOURCE_SCORE_CONTRACT_DRIFT "+alias)
