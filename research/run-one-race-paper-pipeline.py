@@ -28,7 +28,7 @@ def save(p, data):
     p.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
 
 def run(rid, outdir, mobile_file=None, original_file=None, limits_file=None, analysis_file=None):
-    if not re.fullmatch(r"202[2-5]\d{8}",rid):
+    if not re.fullmatch(r"202[2-6]\d{8}",rid):
         raise ValueError("L2_1_PAPER_RESEARCH_RACE_ID_2022_TO_2025_2026_SEALED")
     root=Path(outdir)
     root.mkdir(parents=True,exist_ok=True)
