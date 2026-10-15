@@ -1,0 +1,81 @@
+name: One-shot real historical L2.1 exact ticket parity (free CPU)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-real-l21-ticket-parity.yml"
+permissions:
+  contents: read
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - name: Verify free runner has safe disk budget
+        shell: bash
+        run: |
+          set -euo pipefail
+          available=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
+          test "$available" -gt 2000000 || { echo "::error::free ephemeral disk below 2GB";exit 1; }
+          python3 -m py_compile research/l21-replay-real-final-one-race.py
+      - name: Read immutable actual 2025 research inputs and exact historical odds
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/l21-true-history"
+          mkdir -p "$root"
+          get() {
+            local repo="$1" ref="$2" path="$3" dest="$4" limit="$5"
+            python3 scripts/github-readonly-archive.py \
+              --repo "$repo" --ref "$ref" --path "$path" --dest "$root/$dest" \
+              --max-bytes "$limit"
+          }
+          base="pinogame1945-dotcom/KEIBA-ML-"
+          frozen="freeze/l2.1-standard50-to-l3-20261015"
+          get "$base" "$frozen" \
+            research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            historical-oos.csv.gz 11000000
+          get "$base" "$frozen" \
+            research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz \
+            fair-base.csv.gz 20000000
+          get "$base" "$frozen" \
+            research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            original-anchor-picks.csv.gz 1500000
+          get "$base" "$frozen" \
+            research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/joined_ticket_trust_complete.csv.gz \
+            original-known-tickets.csv.gz 1200000
+          get "$base" "$frozen" \
+            research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/tickets_missing_l175_signal.csv.gz \
+            original-missing-l175-tickets.csv.gz 100000
+          source="pinogame1945-dotcom/KEIBA-BACKFILL"
+          rev="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          get "$source" "$rev" data/daily/2025-01-06.jsonl.gz race-pack.jsonl.gz 2000000
+          get "$source" "$rev" data/odds/daily/2025-01-06.jsonl.gz odds-pack.jsonl.gz 2000000
+          python3 research/l21-replay-real-final-one-race.py \
+            --race 202507010212 \
+            --predictions "$root/historical-oos.csv.gz" \
+            --ability-cache "$root/fair-base.csv.gz" \
+            --picks "$root/original-anchor-picks.csv.gz" \
+            --race-pack "$root/race-pack.jsonl.gz" \
+            --odds-pack "$root/odds-pack.jsonl.gz" \
+            --baseline-covered "$root/original-known-tickets.csv.gz" \
+            --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
+            --output "$root/historical-ticket-parity.json"
+          python3 - <<'PY'
+          import os,json
+          from pathlib import Path
+          data=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-true-history/historical-ticket-parity.json").read_text())
+          assert data["original_saved_ticket_set_exact"] is True
+          assert data["source_odds_kind"]=="FINAL"
+          assert data["official_live_execution"] is False
+          print("ORIGINAL_L21_HISTORICAL_REAL_SOURCE_PARITY_PASS",
+                data["race_id"],"anchor",data["anchor_horse_number"],
+                "exact_tickets",data["ticket_count"])
+          PY
+      - name: No paid resources
+        if: always()
+        run: |
+          echo "Only free public GitHub standard CPU and ephemeral local 40MB sources; no GPU, paid runner, artifact/cache or remote upload."
+          echo "Historical FINAL odds strictly research parity, NOT tradable pre-start prices."
