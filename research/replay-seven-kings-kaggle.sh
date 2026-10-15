@@ -48,9 +48,12 @@ import json,sys
 rows=json.load(open(sys.argv[1],encoding="utf-8"))
 if not isinstance(rows,list):raise SystemExit("invalid Kaggle metadata")
 names=[str(r["name"]) for r in rows]
-match=[n for n in names if n in ("score.jsonl.gz","score.jsonl")]
+match=[r for r in rows if r.get("name") in ("score.jsonl.gz","score.jsonl")]
 if len(match)!=1:raise SystemExit("missing/ambiguous known score source in metadata")
-print(match[0])
+try: size=int(match[0]["size"])
+except (ValueError,TypeError,KeyError):raise SystemExit("unknown score file size; refuse storage risk")
+if size<1 or size>100_000_000:raise SystemExit(f"score file not within 100 MB guard: {size}")
+print(match[0]["name"])
 PY
 )"
   test -n "$remote"
