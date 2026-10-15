@@ -1,0 +1,13 @@
+study=L2_SKIP_BIG_PAYOUT_SACRIFICE_DIAGNOSTIC_V1
+source=38680436244
+races=10368
+years=2023-2025
+oos_scores=2024-2025
+posthoc_details=highpayout_lost,capture_by_range,year_shifts
+safeguards=2023_based_2024_and_2023_2024_based_2025
+train_selection=2024_only
+confirmation=2025_only
+free_standard_cpu=true
+no_Kaggle_download=true
+no_backfill_download=true
+2026=SEALED
