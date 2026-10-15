@@ -6,7 +6,7 @@ No dropping/reranking, no ROI optimization based on same-year in-sample data,
 no payout handling or betting execution. User budget applies per race.
 """
 from __future__ import annotations
-import argparse,hashlib,json,math,re
+import argparse,datetime,hashlib,json,math,re
 from pathlib import Path
 
 IN="KEIBA_L21_PREBET_QUOTED_TICKETS_V1"
@@ -35,6 +35,17 @@ def allocate(tickets,config):
     cutoff=tickets.get("bet_cutoff_at")
     if not isinstance(observed,str) or not isinstance(cutoff,str) or not observed or not cutoff:
         raise ValueError("MISSING_ODDS_PROVENANCE")
+    if rid.startswith("2026"):
+        try:
+            at=datetime.datetime.fromisoformat(observed.replace("Z","+00:00"))
+            last=datetime.datetime.fromisoformat(cutoff.replace("Z","+00:00"))
+        except ValueError as exc:
+            raise ValueError("2026_INVALID_L3_ASOF_TIMESTAMPS") from exc
+        if at.tzinfo is None or last.tzinfo is None:
+            raise ValueError("2026_L3_TIMESTAMP_TIMEZONE_REQUIRED")
+        now=datetime.datetime.now(datetime.timezone.utc)
+        if not at<=now<last:
+            raise ValueError("2026_ONLY_REAL_FUTURE_PREBET_ASOF_NO_RESULT_REPLAY")
     if config.get("contract")!="KEIBA_L3_FIXED100_LIMITS_V1":
         raise ValueError("L3_MONEY_CONFIG_CONTRACT_MISMATCH")
     budget=integer(config.get("race_budget_yen"),"RACE_BUDGET_YEN",0)
