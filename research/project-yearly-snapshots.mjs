@@ -17,6 +17,11 @@ function arg(name) {
 
 const inputs = String(arg("--inputs") ?? "").split(",").map(x => x.trim()).filter(Boolean);
 const output = arg("--output");
+const gzipLevelRaw = Number(arg("--gzip-level") ?? 6);
+if (!Number.isInteger(gzipLevelRaw) || gzipLevelRaw < 1 || gzipLevelRaw > 9) {
+  throw new Error("--gzip-level must be an integer 1..9");
+}
+const gzipLevel = gzipLevelRaw;
 const featureSets = normalizeFeatureSets(arg("--feature-sets"));
 const predictionPhase = normalizePredictionPhase(arg("--prediction-phase"));
 const actorPrefixes = String(arg("--actor-prefixes") ?? "")
@@ -60,7 +65,7 @@ function keepAutoFeature(key) {
 if (!inputs.length) throw new Error("--inputs is required");
 if (!output) throw new Error("--output is required");
 
-const gzip = createGzip({ level: 6 });
+const gzip = createGzip({ level: gzipLevel });
 const sink = createWriteStream(output);
 gzip.pipe(sink);
 
@@ -104,5 +109,6 @@ console.log(JSON.stringify({
   actor_prefixes: actorPrefixes,
   auto_slices: autoSlices,
   rows,
+  gzip_level: gzipLevel,
   output,
 }, null, 2));
