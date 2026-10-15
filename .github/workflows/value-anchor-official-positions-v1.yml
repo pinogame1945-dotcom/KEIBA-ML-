@@ -1,0 +1,107 @@
+name: AI Value Anchor Official Finish Breakdown V1
+
+on:
+  push:
+    branches:
+      - research/value-anchor-rank-audit-v1-20261015
+    paths:
+      - .github/triggers/value-anchor-official-positions-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: value-anchor-official-positions-v1
+  cancel-in-progress: false
+
+jobs:
+  settle:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Static and cost guards
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_value_anchor_official_positions_v1.py
+          python -m py_compile research/run_all_race_flow_ticket_audit_v1.py
+          python -m py_compile research/build_l2_market_helpers_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/value-anchor-official-positions-v1.yml").read_text()
+          uses=[x.strip().split(":",1)[1].strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert [x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any(u.startswith("actions/cache") or u.startswith("actions/upload-artifact") for u in uses)
+          print("FREE_STANDARD_CPU_GUARD_OK")
+          PY
+      - name: Install only Pandas and NumPy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Sparse checkout only required daily payout race packs
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$pred" "out/backfill/.git/info/sparse-checkout" <<'PY'
+          import pandas as pd,sys
+          source,dest=sys.argv[1:]
+          z=pd.read_csv(source,compression="infer",usecols=["year","_race_date","_race_id"])
+          z["year"]=pd.to_numeric(z["year"],errors="raise").astype(int)
+          assert set(z["year"])=={2023,2024,2025}
+          dates=sorted(set(z["_race_date"].astype(str).str[:10]))
+          assert len(dates)>=200 and len(dates)<=500,len(dates)
+          assert all(len(s)==10 and s[:4] in ("2023","2024","2025") for s in dates)
+          with open(dest,"w",encoding="utf-8") as f:
+              for day in dates: f.write(f"/data/daily/{day}.jsonl.gz\n")
+          print(f"SPARSE_BACKFILL_DATES={len(dates)}")
+          PY
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+          echo "PINNED_BACKFILL_SPARSE_CHECKOUT_OK sha=$SHA"
+      - name: AI expected value anchor official result positions for all races
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          picks="research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz"
+          out="research-results/value-anchor-official-positions-v1/run-$GITHUB_RUN_ID"
+          python research/run_value_anchor_official_positions_v1.py --predictions "$pred" --picks "$picks" --backfill-root out/backfill --out-dir "$out"
+          test -s "$out/summary.json"
+          test -s "$out/official-position-by-year-and-failure-scope.csv"
+          test -s "$out/selected-horse-official-positions.csv.gz"
+      - name: Remove temporary Backfill sparse checkout
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out/backfill
+          echo "Only standard GitHub Actions CPU runner, ephemeral sparse checkout, no paid cloud, no uploads, no cache."
+          echo "2026 remains sealed. Payouts read from BACKFILL pinned to historical snapshot source SHA."
+      - name: Archive exact settlement summaries
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/value-anchor-official-positions-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive AI selected official finishing positions run $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
