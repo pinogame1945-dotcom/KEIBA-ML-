@@ -172,7 +172,9 @@ def combine_quote(source, rid, active, race_key, start):
     if timestamp(source.get("scheduled_start_at"),"market_start")!=start:
         raise ValueError("MARKET_RACE_START_TIME_DRIFT")
     rows=source.get("rows")
-    if not isinstance(rows,list) or not rows or len(rows)>5000:
+    # 18 starters: C(18,2)+C(18,3)+18*17*16 = 5,865
+    # three-combination quotes (plus 18 WIN in a separate list).
+    if not isinstance(rows,list) or not rows or len(rows)>5865:
         raise ValueError("UNSAFE_COMBINATION_QUOTE_ROWS")
     prices={}
     for r in rows:
