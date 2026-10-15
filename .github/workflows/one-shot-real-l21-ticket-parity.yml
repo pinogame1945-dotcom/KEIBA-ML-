@@ -6,6 +6,7 @@ on:
     paths:
       - ".github/workflows/one-shot-real-l21-ticket-parity.yml"
       - "research/l21-replay-real-final-one-race.py"
+      - "scripts/l21-real-day-parity.py"
 permissions:
   contents: read
 jobs:
@@ -64,6 +65,15 @@ jobs:
             --baseline-covered "$root/original-known-tickets.csv.gz" \
             --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
             --output "$root/historical-ticket-parity.json"
+          python3 scripts/l21-real-day-parity.py \
+            --predictions "$root/historical-oos.csv.gz" \
+            --ability-cache "$root/fair-base.csv.gz" \
+            --picks "$root/original-anchor-picks.csv.gz" \
+            --race-pack "$root/race-pack.jsonl.gz" \
+            --odds-pack "$root/odds-pack.jsonl.gz" \
+            --baseline-covered "$root/original-known-tickets.csv.gz" \
+            --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
+            --output "$root/whole-day-parity.json"
           python3 - <<'PY'
           import os,json
           from pathlib import Path
@@ -74,6 +84,13 @@ jobs:
           print("ORIGINAL_L21_HISTORICAL_REAL_SOURCE_PARITY_PASS",
                 data["race_id"],"anchor",data["anchor_horse_number"],
                 "exact_tickets",data["ticket_count"])
+          day=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-true-history/whole-day-parity.json").read_text())
+          assert day["races"]>=8
+          assert day["physical_tickets"]>=3
+          assert day["original_research_parity"] is True
+          assert day["live_quote_confirmed"] is False
+          print("ORIGINAL_L21_COMPLETE_DAY_PARITY_PASS",
+                day["date"],day["races"],day["physical_tickets"])
           PY
       - name: No paid resources
         if: always()
