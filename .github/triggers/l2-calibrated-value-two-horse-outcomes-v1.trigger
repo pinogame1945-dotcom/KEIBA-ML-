@@ -8,3 +8,5 @@ years=2023-2025
 no_new_data=true
 no_paid_compute=true
 2026_locked=true
+
+ci_guard_fixed=true
