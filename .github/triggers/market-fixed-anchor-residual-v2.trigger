@@ -1,4 +1,4 @@
-triggered_at=2026-10-15T08:45:43.291+09:00
-purpose=MARKET_FIXED_ANCHOR_RESIDUAL_V2_AUTOFIX_BASH_ARRAY_EXPANSION
-speed=parallel_day_bias+stable_cache+lightweight_residual
+triggered_at=2026-10-15T08:49:00+09:00
+purpose=MARKET_FIXED_ANCHOR_RESIDUAL_V2_FAST_RETRY
+speed=parallel_day_bias+parallel_state_source+gzip1+projection2+stable_cache+lightweight_residual
 2026_locked=true
