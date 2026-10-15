@@ -7,6 +7,7 @@ on:
       - .github/workflows/two-port-race-ids.yml
       - research/execute-races-by-id.py
       - scripts/two-port-id-smoke.py
+      - scripts/two-port-today-synthetic-smoke.py
       - config/two-port-race-ids.txt
 permissions:
   contents: read
@@ -21,6 +22,7 @@ jobs:
           set -euo pipefail
           python3 -m py_compile research/execute-races-by-id.py
           python3 scripts/two-port-id-smoke.py
+          python3 scripts/two-port-today-synthetic-smoke.py
       - name: Replay genuine original ANCHOR and frozen L2.1 historical FINAL tickets
         run: |
           set -euo pipefail
