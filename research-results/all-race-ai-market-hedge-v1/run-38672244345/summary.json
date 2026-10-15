@@ -1,0 +1,27 @@
+{
+  "contract": "ALL_RACE_AI_MARKET_HEDGE_V1",
+  "source": "existing all-race-one-picks.csv.gz from Run 38668174639",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "agreement_races": 2340,
+  "disagreement_races": 8028,
+  "strategy": "fixed 100-yen win stake: always AI; additionally buy favorite for 100 yen only if AI selected a different horse",
+  "overall_market_roi_pct": 79.449267,
+  "overall_ai_roi_pct": 87.048611,
+  "favorite_only_in_disagreement_roi_pct": 78.198804,
+  "ai_only_in_disagreement_roi_pct": 88.013204,
+  "hedged_overall_roi_pct": 83.186562,
+  "hedged_vs_ai_roi_pp": -3.862049,
+  "hedged_vs_ai_profit_yen": -175020.0,
+  "cashflow_notice": "hedged strategy risks extra capital on disagreement; all ROI is stakes weighted",
+  "independent_hedge_break_even_roi_pct": 100.0,
+  "hedge_improves_base_ai_roi_if_added_favorite_roi_exceeds_pct": 87.048611,
+  "payout_approximation": "final_win_odds * 100 yen; JRA exact paid dividend unverified",
+  "closing_odds_bias": "final odds may not be observable at betting time",
+  "betting_outcome": "retrospective only; no fitted router, no post-outcome switching",
+  "2026_locked": true
+}
