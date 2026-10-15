@@ -50,7 +50,7 @@ wrong(lambda b,c:b["tickets"][0].update(canonical_selection="5-2"),"PHYSICAL_TIC
 wrong(lambda b,c:b["tickets"][0].update(selection_numbers=[5,2],canonical_selection="5-2"),"UNORDERED_TICKET")
 wrong(lambda b,c:b["tickets"][0].update(observed_at="POST"),"TICKET_PROVENANCE")
 wrong(lambda b,c:b.update(historical_final_odds_used=True),"FINAL_ODDS")
-wrong(lambda b,c:b.update(race_id="202607010212"),"2026_SEALED")
+wrong(lambda b,c:b.update(race_id="202607010212"),"2026_ONLY_REAL_FUTURE_PREBET")
 wrong(lambda b,c:c.update(stake_policy="KELLY"),"UNRESEARCHED_L3")
 wrong(lambda b,c:c.update(race_budget_yen=155),"L3_BUDGET_MUST_BE_100YEN_MULTIPLE")
 wrong(lambda b,c:b["tickets"][0].update(matched_line_gates=[]),"MISSING_ORIGINAL_FROZEN_GATE")
