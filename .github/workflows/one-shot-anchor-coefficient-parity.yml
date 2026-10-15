@@ -1,0 +1,62 @@
+name: One-shot original L1.75 ANCHOR FULL coefficient parity (free CPU)
+on:
+  push:
+    branches:
+      - feature/single-race-engine-20261015
+    paths:
+      - ".github/workflows/one-shot-anchor-coefficient-parity.yml"
+      - "research/replay-original-anchor-coefficients-2025.py"
+permissions:
+  contents: read
+jobs:
+  original-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 14
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check source, free runner and Python syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m py_compile research/replay-original-anchor-coefficients-2025.py
+          free=$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')
+          test "$free" -gt 1800000 || { echo "::error::No safe ephemeral space."; exit 1; }
+      - name: Reconstruct archived 2025 original ANCHOR FULL from prior-only coefficients
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-anchor"
+          mkdir -p "$root"
+          get() {
+            python3 scripts/github-readonly-archive.py \
+              --repo pinogame1945-dotcom/KEIBA-ML- \
+              --ref freeze/l2.1-standard50-to-l3-20261015 \
+              --path "$1" --dest "$root/$2" --max-bytes "$3"
+          }
+          get research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz fair-base.csv.gz 19000000
+          get research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz saved-oos.csv.gz 11000000
+          get research-results/market-fixed-anchor-residual-v2/run-38659856085/residual-coefficients.csv coefficients.csv 20000
+          get research-results/market-fixed-anchor-residual-v2/run-38659856085/lambda-selection.csv lambda.csv 15000
+          python3 research/replay-original-anchor-coefficients-2025.py \
+            --cache "$root/fair-base.csv.gz" \
+            --coefficients "$root/coefficients.csv" \
+            --lambda-selection "$root/lambda.csv" \
+            --predictions "$root/saved-oos.csv.gz" \
+            --race 202507010212 --out "$root/proven.json"
+          python3 - <<'PY'
+          import os,json
+          from pathlib import Path
+          z=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-anchor"/"proven.json").read_text())
+          assert z["original_anchored_probs_match"]
+          assert z["training_data_years"] == [2022,2023,2024]
+          assert z["heldout_year"]==2025
+          assert not z["prediction_prebet_time_verified"]
+          assert z["horse_count"]==16,z
+          print("REAL_2025_FROZEN_ANCHOR_FULL_PROBABILITIES_REPRODUCED",
+                z["race_id"],z["horse_count"],z["max_absolute_prob_difference"])
+          PY
+      - name: Free only and not a live model
+        if: always()
+        run: |
+          echo "Free standard GitHub CPU; ephemeral files deleted with runner, no upload/artifacts/cache."
+          echo "Original 2025 FINAL odds/ability/risk OOS parity only. Never a LIVE 2026 betting result."
