@@ -1,0 +1,67 @@
+name: Single race real BACKFILL two-day smoke (free CPU)
+
+on:
+  pull_request:
+    paths:
+      - ".github/workflows/single-race-real-archive-smoke.yml"
+      - "scripts/prepare-real-archive-pair.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-archive-smoke:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - name: Verify ephemeral disk and inspect historical BACKFILL Git tree only
+        id: make_pair
+        shell: bash
+        run: |
+          set -euo pipefail
+          available=$(df -Pk . | tail -1 | awk '{print $4}')
+          if [ "$available" -lt 3000000 ]; then
+            echo "::error::Free ephemeral disk too small, refusing historical checkout"
+            exit 1
+          fi
+          git clone --quiet --depth=1 --filter=blob:none --sparse \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            "$RUNNER_TEMP/keiba-backfill-partial"
+          python3 scripts/prepare-real-archive-pair.py \
+            "$RUNNER_TEMP/keiba-backfill-partial" \
+            "$RUNNER_TEMP/keiba-backfill-smoke"
+      - name: Real 2025 source packs to one-race features (no model retraining)
+        shell: bash
+        env:
+          RACE_ID: ${{ steps.make_pair.outputs.race_id }}
+          HISTORY_FROM: ${{ steps.make_pair.outputs.source_date }}
+        run: |
+          set -euo pipefail
+          python3 research/analyze-one-race.py \
+            --race "$RACE_ID" \
+            --source-root "$RUNNER_TEMP/keiba-backfill-smoke" \
+            --history-from "$HISTORY_FROM" \
+            --output-dir "$RUNNER_TEMP/single-race-real-results"
+          python3 - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"single-race-real-results"
+          f=json.loads((root/"features.json").read_text())
+          r=json.loads((root/"analysis.json").read_text())
+          assert r["race_id"]==os.environ["RACE_ID"]
+          assert f["history"]["days"]==1
+          assert len(f["features_by_horse"])>=3
+          assert r["starters"]==len(f["features_by_horse"])
+          assert all("target" not in h and "market_outcome" not in h
+                     for h in f["features_by_horse"])
+          assert not any(m["status"]=="SCORED" for m in r["models"]), \
+              "No promoted model binaries exist, do not invent scores"
+          print("REAL_BACKFILL_ONE_RACE_FEATURES_PASS",
+                r["race_id"],r["starters"],"horses",
+                len(r["models"]),"explicit candidate statuses")
+          PY
