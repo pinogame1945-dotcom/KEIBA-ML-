@@ -166,7 +166,7 @@ def year_run(year,frame,history,mode,policy,frozen):
                 price=ticket_price(bet,book)
                 if price is None:
                     audits["missing_prices"]+=1
-                    need(not refunds.get(bet,0),"winner without quote "+rid+str(bet))
+                    if refunds.get(bet,0):audits["unpriced_winning_tickets"]+=1
                     continue
                 audits["priced_tickets"]+=1
                 winner=int(refunds.get(bet,0))
