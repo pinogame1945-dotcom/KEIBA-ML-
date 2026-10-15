@@ -255,6 +255,21 @@ def today(ids, captures, out, limits):
             "original_ability_risk_file":str(companion) if not orig.is_file() and companion.is_file() else None,
         }
         try:
+            # This is the actual-day port, not a second way to replay
+            # past FINAL-phase market data or 2026 sealed results.
+            if card.is_file():
+                raw=json.loads(card.read_text(encoding="utf-8"))
+                race=raw.get("race") or {}
+                jst=datetime.timezone(datetime.timedelta(hours=9))
+                now=datetime.datetime.now(datetime.timezone.utc)
+                today_jst=now.astimezone(jst).date()
+                race_date=datetime.date.fromisoformat(str(race.get("raceDate") or ""))
+                begin=datetime.datetime.fromisoformat(
+                    race_date.isoformat()+"T"+str(race.get("startTime"))+":00+09:00")
+                if race_date!=today_jst or begin<=now:
+                    raise ValueError("TODAY_PORT_REQUIRES_CURRENT_JST_DATE_AND_FUTURE_START")
+                if str(race.get("canonicalRaceId"))!=rid:
+                    raise ValueError("TODAY_CARD_ID_MISMATCH")
             result=PAPER.run(rid,folder,**arguments)
             row={"race_id":rid,"port":"today","status":result["status"],
                  "l21_status":result["stages"]["L2_1_TICKET"],
