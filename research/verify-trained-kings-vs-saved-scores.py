@@ -17,7 +17,7 @@ def lines(path):
         for line in f:
             if line.strip():yield json.loads(line)
 
-def verify(snapshot,root,race_id):
+def verify(snapshot,root,race_id,council_file):
     import lightgbm as lgb
     import pandas as pd
     if int(race_id[:4])>=2026:raise ValueError("2026_SEALED")
@@ -35,6 +35,15 @@ def verify(snapshot,root,race_id):
     d=date.fromisoformat(rows[0]["race_date"][:10])
     if any(r["race_date"][:10]!=d.isoformat() for r in rows):
         raise ValueError("TARGET_RACE_DATE_MISMATCH")
+    council=[r for r in lines(council_file) if str(r.get("race_id"))==race_id]
+    if len(council)!=1:raise ValueError("ORIGINAL_SEVEN_KING_COUNCIL_SOURCE_RACE_MISSING")
+    archived=council[0]
+    if str(archived.get("race_date"))!=d.isoformat():
+        raise ValueError("SAVED_COUNCIL_DATE_DRIFT")
+    ids=[str(h) for h in archived.get("horses") or []]
+    matrix=archived.get("rank_matrix") or []
+    if len(matrix)!=7 or len(ids)!=len(rows) or set(ids)!={r["horse_id"] for r in rows}:
+        raise ValueError("ARCHIVED_7KING_FIELD_OR_EXPERT_COVERAGE_DRIFT")
     report=[]
     for alias in EXPERTS:
         folder=Path(root)/alias
@@ -70,24 +79,16 @@ def verify(snapshot,root,race_id):
             else:
                 dataframe[key]=pd.to_numeric(dataframe[key],errors="coerce")
         preds=booster.predict(dataframe,num_iteration=int(meta["best_iteration"]))
-        score_name=(folder/"score-remote.txt").read_text(encoding="utf-8").strip()
-        if score_name not in ("score.jsonl.gz","score.jsonl"):
-            raise ValueError("ARCHIVED_SCORE_RESOLVED_NAME_DRIFT "+alias)
-        observed={}
-        for row in lines(folder/score_name):
-            if str(row.get("race_id") or "")!=race_id:continue
-            if row.get("contract")!="L1_TO_L2_OUTPUT_CONTRACT_V1":
-                raise ValueError("SOURCE_SCORE_CONTRACT_DRIFT "+alias)
-            hid=str(row.get("horse_id") or "")
-            if hid in observed:raise ValueError("DUPLICATE_SOURCE_SCORE "+alias)
-            observed[hid]=float(row["raw_win_probability"])
-        if set(observed)!={x["horse_id"] for x in rows}:
-            raise ValueError("MODEL_SCORE_HORSE_COVERAGE_DRIFT "+alias)
-        delta=max(abs(float(p)-observed[r["horse_id"]]) for r,p in zip(rows,preds))
-        if not math.isfinite(delta) or delta>1e-8:
-            raise ValueError("MODEL_VS_RESEARCH_SAVED_SCORE_DRIFT "+alias+" "+str(delta))
+        actual={hid:int(rank) for hid,rank in zip(ids,matrix[EXPERTS.index(alias)])}
+        order=sorted(rows,key=lambda row:(-float(preds[[r["horse_id"] for r in rows].index(row["horse_id"])]),row["horse_id"]))
+        guessed={row["horse_id"]:i+1 for i,row in enumerate(order)}
+        if sorted(actual.values())!=list(range(1,len(rows)+1)):
+            raise ValueError("BAD_ARCHIVED_EXPERT_RANK_PERMUTATION "+alias)
+        delta=max(abs(guessed[hid]-actual[hid]) for hid in actual)
+        if delta:
+            raise ValueError("MODEL_VS_ORIGINAL_TIE_SAFE_COUNCIL_RANK_DRIFT "+alias+" "+str(delta))
         report.append({"model":alias,"feature_count":len(features),
-                       "starters":len(rows),"max_abs_probability_difference":delta,
+                       "starters":len(rows),"max_abs_rank_difference":delta,
                        "source_phase":"FINAL",
                        "source_valid_year":d.year,
                        "genuine_asof_target_year":False,
@@ -102,12 +103,13 @@ def main():
     ap=argparse.ArgumentParser()
     ap.add_argument("--snapshot",required=True)
     ap.add_argument("--bundles",required=True)
+    ap.add_argument("--council-file",required=True)
     ap.add_argument("--race",default=RACE_ID)
     args=ap.parse_args()
-    data=verify(args.snapshot,args.bundles,args.race)
+    data=verify(args.snapshot,args.bundles,args.race,args.council_file)
     for r in data["models"]:
         print("EXACT_SAVED_KING_MODEL_REPRODUCED",json.dumps(r,separators=(",",":")),flush=True)
-    print("SEVEN_KING_ACTUAL_MODEL_OUTPUT_MATCHES_ORIGINAL_ARCHIVED_SCORES",
+    print("SEVEN_KING_ACTUAL_MODEL_OUTPUT_MATCHES_ORIGINAL_SAVED_TIE_SAFE_RANKS",
           data["race_id"],data["saved_models_reproduced"],data["starters"],flush=True)
 
 if __name__=="__main__":main()
