@@ -89,9 +89,8 @@ def official_ranks(group,pack,race_id):
     check(len({num_map[hid] for hid in group_hids})==len(group_hids),
           f"{race_id}: duplicated horse number")
     m={}
-    for r in group.itertuples(index=False):
-        hid=str(r._horse_id)
-        raw=getattr(r,"market_rank")
+    for horse_id,raw in group[["_horse_id","market_rank"]].itertuples(index=False,name=None):
+        hid=str(horse_id)
         rank=int(raw)
         check(1<=rank<=len(group),f"{race_id}: invalid market rank {rank}")
         m[num_map[hid]]=rank
