@@ -105,6 +105,51 @@ with tempfile.TemporaryDirectory() as d:
     mismatch=module.run(rid,d/"asof",m,put("asof.json",fake),cash,l1)
     assert mismatch["status"]=="BLOCKED_CONTRACT_OR_PROVENANCE_DRIFT"
     assert "SAME_MARKET_SNAPSHOT" in mismatch["failure_reason"]
+    # The original (non-promoted) 2025 ANCHOR_FULL can also be scored
+    # from authentic feature math + prior-only scaler and original asof
+    # upstream companion fields. This is synthetic, NOT an actual past bet.
+    import datetime
+    import importlib.util
+    adapter_spec=importlib.util.spec_from_file_location(
+        "original_anchor_model",Path("research/score-original-anchor-asof.py").resolve())
+    adapter=importlib.util.module_from_spec(adapter_spec)
+    adapter_spec.loader.exec_module(adapter)
+    params={
+       "contract":"KEIBA_ORIGINAL_ANCHOR_FULL_PRIOR_TRAINED_PARAMS_V1",
+       "variant":"ANCHOR_FULL","trained_only_on_years":[2022,2023,2024],
+       "features_in_original_order":list(adapter.MODEL.FEATURES),
+       "not_promoted_or_authenticated_for_live_betting":True,
+       "coefficients":{k:(1.0 if k=="distill_score_z" else 0.0)
+                       for k in adapter.MODEL.FEATURES},
+       "standardizer":{k:{"mean":0,"std":1,"median":0}
+                       for k in adapter.MODEL.FEATURES}
+    }
+    companion={
+       "contract":"KEIBA_L1_ORIGINAL_ABILITY_RISK_ASOF_V1",
+       "race_id":rid,"canonical_race_key":key,
+       "feature_source":"ORIGINAL_PREBET_ABILITY_AND_RISK",
+       "source_observed_before_bet":True,
+       "observed_at":"2025-01-06T13:00:00+09:00",
+       "horses":[{"horse_id":h["horse_id"],"horse_number":h["horse_number"],
+                  "distill_ai_rank":h["distill_ai_rank"],
+                  "distill_score_z":float(10-h["horse_number"]),
+                  "distill_score_gap_to_best":float(h["horse_number"]-1),
+                  "risk":h["risk"]} for h in model["horses"]],
+    }
+    synthetic_time=datetime.datetime.fromisoformat("2025-01-06T13:34:00+09:00")
+    scored=module.run(rid,d/"reconstructed",m,None,cash,l1,
+       put("prior-params.json",params),put("true-companions.json",companion),
+       _synthetic_now=synthetic_time)
+    assert scored["status"]=="PAPER_ONLY_LIMITS_CHECKED",scored
+    assert scored["stages"]["ORIGINAL_ANCHOR_FULL"].startswith("RECONSTRUCTED_PRIOR_MODEL")
+    assert scored["stages"]["L1_75_PRODUCTION"].startswith("NOT_PROMOTED")
+    rebuilt=json.loads((d/"reconstructed/L2_1-original-asof-features.json").read_text())
+    assert rebuilt["anchor_source"]=="EXACT_EXISTING_ANCHOR_FULL"
+    assert len(rebuilt["horses"])==8
+    assert abs(sum(h["P__ANCHOR_FULL"] for h in rebuilt["horses"])-1)<1e-10
+    assert json.loads((d/"reconstructed/L3-fixed100-paper-portfolio.json").read_text())["any_purchase_executed"] is False
+    print("PRIOR_ORIGINAL_ANCHOR_FULL_MODEL_TO_FROZEN_L21_TO_FLAT100_L3_SYNTHETIC_E2E_PASS",
+          rebuilt["anchor_horse_id"],scored.get("result_ticket_count"))
     print("ONE_RACE_L1_ATTACH_TO_L2_FIXED_50_GATES_TO_L3_FIXED100_PAPER_E2E_PASS",
           "physical",tickets["physical_ticket_count"],
           "budget",portfolio["portfolio_total_yen"],
