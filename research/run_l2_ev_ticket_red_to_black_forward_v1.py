@@ -71,8 +71,6 @@ def candidate_tickets(anchor_no,orders,no):
     # up to 10 partner horses from any ranking; no results-based price cut.
     partner=set()
     for order in ("AI_PROB","MARKET","AI_RAW"):
-        partner.update(no[h] for h in orders[order] if no[h]!=anchor_no
-                       for _ in [0] if True) if False else None
         partner.update([no[h] for h in orders[order] if no[h]!=anchor_no][:10])
     others=sorted(partner)
     # Physical tickets unique per race. For unordered types, use sorted tuple.
@@ -120,7 +118,9 @@ def process_ticket_input(g,pick,race,pack,market):
         # settle is used only for training updates AFTER the test decisions.
         ret=round(float(refunds.get(ticket,0)))
         cards.append((ticket,price,ret,key,quality))
-    assert_ok(len(cards)>0,"all ticket prices absent: "+race["race_id"])
+    # Some official race packs have NO priced bet types (cancelled or
+    # unavailable offers). They remain in the 3,456-race denominator and
+    # count as no-purchase; inventing price or dropping the race is forbidden.
     return cards,missing
 
 def train_update(stats,card):
@@ -225,6 +225,8 @@ def run_year(y,all_pred,picks,races,root,stats,output):
             cards,omitted=process_ticket_input(groups.get_group(rid),
                 picks["ANCHOR_FULL"][rid],rec,pack,market)
             missing.update(omitted)
+            if not cards:
+                total["races_no_priced_candidates"]+=1
             total["priced_tickets"]+=len(cards)
             by_kind=defaultdict(list)
             for card in cards:by_kind[card[0][0]].append(card)
@@ -256,7 +258,7 @@ def run_year(y,all_pred,picks,races,root,stats,output):
                 print("BATCH_YEAR_PROGRESS",y,total["races"],"priced",total["priced_tickets"],flush=True)
     assert_ok(total["races"]==RACES_YEAR,"year count drift")
     print("YEAR_COMPLETED",json.dumps({"year":y,"races":total["races"],
-       "priced_tickets":total["priced_tickets"],"missing_quote_tickets":dict(missing),
+       "priced_tickets":total["priced_tickets"],"missing_quote_tickets":dict(missing),"races_no_priced_candidates":total["races_no_priced_candidates"],
        "portfolio_policies":len(all_rows)},ensure_ascii=False),flush=True)
     return year_stats,all_rows,total,missing
 
@@ -291,7 +293,7 @@ def main():
             Path(a.backfill_root),stats,out)
         for (kind,mode,k),v in results.items():
             rows.append(result(str(y),kind,mode,k,v))
-        run_manifest[str(y)]=dict(priced_tickets=metadata["priced_tickets"],
+        run_manifest[str(y)]=dict(priced_tickets=metadata["priced_tickets"],no_price_races=metadata["races_no_priced_candidates"],
                                  missing_quotes=dict(missing),
                                  model_training_years=[yy for yy in YEARS if yy<y])
         merge_hist(stats,year_model)
