@@ -46,7 +46,10 @@ def prepare(df):
     check(df["target_win"].isin([0, 1]).all(), "nonbinary win target")
     grp = df.groupby("_race_id", sort=False)
     check(df["_race_id"].nunique() == N_TOTAL, "race coverage mismatch")
-    check(grp["target_win"].sum().eq(1).all(), "races lacking exactly one winner")
+    wins_per_race = grp["target_win"].sum()
+    print("WINNER_COUNT_DISTRIBUTION", json.dumps(wins_per_race.value_counts().sort_index().to_dict()), flush=True)
+    print("NON_SINGLE_WINNERS_EXAMPLES", wins_per_race[wins_per_race.ne(1)].head(15).to_dict(), flush=True)
+    check(wins_per_race.eq(1).all(), "races lacking exactly one winner")
     check(grp["year"].nunique().eq(1).all(), "race spanning years")
     for y in YEARS:
         check(df.loc[df.year.eq(y), "_race_id"].nunique() == N_PER_YEAR,
