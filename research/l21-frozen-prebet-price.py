@@ -105,15 +105,23 @@ def horse_features(source,rid,active):
         hid=h.get("horse_id")
         if n in by_no or not isinstance(hid,str) or not hid or hid in ids:
             raise ValueError("HORSE_NUMBER_OR_ID_DUPLICATED")
+        # Copy and canonicalize numeric fields, never trust CSV-string
+        # lexicographic ordering or mutate the caller's original model panel.
+        h=dict(h)
         by_no[n]=h;ids.add(hid)
         for name in ("P__ANCHOR_FULL","risk","distill_score_z","market_prob_norm"):
             v=number(h.get(name),name)
             if name in ("P__ANCHOR_FULL","risk","market_prob_norm") and not 0<=v<=1:
                 raise ValueError("FEATURE_PROBABILITY_OUT_OF_RANGE_"+name)
+            h[name]=v
         for name in ("distill_ai_rank","market_rank"):
             x=h.get(name)
             if isinstance(x,bool) or type(x)is not int or not 1<=x<=len(active):
                 raise ValueError("RANK_FIELD_MISSING_OR_INVALID_"+name)
+        h["win_odds_at_cutoff"]=number(h.get("win_odds_at_cutoff"),"win_odds_at_cutoff")
+        if h["win_odds_at_cutoff"]<1:
+            raise ValueError("WIN_PRICE_INVALID")
+
     if set(by_no)!=active:raise ValueError("ORIGINAL_FEATURE_HORSES_NOT_ACTIVE_FIELD")
     ahid=source.get("anchor_horse_id")
     if not isinstance(ahid,str) or ahid not in ids:
