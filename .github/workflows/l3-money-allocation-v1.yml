@@ -55,6 +55,15 @@ jobs:
           test -s "$dest/summary.json"
           test -s "$dest/ticket_stakes.csv.gz"
           test "$(du -sm "$dest" | cut -f1)" -le 8
+      - name: Audit attribution and randomized fixed-budget ranking
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l3-money-allocation-v1/run-$GITHUB_RUN_ID"
+          python research/audit_l3_money_allocation_v1.py --out-dir "$dest"
+          test -s "$dest/allocation_audit.json"
+          test -s "$dest/attribution_bet_type_year.csv"
+          test "$(du -sm "$dest" | cut -f1)" -le 8
       - name: Persist compact research results only
         shell: bash
         run: |
