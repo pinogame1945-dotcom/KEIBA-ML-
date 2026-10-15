@@ -68,6 +68,24 @@ def one_race(a):
         },
         "disclaimer":"This is a historical race reconstruction, not verified timestamped live odds or pre-race racecard. Historical OOF replays are not new model inference."
     }
+    if a.github_saved:
+        if a.council_archive or a.outsider_ballots or a.seven_kings:
+            raise ValueError("--github-saved cannot be combined with other archived-score sources")
+        year=feature["race_id"][:4]
+        cache=folder/"_saved_council_session"
+        gather=subprocess.run(
+            ["bash",str(ROOT/"scripts"/"fetch-saved-council-github.sh"),
+             year,str(cache)],cwd=ROOT,capture_output=True,text=True)
+        if gather.returncode:
+            report["saved_seven_kings"]={
+                "status":"BLOCKED",
+                "reason":"GITHUB_SAVED_ARCHIVE_UNAVAILABLE",
+                "detail":(gather.stderr or gather.stdout)[-1000:]
+            }
+        else:
+            a.council_archive=str(cache/f"council-y{year}.jsonl.gz")
+            a.outsider_ballots=str(cache/f"outsider-ballots-y{year}.csv.gz")
+            report["files"]["saved_archive_session"]=str(cache)
     if a.outsider_ballots and not a.council_archive:
         raise ValueError("--outsider-ballots requires --council-archive")
     if a.council_archive:
@@ -191,6 +209,8 @@ def main():
     p.add_argument("--history-from",default="2021-01-01")
     p.add_argument("--registry",default=str(ROOT/"models"/"one-race-registry.json"))
     p.add_argument("--output-dir",default="out/one-race-analysis")
+    p.add_argument("--github-saved",action="store_true",
+                   help="Restore already-committed 7 king and 13 Outsider score archive from public GitHub once")
     p.add_argument("--council-archive",
                    help="Existing Github research archive races/yYYYY.jsonl.gz (historical ranks)")
     p.add_argument("--outsider-ballots",
