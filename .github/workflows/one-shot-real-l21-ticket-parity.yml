@@ -8,6 +8,7 @@ on:
       - "research/l21-replay-real-final-one-race.py"
       - "scripts/l21-real-day-parity.py"
       - "research/audit-l21-five-started-omissions.py"
+      - "research/audit-dnf-inclusive-training-targets-2025.py"
 permissions:
   contents: read
 jobs:
@@ -88,6 +89,10 @@ jobs:
             --baseline-uncovered "$root/original-missing-l175-tickets.csv.gz" \
             --output "$root/retrospective-DNF-source-parity.json" \
             --retrospective-dnf-source-scope
+          python3 research/audit-dnf-inclusive-training-targets-2025.py \
+            --predictions "$root/historical-oos.csv.gz" \
+            --race-pack "$root/race-pack.jsonl.gz" \
+            --out "$root/all-started-training-target-audit.json"
           python3 research/audit-l21-five-started-omissions.py \
             --predictions "$root/historical-oos.csv.gz" \
             --race-pack "$root/race-pack.jsonl.gz" \
@@ -105,6 +110,11 @@ jobs:
                 data["race_id"],"anchor",data["anchor_horse_number"],
                 "exact_tickets",data["ticket_count"])
           day=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-true-history/whole-day-parity.json").read_text())
+          training=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-true-history/all-started-training-target-audit.json").read_text())
+          assert training["race_count"]==24
+          assert training["previously_excluded_dnf_horses"]==5
+          assert training["oos_missing_set_equals_actual_DNF"] is True
+          assert training["NOT_USABLE_FOR_PREBET_INFERENCE"] is True
           assert day["races"]>=8
           assert day["physical_tickets"]>=3
           assert day["original_research_parity"] is True
