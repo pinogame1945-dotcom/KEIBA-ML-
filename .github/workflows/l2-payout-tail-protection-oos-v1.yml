@@ -64,7 +64,7 @@ jobs:
           root="research-results/l2-skip-value-batch-v1/run-38680436244"
           out="research-results/l2-payout-tail-protection-oos-v1/run-$GITHUB_RUN_ID"
           export OMP_NUM_THREADS=1 OPENBLAS_NUM_THREADS=1 MKL_NUM_THREADS=1 NUMEXPR_NUM_THREADS=1
-          python research/run_l2_payout_tail_protection_v1.py --prior-results-root "$root" --output "$out"
+          python research/run_l2_payout_tail_protection_v1.py --prior-root "$root" --output "$out"
           test -s "$out/summary.json"
           test -s "$out/new-models-risk-utility-hurdle-tail-frontier.csv"
           test -s "$out/new-oos-price-tail-and-payoff-scores.csv.gz"
