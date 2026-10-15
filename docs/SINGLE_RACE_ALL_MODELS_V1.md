@@ -172,6 +172,32 @@ python3 research/analyze-one-race.py \
 - 2019以前など保存済みfold外のレースは、特徴量生成と保存済み20モデル
   予測再生を混同しない。モデルが存在しない場合は `UNAVAILABLE`。
 
+## L1.75 接続前提：発走前オッズの契約と市場比較
+
+2026-10-15に、`research/market_context_v1.py` と `research/bridge-keiba-mobile-odds.py` を追加した。元の **KEIBA-MOBILE の `JraRace` / `JraEntry` / `OddsRow`** を読み、下記条件をすべて満たすときだけ、1レース全頭へ単勝の時刻付き市場確率を接続できる。
+
+- race_id はネット競馬12桁正本に厳密に一致、出走馬の馬番は一意
+- `scheduled_start_at` と `observedAt` にタイムゾーンを持ち、**観測が発走予定時刻より前**
+- KEIBA-MOBILEの `WIN` 種のみ、全出走頭のオッズが揃う、混在時刻や結果・確定オッズは拒否
+- ソースURLのホストは公式JRAのHTTPSに限定。ただしJSONの時刻や出典の改ざんを独立認証できるわけではない
+- 市場正規化確率は `(1/単勝オッズ)/Σ(1/単勝オッズ)` で算出
+- 既存の **2024年までに選択済み7王モデル** のraw勝率を、モデル別に全頭で正規化してから7体平均し市場と並べる。数値の差は**説明用未校正差分であり期待値・ROI・公式L1.75ではない**。馬の並べ替え・買い目・資金配分を一切実行しない
+
+```sh
+# 実際にレース前に保存されたKEIBA-MOBILEのカード＋WIN OddsRowを
+# JSONでエクスポート済みなら、既存の分析に接続する（テストは合成fixture）。
+python3 research/bridge-keiba-mobile-odds.py \
+  --mobile-export local/mobile-card-and-odds.json \
+  --analysis out/one-race/analysis.json \
+  --out out/one-race/with-live-market.json
+```
+
+`research/analyze-one-race.py --market-win-snapshot local/validated-odds.json` でも同じ市場コンテキストを統合可能。保存済みの`FINAL`オッズではなく、**観測時刻のある本物の発走前価格**が必要。現在の歴史的2025年の実験にこの入力はまだ提供されていないため、**実際の発走前市場比較テストは未達**。
+
+さらに、凍結研究 `market-fixed-anchor-residual-v2` の2023〜2025年 **厳密年外OOSの保存済み勝率研究値** (`P__MARKET_DIRECT`, `P__ANCHOR_ABILITY`, `P__ANCHOR_ABILITY_RISK`, `P__ANCHOR_FULL`) に、独立の`--github-fair-value`再生経路を用意した。ソースの`summary.json`が`promotion:false`で、既存の`FINAL`単勝オッズを使うため、**過去研究の検査専用**。現行オッズ`--market-win-snapshot`との併用は禁止。結果列・払戻・当該年を使ったlambda最適化は読み込まない。これは本番L1.75でも「現在買える期待値」でもない。
+
+今後、本番L1.75で実オッズによる評価をするには、上記`FINAL`研究値を流用するのではなく、当時利用可能な特徴量・過去年のみで凍結した係数・発走前の市場観測時刻を揃え直す必要がある。**正本のL2.1購入規則は変更していない。**
+
 ## 任意の2022〜2025年レースIDから7王を再推論する入口
 
 `scripts/score-known-race-kaggle.sh` は **12桁のnetkeiba IDまたはnetkeibaのレースURL** を受け付ける。2022〜2025年の正本snapshotがKaggleに存在することをmetadataで確認し、対象年より1年前に選択済みの7王モデルだけを呼び出す（2025年レースなら2024年モデル）。2026年は封印。
