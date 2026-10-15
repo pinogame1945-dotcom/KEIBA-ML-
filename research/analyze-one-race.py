@@ -7,6 +7,7 @@ converted to live features. Saved scores are separate archival replay.
 from __future__ import annotations
 import argparse,json,os,subprocess,sys
 from pathlib import Path
+from market_context_v1 import attach_win_market
 
 ROOT=Path(__file__).resolve().parents[1]
 
@@ -283,6 +284,16 @@ def one_race(a):
         key=lambda h:(h["horse_number"] is None,
                       h["horse_number"] if h["horse_number"] is not None else 999,
                       h["horse_id"]))
+    if a.market_win_snapshot:
+        quote=json.loads(Path(a.market_win_snapshot).read_text(encoding="utf-8"))
+        report=attach_win_market(report,quote)
+    else:
+        report["market_context"]={
+            "status":"NOT_PROVIDED",
+            "not_l175":True,
+            "not_bet_roi_or_ev":True,
+            "reason":"No independently timestamped original JRA pre-start win odds snapshot supplied; historical FINAL odds must not be substituted."
+        }
     output=folder/"analysis.json"
     output.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print(json.dumps({
@@ -292,6 +303,7 @@ def one_race(a):
         "seven_kings":report["saved_seven_kings"]["status"],
         "prior_year_new_inference":report["prior_year_new_model_inference"]["status"],
         "l17_p3":report["saved_l17_podium"]["status"],
+        "market_context":report["market_context"]["status"],
         "archive_outsider_model_count":report["saved_seven_kings"].get("outsider_model_count",0),
         "report":str(output)
     },ensure_ascii=False,indent=2))
@@ -315,6 +327,8 @@ def main():
                    help="Restore existing saved seven king score files, strictly from Kaggle dataset listing")
     p.add_argument("--prior-year-models",
                    help="Verified JSON produced by seven prior-year trained model scorer; no target-year model selection")
+    p.add_argument("--market-win-snapshot",
+                   help="Original timestamped PRE_RACE JRA WIN OddsRow snapshot as KEIBA_JRA_WIN_ODDS_ASOF_V1; FINAL odds forbidden")
     p.add_argument("--require-scored",action="store_true")
     one_race(p.parse_args())
 
