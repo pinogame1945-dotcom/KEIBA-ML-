@@ -1,0 +1,215 @@
+{
+  "contract": "L3_L175_FROZEN_TICKET_TRUST_AUDIT_V1",
+  "L2_purchase_policy": "STABLE_MEDIUM / 50 unchanged line-gates / exact physical dedup",
+  "strict_comparison": "STRICT member ticket subset (not an additional purchase)",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "horse_source": "frozen rank<=10 OOS L1.7 King plus Outsider podium calibrator run-36747215581",
+  "data_source_features": [
+    "king_rank",
+    "outsider_score",
+    "p3",
+    "p3_delta"
+  ],
+  "not_a_hard_l175_confidence_tier": true,
+  "p3_is_podium_probability_not_exact_ticket_win_probability": true,
+  "signals_use_only_past_year_calibration": true,
+  "confounding": "odds band and bet type; report stratified associations and do not infer bet EV from p3 alone",
+  "historical_final_odds_only": true,
+  "2026_sealed": true,
+  "never_change_axis_tickets_or_stakes": true,
+  "standard_baseline": {
+    "tickets": 13479,
+    "hits": 376,
+    "hit_rate_pct": 2.78952,
+    "races": 6877,
+    "payout_yen": 1471660,
+    "stake_yen": 1347900,
+    "profit_yen": 123760,
+    "roi_pct": 109.18169,
+    "roi_minus_three_biggest_pct": 102.61518
+  },
+  "strict_baseline": {
+    "tickets": 1431,
+    "hits": 98,
+    "hit_rate_pct": 6.84836,
+    "races": 1402,
+    "payout_yen": 169290,
+    "stake_yen": 143100,
+    "profit_yen": 26190,
+    "roi_pct": 118.30189,
+    "roi_minus_three_biggest_pct": 114.14396
+  },
+  "l175_full_coverage": {
+    "tickets": 13264,
+    "total": 13479,
+    "coverage_pct": 98.40492618146747,
+    "missing_tickets": 215,
+    "reasons": "source only has historical King ranks <=10; unmatched never imputed"
+  },
+  "coverage_by_bet_type": {
+    "QUINELLA": {
+      "total": 592,
+      "full": 591,
+      "full_pct": 99.831
+    },
+    "TRIFECTA": {
+      "total": 7898,
+      "full": 7781,
+      "full_pct": 98.519
+    },
+    "TRIO": {
+      "total": 4989,
+      "full": 4892,
+      "full_pct": 98.056
+    }
+  },
+  "p3_min_quintile_by_bet_type": {
+    "QUINELLA": {
+      "Q1": {
+        "min_p3": 0.1153913998955104,
+        "max_p3": 0.2539312372322215,
+        "count": 117
+      },
+      "Q2": {
+        "min_p3": 0.2550800629434542,
+        "max_p3": 0.3037978603174376,
+        "count": 119
+      },
+      "Q3": {
+        "min_p3": 0.3043879884485034,
+        "max_p3": 0.3448831102773274,
+        "count": 116
+      },
+      "Q4": {
+        "min_p3": 0.3476293160162068,
+        "max_p3": 0.4012789492826485,
+        "count": 120
+      },
+      "Q5": {
+        "min_p3": 0.4023801048364338,
+        "max_p3": 0.5632612077190038,
+        "count": 119
+      }
+    },
+    "TRIFECTA": {
+      "Q1": {
+        "min_p3": 0.0831750073086586,
+        "max_p3": 0.201335165248439,
+        "count": 1557
+      },
+      "Q2": {
+        "min_p3": 0.2014549207807918,
+        "max_p3": 0.2468101624937582,
+        "count": 1544
+      },
+      "Q3": {
+        "min_p3": 0.2477550686516619,
+        "max_p3": 0.2899491566666197,
+        "count": 1567
+      },
+      "Q4": {
+        "min_p3": 0.2907049730067161,
+        "max_p3": 0.3352649637465099,
+        "count": 1556
+      },
+      "Q5": {
+        "min_p3": 0.3357785092239964,
+        "max_p3": 0.4863975828761941,
+        "count": 1557
+      }
+    },
+    "TRIO": {
+      "Q1": {
+        "min_p3": 0.0831750073086586,
+        "max_p3": 0.1998399914745201,
+        "count": 985
+      },
+      "Q2": {
+        "min_p3": 0.2005493467667581,
+        "max_p3": 0.2477550686516619,
+        "count": 985
+      },
+      "Q3": {
+        "min_p3": 0.2479481105444137,
+        "max_p3": 0.2907049730067161,
+        "count": 974
+      },
+      "Q4": {
+        "min_p3": 0.290886476895291,
+        "max_p3": 0.3283129408744005,
+        "count": 983
+      },
+      "Q5": {
+        "min_p3": 0.3288349026512725,
+        "max_p3": 0.487426614344307,
+        "count": 965
+      }
+    }
+  },
+  "yearly": {
+    "2023": {
+      "tickets": 4363,
+      "hits": 143,
+      "hit_rate_pct": 3.27756,
+      "races": 2377,
+      "payout_yen": 474650,
+      "stake_yen": 436300,
+      "profit_yen": 38350,
+      "roi_pct": 108.78982,
+      "roi_minus_three_biggest_pct": 90.14898
+    },
+    "2024": {
+      "tickets": 4584,
+      "hits": 120,
+      "hit_rate_pct": 2.6178,
+      "races": 2233,
+      "payout_yen": 533180,
+      "stake_yen": 458400,
+      "profit_yen": 74780,
+      "roi_pct": 116.31326,
+      "roi_minus_three_biggest_pct": 97.46946
+    },
+    "2025": {
+      "tickets": 4532,
+      "hits": 113,
+      "hit_rate_pct": 2.49338,
+      "races": 2267,
+      "payout_yen": 463830,
+      "stake_yen": 453200,
+      "profit_yen": 10630,
+      "roi_pct": 102.34554,
+      "roi_minus_three_biggest_pct": 84.09974
+    }
+  },
+  "signal_rank_association": {
+    "min_p3": {
+      "spearman_hit": 0.036353492575814245,
+      "spearman_per100_return": 0.036392518386732936
+    },
+    "mean_p3": {
+      "spearman_hit": 0.041100078039476975,
+      "spearman_per100_return": 0.04105448475152585
+    },
+    "mean_p3_delta": {
+      "spearman_hit": 0.021740774634311812,
+      "spearman_per100_return": 0.021705061561634275
+    },
+    "support_sum": {
+      "spearman_hit": 0.019303820739294573,
+      "spearman_per100_return": 0.019459024380432163
+    },
+    "support_min": {
+      "spearman_hit": 0.028948930649309874,
+      "spearman_per100_return": 0.028963014478187075
+    }
+  },
+  "ticket_group_counts": {
+    "TRIFECTA": 7781,
+    "TRIO": 4892,
+    "QUINELLA": 591
+  }
+}
