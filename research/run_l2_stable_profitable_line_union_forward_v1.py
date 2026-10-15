@@ -157,9 +157,6 @@ def make_horse(race_pred,pack):
                    ascending=[False,True,True],kind="mergesort")
     pranks=dict(zip(pr["_horse_id"].astype(str),range(1,len(pr)+1)))
     horse={}
-    for row in race_pred.itertuples(index=False):
-        hid=str(row._horse_id) if hasattr(row,"_horse_id") else None
-        # pandas namedtuples mangle leading underscores. Use index tuples
     for _,row in race_pred.iterrows():
         hid=str(row["_horse_id"])
         horse[no[hid]]=dict(P__ANCHOR_FULL=float(row["P__ANCHOR_FULL"]),
@@ -244,7 +241,10 @@ def one_year(year,pred,picks,races,root,
                   "qualifying_lines",sum(len(q) for q in accepted.values()),flush=True)
     assert seen==RACES_YEAR
     for key in history_needed:
-        assert key in hist or False,("train hist key never observed",year,key)
+        # A line can have zero candidate bets in 2023 but positive bets
+        # in 2024. Preserve its genuine zero-count prior-year contribution.
+        if key not in hist:
+            hist[key]=dict(n=0,hits=0,return_yen=0,biggest3=[])
     print("STABLE_YEAR_DONE",year,"training_ticket_contribs",len(hist),
           "portfolio_policies",len(outputs),flush=True)
     return hist,outputs
