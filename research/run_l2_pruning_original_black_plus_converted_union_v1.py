@@ -125,7 +125,7 @@ def main():
     for y in YEARS:
         limits=p.create_thresholds(historical,stats) if y!=2023 else {}
         learned,future=calc_year(y,pred,picks,races,Path(a.backfill_root),stats,limits,history,flips,acc)
-        p.merge(stats,learn);historical.extend(future)
+        p.merge(stats,learned);historical.extend(future)
     prev=readcsv(result/"deduped_original_245_and_all_tickets_union_before_after.csv")
     def prev_get(year,policy):
         return next(r for r in prev if r["year"]==str(year) and r["segment"]=="ORIGINAL_PLUS_245" and r["policy"]==policy)
