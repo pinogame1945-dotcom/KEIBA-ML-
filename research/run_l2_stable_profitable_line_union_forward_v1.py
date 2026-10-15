@@ -177,7 +177,7 @@ def add_race(result,allcards):
     result["hit_races"]+=int(had_hit>0)
 
 def one_year(year,pred,picks,races,root,
-             history_needed,prelim,accepted,plus_from_hindsight):
+             history_needed,accepted,plus_from_hindsight):
     # history_needed only used for years BEFORE each target evaluation fold
     g=pred[pred.year.eq(year)].groupby("_race_id",sort=False)
     rs=races[races.year.eq(year)]
