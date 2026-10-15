@@ -1,3 +1,3 @@
-v2
-retry-ci-static-guard
-2023-2025
+v3
+fix-no-scipy-dependency
+keep-frozen-l2-50
