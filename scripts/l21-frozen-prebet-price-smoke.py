@@ -35,6 +35,8 @@ features={"contract":"KEIBA_L21_ORIGINAL_ANCHOR_FEATURES_PREBET_V1",
     "feature_source":"ORIGINAL_L21_HORSE_FEATURES",
     "input_phase":"PRE_RACE","features_asof_asserted":True,
     "features_observed_at":"2025-01-06T13:00:00+09:00",
+    "win_odds_observed_at":"2025-01-06T13:32:00+09:00",
+    "anchor_computed_at":"2025-01-06T13:33:00+09:00",
     "horses":[{"horse_id":f"horse{n}","horse_number":n,
         "P__ANCHOR_FULL":0.31 if n==1 else 0.14-n*0.005,
         "risk":0.09,"distill_score_z":0.45,
@@ -95,7 +97,9 @@ reject(lambda a,b,c:b.update(features_asof_asserted=False),"L21_ORIGINAL_HORSE_F
 reject(lambda a,b,c:b.update(anchor_horse_id="not_actual"),"FROZEN_ANCHOR_ID_NOT_FOUND")
 reject(lambda a,b,c:b["horses"][1].pop("risk"),"MISSING_NUMERIC_risk")
 reject(lambda a,b,c:b["horses"][1].update(features_observed_at="2025-01-06T14:30:00+09:00"),"none") if False else None
-reject(lambda a,b,c:b.update(features_observed_at="2025-01-06T14:26:00+09:00"),"L21_FEATURES_AFTER_BET_CUTOFF")
+reject(lambda a,b,c:b.update(features_observed_at="2025-01-06T14:26:00+09:00"),"L21_HORSE_FEATURES_AFTER_QUOTE_SNAPSHOT")
+reject(lambda a,b,c:b.update(win_odds_observed_at="2025-01-06T13:31:00+09:00"),"L21_ORIGINAL_ANCHOR_WIN_ODDS_NOT_SAME_MARKET_SNAPSHOT")
+reject(lambda a,b,c:b.update(anchor_computed_at="2025-01-06T14:26:00+09:00"),"L21_ORIGINAL_ANCHOR_COMPUTED_OUTSIDE_QUOTE_TO_CUTOFF")
 reject(lambda a,b,c:c.update(observed_at="2025-01-06T14:30:00+09:00"),"QUOTE_NOT_BEFORE")
 reject(lambda a,b,c:c.update(is_final=True),"COMBINATION_QUOTES_NOT_AUTHORIZED")
 reject(lambda a,b,c:c["rows"][0].update(betType="TRIFECTA"),"INVALID_HORSE_NUMBER_ticket")
