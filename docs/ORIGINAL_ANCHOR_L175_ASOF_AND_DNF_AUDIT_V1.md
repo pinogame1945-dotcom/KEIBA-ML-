@@ -54,13 +54,16 @@ Source years 2025-01-06, original OOS vs actual BACKFILL runners:
 
 All five have `entry_status:STARTED`, valid JRA FINAL WIN odds, and entries in the authentic original 7King Council archive. **All five have `result_status:DNF` and no numeric final finishing position.** Official 2025-01-06 JRA announcements separately confirm all five as actual race-abandoned horses.
 
-Original `research/run_l1_market_disagreement_audit_v1.py::read_market_year()` discards any row whose outcome field `target.finish_position` is not a finite positive number **before** market correction is trained/scored. Thus these five horses vanish before risk and ANCHOR_FULL OOS. This is **not** a 7King, BACKFILL or odds missing-data error.
+Two independent upstream readers make this mistake: `research/run_l1_objective_rebuild_v1.py::read_year()` drops any row whose result-time `target.finish_position` is missing or invalid; separately `research/run_l1_market_disagreement_audit_v1.py::read_market_year()` applies a positive-finite-finish filter. Thus five genuine STARTED DNF horses disappear from the original L1 ability/result-teacher feature population, before FULL Correction Risk and ANCHOR_FULL OOS. This is **not** a 7King, BACKFILL or odds missing-data error. Official JRA 2025-01-06 racing bulletin confirms all five actual race abandonments.
+
+A DNF-aware training-label scope would retain each STARTED horse, set `target_win=0,target_top3=0` for DNF, and use **only pre-race feature columns** for fitting/scoring. `research/audit-dnf-inclusive-training-targets-2025.py` audits this label coverage without fitting new models; it never emits live inference inputs. Original frozen source and its published performance figures remain unchanged.
 
 This retrospective outcome filter creates **selection-on-outcome/survivorship bias**: at betting time, these five could not have been identified as nonfinishers and must not be removed from the input universe. Historical ROI 109.18% from the original frozen research must NOT be presented as certified leakage-free forward performance.
 
 Audits:
 - Default as-known *actual race starter* scope: 19/24 races, 27 physical original tickets exact; five races BLOCKED due originally omitted DNF.
 - Optional `--retrospective-dnf-source-scope` is explicitly **not a forward validation**. It reproduces the original model's after-result 15/16-runner subsets for **historical source-parity only**. No 2026 and no betting; output explicitly records count of outcome-conditioned exclusions.
+- This explicitly labeled retrospective procedure matches **24/24 archived source-model race populations and 33 historical physical tickets**, including **five race-DNF outcome-based omissions**. By contrast the honest all-starters reference remains **19/24 reconstructable, 5 blocked, 27 tickets**; do not promote 24/24 to any prebet success rate. CI https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38755409126
 - Officially preserving L2.1 frozen rules and 2026 holdout takes priority over making this affected study superficially profitable.
 
 ## Remaining real blockers
