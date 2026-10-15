@@ -1,0 +1,42 @@
+name: L2 EV Actual Ticket Odds Band Profit Attribution V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-ev-ticket-price-band-profit.trigger
+
+permissions:
+  contents: write
+
+jobs:
+  attribute-ticket-bands:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Derive per-band ROI directly from frozen odds-floor output
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/attribute_l2_ev_ticket_odds_band_profit_v1.py
+          python research/attribute_l2_ev_ticket_odds_band_profit_v1.py
+          out=research-results/l2-ticket-odds-band-profit-v1
+          test -s "$out/ev-every-ticket-strategy-broad-odds-profit.csv"
+          test -s "$out/ev-every-ticket-strategy-fine-odds-profit.csv.gz"
+          test -s "$out/ev-representative-strategies-odds-profit.csv"
+          test -s "$out/ev-candidate-profitable-odds-bands-500-tickets-min.csv"
+      - name: Save only small auditable aggregate CSV outputs on research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add research-results/l2-ticket-odds-band-profit-v1
+          git commit -m "research: archive EV winning and losing ticket odds band profit attribution"
+          git push origin "HEAD:$GITHUB_REF_NAME"
