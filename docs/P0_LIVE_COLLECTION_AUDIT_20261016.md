@@ -7,7 +7,7 @@
 - **GitHub側**: JRA等の入力取得 → 検証 → 過去年のみの特徴量計算 → 原版L1 / ANCHOR_FULL / Correction Risk → 凍結L2.1 → L3 V3 → バージョン付き公開JSON。
 - **MOBILE側**: GitHubが公開した状態と結果を読み、AI_RAW順位、元期待値AI順位、買い目・掛金、時刻とBLOCK理由を表示するだけ。既存MOBILEの直接JRA収集コードを新パイプラインの依存先にしない。旧コードの削除やアプリ改修はP0の対象外。
 - BACKFILLは前日までの**確定履歴**、LIVEは当日の**時点付き現在情報**。両者の用途、信頼境界、更新頻度、保存期間を混同しない。
-- ユーザー指定済みL3 V3の配分方式は `REVERSE_P3_RACE_MAX300`。基底ブランチの `chosen_stake_policy:null` は**旧文書の矛盾**。このP0はL3エンジンを改造しないが、P1統合で正本契約へ選択済み方式を反映し、1レース100～300円の配分・資金不足を検証する。L2.1券は不変。V3歴史ROIは将来保証でない。
+- ユーザー指定済みL3 V3の配分方式は `REVERSE_P3_RACE_MAX300`。基底ブランチの `chosen_stake_policy:null` は**旧文書の矛盾**。このP0はL3エンジンを改造しないが、P1統合で正本契約へ選択済み方式を反映し、1券100〜300円をレース内で配分する所定方式・資金不足を検証する。L2.1券は不変。V3歴史ROIは将来保証でない。
 
 ## B. P0-1: リポジトリ監査
 
@@ -119,3 +119,16 @@ PR #7の1レースモデル登録簿 `models/one-race-registry.json` には**31�
 - MOBILE PR#18 odds: https://github.com/pinogame1945-dotcom/KEIBA-MOBILE/pull/18
 
 **No collected LIVE races, no deployed original forward model, no CI/run execution, no modifications to production.**
+
+## I. P0監査追加：元ANCHOR_FULLの19特徴量をコード一致で確認
+
+PR#7 `research/anchor-original-feature-geometry.py::FIELDS` と `research/replay-original-anchor-coefficients-2025.py::FEATURES` の**19件・順序が完全一致**した。正確な配列と原コードSHAは `contracts/KEIBA_ANCHOR_FULL_P0_19_FEATURE_ASOF_REQUIREMENTS_V1.json` に保存。
+
+- 真の上流が必要なのは全頭 `distill_ai_rank`、`distill_score_z`、`distill_score_gap_to_best`、原 `risk`、同一観測の単勝価格、正式出走馬ID/馬番、元の係数・正規化統計。
+- 19次元の多くはこれらの上流値と市場順位から**決定論的に導出**できる。反対に、形だけ19列を作っても原能力モデルとFULL Correction Riskの予測値を復元したことにはならない。
+- 候補登録簿の31件も `contracts/KEIBA_LIVE_P0_REGISTERED_MODEL_DEPENDENCIES_V1.json` に記録した。登録簿上は7KING個体7、Outsider候補18、派生・集約など6の合計31が`unconfigured`。**保存済み13 Outsider票と研究登録18候補は同義ではない**。
+- 現時点では「31モデル×149特徴量の完全依存行列」を作ったとは言えない。モデル本体/学習スキーマが欠落しているため、推測表を作らず未解決として可視化した。
+
+### Feature Set 時点境界の追加確認
+
+`contracts/l1-feature-set-contract-v1.json` では、`EARLY` は `ALWAYS/ENTRY_PUBLISHED/FIELD_FIXED` のみを許し、馬場・天候・馬体重等の当日未公表値を排除する。既定 `FINAL` は `RACE_DAY/BODY_WEIGHT_ANNOUNCED` を許すが、これは**当該データが発走前に実際に公表・取得済みの場合だけ**有効。歴史のFINAL行を当日取得したものとみなすことは禁止。
