@@ -1,0 +1,162 @@
+name: L2 EV All-Kind Ticket-Level Red to Black Walkforward V1
+
+on:
+  push:
+    branches:
+      - research/l2-ai-market-rank-betfrontier-v1-20261015
+    paths:
+      - .github/triggers/l2-ev-red-to-black-ticket-forward-v1.trigger
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-red-to-black-ticket-forward-v1
+  cancel-in-progress: false
+
+jobs:
+  train2023-test2024-train2024-test2025:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    steps:
+      - name: Check out frozen research branch
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - name: Install standard Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Refuse GPUs paid runners and paid artifact/cache storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_l2_ev_ticket_red_to_black_forward_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          content=Path(".github/workflows/l2-ev-red-to-black-ticket-forward-v1.yml").read_text()
+          runners=[x.strip() for x in content.splitlines() if x.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest"]
+          action_refs=[x.strip() for x in content.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in action_refs)
+          print("FREE_GITHUB_STANDARD_CPU_NO_CACHE_NO_PAID_ARTIFACT")
+          PY
+      - name: Load only NumPy Pandas dependencies
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Get authoritative manifests from single pinned BACKFILL commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          manifest=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          import pandas as pd
+          r=pd.read_csv("research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz",
+                        compression="infer",usecols=["year","_race_date"])
+          assert set(map(int,r.year))=={2023,2024,2025}
+          dates=sorted(set(r._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350,len(dates)
+          includes={"data/manifest.json","data/odds/manifest.json"}
+          unavailable=[]
+          for day in dates:
+              official=manifest["days"].get(day)
+              assert official and official.get("status")=="SUCCESS",("race pack manifest drift",day)
+              path=official.get("file")
+              assert path and path.startswith("data/daily/") and path.endswith(".jsonl.gz"),(day,path)
+              includes.add(path)
+              info=odds["days"].get(day)
+              assert info,("odds metadata day missing",day)
+              if info.get("status")!="SUCCESS":
+                  unavailable.append((day,info.get("status")))
+                  continue
+              opath=info.get("file")
+              assert opath and opath.startswith("data/odds/daily/") and opath.endswith(".jsonl.gz"),(day,opath)
+              includes.add(opath)
+          if unavailable:
+              # Missing price groups/races are not purchase candidates and are
+              # counted as explicit missing data; never infer invented odds.
+              raise ValueError("Price-bearing race days unavailable; fail closed: "+str(unavailable[:20]))
+          Path("out/pinned-sparse-paths.txt").write_text("\n".join("/"+p for p in sorted(includes))+"\n")
+          print("MANIFEST_DRIVEN_HISTORICAL_DAYS",len(dates),"REMOTE_REAL_FILES",len(includes))
+          PY
+      - name: Fetch all 2023-2025 official exact dividends and all seven ticket prices once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/odds/manifest.json
+          test -s out/pinned-history/data/manifest.json
+          echo "METADATA_RESOLVED_SINGLE_REMOTE_FILE_PER_DATE_READY"
+      - name: Test all 7 anchored ticket kinds and strict prior-year learning
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys
+          sys.path.insert(0,"research")
+          import run_l2_ev_ticket_red_to_black_forward_v1 as m
+          ranks=["a","b","c","d","e","f"]
+          no={q:i+1 for i,q in enumerate(ranks)}
+          ranks3={"AI_PROB":ranks,"MARKET":list(reversed(ranks)),"AI_RAW":ranks}
+          tt=list(m.candidate_tickets(1,ranks3,no))
+          assert len(tt)==len(set(tt))
+          assert {"WIN","PLACE","QUINELLA","WIDE","EXACTA","TRIO","TRIFECTA"}=={t[0] for t in tt}
+          assert all(1 in t[1] for t in tt)
+          assert sum(t[0]=="TRIFECTA" for t in tt)==6*10
+          from collections import defaultdict,Counter
+          t=tt[0]
+          card=(t,2.,0,(t[0],0,1,2),0.)
+          s=defaultdict(Counter)
+          p=m.ticket_score(card,s,"BLEND")
+          assert abs(p-.8)<1e-9,p
+          m.train_update(s,card)
+          assert m.ticket_score(card,s,"HIST")<.8
+          print("TICKET_LEVEL_CANDIDATES_NO_LABEL_FEATURES_AND_CAUSAL_TRAINING_OK")
+          PY
+      - name: Evaluate all red AND black candidate tickets with strict 2024 and 2025 OOS
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-red-to-black-forward-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_ev_ticket_red_to_black_forward_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --backfill-root out/pinned-history --out-dir "$out"
+          for f in summary.json all-policies-by-year.csv \
+                   all-policies-2024-2025-oos-combined.csv \
+                   red-to-black-full-family-and-ticket-budget-audit.csv; do
+            test -s "$out/$f"
+          done
+      - name: Erase temporary historical working files
+        if: always()
+        shell: bash
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Persist only compact research aggregate, never historical dataset or paid artifacts
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-red-to-black-forward-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive real race coverage of pooled profitable EV odds bands $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
