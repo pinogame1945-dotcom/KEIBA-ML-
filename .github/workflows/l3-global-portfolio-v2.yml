@@ -39,7 +39,8 @@ jobs:
           assert [x.strip() for x in w.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
           action_refs=[x.strip() for x in w.splitlines() if x.strip().startswith("- uses:")]
           assert not any("upload-artifact" in x or "actions/cache" in x for x in action_refs)
-          assert "pip install" not in w and "kaggle datasets download" not in w
+          steps=[x.strip() for x in w.splitlines() if x.strip().startswith("run: ")]
+          assert not any("pip install" in x or "kaggle datasets download" in x for x in steps)
           print("FREE_CPU_ONLY_EXISTING_GIT_HISTORY_NO_GPU_NO_EXTRA_PAID_STORAGE")
           PY
           python -m py_compile research/run_l3_global_portfolio_v2.py
