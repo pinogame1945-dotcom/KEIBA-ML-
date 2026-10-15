@@ -462,7 +462,7 @@ def main():
        selection_thresholds=POLICIES,
        selected_line_gate_counts={k:len(v) for k,v in selected.items()},
        physical_ticket_baseline_validation="All 3 years exact against frozen original 245, all3040, and stable original11",
-       2026_sealed=True,
+       sealed_year_2026=True,
        cost="only free standard CPU and no artifacts/cache")
     (out/"summary.json").write_text(json.dumps(result,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
     print("FINAL_STABLE_AND_BLACK_ONLY_MERGED_PORTFOLIOS",json.dumps(metrics,ensure_ascii=False),flush=True)
