@@ -1,0 +1,126 @@
+name: EV Rank 2-6 All 152x20 Odds Red Black Official L2.1 CPU
+
+on:
+  push:
+    branches:
+      - research/l2-ev-rank2to6-all-odds-official-20261016
+    paths:
+      - .github/workflows/l2-ev-rank2to6-official-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-rank2to6-official-v1
+  cancel-in-progress: false
+
+jobs:
+  ev-rank2to6-original-152x20-official-stability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - name: Checkout isolated research branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up standard CPU Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard CPU-only and no paid artifact cache or storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank2to6-official-v1.yml").read_text()
+          assert [x.strip() for x in p.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          refs=[x.strip() for x in p.splitlines() if x.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in r or "actions/cache" in r for r in refs)
+          assert "gpu" not in " ".join(refs).lower()
+          print("ONLY_PUBLIC_GITHUB_STANDARD_CPU_NO_ARTIFACT_NO_CACHE")
+          PY
+          python -m py_compile research/run_l2_ev_rank2to6_official_v1.py
+          python -m py_compile tests/test_l2_ev_rank2to6_official_v1.py
+      - name: Install only NumPy and Pandas
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Verify exact EV rank and frozen stability regression tests
+        run: python -m unittest discover -s tests -p 'test_l2_ev_rank2to6_official_v1.py' -v
+      - name: Resolve 2023-2025 real race and exact odds files at pinned BACKFILL
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          from pathlib import Path
+          import json,pandas as pd
+          root=Path("out/pinned-history")
+          base=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          path="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          raw=pd.read_csv(path,compression="infer",usecols=["year","_race_date"])
+          assert set(map(int,raw.year))=={2023,2024,2025}
+          dates=sorted(set(raw._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350
+          paths={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              a=base["days"].get(day);b=odds["days"].get(day)
+              assert a and a.get("status")=="SUCCESS",("race missing",day,a)
+              assert b and b.get("status")=="SUCCESS",("FINAL odds missing",day,b)
+              x=a["file"];y=b["file"]
+              assert x.startswith("data/daily/") and x.endswith(".jsonl.gz")
+              assert y.startswith("data/odds/daily/") and y.endswith(".jsonl.gz")
+              paths.update((x,y))
+          Path("out/pinned-sparse-paths.txt").write_text(
+              "\n".join("/"+p for p in sorted(paths))+"\n")
+          print("PINNED_2023_2025_BACKFILL_DAYS",len(dates),"FILES",len(paths))
+          PY
+      - name: Read each historical day once into ephemeral local disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Compute every EV rank2-6 ticket odds red black and official L2.1 Medium Strict
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank2to6-official-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_ev_rank2to6_official_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --bands research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv \
+            --backfill-root out/pinned-history --out-dir "$dest"
+          for f in summary.json all_152x20_odds_rank2to6_red_black.csv.gz \
+              all_rank_line_gate_official_decisions.csv.gz \
+              accepted_medium_strict_lines.csv.gz \
+              dedup_portfolios_by_rank_year_and_all_rank_union.csv; do
+            test -s "$dest/$f"
+          done
+      - name: Erase downloaded historical input and transient data
+        if: always()
+        shell: bash
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Persist only compressed aggregate and official decision results
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank2to6-official-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: EV ranks 2-6 exact 152x20 red black and L2.1 stability $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
