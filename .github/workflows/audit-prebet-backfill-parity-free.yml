@@ -1,0 +1,33 @@
+name: Audit Historical Prebet/Backfill Parity - Free CPU
+
+on:
+  push:
+    branches:
+      - audit/prebet-backfill-parity-20261016
+    paths:
+      - 'scripts/audit_prebet_backfill_parity_20261016.py'
+      - 'tests/test_audit_prebet_backfill_parity_20261016.py'
+      - '.github/workflows/audit-prebet-backfill-parity-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  audit-parity-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PYTHONUNBUFFERED: '1'
+      PIP_NO_CACHE_DIR: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install parser without cache or artifact
+        run: python -m pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Check the parser and no-guessing policy
+        run: python -m unittest discover -s tests -p 'test_audit_prebet_backfill_parity_20261016.py' -v
+      - name: Compare historical card with actual day pack, read only
+        run: python scripts/audit_prebet_backfill_parity_20261016.py
