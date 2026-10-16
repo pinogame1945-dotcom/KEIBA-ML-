@@ -58,7 +58,7 @@ for(const runner of live.runners){
    if(item.feature_id.startsWith("race."))raceInputs[item.feature_id.slice(5)]=value;
    if(item.feature_id.startsWith("entry."))entryInputs[item.feature_id.slice(6)]=value;
  }
- for(const f of historical){
+ for(const f of historic){
    const rows=historical.features.filter(x=>x.feature_id===f.feature_id);
    if(rows.length!==1)throw Error("HISTORIC_FEATURE_ID_CARDINALITY:"+f.feature_id);
    const r=rows[0],value=r.value;
