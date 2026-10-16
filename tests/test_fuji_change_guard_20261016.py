@@ -62,7 +62,7 @@ class Tests(unittest.TestCase):
   rr=[dict(h) for h in B["runners"]];rr[4]["trainer_id"]="01234"
   self.assertInvalidate(rr,field="trainer_id")
  def test_changed_weight(self):
-  rr=[dict(h) for h in B["runners"]];rr[4]["carried_weight"]=58.
+  rr=[dict(h) for h in B["runners"]];rr[4]["carried_weight"]=59.
   self.assertInvalidate(rr,field="carried_weight")
  def test_announcement_of_body_weight(self):
   rr=[dict(h) for h in B["runners"]];rr[4]["body_weight"]=480;rr[4]["body_weight_diff"]=-2
