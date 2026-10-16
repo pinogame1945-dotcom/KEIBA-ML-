@@ -15,6 +15,9 @@ on:
       - 'tests/test_blind_target_seq_regime_parity_v1.py'
       - 'research/export_strict_prior_state_history_v1.py'
       - 'tests/test_export_strict_prior_state_history_v1.py'
+      - 'research/export_original_prior_oos_market_teacher_v1.py'
+      - 'research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py'
+      - 'tests/test_export_original_prior_oos_market_teacher_v1.py'
       - '.github/workflows/original-l1-cold-inference-ci.yml'
   workflow_dispatch:
 
@@ -58,3 +61,5 @@ jobs:
           python -m unittest discover -s tests -p test_blind_target_prior_day_bias_v1.py -v
           python -m unittest discover -s tests -p test_blind_target_seq_regime_parity_v1.py -v
           python -m unittest discover -s tests -p test_export_strict_prior_state_history_v1.py -v
+          python -m py_compile research/export_original_prior_oos_market_teacher_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py
+          python -m unittest discover -s tests -p test_export_original_prior_oos_market_teacher_v1.py -v
