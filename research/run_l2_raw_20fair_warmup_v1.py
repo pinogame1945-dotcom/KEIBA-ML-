@@ -216,7 +216,7 @@ def analyze(records,old,baseline):
             all_lines_line_sum_roi_pct_OVERLAPS=full["roi_pct"],
             year2023_eval_start=START,
             note="2023 Jan warmup excluded all methods; 2023 Feb-Dec and 2024-25 evaluated; positive 3yr posthoc; physical duplicates present"))
-    rankings.sort(key=lambda r:(-r["black_only_line_sum_roi_pct_OVERLAPS"] or -1,r["method"]),reverse=True)
+    rankings.sort(key=lambda r:(-r["black_only_line_sum_roi_pct_OVERLAPS"] if r["black_only_line_sum_roi_pct_OVERLAPS"] is not None else float("inf"),r["method"]))
     for ix,row in enumerate(rankings,1):row["rank"]=ix
     return rankings,detail
 
@@ -231,7 +231,7 @@ def main():
     original=prune.read_baseline(Path(a.baseline))
     pred,picks,races=raw.yearly_data(a.predictions,a.picks,a.racewise)
     jan_fair,physical,months=year2023(pred,picks,races,Path(a.historical),original)
-    old=archived_years(Path(a.__dict__["pruned24-25"]),original)
+    old=archived_years(Path(a.pruned24_25),original)
     rankings,detail=analyze(jan_fair,old,original)
     assert len(rankings)==21
     assert len(detail)==sum(r["three_year_black_lines"] for r in rankings)
