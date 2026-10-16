@@ -24,8 +24,15 @@ MAX_RETRIES=3
 HTTP_TRANSIENT={429,502,503,504}
 
 def request_bytes(url, *,max_bytes):
-    req=urllib.request.Request(url,headers={"User-Agent":"KEIBA-ML-readonly-archive",
-        "Accept":"application/vnd.github+json" if url.startswith("https://api.github.com/") else "application/octet-stream"})
+    is_github_api=url.startswith("https://api.github.com/")
+    headers={"User-Agent":"KEIBA-ML-readonly-archive",
+        "Accept":"application/vnd.github+json" if is_github_api else "application/octet-stream"}
+    # Standard free GitHub Actions token avoids low anonymous GitHub API quotas.
+    # Never attach this token to raw.githubusercontent.com downloads.
+    token=os.environ.get("GITHUB_TOKEN")
+    if is_github_api and token:
+        headers["Authorization"]="Bearer "+token
+    req=urllib.request.Request(url,headers=headers)
     for attempt in range(MAX_RETRIES+1):
         try:
             with urllib.request.urlopen(req,timeout=30) as result:
@@ -37,7 +44,11 @@ def request_bytes(url, *,max_bytes):
                 return raw
         except urllib.error.HTTPError as ex:
             if ex.code not in HTTP_TRANSIENT or attempt>=MAX_RETRIES:
-                raise ValueError(f"GitHub HTTP {ex.code} (404 never retried)") from ex
+                if ex.code==403:
+                    raise ValueError("GITHUB_API_403_OR_RATE_LIMIT_NO_BLIND_RETRY") from ex
+                if ex.code==404:
+                    raise ValueError("GITHUB_METADATA_DRIFT_404_STOP") from ex
+                raise ValueError(f"GITHUB_HTTP_{ex.code}_STOP_OR_RETRIES_EXHAUSTED") from ex
         except (urllib.error.URLError,socket.timeout,TimeoutError):
             if attempt>=MAX_RETRIES:raise
         time.sleep(2**attempt)
