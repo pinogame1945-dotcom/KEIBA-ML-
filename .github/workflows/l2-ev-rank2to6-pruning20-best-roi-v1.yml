@@ -41,7 +41,8 @@ jobs:
           p=Path(".github/workflows/l2-ev-rank2to6-pruning20-best-roi-v1.yml").read_text()
           runners=[s.strip() for s in p.splitlines() if s.strip().startswith("runs-on:")]
           assert runners==["runs-on: ubuntu-latest","runs-on: ubuntu-latest"],runners
-          assert "upload-artifact" not in p and "actions/cache" not in p
+          uses=[s.strip() for s in p.splitlines() if s.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in uses)
           print("FREE_STANDARD_CPU_NO_PAID_STORAGE")
           PY
           python -m py_compile research/run_l2_ev_rank2to6_pruning20_best_roi_v1.py
@@ -186,7 +187,7 @@ jobs:
               black_line_definition="pooled 2023-2025 yen profit > 0 after pruning",
               policy_choice="maximum physical-dedup ROI per rank among 20 methods",
               method_selection_is_same_period_hindsight=True,
-              2023_training_year_unpruned=True,
+              training_year_2023_unpruned=True,
               frozen_l2_1_unchanged=True,
               medium_strict_not_applied=True,
               final_odds_not_prebet=True,year2026_sealed=True),
