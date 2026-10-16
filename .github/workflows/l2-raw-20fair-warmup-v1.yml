@@ -43,6 +43,15 @@ jobs:
           python -m py_compile research/run_l2_raw_20fair_warmup_v1.py
           python -m py_compile research/run_l2_raw_selected_stability_fair_v1.py
           python -m py_compile tests/test_l2_raw_fair_stability_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          fair=Path("research/run_l2_raw_20fair_warmup_v1.py").read_text()
+          stable=Path("research/run_l2_raw_selected_stability_fair_v1.py").read_text()
+          assert 'a.pruned24_25' in fair and 'a.pruned24_25' in stable
+          assert 'a.__dict__["pruned24-25"]' not in fair+stable
+          assert 'rankings.sort(key=lambda r:(-r["black_only_line_sum_roi_pct_OVERLAPS"]' in fair
+          print("ARGS_NORMALIZED_AND_HIGH_ROI_FIRST")
+          PY
       - name: Install required Pandas dependency only
         run: python -m pip install --disable-pip-version-check numpy pandas
       - name: Run isolated calculation regression tests
