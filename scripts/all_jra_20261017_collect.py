@@ -465,7 +465,7 @@ def main():
   dest=output/(race["race_id"]+".json")
   cached=reusable_verified(dest,race) if args.resume_verified else None
   item=cached if cached is not None else single(race)
-  if cached is None:dest.write_text(json.dumps(item,ensure_ascii=False,indent=2)+"\\n","utf-8")
+  if cached is None:dest.write_text(json.dumps(item,ensure_ascii=False,indent=2)+"\n","utf-8")
   rec={"race_id":race["race_id"],"venue":race["venue"],"race_no":race["race_no"],
        "status":item["status"],"error":item["errors"],"reused_verified_snapshot":cached is not None,
        "runner_count":item.get("netkeiba",{}).get("runner_count"),
