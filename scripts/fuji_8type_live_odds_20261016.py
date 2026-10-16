@@ -170,6 +170,10 @@ def extract_all():
      record.pop("status")
      quotes.append(record)
     else:unavailable.append(record)
+ # An atomic market snapshot is not claimed if the seven official pages
+ # displayed different publisher refresh minutes. Retry later rather than mix.
+ displayed_times={v["official_update_display"] for v in pages.values()}
+ if len(displayed_times)!=1:raise ValueError("MIXED_JRA_PUBLISHER_UPDATE_TIMES:"+",".join(sorted(displayed_times)))
  summary={}
  for bet,expect in expected_keys.items():
   missing=expect-seen[bet];extra=seen[bet]-expect
@@ -187,6 +191,7 @@ def extract_all():
          "source":"JRA_OFFICIAL_POST","snapshot_type":"PRE_RACE_LIVE_ODDS",
          "captured_at_utc":obs(),"source_card_sha256":cardinfo["sha256"],
          "page_observations":pages,"by_bet_type":summary,
+         "publisher_update_display_consistent":True,
          "expected_combination_count":sum(x["expected"] for x in summary.values()),
          "quoted_combination_count":len(quotes),"no_votes_combination_count":len(unavailable),
          "combination_coverage_complete":True,"all_quotes_numerically_available":not unavailable,
