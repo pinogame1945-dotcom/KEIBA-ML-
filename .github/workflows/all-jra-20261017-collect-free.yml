@@ -1,0 +1,35 @@
+name: JRA 2026-10-17 All Races PRE-RACE Source Audit (free)
+on:
+  push:
+    branches: [audit/all-jra-races-20261017]
+    paths:
+      - scripts/all_jra_20261017_collect.py
+      - tests/test_all_jra_20261017_collect.py
+      - .github/workflows/all-jra-20261017-collect-free.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+jobs:
+  collect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Verify arbitrary field sizes and race IDs
+        run: python -m unittest discover -s tests -p 'test_all_jra_20261017_collect.py' -v
+      - name: Pilot collect published JRA links, race cards, and odds (three races)
+        run: python scripts/all_jra_20261017_collect.py --limit 3
+      - name: Commit source snapshots and per-race manifest on isolated branch
+        if: success()
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add -f audit-results/live-20261017
+          if ! git diff --cached --quiet; then
+            git commit -m "audit: JRA 2026-10-17 live-source pilot snapshots [skip ci]"
+            git push origin HEAD:refs/heads/audit/all-jra-races-20261017
+          fi
