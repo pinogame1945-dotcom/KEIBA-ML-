@@ -197,7 +197,7 @@ class GithubRaceIntegration(unittest.TestCase):
             self.assertEqual(r["races"][0]["blocked_reason"],"PATH_TRAVERSAL_FORBIDDEN")
             with self.assertRaisesRegex(ValueError,"DUPLICATE_REQUESTED_RACE"):
                 orchestrator.run([IDS[0],IDS[0]],manifest,tmp)
-            with self.assertRaisesRegex(ValueError,"YEAR"):
+            with self.assertRaisesRegex(ValueError,"FUTURE_MODEL_FOLD_NOT_PROVEN"):
                 orchestrator.run(["202707010212"],manifest,tmp)
 
     def test_cli_writes_complete_display_json(self):
