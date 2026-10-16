@@ -7,6 +7,7 @@ on:
       - research/replay_frozen_l21_to_l3_v3_historical.py
       - scripts/publish_frozen_historical_races.py
       - tests/test_publish_frozen_historical_races.py
+      - config/historical_race_ids.txt
       - .github/workflows/frozen-l21-original-ai-to-v3-real-archive-proof.yml
   workflow_dispatch:
     inputs:
@@ -58,6 +59,9 @@ jobs:
           TARGET_RACES: ${{ inputs.race_ids || '202507010212,202506010102' }}
         run: |
           set -euo pipefail
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            TARGET_RACES="$(tr -d '\r\n' < config/historical_race_ids.txt)"
+          fi
           [[ "$TARGET_RACES" =~ ^[0-9,[:space:]]+$ ]] || { echo "INVALID_RACE_IDS"; exit 2; }
           IFS=, read -r -a selected_ids <<< "$TARGET_RACES"
           test "${#selected_ids[@]}" -le 24 && test "${#selected_ids[@]}" -gt 0 || exit 2
