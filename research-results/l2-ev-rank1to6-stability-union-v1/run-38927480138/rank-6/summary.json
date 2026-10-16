@@ -1,0 +1,164 @@
+{
+  "contract": "EV_RANK1_TO6_OFFICIAL_STABILITY_AFTER_FIXED_PRUNERS_V1",
+  "ev_rank": 6,
+  "adopted_pruner": "LEARNED_10",
+  "source_run_id": 38891800300,
+  "source_original_black_lines": 292,
+  "pruning_source_counts_and_payouts_exactly_reconciled": true,
+  "frozen_gates": [
+    "ALL",
+    "RAW_TOP6",
+    "RAW_TOP10",
+    "CALIBRATED_TOP6",
+    "CALIBRATED_TOP10",
+    "MARKET_TOP6",
+    "MARKET_TOP10",
+    "RISK_LT040",
+    "RISK_LT060",
+    "ABILITY_Z_GE_M1",
+    "ABILITY_Z_GE_0",
+    "FAIR_RATIO_GE_100",
+    "FAIR_RATIO_GE_125",
+    "MODEL_WIN_P_GE_003",
+    "MARKET_UNDERVALUE_GE_2",
+    "AGREEMENT_TOP6",
+    "RISK060_AND_FAIR100"
+  ],
+  "frozen_rules": {
+    "STABLE_MEDIUM": {
+      "n": 500,
+      "hits": 30,
+      "per_year_hits": 8,
+      "max1": 0.4,
+      "max3": 0.7,
+      "minus3_roi": 90
+    },
+    "STABLE_STRICT": {
+      "n": 800,
+      "hits": 50,
+      "per_year_hits": 12,
+      "max1": 0.3,
+      "max3": 0.55,
+      "minus3_roi": 100
+    }
+  },
+  "accepted_line_gate_pairs": {
+    "ALL_YEAR_BLACK": 321,
+    "STABLE_MEDIUM": 0,
+    "STABLE_STRICT": 0
+  },
+  "accepted_original_lines": {
+    "ALL_YEAR_BLACK": 59,
+    "STABLE_MEDIUM": 0,
+    "STABLE_STRICT": 0
+  },
+  "years": {
+    "2023": {
+      "eval_races": 3144,
+      "jan_training_only": 312,
+      "events": 98278
+    },
+    "2024": {
+      "eval_races": 3456,
+      "jan_training_only": 0,
+      "events": 108624
+    },
+    "2025": {
+      "eval_races": 3456,
+      "jan_training_only": 0,
+      "events": 108876
+    }
+  },
+  "three_year_results": {
+    "PRUNED_BLACK_SOURCE": {
+      "ev_rank": 6,
+      "policy": "PRUNED_BLACK_SOURCE",
+      "period": "2023-2025",
+      "line_gate_pairs": 0,
+      "unique_original_lines": 292,
+      "bought_races": null,
+      "hit_races": null,
+      "tickets": 78997,
+      "hit_tickets": 228,
+      "hit_rate_pct": 0.2886185551350051,
+      "stake_yen": 7899700,
+      "payout_yen": 9883500,
+      "profit_yen": 1983800,
+      "roi_pct": 125.11234603845716,
+      "biggest1_payout": 0,
+      "biggest3_payout_sum": 0,
+      "biggest1_return_share_pct": 0.0,
+      "biggest3_return_share_pct": 0.0,
+      "roi_after_remove_biggest3": 125.11234603845716
+    },
+    "ALL_YEAR_BLACK": {
+      "ev_rank": 6,
+      "policy": "ALL_YEAR_BLACK",
+      "period": "2023-2025",
+      "line_gate_pairs": 321,
+      "unique_original_lines": 59,
+      "bought_races": 2843,
+      "hit_races": 37,
+      "tickets": 5044,
+      "hit_tickets": 37,
+      "hit_rate_pct": 0.7335448057097541,
+      "stake_yen": 504400,
+      "payout_yen": 726410,
+      "profit_yen": 222010,
+      "roi_pct": 144.01467089611418,
+      "biggest1_payout": 81710,
+      "biggest3_payout_sum": 196050,
+      "biggest1_return_share_pct": 11.248468495753087,
+      "biggest3_return_share_pct": 26.988890571440372,
+      "roi_after_remove_biggest3": 105.14670896114195
+    },
+    "STABLE_MEDIUM": {
+      "ev_rank": 6,
+      "policy": "STABLE_MEDIUM",
+      "period": "2023-2025",
+      "line_gate_pairs": 0,
+      "unique_original_lines": 0,
+      "bought_races": 0,
+      "hit_races": 0,
+      "tickets": 0,
+      "hit_tickets": 0,
+      "hit_rate_pct": null,
+      "stake_yen": 0,
+      "payout_yen": 0,
+      "profit_yen": 0,
+      "roi_pct": null,
+      "biggest1_payout": 0,
+      "biggest3_payout_sum": 0,
+      "biggest1_return_share_pct": null,
+      "biggest3_return_share_pct": null,
+      "roi_after_remove_biggest3": null
+    },
+    "STABLE_STRICT": {
+      "ev_rank": 6,
+      "policy": "STABLE_STRICT",
+      "period": "2023-2025",
+      "line_gate_pairs": 0,
+      "unique_original_lines": 0,
+      "bought_races": 0,
+      "hit_races": 0,
+      "tickets": 0,
+      "hit_tickets": 0,
+      "hit_rate_pct": null,
+      "stake_yen": 0,
+      "payout_yen": 0,
+      "profit_yen": 0,
+      "roi_pct": null,
+      "biggest1_payout": 0,
+      "biggest3_payout_sum": 0,
+      "biggest1_return_share_pct": null,
+      "biggest3_return_share_pct": null,
+      "roi_after_remove_biggest3": null
+    }
+  },
+  "limits": "Jan 2023 excluded common training-only; Feb-Dec 2023 + full 2024/25 scored",
+  "pruning_policy_not_reselected": true,
+  "same_sample_post_hoc_profit_selection": true,
+  "final_historical_odds_not_bet_time_quotes": true,
+  "frozen_L21_unchanged": true,
+  "year_2026_sealed": true
+}
