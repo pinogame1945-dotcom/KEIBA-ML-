@@ -115,6 +115,50 @@ def payout_band(refund):
         if refund>=lo and (hi is None or refund<hi):return name
     raise ValueError("invalid refund")
 
+
+def pattern_rows():
+    """Historically accepted source line x gate combinations, NOT unique bets.
+
+    Per-template receipts and payouts overlap when a physical ticket is emitted
+    by two recipes. Never sum their money to estimate physical-bet ROI.
+    """
+    details=[]
+    for rank in range(1,7):
+        f=SOURCE_STABLE/f"rank-{rank}"/"full_17gate_stability_decisions.csv"
+        with f.open("r",encoding="utf-8",newline="") as fh:
+            for r in csv.DictReader(fh):
+                for stage,yes in (("ALL_YEAR_BLACK",r["each_year_black"].lower()=="true"),
+                                  ("STABLE_MEDIUM",r["medium_decision"]=="ACCEPT"),
+                                  ("STABLE_STRICT",r["strict_decision"]=="ACCEPT")):
+                    if not yes:continue
+                    details.append(dict(
+                        stage=stage,ev_rank=rank,
+                        partner_order=r["partner_order"],
+                        partner_top_k=int(r["other_horses_k"]),
+                        original_ticket_template=r["family"],
+                        historical_ticket_odds_band=r["odds_band"],
+                        horse_gate=r["gate"],
+                        source_line=r["line"],
+                        source_line_gate_tickets=r["tickets"],
+                        source_line_gate_hits=r["hits"],
+                        source_line_gate_roi_pct=r["roi_pct"],
+                        source_line_gate_profit_yen=r["profit_yen"]))
+    return details
+
+def profile_rows(entries):
+    groups=defaultdict(lambda:dict(count=0,lines=set(),odds_bands=set(),gates=set()))
+    for r in entries:
+        k=(r["stage"],r["ev_rank"],r["partner_order"],r["original_ticket_template"])
+        x=groups[k];x["count"]+=1
+        x["lines"].add(r["source_line"]);x["odds_bands"].add(r["historical_ticket_odds_band"])
+        x["gates"].add(r["horse_gate"])
+    return [dict(stage=stage,ev_rank=rank,partner_order=order,
+                 original_ticket_template=family,accepted_line_gate_pairs=v["count"],
+                 selected_unique_source_lines=len(v["lines"]),
+                 selected_historical_odds_bands=len(v["odds_bands"]),
+                 distinct_horse_gate_types=len(v["gates"]))
+            for (stage,rank,order,family),v in sorted(groups.items())]
+
 def main():
     p=argparse.ArgumentParser()
     p.add_argument("--out-dir",required=True)
@@ -169,6 +213,10 @@ def main():
               "ranks",rank_counts,flush=True)
     assert_ok(all_keys["STABLE_STRICT"] <= all_keys["STABLE_MEDIUM"] <= all_keys["ALL_YEAR_BLACK"] <= all_keys["BASE"],
               "not a proper nested subset of original")
+    patterns=pattern_rows()
+    profiles=profile_rows(patterns)
+    csv_out(out/"accepted_original_buying_recipes.csv",patterns)
+    csv_out(out/"accepted_recipe_profile.csv",profiles)
     csv_out(out/"overview_by_year.csv",overview)
     csv_out(out/"ticket_type_by_year.csv",categories)
     csv_out(out/"rank_and_ticket_type_by_year.csv",rank_types)
@@ -184,6 +232,8 @@ def main():
         "no_new_strategy_selection":True,"no_2026":True,
         "payout_bins_are_winning_refund_multiples_not_prebet_odds_bins":True,
         "ticket_kinds":JAPANESE,
+        "source_recipes_are_line_gate_level_and_may_overlap":True,
+        "accepted_line_gate_pairs_by_stage":{st:sum(r["stage"]==st for r in patterns) for st in STAGES},
         "by_stage":{s:next(r for r in overview if r["stage"]==s and r["year"]=="2023-2025")
                     for s in STAGES}
     }
