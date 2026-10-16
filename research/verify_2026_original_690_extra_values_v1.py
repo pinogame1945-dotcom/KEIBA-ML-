@@ -326,7 +326,7 @@ def compare_daybias(snapshot, doc):
     fields = sorted(bias_cols(batch, with_fit=True))
     verify(len(fields) == 19, "FROZEN_BIAS_19_KEYS_DRIFT")
     target_batch = batch.loc[batch["_race_id"] == rid].set_index("_horse_id")
-    verify(set(target_batch.index.astype(str)) == {x["_horse_id"] for x in rows],
+    verify(set(target_batch.index.astype(str)) == {x["_horse_id"] for x in rows},
            "TARGET_BIAS_HORSE_SET_DRIFT")
     n = 0
     useful = 0
