@@ -186,6 +186,7 @@ def run(requested, manifest, manifest_root=None):
                                "l2_1": l2, "horse_p3": p3})
         except (ValueError, KeyError, TypeError, OSError, json.JSONDecodeError) as exc:
             results[rid] = fail(str(exc))
+    incomplete_requested_batch = len(compatible) != len(requested)
     if compatible:
         try:
             request = {"contract": L3.CONFIG, "policy": L3.POLICY,
@@ -201,6 +202,11 @@ def run(requested, manifest, manifest_root=None):
                 if not block["tickets"] and block["status"] not in (
                     "READY_VERIFIED_SOURCE", "PAPER_ONLY_SOURCE_OR_P3_UNVERIFIED"):
                     results[rid]["blocked_reason"] = block["status"]
+                elif incomplete_requested_batch:
+                    # Cannot certify a same-day bankroll if one requested race
+                    # has missing frozen inputs. Preserve diagnostics, never READY.
+                    results[rid]["status"] = "PAPER_ONLY_PARTIAL_REQUESTED_BATCH"
+                    results[rid]["blocked_reason"] = "REQUESTED_RACES_HAVE_MISSING_UPSTREAM_INPUTS"
             daily = allocated["daily_bankroll"]
         except (ValueError, KeyError, TypeError, AssertionError) as exc:
             for record in compatible:
@@ -223,6 +229,8 @@ def run(requested, manifest, manifest_root=None):
         "l3_policy": "REVERSE_P3_RACE_MAX300",
         "races": ordered,
         "daily_bankroll": daily,
+        "daily_bankroll_scope": "VALID_REQUESTED_RACES_ONLY_NOT_ATTESTED_ALL_JRA_RACES",
+        "all_requested_races_have_original_inputs": not incomplete_requested_batch,
         "verified_collector_timestamp_provenance": False,
         "historical_final_odds_prohibited": True,
         "2026_historical_outcomes_sealed": True,
