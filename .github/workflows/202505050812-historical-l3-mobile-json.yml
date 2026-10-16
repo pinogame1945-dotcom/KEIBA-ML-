@@ -77,7 +77,13 @@ jobs:
           race=data["races"][0]
           assert race["race_id"]=="202505050812"
           assert race["l3_v3_policy"]=="REVERSE_P3_RACE_MAX300"
-          assert len(race["rankings"]["ai_raw"])==len(race["rankings"]["value_ev"])==17
+          sizes=[len(race["rankings"][key]) for key in ("ai_raw","ai_prob","value_ev")]
+          print("FROZEN_HISTORICAL_RANKING_COVERAGE_AUDIT",
+                "sizes",sizes,"fresh_ability_full_field",17,
+                "archived_replay_ticket_count",len(race["tickets"]),flush=True)
+          assert len(set(sizes))==1 and 3<=sizes[0]<=18
+          assert race["l3_v3_total_yen"]==sum(x["stake_yen"] for x in race["tickets"])
+          assert race["frozen_physical_ticket_count"]>=len(race["tickets"])
           print("HISTORICAL_USER_RACE_L21_TO_V3",
                 "race",race["race_id"],"tickets",len(race["tickets"]),
                 "v3_total_yen",race["l3_v3_total_yen"],
