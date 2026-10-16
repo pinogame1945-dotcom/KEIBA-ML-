@@ -1,0 +1,29 @@
+name: Fuji P1 Course and Age Contract - Free CPU
+on:
+  push:
+    branches: [audit/fuji-prebet-four-phases-20261016]
+    paths:
+      - 'scripts/fuji_prebet_phase1_20261016.mjs'
+      - '.github/workflows/fuji-prebet-p1-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase1:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node --check scripts/fuji_prebet_phase1_20261016.mjs
+      - name: Read unchanged BACKFILL normalizer
+        run: |
+          git clone --depth 1 --filter=blob:none --no-checkout --sparse \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git /tmp/backfill-race-meta
+          git -C /tmp/backfill-race-meta sparse-checkout set src
+          git -C /tmp/backfill-race-meta checkout main
+          echo "BACKFILL_SOURCE_COMMIT=$(git -C /tmp/backfill-race-meta rev-parse HEAD)"
+      - name: Verify exactly three Fuji values
+        run: node scripts/fuji_prebet_phase1_20261016.mjs
