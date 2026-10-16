@@ -1,0 +1,170 @@
+name: EV Ranks 1-6 Same Physical Ticket Union (No Method Reselection)
+
+on:
+  push:
+    branches:
+      - research/l2-ev1to6-physical-ticket-union-20261017
+    paths:
+      - .github/workflows/l2-ev-rank1to6-physical-union-v1.yml
+      - research/run_l2_ev_rank1to6_physical_union_v1.py
+      - tests/test_l2_ev_rank1to6_physical_union_v1.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1to6-physical-union-v1
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    name: Capture EV rank ${{ matrix.ev_rank }} original fixed method
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 6
+      matrix:
+        ev_rank: [1, 2, 3, 4, 5, 6]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free CPU without artifact cache or GPU
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank1to6-physical-union-v1.yml").read_text()
+          runners=[s.strip() for s in p.splitlines() if s.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest","runs-on: ubuntu-latest"],runners
+          uses=[s.strip() for s in p.splitlines() if s.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in uses)
+          print("FREE_STANDARD_CPU_NO_PAID_STORAGE")
+          PY
+          python -m py_compile research/run_l2_ev_rank1to6_physical_union_v1.py
+          python -m py_compile tests/test_l2_ev_rank1to6_physical_union_v1.py
+      - name: Install only numpy and pandas
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Regression tests
+        run: python -m unittest discover -s tests -p 'test_l2_ev_rank1to6_physical_union_v1.py' -v
+      - name: Get pinned BACKFILL manifests for 2023-2025
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json,pandas as pd
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          original=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          source="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          x=pd.read_csv(source,compression="infer",usecols=["year","_race_date"])
+          assert set(x.year)=={2023,2024,2025}
+          dates=sorted(set(x._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350
+          paths={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              a=original["days"].get(day);b=odds["days"].get(day)
+              assert a and a.get("status")=="SUCCESS",("race pack missing",day)
+              assert b and b.get("status")=="SUCCESS",("final odds missing",day)
+              p=a["file"];q=b["file"]
+              assert p.startswith("data/daily/") and p.endswith(".jsonl.gz")
+              assert q.startswith("data/odds/daily/") and q.endswith(".jsonl.gz")
+              paths.update((p,q))
+          Path("out/pinned-sparse-paths.txt").write_text(
+             "\n".join("/"+p for p in sorted(paths))+"\n")
+          print("PINNED_HISTORY_DAYS",len(dates),"REAL_FILES",len(paths))
+          PY
+      - name: Download only pinned real historical day files to ephemeral disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Replay adopted ticket set and audit exact per-rank totals
+        shell: bash
+        env:
+          EV_RANK: ${{ matrix.ev_rank }}
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID/rank-$EV_RANK"
+          python -u research/run_l2_ev_rank1to6_physical_union_v1.py capture \
+            --rank "$EV_RANK" \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --backfill-root out/pinned-history --out-dir "$dest"
+          test -s "$dest/capture_summary.json"
+          test -s "$dest/adopted_physical_tickets.csv.gz"
+      - name: Delete transient historical files
+        if: always()
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Commit confirmed original adopted rank ticket list
+        if: success()
+        shell: bash
+        env:
+          EV_RANK: ${{ matrix.ev_rank }}
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID/rank-$EV_RANK"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest"
+          git commit -m "research: preserve actual selected EV rank $EV_RANK ticket keys for independent six-way union"
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then ok=1;break;fi
+            sleep 3
+          done
+          test "$ok" = 1
+
+  combine:
+    name: Cross-rank physical dedup and exact ROI
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Merge all six saved physical ticket lists with original payout checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$GITHUB_REF_NAME"
+          git reset --hard "origin/$GITHUB_REF_NAME"
+          python -u research/run_l2_ev_rank1to6_physical_union_v1.py combine \
+            --out-dir "research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID"
+          test -s "research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID/summary.json"
+          test -s "research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID/physical_ticket_union_by_year.csv"
+      - name: Commit six-rank union result
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-physical-union-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest/summary.json" "$dest/physical_ticket_union_by_year.csv"
+          git commit -m "research: true six-rank physical ticket dedup, annual profit and ROI"
+          git push origin "HEAD:$GITHUB_REF_NAME"
