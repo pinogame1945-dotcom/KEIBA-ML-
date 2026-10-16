@@ -19,7 +19,7 @@ from pathlib import Path
 
 CONTRACT = "KEIBA_L3_V3_OPERATIONAL_V1"
 CONFIG = "KEIBA_L3_V3_RUNTIME_CONFIG_V1"
-SIGNALS = "KEIBA_L175_HORSE_P3_ASOF_V1"
+SIGNALS = "KEIBA_L17_KING_OUTSIDER_P3_ASOF_V1"
 L21 = "KEIBA_L21_PREBET_QUOTED_TICKETS_V1"
 POLICY = "REVERSE_P3_RACE_MAX300"
 ALLOWED_BETS = {"QUINELLA": 2, "TRIO": 3, "TRIFECTA": 3}
@@ -133,8 +133,10 @@ def _validate_race(bundle):
     signals = bundle.get("horse_p3")
     if not isinstance(signals, dict) or signals.get("contract") != SIGNALS or (
         signals.get("race_id") != race_id
-    ) or signals.get("source") != "ORIGINAL_L175_PREBET_P3":
-        raise ValueError("ORIGINAL_L175_P3_SOURCE_REQUIRED")
+    ) or signals.get("source") != "L17_KING_OUTSIDER_PAST_ONLY_WF_P3":
+        raise ValueError("FROZEN_L17_P3_SOURCE_REQUIRED")
+    if signals.get("coverage_scope") != "TOP10_OTHER_UNKNOWN":
+        raise ValueError("FROZEN_L17_P3_COVERAGE_SCOPE_REQUIRED")
     if signals.get("observed_before_bet") is not True:
         raise ValueError("L175_ASOF_ATTESTATION_REQUIRED")
     if not isinstance(signals.get("model_version"), str) or not signals["model_version"]:
@@ -168,7 +170,7 @@ def _validate_race(bundle):
     if not covered.issubset(by_no):
         raise ValueError("L175_P3_TICKET_HORSE_COVERAGE_MISSING")
     if (set(signals) - {"contract", "race_id", "source", "observed_before_bet",
-                        "model_version", "observed_at", "horses", "source_independently_verified"}):
+                        "model_version", "observed_at", "horses", "source_independently_verified", "coverage_scope"}):
         raise ValueError("UNEXPECTED_L175_SIGNAL_FIELDS")
     now_utc = dt.datetime.now(dt.timezone.utc)
     source_verified = (signals.get("source_independently_verified") is True and
