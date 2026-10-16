@@ -95,6 +95,7 @@ output.summary={runner_count:14,live_features:31,backfill_features:103,feature_c
   candidate_cols_max:Math.max(...output.horses.map(x=>x.model_candidate_feature_count)),
   model_inference_tested:false,model_input_schema_compatibility_not_proven:true,
   expected_nulls_from_source_103:37};
+if(conflicts)console.error("PHASE2_COLLISIONS "+JSON.stringify(output.horses.filter(x=>x.candidate_conflicts.length).map(x=>({horse:x.horse_name,conflicts:x.candidate_conflicts.slice(0,15)})).slice(0,3)));
 if(nulls!==37||conflicts!==0||entryCount!==112||raceCount!==322||output.horses.length!==14)throw Error("JOIN_INTEGRITY:"+JSON.stringify(output.summary));
 console.log("PHASE2_SUMMARY "+JSON.stringify(output.summary));
 console.log("PHASE2_JSON "+JSON.stringify(output));
