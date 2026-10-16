@@ -16,3 +16,19 @@ def links(html):
  return items
 html,meta=fetch(CARD)
 print("OFFICIAL_CARD_NAV "+json.dumps({"sha256":meta["sha256"],"links":links(html)[:120]},ensure_ascii=False))
+
+# Discover all three venue race-selection pages by following published JRA links.
+from urllib.parse import urljoin
+from fuji_onsale_jra_deep_probe_20261016 import CARD as ROOT_CARD
+root=BeautifulSoup(html,"html.parser")
+for place in ("4回東京6日","4回京都6日","4回新潟1日"):
+ anchor=next((a for a in root.select("a[href]") if re.sub(r"\\s+","",a.get_text(" ",strip=True))==place),None)
+ if anchor is None: raise ValueError("MEETING_LINK_MISSING:"+place)
+ meeting,mm=fetch(urljoin("https://www.jra.go.jp",anchor["href"]))
+ ms=BeautifulSoup(meeting,"html.parser")
+ picks=[a.get("onclick","") for a in ms.select("a[onclick]") if "pw01drl" in a.get("onclick","")]
+ if len(set(picks))!=1: raise ValueError("RACE_SELECTION_LINK_NOT_UNIQUE:"+place+":"+str(picks))
+ m=re.search(r"pw01drl[^'\\\"]+",picks[0])
+ if not m:raise ValueError("SELECTION_CNAME_MISSING")
+ page,pm=fetch("https://www.jra.go.jp/JRADB/accessD.html",m.group(0))
+ print("VENUE_RACE_SELECTION "+json.dumps({"venue":place,"cname":m.group(0),"page_sha256":pm["sha256"],"links":links(page)[:65]},ensure_ascii=False))
