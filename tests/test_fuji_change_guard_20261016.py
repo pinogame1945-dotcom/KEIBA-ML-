@@ -1,4 +1,4 @@
-import importlib.util,json,unittest
+import importlib.util,json,subprocess,sys,tempfile,unittest
 from pathlib import Path
 from html import escape
 spec=importlib.util.spec_from_file_location("change",Path("scripts/fuji_change_guard_20261016.py"))
@@ -67,6 +67,13 @@ class Tests(unittest.TestCase):
  def test_announcement_of_body_weight(self):
   rr=[dict(h) for h in B["runners"]];rr[4]["body_weight"]=480;rr[4]["body_weight_diff"]=-2
   self.assertInvalidate(rr,field="body_weight")
+ def test_real_cli_exits_nonzero_for_scratched_old_input(self):
+  rr=[dict(h) for h in B["runners"]];rr[0]["entry_status"]="SCRATCHED"
+  with tempfile.TemporaryDirectory() as d:
+   f=Path(d)/"synthetic-fuji-card.html";f.write_text(fixture(rr),encoding="utf-8")
+   r=subprocess.run([sys.executable,str(Path("scripts/fuji_change_guard_20261016.py")),"--html",str(f)],capture_output=True,text=True)
+   self.assertEqual(r.returncode,2)
+   self.assertIn("INVALIDATE_RECOMPUTE_REQUIRED",r.stdout)
  def test_duplicate_number_blocks(self):
   rr=[dict(h) for h in B["runners"]];rr[4]["horse_number"]=rr[3]["horse_number"]
   with self.assertRaisesRegex(ValueError,"HORSE_NUMBER_DUPLICATE"):g.parse(fixture(rr))
