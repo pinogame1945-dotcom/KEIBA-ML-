@@ -12,6 +12,7 @@ import argparse
 from collections import Counter
 from datetime import date
 import gzip
+import hashlib
 import json
 from pathlib import Path
 import re
@@ -31,6 +32,7 @@ ENTRY_FIELDS = ("horse_id", "horse_number", "sex", "age", "carried_weight",
                 "jockey_id", "trainer_id", "body_weight")
 RESULT_FIELDS = ("official_finish_position", "finish_time_ms", "last_3f")
 MAX_PROBLEMS = 40
+CANONICAL_CORE4_649_SHA256 = "eb3392b725560e77d46b28aef036b6188814125ed8f7a3bfde0c53522dbadf58"
 
 
 def read_rows(path):
@@ -188,7 +190,14 @@ def summarize_panel(path, target_id, target_date, expected_keys_path=None):
         expected = json.loads(Path(expected_keys_path).read_text(encoding="utf-8"))
         if not isinstance(expected, list) or len(expected) != 649 or len(set(expected)) != 649:
             raise ValueError("CANONICAL_CORE4_649_FEATURE_LIST_REQUIRED")
+        digest = hashlib.sha256(json.dumps(sorted(expected), separators=(",", ":")).encode()).hexdigest()
+        if digest != CANONICAL_CORE4_649_SHA256:
+            raise ValueError("FROZEN_CORE4_FEATURE_NAMES_SHA256_MISMATCH")
         expected_keys = set(expected)
+        for i, row in enumerate(rows):
+            per_row = set(row) - {"_race_id", "_horse_id", "_race_date"}
+            if per_row != expected_keys:
+                errors.append(f"ROW_{i}_CORE4_FEATURE_SCHEMA_DRIFT")
         missing = sorted(expected_keys - source_keys)
         extra = sorted(source_keys - expected_keys)
         if missing or extra:
