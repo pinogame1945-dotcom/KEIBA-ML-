@@ -170,7 +170,8 @@ def score_one(target, ability_train, past_oos_risk_teacher, target_year):
             "ORIGINAL_RISK_FULL_PRERACE_FEATURE_SCHEMA_DRIFT")
     require(not any(c.startswith("neg_") for c in prior.columns),
             "ORIGINAL_RISK_MUST_USE_FULL_PRERACE_NO_NEG")
-    original_risk_seed=8200000+target_year*100
+    # Exact anchor-pipeline risk seed from run_market_fixed_anchor_residual_v2.py risk_fold.
+    original_risk_seed=8500000+target_year*100
     risks,_=fit_risk_full(prior,valid_risk,original_risk_seed)
     require(len(risks)==len(valid) and np.isfinite(risks).all() and
             ((risks>=0)&(risks<=1)).all(),"NONFINITE_CORRECTION_RISK_OUTPUT")
