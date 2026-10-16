@@ -194,10 +194,13 @@ def summarize_panel(path, target_id, target_date, expected_keys_path=None):
         if digest != CANONICAL_CORE4_649_SHA256:
             raise ValueError("FROZEN_CORE4_FEATURE_NAMES_SHA256_MISMATCH")
         expected_keys = set(expected)
-        for i, row in enumerate(rows):
-            per_row = set(row) - {"_race_id", "_horse_id", "_race_date"}
-            if per_row != expected_keys:
-                errors.append(f"ROW_{i}_CORE4_FEATURE_SCHEMA_DRIFT")
+        # Frozen inference uses pandas.DataFrame.from_records(rows), which
+        # unions horse-level keys and fills absent cells with NaN. Only a
+        # missing or additional key in the race-level UNION is schema drift.
+        sparse_horses = sum(
+            set(row) - {"_race_id", "_horse_id", "_race_date"} != expected_keys
+            for row in rows
+        )
         missing = sorted(expected_keys - source_keys)
         extra = sorted(source_keys - expected_keys)
         if missing or extra:
@@ -213,6 +216,7 @@ def summarize_panel(path, target_id, target_date, expected_keys_path=None):
         "expected_core4_names_supplied": bool(expected_keys_path),
         "missing_feature_names": missing[:30],
         "extra_feature_names": extra[:30],
+        "rows_with_sparsely_omitted_keys_filled_as_nan": sparse_horses if expected_keys_path else None,
         "errors": errors[:MAX_PROBLEMS], "total_errors": len(errors),
         "source_timing_verified": doc.get("actual_source_capture_time_independently_verified") is True,
         "raw_core4_schema_check_passed": bool(expected_keys_path) and not errors,
