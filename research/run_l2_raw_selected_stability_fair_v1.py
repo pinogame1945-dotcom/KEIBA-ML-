@@ -246,7 +246,7 @@ def main():
     a=ap.parse_args()
     out=Path(a.out_dir);out.mkdir(parents=True,exist_ok=True)
     policy,selected,expected,rank=choose_source(
-        Path(a.__dict__["fair_root"]),Path(a.__dict__["pruned24-25"]))
+        Path(a.__dict__["fair_root"]),Path(a.pruned24_25))
     pred,picks=lens.frame(a.predictions,a.picks)
     races=pd.read_csv(a.racewise,compression="infer",
                        dtype={"race_id":str,"VALUE_EV_horse":str,"AI_RAW_TOP_horse":str})
