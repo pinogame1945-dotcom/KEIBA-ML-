@@ -5,6 +5,7 @@ on:
     branches: [audit/2026-feature-input-phase1-20261016]
     paths:
       - research/phase3_20261010_24_extra41_batch_v1.py
+      - research/phase3_20261010_original_l1_24_cold_v1.py
       - .github/workflows/phase3-20261010-all-24-original-690-freecpu.yml
   workflow_dispatch:
 
@@ -38,6 +39,7 @@ jobs:
           set -euo pipefail
           python -m py_compile research/phase3_20261010_24_extra41_batch_v1.py
           python -m py_compile research/phase3_20261010_all_24_unscored_inputs_v1.py
+          python -m py_compile research/phase3_20261010_original_l1_24_cold_v1.py
           python scripts/verify_keiba_l2_1_freeze.py
           test -n "$KAGGLE_API_TOKEN"
           test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 6000000
@@ -107,6 +109,9 @@ jobs:
               --year "$year" --source "$source" \
               --batch "$out/batch-unscored.json" \
               --out "$out/compact/prior-full-race-context-$year.pkl"
+            python research/phase3_20261010_original_l1_24_cold_v1.py \
+              --mode export --year "$year" --source "$source" \
+              --prior-dir "$out/original-full-prior-model"
             rm -f "$source"
           done
           echo "P3_ALL24_COMPACT_PRIOR_HISTORY_READY"
@@ -121,3 +126,13 @@ jobs:
             --out "$RUNNER_TEMP/verification/690"
           test "$(find "$RUNNER_TEMP/verification/690" -maxdepth 1 -name '2026*.json' | wc -l)" = 24
           echo "P3_ALL24_690_TRUE_NUMERICAL_INPUTS_VERIFIED_NOT_PREDICTION"
+      - name: Real original 2024-25 LambdaRank fit once and blind-score all 24 target races
+        run: |
+          set -euo pipefail
+          python research/phase3_20261010_original_l1_24_cold_v1.py \
+            --mode score \
+            --prior-dir "$RUNNER_TEMP/verification/original-full-prior-model" \
+            --inputs-690 "$RUNNER_TEMP/verification/690" \
+            --output "$RUNNER_TEMP/verification/original-real-l1-24"
+          test "$(find "$RUNNER_TEMP/verification/original-real-l1-24" -maxdepth 1 -name '2026*.json' | wc -l)" = 24
+          echo "ORIGINAL_L1_24_REAL_PREDICTION_COMPLETE_L175_L21_L3_NOT_YET"
