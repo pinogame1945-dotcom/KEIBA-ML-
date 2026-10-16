@@ -4,8 +4,11 @@
 Per independently evaluated EV rank:
 * Same 152 ticket templates and 20 final-odds intervals as prior baseline.
 * BASE and exactly four historical frozen pruners x five keep thresholds.
-* 2023 is original unpruned training year for ALL policies, 2024 trains on
-  2023 only, 2025 trains on 2023+2024 only.
+* Jan 2023 is COMMON training-only warmup excluded from every portfolio
+  including BASE. All 20 pruners apply to Feb-Dec 2023. 2024 trains on
+  complete 2023; 2025 trains on complete 2023+2024.
+* No equivalent 2022 ANCHOR_FULL forecasts are archived: this DOES NOT
+  claim to prune January 2023, and does not pretend it has 2022 calibration.
 * For EACH policy identify original line/odds-band with >0 pooled 3-year
   yen profit after pruning (not annual-all-black or stability filters).
 * Buy the full union of those black lines, removing identical physical
@@ -33,6 +36,10 @@ from build_l2_market_helpers_v1 import load_day,load_odds_day
 from run_all_race_flow_ticket_audit_v1 import YEARS,RACES_YEAR,TOTAL_RACES,assert_ok
 
 RANKS=(2,3,4,5,6)
+EVAL_START_2023="2023-02-01"
+
+def pruning_eval_eligible(year,date):
+    return int(year)!=2023 or str(date)[:10]>=EVAL_START_2023
 POLICIES=tuple(fixed.POLICIES)
 TEMPLATES=tuple(old_pruner.TEMPLATES)
 BANDS=tuple(old_pruner.BANDS)
@@ -93,16 +100,33 @@ def ledger_pass(data,picks,races,root,rank,archived):
     distinct_by_year={}
     for year in YEARS:
         limits=old_pruner.fast_prior_thresholds(history,training) if year>2023 else {}
-        thresholds_by_year[year]=limits
-        training_by_year[year]={k:tuple(v) for k,v in training.items()}
+        if year>2023:
+            thresholds_by_year[year]=limits
+            training_by_year[year]={k:tuple(v) for k,v in training.items()}
         yr=races[races.year.eq(year)]
         assert_ok(len(yr)==RACES_YEAR,"missing year race records")
         groups=data[data.year.eq(year)].groupby("_race_id",sort=False)
         summary=defaultdict(lambda:np.zeros((21,3),dtype=np.int64))
         learn=defaultdict(lambda:[0,0,0.])
+        warmup_stats=defaultdict(lambda:[0,0,0.])
+        warmup_history=[]
+        warmup_base=defaultdict(lambda:np.zeros(3,dtype=np.int64))
+        warmup_races=0
+        frozen_warmup=(year>2023)
         physical=0;eligible=0;done=0
         for rid,pack,price,g,info in iterate_races(year,groups,yr,root):
             done+=1
+            score_this_race=pruning_eval_eligible(year,info["race_date"])
+            if score_this_race and not frozen_warmup:
+                assert_ok(len(warmup_history)>1000 and warmup_races>0,
+                          "insufficient January historical training tickets")
+                limits=old_pruner.fast_prior_thresholds(warmup_history,warmup_stats)
+                thresholds_by_year[year]=limits
+                training_by_year[year]={k:tuple(v) for k,v in warmup_stats.items()}
+                frozen_warmup=True
+                print("EV_PRUNE_2023_JAN_WARMUP_FIXED",rank,warmup_races,
+                      len(warmup_history),flush=True)
+            if not score_this_race:warmup_races+=1
             axis=choose_axis(rid,g,info,picks,rank)
             if axis is None:continue
             eligible+=1
@@ -129,34 +153,49 @@ def ledger_pass(data,picks,races,root,rank,archived):
             if n:
                 pays=np.fromiter((int(c[1]) for c in cards),dtype=np.int64,count=n)
                 hits=(pays>0).astype(np.int64)
-                votes=np.ones((n,21),dtype=np.int8) if year==2023 else np.zeros((n,21),dtype=np.int8)
-                if year>2023:
+                if score_this_race:
+                    votes=np.zeros((n,21),dtype=np.int8)
                     votes[:,0]=1
+                    active_stat=(training_by_year[2023] if year==2023 else training)
                     for idx,card in enumerate(cards):
-                        matched=fixed.mask(card,training,limits)
+                        matched=fixed.mask(card,active_stat,limits)
                         for p,policy in enumerate(POLICIES[1:],1):
                             votes[idx,p]=int(matched[policy])
                 for tid,indices in line_positions.items():
-                    m=votes[indices]
-                    counts=summary[tid]
-                    counts[:,0]+=m.sum(axis=0,dtype=np.int64)
-                    counts[:,1]+=hits[indices]@m
-                    counts[:,2]+=pays[indices]@m
+                    if score_this_race:
+                        m=votes[indices]
+                        counts=summary[tid]
+                        counts[:,0]+=m.sum(axis=0,dtype=np.int64)
+                        counts[:,1]+=hits[indices]@m
+                        counts[:,2]+=pays[indices]@m
+                    else:
+                        w=warmup_base[tid]
+                        w[0]+=len(indices)
+                        w[1]+=int(hits[indices].sum())
+                        w[2]+=int(pays[indices].sum())
+                if not score_this_race:
+                    warmup_history.extend(cards)
+                    for card in cards:fixed.add_learning(warmup_stats,card)
                 for card in cards:fixed.add_learning(learn,card)
                 if year<2025:history.extend(cards)
             if done%1200==0:
                 print("EV_PRUNE_LEDGER_PROGRESS",rank,year,done,
                       "physical",physical,flush=True)
         assert_ok(done==RACES_YEAR,("ledger race count",rank,year))
+        assert_ok(frozen_warmup,("2023 calibration not frozen",rank))
         for tid in LINE_KEYS:
             m=summary.get(tid)
             observed=(0,0,0) if m is None else tuple(int(x) for x in m[0])
-            assert_ok(observed==archived[tid][year],
+            warm=warmup_base[tid] if year==2023 else (0,0,0)
+            complete=tuple(observed[i]+int(warm[i]) for i in range(3))
+            assert_ok(complete==archived[tid][year],
                       ("ORIGINAL_UNPRUNED_BASELINE_MISMATCH",rank,year,tid,
-                       observed,archived[tid][year]))
+                       complete,archived[tid][year]))
         if year<2025:fixed.merge(training,learn)
         result[year]=summary
-        distinct_by_year[str(year)]={"races":eligible,"physical_tickets":physical}
+        distinct_by_year[str(year)]={"races":eligible,"physical_tickets":physical,
+                                     "training_only_january_races":warmup_races,
+                                     "eligible_scored_races":done-warmup_races}
         print("EV_PRUNE_BASELINE_EXACT",rank,year,eligible,physical,
               "original_lines",len(summary),flush=True)
     return result,thresholds_by_year,training_by_year,distinct_by_year
@@ -190,6 +229,7 @@ def physically_dedup_pass(data,picks,races,root,rank,selected,thresholds,trainin
         done=0
         for rid,pack,price,g,info in iterate_races(year,groups,yr,root):
             done+=1
+            if not pruning_eval_eligible(year,info["race_date"]):continue
             axis=choose_axis(rid,g,info,picks,rank)
             if axis is None:continue
             shim=info.copy();shim["VALUE_EV_horse"]=axis
@@ -206,11 +246,9 @@ def physically_dedup_pass(data,picks,races,root,rank,selected,thresholds,trainin
             if not physical:continue
             bought=[0]*21;hit_races=[False]*21
             for ticket,(card,req) in physical.items():
-                votes=(1<<21)-1 if year==2023 else None
-                if votes is None:
-                    flags=fixed.mask(card,training_by_year[year],thresholds[year])
-                    votes=sum(1<<p for p,policy in enumerate(POLICIES)
-                              if flags[policy])
+                flags=fixed.mask(card,training_by_year[year],thresholds[year])
+                votes=sum(1<<p for p,policy in enumerate(POLICIES)
+                          if flags[policy])
                 for p in range(21):
                     if req&(1<<p) and votes&(1<<p):
                         st=records[year,POLICIES[p]]
@@ -298,8 +336,11 @@ def summarize(all_lines,selected,union,rank,pre_stats,output):
                 methods_evaluated=list(POLICIES[1:]),
                 total_methods=20,baseline_method="BASE",
                 selection="positive pooled three-year yen profit for each line, physical-dedup union, highest union ROI method independently for each EV rank",
-                methodology="frozen create_cards/calc_scores/mask/thresholds; same period retrospective post-selection",
-                training={"2023":"BASE_UNPRUNED_TRAINING","2024":[2023],"2025":[2023,2024]},
+                methodology="frozen create_cards/calc_scores/mask/thresholds; 2023 January training-only, February through December 20-way pruned; same period retrospective post-selection",
+                training={"2023":"JANUARY_WARMUP_ONLY; exclude Jan from EVERY policy including BASE","2024":[2023],"2025":[2023,2024]},
+                evaluation_2023_start=EVAL_START_2023,
+                all_2023_january_excluded_even_BASE=True,
+                full_2023_january_pruning_not_claimed=True,
                 original_unpruned_input_verified=True,
                 observed_rank_races=pre_stats,
                 all_policy_comparison=comparison,
