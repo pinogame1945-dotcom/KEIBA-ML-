@@ -1,0 +1,73 @@
+name: EV Ranks 1-6 Frozen Bet Type Detailed Audit
+
+on:
+  push:
+    branches:
+      - research/l2-ev1to6-bet-type-breakdown-20261017
+    paths:
+      - .github/workflows/l2-ev-rank1to6-bet-type-breakdown-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1to6-bet-type-breakdown-v1
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    name: Exact deduplicated bet-kind and source-recipe audit
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free standard CPU and no artifact/cache upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank1to6-bet-type-breakdown-v1.yml")
+          uses=[line.strip() for line in p.read_text().splitlines() if line.strip().startswith("- uses:")]
+          runs=[line.strip() for line in p.read_text().splitlines() if line.strip().startswith("runs-on:")]
+          assert runs==["runs-on: ubuntu-latest"],runs
+          assert not any("upload-artifact" in line or "actions/cache" in line for line in uses)
+          print("FREE_STANDARD_CPU_ONLY")
+          PY
+          python -m py_compile research/run_l2_ev_rank1to6_bet_type_breakdown_v1.py
+          python -m py_compile tests/test_l2_ev_rank1to6_bet_type_breakdown_v1.py
+      - name: Validate audit statistics and existing frozen files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p 'test_l2_ev_rank1to6_bet_type_breakdown_v1.py' -v
+          test -s research-results/l2-ev-rank1to6-physical-union-v1/run-38922914983/summary.json
+          test -s research-results/l2-ev-rank1to6-stability-union-v1/run-38927480138/summary.json
+      - name: Break down original and stable deduped physical tickets by bet type
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-bet-type-breakdown-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_ev_rank1to6_bet_type_breakdown_v1.py --out-dir "$dest"
+          for f in summary.json overview_by_year.csv ticket_type_by_year.csv \
+                   rank_and_ticket_type_by_year.csv hit_payout_bands_by_type.csv \
+                   top_30_winning_tickets_each_stage.csv \
+                   accepted_original_buying_recipes.csv accepted_recipe_profile.csv; do
+            test -s "$dest/$f"
+          done
+      - name: Save readonly bet structure research output
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-bet-type-breakdown-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest"
+          git commit -m "research: six EV ranks exact dedup bet type, buying patterns, hit frequency and payout concentration audit"
+          git push origin "HEAD:$GITHUB_REF_NAME"
