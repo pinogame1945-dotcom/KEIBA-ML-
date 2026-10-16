@@ -30,6 +30,14 @@ for cname,r in list(routes.items())[:2]:
   soap=BeautifulSoup(html,"html.parser")
   text=clean(soap.get_text(" ",strip=True))
   links=jra.links(soap)
+  for exact in ("2026年10月18日","4回京都7日","11レース","秋華賞"):
+   if exact not in text:raise ValueError("SHUKA_RACE_HEADER_UNVERIFIED:"+exact)
+  published=re.search(r"(\d{1,2}時\d{2}分現在オッズ)",text)
+  table=soap.select("table.tanpuku")
+  if not published or len(table)!=1 or len(table[0].select("tr"))<10:
+   raise ValueError("SHUKA_LIVE_ODDS_UNVERIFIED")
+  print("SHUKA_FRIDAY_VERIFIED "+json.dumps({"race_name":"秋華賞","race_date":"2026-10-18","track":"京都","race_no":11,
+    "publisher_minute_label":published.group(1),"win_place_table_horse_rows":len(table[0].select("tr"))-1,"page_sha256":meta["sha256"]},ensure_ascii=False))
   print("SHUKA_FRIDAY_ROUTING "+json.dumps({"cname":cname,"label":r["label"],
     "title":soap.title.get_text(" ",strip=True) if soap.title else None,
     "has_shuka":"秋華賞" in text,"has_kyoto":"京都" in text,
