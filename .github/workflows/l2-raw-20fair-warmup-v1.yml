@@ -41,10 +41,14 @@ jobs:
           print("FREE_STANDARD_CPU_ONLY_NO_PAID_ARTIFACTS_OR_CACHE")
           PY
           python -m py_compile research/run_l2_raw_20fair_warmup_v1.py
+          python -m py_compile research/run_l2_raw_selected_stability_fair_v1.py
+          python -m py_compile tests/test_l2_raw_fair_stability_v1.py
       - name: Install required Pandas dependency only
         run: python -m pip install --disable-pip-version-check numpy pandas
       - name: Run isolated calculation regression tests
         run: python -m unittest discover -s tests -p 'test_l2_raw_top_ticket_pruning_oos_v1.py' -v
+      - name: Verify fair ticket masks agree with frozen original
+        run: python -m unittest discover -s tests -p 'test_l2_raw_fair_stability_v1.py' -v
       - name: Pin real historical BACKFILL and resolve existing manifests
         shell: bash
         run: |
@@ -104,6 +108,22 @@ jobs:
           for file in summary.json all_20_methods_ranked_fair.csv \
                      all_black_lines_by_method_fair.csv.gz \
                      2023_feb_dec_all3040_by21_policies.csv.gz; do
+            test -s "$out/$file"
+          done
+      - name: Official L2.1 medium/strict stability on best fair 20 method
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-raw-20fair-warmup-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_raw_selected_stability_fair_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --pruned24-25 research-results/l2-raw-top-ticket-pruning-oos-v1/run-38866412885/pruning_2024_2025_all_3040_odds_bands_by_year.csv.gz \
+            --fair-root "$out" --historical out/pinned-history --out-dir "$out"
+          for file in stability_summary.json medium_strict_dedup_portfolios_by_year.csv \
+                      selected_best_policy_17_gates_stability_decisions.csv \
+                      accepted_stable_lines_and_gates.csv; do
             test -s "$out/$file"
           done
       - name: Erase transient BACKFILL data
