@@ -143,11 +143,29 @@ def speed_24(inputs,docs):
 
 
 def bias_for_one(snapshot,doc):
+    # Four original pre-race STYLE source fields are intentionally NOT
+    # CORE4 inputs. Load them only for the original infer_front_score()
+    # day-bias/fit calculation. No target result or market object is read.
+    # Keep the frozen 649 / 690-column model matrix free of these raw fields.
+    rid=doc["race_id"]
+    styles={}
+    for rec in source_rows(snapshot):
+        if str(rec.get("race_id")) != rid:
+            continue
+        feats=rec.get("features") or {}
+        verify(feats.get("race_date")==DAY,"STYLE_TARGET_DAY_DRIFT")
+        hid=str(rec.get("horse_id"))
+        verify(hid not in styles,"STYLE_DUPLICATE_TARGET_HORSE")
+        styles[hid]={name:feats.get(name) for name in STYLE_FIELDS}
+    verify(set(styles)=={str(r["_horse_id"]) for r in doc["rows"]},
+           "STYLE_4_TARGET_HORSE_IDS_NOT_MATCHED")
+    bias_doc={**doc,"rows":[
+        {**row,**styles[str(row["_horse_id"])]} for row in doc["rows"]
+    ]}
     # The original frozen formula test compares two reconstruction routes;
     # neither receives selected target outcome; earlier same-day race outcomes
     # are used only for subsequent race state.
-    names,diagnostics=compare_daybias(snapshot,doc)
-    rid=doc["race_id"]
+    names,diagnostics=compare_daybias(snapshot,bias_doc)
     first=doc["rows"][0]
     venue,surface=str(first["venue_code"]),str(first["surface"])
     number=int(first["race_no"])
@@ -180,7 +198,7 @@ def bias_for_one(snapshot,doc):
             for summary in pending:
                 b.update(summary)
     snapshot=b.snapshot()
-    df=pd.DataFrame.from_records(doc["rows"])
+    df=pd.DataFrame.from_records(bias_doc["rows"])
     for col in STYLE_FIELDS:
         if col not in df.columns:
             df[col]=np.nan
