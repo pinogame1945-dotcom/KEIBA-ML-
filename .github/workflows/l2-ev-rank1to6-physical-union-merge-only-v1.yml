@@ -1,0 +1,68 @@
+name: EV1-6 Physical Union Merge Saved Tickets Only
+
+on:
+  push:
+    branches:
+      - research/l2-ev1to6-physical-ticket-union-20261017
+    paths:
+      - .github/workflows/l2-ev-rank1to6-physical-union-merge-only-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1to6-physical-union-merge-only-v1
+  cancel-in-progress: false
+
+jobs:
+  merge:
+    name: Merge previously verified six rank ticket CSVs
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify free runner and all previous successful rank captures
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          path=Path(".github/workflows/l2-ev-rank1to6-physical-union-merge-only-v1.yml")
+          lines=path.read_text().splitlines()
+          assert [s.strip() for s in lines if s.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          assert not any(("upload-artifact" in x or "actions/cache" in x) for x in lines)
+          base=Path("research-results/l2-ev-rank1to6-physical-union-v1/run-38922914983")
+          for rank in range(1,7):
+              for name in ("adopted_physical_tickets.csv.gz", "capture_summary.json"):
+                  f=base/f"rank-{rank}"/name
+                  assert f.is_file() and f.stat().st_size>0, f
+          print("SIX_SOURCE_RANKS_SAVED; NO_REPLAY; FREE_CPU")
+          PY
+      - name: Install merge script imported dependencies
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Test saved CSV duplicate and refund logic
+        run: python -m unittest discover -s tests -p 'test_l2_ev_rank1to6_physical_union_v1.py' -v
+      - name: Merge 682592 already-saved physical tickets and audit yearly totals
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-physical-union-v1/run-38922914983"
+          python -u research/run_l2_ev_rank1to6_physical_union_v1.py combine --out-dir "$dest"
+          test -s "$dest/summary.json"
+          test -s "$dest/physical_ticket_union_by_year.csv"
+      - name: Commit exact union result to existing source run
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1to6-physical-union-v1/run-38922914983"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest/summary.json" "$dest/physical_ticket_union_by_year.csv"
+          git commit -m "research: complete exact six EV ranks physical ticket union using saved inputs, no recompute"
+          git push origin "HEAD:$GITHUB_REF_NAME"
