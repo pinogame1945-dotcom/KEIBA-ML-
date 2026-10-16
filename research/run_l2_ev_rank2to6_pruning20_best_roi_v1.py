@@ -89,10 +89,12 @@ def ledger_pass(data,picks,races,root,rank,archived):
     training=defaultdict(lambda:[0,0,0.])
     result={}
     thresholds_by_year={}
+    training_by_year={}
     distinct_by_year={}
     for year in YEARS:
         limits=old_pruner.fast_prior_thresholds(history,training) if year>2023 else {}
         thresholds_by_year[year]=limits
+        training_by_year[year]={k:tuple(v) for k,v in training.items()}
         yr=races[races.year.eq(year)]
         assert_ok(len(yr)==RACES_YEAR,"missing year race records")
         groups=data[data.year.eq(year)].groupby("_race_id",sort=False)
@@ -157,7 +159,7 @@ def ledger_pass(data,picks,races,root,rank,archived):
         distinct_by_year[str(year)]={"races":eligible,"physical_tickets":physical}
         print("EV_PRUNE_BASELINE_EXACT",rank,year,eligible,physical,
               "original_lines",len(summary),flush=True)
-    return result,thresholds_by_year,distinct_by_year
+    return result,thresholds_by_year,training_by_year,distinct_by_year
 
 def black_lines(all_lines):
     selected={p:set() for p in POLICIES}
@@ -174,7 +176,7 @@ def black_lines(all_lines):
     assert_ok(selected["BASE"],"No historical baseline black line")
     return selected,originals
 
-def physically_dedup_pass(data,picks,races,root,rank,selected,thresholds):
+def physically_dedup_pass(data,picks,races,root,rank,selected,thresholds,training_by_year):
     """Only count one real ticket per race/policy across all profitable lines."""
     candidates=defaultdict(list)
     for p,policy in enumerate(POLICIES):
@@ -206,10 +208,9 @@ def physically_dedup_pass(data,picks,races,root,rank,selected,thresholds):
             for ticket,(card,req) in physical.items():
                 votes=(1<<21)-1 if year==2023 else None
                 if votes is None:
-                    flags=fixed.mask(card,{},thresholds[year]) if False else None
-                    # Frozen LEARNED/HYBRID require prior-year training statistics:
-                    # loaded separately at year boundary in this pass.
-                    raise AssertionError("scorer injected below")
+                    flags=fixed.mask(card,training_by_year[year],thresholds[year])
+                    votes=sum(1<<p for p,policy in enumerate(POLICIES)
+                              if flags[policy])
                 for p in range(21):
                     if req&(1<<p) and votes&(1<<p):
                         st=records[year,POLICIES[p]]
@@ -330,11 +331,11 @@ def main():
     assert_ok(len(races)==TOTAL_RACES and races.race_id.is_unique,"10368 archived races")
     assert_ok(set(races.year)==set(YEARS),"2026 sealed")
     root=Path(args.backfill_root)
-    stats,limits,coverage=ledger_pass(data,picks,races,root,rank,archived)
+    stats,limits,prior_training,coverage=ledger_pass(data,picks,races,root,rank,archived)
     selected,pooled=black_lines(stats)
     # Second pass recomputes the exact frozen score with prior training data;
     # do NOT infer market/LEARNED masks from pooled future-year receipts.
-    union=physically_dedup_pass(data,picks,races,root,rank,selected,limits)
+    union=physically_dedup_pass(data,picks,races,root,rank,selected,limits,prior_training)
     summarize(stats,selected,union,rank,coverage,dest)
 
 if __name__=="__main__":main()
