@@ -40,6 +40,15 @@ ACTION=re.compile(r"doAction\(\s*['\"](/JRADB/access[DO]\.html)['\"]\s*,\s*['\"]
 def utc():return datetime.now(timezone.utc).isoformat()
 def clean(v):return re.sub(r"\s+","",unicodedata.normalize("NFKC",str(v or ""))).strip()
 def src_fetch(url):
+ from urllib.error import HTTPError,URLError
+ for attempt in range(3):
+  try:return src_fetch_once(url)
+  except (URLError,TimeoutError) as exc:
+   retryable=(isinstance(exc,HTTPError) and exc.code in (502,503,504)) or "timed out" in str(exc).lower()
+   if not retryable or attempt==2:raise
+   time.sleep(1.5*(attempt+1))
+ raise RuntimeError("SOURCE_FETCH_RETRIES_EXHAUSTED")
+def src_fetch_once(url):
  if urlparse(url).hostname not in ("www.jra.go.jp","race.netkeiba.com"):raise ValueError("UNTRUSTED_SOURCE")
  with urlopen(Request(url,headers={"User-Agent":"Mozilla/5.0","Accept-Language":"ja"}),timeout=24) as r:
   if urlparse(r.geturl()).hostname!=urlparse(url).hostname:raise ValueError("UNTRUSTED_REDIRECT")
@@ -63,11 +72,12 @@ def action_of(anchor,path):
 def by_text(soup,name):
  return [a for a in soup.select("a") if clean(a.get_text(" ",strip=True))==name]
 def official_fetch(url,cname=None):
- from urllib.error import HTTPError
+ from urllib.error import HTTPError,URLError
  for attempt in range(3):
   try:return transport.fetch(url,cname)
-  except HTTPError as exc:
-   if exc.code not in (502,503,504) or attempt==2:raise
+  except (URLError,TimeoutError) as exc:
+   retryable=(isinstance(exc,HTTPError) and exc.code in (502,503,504)) or "timed out" in str(exc).lower()
+   if not retryable or attempt==2:raise
    time.sleep(1.5*(attempt+1))
  raise RuntimeError("UNREACHABLE_FETCH_RETRY")
 
@@ -397,6 +407,27 @@ def atomic_official_odds(race,ncard,official):
    time.sleep(2*(attempt+1))
  raise RuntimeError("ODDS_ATOMIC_RETRY_EXHAUSTED")
 
+def reusable_verified(path,race):
+ """Reuse only an already verified, explicitly PRE-RACE snapshot for the exact race."""
+ if not path.exists():return None
+ try:
+  item=json.loads(path.read_text("utf-8"))
+  odds=item.get("jra_odds",{})
+  if item.get("contract")!="JRA_20261017_ALL_RACES_PRE_RACE_AUDIT_V1":return None
+  if item.get("race_id")!=race["race_id"] or item.get("race_date")!=DAY:return None
+  if item.get("source_discovery")!=race:return None
+  if item.get("status")!="SOURCE_AND_ODDS_VERIFIED":return None
+  if item.get("includes_results") is not False or item.get("includes_final_odds") is not False:return None
+  if item.get("models_executed") is not False or item.get("backfill_history_features_computed") is not False:return None
+  stamp=datetime.fromisoformat(item["captured_at_utc"])
+  if stamp.tzinfo is None or stamp.astimezone(timezone.utc)>=datetime(2026,10,16,15,0,tzinfo=timezone.utc):return None
+  if item.get("jra_card",{}).get("identity_verified") is not True:return None
+  if odds.get("combination_coverage_complete") is not True or odds.get("publisher_update_display_consistent") is not True:return None
+  if odds.get("snapshot_type")!="PRE_RACE_LIVE_ODDS":return None
+  if not all(isinstance(odds.get(k),list) for k in ("quotes","no_votes","scratched_combinations")):return None
+  if odds["expected_combination_count"]!=len(odds["quotes"])+len(odds["no_votes"])+len(odds["scratched_combinations"]):return None
+  return item
+ except (ValueError,KeyError,TypeError,OverflowError,AttributeError,UnicodeError):return None
 def single(race):
  rid=race["race_id"]
  out={"contract":"JRA_20261017_ALL_RACES_PRE_RACE_AUDIT_V1",
@@ -420,6 +451,7 @@ def main():
  p=argparse.ArgumentParser()
  p.add_argument("--out",type=Path,default=Path("audit-results/live-20261017"))
  p.add_argument("--limit",type=int,default=36)
+ p.add_argument("--resume-verified",action="store_true",help="Keep already validated pre-race race snapshots; retry blocked races only")
  args=p.parse_args()
  if not 1<=args.limit<=36:raise ValueError("LIMIT")
  races,discovery=discover()
@@ -430,11 +462,12 @@ def main():
            "discovery_verified":True,"actual_races_processed":min(args.limit,len(races)),
            "discovery_meta":discovery,"races":[]}
  for i,race in enumerate(races[:args.limit]):
-  item=single(race)
   dest=output/(race["race_id"]+".json")
-  dest.write_text(json.dumps(item,ensure_ascii=False,indent=2)+"\n","utf-8")
+  cached=reusable_verified(dest,race) if args.resume_verified else None
+  item=cached if cached is not None else single(race)
+  if cached is None:dest.write_text(json.dumps(item,ensure_ascii=False,indent=2)+"\\n","utf-8")
   rec={"race_id":race["race_id"],"venue":race["venue"],"race_no":race["race_no"],
-       "status":item["status"],"error":item["errors"],
+       "status":item["status"],"error":item["errors"],"reused_verified_snapshot":cached is not None,
        "runner_count":item.get("netkeiba",{}).get("runner_count"),
        "odds_quote_count":item.get("jra_odds",{}).get("quoted_combination_count"),
        "no_votes":item.get("jra_odds",{}).get("no_votes_combination_count"),
@@ -443,6 +476,7 @@ def main():
   manifest["races"].append(rec)
   print("ALL_RACES_PROGRESS "+json.dumps(rec,ensure_ascii=False),flush=True)
   if i+1<len(races[:args.limit]):time.sleep(0.7)
+ manifest["reused_verified_count"]=sum(x["reused_verified_snapshot"] for x in manifest["races"])
  manifest["full_source_and_odds_verified"]=sum(x["status"]=="SOURCE_AND_ODDS_VERIFIED" for x in manifest["races"])
  manifest["blocked"]=sum(x["status"]!="SOURCE_AND_ODDS_VERIFIED" for x in manifest["races"])
  (output/"manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n","utf-8")

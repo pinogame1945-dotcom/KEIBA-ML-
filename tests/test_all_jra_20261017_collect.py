@@ -3,6 +3,9 @@ import math
 import sys
 import unittest
 from bs4 import BeautifulSoup
+from pathlib import Path
+from tempfile import TemporaryDirectory
+from unittest.mock import patch
 sys.path.insert(0,"scripts")
 import all_jra_20261017_collect as x
 
@@ -76,6 +79,32 @@ class AllJraTests(unittest.TestCase):
    self.assertEqual(x.base_odds.parse_one_odd(dict(pairs["WIN"])[(1,)])["odds"],10.2)
   finally:
    x.base_odds.N,x.base_odds.RUNNERS=old_n,old_r
+ def test_verified_snapshot_resume_guards(self):
+  race={"race_id":"202605040605","venue":"東京","race_no":5}
+  item={"contract":"JRA_20261017_ALL_RACES_PRE_RACE_AUDIT_V1","race_id":race["race_id"],
+   "race_date":x.DAY,"source_discovery":race,"status":"SOURCE_AND_ODDS_VERIFIED",
+   "includes_results":False,"includes_final_odds":False,"models_executed":False,
+   "backfill_history_features_computed":False,"captured_at_utc":"2026-10-16T12:00:00+00:00",
+   "jra_card":{"identity_verified":True},
+   "jra_odds":{"combination_coverage_complete":True,"publisher_update_display_consistent":True,
+     "snapshot_type":"PRE_RACE_LIVE_ODDS","expected_combination_count":2,
+     "quotes":[{"odds":1.2}],"no_votes":[{"odds":None}],"scratched_combinations":[]}}
+  with TemporaryDirectory() as d:
+   p=Path(d)/"snapshot.json"
+   p.write_text(x.json.dumps(item,ensure_ascii=False),"utf-8")
+   self.assertIsNotNone(x.reusable_verified(p,race))
+   item["includes_results"]=True
+   p.write_text(x.json.dumps(item,ensure_ascii=False),"utf-8")
+   self.assertIsNone(x.reusable_verified(p,race))
+   item["includes_results"]=False
+   item["jra_odds"]["expected_combination_count"]=3
+   p.write_text(x.json.dumps(item,ensure_ascii=False),"utf-8")
+   self.assertIsNone(x.reusable_verified(p,race))
+ def test_transport_timeout_retry_is_bounded(self):
+  with patch.object(x,"src_fetch_once",side_effect=[TimeoutError("timed out"),("ok",{"sha256":"good"})]) as fetch,patch.object(x.time,"sleep") as nap:
+   self.assertEqual(x.src_fetch("https://www.jra.go.jp"),("ok",{"sha256":"good"}))
+   self.assertEqual(fetch.call_count,2)
+   self.assertEqual(nap.call_count,1)
  def test_wrong_row_blocked(self):
   n=7
   soup=self.build("TRIFECTA",n)

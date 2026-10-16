@@ -24,7 +24,7 @@ jobs:
       - name: Collect 36 official JRA races and 8 bet types, preserve per-race BLOCKED states
         id: collect
         continue-on-error: true
-        run: python scripts/all_jra_20261017_collect.py --limit 36
+        run: python scripts/all_jra_20261017_collect.py --limit 36 --resume-verified
       - name: Commit source snapshots and per-race manifest on isolated branch
         if: steps.collect.outcome == 'success' || steps.collect.outcome == 'failure'
         run: |
