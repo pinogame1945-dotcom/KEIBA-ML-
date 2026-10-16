@@ -1,0 +1,22 @@
+name: Fuji JRA On-sale Odds Index Inspection - Free CPU
+on:
+  push:
+    branches: [audit/fuji-jra-onsale-odds-20261016]
+    paths:
+      - scripts/fuji_jra_onsale_index_diag_20261016.py
+      - .github/workflows/fuji-jra-onsale-index-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  odds_index:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Read real JRA on-sale navigation (read-only)
+        run: python scripts/fuji_jra_onsale_index_diag_20261016.py

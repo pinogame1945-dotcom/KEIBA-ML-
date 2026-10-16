@@ -1,0 +1,22 @@
+name: Shuka Sho Friday Pre-sale JRA Navigation - Free CPU
+on:
+  push:
+    branches: [audit/fuji-jra-onsale-odds-20261016]
+    paths:
+      - scripts/shuka_friday_jra_20261016.py
+      - .github/workflows/shuka-jra-friday-nav-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  shuka_friday:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Check announced Sunday GI page via observed JRA odds nav
+        run: python scripts/shuka_friday_jra_20261016.py
