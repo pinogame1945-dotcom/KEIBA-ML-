@@ -116,3 +116,74 @@ def validate_exact_full(original,contract):
 
 def pooled(stats_by_year):
     return {k:sum(stats_by_year[y][k] for y in YEARS) for k in stats_by_year[2023]}
+
+def write_csv(path,rows):
+    assert_ok(rows,"empty rows")
+    with path.open("w",encoding="utf-8",newline="") as f:
+        w=csv.DictWriter(f,fieldnames=list(rows[0]))
+        w.writeheader();w.writerows(rows)
+
+def main():
+    p=argparse.ArgumentParser()
+    for key in ("predictions","picks","racewise","backfill-root",
+                "contract","rank2to6-summary","out-dir"):
+        p.add_argument("--"+key,required=True)
+    a=p.parse_args()
+    contract,selected=frozen_standard(a.contract)
+    data,picks=lens.frame(a.predictions,a.picks)
+    races=pd.read_csv(a.racewise,compression="infer",dtype={
+        "race_id":str,"VALUE_EV_horse":str,"AI_RAW_TOP_horse":str})
+    races["year"]=pd.to_numeric(races.year,errors="raise").astype(int)
+    assert_ok(len(races)==TOTAL_RACES and races.race_id.is_unique,
+              "source race coverage drift")
+    assert_ok(set(races.year)==set(YEARS),"2026 still sealed")
+    original,common,eligible=replay(data,picks,races,Path(a.backfill_root),selected)
+    validate_exact_full(original,contract)
+    assert_ok(eligible=={2023:3144,2024:3456,2025:3456},
+              ("2023-Jan common window drift",eligible))
+    rows=[result(y,"FROZEN_L2_1_STANDARD_50",original[y],RACES_YEAR) for y in YEARS]
+    rows.append(result("2023-2025","FROZEN_L2_1_STANDARD_50",pooled(original),TOTAL_RACES))
+    common_rows=[result(y,"FROZEN_L2_1_STANDARD_50",common[y],eligible[y]) for y in YEARS]
+    common_rows.append(result("2023FEB-2025","FROZEN_L2_1_STANDARD_50",
+                              pooled(common),sum(eligible.values())))
+    source=json.loads(Path(a.__dict__["rank2to6_summary"]).read_text(encoding="utf-8"))
+    assert_ok(source["january_2023_excluded_from_all_policies"] is True
+              and source["evaluation_start_2023"]=="2023-02-01",
+              "2-6 comparison window mismatch")
+    assert_ok(len(source["selected_rows"])==5,"missing EV 2-6 winners")
+    comparison=[dict(rank=1,source="FROZEN_L2.1",
+                     selection="STANDARD_50_GATES",
+                     black_lines=9,conditions=50,
+                     **{k:common_rows[-1][k] for k in
+                         ("tickets","winning_tickets","stake_yen","return_yen","profit_yen","roi_pct")})]
+    for row in source["selected_rows"]:
+        rank=int(row["ev_rank"])
+        assert_ok(rank in (2,3,4,5,6),"unexpected ranked winner")
+        comparison.append(dict(rank=rank,source="PRUNED_20_BEST_3YR_ROI",
+                selection=row["adopted_method"],black_lines=row["black_odds_lines"],
+                conditions=None,tickets=row["purchased_tickets"],
+                winning_tickets=row["winning_tickets"],stake_yen=row["stake_yen"],
+                return_yen=row["return_yen"],profit_yen=row["profit_yen"],
+                roi_pct=row["roi_pct"]))
+    assert_ok([r["rank"] for r in comparison]==[1,2,3,4,5,6],
+              "rank alignment drift")
+    out=Path(a.out_dir);out.mkdir(parents=True,exist_ok=True)
+    write_csv(out/"rank1_frozen_standard50_full_years.csv",rows)
+    write_csv(out/"rank1_frozen_standard50_common_window.csv",common_rows)
+    write_csv(out/"ev_ranks_1_to_6_comparison_common_window.csv",comparison)
+    summary=dict(contract="EV_RANK1_FROZEN_L21_JOIN_EXISTING_RANKS2_TO_6_V1",
+                 rank1_frozen_contract="KEIBA_L2_1_FIXED_PURCHASE_V1",
+                 rank1_frozen_replay_exactly_matches_all_2023_2025=True,
+                 rank1_method_not_reselected=True,rank1_standard_50_conditions=True,
+                 rank1_full_years=rows,rank1_common_window=common_rows,
+                 common_window_2023_02_through_2025_12=True,
+                 ranks2to6_unchanged_source_run=38891800300,
+                 comparisons=comparison,
+                 counts_per_rank_not_cross_rank_deduplicated=True,
+                 different_rank1_and_rank2to6_reduction_stages=True,
+                 historical_FINAL_quotes_not_betting_time=True,
+                 selected_conditions_evaluated_same_period=True,year2026_sealed=True)
+    (out/"summary.json").write_text(json.dumps(summary,ensure_ascii=False,indent=2)+"\n")
+    print("RANK1_FROZEN_AND_ALL_SIX_RANKS_COMPARE",json.dumps(comparison,ensure_ascii=False))
+
+if __name__=="__main__":main()
