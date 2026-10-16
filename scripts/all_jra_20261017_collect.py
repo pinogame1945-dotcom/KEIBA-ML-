@@ -92,7 +92,7 @@ def discover():
    if not m:continue
    if m.group("venue")!=venue or (int(m.group("meet")),int(m.group("day")))!=(MEETINGS[venue][1],MEETINGS[venue][2]):
     raise ValueError("RACE_LINK_CROSS_VENUE")
-   if clean(a.get_text(" ",strip=True))!="出馬表":raise ValueError("CARD_LABEL_CHANGED")
+   if clean(a.get_text(" ",strip=True))!="出馬表":continue  # Other JRA navigation links may point at a racecard
    next_link=a.find_next("a")
    if next_link is None or clean(next_link.get_text(" ",strip=True))!="オッズ":
     raise ValueError("CARD_ODDS_PAIR_NOT_ADJACENT")
