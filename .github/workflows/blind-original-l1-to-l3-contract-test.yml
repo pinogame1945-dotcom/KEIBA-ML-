@@ -1,0 +1,36 @@
+name: Blind L1 to Frozen L2.1 to Official L3 V3 - Contract Test Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - research/bridge_blind_original_l1_to_l175_v1.py
+      - tests/test_blind_real_l1_to_frozen_l21_l3_pipeline_v1.py
+      - .github/workflows/blind-original-l1-to-l3-contract-test.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-l21-l3-bridge-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      OMP_NUM_THREADS: '1'
+      OPENBLAS_NUM_THREADS: '1'
+      L1_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen original policies unchanged and free standard CPU only
+        run: |
+          python scripts/verify_keiba_l2_1_freeze.py
+          python -m py_compile research/bridge_blind_original_l1_to_l175_v1.py tests/test_blind_real_l1_to_frozen_l21_l3_pipeline_v1.py
+          echo "FREE_STANDARD_CPU_NO_ARTIFACT_NO_CACHE_NO_PERSISTENT_MODEL"
+      - name: Run 17-horse strict join and synthetic-only original L2.1 to official L3 V3
+        run: |
+          python -m unittest discover -s tests -p test_blind_real_l1_to_frozen_l21_l3_pipeline_v1.py -v
