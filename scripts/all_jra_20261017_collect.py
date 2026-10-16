@@ -203,6 +203,33 @@ def net_card(race):
    "race_name":clean(soup.select_one(".RaceName").get_text(" ",strip=True)) if soup.select_one(".RaceName") else None,
    "raw_course":raw_course,"raw_condition":raw_condition,
    "features_149":ledger,"feature_status_counts":{s:sum(f["status"]==s for f in ledger) for s in set(f["status"] for f in ledger)}}
+def parse_live_jra_entries(html,names):
+ soup=BeautifulSoup(html,"html.parser")
+ records=[]
+ for table in soup.select("table"):
+  for tr in table.select("tr"):
+   cells=tr.find_all(["th","td"],recursive=False)
+   if len(cells)<3:continue
+   name_text=clean(cells[2].get_text(" ",strip=True))
+   matched=[n for n in names if n in name_text]
+   if not matched:continue
+   if len(matched)!=1:raise ValueError("AMBIGUOUS_JRA_HORSE_NAME")
+   name=matched[0]
+   num_text=clean(cells[1].get_text(" ",strip=True))
+   num=int(num_text) if re.fullmatch(r"\d{1,2}",num_text) else None
+   frame=[]
+   for img in cells[0].select("img[alt]"):
+    m=re.search(r"枠([1-8])",clean(img.get("alt","")))
+    if m:frame.append(int(m.group(1)))
+   raw_frame=clean(cells[0].get_text(" ",strip=True))
+   frame_no=frame[0] if len(frame)==1 else int(raw_frame) if re.fullmatch(r"[1-8]",raw_frame) else None
+   raw=clean(tr.get_text(" ",strip=True))
+   status="SCRATCHED" if "出走取消" in raw else "EXCLUDED" if "競走除外" in raw or "出走除外" in raw else "LISTED"
+   records.append({"horse_name":name,"horse_number":num,"gate":frame_no,"entry_status":status})
+ if not records or len({x["horse_name"] for x in records})!=len(records):
+  raise ValueError("JRA_HORSE_LIST_INCOMPLETE_OR_DUPLICATE")
+ return records
+
 def official_card(race,net):
  html,meta=src_fetch(race["jra_card_url"])
  soup=BeautifulSoup(html,"html.parser")
@@ -211,7 +238,7 @@ def official_card(race,net):
  if TOKEN not in race["jra_card_url"] or "2026年10月17日" not in page or target not in page or f'{race["race_no"]}レース' not in page:
   raise ValueError("JRA_CARD_RACE_IDENTITY_MISMATCH")
  expected_names={x["horse_name"] for x in net["runners"]}
- verified=official_guard.parse_jra_official(html,expected_names)
+ verified=parse_live_jra_entries(html,expected_names)
  parsed={x["horse_name"]:x for x in verified}
  if set(parsed)!=expected_names:raise ValueError("JRA_NETKEIBA_NAME_LIST_DIVERGENCE")
  differs=[]
