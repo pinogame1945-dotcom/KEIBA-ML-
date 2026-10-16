@@ -31,6 +31,7 @@ def load_module(path, name):
 
 L21 = load_module("l21_github_frozen_prebet.py", "keiba_github_l21")
 L3 = load_module("l3_v3_operational.py", "keiba_official_l3_v3")
+ANCHOR = load_module("score_github_original_anchor_asof.py", "keiba_original_anchor_github")
 
 
 def race_id(value):
@@ -156,10 +157,23 @@ def run(requested, manifest, manifest_root=None):
             results[rid] = fail("RACE_ID_NOT_IN_GITHUB_SOURCE_MANIFEST")
             continue
         try:
-            required = ("race_card", "original_l21_features",
-                        "jra_prebet_quotes", "original_l175_horse_p3")
+            required = ("race_card", "jra_prebet_quotes", "original_l175_horse_p3")
             files = {key: source_file(root, entry.get(key)) for key in required}
-            card, model, quotes, p3 = (files[x] for x in required)
+            card, quotes, p3 = (files[x] for x in required)
+            use_original_model = ("original_anchor_parameters" in entry or
+                                  "original_ability_risk" in entry)
+            if use_original_model:
+                if "original_l21_features" in entry:
+                    raise ValueError("CANNOT_MIX_PRIOR_MODEL_AND_EXTERNALLY_SCORED_ANCHOR")
+                params = source_file(root, entry.get("original_anchor_parameters"))
+                companions = source_file(root, entry.get("original_ability_risk"))
+                # Real current UTC clock is mandatory for executable CLI.
+                # Historical synthetic tests may call the pure scorer directly,
+                # but cannot inject a fabricated clock into this entrypoint.
+                derived = ANCHOR.calc(params, card, quotes, companions)
+                model = derived["model_full_probs"]
+            else:
+                model = source_file(root, entry.get("original_l21_features"))
             source = (card.get("capture") or {})
             if (card.get("contract") != "KEIBA_GITHUB_JRA_RACE_CARD_V1" or
                 source.get("source_system") != "KEIBA_GITHUB_JRA" or
@@ -180,6 +194,10 @@ def run(requested, manifest, manifest_root=None):
                             "status": "L2_READY_L3_PENDING",
                             "blocked_reason": None,
                             "rankings": ranks,
+                            "original_anchor_source": (
+                                "ORIGINAL_FROZEN_2025_PRIOR_MODEL_GITHUB_INFERENCE"
+                                if use_original_model else
+                                "PRECOMPUTED_ORIGINAL_HORSE_INPUT_ASOF_NOT_INDEPENDENTLY_VERIFIED"),
                             "l2_1": l2,
                             "l3_v3": None}
             compatible.append({"race_date": card["race"]["raceDate"],
