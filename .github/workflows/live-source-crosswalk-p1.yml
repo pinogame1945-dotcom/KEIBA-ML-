@@ -1,0 +1,46 @@
+name: Live Source Crosswalk P1 - Free CPU Read Only
+
+on:
+  workflow_dispatch:
+    inputs:
+      race_id:
+        description: 'Real 12-digit netkeiba race ID'
+        required: true
+        default: '202605040611'
+        type: string
+      jra_card_url:
+        description: 'Published real JRA official /JRADB/accessD.html?CNAME= URL'
+        required: true
+        default: 'https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22'
+        type: string
+      expected:
+        description: 'Verified field size, mandatory'
+        required: true
+        default: '14'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  source-check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install source HTML parser - no cache or artifacts
+        run: python -m pip install -r scripts/requirements-live-source-probe-v1.txt
+      - name: Local parser regression
+        run: python -m unittest discover -s tests -p 'test_live_race_source_probe_v1.py' -v
+      - name: Read-only official source and netkeiba runner crosswalk
+        env:
+          RACE_ID: '${{ inputs.race_id }}'
+          JRA_CARD_URL: '${{ inputs.jra_card_url }}'
+          EXPECTED: '${{ inputs.expected }}'
+        run: |
+          python scripts/live_race_source_probe_v1.py \
+            --race-id "$RACE_ID" --expected "$EXPECTED" \
+            --jra-card-url "$JRA_CARD_URL"
