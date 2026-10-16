@@ -64,6 +64,9 @@ for(const runner of live.runners){
    const r=rows[0],value=r.value;
    if(value!==null&&!scalar(value)&&!(Array.isArray(value)===false&&typeof value==="object"))throw Error("FEATURE_VALUE_TYPE_UNEXPECTED:"+f.feature_id);
    map[f.feature_id]={value,source:"BACKFILL",status:r.status,key:r.key};
+   // Raw pedigree IDs and horse profile fields are categorical metadata,
+   // not direct numeric AI model columns; keep them in the catalog ledger.
+   if(f.history_boundary==="STATIC_FACT")continue;
    if(r.key?.startsWith("family:")){
      if(value==null||typeof value!=="object"||Array.isArray(value))throw Error("FAMILY_NONOBJECT:"+f.feature_id);
      for(const [k,v] of Object.entries(value))addFlat(modelCandidate,k,v,f.feature_id,conflicts);
