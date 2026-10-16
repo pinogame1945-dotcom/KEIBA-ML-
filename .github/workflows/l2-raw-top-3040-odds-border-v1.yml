@@ -36,7 +36,8 @@ jobs:
           from pathlib import Path
           p=Path(".github/workflows/l2-raw-top-3040-odds-border-v1.yml").read_text()
           assert [x.strip() for x in p.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
-          assert not any(x in p for x in ("upload-artifact", "actions/cache", "runs-on: [", "gpu"))
+          uses=[x.strip() for x in p.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(("upload-artifact" in x or "actions/cache" in x) for x in uses)
           print("FREE_STANDARD_CPU_ONLY_NO_PAID_ARTIFACTS_OR_CACHE")
           PY
           python -m py_compile research/run_l2_raw_top_odds_boundary_v1.py
