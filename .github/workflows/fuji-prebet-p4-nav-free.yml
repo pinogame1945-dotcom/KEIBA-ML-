@@ -1,0 +1,22 @@
+name: Fuji P4 JRA Pre-sale Odds Navigation - Free CPU
+on:
+  push:
+    branches: [audit/fuji-prebet-four-phases-20261016]
+    paths:
+      - 'scripts/fuji_prebet_phase4_odds_nav_20261016.py'
+      - '.github/workflows/fuji-prebet-p4-nav-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  official-jra-odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Read Fuji official JRA card and follow verified odds link
+        run: python scripts/fuji_prebet_phase4_odds_nav_20261016.py
