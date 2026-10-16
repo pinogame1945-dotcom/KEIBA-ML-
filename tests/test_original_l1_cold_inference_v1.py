@@ -97,6 +97,8 @@ class ColdInference(unittest.TestCase):
             ("finish_position",3),("target_win",1),("final_win_odds",3.1),
             ("distill_ai_rank",1),("risk",.5),("P__ANCHOR_FULL",.11),
             ("payout_yen",1000),("market_rank",2),("_score",3.),
+            ("actual_start_time",1500),("market_final_win_odds",4.4),
+            ("target_prize_money",1000),
         ):
             x=target()
             x[name]=value
