@@ -11,24 +11,24 @@ Date: 2026-10-16. Code added to isolated branch. **No real GitHub-runner network
 
 ## Official JRA pre-race entry list, Fuji Stakes, 14 horses
 
-| No | Horse |
-|---:|---|
-| 1 | ファンダム |
-| 2 | ミトノオルフェ |
-| 3 | シンフォーエバー |
-| 4 | トロヴァトーレ |
-| 5 | アドマイヤズーム |
-| 6 | デビットバローズ |
-| 7 | ウォーターリヒト |
-| 8 | マジックサンズ |
-| 9 | キープカルム |
-| 10 | アンパドゥ |
-| 11 | ファーヴェント |
-| 12 | エンペラーズソード |
-| 13 | シュガークン |
-| 14 | エコロアルバ |
+| JRA No | Horse | netkeiba horse_id (individually verified profile) |
+|---:|---|---|
+| 1 | ファンダム | [2022105836](https://db.netkeiba.com/horse/2022105836/) |
+| 2 | ミトノオルフェ | [2022104053](https://db.netkeiba.com/horse/2022104053/) |
+| 3 | シンフォーエバー | [2022110114](https://db.netkeiba.com/horse/2022110114/) |
+| 4 | トロヴァトーレ | [2021105557](https://db.netkeiba.com/horse/2021105557/) |
+| 5 | アドマイヤズーム | [2022105396](https://db.netkeiba.com/horse/2022105396/) |
+| 6 | デビットバローズ | [2019104878](https://db.netkeiba.com/horse/2019104878/) |
+| 7 | ウォーターリヒト | [2021100953](https://db.netkeiba.com/horse/2021100953/) |
+| 8 | マジックサンズ | [2022104772](https://db.netkeiba.com/horse/2022104772/) |
+| 9 | キープカルム | [2021105119](https://db.netkeiba.com/horse/2021105119/) |
+| 10 | アンパドゥ | [2021110030](https://db.netkeiba.com/horse/2021110030/) |
+| 11 | ファーヴェント | [2021104893](https://db.netkeiba.com/horse/2021104893/) |
+| 12 | エンペラーズソード | [2022106691](https://db.netkeiba.com/horse/2022106691/) |
+| 13 | シュガークン | [2021102224](https://db.netkeiba.com/horse/2021102224/) |
+| 14 | エコロアルバ | [2023103184](https://db.netkeiba.com/horse/2023103184/) |
 
-This table comes from public JRA page text checked 2026-10-16. It is NOT evidence that our GitHub collector already retrieved 14 horse IDs.
+This table comes from public JRA page text checked 2026-10-16. Each horse_id above was independently checked against the publicly accessible netkeiba horse profile URL; JRA's pre-race numbered card provides the horse numbers. This is a MANUAL public-page crosswalk, NOT evidence that the GitHub runner already fetched or matched all 14 records.
 
 ## Safety gates
 
