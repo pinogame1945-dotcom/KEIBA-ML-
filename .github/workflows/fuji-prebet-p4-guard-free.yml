@@ -1,0 +1,22 @@
+name: Fuji P4 JRA Eight-Type Odds Validator - Free CPU
+on:
+  push:
+    branches: [audit/fuji-prebet-four-phases-20261016]
+    paths:
+      - 'scripts/fuji_prebet_phase4_odds_validator_20261016.py'
+      - 'tests/test_fuji_prebet_phase4_validator_20261016.py'
+      - '.github/workflows/fuji-prebet-p4-guard-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  validator:
+    runs-on: ubuntu-latest
+    timeout-minutes: 4
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate eight wager types, runner numbering, source and freshness guards
+        run: python -m unittest discover -s tests -p 'test_fuji_prebet_phase4_validator_20261016.py' -v

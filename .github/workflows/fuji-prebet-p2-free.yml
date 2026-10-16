@@ -1,0 +1,25 @@
+name: Fuji P2 31 Plus 103 Input Join - Free CPU
+on:
+  push:
+    branches: [audit/fuji-prebet-four-phases-20261016]
+    paths:
+      - 'scripts/fuji_prebet_phase2_20261016.mjs'
+      - '.github/workflows/fuji-prebet-p2-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase2:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - run: node --check scripts/fuji_prebet_phase2_20261016.mjs
+      - name: Join actual 14 by 134 live and BACKFILL catalog features
+        run: |
+          node scripts/fuji_prebet_phase2_20261016.mjs >/tmp/fuji_join.jsonlog
+          grep '^PHASE2_SUMMARY ' /tmp/fuji_join.jsonlog
+          node -e "const fs=require('fs');let s=fs.readFileSync('/tmp/fuji_join.jsonlog','utf8').split('\n').find(x=>x.startsWith('PHASE2_JSON ')); let j=JSON.parse(s.slice(12));console.log('HORSE_SAMPLES',JSON.stringify(j.horses.map(h=>({name:h.horse_name,count:h.feature_count,missing:h.scalar_null_count,candidate_columns:h.model_candidate_feature_count,candidate_null:h.model_candidate_null_count}))))"

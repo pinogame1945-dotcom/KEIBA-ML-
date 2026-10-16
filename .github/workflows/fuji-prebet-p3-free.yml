@@ -1,0 +1,25 @@
+name: Fuji P3 Body Weight Weather Turf - Free CPU
+on:
+  push:
+    branches: [audit/fuji-prebet-four-phases-20261016]
+    paths:
+      - 'scripts/fuji_prebet_phase3_20261016.py'
+      - 'tests/test_fuji_prebet_phase3_20261016.py'
+      - '.github/workflows/fuji-prebet-p3-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  phase3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Offline positive and negative parser tests
+        run: python -m unittest discover -s tests -p 'test_fuji_prebet_phase3_20261016.py' -v
+      - name: Real Fuji card and JRA Tokyo TURF observation
+        run: python scripts/fuji_prebet_phase3_20261016.py
