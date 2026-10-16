@@ -132,6 +132,41 @@ def ranking(model, card):
     }
 
 
+def validate_original_p3_horse_identity(card, p3, race_id):
+    """Preserve canonical horse_id across card, original L1 and L1.75.
+
+    Full field required, not only horses in purchased tickets: a later gate
+    or stake policy must not silently change the ability/p3 source population.
+    """
+    if not isinstance(p3, dict) or p3.get("race_id") != race_id:
+        raise ValueError("L175_P3_RACE_ID_DRIFT")
+    rows = p3.get("horses")
+    entries = (card.get("entries") or [])
+    official = {}
+    for item in entries:
+        if item.get("entryStatus") != "ACTIVE":
+            continue
+        number = item.get("horseNo")
+        horse_id = item.get("canonicalHorseId")
+        if (type(number) is not int or not 1 <= number <= 24 or
+            number in official or not isinstance(horse_id, str) or not horse_id):
+            raise ValueError("OFFICIAL_JRA_HORSE_ID_FIELD_DRIFT")
+        official[number] = horse_id
+    if not isinstance(rows, list) or len(rows) != len(official):
+        raise ValueError("L175_P3_FULL_FIELD_COVERAGE_REQUIRED")
+    seen = set()
+    for row in rows:
+        if not isinstance(row, dict):
+            raise ValueError("L175_P3_INVALID_HORSE_ROW")
+        number = row.get("horse_number")
+        horse_id = row.get("horse_id")
+        if type(number) is not int or number in seen or official.get(number) != horse_id:
+            raise ValueError("L175_P3_CANONICAL_HORSE_ID_DRIFT")
+        seen.add(number)
+    if seen != set(official):
+        raise ValueError("L175_P3_FULL_FIELD_COVERAGE_REQUIRED")
+
+
 def run(requested, manifest, manifest_root=None):
     if manifest.get("contract") != MANIFEST:
         raise ValueError("GITHUB_MANIFEST_CONTRACT_INVALID")
@@ -185,6 +220,7 @@ def run(requested, manifest, manifest_root=None):
                 quotes.get("canonical_race_id") != rid or
                 (card.get("race") or {}).get("canonicalRaceId") != rid):
                 raise ValueError("GITHUB_L2_QUOTE_RACE_DRIFT")
+            validate_original_p3_horse_identity(card,p3,rid)
             l2 = L21.execute(card, model, quotes, policy="STANDARD")
             if l2["status"] != "PAPER_ONLY_PREBET_QUOTE_VALIDATED":
                 raise ValueError(l2["status"])
