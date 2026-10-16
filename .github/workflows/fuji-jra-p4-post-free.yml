@@ -1,0 +1,21 @@
+name: Fuji JRA Odds POST Protocol - Free CPU
+on:
+  push:
+    branches: [audit/fuji-jra-post-and-l1-entry-20261016]
+    paths:
+      - scripts/fuji_jra_post_protocol_20261016.py
+      - .github/workflows/fuji-jra-p4-post-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  jra_post_audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - run: python scripts/fuji_jra_post_protocol_20261016.py

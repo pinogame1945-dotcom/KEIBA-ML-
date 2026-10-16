@@ -1,0 +1,62 @@
+name: Fuji Existing PR7 L1 Scorer Input Contract - Free CPU
+on:
+  push:
+    branches: [audit/fuji-jra-post-and-l1-entry-20261016]
+    paths:
+      - 'scripts/fuji_original_l1_input_20261016.mjs'
+      - '.github/workflows/fuji-original-l1-input-contract-free.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  actual_fuji_input_to_original_scorer:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: node --check scripts/fuji_original_l1_input_20261016.mjs
+      - name: Construct actual Fuji fourteen horse input; enforce EARLY/NO FUTURE DATA
+        run: node scripts/fuji_original_l1_input_20261016.mjs /tmp/fuji-asof-original-input.json
+      - name: Read pinned unmodified original one-race scorer and real registry (PR7)
+        run: |
+          set -euo pipefail
+          mkdir /tmp/pr7-original && cd /tmp/pr7-original
+          git init -q
+          git remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -c protocol.version=2 fetch --depth=1 --filter=blob:none origin f9eedf6c2d82719571619b39b14816155b6f2cd0
+          test "$(git rev-parse FETCH_HEAD)" = "f9eedf6c2d82719571619b39b14816155b6f2cd0"
+          git show FETCH_HEAD:research/score-one-race.py > score-one-race.py
+          git show FETCH_HEAD:models/one-race-registry.json > one-race-registry.json
+          python - <<'PY'
+          import json
+          j=json.load(open('/tmp/pr7-original/one-race-registry.json'))
+          assert len(j['models'])==31
+          assert all(x['kind']=='unconfigured' for x in j['models'])
+          print('ORIGINAL_PR7_REGISTRY_31_UNCONFIGURED_VERIFIED')
+          PY
+      - name: Run unchanged original scorer and assert no fraudulent ranking
+        run: |
+          python /tmp/pr7-original/score-one-race.py \
+            --input /tmp/fuji-asof-original-input.json \
+            --registry /tmp/pr7-original/one-race-registry.json \
+            --output /tmp/fuji-pr7-model-report.json > /tmp/fuji-scorer.log
+          python - <<'PY'
+          import json
+          j=json.load(open('/tmp/fuji-pr7-model-report.json'))
+          assert j['race_id']=='202605040611'
+          assert j['prediction_phase']=='EARLY'
+          assert j['scored_models']==0
+          assert j['blocked_or_missing_models']==31
+          assert all(x['status']=='UNAVAILABLE' and 'ranking' not in x for x in j['model_results'])
+          print('FUJI_ORIGINAL_SCORER_WIRED_BUT_MODELS_UNCONFIGURED')
+          print('SCORER_SUMMARY',json.dumps({'scored_models':j['scored_models'],
+            'blocked_or_missing_models':j['blocked_or_missing_models'],
+            'race_id':j['race_id'],'phase':j['prediction_phase'],
+            'result':'BLOCKED_NO_ORIGINAL_PROMOTED_MODEL'}))
+          PY
