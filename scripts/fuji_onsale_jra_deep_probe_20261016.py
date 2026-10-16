@@ -68,7 +68,9 @@ def main():
   if re.sub(r"\s+","",a.get_text(" ",strip=True))=="オッズ":
    m=re.search(r"doAction\(\s*['\"](/JRADB/accessO\.html)['\"]\s*,\s*['\"]([^'\"]+)['\"]",a["onclick"])
    if m:hits.append(m.group(2))
- if len(set(hits))!=1:raise ValueError("OFFICIAL_ODDS_LINK_UNVERIFIED")
+ if len(set(hits))!=1:
+  print("JRA_CARD_ACTION_DIAG "+json.dumps({"hits":hits,"anchors":[{"text":a.get_text(" ",strip=True)[:50],"onclick":a.get("onclick","")[:140]} for a in so.select("a[onclick]") if "accessO.html" in a.get("onclick","")][:20],"card_title":so.title.get_text(" ",strip=True) if so.title else None},ensure_ascii=False))
+  raise ValueError("OFFICIAL_ODDS_LINK_UNVERIFIED")
  page,info=fetch(ODDS,hits[0])
  report={"checked_utc":datetime.now(timezone.utc).isoformat(),"race_id":"202605040611",
   "card":meta,"odds_index":info,"observed_cname":hits[0],"observations":inspect(page)}
