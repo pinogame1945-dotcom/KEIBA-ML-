@@ -8,11 +8,11 @@ on:
       - .github/workflows/frozen-l21-original-ai-to-v3-real-archive-proof.yml
   workflow_dispatch:
     inputs:
-      race_id:
-        description: Historical 2023-2025 netkeiba race ID (never 2026)
+      race_ids:
+        description: Historical 2023-2025 netkeiba race IDs, comma separated (never 2026)
         type: string
         required: true
-        default: '202507010212'
+        default: '202507010212,202506010102'
 permissions:
   contents: read
 jobs:
@@ -52,12 +52,19 @@ jobs:
       - name: Original 2025 horse ranks, selected EV axis, frozen tickets and V3 allocation
         shell: bash
         env:
-          TARGET_RACE: ${{ inputs.race_id || '202507010212' }}
+          TARGET_RACES: ${{ inputs.race_ids || '202507010212,202506010102' }}
         run: |
           set -euo pipefail
-          [[ "$TARGET_RACE" =~ ^202[345][0-9]{8}$ ]] || { echo "2026_SEALED_OR_BAD_RACE"; exit 2; }
+          [[ "$TARGET_RACES" =~ ^[0-9,[:space:]]+$ ]] || { echo "INVALID_RACE_IDS"; exit 2; }
+          IFS=, read -r -a selected_ids <<< "$TARGET_RACES"
+          test "${#selected_ids[@]}" -le 24 && test "${#selected_ids[@]}" -gt 0 || exit 2
+          args=()
+          for raw in "${selected_ids[@]}"; do
+            rid="${raw//[[:space:]]/}"
+            [[ "$rid" =~ ^202[345][0-9]{8}$ ]] || { echo "2026_SEALED_OR_BAD_RACE"; exit 2; }
+            args+=(--race "$rid")
+          done
           root="$RUNNER_TEMP/frozen-l21-original"
-          export TARGET_RACE
           secondary="$(python3 - "$root/known.csv.gz" <<'PY'
           import csv,gzip,sys
           with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
@@ -65,8 +72,9 @@ jobs:
           print(x)
           PY
           )"
-          args=(--race "$TARGET_RACE")
-          if [ "$secondary" != "$TARGET_RACE" ]; then args+=(--race "$secondary"); fi
+          if ! printf '%s\n' "${selected_ids[@]}" | tr -d '[:space:]' | tr ',' '\n' | grep -Fxq "$secondary"; then
+            args+=(--race "$secondary")
+          fi
           python3 research/replay_frozen_l21_to_l3_v3_historical.py \
             "${args[@]}" --frozen-oos "$root/original-oos.csv.gz" \
             --frozen-picks "$root/original-picks.csv.gz" \
