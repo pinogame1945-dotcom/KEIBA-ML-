@@ -191,6 +191,25 @@ class GithubRaceIntegration(unittest.TestCase):
                           result["races"][0]["blocked_reason"])
             self.assertEqual(result["races"][0]["l3_v3"],None)
 
+    def test_l175_p3_must_match_exact_full_field_horse_ids(self):
+        with tempfile.TemporaryDirectory() as tmp:
+            manifest=write_fixture(tmp,IDS[:1])
+            rid=IDS[0]
+            path=Path(tmp)/rid/"original_l175_horse_p3.json"
+            original=json.loads(path.read_text())
+            substitute=copy.deepcopy(original)
+            substitute["horses"][3]["horse_id"]="wrong-horse-with-same-number"
+            path.write_text(json.dumps(substitute))
+            result=orchestrator.run([rid],manifest,tmp)
+            self.assertEqual(result["races"][0]["status"],"BLOCKED")
+            self.assertEqual(result["races"][0]["blocked_reason"],
+                             "L175_P3_CANONICAL_HORSE_ID_DRIFT")
+            original["horses"].pop()
+            path.write_text(json.dumps(original))
+            result=orchestrator.run([rid],manifest,tmp)
+            self.assertEqual(result["races"][0]["blocked_reason"],
+                             "L175_P3_FULL_FIELD_COVERAGE_REQUIRED")
+
     def test_prebet_only_guard_and_manifest_security(self):
         with tempfile.TemporaryDirectory() as tmp:
             manifest=write_fixture(tmp,IDS[:1])
