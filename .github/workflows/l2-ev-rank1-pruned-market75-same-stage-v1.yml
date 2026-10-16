@@ -1,0 +1,140 @@
+name: EV Rank1 MARKET75 Pruning Only Same Stage as Ranks 2-6
+
+on:
+  push:
+    branches:
+      - research/l2-ev-rank1-pruned-market75-align-20261016
+    paths:
+      - .github/workflows/l2-ev-rank1-pruned-market75-same-stage-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1-pruned-market75-same-stage-v1
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    name: Fixed MARKET75 on original EV1 axis
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        ev_rank: [1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free CPU without artifact cache or GPU
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank1-pruned-market75-same-stage-v1.yml").read_text()
+          runners=[s.strip() for s in p.splitlines() if s.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest"],runners
+          uses=[s.strip() for s in p.splitlines() if s.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in uses)
+          print("FREE_STANDARD_CPU_NO_PAID_STORAGE")
+          PY
+          python -m py_compile research/run_l2_ev_rank1_market75_same_stage_v1.py
+          python -m py_compile tests/test_l2_ev_rank1_market75_same_stage_v1.py
+      - name: Install only numpy and pandas
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Regression tests
+        run: python -m unittest discover -s tests -p 'test_l2_ev_rank1_market75_same_stage_v1.py' -v
+      - name: Get pinned BACKFILL manifests for 2023-2025
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json,pandas as pd
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          original=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          source="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          x=pd.read_csv(source,compression="infer",usecols=["year","_race_date"])
+          assert set(x.year)=={2023,2024,2025}
+          dates=sorted(set(x._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350
+          paths={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              a=original["days"].get(day);b=odds["days"].get(day)
+              assert a and a.get("status")=="SUCCESS",("race pack missing",day)
+              assert b and b.get("status")=="SUCCESS",("final odds missing",day)
+              p=a["file"];q=b["file"]
+              assert p.startswith("data/daily/") and p.endswith(".jsonl.gz")
+              assert q.startswith("data/odds/daily/") and q.endswith(".jsonl.gz")
+              paths.update((p,q))
+          Path("out/pinned-sparse-paths.txt").write_text(
+             "\n".join("/"+p for p in sorted(paths))+"\n")
+          print("PINNED_HISTORY_DAYS",len(dates),"REAL_FILES",len(paths))
+          PY
+      - name: Download only pinned real historical day files to ephemeral disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Replay fixed MARKET75 on EV1 without stability filters
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch --depth=1 origin research/l2-raw-all20-fair-2023-warmup-20261016
+          git show FETCH_HEAD:research-results/l2-raw-20fair-warmup-v1/run-38885047839/summary.json > out/rank1-adopted-RAW-policy.json
+          dest="research-results/l2-ev-rank1-market75-same-stage-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_ev_rank1_market75_same_stage_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --original-bands research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv \
+            --raw-adoption-summary out/rank1-adopted-RAW-policy.json \
+            --rank2to6-summary research-results/l2-ev-rank2to6-pruning20-warmup-v1/run-38891800300/summary.json \
+            --backfill-root out/pinned-history --out-dir "$dest"
+          for f in summary.json rank1_before_stability_by_year.csv \
+                   rank1to6_pruning_only_same_window.csv; do
+            test -s "$dest/$f"
+          done
+      - name: Delete transient historical files
+        if: always()
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Commit compact rank results with safe concurrent rebase
+        if: success()
+        shell: bash
+        env:
+          EV_RANK: ${{ matrix.ev_rank }}
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1-market75-same-stage-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest"
+          git commit -m "research: align EV1 fixed MARKET75 pruning only with EV2-6 $GITHUB_RUN_ID"
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then ok=1;break;fi
+            sleep 3
+          done
+          test "$ok" = 1
+
