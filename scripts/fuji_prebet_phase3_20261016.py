@@ -23,8 +23,15 @@ def fetch(url,hostname):
   data=h.read(6_000_000)
   if len(data)>=6_000_000:raise ValueError("SIZE_LIMIT")
   cs=h.headers.get_content_charset() or "utf-8"
-  try:html=data.decode(cs)
-  except (UnicodeError,LookupError):html=data.decode("euc-jp")
+  html=None
+  for encoding in dict.fromkeys((cs,"utf-8","cp932","shift_jis","euc_jp")):
+   try:
+    candidate=data.decode(encoding)
+    if "馬場" in candidate or "富士" in candidate or "東京" in candidate:
+     html=candidate
+     break
+   except (UnicodeError,LookupError):pass
+  if html is None:raise UnicodeError("JAPANESE_DOCUMENT_ENCODING_UNKNOWN")
   if any(w in html for w in ["アクセス制限","不正なアクセス"]):raise ValueError("SOURCE_DENIED")
   return html,hashlib.sha256(data).hexdigest()
 def parse_card(html):
