@@ -69,3 +69,105 @@ def winners(root,rank):
         observed=tuple(sum(expected[y,tid][i] for y in YEARS) for i in range(3))
         assert_ok(observed==x,("source line pooled mismatch",tid))
     return meta,policy,selected,expected
+
+def replay(data,picks,races,root,rank,policy,selected):
+    """One real-data pass; learn thresholds only from the prior period."""
+    history=[]
+    stat=defaultdict(lambda:[0,0,0.])
+    hist={y:defaultdict(official.new_counter) for y in YEARS}
+    events=[]
+    counted=defaultdict(official.new_counter)
+    before={y:official.new_counter() for y in YEARS}
+    coverage={}
+    for year in YEARS:
+        yr=races[races.year.eq(year)]
+        assert_ok(len(yr)==RACES_YEAR,"year race count mismatch")
+        group=data[data.year.eq(year)].groupby("_race_id",sort=False)
+        prior_limits=prior.fast_prior_thresholds(history,stat) if year>2023 else None
+        prior_stat=stat if year>2023 else None
+        train_history=[]
+        train_stats=defaultdict(lambda:[0,0,0.])
+        jan_history=[]
+        jan_stats=defaultdict(lambda:[0,0,0.])
+        jan=0;eval_races=0;accepted_events=0
+        for rid,pack,odds,g,info in ev.iterate_races(year,group,yr,root):
+            eligible=ev.pruning_eval_eligible(year,info["race_date"])
+            if eligible and year==2023 and prior_limits is None:
+                assert_ok(jan>0 and len(jan_history)>1000,"missing January source training")
+                prior_limits=prior.fast_prior_thresholds(jan_history,jan_stats)
+                prior_stat={k:tuple(v) for k,v in jan_stats.items()}
+                print("STABILITY_2023_THRESHOLDS",rank,jan,len(jan_history),flush=True)
+            jan+=int(not eligible)
+            eval_races+=int(eligible)
+            axis=ev.choose_axis(rid,g,info,picks,rank)
+            if axis is None:continue
+            shim=info.copy();shim["VALUE_EV_horse"]=axis
+            unique={}
+            chosen=defaultdict(dict)
+            for tid,ticket,card in fixed.create_cards(g,pack,odds,rid,axis,shim):
+                old=unique.get(ticket)
+                if old is None:unique[ticket]=card
+                else:assert_ok(old==card,("ticket card drift",rid,ticket))
+                if eligible and tid in selected:
+                    assert_ok(ticket not in chosen[tid],"same line duplicate ticket")
+                    chosen[tid][ticket]=card
+            if eligible and chosen:
+                passed={}
+                sourced={}
+                for tid,cards in chosen.items():
+                    for ticket,card in cards.items():
+                        if ticket not in passed:
+                            passed[ticket]=bool(fixed.mask(card,prior_stat,prior_limits)[policy])
+                        if not passed[ticket]:continue
+                        ret=int(card[1])
+                        if ticket in sourced:
+                            assert_ok(sourced[ticket]==ret,"source repeated payout mismatch")
+                        else:sourced[ticket]=ret
+                        official.update_counter(counted[year,tid],ret)
+                if sourced:
+                    for ret in sourced.values():
+                        official.update_counter(before[year],ret)
+                    horse,numbers=official.stable.make_horse(g,pack)
+                    axis_number=numbers[axis]
+                    votes={}
+                    for tid,cards in chosen.items():
+                        for ticket,card in cards.items():
+                            if not passed.get(ticket):continue
+                            ret=int(card[1])
+                            if ticket not in votes:
+                                flags=lens.gate_flags(ticket,horse,axis_number)
+                                assert_ok(set(flags)==set(GATES),"17 gate drift")
+                                votes[ticket]=sum(1<<i for i,k in enumerate(GATES) if flags[k])
+                                assert_ok(votes[ticket]&1,"ALL gate missing")
+                            bm=votes[ticket]
+                            events.append((year,rid,tid,ticket,ret,bm))
+                            accepted_events+=1
+                            for i,k in enumerate(GATES):
+                                if bm&(1<<i):
+                                    official.update_counter(hist[year][tid,k],ret)
+            if year<2025:
+                for card in unique.values():
+                    fixed.add_learning(train_stats,card)
+                    train_history.append(card)
+                    if not eligible:
+                        fixed.add_learning(jan_stats,card)
+                        jan_history.append(card)
+        assert_ok(eval_races+jan==RACES_YEAR,"evaluated day coverage")
+        if year==2023:assert_ok(jan==312 and prior_limits is not None,"Jan training incomplete")
+        else:assert_ok(jan==0,"unexpected later-year exclusion")
+        if year<2025:
+            history.extend(train_history)
+            fixed.merge(stat,train_stats)
+        coverage[str(year)]=dict(eval_races=eval_races,jan_training_only=jan,events=accepted_events)
+        print("STABILITY_RANK_YEAR_READY",rank,year,"source_events",accepted_events,flush=True)
+    return hist,events,counted,before,coverage
+
+def validate_source(counted,expected,before,reference,rank):
+    for k,v in expected.items():
+        got=counted.get(k,official.new_counter())
+        observed=tuple(got[x] for x in ("n","hits","payout"))
+        assert_ok(observed==v,("line source receipt drift",rank,k,observed,v))
+    observed=tuple(sum(x[k] for x in before.values()) for k in ("n","hits","payout"))
+    old=reference["adopted_portfolio"]
+    expected_union=tuple(old[k] for k in ("n","hits","payout"))
+    assert_ok(observed==expected_union,("prior pruned union changed",rank,observed,expected_union))
