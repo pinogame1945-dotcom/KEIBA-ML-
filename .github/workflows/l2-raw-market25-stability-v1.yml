@@ -41,6 +41,7 @@ jobs:
           print("FREE_STANDARD_CPU_ONLY_NO_PAID_ARTIFACTS_OR_CACHE")
           PY
           python -m py_compile research/run_l2_raw_market25_stability_v1.py
+          python -m py_compile tests/test_l2_raw_market25_stability_v1.py
       - name: Install required Pandas dependency only
         run: python -m pip install --disable-pip-version-check numpy pandas
       - name: Run isolated calculation regression tests
