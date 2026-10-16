@@ -1,0 +1,18 @@
+name: JRA Tokyo5 card cell diagnostic free
+on:
+  push:
+    branches: [audit/all-jra-races-20261017]
+    paths: [scripts/all_jra_20261017_diagnostic.py, .github/workflows/all-jra-20261017-diagnostic-free.yml]
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - run: python scripts/all_jra_20261017_diagnostic.py
