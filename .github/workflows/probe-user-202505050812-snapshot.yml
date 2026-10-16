@@ -7,6 +7,8 @@ on:
     paths:
       - research/extract_unscored_race_from_snapshot.mjs
       - research/audit_blind_original_core4_features_v1.py
+      - research/compute_blind_target_prior_day_bias_v1.py
+      - tests/test_blind_target_prior_day_bias_v1.py
       - tests/test_blind_original_core4_features_v1.py
       - scripts/fetch_2025_target_snapshot_metadata.sh
       - .github/workflows/probe-user-202505050812-snapshot.yml
@@ -138,4 +140,26 @@ jobs:
                 "target_sha",data["core4_feature_name_sha256"],
                 "prior_sha",prior_sha,
                 "history_and_asof_still_NOT_VERIFIED",True,flush=True)
+          PY
+      - name: Original same-day bias from earlier 2025 race numbers only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/compute_blind_target_prior_day_bias_v1.py \
+            --2025-source "$TARGET_SNAPSHOT_PATH" \
+            --unscored-target "$RUNNER_TEMP/keiba-cold-target/target-unscored-final-stage.json" \
+            --output "$RUNNER_TEMP/keiba-cold-target/original-prior-daybias.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ["RUNNER_TEMP"])/"keiba-cold-target/original-prior-daybias.json"
+          d=json.loads(p.read_text())
+          assert d["contract"]=="KEIBA_BLIND_TARGET_ORIGINAL_PRIOR_DAYBIAS_V1"
+          assert d["race_id"]=="202505050812" and len(d["horse_scores"])==17
+          assert d["target_result_or_final_odds_used"] is False
+          assert d["l1_ready"] is False
+          assert d["target_race_start_timestamp_independently_verified"] is False
+          print("BLIND_202505050812_ORIGINAL_PRIOR_DAYBIAS_PROOF",
+                "earlier_races",d["source_prior_race_count"],
+                "horses",len(d["horse_scores"]),
+                "asof_proven",False,flush=True)
           PY
