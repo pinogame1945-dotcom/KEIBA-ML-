@@ -1,0 +1,97 @@
+name: Phase 3 - 2026 Oct 10 all 24 JRA race input readiness Free CPU
+
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - research/phase3_20261010_all_24_unscored_inputs_v1.py
+      - .github/workflows/phase3-20261010-all-24-preflight-freecpu.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: phase3-20261010-24-inputs-freecpu
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      OMP_NUM_THREADS: 2
+      OPENBLAS_NUM_THREADS: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Read-only original model/source preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/phase3_20261010_all_24_unscored_inputs_v1.py
+          node --check research/build-yearly-superset-snapshots.mjs
+          python scripts/verify_keiba_l2_1_freeze.py
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 5000000
+          echo "P3_ALL_24_FREE_CPU_NO_PAID_ARTIFACT_NO_GPU_NO_STORAGE"
+
+      - name: Install original Python read-only numerical dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+
+      - name: Source original pinned BACKFILL historical daily files
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          src="$RUNNER_TEMP/backfill"
+          mkdir -p "$src"
+          git -C "$src" init --quiet
+          git -C "$src" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$src" fetch --no-tags --depth 1 --filter=blob:none origin "$SHA"
+          git -C "$src" sparse-checkout init --cone
+          git -C "$src" sparse-checkout set data/daily
+          git -C "$src" checkout --detach FETCH_HEAD
+          test "$(git -C "$src" rev-parse HEAD)" = "$SHA"
+          test -f "$src/data/daily/2026-10-10.jsonl.gz"
+          gzip -t "$src/data/daily/2026-10-10.jsonl.gz"
+          echo "BACKFILL_ORIGINAL_PINNED_SOURCE_OK"
+
+      - name: Reconstruct every 2026 race until Oct 10 with original strictly-prior state builder
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root "$RUNNER_TEMP/backfill" \
+            --out-dir "$RUNNER_TEMP/p3-derived" \
+            --source-start 2022-01-01 \
+            --source-end 2026-10-10 \
+            --emit-start 2026-01-01 \
+            --emit-end 2026-10-10 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE \
+            --source-sha 03950cfe132abeca15ef17dbc7c6885ceb1591b7 \
+            --ml-source-sha "$GITHUB_SHA"
+          source=$(find "$RUNNER_TEMP/p3-derived" -name snapshot-2026.jsonl.gz -print -quit)
+          test -s "$source"
+          echo "P3_ORIGINAL_2026_SOURCE=$source" >> "$GITHUB_ENV"
+
+      - name: Confirm exact 24 real race ids and prepare every original-compatible 649-column unscored panel
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/phase3_20261010_all_24_unscored_inputs_v1.py \
+            --backfill-day "$RUNNER_TEMP/backfill/data/daily/2026-10-10.jsonl.gz" \
+            --snapshot-2026 "$P3_ORIGINAL_2026_SOURCE" \
+            --output "$RUNNER_TEMP/p3-24-unscored"
+          test "$(find "$RUNNER_TEMP/p3-24-unscored" -maxdepth 1 -name '2026*.json' | wc -l)" = 24
+          echo "P3_24_UNSCORED_649_INPUT_FILES_PREPARED_TEMP_ONLY"
