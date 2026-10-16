@@ -1,29 +1,29 @@
 {
   "contract": "JRA_20261017_ALL_RACES_SOURCE_MANIFEST_V1",
   "day": "2026-10-17",
-  "generated_at_utc": "2026-10-16T12:05:14.078379+00:00",
+  "generated_at_utc": "2026-10-16T12:06:58.893072+00:00",
   "race_count_expected": 36,
   "discovery_verified": true,
-  "actual_races_processed": 3,
+  "actual_races_processed": 36,
   "discovery_meta": {
     "root": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22",
       "sha256": "25650a876174257f103bcae0d54b676619bb538f926f68e15a89b669783feb72",
       "bytes": 217174,
-      "http_date": "Fri, 16 Oct 2026 12:05:10 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:06:54 GMT"
     },
     "index": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html",
       "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
       "bytes": 87828,
-      "http_date": "Fri, 16 Oct 2026 12:05:11 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:06:56 GMT"
     },
     "venues": {
       "05": {
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
         "bytes": 87828,
-        "http_date": "Fri, 16 Oct 2026 12:05:12 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:06:57 GMT",
         "venue_code": "05",
         "selection_cname": "pw01drl00052026040620261017/2F"
       },
@@ -31,7 +31,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "a008e5a049afedf1150523ee7f1c504482c5ab58c127fb6026b2d93539d0736c",
         "bytes": 86413,
-        "http_date": "Fri, 16 Oct 2026 12:05:13 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:06:58 GMT",
         "venue_code": "08",
         "selection_cname": "pw01drl00082026040620261017/0D"
       },
@@ -39,7 +39,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "17a80c7fd4228279d329208a127aa6355e7cf8579737cefe6edf2ee048554acf",
         "bytes": 86091,
-        "http_date": "Fri, 16 Oct 2026 12:05:13 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:06:58 GMT",
         "venue_code": "04",
         "selection_cname": "pw01drl00042026040120261017/A6"
       }
@@ -64,8 +64,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 12,
-      "odds_quote_count": 1307,
-      "no_votes": 553,
+      "odds_quote_count": 1321,
+      "no_votes": 539,
       "file": "audit-results/live-20261017/202604040102.json"
     },
     {
@@ -75,11 +75,390 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2402,
-      "no_votes": 1268,
+      "odds_quote_count": 2407,
+      "no_votes": 1263,
       "file": "audit-results/live-20261017/202604040103.json"
+    },
+    {
+      "race_id": "202604040104",
+      "venue": "新潟",
+      "race_no": 4,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 16,
+      "odds_quote_count": 2548,
+      "no_votes": 1920,
+      "file": "audit-results/live-20261017/202604040104.json"
+    },
+    {
+      "race_id": "202604040105",
+      "venue": "新潟",
+      "race_no": 5,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 15,
+      "odds_quote_count": 2240,
+      "no_votes": 1430,
+      "file": "audit-results/live-20261017/202604040105.json"
+    },
+    {
+      "race_id": "202604040106",
+      "venue": "新潟",
+      "race_no": 6,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 15,
+      "odds_quote_count": 1984,
+      "no_votes": 1686,
+      "file": "audit-results/live-20261017/202604040106.json"
+    },
+    {
+      "race_id": "202604040107",
+      "venue": "新潟",
+      "race_no": 7,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 15,
+      "odds_quote_count": 1906,
+      "no_votes": 1764,
+      "file": "audit-results/live-20261017/202604040107.json"
+    },
+    {
+      "race_id": "202604040108",
+      "venue": "新潟",
+      "race_no": 8,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 18,
+      "odds_quote_count": 3063,
+      "no_votes": 3333,
+      "file": "audit-results/live-20261017/202604040108.json"
+    },
+    {
+      "race_id": "202604040109",
+      "venue": "新潟",
+      "race_no": 9,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 14,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202604040109.json"
+    },
+    {
+      "race_id": "202604040110",
+      "venue": "新潟",
+      "race_no": 10,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 15,
+      "odds_quote_count": 2130,
+      "no_votes": 1540,
+      "file": "audit-results/live-20261017/202604040110.json"
+    },
+    {
+      "race_id": "202604040111",
+      "venue": "新潟",
+      "race_no": 11,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 18,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202604040111.json"
+    },
+    {
+      "race_id": "202604040112",
+      "venue": "新潟",
+      "race_no": 12,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 18,
+      "odds_quote_count": 3181,
+      "no_votes": 3215,
+      "file": "audit-results/live-20261017/202604040112.json"
+    },
+    {
+      "race_id": "202605040601",
+      "venue": "東京",
+      "race_no": 1,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 12,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202605040601.json"
+    },
+    {
+      "race_id": "202605040602",
+      "venue": "東京",
+      "race_no": 2,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 10,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202605040602.json"
+    },
+    {
+      "race_id": "202605040603",
+      "venue": "東京",
+      "race_no": 3,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 12,
+      "odds_quote_count": 1277,
+      "no_votes": 583,
+      "file": "audit-results/live-20261017/202605040603.json"
+    },
+    {
+      "race_id": "202605040604",
+      "venue": "東京",
+      "race_no": 4,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 18,
+      "odds_quote_count": 2945,
+      "no_votes": 3451,
+      "file": "audit-results/live-20261017/202605040604.json"
+    },
+    {
+      "race_id": "202605040605",
+      "venue": "東京",
+      "race_no": 5,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:JRA_NETKEIBA_NUMBER_GATE_DIFFERENCE:[{\"horse\": \"ジェットシェヴロン\", \"field\": \"horse_number\", \"jra\": null, \"netkeiba\": 5}]"
+      ],
+      "runner_count": 9,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202605040605.json"
+    },
+    {
+      "race_id": "202605040606",
+      "venue": "東京",
+      "race_no": 6,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 18,
+      "odds_quote_count": 2767,
+      "no_votes": 3629,
+      "file": "audit-results/live-20261017/202605040606.json"
+    },
+    {
+      "race_id": "202605040607",
+      "venue": "東京",
+      "race_no": 7,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 11,
+      "odds_quote_count": 1177,
+      "no_votes": 251,
+      "file": "audit-results/live-20261017/202605040607.json"
+    },
+    {
+      "race_id": "202605040608",
+      "venue": "東京",
+      "race_no": 8,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 9,
+      "odds_quote_count": 711,
+      "no_votes": 68,
+      "file": "audit-results/live-20261017/202605040608.json"
+    },
+    {
+      "race_id": "202605040609",
+      "venue": "東京",
+      "race_no": 9,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 12,
+      "odds_quote_count": 1673,
+      "no_votes": 187,
+      "file": "audit-results/live-20261017/202605040609.json"
+    },
+    {
+      "race_id": "202605040610",
+      "venue": "東京",
+      "race_no": 10,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 14,
+      "odds_quote_count": 2014,
+      "no_votes": 960,
+      "file": "audit-results/live-20261017/202605040610.json"
+    },
+    {
+      "race_id": "202605040611",
+      "venue": "東京",
+      "race_no": 11,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 14,
+      "odds_quote_count": 2907,
+      "no_votes": 67,
+      "file": "audit-results/live-20261017/202605040611.json"
+    },
+    {
+      "race_id": "202605040612",
+      "venue": "東京",
+      "race_no": 12,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 14,
+      "odds_quote_count": 1823,
+      "no_votes": 1151,
+      "file": "audit-results/live-20261017/202605040612.json"
+    },
+    {
+      "race_id": "202608040601",
+      "venue": "京都",
+      "race_no": 1,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 10,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202608040601.json"
+    },
+    {
+      "race_id": "202608040602",
+      "venue": "京都",
+      "race_no": 2,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 11,
+      "odds_quote_count": 1195,
+      "no_votes": 233,
+      "file": "audit-results/live-20261017/202608040602.json"
+    },
+    {
+      "race_id": "202608040603",
+      "venue": "京都",
+      "race_no": 3,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 8,
+      "odds_quote_count": 513,
+      "no_votes": 7,
+      "file": "audit-results/live-20261017/202608040603.json"
+    },
+    {
+      "race_id": "202608040604",
+      "venue": "京都",
+      "race_no": 4,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 8,
+      "odds_quote_count": 514,
+      "no_votes": 6,
+      "file": "audit-results/live-20261017/202608040604.json"
+    },
+    {
+      "race_id": "202608040605",
+      "venue": "京都",
+      "race_no": 5,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 8,
+      "odds_quote_count": 510,
+      "no_votes": 10,
+      "file": "audit-results/live-20261017/202608040605.json"
+    },
+    {
+      "race_id": "202608040606",
+      "venue": "京都",
+      "race_no": 6,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 16,
+      "odds_quote_count": 2228,
+      "no_votes": 2240,
+      "file": "audit-results/live-20261017/202608040606.json"
+    },
+    {
+      "race_id": "202608040607",
+      "venue": "京都",
+      "race_no": 7,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 10,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202608040607.json"
+    },
+    {
+      "race_id": "202608040608",
+      "venue": "京都",
+      "race_no": 8,
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
+      ],
+      "runner_count": 7,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "file": "audit-results/live-20261017/202608040608.json"
+    },
+    {
+      "race_id": "202608040609",
+      "venue": "京都",
+      "race_no": 9,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 16,
+      "odds_quote_count": 2244,
+      "no_votes": 2224,
+      "file": "audit-results/live-20261017/202608040609.json"
+    },
+    {
+      "race_id": "202608040610",
+      "venue": "京都",
+      "race_no": 10,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 9,
+      "odds_quote_count": 703,
+      "no_votes": 76,
+      "file": "audit-results/live-20261017/202608040610.json"
+    },
+    {
+      "race_id": "202608040611",
+      "venue": "京都",
+      "race_no": 11,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 15,
+      "odds_quote_count": 2906,
+      "no_votes": 764,
+      "file": "audit-results/live-20261017/202608040611.json"
+    },
+    {
+      "race_id": "202608040612",
+      "venue": "京都",
+      "race_no": 12,
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
+      "runner_count": 18,
+      "odds_quote_count": 3039,
+      "no_votes": 3357,
+      "file": "audit-results/live-20261017/202608040612.json"
     }
   ],
-  "full_source_and_odds_verified": 3,
-  "blocked": 0
+  "full_source_and_odds_verified": 28,
+  "blocked": 8
 }
