@@ -1,0 +1,38 @@
+name: Fuji 37 Missing Source Diagnosis - Free CPU
+
+on:
+  push:
+    branches: [audit/fuji-20261017-149-asof-20261016]
+    paths:
+      - 'scripts/audit_fuji_missing37_backfill_source_20261016.mjs'
+      - '.github/workflows/audit-fuji-missing37-source-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  missing37-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BACKFILL_SOURCE_ROOT: '/tmp/keiba-backfill-readonly'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Audit syntax
+        run: node --check scripts/audit_fuji_missing37_backfill_source_20261016.mjs
+      - name: Clone original BACKFILL only
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none --no-checkout --sparse \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            "$BACKFILL_SOURCE_ROOT"
+          git -C "$BACKFILL_SOURCE_ROOT" sparse-checkout set data/daily data/horses
+          git -C "$BACKFILL_SOURCE_ROOT" checkout main
+          echo "BACKFILL_SHA=$(git -C "$BACKFILL_SOURCE_ROOT" rev-parse HEAD)"
+          test "$(find "$BACKFILL_SOURCE_ROOT/data/daily" -name '*.jsonl.gz' | wc -l)" -ge 2100
+      - name: Diagnose source of all 37 null cells
+        run: node scripts/audit_fuji_missing37_backfill_source_20261016.mjs
