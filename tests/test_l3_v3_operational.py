@@ -51,7 +51,8 @@ def make_race(race_id=RACE, missing=True, verified=False):
           "physical_ticket_count": len(tickets),
           "baseline_total_stake_yen": 100 * len(tickets), "tickets": tickets}
     signal = {"contract": v3.SIGNALS, "race_id": race_id,
-              "source": "ORIGINAL_L175_PREBET_P3", "model_version": "synthetic-test-1",
+              "source": "L17_KING_OUTSIDER_PAST_ONLY_WF_P3", "model_version": "synthetic-test-1",
+              "coverage_scope": "TOP10_OTHER_UNKNOWN",
               "observed_before_bet": True, "source_independently_verified": verified,
               "observed_at": QUOTE, "horses": horses}
     return {"race_date": DAY, "l2_1": l2, "horse_p3": signal}
