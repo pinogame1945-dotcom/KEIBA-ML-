@@ -1,0 +1,26 @@
+name: Fuji 14 Coat Color Direct Source Check - Free CPU
+
+on:
+  push:
+    branches: [audit/fuji-20261017-149-asof-20261016]
+    paths:
+      - 'scripts/audit_fuji_coat_color_live_20261016.py'
+      - '.github/workflows/audit-fuji-coat14-live-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  coat14-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install parser dependency only - no pip cache
+        run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Read 14 existing public horse profiles - no writes, no generated artifacts
+        run: python scripts/audit_fuji_coat_color_live_20261016.py

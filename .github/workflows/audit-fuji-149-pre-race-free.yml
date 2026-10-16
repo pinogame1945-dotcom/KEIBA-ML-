@@ -1,0 +1,60 @@
+name: Fuji 2026 Pre-Race 149 Feature Source Audit - Free CPU
+
+on:
+  push:
+    branches: [audit/fuji-20261017-149-asof-20261016]
+    paths:
+      - 'scripts/audit_fuji_149_asof_20261016.py'
+      - 'tests/test_audit_fuji_149_asof_20261016.py'
+      - '.github/workflows/audit-fuji-149-pre-race-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fuji149-read-only
+  cancel-in-progress: false
+
+jobs:
+  netkeiba-fuji-149-readonly:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      PIP_NO_CACHE_DIR: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify 149 feature catalog and dependencies
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          f=json.loads(Path('contracts/l1-feature-catalog-v1.json').read_text())
+          assert f['counts']['total']==149
+          assert len(f['features'])==149
+          PY
+          python -m pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Offline contract tests - no future leakage
+        run: python -m unittest discover -s tests -p 'test_audit_fuji_149_asof_20261016.py' -v
+      - name: Read current real 2026 Fuji netkeiba page and enumerate all 149
+        run: |
+          python scripts/audit_fuji_149_asof_20261016.py > /tmp/fuji_149_asof.json
+          python - <<'PY'
+          import json
+          d=json.load(open('/tmp/fuji_149_asof.json'))
+          print('AUDIT',d['contract'],'status=',d['status'],'observed_at=',d['observed_at_client_utc'])
+          print('COUNTS',json.dumps(d.get('status_counts',{}),ensure_ascii=False))
+          print('CORE_ENTRY_COMPLETE',d.get('core_entry_complete'))
+          print('CORE_ENTRY_BLOCKED_FIELDS',d.get('core_entry_blocked_fields'))
+          print('SOURCE_SHA256',d.get('source_sha256'))
+          print('RAW_PAGE',json.dumps(d.get('raw_page'),ensure_ascii=False))
+          print('RUNNERS',json.dumps([{k:v for k,v in x.items() if k!='source_cells'} for x in d['runners']],ensure_ascii=False))
+          print('149_LINES_BEGIN')
+          for i in d['ledger']:
+            print(json.dumps({k:v for k,v in i.items() if k in ('feature_id','catalog_status','available_at_contract','history_boundary','status','coverage','observed_value','reason')},ensure_ascii=False))
+          print('149_LINES_END')
+          PY

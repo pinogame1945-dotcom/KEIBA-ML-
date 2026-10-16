@@ -1,0 +1,66 @@
+name: Fuji 93 History + 10 Profile Audit - Free CPU
+
+on:
+  push:
+    branches: [audit/fuji-20261017-149-asof-20261016]
+    paths:
+      - 'scripts/audit_fuji_backfill_93_10_20261016.mjs'
+      - '.github/workflows/audit-fuji-backfill-93-10-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: fuji-93-10-readonly
+  cancel-in-progress: false
+
+jobs:
+  prior-history-103-audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      NODE_OPTIONS: '--max-old-space-size=4800'
+      BACKFILL_SOURCE_ROOT: '/tmp/keiba-backfill-readonly'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Check scope and no new dependencies
+        run: |
+          node --check scripts/audit_fuji_backfill_93_10_20261016.mjs
+          node --input-type=module <<'NODE'
+          import {readFileSync} from 'node:fs';
+          const j=JSON.parse(readFileSync('contracts/l1-feature-catalog-v1.json'));
+          const selected=j.features.filter(f=>['STRICT_PRIOR_DATE_ONLY','STATIC_FACT'].includes(f.history_boundary));
+          if(selected.length!==103||
+             selected.filter(f=>f.history_boundary==='STRICT_PRIOR_DATE_ONLY').length!==93||
+             selected.filter(f=>f.history_boundary==='STATIC_FACT').length!==10)
+             throw Error('Unexpected catalog; stop before scanning data');
+          console.log('CATALOG_SCOPE_OK history=93 static=10');
+          NODE
+      - name: Partial clone existing BACKFILL only (no training or uploads)
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none --no-checkout --sparse \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            "$BACKFILL_SOURCE_ROOT"
+          git -C "$BACKFILL_SOURCE_ROOT" sparse-checkout set data/daily data/horses
+          git -C "$BACKFILL_SOURCE_ROOT" checkout main
+          daily=$(find "$BACKFILL_SOURCE_ROOT/data/daily" -name '*.jsonl.gz' | wc -l)
+          horses=$(find "$BACKFILL_SOURCE_ROOT/data/horses" -name '*.jsonl.gz' | wc -l)
+          size_mib=$(du -sm "$BACKFILL_SOURCE_ROOT/data" | awk '{print $1}')
+          echo "BACKFILL sparse checkout days=$daily horses=$horses disk_mib=$size_mib"
+          test "$daily" -ge 2100
+          test "$horses" -ge 2500
+          test "$size_mib" -lt 700
+      - name: Compute only 93+10 for the 14 Fuji runners
+        run: |
+          node scripts/audit_fuji_backfill_93_10_20261016.mjs \
+            > /tmp/fuji_backfill_93_10_run.log 2>&1 || {
+            tail -n 80 /tmp/fuji_backfill_93_10_run.log
+            exit 1
+          }
+          grep -E '^AUDIT_SUMMARY |^AUDIT_JSON_BEGIN$|^AUDIT_JSON_END$' /tmp/fuji_backfill_93_10_run.log
+          sed -n '/^AUDIT_JSON_BEGIN$/,/^AUDIT_JSON_END$/p' /tmp/fuji_backfill_93_10_run.log

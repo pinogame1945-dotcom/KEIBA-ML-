@@ -1,0 +1,41 @@
+name: Fuji Six Remaining Prior Features - Free CPU
+
+on:
+  push:
+    branches: [audit/fuji-20261017-149-asof-20261016]
+    paths:
+      - 'scripts/audit_fuji_backfill_six_missing_20261016.mjs'
+      - '.github/workflows/audit-fuji-six-prior-free.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  six-prior-features:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      BACKFILL_SOURCE_ROOT: '/tmp/keiba-backfill-readonly'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '24'
+      - name: Check audit code
+        run: node --check scripts/audit_fuji_backfill_six_missing_20261016.mjs
+      - name: Get only historical daily packs - shallow/sparse/read-only
+        run: |
+          set -euo pipefail
+          git clone --depth 1 --filter=blob:none --no-checkout --sparse \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git \
+            "$BACKFILL_SOURCE_ROOT"
+          git -C "$BACKFILL_SOURCE_ROOT" sparse-checkout set data/daily
+          git -C "$BACKFILL_SOURCE_ROOT" checkout main
+          count=$(find "$BACKFILL_SOURCE_ROOT/data/daily" -name '*.jsonl.gz' | wc -l)
+          size=$(du -sm "$BACKFILL_SOURCE_ROOT/data" | awk '{print $1}')
+          echo "Read-only daily pack count=$count size_mib=$size"
+          test "$count" -ge 2100
+          test "$size" -lt 180
+      - name: Complete all fourteen by six source comparisons
+        run: node scripts/audit_fuji_backfill_six_missing_20261016.mjs

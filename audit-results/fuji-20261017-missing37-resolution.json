@@ -1,0 +1,447 @@
+{
+  "contract": "FUJI_20261017_MISSING37_RESOLUTION_V1",
+  "race_id": "202605040611",
+  "race_date": "2026-10-17",
+  "source_through": "2026-10-12",
+  "execution_evidence": [
+    "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38846384091",
+    "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38847376863",
+    "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38848448513",
+    "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38848634321"
+  ],
+  "backfill_source_record_count": 101126,
+  "backfill_coat_field_non_null_records": 0,
+  "live_profiles_coat_confirmed": 14,
+  "changes_to_backfill": false,
+  "rows": [
+    {
+      "horse_id": "2022105836",
+      "horse_name": "ファンダム",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022105836/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 2,
+        "longer": 2,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-09-05",
+        "race_id": "202606040111",
+        "official_finish_position": 4,
+        "margin_raw": "ハナ",
+        "margin_type": "NOSE",
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "CATEGORICAL_MARGIN_NO_LENGTH"
+        }
+      ]
+    },
+    {
+      "horse_id": "2022104053",
+      "horse_name": "ミトノオルフェ",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022104053/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 2,
+        "longer": 3,
+        "horse_jockey": 2
+      },
+      "previous": {
+        "date": "2026-04-05",
+        "race_id": "202609020410",
+        "official_finish_position": 1,
+        "margin_raw": null,
+        "margin_type": null,
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        },
+        {
+          "feature_id": "history.margin_type",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        }
+      ]
+    },
+    {
+      "horse_id": "2022110114",
+      "horse_name": "シンフォーエバー",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022110114/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 3,
+        "longer": 1,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-06-21",
+        "race_id": "202609030611",
+        "official_finish_position": 17,
+        "margin_raw": "1.1/2",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 1.5
+      },
+      "other_nulls": []
+    },
+    {
+      "horse_id": "2021105557",
+      "horse_name": "トロヴァトーレ",
+      "coat_color": "青鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021105557/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 7,
+        "horse_jockey": 11
+      },
+      "previous": {
+        "date": "2026-06-07",
+        "race_id": "202605030211",
+        "official_finish_position": 9,
+        "margin_raw": "3/4",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 0.75
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        }
+      ]
+    },
+    {
+      "horse_id": "2022105396",
+      "horse_name": "アドマイヤズーム",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022105396/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 1,
+        "longer": 0,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-04-26",
+        "race_id": "202608030211",
+        "official_finish_position": 1,
+        "margin_raw": null,
+        "margin_type": null,
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.longer_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        },
+        {
+          "feature_id": "history.margin_type",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        }
+      ]
+    },
+    {
+      "horse_id": "2019104878",
+      "horse_name": "デビットバローズ",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2019104878/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 17,
+        "horse_jockey": 0
+      },
+      "previous": {
+        "date": "2026-06-28",
+        "race_id": "202602010611",
+        "official_finish_position": 11,
+        "margin_raw": "1/2",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 0.5
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "horse_jockey.top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        }
+      ]
+    },
+    {
+      "horse_id": "2021100953",
+      "horse_name": "ウォーターリヒト",
+      "coat_color": "栗毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021100953/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 7,
+        "horse_jockey": 5
+      },
+      "previous": {
+        "date": "2026-06-07",
+        "race_id": "202605030211",
+        "official_finish_position": 13,
+        "margin_raw": "クビ",
+        "margin_type": "NECK",
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "CATEGORICAL_MARGIN_NO_LENGTH"
+        }
+      ]
+    },
+    {
+      "horse_id": "2022104772",
+      "horse_name": "マジックサンズ",
+      "coat_color": "黒鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022104772/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 8,
+        "horse_jockey": 4
+      },
+      "previous": {
+        "date": "2026-08-16",
+        "race_id": "202601010811",
+        "official_finish_position": 6,
+        "margin_raw": "1/2",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 0.5
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        }
+      ]
+    },
+    {
+      "horse_id": "2021105119",
+      "horse_name": "キープカルム",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021105119/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 1,
+        "longer": 6,
+        "horse_jockey": 2
+      },
+      "previous": {
+        "date": "2026-08-16",
+        "race_id": "202607020807",
+        "official_finish_position": 9,
+        "margin_raw": "1.1/4",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 1.25
+      },
+      "other_nulls": []
+    },
+    {
+      "horse_id": "2021110030",
+      "horse_name": "アンパドゥ",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021110030/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 0,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-07-26",
+        "race_id": "202604020207",
+        "official_finish_position": 1,
+        "margin_raw": null,
+        "margin_type": null,
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "distance.longer_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        },
+        {
+          "feature_id": "history.margin_type",
+          "class": "WINNER_NO_PRECEDING_MARGIN"
+        }
+      ]
+    },
+    {
+      "horse_id": "2021104893",
+      "horse_name": "ファーヴェント",
+      "coat_color": "黒鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021104893/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 9,
+        "horse_jockey": 0
+      },
+      "previous": {
+        "date": "2026-07-26",
+        "race_id": "202604020207",
+        "official_finish_position": 3,
+        "margin_raw": "クビ",
+        "margin_type": "NECK",
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "horse_jockey.top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "CATEGORICAL_MARGIN_NO_LENGTH"
+        }
+      ]
+    },
+    {
+      "horse_id": "2022106691",
+      "horse_name": "エンペラーズソード",
+      "coat_color": "鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2022106691/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 1,
+        "longer": 5,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-04-04",
+        "race_id": "202606030311",
+        "official_finish_position": 8,
+        "margin_raw": "ハナ",
+        "margin_type": "NOSE",
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "CATEGORICAL_MARGIN_NO_LENGTH"
+        }
+      ]
+    },
+    {
+      "horse_id": "2021102224",
+      "horse_name": "シュガークン",
+      "coat_color": "黒鹿毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2021102224/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 0,
+        "longer": 6,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-06-14",
+        "race_id": "202609030411",
+        "official_finish_position": 17,
+        "margin_raw": "3/4",
+        "margin_type": "LENGTHS",
+        "margin_lengths": 0.75
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.shorter_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        }
+      ]
+    },
+    {
+      "horse_id": "2023103184",
+      "horse_name": "エコロアルバ",
+      "coat_color": "栗毛",
+      "coat_source_url": "https://db.netkeiba.com/horse/2023103184/",
+      "coat_source_status": "LIVE_PROFILE_CONFIRMED",
+      "coat_saved_backfill": null,
+      "rate_denominators": {
+        "shorter": 1,
+        "longer": 0,
+        "horse_jockey": 1
+      },
+      "previous": {
+        "date": "2026-06-21",
+        "race_id": "202609030611",
+        "official_finish_position": 3,
+        "margin_raw": "ハナ",
+        "margin_type": "NOSE",
+        "margin_lengths": null
+      },
+      "other_nulls": [
+        {
+          "feature_id": "distance.longer_top3_rate",
+          "class": "NO_PRIOR_OBSERVATIONS"
+        },
+        {
+          "feature_id": "history.margin_lengths",
+          "class": "CATEGORICAL_MARGIN_NO_LENGTH"
+        }
+      ]
+    }
+  ],
+  "summary": {
+    "missing_cells_original": 37,
+    "coat_recovered_14": 14,
+    "rate_nulls_12_verified_zero_denominator": 12,
+    "margin_nulls_11_verified_from_source": 11,
+    "remaining_values_unavailable_in_original_backfill": 37,
+    "remaining_unsolved_causes": 0,
+    "rate_counts": {
+      "history.margin_lengths": 8,
+      "history.margin_type": 3,
+      "distance.shorter_top3_rate": 7,
+      "distance.longer_top3_rate": 3,
+      "horse_jockey.top3_rate": 2
+    },
+    "profile_collector_issue": "Existing BACKFILL parser reads td labels for 毛色 but source page displays it in header next to age and sex.",
+    "no_legacy_feature_logic_changed": true
+  }
+}
