@@ -13,21 +13,21 @@
     "jra_odds_cname": "pw151ouS304202604010120261017Z/EA",
     "race_date": "2026-10-17"
   },
-  "captured_at_utc": "2026-10-16T12:02:06.534111+00:00",
+  "captured_at_utc": "2026-10-16T12:03:16.732300+00:00",
   "includes_results": false,
   "includes_final_odds": false,
   "models_executed": false,
   "backfill_history_features_computed": false,
   "status": "BLOCKED_SOURCE_OR_INTEGRITY",
   "errors": [
-    "ValueError:OFFICIAL_RACE_HEADER_INCOMPATIBLE"
+    "HTTPError:HTTP Error 503: Service Unavailable"
   ],
   "netkeiba": {
     "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202604040101",
     "meta": {
-      "sha256": "11c3e7cbd6ec74cf00b6d130e04ae048fa8ce7bfcf0699a3051ad10893af62aa",
-      "http_date": "Fri, 16 Oct 2026 12:02:06 GMT",
-      "fetched_at_utc": "2026-10-16T12:02:06.920419+00:00"
+      "sha256": "70d1794c8cd67539a77b730b9ffe5d07c2a21575e099d01b571f4d94dbfa5813",
+      "http_date": "Fri, 16 Oct 2026 12:03:16 GMT",
+      "fetched_at_utc": "2026-10-16T12:03:17.024479+00:00"
     },
     "runner_count": 12,
     "runners": [
@@ -2822,13 +2822,96 @@
       }
     ],
     "feature_status_counts": {
-      "HORSE_PROFILE_REQUIRED": 10,
+      "BACKFILL_HISTORY_REQUIRED": 93,
       "POST_RACE_FINAL_ONLY": 3,
-      "NOT_YET_PUBLISHED": 7,
-      "OBSERVED_OR_DERIVED_FROM_PAGE": 26,
       "NOT_VISIBLE_OR_UNPROVEN": 2,
       "OBSERVED_NETKEIBA_PAGE": 8,
-      "BACKFILL_HISTORY_REQUIRED": 93
+      "HORSE_PROFILE_REQUIRED": 10,
+      "OBSERVED_OR_DERIVED_FROM_PAGE": 26,
+      "NOT_YET_PUBLISHED": 7
     }
+  },
+  "jra_card": {
+    "meta": {
+      "sha256": "5d91845ae4c5ec279eae76ed4f6fdaf2f101f9c56147c18714252cdfab267bab",
+      "http_date": "Fri, 16 Oct 2026 12:03:18 GMT",
+      "fetched_at_utc": "2026-10-16T12:03:18.221359+00:00"
+    },
+    "official_horse_set": [
+      {
+        "horse_name": "ウメヒナタ",
+        "horse_number": 1,
+        "gate": 1,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ドラゴンドール",
+        "horse_number": 2,
+        "gate": 2,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "イザベル",
+        "horse_number": 3,
+        "gate": 3,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ルージュラボルタ",
+        "horse_number": 4,
+        "gate": 4,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "サムワンユーラヴド",
+        "horse_number": 5,
+        "gate": 5,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "スイートアリッサム",
+        "horse_number": 6,
+        "gate": 5,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "サノノファイター",
+        "horse_number": 7,
+        "gate": 6,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "シャインフォード",
+        "horse_number": 8,
+        "gate": 6,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "クシェドゥソレイユ",
+        "horse_number": 9,
+        "gate": 7,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "グリーンアイランド",
+        "horse_number": 10,
+        "gate": 7,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "エコロテラ",
+        "horse_number": 11,
+        "gate": 8,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ルナロマンティカ",
+        "horse_number": 12,
+        "gate": 8,
+        "entry_status": "LISTED"
+      }
+    ],
+    "identity_verified": true,
+    "changed_or_scratch": []
   }
 }
