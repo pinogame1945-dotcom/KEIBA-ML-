@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Metadata-resolved 2025 yearly snapshot -> UNSCORED target race features ONLY.
 // Never return/read historical targets, final prices, cached AI ranks or result.
-// Phase projection uses the original source contract; no claim of true as-of
+// EARLY projection uses the original EARLY/FINAL source contract; no claim of true as-of
 // provenance until the source's historical capture times are independently proven.
 import { createReadStream, writeFileSync } from 'node:fs';
 import { createGunzip } from 'node:zlib';
@@ -42,14 +42,14 @@ for await (const line of rl) {
   }
   if (ymd !== null && ymd!==date) throw new Error('TARGET_RACE_DATE_MISMATCH');
   ymd=date;
-  const clean=applyPredictionPhase(selectFeatureFamilies(orig,sets), 'PRE_RACE');
+  const clean=applyPredictionPhase(selectFeatureFamilies(orig,sets), 'EARLY');
   delete clean.race_date;
   const rawKeys=Object.keys(clean);
   sourceFeatures+=Object.keys(orig).length;
   for (const key of rawKeys) {
     if (extraUnsafe.test(key)) {delete clean[key];leaked++;}
   }
-  assertPredictionPhaseSafe(Object.keys(clean),'PRE_RACE');
+  assertPredictionPhaseSafe(Object.keys(clean),'EARLY');
   clean.race_month=Number(date.slice(5,7));
   clean.race_day_of_year=Math.round((Date.parse(date)-Date.UTC(2025,0,1))/86400000)+1;
   if (!Number.isInteger(clean.race_day_of_year) || clean.race_day_of_year<1 || clean.race_day_of_year>366) {
@@ -68,8 +68,8 @@ const output={
   race_id:rid,
   race_date:ymd,
   source:'KAGGLE_2025_YEARLY_SNAPSHOT_METADATA_RESOLVED',
-  status:'PRE_RACE_PROJECTED_BUT_ASOF_AND_FULL_FIELD_UNVERIFIED',
-  source_prediction_phase:'PRE_RACE_PROJECTED_FROM_HISTORICAL_SNAPSHOT',
+  status:'EARLY_PROJECTED_BUT_ASOF_AND_FULL_FIELD_UNVERIFIED',
+  source_prediction_phase:'EARLY_PROJECTED_FROM_HISTORICAL_SNAPSHOT',
   used_target_labels:false,
   used_results_payouts_final_odds:false,
   used_historical_oos_target_predictions:false,
