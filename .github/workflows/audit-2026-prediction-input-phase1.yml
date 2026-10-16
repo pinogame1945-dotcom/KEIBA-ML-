@@ -1,0 +1,51 @@
+name: 2026 Prediction Feature Source Audit P1 - Read Only Free CPU
+
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - research/audit_2026_prediction_inputs_v1.py
+      - tests/test_2026_prediction_inputs_v1.py
+      - .github/workflows/audit-2026-prediction-input-phase1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 2026-input-audit-p1
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Regression tests - no dependency installs or paid artifacts
+        run: |
+          set -euo pipefail
+          python -m unittest discover -s tests -p "test_2026_prediction_inputs_v1.py" -v
+          python -m py_compile research/audit_2026_prediction_inputs_v1.py
+
+      - name: Inspect exact public BACKFILL snapshot from before current cutoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/keiba-p1-source"
+          BACKFILL_COMMIT="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          for d in 2026-10-10 2026-10-11 2026-10-12; do
+            curl --fail --location --retry 3 --max-time 45 --silent --show-error \
+              "https://raw.githubusercontent.com/pinogame1945-dotcom/KEIBA-BACKFILL/$BACKFILL_COMMIT/data/daily/$d.jsonl.gz" \
+              -o "$RUNNER_TEMP/keiba-p1-source/$d.jsonl.gz"
+            gzip -t "$RUNNER_TEMP/keiba-p1-source/$d.jsonl.gz"
+          done
+          python research/audit_2026_prediction_inputs_v1.py \
+            --history-day "$RUNNER_TEMP/keiba-p1-source/2026-10-10.jsonl.gz" \
+            --history-day "$RUNNER_TEMP/keiba-p1-source/2026-10-11.jsonl.gz" \
+            --history-day "$RUNNER_TEMP/keiba-p1-source/2026-10-12.jsonl.gz" \
+            --prediction-cutoff 2026-10-17
+          echo "P1_RAW_HISTORY_AUDIT_DONE_AI_649_SCHEMA_STILL_UNVERIFIED"
