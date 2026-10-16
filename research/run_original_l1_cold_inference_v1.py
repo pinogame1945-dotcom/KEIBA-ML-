@@ -21,6 +21,7 @@ import numpy as np
 import pandas as pd
 
 from run_l1_objective_rebuild_v1 import prepare, model_common
+from run_l1_ceiling_audit_v1 import FULL_FORBIDDEN
 from run_l1_market_correction_distill_v1 import add_ai_context
 from run_l1_market_correction_deepdive_v1 import fit_risk_full
 import lightgbm as lgb
@@ -70,7 +71,7 @@ def validate(target, ability_train, teacher, target_year, *,strict_full_field=Tr
 
     target_cols=set(target.columns)
     banned=sorted(k for k in target_cols if k in BANNED_TARGET or
-                  k.startswith(BANNED_PREFIXES) or
+                  k in FULL_FORBIDDEN or k.startswith(BANNED_PREFIXES) or
                   k.startswith("P__") or k.startswith("outcome_"))
     require(not banned,"TARGET_HAS_RESULT_MARKET_OR_CACHED_PREDICTION:"+",".join(banned))
     require(target["_race_id"].nunique()==1,"ONLY_ONE_UNSCORED_RACE_PER_INVOCATION")
@@ -117,6 +118,8 @@ def score_one(target, ability_train, past_oos_risk_teacher, target_year):
     valid=target.sort_values(["_race_id","_horse_id"]).reset_index(drop=True)
     train_features=_numeric_feature_columns(train)
     target_features=_numeric_feature_columns(valid)
+    require(not (train_features & FULL_FORBIDDEN),
+            "ORIGINAL_ABILITY_FORBIDDEN_FEATURES_NOT_STRIPPED")
     # Do not let target supply a future model's expected prior score as feature.
     require(not any(x.startswith(("distill_","risk_","market_")) for x in target_features),
             "TARGET_MODEL_OR_MARKET_FEATURE_LEAK")
