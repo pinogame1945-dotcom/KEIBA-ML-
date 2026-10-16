@@ -1,0 +1,131 @@
+name: 2026 Original 690 Numerical Parity P2.5 - Free CPU Only
+
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - research/verify_2026_original_690_extra_values_v1.py
+      - .github/workflows/verify-2026-original-690-numeric-p25.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 2026-original-690-p25-freecpu
+  cancel-in-progress: false
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 80
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      OPENBLAS_NUM_THREADS: 1
+      OMP_NUM_THREADS: 2
+      MKL_NUM_THREADS: 1
+      NODE_OPTIONS: --max-old-space-size=4096
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+
+      - name: Mandatory read-only free CPU and source preflight
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 6000000
+          bash -n scripts/fetch_original_state_history_snapshot.sh
+          node --check research/build-yearly-superset-snapshots.mjs
+          python3 -m py_compile research/verify_2026_original_690_extra_values_v1.py
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          echo "P25_FREE_CPU_EPHEMERAL_ONLY_NEVER_UPLOAD_ARTIFACT_OR_CACHE"
+
+      - name: Install original CPU numerical dependencies and existing Kaggle CLI
+        run: |
+          python3 -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+          python3 -m pip install --disable-pip-version-check --no-cache-dir kaggle
+
+      - name: Checkout pinned BACKFILL daily history only
+        shell: bash
+        run: |
+          set -euo pipefail
+          SHA="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          src="$RUNNER_TEMP/backfill"
+          mkdir -p "$src"
+          git -C "$src" init --quiet
+          git -C "$src" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$src" fetch --no-tags --depth 1 --filter=blob:none origin "$SHA"
+          git -C "$src" sparse-checkout init --cone
+          git -C "$src" sparse-checkout set data/daily
+          git -C "$src" checkout --detach FETCH_HEAD
+          test "$(git -C "$src" rev-parse HEAD)" = "$SHA"
+          test -f "$src/data/daily/2026-10-12.jsonl.gz"
+
+      - name: Generate 2026 source features with original strictly prior builder
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root "$RUNNER_TEMP/backfill" \
+            --out-dir "$RUNNER_TEMP/derived-snapshots" \
+            --source-start 2022-01-01 --source-end 2026-10-12 \
+            --emit-start 2026-01-01 --emit-end 2026-10-12 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE \
+            --source-sha 03950cfe132abeca15ef17dbc7c6885ceb1591b7 \
+            --ml-source-sha "$GITHUB_SHA"
+          path=$(find "$RUNNER_TEMP/derived-snapshots" -name snapshot-2026.jsonl.gz -print -quit)
+          test -s "$path"
+          echo "P25_SNAPSHOT_2026=$path" >> "$GITHUB_ENV"
+
+      - name: Choose unscored 2026 target using only input features
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/verification"
+          mkdir -p "$out/compact"
+          python3 research/verify_2026_original_690_extra_values_v1.py \
+            --mode target --snapshot-2026 "$P25_SNAPSHOT_2026" \
+            --output "$out/unscored-target.json"
+          python3 research/verify_2026_original_690_extra_values_v1.py \
+            --mode compact --year 2026 --source "$P25_SNAPSHOT_2026" \
+            --target "$out/unscored-target.json" \
+            --output "$out/compact/prior-full-race-context-2026.pkl"
+
+      - name: Load original pinned 2019-2025 snapshot years into strictly-prior full-peer compacts
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/verification"
+          remote="$RUNNER_TEMP/kaggle-original-years"
+          mkdir -p "$remote"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            echo "P25_PRIOR_YEAR_BEGIN year=$year"
+            bash scripts/fetch_original_state_history_snapshot.sh "$year" "$remote" | tee "$remote/fetch-$year.log"
+            source="$(tail -n 1 "$remote/fetch-$year.log")"
+            test -s "$source"
+            python3 research/verify_2026_original_690_extra_values_v1.py \
+              --mode compact --year "$year" --source "$source" \
+              --target "$out/unscored-target.json" \
+              --output "$out/compact/prior-full-race-context-$year.pkl"
+            rm -f "$source"
+          done
+          echo "P25_2019_2025_TRUE_PRIOR_CONTEXT_READY"
+          df -h "$RUNNER_TEMP"
+
+      - name: Numerically cross-check frozen 19 day-bias and 22 speed regime target values
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/verify_2026_original_690_extra_values_v1.py \
+            --mode verify --target "$RUNNER_TEMP/verification/unscored-target.json" \
+            --compact-dir "$RUNNER_TEMP/verification/compact" \
+            --snapshot-2026 "$P25_SNAPSHOT_2026"
+          echo "P25_VERIFIED_EPHEMERAL_NO_2026_TRAIN_NO_UPLOAD"
