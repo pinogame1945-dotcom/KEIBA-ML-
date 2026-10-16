@@ -6,6 +6,8 @@ on:
       - research/l2-ev-rank1-pruned-market75-align-20261016
     paths:
       - .github/workflows/l2-ev-rank1-pruned-market75-same-stage-v1.yml
+      - research/run_l2_ev_rank1_market75_same_stage_v1.py
+      - tests/test_l2_ev_rank1_market75_same_stage_v1.py
   workflow_dispatch:
 
 permissions:
