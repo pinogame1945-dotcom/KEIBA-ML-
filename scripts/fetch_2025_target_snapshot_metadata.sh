@@ -60,8 +60,24 @@ import json,sys
 data=json.load(open(sys.argv[1]))
 names=[x for x in data if x["name"]==sys.argv[2]]
 assert len(names)==1
-size=names[0].get("size")
-assert isinstance(size,int) and 0<size<=900_000_000, "SOURCE_SIZE_MUST_BE_VERIFIED_BEFORE_DOWNLOAD"
+raw_size=names[0].get("size")
+print("KAGGLE_2025_REPORTED_SIZE",repr(raw_size),type(raw_size).__name__,flush=True)
+import re,shutil
+if type(raw_size) is int:
+    size=raw_size
+elif isinstance(raw_size,str):
+    value=raw_size.strip().replace(",","")
+    match=re.fullmatch(r"(?i)([0-9]+(?:\\.[0-9]+)?)\\s*(B|KB|KIB|MB|MIB|GB|GIB)?",value)
+    assert match is not None, "UNRECOGNIZED_KAGGLE_SIZE_STOP"
+    unit=(match[2] or "B").upper()
+    multiplier={"B":1,"KB":1000,"KIB":1024,"MB":1_000_000,"MIB":1048576,
+                "GB":1_000_000_000,"GIB":1073741824}[unit]
+    size=int(float(match[1])*multiplier)
+else:
+    raise ValueError("KAGGLE_SIZE_NOT_REPORTED_STOP")
+free=shutil.disk_usage(sys.argv[1] and "/tmp").free
+assert 0<size<=3_500_000_000, "SOURCE_EXCEEDS_3_5GB_FREE_EPHEMERAL_CAP"
+assert size+3_000_000_000<free, "SOURCE_EXCEEDS_FREE_RUNNER_CAPACITY"
 print("KAGGLE_2025_REMOTE_SIZE_WITHIN_GUARD",size,flush=True)
 PY
 if [ ! -s "$out/$remote" ]; then
