@@ -62,13 +62,22 @@ def action_of(anchor,path):
  return m.group(2) if m and m.group(1)==path else None
 def by_text(soup,name):
  return [a for a in soup.select("a") if clean(a.get_text(" ",strip=True))==name]
+def official_fetch(url,cname=None):
+ from urllib.error import HTTPError
+ for attempt in range(3):
+  try:return transport.fetch(url,cname)
+  except HTTPError as exc:
+   if exc.code not in (502,503,504) or attempt==2:raise
+   time.sleep(1.5*(attempt+1))
+ raise RuntimeError("UNREACHABLE_FETCH_RETRY")
+
 def discover():
- root,root_meta=transport.fetch(transport.CARD)
+ root,root_meta=official_fetch(transport.CARD)
  parsed=BeautifulSoup(root,"html.parser")
  choices=[action_of(a,"/JRADB/accessD.html") for a in by_text(parsed,"レース選択へ戻る")]
  choices={x for x in choices if x and "20261017" in x}
  if len(choices)!=1:raise ValueError("OFFICIAL_CURRENT_RACE_SELECTION_UNAVAILABLE")
- index,meta=transport.fetch(JRA_D,choices.pop())
+ index,meta=official_fetch(JRA_D,choices.pop())
  idx=BeautifulSoup(index,"html.parser")
  links={}
  for venue,(name,meet,day) in MEETINGS.items():
@@ -81,7 +90,7 @@ def discover():
  records=[]
  observations={}
  for venue,cname in links.items():
-  html,venue_meta=transport.fetch(JRA_D,cname)
+  html,venue_meta=official_fetch(JRA_D,cname)
   venue_meta.update(venue_code=venue,selection_cname=cname)
   observations[venue]=venue_meta
   soup=BeautifulSoup(html,"html.parser")
@@ -303,7 +312,7 @@ def parse_official_odds(race,net):
  gates={x["horse_number"]:x["gate"] for x in runners}
  if any(x not in range(1,9) for x in gates.values()):raise ValueError("NO_VALID_GATE_FRAME")
  # Only race-specific observed link from official venue race-selection page.
- html,header_meta=transport.fetch(JRA_O,race["jra_odds_cname"])
+ html,header_meta=official_fetch(JRA_O,race["jra_odds_cname"])
  soup=BeautifulSoup(html,"html.parser")
  links={}
  for label,bet in BET_LABELS.items():
@@ -315,7 +324,7 @@ def parse_official_odds(race,net):
   else:raise ValueError("JRA_BET_LINK_MISSING_OR_DUPLICATE:"+bet)
  pages={"WIN_PLACE":(html,header_meta,race["jra_odds_cname"])}
  for typ,cname in links.items():
-  markup,meta=transport.fetch(JRA_O,cname)
+  markup,meta=official_fetch(JRA_O,cname)
   pages[typ]=(markup,meta,cname)
  # Existing Fuji parsers remain unchanged: supply only the current race context.
  base_odds.N=n
