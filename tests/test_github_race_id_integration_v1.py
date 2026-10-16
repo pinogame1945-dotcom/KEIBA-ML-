@@ -183,7 +183,7 @@ class GithubRaceIntegration(unittest.TestCase):
             p=Path(tmp)/IDS[0]/"original_l175_horse_p3.json"
             value=json.loads(p.read_text());value["source"]="SEVEN_KING_PROXY"
             p.write_text(json.dumps(value))
-            result=orchestrator.run(IDS[:1],manifest,tmp)
+            result=orchestrator.run(list(IDS[:1]),manifest,tmp)
             self.assertEqual(result["races"][0]["status"],"BLOCKED_L3_V3")
             self.assertIn("ORIGINAL_L175_P3_SOURCE_REQUIRED",
                           result["races"][0]["blocked_reason"])
@@ -193,7 +193,7 @@ class GithubRaceIntegration(unittest.TestCase):
         with tempfile.TemporaryDirectory() as tmp:
             manifest=write_fixture(tmp,IDS[:1])
             manifest["races"][IDS[0]]["race_card"]="../file.json"
-            r=orchestrator.run(IDS[:1],manifest,tmp)
+            r=orchestrator.run(list(IDS[:1]),manifest,tmp)
             self.assertEqual(r["races"][0]["blocked_reason"],"PATH_TRAVERSAL_FORBIDDEN")
             with self.assertRaisesRegex(ValueError,"DUPLICATE_REQUESTED_RACE"):
                 orchestrator.run([IDS[0],IDS[0]],manifest,tmp)
