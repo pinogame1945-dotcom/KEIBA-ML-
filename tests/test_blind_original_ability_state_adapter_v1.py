@@ -46,7 +46,12 @@ class FrozenStateAdapter(unittest.TestCase):
             for y in range(2019,2026):
                 raw=root/f"{y}.jsonl"
                 day=30 if y==2025 else 10
-                raw.write_text("".join(json.dumps(row(y,h,day))+"\n" for h in (1,2,3)))
+                records=[row(y,h,day) for h in (1,2,3)]
+                if y==2025:
+                    for rec in records:
+                        rec["race_date"]="2025-11-30"
+                        rec["features"]["race_date"]="2025-11-30"
+                raw.write_text("".join(json.dumps(rec)+"\n" for rec in records))
                 compact=read_compact_state_source(raw,y)
                 csv=root/f"compact-{y}.csv.gz"
                 compact.to_csv(csv,index=False,compression="gzip")
