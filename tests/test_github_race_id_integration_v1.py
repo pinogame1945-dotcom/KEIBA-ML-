@@ -165,6 +165,8 @@ class GithubRaceIntegration(unittest.TestCase):
             self.assertEqual(res["races"][1]["blocked_reason"],
                              "RACE_ID_NOT_IN_GITHUB_SOURCE_MANIFEST")
             self.assertEqual(res["races"][1]["rankings"],None)
+            self.assertFalse(res["all_requested_races_have_original_inputs"])
+            self.assertEqual(res["races"][0]["status"],"PAPER_ONLY_PARTIAL_REQUESTED_BATCH")
 
     def test_invalid_or_final_quote_blocks_only_affected_race(self):
         with tempfile.TemporaryDirectory() as tmp:
@@ -175,7 +177,7 @@ class GithubRaceIntegration(unittest.TestCase):
             p.write_text(json.dumps(content))
             result=orchestrator.run(list(IDS),manifest,tmp)
             self.assertEqual(result["races"][0]["status"],"BLOCKED")
-            self.assertEqual(result["races"][1]["status"],"PAPER_ONLY_COMPLETE")
+            self.assertEqual(result["races"][1]["status"],"PAPER_ONLY_PARTIAL_REQUESTED_BATCH")
 
     def test_missing_original_p3_blocks_v3_and_does_not_forge_model(self):
         with tempfile.TemporaryDirectory() as tmp:
