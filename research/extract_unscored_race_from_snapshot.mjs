@@ -16,6 +16,7 @@ const get = (k) => {const i=process.argv.indexOf(k);return i>=0?process.argv[i+1
 const path = get('--input');
 const rid = get('--race-id');
 const out = get('--output');
+const finalOutput = get('--final-output');
 const expectedRows = Number(get('--manifest-rows'));
 const expectedMin = get('--manifest-min-date');
 const expectedMax = get('--manifest-max-date');
@@ -35,6 +36,7 @@ const rl = createInterface({input:decoded, crlfDelay:Infinity});
 let rowsRead=0, raceLines=0, leaked=0, month=null, ymd=null, sourceFeatures=0;
 let earliest=null, latest=null;
 const horses = new Map();
+const finalHorses = new Map();
 for await (const line of rl) {
   if (!line.trim()) continue;
   rowsRead++;
@@ -70,6 +72,19 @@ for await (const line of rl) {
     throw new Error('RACE_DAY_OF_YEAR_INVALID');
   }
   horses.set(horseId,{_race_id:rid,_horse_id:horseId,_race_date:date,...clean});
+  if (finalOutput) {
+    // FINAL means BODY_WEIGHT_ANNOUNCED before the start, not race results,
+    // not settled market odds. Source historical as-of is still unproven.
+    const atFinal=applyPredictionPhase(selectFeatureFamilies(orig,sets),'FINAL');
+    delete atFinal.race_date;
+    for (const key of Object.keys(atFinal)) {
+      if (extraUnsafe.test(key)) delete atFinal[key];
+    }
+    assertPredictionPhaseSafe(Object.keys(atFinal),'FINAL');
+    atFinal.race_month=clean.race_month;
+    atFinal.race_day_of_year=clean.race_day_of_year;
+    finalHorses.set(horseId,{_race_id:rid,_horse_id:horseId,_race_date:date,...atFinal});
+  }
 }
 if (rowsRead!==expectedRows || earliest!==expectedMin || latest!==expectedMax) {
   throw new Error('KAGGLE_COMPRESSION_EQUIVALENT_MANIFEST_COUNTS_OR_DATE_DRIFT:'+
@@ -110,3 +125,34 @@ console.log('TARGET_SNAPSHOT_EXTRACT_PROBE',JSON.stringify({
   blinded_features_sha256:digest,
   status:output.status
 }));
+
+if (finalOutput) {
+  if (finalHorses.size!==horses.size ||
+      [...finalHorses.keys()].some(id=>!horses.has(id))) {
+    throw new Error('FINAL_EARLY_HORSE_POPULATION_DIFFERENCE');
+  }
+  const finalKeys=Array.from(new Set([...finalHorses.values()].flatMap(x=>Object.keys(x))))
+    .filter(x=>!x.startsWith('_')).sort();
+  if (finalKeys.some(x=>extraUnsafe.test(x))) {
+    throw new Error('FINAL_PHASE_OUTCOME_OR_SETTLED_ODDS_LEAK');
+  }
+  const finalRows=[...finalHorses.values()];
+  const finalDigest=createHash('sha256').update(JSON.stringify(finalRows)).digest('hex');
+  const finalBody={
+    ...output,
+    status:'FINAL_PRESTART_PROJECTED_BUT_ASOF_AND_FULL_FIELD_UNVERIFIED',
+    source_prediction_phase:'FINAL_PRESTART_PROJECTED_FROM_HISTORICAL_SNAPSHOT',
+    feature_key_count:finalKeys.length,
+    blinded_feature_panel_sha256:finalDigest,
+    rows:finalRows
+  };
+  writeFileSync(finalOutput,JSON.stringify(finalBody)+'\n',{encoding:'utf8',flag:'wx'});
+  console.log('TARGET_FINAL_PRESTART_SOURCE_PROBE',JSON.stringify({
+    race_id:rid,horse_count:finalRows.length,
+    source_feature_count:finalKeys.length,
+    early_feature_count:keys.length,
+    final_phase_is_NOT_settled_odds:true,
+    certified_prebet:false,
+    blinded_features_sha256:finalDigest
+  }));
+}
