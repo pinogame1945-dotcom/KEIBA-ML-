@@ -388,7 +388,7 @@ def main():
     races=pd.read_csv(a.racewise,compression="infer",dtype={
         "race_id":str,"VALUE_EV_horse":str,"AI_RAW_TOP_horse":str})
     races["year"]=pd.to_numeric(races["year"],errors="raise").astype(int)
-    assert_ok(len(races)==TOTAL_RACES and races.race_id.is_unique)
+    assert_ok(len(races)==TOTAL_RACES and races.race_id.is_unique, "racewise count or unique ID drift")
     assert set(races.year)==set(YEARS)
     observed,events,counts,full=main_pass(data,picks,races,Path(a.backfill_root),selected)
     audit_source(counts,expected,full)
