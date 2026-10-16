@@ -1,0 +1,94 @@
+name: Frozen L2.1 real original AI to L3 V3 historical replay - Free CPU
+on:
+  push:
+    branches:
+      - feature/l3-v3-official-github-producer-20261016
+    paths:
+      - research/replay_frozen_l21_to_l3_v3_historical.py
+      - .github/workflows/frozen-l21-original-ai-to-v3-real-archive-proof.yml
+  workflow_dispatch:
+    inputs:
+      race_id:
+        description: Historical 2023-2025 netkeiba race ID (never 2026)
+        type: string
+        required: true
+        default: '202507010212'
+permissions:
+  contents: read
+jobs:
+  replay-authentic-frozen-scores:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Free ephemeral storage and original L2 frozen contract
+        shell: bash
+        run: |
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 1800000
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          python3 -m py_compile research/replay_frozen_l21_to_l3_v3_historical.py
+      - name: Obtain authentic frozen 2023-25 L2 source files once via GitHub metadata/SHA
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/frozen-l21-original"
+          mkdir -p "$out"
+          get() {
+            python3 scripts/github-readonly-archive.py \
+              --repo pinogame1945-dotcom/KEIBA-ML- \
+              --ref freeze/l2.1-standard50-to-l3-20261015 \
+              --path "$1" --dest "$out/$2" --max-bytes "$3"
+          }
+          get research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/joined_ticket_trust_complete.csv.gz known.csv.gz 1000000
+          get research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/tickets_missing_l175_signal.csv.gz unknown.csv.gz 100000
+          get research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz original-oos.csv.gz 11000000
+          get research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz original-ability.csv.gz 19000000
+          get research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz original-picks.csv.gz 2000000
+      - name: Original 2025 horse ranks, selected EV axis, frozen tickets and V3 allocation
+        shell: bash
+        env:
+          TARGET_RACE: ${{ inputs.race_id || '202507010212' }}
+        run: |
+          set -euo pipefail
+          [[ "$TARGET_RACE" =~ ^202[345][0-9]{8}$ ]] || { echo "2026_SEALED_OR_BAD_RACE"; exit 2; }
+          root="$RUNNER_TEMP/frozen-l21-original"
+          export TARGET_RACE
+          secondary="$(python3 - "$root/known.csv.gz" <<'PY'
+import csv,gzip,sys
+with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
+    x=next(r["race_id"] for r in csv.DictReader(f) if r["year"]=="2025")
+print(x)
+PY
+)"
+          args=(--race "$TARGET_RACE")
+          if [ "$secondary" != "$TARGET_RACE" ]; then args+=(--race "$secondary"); fi
+          python3 research/replay_frozen_l21_to_l3_v3_historical.py \
+            "${args[@]}" --frozen-oos "$root/original-oos.csv.gz" \
+            --frozen-picks "$root/original-picks.csv.gz" \
+            --frozen-ability-cache "$root/original-ability.csv.gz" \
+            --frozen-known-p3-tickets "$root/known.csv.gz" \
+            --frozen-unknown-p3-tickets "$root/unknown.csv.gz" \
+            --race-budget-yen 20000 --paper-bankroll-yen 100000 \
+            --output "$root/real-frozen-replay.json"
+          python3 - "$root/real-frozen-replay.json" "$secondary" <<'PY'
+import json,sys
+r=json.load(open(sys.argv[1],encoding="utf-8"))
+assert r["source_phase"]=="FINAL_RESEARCH_ARCHIVED_NOT_AT_BET_CUTOFF"
+assert not r["genuinely_prebet_validated"]
+assert not r["year_2026_results_read"]
+assert r["historical_2023_2025_L2_selection_was_hindsight"]
+assert r["rankings_source"]=="ORIGINAL_FROZEN_OOS_SCORES"
+assert any(q["race_id"]==sys.argv[2] and q["frozen_physical_ticket_count"]>0 for q in r["races"])
+for q in r["races"]:
+    assert q["rankings"]["value_ev"][0]["horse_id"]==q["original_anchor_horse_id"]
+    assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["value_ev"])
+    assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["ai_prob"])
+    assert q["status"] in ("HISTORICAL_FINAL_ONLY_UNAVAILABLE_AS_PREBET","HISTORICAL_V3_SAME_DAY_NOT_FUNDED")
+    assert q["frozen_physical_ticket_count"]==len(q["tickets"]) or q["status"]=="HISTORICAL_V3_SAME_DAY_NOT_FUNDED"
+print("FROZEN_L21_REAL_RANK_RISK_ANCHOR_13479_TICKET_V3_REPLAY_PASS")
+PY
