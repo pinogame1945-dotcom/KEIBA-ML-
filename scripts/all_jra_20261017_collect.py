@@ -254,6 +254,7 @@ def official_card(race,net):
  for runner in net["runners"]:
   x=parsed[runner["horse_name"]]
   for k in ("horse_number","gate"):
+   if k=="horse_number" and x["entry_status"] in ("SCRATCHED","EXCLUDED") and x[k] is None:continue
    if x[k]!=runner[k]:differs.append({"horse":runner["horse_name"],"field":k,"jra":x[k],"netkeiba":runner[k]})
  if differs:raise ValueError("JRA_NETKEIBA_NUMBER_GATE_DIFFERENCE:"+json.dumps(differs,ensure_ascii=False)[:500])
  return {"meta":meta,"official_horse_set":verified,"identity_verified":True,
@@ -269,7 +270,7 @@ def theoretical(n,gates):
          "EXACTA":set(itertools.permutations(horses,2)),
          "TRIO":set(itertools.combinations(horses,3)),
          "TRIFECTA":set(itertools.permutations(horses,3))}
-def parse_matrix(soup,typ,n,gates):
+def parse_matrix(soup,typ,n,gates,retired_numbers=frozenset()):
  if typ=="WIN_PLACE":
   return base_odds.parse_winplace(soup)
  cls=BET_TABLE[typ]
@@ -302,14 +303,18 @@ def parse_matrix(soup,typ,n,gates):
    invalid=invalid or (typ=="BRACKET_QUINELLA" and b==prefix[0] and sum(v==b for v in gates.values())<2)
    invalid=invalid or (typ=="BRACKET_QUINELLA" and (b not in gates.values() or prefix[0] not in gates.values()))
    if invalid:
-    if quote not in ("","-","－"):raise ValueError("IMPOSSIBLE_COMBINATION_HAS_PRICE:"+typ)
+    if quote not in ("","-","－") and not (quote in ("取消","除外") and (b in retired_numbers or any(x in retired_numbers for x in prefix))):
+     raise ValueError("IMPOSSIBLE_COMBINATION_HAS_PRICE:"+typ)
     continue
    if quote in ("","-","－"):raise ValueError("VALID_COMBINATION_HAS_EMPTY_QUOTE:"+typ)
    parsed.append((tuple(prefix)+(b,),quote))
  return {typ:parsed}
-def parse_official_odds(race,net):
+def parse_official_odds(race,net,official):
  runners=net["runners"];n=len(runners)
  gates={x["horse_number"]:x["gate"] for x in runners}
+ retired_names={x["horse_name"]:x["entry_status"] for x in official["changed_or_scratch"]}
+ retired_numbers={x["horse_number"] for x in runners if x["horse_name"] in retired_names}
+ live_frames={g for no,g in gates.items() if no not in retired_numbers}
  if any(x not in range(1,9) for x in gates.values()):raise ValueError("NO_VALID_GATE_FRAME")
  # Only race-specific observed link from official venue race-selection page.
  html,header_meta=official_fetch(JRA_O,race["jra_odds_cname"])
@@ -331,7 +336,7 @@ def parse_official_odds(race,net):
  base_odds.RUNNERS={x["horse_number"]:x for x in runners}
  expected=theoretical(n,gates)
  seen={x:set() for x in expected}
- quotes=[];no_votes=[];page_meta={}
+ quotes=[];no_votes=[];scratched=[];page_meta={}
  update_times=set()
  for typ,(markup,meta,cname) in pages.items():
   dom=BeautifulSoup(markup,"html.parser")
@@ -344,13 +349,22 @@ def parse_official_odds(race,net):
   update_times.add(displayed.group(0))
   page_meta[typ]={"cname":cname,"sha256":meta["sha256"],"http_date":meta.get("http_date"),
                   "official_update_display":displayed.group(0),"fetched_at_utc":utc()}
-  partial=parse_matrix(dom,typ,n,gates)
+  partial=parse_matrix(dom,typ,n,gates,retired_numbers)
   for bet,values in partial.items():
    for combo,raw in values:
     if combo in seen[bet]:raise ValueError("ODDS_DUPLICATE_COMBINATION:"+bet)
     seen[bet].add(combo)
-    p=base_odds.parse_one_odd(raw,bet in ("PLACE","WIDE"))
     item={"bet_type":bet,"combination":list(combo)}
+    # Official '取消' / '除外' is not the same as '票数なし'.
+    # For 枠連, a frame remains valid when another active horse is still in it.
+    invalidated=(any(fr not in live_frames for fr in combo) if bet=="BRACKET_QUINELLA"
+                 else any(no in retired_numbers for no in combo))
+    if clean(raw) in ("取消","除外"):
+     if not invalidated:raise ValueError("OFFICIAL_CANCELLATION_WITH_ACTIVE_SELECTION:"+bet+":"+str(combo))
+     scratched.append({**item,"status":"SCRATCHED_OR_EXCLUDED","odds":None})
+     continue
+    if invalidated:raise ValueError("OFFICIAL_QUOTE_FOR_SCRATCHED_SELECTION:"+bet+":"+str(combo)+":"+str(raw))
+    p=base_odds.parse_one_odd(raw,bet in ("PLACE","WIDE"))
     if p["status"]=="QUOTED":
      p.pop("status");quotes.append({**item,**p})
     else:no_votes.append({**item,**p})
@@ -365,13 +379,24 @@ def parse_official_odds(race,net):
  summary={bet:{"expected":len(combos),"listed":len(seen[bet]),
                 "quoted":sum(q["bet_type"]==bet for q in quotes),
                 "no_votes":sum(q["bet_type"]==bet for q in no_votes),
+                "scratched":sum(q["bet_type"]==bet for q in scratched),
                 "status":"NOT_OFFERED" if bet in absent else "COLLECTED"} for bet,combos in expected.items()}
  return {"source":"JRA_OFFICIAL_POST","snapshot_type":"PRE_RACE_LIVE_ODDS","publisher_update_display_consistent":True,
          "publisher_update_day_not_inferred":True,"page_observations":page_meta,
          "by_bet_type":summary,"expected_combination_count":sum(len(x) for k,x in expected.items() if k not in absent),
          "quoted_combination_count":len(quotes),"no_votes_combination_count":len(no_votes),
+         "scratched_combination_count":len(scratched),
          "combination_coverage_complete":True,
-         "quotes":quotes,"no_votes":no_votes,"not_offered_bet_types":absent}
+         "quotes":quotes,"no_votes":no_votes,"scratched_combinations":scratched,
+         "not_offered_bet_types":absent}
+def atomic_official_odds(race,ncard,official):
+ for attempt in range(3):
+  try:return parse_official_odds(race,ncard,official)
+  except ValueError as exc:
+   if "MIXED_JRA_SOURCE_UPDATE_TIMES" not in str(exc) or attempt==2:raise
+   time.sleep(2*(attempt+1))
+ raise RuntimeError("ODDS_ATOMIC_RETRY_EXHAUSTED")
+
 def single(race):
  rid=race["race_id"]
  out={"contract":"JRA_20261017_ALL_RACES_PRE_RACE_AUDIT_V1",
@@ -384,8 +409,7 @@ def single(race):
   out["netkeiba"]=ncard
   official=official_card(race,ncard)
   out["jra_card"]=official
-  if official["changed_or_scratch"]:raise ValueError("SCRATCH_OR_EXCLUSION_REQUIRES_REAUDIT")
-  odds=parse_official_odds(race,ncard)
+  odds=atomic_official_odds(race,ncard,official)
   out["jra_odds"]=odds
   out["status"]="SOURCE_AND_ODDS_VERIFIED"
  except Exception as exc:
@@ -414,6 +438,7 @@ def main():
        "runner_count":item.get("netkeiba",{}).get("runner_count"),
        "odds_quote_count":item.get("jra_odds",{}).get("quoted_combination_count"),
        "no_votes":item.get("jra_odds",{}).get("no_votes_combination_count"),
+       "scratched":item.get("jra_odds",{}).get("scratched_combination_count"),
        "file":str(dest)}
   manifest["races"].append(rec)
   print("ALL_RACES_PROGRESS "+json.dumps(rec,ensure_ascii=False),flush=True)
