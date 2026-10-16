@@ -216,7 +216,8 @@ def analyze(rank,source_meta,policy,black_lines,hist,events,before,coverage,out)
     (out/"summary.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
     print("EV_RANK_PRUNED_MEDIUM_STRICT_COMPLETE",
           json.dumps({"rank":rank,"policy":policy,"accepted":result["accepted_line_gate_pairs"],
-                      "totals":totals},ensure_ascii=False),flush=True)    return chosen,filtered
+                      "totals":totals},ensure_ascii=False),flush=True)
+    return chosen,filtered
 
 
 
