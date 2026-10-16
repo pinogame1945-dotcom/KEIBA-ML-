@@ -1,0 +1,285 @@
+name: 2025 Arima blind original AI frozen L2.1 L3 V3 - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/arima-2025-fresh-l21-l3-20261016
+    paths:
+      - scripts/fetch_original_state_history_snapshot.sh
+      - research/prepare_arima_2025_replay_sources_v1.py
+      - research/export_strict_prior_state_history_v1.py
+      - research/compute_blind_target_seq_regime_v1.py
+      - research/export_blind_2025_original_ability_priors_v1.py
+      - research/run_blind_202506050811_original_ability_v1.py
+      - research/export_original_2019_22_risk_teacher_priors_v1.py
+      - research/export_original_prior_oos_market_teacher_v1.py
+      - research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py
+      - research/bridge_blind_original_l1_to_l175_v1.py
+      - research/run_fresh_202506050811_historical_final_l21_v3_v1.py
+      - scripts/publish_fresh_historical_202506050811_mobile_v1.py
+      - tests/test_blind_target_seq_regime_parity_v1.py
+      - .github/workflows/validate-arima-2025-blind-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  blind-state-regime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      GITHUB_TOKEN: ${{ github.token }}
+      L1_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original sealed rules and standard CPU no billed artifacts
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py research/export_blind_2025_original_ability_priors_v1.py research/run_blind_202506050811_original_ability_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py research/export_original_prior_oos_market_teacher_v1.py research/export_original_2019_22_risk_teacher_priors_v1.py
+          node --check research/extract_unscored_race_from_snapshot.mjs
+          bash -n scripts/fetch_original_state_history_snapshot.sh
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 4000000
+          echo "STANDARD_UBUNTU_CPU_EPHEMERAL_ONLY_NO_BILLED_STORAGE_OR_2026"
+      - name: Install exact original CPU model dependencies and Kaggle client
+        run: |
+          python3 -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python3 -m pip install --disable-pip-version-check kaggle
+      - name: Original numerical parity, no future or target outcomes
+        run: |
+          python3 -m unittest discover -s tests -p test_blind_target_seq_regime_parity_v1.py -v
+          python3 -m unittest discover -s tests -p test_export_strict_prior_state_history_v1.py -v
+      - name: Adapt existing original source in ephemeral CPU checkout for Arima
+        run: |
+          set -euo pipefail
+          python3 research/prepare_arima_2025_replay_sources_v1.py
+          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_prior_day_bias_v1.py research/compute_blind_target_seq_regime_v1.py research/run_blind_202505050812_original_ability_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py research/bridge_blind_original_l1_to_l175_v1.py research/run_fresh_202505050812_historical_final_l21_v3_v1.py scripts/publish_fresh_historical_202505050812_mobile_v1.py
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          echo ARIMA_ORIGINAL_MODELS_UNCHANGED_P3_TOP10_UNKNOWN_PERMITTED
+      - name: Get 2019-25 snapshots one at a time; retain compact true-prior state only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          mkdir -p "$root"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            echo "STATE_YEAR_START year=$year"
+            bash scripts/fetch_original_state_history_snapshot.sh "$year" "$root" | tee "$root/fetch-$year.log"
+            source="$(tail -n 1 "$root/fetch-$year.log")"
+            test -s "$source"
+            IFS="$(printf '\t')" read -r manifest_year logical remote mode sha rows first last < "$root/resolved-$year.tsv"
+            test "$year" = "$manifest_year"
+            if [ "$year" = 2025 ]; then
+              node research/extract_unscored_race_from_snapshot.mjs \
+                --input "$source" --race-id 202506050811 \
+                --manifest-rows "$rows" \
+                --manifest-min-date "$first" --manifest-max-date "$last" \
+                --output "$root/target-unscored-early.json" \
+                --final-output "$root/target-unscored-final.json"
+            fi
+            python3 research/export_strict_prior_state_history_v1.py \
+              --year "$year" --input "$source" --expected-rows "$rows" \
+              --expected-min "$first" --expected-max "$last" --out "$root"
+            if [ "$year" = 2023 ] || [ "$year" = 2024 ]; then
+              python3 research/export_blind_2025_original_ability_priors_v1.py \
+                --year "$year" --input "$source" --out "$root"
+            else
+              if [ "$year" -le 2022 ]; then
+                python3 research/export_original_2019_22_risk_teacher_priors_v1.py \
+                  --year "$year" --source "$source" --out "$root"
+              fi
+            fi
+            if [ "$year" -ge 2021 ] && [ "$year" -le 2024 ]; then
+              python3 research/export_original_prior_oos_market_teacher_v1.py \
+                --year "$year" --source "$source" \
+                --output "$root/original-$year-prior-market.csv.gz"
+            fi
+            if [ "$year" = 2025 ]; then
+              python3 research/compute_blind_target_prior_day_bias_v1.py \
+                --2025-source "$source" \
+                --unscored-target "$root/target-unscored-final.json" \
+                --output "$root/original-prior-daybias.json"
+            fi
+            rm -f "$source"
+            echo "STATE_PRIOR_YEAR_COMPACT_READY_RAW_REMOVED year=$year"
+          done
+          ls -lh "$root"/compact-strict-prior-20*.csv.gz
+      - name: Compute original strictly prior state and regime for 16 real target horses
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          sources=()
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            test -s "$root/compact-strict-prior-$year.csv.gz"
+            sources+=(--compact-prior "$root/compact-strict-prior-$year.csv.gz")
+          done
+          python3 research/compute_blind_target_seq_regime_v1.py \
+            "${sources[@]}" \
+            --unscored-target "$root/target-unscored-final.json" \
+            --output "$root/target-original-seq-regime.json"
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          obj=json.loads((root/"target-original-seq-regime.json").read_text())
+          assert obj["race_id"]=="202506050811"
+          assert obj["contract"]=="KEIBA_ORIGINAL_TARGET_SEQ_REGIME_PRIOR_ONLY_V1"
+          assert obj["target_horses"]==16
+          assert obj["regime_feature_count"]==66
+          assert obj["strict_prior_date_only"]
+          assert not obj["target_outcome_used"] and not obj["2026_results_used"]
+          assert obj["history_years"]==list(range(2019,2026))
+          target=json.loads((root/"target-unscored-final.json").read_text())
+          target_ids={x["_horse_id"] for x in target["rows"]}
+          assert {x["horse_id"] for x in obj["horse_features"]}==target_ids
+          print("REAL_BLIND_202506050811_SEQ_REGIME_COMPLETE",
+                "horses",obj["target_horses"],
+                "seq",obj["seq_feature_count"],
+                "regime",obj["regime_feature_count"],
+                "history_rows",obj["history_rows"],
+                "results_or_target_saved_predictions",False,
+                "asof_certified",False,flush=True)
+          PY
+
+      - name: First-ever fresh real 16-horse original CORE4 ability ranking without saved predictions
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          python3 research/run_blind_202506050811_original_ability_v1.py --root "$root"
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          r=json.loads((root/"BLIND-202506050811-original-ability-not-outcome-verified.json").read_text())
+          assert r["contract"]=="KEIBA_202506050811_REAL_BLIND_ORIGINAL_ABILITY_V1"
+          assert r["race_id"]=="202506050811"
+          assert r["training_years"]==[2023,2024]
+          assert r["target_horse_count"]==16
+          assert [x["ai_raw_rank"] for x in r["horse_scores"]]==list(range(1,18))
+          assert len({x["horse_id"] for x in r["horse_scores"]})==16
+          assert r["target_saved_historical_predictions_read"] is False
+          assert r["selected_target_outcomes_or_final_odds_used"] is False
+          assert not r["risk_calculated"] and not r["l2_1_ready"] and not r["l3_v3_ready"]
+          print("REAL_BLIND_ORIGINAL_ABILITY_NO_PRECOMPUTED_TARGET_PREDICTIONS_PASS",
+                len(r["horse_scores"]),flush=True)
+          PY
+
+      - name: Verify fresh 16-horse risk is from original 2021-24 OOS teachers only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          r=json.loads((root/"BLIND-202506050811-original-risk-not-outcome-verified.json").read_text())
+          a=json.loads((root/"BLIND-202506050811-original-ability-not-outcome-verified.json").read_text())
+          assert r["contract"]=="KEIBA_BLIND_202506050811_FROZEN_CORRECTION_RISK_V1"
+          assert r["risk_prior_teacher_years"]==[2021,2022,2023,2024]
+          assert r["target_horse_count"]==16
+          assert r["selected_2025_outcome_or_final_odds_used"] is False
+          assert r["selected_2025_saved_prediction_used"] is False
+          assert r["l2_1_ready"] is False and r["l3_v3_ready"] is False
+          assert all(x["metric_reference_exact"] for x in r["original_oos_metric_reproduction"])
+          assert len(r["original_oos_metric_reproduction"])==4
+          assert {x["horse_id"] for x in r["horse_risk"]}=={x["horse_id"] for x in a["horse_scores"]}
+          print("REAL_BLIND_202506050811_ORIGINAL_OOS_RISK_CONFIRMED",
+                "horses",len(r["horse_risk"]),
+                "past_oos_folds",len(r["original_oos_metric_reproduction"]),
+                "risk_teacher_rows",r["risk_teacher_horse_rows"],
+                "2025_outcomes_used",False,"genuine_asof_certified",False,flush=True)
+          PY
+
+      - name: Strict real 16-horse fresh ability and Risk handoff to frozen pipeline
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          python3 research/bridge_blind_original_l1_to_l175_v1.py \
+            --fresh-ability "$root/BLIND-202506050811-original-ability-not-outcome-verified.json" \
+            --fresh-risk "$root/BLIND-202506050811-original-risk-not-outcome-verified.json" \
+            --unscored-target "$root/target-unscored-final.json" \
+            --output "$root/BLIND-202506050811-L1-RISK-DOWNSTREAM-BLOCKED.json"
+          python3 - "$root" <<'PY'
+          import json,pathlib,sys
+          root=pathlib.Path(sys.argv[1])
+          a=json.loads((root/"BLIND-202506050811-L1-RISK-DOWNSTREAM-BLOCKED.json").read_text())
+          assert a["contract"]=="KEIBA_BLIND_ORIGINAL_L1_TO_FROZEN_L175_BRIDGE_V1"
+          assert a["race_id"]=="202506050811"
+          assert a["horse_count"]==16
+          assert a["l1_original_ability_and_risk_bridge_connected"] is True
+          assert a["target_result_or_saved_prediction_read"] is False
+          assert a["purchase_ready"] is False
+          assert a["frozen_l21_ready"] is False and a["official_l3_v3_ready"] is False
+          assert len(a["blocked_reasons"])==5
+          assert [x["ai_raw_rank"] for x in a["horses"]]==list(range(1,18))
+          print("REAL_BLIND_202506050811_L1_RISK_TO_FROZEN_L21_L3_INTERFACE_PASS",
+                "horses",a["horse_count"],
+                "blocked_reasons",",".join(a["blocked_reasons"]),
+                "no_synthetic_quotes_entered_real_pipeline",True,flush=True)
+          PY
+
+      - name: Real 16-horse historical FINAL odds -> 2025 ANCHOR_FULL -> frozen L2.1 -> V3
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          bash scripts/build_original_anchor_2025_params_github.sh "$root/anchor-params"
+          python3 scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/daily/2025-12-28.jsonl.gz \
+            --dest "$root/2025-12-28-day.jsonl.gz" --max-bytes 200000
+          python3 scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/odds/daily/2025-12-28.jsonl.gz \
+            --dest "$root/2025-12-28-final-odds.jsonl.gz" --max-bytes 1000000
+          python3 research/run_fresh_202506050811_historical_final_l21_v3_v1.py \
+            --bridge "$root/BLIND-202506050811-L1-RISK-DOWNSTREAM-BLOCKED.json" \
+            --historical-day-pack "$root/2025-12-28-day.jsonl.gz" \
+            --historical-odds-pack "$root/2025-12-28-final-odds.jsonl.gz" \
+            --original-anchor-parameters "$root/anchor-params/original-prior-anchor-asof-params.json" \
+            --paper-race-budget-yen 20000 \
+            --output "$root/FRESH-202506050811-L1-L21-L3-MOBILE.json"
+          python3 - "$root/FRESH-202506050811-L1-L21-L3-MOBILE.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert d["contract"]=="KEIBA_FRESH_HISTORICAL_L1_L21_L3_MOBILE_V1"
+          assert d["started_horse_count"]==16
+          assert len(d["horses"])==16
+          assert d["race_entry_count"]==16 and len(d["scratched"])==0
+          assert d["source_price_phase"]=="NETKEIBA_FINAL_POSTRACE"
+          assert d["original_l2_1_standard_line_gate_count"]==50
+          assert d["original_l3_v3_policy"]=="REVERSE_P3_RACE_MAX300"
+          assert d["l3_p3_provenance"]=="UNKNOWN_NO_INVENTED_P3"
+          assert d["fresh_original_ability_risk_used"]
+          assert not d["historical_saved_2025_oos_scores_used"]
+          assert not d["historical_saved_l21_tickets_used"]
+          assert not d["is_live_or_purchase_ready"]
+          assert d["l3_v3_paper_stake_yen"]==sum(x["stake_yen"] for x in d["tickets"])
+          print("FRESH_17_HORSE_FROM_RACE_ID_TO_ORIGINAL_L3_V3_COMPLETE",
+                "race",d["race_id"],"tickets",d["bet_count"],
+                "L3_paper_yen",d["l3_v3_paper_stake_yen"],
+                "original_p3_not_yet_available",True,flush=True)
+          PY
+
+      - name: Publish new 16-horse L3 historical JSON to existing free public mobile data branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          file="$root/FRESH-202506050811-L1-L21-L3-MOBILE.json"
+          python3 scripts/publish_fresh_historical_202506050811_mobile_v1.py --input "$file" --dry-run
+          python3 scripts/publish_fresh_historical_202506050811_mobile_v1.py --input "$file"
+          echo "MOBILE_FRESH_17_HORSE_HISTORICAL_JSON historical-new/2025/202506050811.json"
+          echo "FINAL_RESEARCH_ONLY_NO_LIVE_BET_OR_FABRICATED_P3"
