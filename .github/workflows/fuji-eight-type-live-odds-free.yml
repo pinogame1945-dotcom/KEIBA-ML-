@@ -1,0 +1,46 @@
+name: Fuji JRA Eight Types Complete Extraction Free CPU
+on:
+  push:
+    branches: [audit/fuji-eight-bet-odds-20261016]
+    paths:
+      - scripts/fuji_8type_live_odds_20261016.py
+      - tests/test_fuji_8type_live_odds_20261016.py
+      - .github/workflows/fuji-eight-type-live-odds-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Verify matrix mapping and no-votes fail-closed fixtures
+        run: python -m unittest discover -s tests -p 'test_fuji_8type_live_odds_20261016.py' -v
+      - name: Verify 14 active horses unchanged before using odds
+        run: python scripts/fuji_change_guard_20261016.py
+      - name: Verify two live racecards match within observed fetch windows
+        run: python scripts/fuji_integrity_guard_20261016.py --max-age-seconds 300 --max-skew-seconds 150
+      - name: Fetch all actual JRA 8 types, check exact 2974 combinations; emit race JSON in runner (no artifact)
+        run: python scripts/fuji_8type_live_odds_20261016.py
+      - name: Assert runner JSON snapshot full coverage
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path('audit-results/fuji-20261017-8type-live-odds.json')
+          a=json.loads(p.read_text('utf-8'))
+          assert a['race_id']=='202605040611' and a['snapshot_type']=='PRE_RACE_LIVE_ODDS'
+          assert len(a['page_observations'])==7
+          assert len(a['by_bet_type'])==8 and a['expected_combination_count']==2974
+          assert a['combination_coverage_complete'] is True
+          assert a['quoted_combination_count']+a['no_votes_combination_count']==2974
+          assert len(a['quotes'])==a['quoted_combination_count']
+          assert len(a['no_votes'])==a['no_votes_combination_count']
+          print('FUJI_8TYPE_JSON_VERIFIED',p.stat().st_size,
+                a['quoted_combination_count'],a['no_votes_combination_count'])
+          PY
