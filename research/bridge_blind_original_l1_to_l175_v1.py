@@ -65,6 +65,17 @@ def bridge(ability,risk,target):
     risks=risk.get("horse_risk")
     check(all(isinstance(x,list) and len(x)==17 for x in (horses,raw,risks)),
           "BLIND_COMPLETE_17_HORSES_REQUIRED")
+    forbidden_names={"_finish","_is_win","_is_top3","_score",
+                     "finish","finish_position","market_rank",
+                     "win_odds_at_cutoff","risk","distill_ai_rank",
+                     "P__ANCHOR_FULL","actual_start_time"}
+    forbidden_prefixes=("_target","target_","finish_","result_",
+                       "payout_","final_","postrace_","after_race_",
+                       "market_final_","distill_","outcome_")
+    for horse in horses:
+        check(isinstance(horse,dict),"BLIND_HORSE_RECORD_NOT_OBJECT")
+        check(not any(k in forbidden_names or k.startswith(forbidden_prefixes)
+                      for k in horse),"BLIND_TARGET_RESULT_FIELD_FORBIDDEN")
     def by_id(rows,field):
         indexed={}
         for row in rows:
