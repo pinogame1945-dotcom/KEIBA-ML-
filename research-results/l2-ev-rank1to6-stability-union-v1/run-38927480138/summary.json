@@ -1,0 +1,232 @@
+{
+  "contract": "EV_RANK1TO6_ORIGINAL_OFFICIAL_STABILITY_POST_PRUNE_DEDUP_V1",
+  "original_untouched_union": {
+    "unique_tickets": 653734,
+    "unique_hit_tickets": 3371,
+    "cross_rank_duplicates_removed": 28858,
+    "stake_yen": 65373400,
+    "return_yen": 77239240,
+    "profit_yen": 11865840,
+    "duplicate_stake_removed_yen": 2885800,
+    "duplicate_payout_removed_yen": 4696180,
+    "year": "2023-2025",
+    "roi_pct": 118.15086870194911,
+    "unique_bought_races": 10052,
+    "unique_winning_races": 2275
+  },
+  "original_run": 38922914983,
+  "fixed_comparison_source": 38919159628,
+  "exact_official_17_gates_applied": true,
+  "official_selection_applied_to_rank_line_gate_not_directly_to_merged_tickets": true,
+  "official_medium": {
+    "n": 500,
+    "hits": 30,
+    "per_year_hits": 8,
+    "max1_share": 0.4,
+    "max3_share": 0.7,
+    "remove_top3_roi_floor": 90
+  },
+  "official_strict": {
+    "n": 800,
+    "hits": 50,
+    "per_year_hits": 12,
+    "max1_share": 0.3,
+    "max3_share": 0.55,
+    "remove_top3_roi_floor": 100
+  },
+  "annual_black_criterion": "each 2023 Feb-Dec, full 2024 and 2025 year has >100% ROI",
+  "methods_unmodified": {
+    "1": "MARKET_10",
+    "2": "MARKET_25",
+    "3": "PROB_25",
+    "4": "MARKET_75",
+    "5": "LEARNED_10",
+    "6": "LEARNED_10"
+  },
+  "rank2to6_past_stability_reproduced": true,
+  "rank1_new_annual_gate_results": true,
+  "after_stability": {
+    "ALL_YEAR_BLACK": {
+      "purchased_races": 9683,
+      "hit_races": 668,
+      "unique_tickets": 130958,
+      "unique_hits": 774,
+      "stake_yen": 13095800,
+      "return_yen": 16806420,
+      "profit_yen": 3710620,
+      "cross_rank_duplicates_removed": 1216,
+      "duplicate_payout_yen": 183090,
+      "policy": "ALL_YEAR_BLACK",
+      "period": "2023-2025",
+      "roi_pct": 128.33442783182394
+    },
+    "STABLE_MEDIUM": {
+      "purchased_races": 4608,
+      "hit_races": 93,
+      "unique_tickets": 7325,
+      "unique_hits": 93,
+      "stake_yen": 732500,
+      "return_yen": 854060,
+      "profit_yen": 121560,
+      "cross_rank_duplicates_removed": 0,
+      "duplicate_payout_yen": 0,
+      "policy": "STABLE_MEDIUM",
+      "period": "2023-2025",
+      "roi_pct": 116.59522184300342
+    },
+    "STABLE_STRICT": {
+      "purchased_races": 949,
+      "hit_races": 62,
+      "unique_tickets": 949,
+      "unique_hits": 62,
+      "stake_yen": 94900,
+      "return_yen": 107190,
+      "profit_yen": 12290,
+      "cross_rank_duplicates_removed": 0,
+      "duplicate_payout_yen": 0,
+      "policy": "STABLE_STRICT",
+      "period": "2023-2025",
+      "roi_pct": 112.95047418335089
+    }
+  },
+  "rank_specific": {
+    "ALL_YEAR_BLACK": {
+      "1": {
+        "tickets": 17404,
+        "hit_tickets": 271,
+        "stake_yen": 1740400,
+        "return_yen": 2110670,
+        "roi_pct": 121.27499425419444
+      },
+      "2": {
+        "tickets": 34437,
+        "hit_tickets": 128,
+        "stake_yen": 3443700,
+        "return_yen": 4314930,
+        "roi_pct": 125.29924209425909
+      },
+      "3": {
+        "tickets": 46987,
+        "hit_tickets": 143,
+        "stake_yen": 4698700,
+        "return_yen": 5953720,
+        "roi_pct": 126.70994104752378
+      },
+      "4": {
+        "tickets": 14236,
+        "hit_tickets": 69,
+        "stake_yen": 1423600,
+        "return_yen": 2143880,
+        "roi_pct": 150.5956729418376
+      },
+      "5": {
+        "tickets": 14066,
+        "hit_tickets": 140,
+        "stake_yen": 1406600,
+        "return_yen": 1739900,
+        "roi_pct": 123.69543580264468
+      },
+      "6": {
+        "tickets": 5044,
+        "hit_tickets": 37,
+        "stake_yen": 504400,
+        "return_yen": 726410,
+        "roi_pct": 144.01467089611418
+      }
+    },
+    "STABLE_MEDIUM": {
+      "1": {
+        "tickets": 949,
+        "hit_tickets": 62,
+        "stake_yen": 94900,
+        "return_yen": 107190,
+        "roi_pct": 112.95047418335089
+      },
+      "2": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "3": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "4": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "5": {
+        "tickets": 6376,
+        "hit_tickets": 31,
+        "stake_yen": 637600,
+        "return_yen": 746870,
+        "roi_pct": 117.13770388958595
+      },
+      "6": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      }
+    },
+    "STABLE_STRICT": {
+      "1": {
+        "tickets": 949,
+        "hit_tickets": 62,
+        "stake_yen": 94900,
+        "return_yen": 107190,
+        "roi_pct": 112.95047418335089
+      },
+      "2": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "3": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "4": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "5": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      },
+      "6": {
+        "tickets": 0,
+        "hit_tickets": 0,
+        "stake_yen": 0,
+        "return_yen": 0,
+        "roi_pct": null
+      }
+    }
+  },
+  "no_new_ticket_keys": true,
+  "no_med_strict_change": true,
+  "evaluation_races": 10056,
+  "selection_uses_full_evaluation_period_posthoc": true,
+  "historical_final_odds_not_live": true,
+  "year_2026_sealed": true
+}
