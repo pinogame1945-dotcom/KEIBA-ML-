@@ -43,6 +43,14 @@ class PruningTests(unittest.TestCase):
         self.assertEqual(tuple(originals[tid][0]),(30,2,3300))
         self.assertEqual(sum(originals[tid][0,:]),3332)
 
+    def test_2023_january_training_excluded_for_base_and_all_masks(self):
+        self.assertEqual(study.EVAL_START_2023,"2023-02-01")
+        self.assertFalse(study.pruning_eval_eligible(2023,"2023-01-28"))
+        self.assertFalse(study.pruning_eval_eligible(2023,"2023-01-29"))
+        self.assertTrue(study.pruning_eval_eligible(2023,"2023-02-04"))
+        self.assertTrue(study.pruning_eval_eligible(2024,"2024-01-06"))
+        self.assertTrue(study.pruning_eval_eligible(2025,"2025-01-05"))
+
     def test_fast_thresholds_equal_frozen_semantics(self):
         card=(15.0,0,("TRIO",7,0,0,1),-.9,-1.2,0.1)
         history=[card]*110
