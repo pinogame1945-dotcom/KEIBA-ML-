@@ -6,6 +6,7 @@ on:
       - feature/original-ai-cold-inference-20261016
     paths:
       - 'research/audit_202505050812_final_odds_coverage_v1.py'
+      - 'research/audit_202505050812_official_starter_roster_v1.py'
       - '.github/workflows/audit-202505050812-final-odds-coverage.yml'
   workflow_dispatch:
 
@@ -39,3 +40,13 @@ jobs:
         run: |
           python research/audit_202505050812_final_odds_coverage_v1.py \
             --source "$RUNNER_TEMP/2025-11-30-final-odds.jsonl.gz"
+      - name: Verify horse numbers and names from historical BACKFILL day roster
+        run: |
+          set -euo pipefail
+          python scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/daily/2025-11-30.jsonl.gz \
+            --dest "$RUNNER_TEMP/2025-11-30-day.jsonl.gz" \
+            --max-bytes 200000
+          python research/audit_202505050812_official_starter_roster_v1.py \
+            --source "$RUNNER_TEMP/2025-11-30-day.jsonl.gz"
