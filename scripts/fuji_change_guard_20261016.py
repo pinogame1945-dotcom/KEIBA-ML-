@@ -146,8 +146,11 @@ def main():
                reference_observed_at_utc=baseline.get("observed_at_client_utc"),
                reference_html_sha256=baseline.get("source_sha256"))
  print("CHANGE_GUARD_RESULT "+json.dumps(report,ensure_ascii=False))
+ # Fail closed: a consuming workflow MUST NOT continue on stale predictions.
+ if report["prediction_invalidated"]:return 2
+ return 0
 if __name__=="__main__":
- try:main()
+ try:sys.exit(main())
  except Exception as e:
   print("CHANGE_GUARD_BLOCKED "+json.dumps({"status":"BLOCKED_SOURCE_UNVERIFIED","reason":type(e).__name__+":"+str(e)},ensure_ascii=False))
   sys.exit(2)
