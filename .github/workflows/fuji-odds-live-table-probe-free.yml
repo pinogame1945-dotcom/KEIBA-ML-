@@ -1,0 +1,21 @@
+name: Fuji JRA Live Odds Real Table Probe - Free CPU
+on:
+  push:
+    branches: [audit/fuji-odds-on-sale-20261016-1904]
+    paths:
+      - scripts/fuji_odds_live_table_probe_20261016.py
+      - .github/workflows/fuji-odds-live-table-probe-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  probe:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - run: python scripts/fuji_odds_live_table_probe_20261016.py
