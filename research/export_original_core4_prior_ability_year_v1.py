@@ -51,8 +51,11 @@ def build(source, year, expected_rows, first,last,output_folder):
     ensure(train["_is_win"].isin([0,1]).all() and
            train["_is_top3"].isin([0,1]).all(),
            "SOURCE_TRAIN_LABELS_INVALID")
-    ensure(train.groupby("_race_id")["_is_win"].sum().eq(1).all(),
-           "SOURCE_TRAIN_WINNER_COVERAGE_DRIFT")
+    # Exact frozen read_year accepts >=1 winner per race. Do not reject
+    # legitimate dead heats (multiple horses both credited with first).
+    winners=train.groupby("_race_id")["_is_win"].sum()
+    ensure(winners.ge(1).all(),"SOURCE_TRAIN_WINNER_COVERAGE_DRIFT")
+    multiple_winner_races=int(winners.gt(1).sum())
     schema_sha=hashlib.sha256(json.dumps(model_keys,separators=(",",":")).encode()).hexdigest()
     # Derived file ephemeral in the current free standard CPU runner only.
     dest=folder/f"original-core4-train-{year}.csv.gz"
@@ -61,6 +64,7 @@ def build(source, year, expected_rows, first,last,output_folder):
         "contract":"ORIGINAL_FROZEN_ABILITY_CORE4_TRAIN_YEAR_SCHEMA_V1",
         "year":year,"source_snapshot_rows":rows,
         "training_horse_rows":len(train),"training_races":int(train["_race_id"].nunique()),
+        "multi_winner_races_preserved_per_original":multiple_winner_races,
         "exact_original_read_year_used":True,
         "exact_original_strip_forbidden_used":True,
         "exact_original_select_variant_core4_used":True,
