@@ -1,4 +1,4 @@
-import sys,unittest
+import sys,unittest,csv,tempfile
 from pathlib import Path
 sys.path.insert(0,str(Path(__file__).resolve().parents[1]/"research"))
 import run_l2_ev_rank1_market75_same_stage_v1 as study
@@ -16,6 +16,19 @@ class SameStageTests(unittest.TestCase):
         a=study.read_original(path)
         self.assertEqual(len(a),3040)
         self.assertTrue(all(set(r)==set(study.YEARS) for r in a.values()))
+
+    def test_rank_comparison_csv_accepts_existing_years_column(self):
+        first=dict(ev_rank=1,adopted_method="MARKET_75",purchased_tickets=9)
+        second=dict(ev_rank=2,adopted_method="MARKET_25",
+                    purchased_tickets=18,years="2023-2025")
+        with tempfile.TemporaryDirectory() as tmp:
+            path=Path(tmp)/"comparison.csv"
+            study.csv_save(path,[first,second])
+            with path.open(encoding="utf-8",newline="") as fh:
+                rows=list(csv.DictReader(fh))
+            self.assertEqual(rows[0]["purchased_tickets"],"9")
+            self.assertEqual(rows[1]["years"],"2023-2025")
+            self.assertEqual(rows[0]["years"],"")
 
     def test_common_january_excluded(self):
         self.assertFalse(study.ev.pruning_eval_eligible(2023,"2023-01-29"))
