@@ -1,0 +1,58 @@
+name: Phase1 Oct10 Original L17 Sources Preflight Free CPU
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths: [.github/workflows/p4-20261010-original-l17-sources-preflight-freecpu.yml]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-sources:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Validate only source provenance without any new storage
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install -q --disable-pip-version-check --no-cache-dir kaggle
+          python scripts/verify_keiba_l2_1_freeze.py
+      - name: Check exact original 2025 trained seven king model, metadata and schema references
+        run: |
+          set -euo pipefail
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            echo "L17_ORIGINAL_KING_MODEL_REFERENCE $alias $ref"
+            remote="$(kaggle datasets files "$ref" --page-size 200 --format 'json(name,size)')"
+            RAW="$remote" ALIAS="$alias" python - <<'PY'
+          import json,os
+          records=json.loads(os.environ["RAW"])
+          names={str(x.get("name") or "").split("/")[-1] for x in records}
+          must={"model.txt","model.json","schema.json","score.jsonl.gz"}
+          missing=must-names
+          if missing: raise SystemExit("ORIGINAL_2025_KING_MODEL_MISSING_"+os.environ["ALIAS"]+":"+str(sorted(missing)))
+          print("L17_ORIGINAL_KING_MODEL_AVAILABLE",os.environ["ALIAS"],sorted(must),flush=True)
+          PY
+          done
+      - name: Check frozen 2021-2025 7King plus Outsider p3 calibration sources
+        run: |
+          set -euo pipefail
+          git fetch --quiet --no-tags --depth 1 origin 0200a8b31d1ea3f4830b9b5357cb8e593d486a56
+          git show FETCH_HEAD:research-results/l17-to-l2-signal-v1/run-36747215581/deployment-model.json > "$RUNNER_TEMP/deployment-model.json"
+          python - <<'PY'
+          import json,os,pathlib
+          obj=json.loads((pathlib.Path(os.environ["RUNNER_TEMP"])/"deployment-model.json").read_text())
+          assert obj["contract"]=="L17_KING_OUTSIDER_PODIUM_CALIBRATOR_MODEL_V1"
+          assert obj["training_years"]==[2021,2022,2023,2024,2025]
+          assert len(obj["coef"])==31
+          print("L17_ORIGINAL_P3_DEPLOYMENT_MODEL_AVAILABLE",obj["contract"],obj["training_years"],flush=True)
+          PY
+      - name: Report phase1 source availability without claiming 2026 inference
+        run: |
+          echo "PHASE1_L17_SOURCES_VALIDATED_NO_2026_PREDICTIONS_NO_ARTIFACT_NO_CHARGEABLE_STORAGE"
