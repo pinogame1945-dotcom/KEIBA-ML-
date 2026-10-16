@@ -1,29 +1,29 @@
 {
   "contract": "JRA_20261017_ALL_RACES_SOURCE_MANIFEST_V1",
   "day": "2026-10-17",
-  "generated_at_utc": "2026-10-16T12:03:16.732277+00:00",
+  "generated_at_utc": "2026-10-16T12:05:14.078379+00:00",
   "race_count_expected": 36,
   "discovery_verified": true,
   "actual_races_processed": 3,
   "discovery_meta": {
     "root": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22",
-      "sha256": "663902a8823a25b69e08ec6d52f0851ea301af6d52c6f85bd029b3d41168ac3c",
+      "sha256": "25650a876174257f103bcae0d54b676619bb538f926f68e15a89b669783feb72",
       "bytes": 217174,
-      "http_date": "Fri, 16 Oct 2026 12:03:11 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:05:10 GMT"
     },
     "index": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html",
       "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
       "bytes": 87828,
-      "http_date": "Fri, 16 Oct 2026 12:03:13 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:05:11 GMT"
     },
     "venues": {
       "05": {
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
         "bytes": 87828,
-        "http_date": "Fri, 16 Oct 2026 12:03:14 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:05:12 GMT",
         "venue_code": "05",
         "selection_cname": "pw01drl00052026040620261017/2F"
       },
@@ -31,7 +31,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "a008e5a049afedf1150523ee7f1c504482c5ab58c127fb6026b2d93539d0736c",
         "bytes": 86413,
-        "http_date": "Fri, 16 Oct 2026 12:03:15 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:05:13 GMT",
         "venue_code": "08",
         "selection_cname": "pw01drl00082026040620261017/0D"
       },
@@ -39,7 +39,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "17a80c7fd4228279d329208a127aa6355e7cf8579737cefe6edf2ee048554acf",
         "bytes": 86091,
-        "http_date": "Fri, 16 Oct 2026 12:03:16 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:05:13 GMT",
         "venue_code": "04",
         "selection_cname": "pw01drl00042026040120261017/A6"
       }
@@ -50,13 +50,11 @@
       "race_id": "202604040101",
       "venue": "新潟",
       "race_no": 1,
-      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-      "error": [
-        "HTTPError:HTTP Error 503: Service Unavailable"
-      ],
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
       "runner_count": 12,
-      "odds_quote_count": null,
-      "no_votes": null,
+      "odds_quote_count": 1614,
+      "no_votes": 246,
       "file": "audit-results/live-20261017/202604040101.json"
     },
     {
@@ -82,6 +80,6 @@
       "file": "audit-results/live-20261017/202604040103.json"
     }
   ],
-  "full_source_and_odds_verified": 2,
-  "blocked": 1
+  "full_source_and_odds_verified": 3,
+  "blocked": 0
 }
