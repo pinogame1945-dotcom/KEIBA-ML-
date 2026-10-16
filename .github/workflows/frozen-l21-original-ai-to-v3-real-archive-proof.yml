@@ -1,10 +1,12 @@
-name: Frozen L2.1 real original AI to L3 V3 historical replay - Free CPU
+name: Publish frozen L2.1 original AI and L3 V3 historical race JSON - Free CPU
 on:
   push:
     branches:
       - feature/l3-v3-official-github-producer-20261016
     paths:
       - research/replay_frozen_l21_to_l3_v3_historical.py
+      - scripts/publish_frozen_historical_races.py
+      - tests/test_publish_frozen_historical_races.py
       - .github/workflows/frozen-l21-original-ai-to-v3-real-archive-proof.yml
   workflow_dispatch:
     inputs:
@@ -14,7 +16,7 @@ on:
         required: true
         default: '202507010212,202506010102'
 permissions:
-  contents: read
+  contents: write
 jobs:
   replay-authentic-frozen-scores:
     runs-on: ubuntu-latest
@@ -31,7 +33,8 @@ jobs:
         run: |
           test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 1800000
           python3 scripts/verify_keiba_l2_1_freeze.py
-          python3 -m py_compile research/replay_frozen_l21_to_l3_v3_historical.py
+          python3 -m py_compile research/replay_frozen_l21_to_l3_v3_historical.py scripts/publish_frozen_historical_races.py
+          python3 -m unittest discover -s tests -p test_publish_frozen_historical_races.py -v
       - name: Obtain authentic frozen 2023-25 L2 source files once via GitHub metadata/SHA
         shell: bash
         run: |
@@ -65,18 +68,6 @@ jobs:
             args+=(--race "$rid")
           done
           root="$RUNNER_TEMP/frozen-l21-original"
-          secondary="$(python3 - "$root/known.csv.gz" <<'PY'
-          import csv,gzip,sys
-          with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
-              x=next(r["race_id"] for r in csv.DictReader(f) if r["year"]=="2025")
-          print(x)
-          PY
-          )"
-          found=0
-          for requested_id in "${selected_ids[@]}"; do
-            if [ "${requested_id//[[:space:]]/}" = "$secondary" ]; then found=1; break; fi
-          done
-          if [ "$found" = 0 ]; then args+=(--race "$secondary"); fi
           python3 research/replay_frozen_l21_to_l3_v3_historical.py \
             "${args[@]}" --frozen-oos "$root/original-oos.csv.gz" \
             --frozen-picks "$root/original-picks.csv.gz" \
@@ -85,15 +76,15 @@ jobs:
             --frozen-unknown-p3-tickets "$root/unknown.csv.gz" \
             --race-budget-yen 20000 --paper-bankroll-yen 100000 \
             --output "$root/real-frozen-replay.json"
-          python3 - "$root/real-frozen-replay.json" "$secondary" <<'PY'
+          python3 - "$root/real-frozen-replay.json" "${#selected_ids[@]}" <<'PY'
           import json,sys
           r=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert len(r["races"])==int(sys.argv[2]), "REQUESTED_RACES_WERE_NOT_REPLAYED"
           assert r["source_phase"]=="FINAL_RESEARCH_ARCHIVED_NOT_AT_BET_CUTOFF"
           assert not r["genuinely_prebet_validated"]
           assert not r["year_2026_results_read"]
           assert r["historical_2023_2025_L2_selection_was_hindsight"]
           assert r["rankings_source"]=="ORIGINAL_FROZEN_OOS_SCORES"
-          assert any(q["race_id"]==sys.argv[2] and q["frozen_physical_ticket_count"]>0 for q in r["races"])
           for q in r["races"]:
               assert q["rankings"]["value_ev"][0]["horse_id"]==q["original_anchor_horse_id"]
               assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["value_ev"])
@@ -102,3 +93,13 @@ jobs:
               assert q["frozen_physical_ticket_count"]==len(q["tickets"]) or q["status"]=="HISTORICAL_V3_SAME_DAY_NOT_FUNDED"
           print("FROZEN_L21_REAL_RANK_RISK_ANCHOR_13479_TICKET_V3_REPLAY_PASS")
           PY
+
+      - name: Publish immutable per-race historical display JSON to a free Git data branch
+        if: ${{ github.repository == 'pinogame1945-dotcom/KEIBA-ML-' && github.ref == 'refs/heads/feature/l3-v3-official-github-producer-20261016' }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l21-original"
+          python3 scripts/publish_frozen_historical_races.py --input "$root/real-frozen-replay.json" --dry-run
+          python3 scripts/publish_frozen_historical_races.py --input "$root/real-frozen-replay.json"
+          echo "Only historical (FINAL odds) research data were published; NO live predictions, purchases, billed artifacts or caches."
