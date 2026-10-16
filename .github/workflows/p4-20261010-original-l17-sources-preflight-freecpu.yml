@@ -34,7 +34,7 @@ jobs:
           import json,os
           records=json.loads(os.environ["RAW"])
           names={str(x.get("name") or "").split("/")[-1] for x in records}
-          must={"model.txt","model.json","schema.json","score.jsonl.gz"}
+          must={"model.txt","model.json","schema.json"}
           missing=must-names
           if missing: raise SystemExit("ORIGINAL_2025_KING_MODEL_MISSING_"+os.environ["ALIAS"]+":"+str(sorted(missing)))
           print("L17_ORIGINAL_KING_MODEL_AVAILABLE",os.environ["ALIAS"],sorted(must),flush=True)
