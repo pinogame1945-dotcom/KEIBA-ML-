@@ -72,7 +72,8 @@ jobs:
             --manifest-rows "$expected_rows" \
             --manifest-min-date "$expected_min" \
             --manifest-max-date "$expected_max" \
-            --output "$RUNNER_TEMP/keiba-cold-target/target-unscored.json"
+            --output "$RUNNER_TEMP/keiba-cold-target/target-unscored.json" \
+            --final-output "$RUNNER_TEMP/keiba-cold-target/target-unscored-final-stage.json"
           python3 - <<'PY'
           import json,os,pathlib,re
           root=pathlib.Path(os.environ["RUNNER_TEMP"])/"keiba-cold-target"
@@ -112,4 +113,29 @@ jobs:
           assert d["target_prediction_available"] is False
           print("USER_SELECTED_TARGET_ORIGINAL_CORE4_SCHEMA_CONFIRMED",
                 d["core4_feature_count"],d["core4_feature_name_sha256"],flush=True)
+          PY
+      - name: Compare FINAL prestart stage with exact 2023-24 original training feature names
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 research/audit_blind_original_core4_features_v1.py \
+            --input "$RUNNER_TEMP/keiba-cold-target/target-unscored-final-stage.json" \
+            --output "$RUNNER_TEMP/keiba-cold-target/target-original-core4-final-stage.json"
+          python3 - <<'PY'
+          import json,os,pathlib
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"keiba-cold-target"
+          data=json.loads((root/"target-original-core4-final-stage.json").read_text())
+          stage=json.loads((root/"target-unscored-final-stage.json").read_text())
+          prior_sha="eb3392b725560e77d46b28aef036b6188814125ed8f7a3bfde0c53522dbadf58"
+          same=data["core4_feature_name_sha256"]==prior_sha
+          assert stage["source_prediction_phase"]=="FINAL_PRESTART_PROJECTED_FROM_HISTORICAL_SNAPSHOT"
+          assert stage["used_results_payouts_final_odds"] is False
+          assert data["target_result_or_final_odds_used"] is False
+          assert data["horses"]==17
+          print("BLIND_REAL_FINAL_PRESTART_VS_ORIGINAL_2023_2024_CORE4",
+                "target_features",data["core4_feature_count"],
+                "prior_features",649,"exact_feature_names_match",same,
+                "target_sha",data["core4_feature_name_sha256"],
+                "prior_sha",prior_sha,
+                "history_and_asof_still_NOT_VERIFIED",True,flush=True)
           PY
