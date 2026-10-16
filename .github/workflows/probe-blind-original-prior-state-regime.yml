@@ -14,12 +14,14 @@ on:
       - research/export_original_prior_oos_market_teacher_v1.py
       - research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py
       - research/bridge_blind_original_l1_to_l175_v1.py
+      - research/run_fresh_202505050812_historical_final_l21_v3_v1.py
+      - scripts/publish_fresh_historical_202505050812_mobile_v1.py
       - tests/test_blind_target_seq_regime_parity_v1.py
       - .github/workflows/probe-blind-original-prior-state-regime.yml
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
 
 jobs:
   blind-state-regime:
@@ -218,3 +220,57 @@ jobs:
                 "blocked_reasons",",".join(a["blocked_reasons"]),
                 "no_synthetic_quotes_entered_real_pipeline",True,flush=True)
           PY
+
+      - name: Real 17-horse historical FINAL odds -> 2025 ANCHOR_FULL -> frozen L2.1 -> V3
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          bash scripts/build_original_anchor_2025_params_github.sh "$root/anchor-params"
+          python3 scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/daily/2025-11-30.jsonl.gz \
+            --dest "$root/2025-11-30-day.jsonl.gz" --max-bytes 200000
+          python3 scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/odds/daily/2025-11-30.jsonl.gz \
+            --dest "$root/2025-11-30-final-odds.jsonl.gz" --max-bytes 1000000
+          python3 research/run_fresh_202505050812_historical_final_l21_v3_v1.py \
+            --bridge "$root/BLIND-202505050812-L1-RISK-DOWNSTREAM-BLOCKED.json" \
+            --historical-day-pack "$root/2025-11-30-day.jsonl.gz" \
+            --historical-odds-pack "$root/2025-11-30-final-odds.jsonl.gz" \
+            --original-anchor-parameters "$root/anchor-params/original-prior-anchor-asof-params.json" \
+            --paper-race-budget-yen 20000 \
+            --output "$root/FRESH-202505050812-L1-L21-L3-MOBILE.json"
+          python3 - "$root/FRESH-202505050812-L1-L21-L3-MOBILE.json" <<'PY'
+          import json,sys
+          d=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert d["contract"]=="KEIBA_FRESH_HISTORICAL_L1_L21_L3_MOBILE_V1"
+          assert d["started_horse_count"]==17
+          assert len(d["horses"])==17
+          assert d["race_entry_count"]==18 and len(d["scratched"])==1
+          assert d["source_price_phase"]=="NETKEIBA_FINAL_POSTRACE"
+          assert d["original_l2_1_standard_line_gate_count"]==50
+          assert d["original_l3_v3_policy"]=="REVERSE_P3_RACE_MAX300"
+          assert d["l3_p3_provenance"]=="UNKNOWN_NO_INVENTED_P3"
+          assert d["fresh_original_ability_risk_used"]
+          assert not d["historical_saved_2025_oos_scores_used"]
+          assert not d["historical_saved_l21_tickets_used"]
+          assert not d["is_live_or_purchase_ready"]
+          assert d["l3_v3_paper_stake_yen"]==sum(x["stake_yen"] for x in d["tickets"])
+          print("FRESH_17_HORSE_FROM_RACE_ID_TO_ORIGINAL_L3_V3_COMPLETE",
+                "race",d["race_id"],"tickets",d["bet_count"],
+                "L3_paper_yen",d["l3_v3_paper_stake_yen"],
+                "original_p3_not_yet_available",True,flush=True)
+          PY
+
+      - name: Publish new 17-horse L3 historical JSON to existing free public mobile data branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          file="$root/FRESH-202505050812-L1-L21-L3-MOBILE.json"
+          python3 scripts/publish_fresh_historical_202505050812_mobile_v1.py --input "$file" --dry-run
+          python3 scripts/publish_fresh_historical_202505050812_mobile_v1.py --input "$file"
+          echo "MOBILE_FRESH_17_HORSE_HISTORICAL_JSON historical-new/2025/202505050812.json"
+          echo "FINAL_RESEARCH_ONLY_NO_LIVE_BET_OR_FABRICATED_P3"
