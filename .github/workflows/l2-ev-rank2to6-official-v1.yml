@@ -6,6 +6,8 @@ on:
       - research/l2-ev-rank2to6-all-odds-official-20261016
     paths:
       - .github/workflows/l2-ev-rank2to6-official-v1.yml
+      - research/run_l2_ev_rank2to6_official_v1.py
+      - tests/test_l2_ev_rank2to6_official_v1.py
   workflow_dispatch:
 
 permissions:
