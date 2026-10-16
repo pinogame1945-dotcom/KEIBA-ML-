@@ -5,6 +5,7 @@ on:
     branches: [audit/2026-feature-input-phase1-20261016]
     paths:
       - research/audit_2026_generated_core4_v1.py
+      - research/audit_2026_race_gaps_and_extra41_v1.py
       - .github/workflows/audit-2026-original-core4-generation-phase2.yml
   workflow_dispatch:
 
@@ -99,5 +100,8 @@ jobs:
           python3 research/audit_2026_generated_core4_v1.py \
             --snapshot-2025 "$folder/snapshot-2025.jsonl.gz" \
             --snapshot-2026 "$folder/snapshot-2026.jsonl.gz"
+          python3 research/audit_2026_race_gaps_and_extra41_v1.py \
+            --snapshot-2026 "$folder/snapshot-2026.jsonl.gz" \
+            --cutoff-last-day 2026-10-12
           echo "P2_FINISHED_ONLY_EPHEMERAL_SOURCE_AND_DERIVED_SNAPSHOTS"
           du -h "$folder/snapshot-2025.jsonl.gz" "$folder/snapshot-2026.jsonl.gz"
