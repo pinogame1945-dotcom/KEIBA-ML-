@@ -1,0 +1,22 @@
+name: Fuji JRA All 8 Real Odds Parser - Free CPU
+on:
+  push:
+    branches: [audit/fuji-jra-onsale-odds-20261016]
+    paths:
+      - scripts/fuji_jra_8odds_extract_20261016.py
+      - .github/workflows/fuji-jra-8real-odds-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit_eight_types:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python -m pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Read official eight real JRA odds types and validate every combination
+        run: python scripts/fuji_jra_8odds_extract_20261016.py
