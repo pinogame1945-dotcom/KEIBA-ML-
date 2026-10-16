@@ -106,7 +106,17 @@ def load_picks(path, requested):
     return picks
 
 
-def load_original_horses(path,requested):
+def load_original_horses(path,ability_cache,requested):
+    # Saved 2025 OOS compact predictions intentionally omit distill_score_z;
+    # recover it from the original frozen fair-base cache by exact two-key join.
+    # Never infer ability from rank, 7 kings, or any 2026 targets.
+    z_by_pair={}
+    for h in stream(ability_cache):
+        rid=str(h.get("_race_id",""))
+        if rid not in requested: continue
+        k=(rid,str(h.get("_horse_id","")))
+        if k in z_by_pair: raise ValueError("FROZEN_ABILITY_Z_DUPLICATE")
+        z_by_pair[k]=finite(h.get("distill_score_z"),"ORIGINAL_ABILITY_Z",-10000,10000)
     groups=defaultdict(list)
     date_by_race={}
     for r in stream(path):
@@ -123,8 +133,10 @@ def load_original_horses(path,requested):
         rank=int(finite(r.get("distill_ai_rank"),"ORIGINAL_AI_RANK",1,24))
         mr=int(finite(r.get("market_rank"),"ORIGINAL_MARKET_RANK",1,24))
         risk=finite(r.get("risk"),"ORIGINAL_RISK",0,1)
-        score=finite(r.get("distill_score_z"),"ORIGINAL_ABILITY_Z",-10000,10000)
         hid=str(r.get("_horse_id",""))
+        if (rid,hid) not in z_by_pair:
+            raise ValueError("FROZEN_ABILITY_Z_JOIN_MISSING")
+        score=z_by_pair[(rid,hid)]
         if not hid or any(x["horse_id"]==hid for x in groups[rid]):
             raise ValueError("OOS_DUPLICATE_HORSE_ID")
         groups[rid].append(dict(horse_id=hid,
@@ -134,10 +146,14 @@ def load_original_horses(path,requested):
                                 value=p*odds))
     if set(groups)!=set(requested):
         raise ValueError("OOS_REQUESTED_RACE_NOT_FOUND")
+    for rid in requested:
+        if set(h["horse_id"] for h in groups[rid])!=set(
+            hid for rr,hid in z_by_pair if rr==rid):
+            raise ValueError("FROZEN_OOS_ABILITY_HORSE_SET_DRIFT")
     return groups,date_by_race
 
 
-def run(ids,known,missing,oos,picks,race_budget_yen,bankroll_yen):
+def run(ids,known,missing,oos,picks,ability_cache,race_budget_yen,bankroll_yen):
     requested=[checked_id(x) for x in ids]
     if len(requested)!=len(set(requested)) or not requested:
         raise ValueError("EMPTY_OR_DUPLICATE_RACE_IDS")
@@ -148,7 +164,7 @@ def run(ids,known,missing,oos,picks,race_budget_yen,bankroll_yen):
     portfolios=source_rows(known,missing)
     selected=set(requested)
     axes=load_picks(picks,selected)
-    horses,dates=load_original_horses(oos,selected)
+    horses,dates=load_original_horses(oos,ability_cache,selected)
     day_races=defaultdict(list)
     output=[]
     for rid in requested:
@@ -236,6 +252,7 @@ def main():
     p.add_argument("--race",action="append",required=True)
     p.add_argument("--frozen-oos",required=True)
     p.add_argument("--frozen-picks",required=True)
+    p.add_argument("--frozen-ability-cache",required=True)
     p.add_argument("--frozen-known-p3-tickets",required=True)
     p.add_argument("--frozen-unknown-p3-tickets",required=True)
     p.add_argument("--race-budget-yen",type=int,default=20000)
@@ -243,7 +260,7 @@ def main():
     p.add_argument("--output",required=True)
     a=p.parse_args()
     data=run(a.race,a.frozen_known_p3_tickets,a.frozen_unknown_p3_tickets,
-             a.frozen_oos,a.frozen_picks,a.race_budget_yen,a.paper_bankroll_yen)
+             a.frozen_oos,a.frozen_picks,a.frozen_ability_cache,a.race_budget_yen,a.paper_bankroll_yen)
     target=Path(a.output)
     target.parent.mkdir(parents=True,exist_ok=True)
     target.write_text(json.dumps(data,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
