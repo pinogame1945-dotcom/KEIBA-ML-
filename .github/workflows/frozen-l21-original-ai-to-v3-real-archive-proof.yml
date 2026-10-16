@@ -72,9 +72,11 @@ jobs:
           print(x)
           PY
           )"
-          if ! printf '%s\n' "${selected_ids[@]}" | tr -d '[:space:]' | tr ',' '\n' | grep -Fxq "$secondary"; then
-            args+=(--race "$secondary")
-          fi
+          found=0
+          for requested_id in "${selected_ids[@]}"; do
+            if [ "${requested_id//[[:space:]]/}" = "$secondary" ]; then found=1; break; fi
+          done
+          if [ "$found" = 0 ]; then args+=(--race "$secondary"); fi
           python3 research/replay_frozen_l21_to_l3_v3_historical.py \
             "${args[@]}" --frozen-oos "$root/original-oos.csv.gz" \
             --frozen-picks "$root/original-picks.csv.gz" \
