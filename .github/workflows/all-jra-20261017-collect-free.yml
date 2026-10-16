@@ -12,7 +12,7 @@ permissions:
 jobs:
   collect:
     runs-on: ubuntu-latest
-    timeout-minutes: 18
+    timeout-minutes: 45
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
@@ -21,15 +21,30 @@ jobs:
       - run: pip install --no-cache-dir beautifulsoup4==4.14.3
       - name: Verify arbitrary field sizes and race IDs
         run: python -m unittest discover -s tests -p 'test_all_jra_20261017_collect.py' -v
-      - name: Pilot collect published JRA links, race cards, and odds (three races)
-        run: python scripts/all_jra_20261017_collect.py --limit 3
+      - name: Collect 36 official JRA races and 8 bet types, preserve per-race BLOCKED states
+        id: collect
+        continue-on-error: true
+        run: python scripts/all_jra_20261017_collect.py --limit 36
       - name: Commit source snapshots and per-race manifest on isolated branch
-        if: success()
+        if: steps.collect.outcome == 'success' || steps.collect.outcome == 'failure'
         run: |
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
           git add -f audit-results/live-20261017
           if ! git diff --cached --quiet; then
-            git commit -m "audit: JRA 2026-10-17 live-source pilot snapshots [skip ci]"
+            git commit -m "audit: JRA 2026-10-17 official 36-race odds and cards snapshot [skip ci]"
             git push origin HEAD:refs/heads/audit/all-jra-races-20261017
           fi
+
+      - name: Verify full collection, fail closed for blocked races
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("audit-results/live-20261017/manifest.json")
+          m=json.loads(p.read_text("utf-8"))
+          print("JRA_36_RACE_FINAL_COUNTS",m["race_count_expected"],m["actual_races_processed"],m["full_source_and_odds_verified"],m["blocked"])
+          assert m["race_count_expected"]==36 and m["actual_races_processed"]==36
+          assert m["full_source_and_odds_verified"]+m["blocked"]==36
+          assert m["blocked"]==0,"One or more races are BLOCKED; inspect saved manifest"
+          PY
