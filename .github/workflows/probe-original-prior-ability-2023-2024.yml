@@ -1,0 +1,79 @@
+name: Original 2023-24 ability training schema from actual snapshots - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - research/export_original_core4_prior_ability_year_v1.py
+      - scripts/fetch_original_core4_prior_year_snapshot.sh
+      - .github/workflows/probe-original-prior-ability-2023-2024.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-prior-ability:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      L1_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Strict free CPU and frozen L2.1 checks
+        run: |
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 4500000
+          bash -n scripts/fetch_original_core4_prior_year_snapshot.sh
+          python3 -m py_compile research/export_original_core4_prior_ability_year_v1.py
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          echo "FREE_CPU_EPHEMERAL_ONLY_NO_ARTIFACT_OR_CACHE"
+      - name: Install pinned original source environment
+        run: |
+          python3 -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python3 -m pip install --disable-pip-version-check kaggle
+      - name: One session fetch 2023 then 2024, discard raw after original CORE4 projection
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          root="$RUNNER_TEMP/original-2023-2024"
+          mkdir -p "$root"
+          for y in 2023 2024; do
+            bash scripts/fetch_original_core4_prior_year_snapshot.sh "$y" "$root" | tee "$root/fetch-$y.log"
+            filename="$(tail -n 1 "$root/fetch-$y.log")"
+            test -s "$filename"
+            IFS="$(printf '\t')" read -r manifest_y logical remote mode sha expected_rows expected_first expected_last < "$root/resolved-$y.tsv"
+            test "$manifest_y" = "$y"
+            python3 research/export_original_core4_prior_ability_year_v1.py \
+              --year "$y" --input "$filename" --expected-rows "$expected_rows" \
+              --expected-min "$expected_first" --expected-max "$expected_last" \
+              --out "$root"
+            # Keep only derived files within this free runner. Never upload
+            # to GitHub Artifacts/Cache, Kaggle, another cloud, or models/promoted.
+            rm -f "$filename"
+            echo "ORIGINAL_PRIOR_YEAR_RAW_REMOVED_AFTER_SESSION_REUSE year=$y"
+          done
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib,hashlib
+          d=pathlib.Path(sys.argv[1])
+          a=json.loads((d/"original-core4-train-2023-schema.json").read_text())
+          b=json.loads((d/"original-core4-train-2024-schema.json").read_text())
+          assert a["year"]==2023 and b["year"]==2024
+          assert a["training_labels_are_past_only"] and b["training_labels_are_past_only"]
+          union=sorted(set(a["feature_names"])|set(b["feature_names"]))
+          sha=hashlib.sha256(json.dumps(union,separators=(",",":")).encode()).hexdigest()
+          target_key_sha="a31630d2ecbd9038c05d15ae71b766fae4178c47ba81730f25ae8ca8efcb2421"
+          print("BLIND_ORIGINAL_PRIOR_ABILITY_FEATURE_SCHEMA",
+                "2023",a["feature_name_count"],"2024",b["feature_name_count"],
+                "train_union",len(union),"training_sha256",sha,
+                "target_core4_202505050812_count",628,
+                "training_same_as_target",sha==target_key_sha,flush=True)
+          print("NOT_READY_TO_CLAIM_MODEL_PARITY_NO_STATE_BIAS_REGIME_OR_PRIOR_RISK_YET")
+          PY
