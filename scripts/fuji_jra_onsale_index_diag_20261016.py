@@ -16,8 +16,8 @@ s=BeautifulSoup(card,"html.parser")
 assert all(x in re.sub(r"\s+","",s.get_text(" ",strip=True)) for x in ("富士ステークス","2026年10月17日","4回東京6日"))
 links=m.links(s)
 print("OBSERVED_CARD_LINKS "+json.dumps(links,ensure_ascii=False))
-current={x["cname"] for x in links if x["label"]=="オッズ"}
-if len(current)!=1:raise ValueError("OFFICIAL_ODDS_LINK_NOT_UNIQUE")
+current={x["cname"] for x in links if x["label"]=="オッズ" and "20261017" in x["cname"]}
+if len(current)!=1:raise ValueError("OFFICIAL_RACE_SPECIFIC_ODDS_LINK_NOT_UNIQUE")
 cname=next(iter(current))
 html,meta=m.fetch(m.POST_URL,cname)
 soup=BeautifulSoup(html,"html.parser")
