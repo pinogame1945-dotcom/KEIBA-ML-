@@ -171,3 +171,70 @@ def validate_source(counted,expected,before,reference,rank):
     old=reference["adopted_portfolio"]
     expected_union=tuple(old[k] for k in ("n","hits","payout"))
     assert_ok(observed==expected_union,("prior pruned union changed",rank,observed,expected_union))
+
+def analyze(rank,source_meta,policy,black_lines,hist,events,before,coverage,out):
+    chosen,decisions=official.select_stable(hist,black_lines)
+    assert_ok(chosen["STABLE_STRICT"].issubset(chosen["STABLE_MEDIUM"]),
+              "frozen stability relation drift")
+    filtered=official.dedup_portfolios(events,chosen)
+    assert_ok(len(filtered)==12,"all years and policies missing")
+    before_rows=[]
+    for year in (*YEARS,"2023-2025"):
+        if year=="2023-2025":
+            st=official.new_counter()
+            for prior_st in before.values():
+                st["n"]+=prior_st["n"]
+                st["hits"]+=prior_st["hits"]
+                st["payout"]+=prior_st["payout"]
+        else:st=before[year]
+        before_rows.append(dict(ev_rank=rank,policy="PRUNED_BLACK_SOURCE",
+                                period=str(year),line_gate_pairs=0,
+                                unique_original_lines=len(black_lines),
+                                bought_races=None,hit_races=None,**official.metric(st)))
+    all_rows=before_rows+[dict(ev_rank=rank,**x) for x in filtered]
+    write_csv(out/"source_all_year_black_medium_strict_by_year.csv",all_rows)
+    audit=[dict(ev_rank=rank,fixed_pruner=policy,**d) for d in decisions]
+    write_csv(out/"full_17gate_stability_decisions.csv",audit)
+    accepted=[d for d in audit if d["medium_decision"]=="ACCEPT"]
+    write_csv(out/"accepted_medium_strict_line_gates.csv",accepted,
+              list(audit[0]) if audit else ["ev_rank","fixed_pruner","line","gate"])
+    totals={r["policy"]:r for r in all_rows if r["period"]=="2023-2025"}
+    result=dict(contract="EV_RANK2TO6_AFTER_PRUNE_STABLE_MEDIUM_STRICT_V1",
+        ev_rank=rank,adopted_pruner=policy,
+        source_run_id=38891800300,source_original_black_lines=len(black_lines),
+        pruning_source_counts_and_payouts_exactly_reconciled=True,
+        frozen_gates=list(GATES),frozen_rules=official.CONFIG,
+        accepted_line_gate_pairs={p:len(chosen[p]) for p in RULES},
+        accepted_original_lines={p:len({tid for tid,g in chosen[p]}) for p in RULES},
+        years=coverage,three_year_results=totals,
+        limits="Jan 2023 excluded common training-only; Feb-Dec 2023 + full 2024/25 scored",
+        pruning_policy_not_reselected=True,
+        same_sample_post_hoc_profit_selection=True,
+        final_historical_odds_not_bet_time_quotes=True,
+        frozen_L21_unchanged=True,year_2026_sealed=True)
+    (out/"summary.json").write_text(json.dumps(result,indent=2,ensure_ascii=False)+"\n")
+    print("EV_RANK_PRUNED_MEDIUM_STRICT_COMPLETE",
+          json.dumps({"rank":rank,"policy":policy,"accepted":result["accepted_line_gate_pairs"],
+                      "totals":totals},ensure_ascii=False),flush=True)
+
+def main():
+    p=argparse.ArgumentParser()
+    for a in ("rank","predictions","picks","racewise","backfill-root","winner-root","out-dir"):
+        p.add_argument("--"+a,required=True)
+    args=p.parse_args()
+    rank=int(args.rank)
+    assert_ok(rank in ev.RANKS,"rank must be 2..6")
+    meta,policy,black,expected=winners(Path(args.winner_root),rank)
+    output=Path(args.out_dir);output.mkdir(parents=True,exist_ok=True)
+    data,picks=ev.ranklab.load_predictions(args.predictions,args.picks)
+    races=pd.read_csv(args.racewise,compression="infer",
+                      dtype={"race_id":str,"VALUE_EV_horse":str,"AI_RAW_TOP_horse":str})
+    races["year"]=pd.to_numeric(races.year,errors="raise").astype(int)
+    assert_ok(len(races)==TOTAL_RACES and races.race_id.is_unique,"race source coverage")
+    assert_ok(set(races.year)==set(YEARS),"2026 sealed")
+    hist,events,counted,before,coverage=replay(
+        data,picks,races,Path(args.backfill_root),rank,policy,black)
+    validate_source(counted,expected,before,meta,rank)
+    analyze(rank,meta,policy,black,hist,events,before,coverage,output)
+
+if __name__=="__main__":main()
