@@ -39,7 +39,7 @@ def order_ev(g):
               "invalid EV score")
     seq=df.sort_values(["_ev_score","market_rank","_horse_id"],
                        ascending=[False,True,True],kind="mergesort")["_horse_id"].astype(str).tolist()
-    assert_ok(len(seq)==len(set(seq)) and len(seq)>=6,"EV rank coverage")
+    assert_ok(len(seq)==len(set(seq)) and len(seq)>=1,"EV rank uniqueness")
     return seq
 
 def counter():
@@ -109,6 +109,10 @@ def yearly_pass(data,picks,races,root,selected=None):
                 g_by_id=g.set_index("_horse_id")
                 within=defaultdict(dict)
                 for rank in RANKS:
+                    # Small-field races may have fewer than six starters.
+                    # Missing ranks are unavailable, not losing wagers.
+                    if rank>len(ev):
+                        continue
                     axis=ev[rank-1]
                     if first:
                         st=ranks[rank]
@@ -293,6 +297,7 @@ def main():
                       "rank1_red_to_pooled_black_lines":sum(r["red_to_pooled_black"] for r in baseline if r["ev_rank"]==rank)
                  } for rank in RANKS},
                  portfolios=pooled,
+                 observed_rank_races={str(rank):ranks[rank]["races"] for rank in RANKS},
                  all_ranks_physical_dedup=True,
                  per_rank_physical_dedup=True,
                  same_period_hindsight_selection_bias=True,
