@@ -1,0 +1,75 @@
+name: Phase3 Oct10 24 - Direct Frozen L2.1 L3 V3 Gate - Free CPU
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - .github/workflows/phase3-20261010-l3-direct-gate-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  direct-frozen-l3:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original 50 frozen L2.1 gates remain unchanged
+        run: python3 scripts/verify_keiba_l2_1_freeze.py
+      - name: Run actual frozen L2.1 to adopted V3 and bankroll integration regressions
+        run: |
+          set -euo pipefail
+          python3 -m unittest discover -s tests -p test_github_race_id_integration_v1.py -v
+          python3 -m unittest discover -s tests -p test_l3_v3_operational.py -v
+          python3 -m unittest discover -s tests -p test_github_original_anchor_source_v1.py -v
+          echo "DIRECT_REAL_L21_L3_V3_ALGORITHMS_PASS_WITH_TEST_FIXTURES_NOT_LIVE_2026"
+      - name: Check 2026 Oct10 historical full-day source-readiness WITHOUT simulating data or bypassing 2026 cutoff
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          import json
+          from pathlib import Path
+          from research import l3_v3_operational as v3
+          ids=[f"2026{venue}0403{n:02d}" for venue in ("05","08") for n in range(1,13)]
+          assert len(set(ids))==24
+          assert v3.POLICY=="REVERSE_P3_RACE_MAX300"
+          assert v3.SIGNALS=="KEIBA_L17_KING_OUTSIDER_P3_ASOF_V1"
+          assert v3.L21=="KEIBA_L21_PREBET_QUOTED_TICKETS_V1"
+          source=Path("docs/20261010_PHASE3_ALL_24_JRA_INPUT_AUDIT.md").read_text()
+          assert "315 starters" in source
+          for venue in ("05","08"):
+              assert f"2026{venue}040301" in source
+              assert f"2026{venue}040312" in source
+          actual_manifest=Path("source/verified-prebet/2026-10-10/manifest.json")
+          # No invented historical odds, no synthetic L17 king-outsider p3,
+          # no fabricated 2026 prestart capture and no special-case disabling
+          # the existing V3 guard against processing post-start 2026 events.
+          if actual_manifest.exists():
+              raise ValueError("REAL_PREBET_MANIFEST_AVAILABLE_REVIEW_REQUIRED")
+          report={
+              "contract":"KEIBA_20261010_L3_DIRECT_READINESS_V1",
+              "race_date":"2026-10-10",
+              "races_requested":24,
+              "known_2026_original_l1_single_ranker_run":"38893709145",
+              "original_7king_outsider_full_race_prediction_in_scope":False,
+              "original_anchor_full_asof_observed":False,
+              "actual_prebet_combination_odds_provided_to_this_run":False,
+              "genuine_original_l17_p3_provided_to_this_run":False,
+              "historical_2026_start_cutoff_passes_original_v3_live_gate":False,
+              "frozen_l21_v3_logic_regression_tested":True,
+              "v3_policy":"REVERSE_P3_RACE_MAX300",
+              "status":"BLOCKED_UPSTREAM_TRUE_PREBET_AND_ORIGINAL_MODELS_REQUIRED",
+              "no_outcome_or_final_odds_substituted":True,
+              "never_claimed_live_stakes":True,
+              "races":[{
+                  "race_id":rid, "status":"BLOCKED_UPSTREAM",
+                  "tickets":None, "stake_yen":None
+              } for rid in ids]
+          }
+          print("OCT10_ORIGINAL_L3_HONEST_GATE",json.dumps({
+              k:v for k,v in report.items() if k!="races"},
+              ensure_ascii=False,sort_keys=True))
+          assert len(report["races"])==24
+          PY
