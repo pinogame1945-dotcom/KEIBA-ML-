@@ -1,0 +1,70 @@
+name: EV1-6 Identical Ticket Agreement Detail Audit
+
+on:
+  push:
+    branches:
+      - research/l2-ev1to6-consensus-only-breakdown-20261017
+    paths:
+      - .github/workflows/l2-ev-rank1to6-consensus-only-breakdown-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1to6-consensus-only-breakdown-v1
+  cancel-in-progress: false
+
+jobs:
+  read-only-consensus:
+    name: Exact matched physical ticket rows and categories
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free CPU and regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank1to6-consensus-only-breakdown-v1.yml")
+          lines=p.read_text().splitlines()
+          assert [x.strip() for x in lines if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any("upload-artifact" in x or "actions/cache" in x
+                         for x in lines if x.strip().startswith("- uses:"))
+          print("FREE_STANDARD_CPU_NO_ARTIFACT_CACHE")
+          PY
+          python -m py_compile research/run_l2_ev_rank1to6_consensus_only_breakdown_v1.py
+          python -m unittest discover -s tests -p 'test_l2_ev_rank1to6_consensus_only_breakdown_v1.py' -v
+      - name: Reconcile frozen ticket lists and collect exact consensus only
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-rank1to6-consensus-only-breakdown-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_ev_rank1to6_consensus_only_breakdown_v1.py --out-dir "$out"
+          for file in summary.json consensus_vs_single_by_year.csv \
+              consensus_vs_single_by_ticket_type_and_year.csv \
+              consensus_exact_contributing_rank_sets.csv \
+              consensus_rank_pairwise_overlap.csv \
+              consensus_largest_30_winners.csv \
+              consensus_winning_payout_bands.csv \
+              base_consensus_physical.csv.gz \
+              all_year_black_consensus_physical.csv.gz; do
+            test -s "$out/$file"
+          done
+      - name: Commit audit outputs in research branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-rank1to6-consensus-only-breakdown-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$out"
+          git commit -m "research: 6 rank exact agreement-only tickets separated by type, year, rank pairs, payout"
+          git push origin "HEAD:$GITHUB_REF_NAME"
