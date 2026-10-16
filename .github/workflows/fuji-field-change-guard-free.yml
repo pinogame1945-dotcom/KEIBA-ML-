@@ -1,0 +1,25 @@
+name: Fuji Entry Change Guard - Free CPU
+on:
+  push:
+    branches: [audit/fuji-card-changes-source-integrity-20261016]
+    paths:
+      - scripts/fuji_change_guard_20261016.py
+      - tests/test_fuji_change_guard_20261016.py
+      - .github/workflows/fuji-field-change-guard-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  test_live_prebet_change_detection:
+    runs-on: ubuntu-latest
+    timeout-minutes: 6
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Verify no change, scratch, exclusion, replacement, jockey switch and conflicts
+        run: python -m unittest discover -s tests -p 'test_fuji_change_guard_20261016.py' -v
+      - name: Compare fresh real Fuji card to stored 14-runner baseline
+        run: python scripts/fuji_change_guard_20261016.py
