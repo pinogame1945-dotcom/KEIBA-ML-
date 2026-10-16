@@ -69,8 +69,8 @@ class OriginalAnchorGithub(unittest.TestCase):
             sorted(h["distill_ai_rank"] for h in horses),list(range(1,9)))
         self.assertEqual(len(entry.ANCHOR.MODEL.FEATURES),19)
         self.assertEqual(model["source_win_market_capture_at"],TIME)
-        self.assertEqual(model["model_full_probs"]["anchor_computed_at"],
-                         FAKE_TIME.isoformat())
+        self.assertEqual(dt.datetime.fromisoformat(
+            model["model_full_probs"]["anchor_computed_at"]),FAKE_TIME)
         l2=entry.L21.execute(card,model["model_full_probs"],quotes)
         self.assertEqual(l2["frozen_policy"],"KEIBA_L2_1_FIXED_PURCHASE_V1")
         self.assertEqual(l2["status"],"PAPER_ONLY_PREBET_QUOTE_VALIDATED")
