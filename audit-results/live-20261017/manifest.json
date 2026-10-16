@@ -1,29 +1,29 @@
 {
   "contract": "JRA_20261017_ALL_RACES_SOURCE_MANIFEST_V1",
   "day": "2026-10-17",
-  "generated_at_utc": "2026-10-16T12:18:41.701731+00:00",
+  "generated_at_utc": "2026-10-16T12:28:33.158416+00:00",
   "race_count_expected": 36,
   "discovery_verified": true,
   "actual_races_processed": 36,
   "discovery_meta": {
     "root": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22",
-      "sha256": "fab604c5b7a676ef258b94378458f0f445848561f0e1eed5b3eff8371808f57d",
+      "sha256": "31a0a324e5aa8bb38678587bf5d9b853899214e4e7f41e426f54da1c8d7e8903",
       "bytes": 217174,
-      "http_date": "Fri, 16 Oct 2026 12:18:38 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:28:30 GMT"
     },
     "index": {
       "url": "https://www.jra.go.jp/JRADB/accessD.html",
       "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
       "bytes": 87828,
-      "http_date": "Fri, 16 Oct 2026 12:18:39 GMT"
+      "http_date": "Fri, 16 Oct 2026 12:28:31 GMT"
     },
     "venues": {
       "05": {
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "7f8760952eeb7ee9fc27b6c3d5ab5fe3a025bf96d1ecc82a35ff548eaaa1cb38",
         "bytes": 87828,
-        "http_date": "Fri, 16 Oct 2026 12:18:40 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:28:31 GMT",
         "venue_code": "05",
         "selection_cname": "pw01drl00052026040620261017/2F"
       },
@@ -31,7 +31,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "a008e5a049afedf1150523ee7f1c504482c5ab58c127fb6026b2d93539d0736c",
         "bytes": 86413,
-        "http_date": "Fri, 16 Oct 2026 12:18:41 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:28:32 GMT",
         "venue_code": "08",
         "selection_cname": "pw01drl00082026040620261017/0D"
       },
@@ -39,7 +39,7 @@
         "url": "https://www.jra.go.jp/JRADB/accessD.html",
         "sha256": "17a80c7fd4228279d329208a127aa6355e7cf8579737cefe6edf2ee048554acf",
         "bytes": 86091,
-        "http_date": "Fri, 16 Oct 2026 12:18:41 GMT",
+        "http_date": "Fri, 16 Oct 2026 12:28:33 GMT",
         "venue_code": "04",
         "selection_cname": "pw01drl00042026040120261017/A6"
       }
@@ -53,8 +53,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 12,
-      "odds_quote_count": 1637,
-      "no_votes": 223,
+      "odds_quote_count": 1674,
+      "no_votes": 186,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040101.json"
     },
@@ -62,12 +62,14 @@
       "race_id": "202604040102",
       "venue": "新潟",
       "race_no": 2,
-      "status": "SOURCE_AND_ODDS_VERIFIED",
-      "error": [],
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "URLError:<urlopen error _ssl.c:993: The handshake operation timed out>"
+      ],
       "runner_count": 12,
-      "odds_quote_count": 1334,
-      "no_votes": 526,
-      "scratched": 0,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "scratched": null,
       "file": "audit-results/live-20261017/202604040102.json"
     },
     {
@@ -77,8 +79,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2484,
-      "no_votes": 1186,
+      "odds_quote_count": 2551,
+      "no_votes": 1119,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040103.json"
     },
@@ -89,8 +91,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 16,
-      "odds_quote_count": 2641,
-      "no_votes": 1827,
+      "odds_quote_count": 2713,
+      "no_votes": 1755,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040104.json"
     },
@@ -101,8 +103,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2277,
-      "no_votes": 1393,
+      "odds_quote_count": 2323,
+      "no_votes": 1347,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040105.json"
     },
@@ -113,8 +115,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2046,
-      "no_votes": 1624,
+      "odds_quote_count": 2162,
+      "no_votes": 1508,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040106.json"
     },
@@ -125,8 +127,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 1970,
-      "no_votes": 1700,
+      "odds_quote_count": 2027,
+      "no_votes": 1643,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040107.json"
     },
@@ -137,8 +139,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 18,
-      "odds_quote_count": 3132,
-      "no_votes": 3264,
+      "odds_quote_count": 3222,
+      "no_votes": 3174,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040108.json"
     },
@@ -149,8 +151,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 14,
-      "odds_quote_count": 1839,
-      "no_votes": 1135,
+      "odds_quote_count": 1863,
+      "no_votes": 1111,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040109.json"
     },
@@ -161,8 +163,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2184,
-      "no_votes": 1486,
+      "odds_quote_count": 2371,
+      "no_votes": 1299,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040110.json"
     },
@@ -173,8 +175,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 18,
-      "odds_quote_count": 4618,
-      "no_votes": 1778,
+      "odds_quote_count": 4782,
+      "no_votes": 1614,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040111.json"
     },
@@ -185,8 +187,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 18,
-      "odds_quote_count": 3323,
-      "no_votes": 3073,
+      "odds_quote_count": 3412,
+      "no_votes": 2984,
       "scratched": 0,
       "file": "audit-results/live-20261017/202604040112.json"
     },
@@ -197,8 +199,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 12,
-      "odds_quote_count": 1363,
-      "no_votes": 497,
+      "odds_quote_count": 1386,
+      "no_votes": 474,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040601.json"
     },
@@ -209,8 +211,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 10,
-      "odds_quote_count": 933,
-      "no_votes": 137,
+      "odds_quote_count": 943,
+      "no_votes": 127,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040602.json"
     },
@@ -221,8 +223,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 12,
-      "odds_quote_count": 1299,
-      "no_votes": 561,
+      "odds_quote_count": 1324,
+      "no_votes": 536,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040603.json"
     },
@@ -233,8 +235,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 18,
-      "odds_quote_count": 3014,
-      "no_votes": 3382,
+      "odds_quote_count": 3171,
+      "no_votes": 3225,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040604.json"
     },
@@ -242,26 +244,26 @@
       "race_id": "202605040605",
       "venue": "東京",
       "race_no": 5,
-      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-      "error": [
-        "ValueError:JRA_NETKEIBA_NUMBER_GATE_DIFFERENCE:[{\"horse\": \"ジェットシェヴロン\", \"field\": \"horse_number\", \"jra\": null, \"netkeiba\": 5}]"
-      ],
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
       "runner_count": 9,
-      "odds_quote_count": null,
-      "no_votes": null,
-      "scratched": null,
+      "odds_quote_count": 542,
+      "no_votes": 0,
+      "scratched": 237,
       "file": "audit-results/live-20261017/202605040605.json"
     },
     {
       "race_id": "202605040606",
       "venue": "東京",
       "race_no": 6,
-      "status": "SOURCE_AND_ODDS_VERIFIED",
-      "error": [],
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES:{\"BRACKET_QUINELLA\": \"21時29分現在\", \"EXACTA\": \"21時29分現在\", \"QUINELLA\": \"21時29分現在\", \"TRIFECTA\": \"20時15分現在\", \"TRIO\": \"21時29分現在\", \"WIDE\": \"21時29分現在\", \"WIN_PLACE\": \"21時29分現在\"}"
+      ],
       "runner_count": 18,
-      "odds_quote_count": 2938,
-      "no_votes": 3458,
-      "scratched": 0,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "scratched": null,
       "file": "audit-results/live-20261017/202605040606.json"
     },
     {
@@ -271,8 +273,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 11,
-      "odds_quote_count": 1206,
-      "no_votes": 222,
+      "odds_quote_count": 1218,
+      "no_votes": 210,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040607.json"
     },
@@ -280,42 +282,36 @@
       "race_id": "202605040608",
       "venue": "東京",
       "race_no": 8,
-      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-      "error": [
-        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
-      ],
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
       "runner_count": 9,
-      "odds_quote_count": null,
-      "no_votes": null,
-      "scratched": null,
+      "odds_quote_count": 730,
+      "no_votes": 49,
+      "scratched": 0,
       "file": "audit-results/live-20261017/202605040608.json"
     },
     {
       "race_id": "202605040609",
       "venue": "東京",
       "race_no": 9,
-      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-      "error": [
-        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
-      ],
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
       "runner_count": 12,
-      "odds_quote_count": null,
-      "no_votes": null,
-      "scratched": null,
+      "odds_quote_count": 1736,
+      "no_votes": 124,
+      "scratched": 0,
       "file": "audit-results/live-20261017/202605040609.json"
     },
     {
       "race_id": "202605040610",
       "venue": "東京",
       "race_no": 10,
-      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-      "error": [
-        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES"
-      ],
+      "status": "SOURCE_AND_ODDS_VERIFIED",
+      "error": [],
       "runner_count": 14,
-      "odds_quote_count": null,
-      "no_votes": null,
-      "scratched": null,
+      "odds_quote_count": 2164,
+      "no_votes": 810,
+      "scratched": 0,
       "file": "audit-results/live-20261017/202605040610.json"
     },
     {
@@ -325,8 +321,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 14,
-      "odds_quote_count": 2915,
-      "no_votes": 59,
+      "odds_quote_count": 2919,
+      "no_votes": 55,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040611.json"
     },
@@ -337,8 +333,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 14,
-      "odds_quote_count": 1863,
-      "no_votes": 1111,
+      "odds_quote_count": 1974,
+      "no_votes": 1000,
       "scratched": 0,
       "file": "audit-results/live-20261017/202605040612.json"
     },
@@ -349,8 +345,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 10,
-      "odds_quote_count": 969,
-      "no_votes": 101,
+      "odds_quote_count": 982,
+      "no_votes": 88,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040601.json"
     },
@@ -358,24 +354,28 @@
       "race_id": "202608040602",
       "venue": "京都",
       "race_no": 2,
-      "status": "SOURCE_AND_ODDS_VERIFIED",
-      "error": [],
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES:{\"BRACKET_QUINELLA\": \"21時27分現在\", \"EXACTA\": \"21時32分現在\", \"QUINELLA\": \"21時32分現在\", \"TRIFECTA\": \"21時32分現在\", \"TRIO\": \"21時27分現在\", \"WIDE\": \"21時27分現在\", \"WIN_PLACE\": \"21時27分現在\"}"
+      ],
       "runner_count": 11,
-      "odds_quote_count": 1211,
-      "no_votes": 217,
-      "scratched": 0,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "scratched": null,
       "file": "audit-results/live-20261017/202608040602.json"
     },
     {
       "race_id": "202608040603",
       "venue": "京都",
       "race_no": 3,
-      "status": "SOURCE_AND_ODDS_VERIFIED",
-      "error": [],
+      "status": "BLOCKED_SOURCE_OR_INTEGRITY",
+      "error": [
+        "ValueError:MIXED_JRA_SOURCE_UPDATE_TIMES:{\"EXACTA\": \"21時32分現在\", \"QUINELLA\": \"21時32分現在\", \"TRIFECTA\": \"21時32分現在\", \"TRIO\": \"21時32分現在\", \"WIDE\": \"21時32分現在\", \"WIN_PLACE\": \"21時28分現在\"}"
+      ],
       "runner_count": 8,
-      "odds_quote_count": 513,
-      "no_votes": 7,
-      "scratched": 0,
+      "odds_quote_count": null,
+      "no_votes": null,
+      "scratched": null,
       "file": "audit-results/live-20261017/202608040603.json"
     },
     {
@@ -385,8 +385,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 8,
-      "odds_quote_count": 515,
-      "no_votes": 5,
+      "odds_quote_count": 516,
+      "no_votes": 4,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040604.json"
     },
@@ -409,8 +409,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 16,
-      "odds_quote_count": 2320,
-      "no_votes": 2148,
+      "odds_quote_count": 2409,
+      "no_votes": 2059,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040606.json"
     },
@@ -421,8 +421,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 10,
-      "odds_quote_count": 825,
-      "no_votes": 245,
+      "odds_quote_count": 858,
+      "no_votes": 212,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040607.json"
     },
@@ -433,8 +433,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 7,
-      "odds_quote_count": 341,
-      "no_votes": 2,
+      "odds_quote_count": 342,
+      "no_votes": 1,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040608.json"
     },
@@ -445,8 +445,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 16,
-      "odds_quote_count": 2391,
-      "no_votes": 2077,
+      "odds_quote_count": 2448,
+      "no_votes": 2020,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040609.json"
     },
@@ -457,8 +457,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 9,
-      "odds_quote_count": 724,
-      "no_votes": 55,
+      "odds_quote_count": 733,
+      "no_votes": 46,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040610.json"
     },
@@ -469,8 +469,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 15,
-      "odds_quote_count": 2961,
-      "no_votes": 709,
+      "odds_quote_count": 3013,
+      "no_votes": 657,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040611.json"
     },
@@ -481,8 +481,8 @@
       "status": "SOURCE_AND_ODDS_VERIFIED",
       "error": [],
       "runner_count": 18,
-      "odds_quote_count": 3318,
-      "no_votes": 3078,
+      "odds_quote_count": 3448,
+      "no_votes": 2948,
       "scratched": 0,
       "file": "audit-results/live-20261017/202608040612.json"
     }

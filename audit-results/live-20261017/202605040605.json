@@ -13,21 +13,19 @@
     "jra_odds_cname": "pw151ouS305202604060520261017Z/47",
     "race_date": "2026-10-17"
   },
-  "captured_at_utc": "2026-10-16T12:20:59.894286+00:00",
+  "captured_at_utc": "2026-10-16T12:31:14.212425+00:00",
   "includes_results": false,
   "includes_final_odds": false,
   "models_executed": false,
   "backfill_history_features_computed": false,
-  "status": "BLOCKED_SOURCE_OR_INTEGRITY",
-  "errors": [
-    "ValueError:JRA_NETKEIBA_NUMBER_GATE_DIFFERENCE:[{\"horse\": \"ジェットシェヴロン\", \"field\": \"horse_number\", \"jra\": null, \"netkeiba\": 5}]"
-  ],
+  "status": "SOURCE_AND_ODDS_VERIFIED",
+  "errors": [],
   "netkeiba": {
     "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040605",
     "meta": {
-      "sha256": "8d9ad36a2bc79b404517e81a369c9b5ca452593fc1500ea576971bf6188602cb",
-      "http_date": "Fri, 16 Oct 2026 12:21:00 GMT",
-      "fetched_at_utc": "2026-10-16T12:21:00.775457+00:00"
+      "sha256": "e22ba3ad8bf34f25eddff998d75b3c732eb8373cf73a0fd0cb1d190e66c921d7",
+      "http_date": "Fri, 16 Oct 2026 12:31:14 GMT",
+      "fetched_at_utc": "2026-10-16T12:31:14.409117+00:00"
     },
     "runner_count": 9,
     "runners": [
@@ -2657,13 +2655,7294 @@
       }
     ],
     "feature_status_counts": {
+      "OBSERVED_OR_DERIVED_FROM_PAGE": 25,
+      "NOT_YET_PUBLISHED": 7,
       "POST_RACE_FINAL_ONLY": 3,
       "NOT_VISIBLE_OR_UNPROVEN": 3,
       "OBSERVED_NETKEIBA_PAGE": 8,
-      "NOT_YET_PUBLISHED": 7,
-      "HORSE_PROFILE_REQUIRED": 10,
       "BACKFILL_HISTORY_REQUIRED": 93,
-      "OBSERVED_OR_DERIVED_FROM_PAGE": 25
+      "HORSE_PROFILE_REQUIRED": 10
     }
+  },
+  "jra_card": {
+    "meta": {
+      "sha256": "eb66e2a728fb6872920b6be9dfa90221fc9cdf7de84df0e4a46181b14cf374b7",
+      "http_date": "Fri, 16 Oct 2026 12:31:15 GMT",
+      "fetched_at_utc": "2026-10-16T12:31:15.191839+00:00"
+    },
+    "official_horse_set": [
+      {
+        "horse_name": "ペルケチセイ",
+        "horse_number": 1,
+        "gate": 1,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "コルヴィリア",
+        "horse_number": 2,
+        "gate": 2,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "サトノエスパーダ",
+        "horse_number": 3,
+        "gate": 3,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ダークアベンジャー",
+        "horse_number": 4,
+        "gate": 4,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ジェットシェヴロン",
+        "horse_number": null,
+        "gate": 5,
+        "entry_status": "SCRATCHED"
+      },
+      {
+        "horse_name": "プリズンブレイク",
+        "horse_number": 6,
+        "gate": 6,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "トナリティ",
+        "horse_number": 7,
+        "gate": 7,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "フィニート",
+        "horse_number": 8,
+        "gate": 8,
+        "entry_status": "LISTED"
+      },
+      {
+        "horse_name": "ソーロブスト",
+        "horse_number": 9,
+        "gate": 8,
+        "entry_status": "LISTED"
+      }
+    ],
+    "identity_verified": true,
+    "changed_or_scratch": [
+      {
+        "horse_name": "ジェットシェヴロン",
+        "horse_number": null,
+        "gate": 5,
+        "entry_status": "SCRATCHED"
+      }
+    ]
+  },
+  "jra_odds": {
+    "source": "JRA_OFFICIAL_POST",
+    "snapshot_type": "PRE_RACE_LIVE_ODDS",
+    "publisher_update_display_consistent": true,
+    "publisher_update_day_not_inferred": true,
+    "page_observations": {
+      "WIN_PLACE": {
+        "cname": "pw151ouS305202604060520261017Z/47",
+        "sha256": "3b0d2287bd55f24e3911eedc4867aab5ef2543ebb2c497436903794255b32ebe",
+        "http_date": "Fri, 16 Oct 2026 12:31:16 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:19.870648+00:00"
+      },
+      "BRACKET_QUINELLA": {
+        "cname": "pw153ouS305202604060520261017Z/4F",
+        "sha256": "df18c6bfe1652a2506d6c545a196ac0e174482bf20041e2ed84159c66b33dcc9",
+        "http_date": "Fri, 16 Oct 2026 12:31:16 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.039627+00:00"
+      },
+      "QUINELLA": {
+        "cname": "pw154ouS305202604060520261017Z/D3",
+        "sha256": "f2e1a184383e7670d1b05846b6639dee9b4800636c94e3cc0bced319d761d523",
+        "http_date": "Fri, 16 Oct 2026 12:31:17 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.092754+00:00"
+      },
+      "WIDE": {
+        "cname": "pw155ouS305202604060520261017Z/57",
+        "sha256": "2ba4652fedd8e3dad56c0f4b79e97dd1df103b1abb095bc942212ff54d9722b1",
+        "http_date": "Fri, 16 Oct 2026 12:31:18 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.149414+00:00"
+      },
+      "EXACTA": {
+        "cname": "pw156ouS305202604060520261017Z/DB",
+        "sha256": "43c67b291996a0425abeb2ff1268c9ea3128cb2c758ed2c668d813719a459d14",
+        "http_date": "Fri, 16 Oct 2026 12:31:18 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.207402+00:00"
+      },
+      "TRIO": {
+        "cname": "pw157ouS305202604060520261017Z99/C1",
+        "sha256": "edccd301b3e61f54cafd099fc4d968fdbafb6b0614b968fdd14f5ca2334c127a",
+        "http_date": "Fri, 16 Oct 2026 12:31:19 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.270720+00:00"
+      },
+      "TRIFECTA": {
+        "cname": "pw158ouS305202604060520261017Z/E3",
+        "sha256": "2f8fe81a083247f9f9dfb41439188cb6c553ce65940462e386de05e3fbca5d46",
+        "http_date": "Fri, 16 Oct 2026 12:31:19 GMT",
+        "official_update_display": "21時29分現在",
+        "fetched_at_utc": "2026-10-16T12:31:20.410603+00:00"
+      }
+    },
+    "by_bet_type": {
+      "WIN": {
+        "expected": 9,
+        "listed": 9,
+        "quoted": 8,
+        "no_votes": 0,
+        "scratched": 1,
+        "status": "COLLECTED"
+      },
+      "PLACE": {
+        "expected": 9,
+        "listed": 9,
+        "quoted": 8,
+        "no_votes": 0,
+        "scratched": 1,
+        "status": "COLLECTED"
+      },
+      "BRACKET_QUINELLA": {
+        "expected": 29,
+        "listed": 29,
+        "quoted": 22,
+        "no_votes": 0,
+        "scratched": 7,
+        "status": "COLLECTED"
+      },
+      "QUINELLA": {
+        "expected": 36,
+        "listed": 36,
+        "quoted": 28,
+        "no_votes": 0,
+        "scratched": 8,
+        "status": "COLLECTED"
+      },
+      "WIDE": {
+        "expected": 36,
+        "listed": 36,
+        "quoted": 28,
+        "no_votes": 0,
+        "scratched": 8,
+        "status": "COLLECTED"
+      },
+      "EXACTA": {
+        "expected": 72,
+        "listed": 72,
+        "quoted": 56,
+        "no_votes": 0,
+        "scratched": 16,
+        "status": "COLLECTED"
+      },
+      "TRIO": {
+        "expected": 84,
+        "listed": 84,
+        "quoted": 56,
+        "no_votes": 0,
+        "scratched": 28,
+        "status": "COLLECTED"
+      },
+      "TRIFECTA": {
+        "expected": 504,
+        "listed": 504,
+        "quoted": 336,
+        "no_votes": 0,
+        "scratched": 168,
+        "status": "COLLECTED"
+      }
+    },
+    "expected_combination_count": 779,
+    "quoted_combination_count": 542,
+    "no_votes_combination_count": 0,
+    "scratched_combination_count": 237,
+    "combination_coverage_complete": true,
+    "quotes": [
+      {
+        "bet_type": "WIN",
+        "combination": [
+          1
+        ],
+        "odds": 5.1
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          2
+        ],
+        "odds": 23.5
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          3
+        ],
+        "odds": 10.5
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          4
+        ],
+        "odds": 39.4
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          6
+        ],
+        "odds": 15.9
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          7
+        ],
+        "odds": 5.4
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          8
+        ],
+        "odds": 17.8
+      },
+      {
+        "bet_type": "WIN",
+        "combination": [
+          9
+        ],
+        "odds": 1.6
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          1
+        ],
+        "odds_min": 1.2,
+        "odds_max": 1.7
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          2
+        ],
+        "odds_min": 4.3,
+        "odds_max": 6.8
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          3
+        ],
+        "odds_min": 1.8,
+        "odds_max": 2.7
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          4
+        ],
+        "odds_min": 2.4,
+        "odds_max": 3.8
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          6
+        ],
+        "odds_min": 2.2,
+        "odds_max": 3.3
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          7
+        ],
+        "odds_min": 1.2,
+        "odds_max": 1.7
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          8
+        ],
+        "odds_min": 5.2,
+        "odds_max": 8.3
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          9
+        ],
+        "odds_min": 1.1,
+        "odds_max": 1.5
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          2
+        ],
+        "odds": 51.7
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          3
+        ],
+        "odds": 32.9
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          4
+        ],
+        "odds": 90.4
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          6
+        ],
+        "odds": 51.7
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          7
+        ],
+        "odds": 7.2
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          8
+        ],
+        "odds": 4.7
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          3
+        ],
+        "odds": 45.2
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          4
+        ],
+        "odds": 45.2
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          6
+        ],
+        "odds": 51.7
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          7
+        ],
+        "odds": 22.6
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          8
+        ],
+        "odds": 15.0
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          3,
+          4
+        ],
+        "odds": 45.2
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          3,
+          6
+        ],
+        "odds": 30.1
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          3,
+          7
+        ],
+        "odds": 15.0
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          3,
+          8
+        ],
+        "odds": 10.3
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          4,
+          6
+        ],
+        "odds": 36.1
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          4,
+          7
+        ],
+        "odds": 24.1
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          4,
+          8
+        ],
+        "odds": 27.8
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          6,
+          7
+        ],
+        "odds": 27.8
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          6,
+          8
+        ],
+        "odds": 12.4
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          7,
+          8
+        ],
+        "odds": 4.3
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          8,
+          8
+        ],
+        "odds": 60.3
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          2
+        ],
+        "odds": 166.1
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          3
+        ],
+        "odds": 18.7
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          4
+        ],
+        "odds": 129.2
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          6
+        ],
+        "odds": 27.6
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          7
+        ],
+        "odds": 12.3
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          8
+        ],
+        "odds": 25.2
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          9
+        ],
+        "odds": 5.4
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          3
+        ],
+        "odds": 72.7
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          4
+        ],
+        "odds": 145.4
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          6
+        ],
+        "odds": 193.8
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          7
+        ],
+        "odds": 38.7
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          8
+        ],
+        "odds": 387.7
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          9
+        ],
+        "odds": 29.0
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          4
+        ],
+        "odds": 72.7
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          6
+        ],
+        "odds": 25.8
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          7
+        ],
+        "odds": 15.9
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          8
+        ],
+        "odds": 83.0
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          9
+        ],
+        "odds": 7.5
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          4,
+          6
+        ],
+        "odds": 166.1
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          4,
+          7
+        ],
+        "odds": 77.5
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          4,
+          8
+        ],
+        "odds": 193.8
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          4,
+          9
+        ],
+        "odds": 43.0
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          6,
+          7
+        ],
+        "odds": 33.2
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          6,
+          8
+        ],
+        "odds": 193.8
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          6,
+          9
+        ],
+        "odds": 12.9
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          7,
+          8
+        ],
+        "odds": 36.3
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          7,
+          9
+        ],
+        "odds": 3.2
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          8,
+          9
+        ],
+        "odds": 22.8
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          2
+        ],
+        "odds_min": 23.1,
+        "odds_max": 26.4
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          3
+        ],
+        "odds_min": 8.5,
+        "odds_max": 10.5
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          4
+        ],
+        "odds_min": 23.1,
+        "odds_max": 28.3
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          6
+        ],
+        "odds_min": 8.5,
+        "odds_max": 10.1
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          7
+        ],
+        "odds_min": 4.8,
+        "odds_max": 6.4
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          8
+        ],
+        "odds_min": 12.1,
+        "odds_max": 14.0
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          9
+        ],
+        "odds_min": 2.2,
+        "odds_max": 2.6
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          3
+        ],
+        "odds_min": 14.6,
+        "odds_max": 16.2
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          4
+        ],
+        "odds_min": 17.8,
+        "odds_max": 19.8
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          6
+        ],
+        "odds_min": 28.7,
+        "odds_max": 31.0
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          7
+        ],
+        "odds_min": 9.6,
+        "odds_max": 11.5
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          8
+        ],
+        "odds_min": 87.7,
+        "odds_max": 91.6
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          9
+        ],
+        "odds_min": 8.4,
+        "odds_max": 9.9
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          4
+        ],
+        "odds_min": 16.4,
+        "odds_max": 19.5
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          6
+        ],
+        "odds_min": 5.5,
+        "odds_max": 6.3
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          7
+        ],
+        "odds_min": 3.6,
+        "odds_max": 4.6
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          8
+        ],
+        "odds_min": 12.0,
+        "odds_max": 13.4
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          9
+        ],
+        "odds_min": 2.5,
+        "odds_max": 3.0
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          4,
+          6
+        ],
+        "odds_min": 32.1,
+        "odds_max": 37.0
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          4,
+          7
+        ],
+        "odds_min": 17.8,
+        "odds_max": 23.1
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          4,
+          8
+        ],
+        "odds_min": 41.3,
+        "odds_max": 46.1
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          4,
+          9
+        ],
+        "odds_min": 2.9,
+        "odds_max": 3.3
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          6,
+          7
+        ],
+        "odds_min": 6.0,
+        "odds_max": 7.5
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          6,
+          8
+        ],
+        "odds_min": 31.0,
+        "odds_max": 33.8
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          6,
+          9
+        ],
+        "odds_min": 3.9,
+        "odds_max": 4.6
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          7,
+          8
+        ],
+        "odds_min": 12.9,
+        "odds_max": 15.6
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          7,
+          9
+        ],
+        "odds_min": 1.8,
+        "odds_max": 2.0
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          8,
+          9
+        ],
+        "odds_min": 7.1,
+        "odds_max": 8.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          2
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          3
+        ],
+        "odds": 53.1
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          4
+        ],
+        "odds": 136.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          6
+        ],
+        "odds": 39.8
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          7
+        ],
+        "odds": 33.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          8
+        ],
+        "odds": 50.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          9
+        ],
+        "odds": 18.4
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          1
+        ],
+        "odds": 136.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          3
+        ],
+        "odds": 136.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          4
+        ],
+        "odds": 159.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          6
+        ],
+        "odds": 136.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          7
+        ],
+        "odds": 106.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          8
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          9
+        ],
+        "odds": 79.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          1
+        ],
+        "odds": 45.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          2
+        ],
+        "odds": 106.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          4
+        ],
+        "odds": 87.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          6
+        ],
+        "odds": 73.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          7
+        ],
+        "odds": 25.8
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          8
+        ],
+        "odds": 87.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          9
+        ],
+        "odds": 15.9
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          1
+        ],
+        "odds": 136.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          2
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          3
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          6
+        ],
+        "odds": 159.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          7
+        ],
+        "odds": 106.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          8
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          9
+        ],
+        "odds": 87.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          1
+        ],
+        "odds": 73.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          2
+        ],
+        "odds": 159.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          3
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          4
+        ],
+        "odds": 159.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          7
+        ],
+        "odds": 33.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          8
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          9
+        ],
+        "odds": 23.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          1
+        ],
+        "odds": 34.1
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          2
+        ],
+        "odds": 87.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          3
+        ],
+        "odds": 34.1
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          4
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          6
+        ],
+        "odds": 36.8
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          8
+        ],
+        "odds": 68.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          9
+        ],
+        "odds": 15.9
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          1
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          2
+        ],
+        "odds": 106.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          3
+        ],
+        "odds": 106.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          4
+        ],
+        "odds": 119.6
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          6
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          7
+        ],
+        "odds": 63.8
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          9
+        ],
+        "odds": 68.3
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          1
+        ],
+        "odds": 12.4
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          2
+        ],
+        "odds": 33.0
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          3
+        ],
+        "odds": 13.1
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          4
+        ],
+        "odds": 43.5
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          6
+        ],
+        "odds": 18.4
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          7
+        ],
+        "odds": 4.8
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          8
+        ],
+        "odds": 35.4
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          3
+        ],
+        "odds": 111.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          4
+        ],
+        "odds": 148.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          6
+        ],
+        "odds": 111.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          7
+        ],
+        "odds": 70.5
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          8
+        ],
+        "odds": 141.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          9
+        ],
+        "odds": 27.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          4
+        ],
+        "odds": 134.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          6
+        ],
+        "odds": 68.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          7
+        ],
+        "odds": 26.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          8
+        ],
+        "odds": 68.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          9
+        ],
+        "odds": 8.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          4,
+          6
+        ],
+        "odds": 83.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          4,
+          7
+        ],
+        "odds": 95.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          4,
+          8
+        ],
+        "odds": 103.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          4,
+          9
+        ],
+        "odds": 47.8
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          6,
+          7
+        ],
+        "odds": 58.2
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          6,
+          8
+        ],
+        "odds": 89.3
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          6,
+          9
+        ],
+        "odds": 10.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          7,
+          8
+        ],
+        "odds": 57.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          7,
+          9
+        ],
+        "odds": 6.6
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          8,
+          9
+        ],
+        "odds": 16.6
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          4
+        ],
+        "odds": 268.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          6
+        ],
+        "odds": 223.4
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          7
+        ],
+        "odds": 148.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          8
+        ],
+        "odds": 297.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          9
+        ],
+        "odds": 29.4
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          4,
+          6
+        ],
+        "odds": 335.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          4,
+          7
+        ],
+        "odds": 206.2
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          4,
+          8
+        ],
+        "odds": 268.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          4,
+          9
+        ],
+        "odds": 148.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          6,
+          7
+        ],
+        "odds": 191.5
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          6,
+          8
+        ],
+        "odds": 297.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          6,
+          9
+        ],
+        "odds": 38.8
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          7,
+          8
+        ],
+        "odds": 206.2
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          7,
+          9
+        ],
+        "odds": 25.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          8,
+          9
+        ],
+        "odds": 47.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          4,
+          6
+        ],
+        "odds": 243.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          4,
+          7
+        ],
+        "odds": 111.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          4,
+          8
+        ],
+        "odds": 268.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          4,
+          9
+        ],
+        "odds": 72.4
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          6,
+          7
+        ],
+        "odds": 83.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          6,
+          8
+        ],
+        "odds": 167.5
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          6,
+          9
+        ],
+        "odds": 16.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          7,
+          8
+        ],
+        "odds": 68.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          7,
+          9
+        ],
+        "odds": 9.2
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          8,
+          9
+        ],
+        "odds": 26.5
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          6,
+          7
+        ],
+        "odds": 178.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          6,
+          8
+        ],
+        "odds": 670.3
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          6,
+          9
+        ],
+        "odds": 134.0
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          7,
+          8
+        ],
+        "odds": 297.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          7,
+          9
+        ],
+        "odds": 54.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          8,
+          9
+        ],
+        "odds": 243.7
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          6,
+          7,
+          8
+        ],
+        "odds": 148.9
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          6,
+          7,
+          9
+        ],
+        "odds": 14.4
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          6,
+          8,
+          9
+        ],
+        "odds": 30.1
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          7,
+          8,
+          9
+        ],
+        "odds": 16.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          3
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          4
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          6
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          7
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          9
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          2
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          4
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          6
+        ],
+        "odds": 167.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          7
+        ],
+        "odds": 223.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          8
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          9
+        ],
+        "odds": 87.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          2
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          3
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          7
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          8
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          9
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          2
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          3
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          4
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          7
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          8
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          9
+        ],
+        "odds": 182.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          2
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          3
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          4
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          6
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          8
+        ],
+        "odds": 98.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          9
+        ],
+        "odds": 55.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          2
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          3
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          4
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          6
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          7
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          9
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          2
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          3
+        ],
+        "odds": 55.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          4
+        ],
+        "odds": 223.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          6
+        ],
+        "odds": 98.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          7
+        ],
+        "odds": 43.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          8
+        ],
+        "odds": 143.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          3
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          6
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          7
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          9
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          4
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          6
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          7
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          8
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          9
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          6
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          7
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          8
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          9
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          1
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          3
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          4
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          7
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          8
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          9
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          1
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          4
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          9
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          6
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          7
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          9
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          1
+        ],
+        "odds": 287.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          4
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          6
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          7
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          4
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          6
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          7
+        ],
+        "odds": 174.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          8
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          9
+        ],
+        "odds": 95.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          4
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          6
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          7
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          8
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          9
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          2
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          7
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          9
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          1
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          2
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          7
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          9
+        ],
+        "odds": 167.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          1
+        ],
+        "odds": 223.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          2
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          4
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          6
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          8
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          9
+        ],
+        "odds": 103.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          1
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          2
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          4
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          6
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          7
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          9
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          1
+        ],
+        "odds": 91.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          2
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          4
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          6
+        ],
+        "odds": 143.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          7
+        ],
+        "odds": 80.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          8
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          2
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          7
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          8
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          9
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          6
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          7
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          9
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          1
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          2
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          6
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          7
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          9
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          3
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          7
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          8
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          9
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          3
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          6
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          8
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          9
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          2
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          3
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          6
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          7
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          9
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          1
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          2
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          3
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          7
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          3
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          7
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          9
+        ],
+        "odds": 134.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          3
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          4
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          7
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          9
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          1
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          7
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          9
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          1
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          2
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          3
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          7
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          8
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          9
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          1
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          2
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          4
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          8
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          9
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          1
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          2
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          3
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          4
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          7
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          9
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          1
+        ],
+        "odds": 167.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          2
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          3
+        ],
+        "odds": 143.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          4
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          7
+        ],
+        "odds": 287.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          8
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          2
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          3
+        ],
+        "odds": 95.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          4
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          6
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          8
+        ],
+        "odds": 174.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          9
+        ],
+        "odds": 43.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          1
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          3
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          4
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          6
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          8
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          9
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          1
+        ],
+        "odds": 154.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          2
+        ],
+        "odds": 287.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          4
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          6
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          8
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          9
+        ],
+        "odds": 74.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          1
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          2
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          3
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          6
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          8
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          9
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          1
+        ],
+        "odds": 251.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          2
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          3
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          4
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          8
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          9
+        ],
+        "odds": 191.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          1
+        ],
+        "odds": 223.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          2
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          3
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          4
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          6
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          9
+        ],
+        "odds": 191.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          1
+        ],
+        "odds": 19.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          2
+        ],
+        "odds": 125.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          3
+        ],
+        "odds": 24.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          4
+        ],
+        "odds": 182.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          6
+        ],
+        "odds": 57.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          8
+        ],
+        "odds": 95.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          2
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          3
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          4
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          6
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          7
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          9
+        ],
+        "odds": 287.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          1
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          6
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          7
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          9
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          1
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          2
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          6
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          7
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          9
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          1
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          2
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          6
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          7
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          9
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          1
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          2
+        ],
+        "odds": 1341.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          3
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          4
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          7
+        ],
+        "odds": 1006.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          9
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          1
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          2
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          3
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          4
+        ],
+        "odds": 2012.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          6
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          9
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          1
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          2
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          3
+        ],
+        "odds": 574.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          4
+        ],
+        "odds": 4024.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          6
+        ],
+        "odds": 804.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          7
+        ],
+        "odds": 268.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          2
+        ],
+        "odds": 93.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          3
+        ],
+        "odds": 24.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          4
+        ],
+        "odds": 111.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          6
+        ],
+        "odds": 34.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          7
+        ],
+        "odds": 16.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          8
+        ],
+        "odds": 51.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          1
+        ],
+        "odds": 167.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          3
+        ],
+        "odds": 223.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          4
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          6
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          7
+        ],
+        "odds": 98.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          8
+        ],
+        "odds": 309.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          1
+        ],
+        "odds": 31.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          2
+        ],
+        "odds": 143.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          4
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          6
+        ],
+        "odds": 67.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          7
+        ],
+        "odds": 27.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          8
+        ],
+        "odds": 95.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          1
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          2
+        ],
+        "odds": 670.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          3
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          6
+        ],
+        "odds": 402.4
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          7
+        ],
+        "odds": 211.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          8
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          1
+        ],
+        "odds": 70.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          2
+        ],
+        "odds": 335.3
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          3
+        ],
+        "odds": 93.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          4
+        ],
+        "odds": 447.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          7
+        ],
+        "odds": 74.5
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          8
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          1
+        ],
+        "odds": 14.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          2
+        ],
+        "odds": 82.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          3
+        ],
+        "odds": 18.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          4
+        ],
+        "odds": 134.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          6
+        ],
+        "odds": 46.2
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          8
+        ],
+        "odds": 50.9
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          1
+        ],
+        "odds": 85.6
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          2
+        ],
+        "odds": 503.0
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          3
+        ],
+        "odds": 134.1
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          4
+        ],
+        "odds": 365.8
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          6
+        ],
+        "odds": 236.7
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          7
+        ],
+        "odds": 74.5
+      }
+    ],
+    "no_votes": [],
+    "scratched_combinations": [
+      {
+        "bet_type": "WIN",
+        "combination": [
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "PLACE",
+        "combination": [
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "BRACKET_QUINELLA",
+        "combination": [
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "QUINELLA",
+        "combination": [
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "WIDE",
+        "combination": [
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "EXACTA",
+        "combination": [
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          1,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          2,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          3,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          4,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          6,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          6,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          6,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          7,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          7,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIO",
+        "combination": [
+          5,
+          8,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          1,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          2,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          3,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          4,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          1,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          2,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          3,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          4,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          6,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          7,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          8,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          5,
+          9,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          6,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          7,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          5,
+          9
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          8,
+          9,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          1,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          2,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          3,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          4,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          1
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          2
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          3
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          4
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          6
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          7
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          5,
+          8
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          6,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          7,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      },
+      {
+        "bet_type": "TRIFECTA",
+        "combination": [
+          9,
+          8,
+          5
+        ],
+        "status": "SCRATCHED_OR_EXCLUDED",
+        "odds": null
+      }
+    ],
+    "not_offered_bet_types": []
   }
 }
