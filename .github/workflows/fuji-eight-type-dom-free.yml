@@ -1,0 +1,21 @@
+name: Fuji All 8 Bet Types Official DOM Free CPU
+on:
+  push:
+    branches: [audit/fuji-eight-bet-odds-20261016]
+    paths:
+      - scripts/fuji_8type_dom_probe_20261016.py
+      - .github/workflows/fuji-eight-type-dom-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  inspect:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - run: python scripts/fuji_8type_dom_probe_20261016.py
