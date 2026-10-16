@@ -1,0 +1,216 @@
+name: EV Rank1 Same 20 Pruners and Six-Rank Fair Comparison
+
+on:
+  push:
+    branches:
+      - research/l2-ev1-same20-pruners-comparison-20261016
+    paths:
+      - .github/workflows/l2-ev-rank1-same20-pruners-comparison-v1.yml
+      - research/run_l2_ev_rank1_pruning20_same_stage_v1.py
+      - tests/test_l2_ev_rank1_pruning20_same_stage_v1.py
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ev-rank1-same20-pruners-comparison-v1
+  cancel-in-progress: false
+
+jobs:
+  analyze:
+    name: EV rank 1 exact twenty pruning policies
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    strategy:
+      fail-fast: false
+      max-parallel: 5
+      matrix:
+        ev_rank: [1]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free CPU without artifact cache or GPU
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-ev-rank1-same20-pruners-comparison-v1.yml").read_text()
+          runners=[s.strip() for s in p.splitlines() if s.strip().startswith("runs-on:")]
+          assert runners==["runs-on: ubuntu-latest","runs-on: ubuntu-latest"],runners
+          uses=[s.strip() for s in p.splitlines() if s.strip().startswith("- uses:")]
+          assert not any("upload-artifact" in x or "actions/cache" in x for x in uses)
+          print("FREE_STANDARD_CPU_NO_PAID_STORAGE")
+          PY
+          python -m py_compile research/run_l2_ev_rank1_pruning20_same_stage_v1.py
+          python -m py_compile tests/test_l2_ev_rank1_pruning20_same_stage_v1.py
+      - name: Install only numpy and pandas
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Regression tests
+        run: python -m unittest discover -s tests -p 'test_l2_ev_rank1_pruning20_same_stage_v1.py' -v
+      - name: Get pinned BACKFILL manifests for 2023-2025
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import json,pandas as pd
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          original=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          source="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          x=pd.read_csv(source,compression="infer",usecols=["year","_race_date"])
+          assert set(x.year)=={2023,2024,2025}
+          dates=sorted(set(x._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350
+          paths={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              a=original["days"].get(day);b=odds["days"].get(day)
+              assert a and a.get("status")=="SUCCESS",("race pack missing",day)
+              assert b and b.get("status")=="SUCCESS",("final odds missing",day)
+              p=a["file"];q=b["file"]
+              assert p.startswith("data/daily/") and p.endswith(".jsonl.gz")
+              assert q.startswith("data/odds/daily/") and q.endswith(".jsonl.gz")
+              paths.update((p,q))
+          Path("out/pinned-sparse-paths.txt").write_text(
+             "\n".join("/"+p for p in sorted(paths))+"\n")
+          print("PINNED_HISTORY_DAYS",len(dates),"REAL_FILES",len(paths))
+          PY
+      - name: Download only pinned real historical day files to ephemeral disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Analyze all 20 methods and highest 3-year black-line ROI
+        shell: bash
+        env:
+          EV_RANK: ${{ matrix.ev_rank }}
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1-same20-pruners-v1/run-$GITHUB_RUN_ID/rank-1"
+          python -u research/run_l2_ev_rank1_pruning20_same_stage_v1.py \
+            --rank "$EV_RANK" \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --baseline research-results/l2-ticket-odds-band-profit-v1/EV軸_全152買い方_オッズ帯別_年度推移_詳細20区間.csv \
+            --backfill-root out/pinned-history --out-dir "$dest"
+          for f in summary.json all_20_policies_3040_lines_3years.csv.gz \
+                   three_year_pooled_black_lines_by_policy.csv.gz \
+                   portfolio_by_policy_and_year.csv \
+                   all_20_methods_roi_ranking.csv; do
+            test -s "$dest/$f"
+          done
+      - name: Delete transient historical files
+        if: always()
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Commit compact rank results with safe concurrent rebase
+        if: success()
+        shell: bash
+        env:
+          EV_RANK: ${{ matrix.ev_rank }}
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank2to6-pruning20-warmup-v1/run-$GITHUB_RUN_ID/rank-$EV_RANK"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest"
+          git commit -m "research: original EV1 all20 pruners equal conditions, three-year pooled black ROI $GITHUB_RUN_ID"
+          ok=0
+          for attempt in 1 2 3 4 5 6 7 8 9 10; do
+            git fetch origin "$GITHUB_REF_NAME"
+            git rebase "origin/$GITHUB_REF_NAME"
+            if git push origin "HEAD:$GITHUB_REF_NAME"; then ok=1;break;fi
+            sleep 3
+          done
+          test "$ok" = 1
+
+
+  compare:
+    name: Six ranks same method selection and no Medium/Strict
+    needs: analyze
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Verify EV1 winner and compare unchanged original EV2-6 winners
+        shell: bash
+        run: |
+          set -euo pipefail
+          git fetch origin "$GITHUB_REF_NAME"
+          git reset --hard "origin/$GITHUB_REF_NAME"
+          python - <<'PY'
+          import csv,json,os
+          from pathlib import Path
+          root=Path("research-results/l2-ev-rank1-same20-pruners-v1/run-"+os.environ["GITHUB_RUN_ID"])
+          r1=json.loads((root/"rank-1/summary.json").read_text())
+          r26=json.loads(Path("research-results/l2-ev-rank2to6-pruning20-warmup-v1/run-38891800300/summary.json").read_text())
+          assert r1["ev_rank"]==1 and r1["total_methods"]==20
+          assert r1["original_unpruned_input_verified"] and len(r1["all_policy_comparison"])==21
+          assert r1["evaluation_2023_start"]=="2023-02-01"
+          assert r1["all_2023_january_excluded_even_BASE"] is True
+          assert r1["stability_medium_strict_not_applied"] is True
+          assert r26["january_2023_excluded_from_all_policies"] is True
+          assert r26["evaluation_start_2023"]=="2023-02-01"
+          assert r26["medium_strict_not_applied"] is True
+          assert len(r26["selected_rows"])==5
+          best=r1["adopted_portfolio"]
+          assert best and best["policy"]==r1["adopted_policy"]
+          first=dict(ev_rank=1,adopted_method=r1["adopted_policy"],
+              black_odds_lines=best["selected_black_lines"],
+              purchased_tickets=best["n"],winning_tickets=best["hits"],
+              stake_yen=100*best["n"],return_yen=best["payout"],
+              profit_yen=best["profit_yen"],roi_pct=best["roi_pct"],
+              years="2023-2025")
+          five=r26["selected_rows"]
+          assert sum(x["purchased_tickets"] for x in five)==537368
+          assert [x["ev_rank"] for x in five]==[2,3,4,5,6]
+          six=[first]+five
+          with (root/"rank1to6_equivalent_pruning_only.csv").open("w",newline="",encoding="utf-8") as f:
+              w=csv.DictWriter(f,fieldnames=list(first));w.writeheader();w.writerows(six)
+          (root/"comparison_summary.json").write_text(json.dumps(dict(
+              contract="EV1_TO_6_SAME_20_WAY_PRUNER_RANKWISE_BEST_PRUNING_ONLY",
+              selection="each EV rank independently chooses best physical dedup ROI after 20-way pruner and pooled 3yr black selection",
+              ev1_pruner_new_comparable_research_not_original_l21_adoption=True,
+              frozen_l21_still_standard50_unchanged=True,
+              rank1_original_3040_input_exact=True,
+              rank1_source_run=int(os.environ["GITHUB_RUN_ID"]),
+              other_ranks_source_run=38891800300,
+              evaluate_2023_from="2023-02-01",evaluate_until="2025-12-31",
+              medium_strict_not_applied=True,
+              comparisons=six,
+              sum_independent_rank_ticket_counts=sum(x["purchased_tickets"] for x in six),
+              cross_rank_dedup_not_performed=True,
+              all_3year_black_posthoc=True,
+              final_prices_not_real_time=True,year_2026_sealed=True),
+              indent=2,ensure_ascii=False)+"\n")
+          print("SIX_RANKS_SAME_STAGE_COMPLETE",json.dumps(six,ensure_ascii=False),flush=True)
+          PY
+      - name: Commit equal-conditions six-rank comparison
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-rank1-same20-pruners-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git add "$dest/rank1to6_equivalent_pruning_only.csv" "$dest/comparison_summary.json"
+          git commit -m "research: align original EV1 twenty-pruner selection with previously frozen EV2-6 results"
+          git push origin "HEAD:$GITHUB_REF_NAME"
