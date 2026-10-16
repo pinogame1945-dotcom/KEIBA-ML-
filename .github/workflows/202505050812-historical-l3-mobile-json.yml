@@ -1,0 +1,96 @@
+name: 202505050812 Historical L2.1 V3 Mobile JSON - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - '.github/workflows/202505050812-historical-l3-mobile-json.yml'
+      - 'config/historical_race_ids.txt'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  selected-historical-race-to-mobile-json:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Confirm public repo free CPU and frozen logic unchanged
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "${{ github.repository }}" = "pinogame1945-dotcom/KEIBA-ML-"
+          test "$RUNNER_OS" = "Linux"
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 1800000
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          python3 -m unittest discover -s tests -p test_publish_frozen_historical_races.py -v
+          echo "FREE_STANDARD_CPU_NO_PAID_ARTIFACT_OR_CACHE"
+      - name: Read immutable original frozen L2.1 source archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/frozen-historical-mobile"
+          mkdir -p "$out"
+          get() {
+            python3 scripts/github-readonly-archive.py \
+              --repo pinogame1945-dotcom/KEIBA-ML- \
+              --ref freeze/l2.1-standard50-to-l3-20261015 \
+              --path "$1" --dest "$out/$2" --max-bytes "$3"
+          }
+          get research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/joined_ticket_trust_complete.csv.gz known.csv.gz 1000000
+          get research-results/l3-l175-frozen-ticket-trust-audit-v1/run-38710197503/tickets_missing_l175_signal.csv.gz unknown.csv.gz 100000
+          get research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz original-oos.csv.gz 11000000
+          get research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz original-ability.csv.gz 19000000
+          get research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz original-picks.csv.gz 2000000
+      - name: Selected historical race full original ticket replay and official V3 stakes
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-historical-mobile"
+          python3 research/replay_frozen_l21_to_l3_v3_historical.py \
+            --race 202505050812 \
+            --frozen-oos "$root/original-oos.csv.gz" \
+            --frozen-picks "$root/original-picks.csv.gz" \
+            --frozen-ability-cache "$root/original-ability.csv.gz" \
+            --frozen-known-p3-tickets "$root/known.csv.gz" \
+            --frozen-unknown-p3-tickets "$root/unknown.csv.gz" \
+            --race-budget-yen 20000 --paper-bankroll-yen 100000 \
+            --output "$root/202505050812-l3-mobile.json"
+          python3 - "$root/202505050812-l3-mobile.json" <<'PY'
+          import json,sys
+          data=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert data["contract"]=="KEIBA_L21_FROZEN_FINAL_ARCHIVE_V3_REPLAY_V1"
+          assert data["status"]=="HISTORICAL_FINAL_RESEARCH_ONLY"
+          assert data["source_phase"]=="FINAL_RESEARCH_ARCHIVED_NOT_AT_BET_CUTOFF"
+          assert data["original_models_retrained"] is False
+          assert data["genuinely_prebet_validated"] is False
+          assert data["year_2026_results_read"] is False
+          assert len(data["races"])==1
+          race=data["races"][0]
+          assert race["race_id"]=="202505050812"
+          assert race["l3_v3_policy"]=="REVERSE_P3_RACE_MAX300"
+          assert len(race["rankings"]["ai_raw"])==len(race["rankings"]["value_ev"])==17
+          print("HISTORICAL_USER_RACE_L21_TO_V3",
+                "race",race["race_id"],"tickets",len(race["tickets"]),
+                "v3_total_yen",race["l3_v3_total_yen"],
+                "status",race["status"],
+                "old_stored_ranking_and_tickets",True,
+                "FINAL_research_only",True,flush=True)
+          PY
+      - name: Publish immutable mobile-readable historical JSON on free public Git branch
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-historical-mobile"
+          python3 scripts/publish_frozen_historical_races.py --input "$root/202505050812-l3-mobile.json" --dry-run
+          python3 scripts/publish_frozen_historical_races.py --input "$root/202505050812-l3-mobile.json"
+          echo "HISTORICAL_MOBILE_JSON_PATH historical/2025/202505050812.json"
+          echo "RESEARCH_ONLY_NOT_ACTUAL_PREBET"
