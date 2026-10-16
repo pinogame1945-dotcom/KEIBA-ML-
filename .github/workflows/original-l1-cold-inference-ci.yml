@@ -11,6 +11,8 @@ on:
       - 'research/export_original_core4_prior_ability_year_v1.py'
       - 'research/compute_blind_target_prior_day_bias_v1.py'
       - 'tests/test_blind_target_prior_day_bias_v1.py'
+      - 'research/compute_blind_target_seq_regime_v1.py'
+      - 'tests/test_blind_target_seq_regime_parity_v1.py'
       - '.github/workflows/original-l1-cold-inference-ci.yml'
   workflow_dispatch:
 
@@ -52,3 +54,4 @@ jobs:
           python -m unittest discover -s tests -p test_original_l1_cold_inference_v1.py -v
           python -m unittest discover -s tests -p test_original_prior_ability_train_year_v1.py -v
           python -m unittest discover -s tests -p test_blind_target_prior_day_bias_v1.py -v
+          python -m unittest discover -s tests -p test_blind_target_seq_regime_parity_v1.py -v
