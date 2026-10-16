@@ -6,6 +6,7 @@ on:
     paths:
       - research/phase3_20261010_24_extra41_batch_v1.py
       - research/phase3_20261010_original_l1_24_cold_v1.py
+      - research/phase3_20261010_daybias_cached_v1.py
       - .github/workflows/phase3-20261010-all-24-original-690-freecpu.yml
   workflow_dispatch:
 
@@ -40,6 +41,7 @@ jobs:
           python -m py_compile research/phase3_20261010_24_extra41_batch_v1.py
           python -m py_compile research/phase3_20261010_all_24_unscored_inputs_v1.py
           python -m py_compile research/phase3_20261010_original_l1_24_cold_v1.py
+          python -m py_compile research/phase3_20261010_daybias_cached_v1.py
           python scripts/verify_keiba_l2_1_freeze.py
           test -n "$KAGGLE_API_TOKEN"
           test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 6000000
@@ -118,8 +120,7 @@ jobs:
       - name: Original batch numerics vs blind reconstruction for 24 x 41 feature values
         run: |
           set -euo pipefail
-          python research/phase3_20261010_24_extra41_batch_v1.py \
-            --mode run \
+          python research/phase3_20261010_daybias_cached_v1.py \
             --panels "$RUNNER_TEMP/verification/649" \
             --source "$P3_SNAPSHOT_2026" \
             --compact-dir "$RUNNER_TEMP/verification/compact" \
