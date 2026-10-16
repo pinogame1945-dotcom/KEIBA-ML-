@@ -1,0 +1,116 @@
+name: Blind 202505050812 original 2019-25 horse state/regime - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - scripts/fetch_original_state_history_snapshot.sh
+      - research/export_strict_prior_state_history_v1.py
+      - research/compute_blind_target_seq_regime_v1.py
+      - tests/test_blind_target_seq_regime_parity_v1.py
+      - .github/workflows/probe-blind-original-prior-state-regime.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  blind-state-regime:
+    runs-on: ubuntu-latest
+    timeout-minutes: 55
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      L1_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify original sealed rules and standard CPU no billed artifacts
+        run: |
+          set -euo pipefail
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py
+          node --check research/extract_unscored_race_from_snapshot.mjs
+          bash -n scripts/fetch_original_state_history_snapshot.sh
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 4000000
+          echo "STANDARD_UBUNTU_CPU_EPHEMERAL_ONLY_NO_BILLED_STORAGE_OR_2026"
+      - name: Install exact original CPU model dependencies and Kaggle client
+        run: |
+          python3 -m pip install --disable-pip-version-check -r ml/requirements.txt
+          python3 -m pip install --disable-pip-version-check kaggle
+      - name: Original numerical parity, no future or target outcomes
+        run: |
+          python3 -m unittest discover -s tests -p test_blind_target_seq_regime_parity_v1.py -v
+          python3 -m unittest discover -s tests -p test_export_strict_prior_state_history_v1.py -v
+      - name: Get 2019-25 snapshots one at a time; retain compact true-prior state only
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          mkdir -p "$root"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            echo "STATE_YEAR_START year=$year"
+            bash scripts/fetch_original_state_history_snapshot.sh "$year" "$root" | tee "$root/fetch-$year.log"
+            source="$(tail -n 1 "$root/fetch-$year.log")"
+            test -s "$source"
+            IFS="$(printf '\t')" read -r manifest_year logical remote mode sha rows first last < "$root/resolved-$year.tsv"
+            test "$year" = "$manifest_year"
+            if [ "$year" = 2025 ]; then
+              node research/extract_unscored_race_from_snapshot.mjs \
+                --input "$source" --race-id 202505050812 \
+                --manifest-rows "$rows" \
+                --manifest-min-date "$first" --manifest-max-date "$last" \
+                --output "$root/target-unscored-early.json" \
+                --final-output "$root/target-unscored-final.json"
+            fi
+            python3 research/export_strict_prior_state_history_v1.py \
+              --year "$year" --input "$source" --expected-rows "$rows" \
+              --expected-min "$first" --expected-max "$last" --out "$root"
+            rm -f "$source"
+            echo "STATE_PRIOR_YEAR_COMPACT_READY_RAW_REMOVED year=$year"
+          done
+          ls -lh "$root"/compact-strict-prior-20*.csv.gz
+      - name: Compute original strictly prior state and regime for 17 real target horses
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          sources=()
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            test -s "$root/compact-strict-prior-$year.csv.gz"
+            sources+=(--compact-prior "$root/compact-strict-prior-$year.csv.gz")
+          done
+          python3 research/compute_blind_target_seq_regime_v1.py \
+            "${sources[@]}" \
+            --unscored-target "$root/target-unscored-final.json" \
+            --output "$root/target-original-seq-regime.json"
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          obj=json.loads((root/"target-original-seq-regime.json").read_text())
+          assert obj["race_id"]=="202505050812"
+          assert obj["contract"]=="KEIBA_ORIGINAL_TARGET_SEQ_REGIME_PRIOR_ONLY_V1"
+          assert obj["target_horses"]==17
+          assert obj["regime_feature_count"]==66
+          assert obj["strict_prior_date_only"]
+          assert not obj["target_outcome_used"] and not obj["2026_results_used"]
+          assert obj["history_years"]==list(range(2019,2026))
+          target=json.loads((root/"target-unscored-final.json").read_text())
+          target_ids={x["_horse_id"] for x in target["rows"]}
+          assert {x["horse_id"] for x in obj["horse_features"]}==target_ids
+          print("REAL_BLIND_202505050812_SEQ_REGIME_COMPLETE",
+                "horses",obj["target_horses"],
+                "seq",obj["seq_feature_count"],
+                "regime",obj["regime_feature_count"],
+                "history_rows",obj["history_rows"],
+                "results_or_target_saved_predictions",False,
+                "asof_certified",False,flush=True)
+          PY
