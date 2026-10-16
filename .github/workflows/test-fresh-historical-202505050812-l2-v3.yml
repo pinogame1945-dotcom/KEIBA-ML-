@@ -1,0 +1,31 @@
+name: Selected historical 17 starter authentic FINAL L2 V3 tests - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - research/run_fresh_202505050812_historical_final_l21_v3_v1.py
+      - tests/test_fresh_202505050812_historical_final_l21_v3_v1.py
+      - .github/workflows/test-fresh-historical-202505050812-l2-v3.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  frozen-historical-recalculation:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Check locked L2 and original research source
+        run: |
+          python scripts/verify_keiba_l2_1_freeze.py
+          python -m py_compile research/run_fresh_202505050812_historical_final_l21_v3_v1.py
+      - name: Run original 50 line gate and V3 formula without fabricated p3
+        run: |
+          python -m unittest discover -s tests -p test_fresh_202505050812_historical_final_l21_v3_v1.py -v
