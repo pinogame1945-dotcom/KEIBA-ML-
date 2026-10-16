@@ -1,0 +1,138 @@
+name: Phase1 Oct10 Original Saved Seven Kings Forward Free CPU
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - research/p4_20261010_original_7k_forward_v1.py
+      - .github/workflows/p4-20261010-original-seven-forward-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: p4-oct10-original-seven-models-freecpu
+  cancel-in-progress: false
+jobs:
+  seven-kings:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      OMP_NUM_THREADS: 2
+      OPENBLAS_NUM_THREADS: 1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Free CPU only, no charged storage, verify original contract
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/p4_20261010_original_7k_forward_v1.py
+          python scripts/verify_keiba_l2_1_freeze.py
+          python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
+          python -m pip install -q --no-cache-dir --disable-pip-version-check kaggle
+      - name: Checkout exact frozen original L17 source without modifying working branch
+        run: |
+          set -euo pipefail
+          git fetch --quiet --no-tags --depth 1 origin 0200a8b31d1ea3f4830b9b5357cb8e593d486a56
+          git worktree add --detach "$RUNNER_TEMP/frozen-l17" FETCH_HEAD
+          test -s "$RUNNER_TEMP/frozen-l17/research/emit_l1_to_l2.py"
+          test -s "$RUNNER_TEMP/frozen-l17/research/project-yearly-snapshots.mjs"
+          echo "ORIGINAL_L17=$RUNNER_TEMP/frozen-l17" >> "$GITHUB_ENV"
+      - name: Retrieve pinned BACKFILL source with real 2026 entrants and original pedigree
+        run: |
+          set -euo pipefail
+          sha="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          root="$RUNNER_TEMP/backfill"
+          mkdir -p "$root"
+          git -C "$root" init --quiet
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch --no-tags --depth 1 --filter=blob:none origin "$sha"
+          git -C "$root" sparse-checkout init --cone
+          git -C "$root" sparse-checkout set data/daily data/horses
+          git -C "$root" checkout --detach FETCH_HEAD
+          test "$(git -C "$root" rev-parse HEAD)" = "$sha"
+          test -s "$root/data/daily/2026-10-10.jsonl.gz"
+          test -n "$(find "$root/data/horses" -name 'horse-*.jsonl.gz' -print -quit)"
+          echo "ORIGINAL_BACKFILL=$root" >> "$GITHUB_ENV"
+      - name: Build only 2026 original-feature snapshot with full frozen seven candidate families
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root "$ORIGINAL_BACKFILL" \
+            --out-dir "$RUNNER_TEMP/l17-snapshot" \
+            --source-start 2022-01-01 --source-end 2026-10-10 \
+            --emit-start 2026-01-01 --emit-end 2026-10-10 \
+            --first-model-ready-year 2023 --prediction-phase FINAL \
+            --feature-sets BASE,OPPONENT,PEDIGREE,AUTO,ACTOR,TIME_PACE,NETWORK,LAP,STYLE,DISTANCE,BACKFILL \
+            --source-sha 03950cfe132abeca15ef17dbc7c6885ceb1591b7 \
+            --ml-source-sha "$GITHUB_SHA"
+          snapshot=$(find "$RUNNER_TEMP/l17-snapshot" -name 'snapshot-2026.jsonl.gz' -print -quit)
+          test -s "$snapshot"
+          echo "PHASE1_ORIGINAL_2026_SNAPSHOT=$snapshot" >> "$GITHUB_ENV"
+      - name: Select exact 24 target races as feature-only (never read target labels)
+        run: |
+          set -euo pipefail
+          python research/p4_20261010_original_7k_forward_v1.py \
+            --mode scrub --source "$PHASE1_ORIGINAL_2026_SNAPSHOT" \
+            --out "$RUNNER_TEMP/l17-target-24.jsonl.gz"
+      - name: Download all seven ORIGINAL 2025 saved model weights and schema read-only
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/models"
+          mkdir -p "$root"
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            dst="$root/$alias"; mkdir -p "$dst"
+            metadata="$(kaggle datasets files "$ref" --page-size 200 --format 'json(name,size)')"
+            for file in model.txt model.json schema.json; do
+              remote="$(RAW="$metadata" BASENAME="$file" python - <<'PY'
+          import os,json
+          arr=json.loads(os.environ["RAW"])
+          matches=[x for x in arr if str(x.get("name") or "").split("/")[-1]==os.environ["BASENAME"]]
+          if len(matches)!=1 or int(matches[0].get("size") or 0)<=0:
+              raise SystemExit("ORIGINAL_L17_KAGGLE_EXACT_MODEL_FILE_MISSING_OR_AMBIGUOUS")
+          print(matches[0]["name"])
+          PY
+              )"
+              kaggle datasets download "$ref" -f "$remote" -p "$dst" --unzip --quiet --force
+              test -s "$dst/$file"
+            done
+            echo "ORIGINAL_L17_MODEL_LOADED $alias"
+          done
+      - name: Run authentic archived 7 trained models on 2026-10-10 original projections
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/l17-seven-scores"
+          mkdir -p "$out"
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            case "$alias" in
+              core4) sets="BASE,OPPONENT,AUTO,ACTOR,TIME_PACE";actor="";auto="";ped="";;
+              pedlegacy) sets="BASE,OPPONENT,PEDIGREE,ACTOR,TIME_PACE";actor="";auto="";ped="LEGACY";;
+              condition) sets="BASE,OPPONENT,AUTO,ACTOR,TIME_PACE";actor="actor_jockey_,actor_trainer_";auto="CONDITION";ped="";;
+              full) sets="BASE,OPPONENT,ACTOR,TIME_PACE";actor="";auto="";ped="";;
+              light) sets="BASE,OPPONENT,ACTOR,TIME_PACE";actor="actor_jockey_";auto="";ped="";;
+              pedv1) sets="BASE,OPPONENT,PEDIGREE,ACTOR,TIME_PACE";actor="";auto="";ped="";;
+              condrc) sets="BASE,OPPONENT,AUTO,PEDIGREE,ACTOR,TIME_PACE";actor="actor_jockey_,actor_trainer_";auto="CONDITION";ped="RACE_CLASS";;
+            esac
+            node "$ORIGINAL_L17/research/project-yearly-snapshots.mjs" \
+              --inputs "$RUNNER_TEMP/l17-target-24.jsonl.gz" \
+              --output "$out/projection-$alias.jsonl.gz" \
+              --feature-sets "$sets" --prediction-phase FINAL \
+              --actor-prefixes "$actor" --auto-slices "$auto" --pedigree-slices "$ped"
+            python research/p4_20261010_original_7k_forward_v1.py \
+              --mode infer --alias "$alias" --projection "$out/projection-$alias.jsonl.gz" \
+              --models "$RUNNER_TEMP/models" --original-dir "$ORIGINAL_L17" \
+              --out "$out/$alias.jsonl.gz"
+          done
+          python research/p4_20261010_original_7k_forward_v1.py \
+            --mode consensus --scores-dir "$out" --original-dir "$ORIGINAL_L17" \
+            --out "$out/20261010-7king-consensus.jsonl.gz"
+          echo "ORIGINAL_SEVEN_KING_2026_24_RACES_SUCCEEDED_OUTSIDER_P3_STILL_REQUIRED"
+      - name: No artifacts or new paid storage
+        if: always()
+        run: echo "NO_UPLOADED_ARTIFACT_CACHE_DATASET_OR_MODEL"
