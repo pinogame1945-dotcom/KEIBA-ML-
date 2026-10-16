@@ -26,7 +26,7 @@ def payload():
 class TestRealCore4SchemaGate(unittest.TestCase):
     def test_original_core4_exact_feature_families_and_identity(self):
         d=audit(payload())
-        self.assertEqual(d["core4_feature_count"],7)
+        self.assertEqual(d["core4_feature_count"],6)
         self.assertEqual(d["excluded_non_core4_count"],2)
         self.assertEqual(d["core4_group_counts"],
                          {"BASE":3,"opponent_":1,"auto_":1,"actor_":1})
