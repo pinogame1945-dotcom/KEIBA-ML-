@@ -55,9 +55,36 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
+          IFS=
+          python3 - <<'PY'
+          import json,os,pathlib,re
+          root=pathlib.Path(os.environ["RUNNER_TEMP"])/"keiba-cold-target"
+          d=json.loads((root/"target-unscored.json").read_text())
+          assert d["race_id"]=="202505050812"
+          assert d["contract"]=="KEIBA_UNSCORED_RACE_FEATURE_EXTRACT_V1"
+          assert d["used_target_labels"] is False
+          assert d["used_results_payouts_final_odds"] is False
+          assert d["used_historical_oos_target_predictions"] is False
+          assert d["source_manifest_count_and_date_range_verified"] is True
+          assert len(d["blinded_feature_panel_sha256"])==64
+          assert d["actual_source_capture_time_independently_verified"] is False
+          assert d["official_full_starter_list_compared"] is False
+          assert len(d["rows"])==len({x["_horse_id"] for x in d["rows"]})
+          forbidden=re.compile(r"^(?:_finish|_is_win|_is_top3|target_|_target_|finish_|final_|payout_|result_|after_race_|postrace_|P__|distill_|risk$|risk_|market_rank$)")
+          assert all(not forbidden.match(k) for x in d["rows"] for k in x)
+          print("REAL_UNSCORED_TARGET_FEASIBILITY_VERIFIED",
+                d["race_id"],"year",d["race_date"][:4],
+                "horses",len(d["rows"]),"features",d["feature_key_count"],
+                "asof_certified",False,"full_field_certified",False,flush=True)
+          PY
+\t' read -r snapshot_year logical remote mode sha expected_rows expected_min expected_max < "$RUNNER_TEMP/keiba-cold-target/resolved-2025.tsv"
+          test "$snapshot_year" = "2025"
           node research/extract_unscored_race_from_snapshot.mjs \
             --input "$TARGET_SNAPSHOT_PATH" \
             --race-id "$TARGET_RACE_ID" \
+            --manifest-rows "$expected_rows" \
+            --manifest-min-date "$expected_min" \
+            --manifest-max-date "$expected_max" \
             --output "$RUNNER_TEMP/keiba-cold-target/target-unscored.json"
           python3 - <<'PY'
           import json,os,pathlib,re
