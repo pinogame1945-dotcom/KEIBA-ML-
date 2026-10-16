@@ -92,7 +92,7 @@ class GenuineHistoricalFormula(unittest.TestCase):
     def test_18_registered_one_scratched_and_canonical_identity(self):
         bridge,card,odds,param=mock_input()
         bridge["horses"][0]["horse_id"]="WRONG_HORSE"
-        with self.assertRaisesRegex(ValueError,"HISTORICAL_CANONICAL_DRIFT"):
+        with self.assertRaisesRegex(ValueError,"BLIND_SCORE_HORSE_ID_VS_BACKFILL_CANONICAL_DRIFT"):
             historical_full_frozen(bridge,card,odds,param)
 
     def test_missing_final_quote_blocks_no_fake_zero(self):
