@@ -59,11 +59,11 @@ jobs:
           root="$RUNNER_TEMP/frozen-l21-original"
           export TARGET_RACE
           secondary="$(python3 - "$root/known.csv.gz" <<'PY'
-import csv,gzip,sys
-with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
-    x=next(r["race_id"] for r in csv.DictReader(f) if r["year"]=="2025")
-print(x)
-PY
+          import csv,gzip,sys
+          with gzip.open(sys.argv[1],"rt",encoding="utf-8") as f:
+              x=next(r["race_id"] for r in csv.DictReader(f) if r["year"]=="2025")
+          print(x)
+          PY
 )"
           args=(--race "$TARGET_RACE")
           if [ "$secondary" != "$TARGET_RACE" ]; then args+=(--race "$secondary"); fi
@@ -76,19 +76,19 @@ PY
             --race-budget-yen 20000 --paper-bankroll-yen 100000 \
             --output "$root/real-frozen-replay.json"
           python3 - "$root/real-frozen-replay.json" "$secondary" <<'PY'
-import json,sys
-r=json.load(open(sys.argv[1],encoding="utf-8"))
-assert r["source_phase"]=="FINAL_RESEARCH_ARCHIVED_NOT_AT_BET_CUTOFF"
-assert not r["genuinely_prebet_validated"]
-assert not r["year_2026_results_read"]
-assert r["historical_2023_2025_L2_selection_was_hindsight"]
-assert r["rankings_source"]=="ORIGINAL_FROZEN_OOS_SCORES"
-assert any(q["race_id"]==sys.argv[2] and q["frozen_physical_ticket_count"]>0 for q in r["races"])
-for q in r["races"]:
-    assert q["rankings"]["value_ev"][0]["horse_id"]==q["original_anchor_horse_id"]
-    assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["value_ev"])
-    assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["ai_prob"])
-    assert q["status"] in ("HISTORICAL_FINAL_ONLY_UNAVAILABLE_AS_PREBET","HISTORICAL_V3_SAME_DAY_NOT_FUNDED")
-    assert q["frozen_physical_ticket_count"]==len(q["tickets"]) or q["status"]=="HISTORICAL_V3_SAME_DAY_NOT_FUNDED"
-print("FROZEN_L21_REAL_RANK_RISK_ANCHOR_13479_TICKET_V3_REPLAY_PASS")
-PY
+          import json,sys
+          r=json.load(open(sys.argv[1],encoding="utf-8"))
+          assert r["source_phase"]=="FINAL_RESEARCH_ARCHIVED_NOT_AT_BET_CUTOFF"
+          assert not r["genuinely_prebet_validated"]
+          assert not r["year_2026_results_read"]
+          assert r["historical_2023_2025_L2_selection_was_hindsight"]
+          assert r["rankings_source"]=="ORIGINAL_FROZEN_OOS_SCORES"
+          assert any(q["race_id"]==sys.argv[2] and q["frozen_physical_ticket_count"]>0 for q in r["races"])
+          for q in r["races"]:
+              assert q["rankings"]["value_ev"][0]["horse_id"]==q["original_anchor_horse_id"]
+              assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["value_ev"])
+              assert len(q["rankings"]["ai_raw"])==len(q["rankings"]["ai_prob"])
+              assert q["status"] in ("HISTORICAL_FINAL_ONLY_UNAVAILABLE_AS_PREBET","HISTORICAL_V3_SAME_DAY_NOT_FUNDED")
+              assert q["frozen_physical_ticket_count"]==len(q["tickets"]) or q["status"]=="HISTORICAL_V3_SAME_DAY_NOT_FUNDED"
+          print("FROZEN_L21_REAL_RANK_RISK_ANCHOR_13479_TICKET_V3_REPLAY_PASS")
+          PY
