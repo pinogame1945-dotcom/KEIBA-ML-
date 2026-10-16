@@ -47,7 +47,9 @@ def scan(path, year):
     row_count = 0
     observed_first = None
     observed_last = None
-    reference_set = None
+    year_set = set()
+    race_sets = {}
+    sparse_row_count = 0
     problems = []
     opener = gzip.open if str(path).endswith(".gz") else open
     with opener(path, "rt", encoding="utf-8") as f:
@@ -71,12 +73,13 @@ def scan(path, year):
             if row.get("prediction_phase") != "FINAL":
                 problems.append("PREDICTION_PHASE_DRIFT")
             keys = selected_columns(features)
-            if reference_set is None:
-                reference_set = set(keys)
-            if len(keys) != EXPECTED or digest(keys) != CORE4_SHA:
-                problems.append("FROZEN_649_FEATURE_NAME_DIGEST_MISMATCH:" + rid + ":" + hid)
-            if set(keys) != reference_set:
-                problems.append("HORSE_FEATURE_NAME_INCONSISTENCY:" + rid + ":" + hid)
+            # The original Pandas DataFrame.from_records() uses union-of-keys
+            # within its input cohort and fills absent horse-level cells with NaN.
+            # Sparse per-horse objects are normal and must NOT be called schema drift.
+            year_set.update(keys)
+            race_sets.setdefault(rid, set()).update(keys)
+            if len(keys) < EXPECTED:
+                sparse_row_count += 1
             row_count += 1
             by_date[dt] += 1
             observed_first = min(observed_first, dt) if observed_first else dt
@@ -92,12 +95,20 @@ def scan(path, year):
                     populated[key] += 1
     if not row_count:
         problems.append("NO_VERIFIED_SNAPSHOT_ROWS")
+    if len(year_set) != EXPECTED or digest(sorted(year_set)) != CORE4_SHA:
+        problems.append("FROZEN_649_YEAR_UNION_FEATURE_NAME_MISMATCH")
+    # Original blind single-race inference constructs a NEW DataFrame from
+    # that race alone, so record which race cohorts lack one or more columns.
+    deficient_races = sorted(
+        rid for rid, cols in race_sets.items()
+        if len(cols) != EXPECTED or digest(sorted(cols)) != CORE4_SHA
+    )
     family = {}
     for prefix in FIELDS:
         keys = [k for k in encountered if k.startswith(prefix)]
         if keys:
             n = sum(populated[k] for k in keys)
-            total = sum(encountered[k] for k in keys)
+            total = row_count * len(keys)
             family[prefix] = {"features": len(keys), "populated_cells": n,
                               "total_cells": total, "coverage_pct": round(n * 100 / total, 2)}
     sparse = sorted(({"name": k, "present": populated[k], "rows": row_count}
@@ -109,9 +120,14 @@ def scan(path, year):
         "dates": len(by_date),
         "first_date": observed_first,
         "last_date": observed_last,
-        "core4_feature_count": len(reference_set or ()),
-        "core4_name_sha256": digest(sorted(reference_set)) if reference_set else None,
-        "core4_name_equivalent_to_original": bool(reference_set) and not problems,
+        "core4_feature_count": len(year_set),
+        "core4_name_sha256": digest(sorted(year_set)) if year_set else None,
+        "core4_name_equivalent_to_original": bool(year_set) and not problems,
+        "per_horse_rows_with_omitted_feature_keys": sparse_row_count,
+        "total_race_panels": len(race_sets),
+        "race_panels_missing_original_649_name_union": len(deficient_races),
+        "race_panels_with_complete_649_name_union": len(race_sets) - len(deficient_races),
+        "first_10_incomplete_race_ids": deficient_races[:10],
         "feature_coverage_by_family": family,
         "lowest_coverage_features": sparse,
         "error_count": len(problems),
