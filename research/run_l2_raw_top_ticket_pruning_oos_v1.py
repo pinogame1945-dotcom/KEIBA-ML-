@@ -12,6 +12,7 @@ instead of five times. All formulas and tie semantics from frozen original.
 from __future__ import annotations
 import argparse
 import csv
+import gzip
 import json
 import math
 from collections import Counter, defaultdict
@@ -200,7 +201,10 @@ def assert_exact_original(year, line_stats, old):
 
 def write_csv(path,rows):
     assert_ok(bool(rows),"empty output file "+str(path))
-    with path.open("w",encoding="utf-8",newline="") as f:
+    writer=(gzip.open(path,"wt",encoding="utf-8",newline="")
+            if str(path).endswith(".gz") else
+            path.open("w",encoding="utf-8",newline=""))
+    with writer as f:
         w=csv.DictWriter(f,fieldnames=list(rows[0]))
         w.writeheader()
         w.writerows(rows)
@@ -387,8 +391,8 @@ def main():
     assert_ok(sum(int(results[y][1][0,0]) for y in YEARS)==3972199,
               "physical BASE count diverged from phase 1")
     files={
-        "pruning_2024_2025_all_3040_odds_bands_by_year.csv":bands,
-        "pruning_2024_2025_pooled_3040_odds_bands.csv":pooled,
+        "pruning_2024_2025_all_3040_odds_bands_by_year.csv.gz":bands,
+        "pruning_2024_2025_pooled_3040_odds_bands.csv.gz":pooled,
         "pruning_2024_2025_152_template_odds_border_moves.csv":borders,
         "pruning_2024_2025_20_policy_comparison.csv":policies,
     }
