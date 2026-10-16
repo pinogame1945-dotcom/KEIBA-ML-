@@ -1,0 +1,103 @@
+name: 2026 Original CORE4 Generation Phase 2 - Free CPU Read Only
+
+on:
+  push:
+    branches: [audit/2026-feature-input-phase1-20261016]
+    paths:
+      - research/audit_2026_generated_core4_v1.py
+      - .github/workflows/audit-2026-original-core4-generation-phase2.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: 2026-feature-generation-phase2
+  cancel-in-progress: false
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 95
+    env:
+      NODE_OPTIONS: --max-old-space-size=4096
+      OMP_NUM_THREADS: 2
+      OPENBLAS_NUM_THREADS: 1
+      L1_THREADS: 2
+    steps:
+      - name: Checkout existing original feature code only
+        uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "24"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Preflight - original source versions, free CPU and temporary disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 5000000
+          node --check research/build-yearly-superset-snapshots.mjs
+          node --check src/ml-dataset.mjs
+          node --check src/historical-extra-builder.mjs
+          python3 -m py_compile research/audit_2026_generated_core4_v1.py
+          python3 scripts/verify_keiba_l2_1_freeze.py
+          echo "2026_P2_FREE_CPU_NO_GPU_NO_CACHE_NO_PERSISTENT_DATA"
+
+      - name: Checkout only BACKFILL day-pack source using git sparse partial clone
+        shell: bash
+        run: |
+          set -euo pipefail
+          SRC_COMMIT="03950cfe132abeca15ef17dbc7c6885ceb1591b7"
+          src="$RUNNER_TEMP/backfill-p2"
+          mkdir -p "$src"
+          git -C "$src" init --quiet
+          git -C "$src" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$src" fetch --no-tags --depth 1 --filter=blob:none origin "$SRC_COMMIT"
+          git -C "$src" sparse-checkout init --cone
+          git -C "$src" sparse-checkout set data/daily
+          git -C "$src" checkout --detach FETCH_HEAD
+          test "$(git -C "$src" rev-parse HEAD)" = "$SRC_COMMIT"
+          test -f "$src/data/daily/2025-12-28.jsonl.gz"
+          test -f "$src/data/daily/2026-10-10.jsonl.gz"
+          test -f "$src/data/daily/2026-10-11.jsonl.gz"
+          test -f "$src/data/daily/2026-10-12.jsonl.gz"
+          echo "BACKFILL_SPARSE_DAILY_CHECKOUT_OK source_sha=$SRC_COMMIT"
+          du -sh "$src" "$src/data/daily"
+          df -h "$RUNNER_TEMP"
+
+      - name: Rebuild 2026 data through Oct 12 with unchanged original 2022-2025 state
+        shell: bash
+        run: |
+          set -euo pipefail
+          node research/build-yearly-superset-snapshots.mjs \
+            --source-root "$RUNNER_TEMP/backfill-p2" \
+            --out-dir "$RUNNER_TEMP/phase2-generated" \
+            --source-start 2022-01-01 \
+            --source-end 2026-10-12 \
+            --emit-start 2025-12-28 \
+            --emit-end 2026-10-12 \
+            --first-model-ready-year 2023 \
+            --prediction-phase FINAL \
+            --feature-sets BASE,OPPONENT,NETWORK,LAP,STYLE,DISTANCE,BACKFILL,AUTO,ACTOR,TIME_PACE \
+            --source-sha 03950cfe132abeca15ef17dbc7c6885ceb1591b7 \
+            --ml-source-sha "$GITHUB_SHA"
+
+      - name: Compare real 2025 and 2026 generated CORE4 schema to frozen 649 signature
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 -m pip install --disable-pip-version-check --no-cache-dir \
+            "numpy>=1.26,<3" "pandas>=2.2,<3" "scikit-learn>=1.4,<2" "lightgbm>=4,<5"
+          manifest=$(find "$RUNNER_TEMP/phase2-generated" -name manifest.json -print -quit)
+          test -f "$manifest"
+          folder=$(dirname "$manifest")
+          test -f "$folder/snapshot-2025.jsonl.gz"
+          test -f "$folder/snapshot-2026.jsonl.gz"
+          python3 research/audit_2026_generated_core4_v1.py \
+            --snapshot-2025 "$folder/snapshot-2025.jsonl.gz" \
+            --snapshot-2026 "$folder/snapshot-2026.jsonl.gz"
+          echo "P2_FINISHED_ONLY_EPHEMERAL_SOURCE_AND_DERIVED_SNAPSHOTS"
+          du -h "$folder/snapshot-2025.jsonl.gz" "$folder/snapshot-2026.jsonl.gz"
