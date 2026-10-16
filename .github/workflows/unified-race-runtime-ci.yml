@@ -1,0 +1,23 @@
+name: Unified race runtime frozen parity - Free CPU
+on:
+  push:
+    branches:
+      - feature/unified-race-runtime-20261016
+    paths:
+      - 'keiba_runtime/**'
+      - 'tests/test_unified_race_runtime_v1.py'
+      - '.github/workflows/unified-race-runtime-ci.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: python scripts/verify_keiba_l2_1_freeze.py
+      - run: python -m unittest discover -s tests -p 'test_unified_race_runtime_v1.py' -v
