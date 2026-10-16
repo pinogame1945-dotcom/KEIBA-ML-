@@ -10,13 +10,13 @@ on:
       - research/export_strict_prior_state_history_v1.py
       - research/compute_blind_target_seq_regime_v1.py
       - research/export_blind_2025_original_ability_priors_v1.py
-      - research/run_blind_202506050811_original_ability_v1.py
+      - research/run_blind_202505050812_original_ability_v1.py
       - research/export_original_2019_22_risk_teacher_priors_v1.py
       - research/export_original_prior_oos_market_teacher_v1.py
       - research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py
       - research/bridge_blind_original_l1_to_l175_v1.py
-      - research/run_fresh_202506050811_historical_final_l21_v3_v1.py
-      - scripts/publish_fresh_historical_202506050811_mobile_v1.py
+      - research/run_fresh_202505050812_historical_final_l21_v3_v1.py
+      - scripts/publish_fresh_historical_202505050812_mobile_v1.py
       - tests/test_blind_target_seq_regime_parity_v1.py
       - .github/workflows/validate-arima-2025-blind-v1.yml
   workflow_dispatch:
@@ -46,7 +46,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/verify_keiba_l2_1_freeze.py
-          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py research/export_blind_2025_original_ability_priors_v1.py research/run_blind_202506050811_original_ability_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py research/export_original_prior_oos_market_teacher_v1.py research/export_original_2019_22_risk_teacher_priors_v1.py
+          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py research/export_blind_2025_original_ability_priors_v1.py research/run_blind_202505050812_original_ability_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py research/export_original_prior_oos_market_teacher_v1.py research/export_original_2019_22_risk_teacher_priors_v1.py
           node --check research/extract_unscored_race_from_snapshot.mjs
           bash -n scripts/fetch_original_state_history_snapshot.sh
           test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 4000000
@@ -157,7 +157,7 @@ jobs:
         run: |
           set -euo pipefail
           root="$RUNNER_TEMP/original-prior-state-2019-2025"
-          python3 research/run_blind_202506050811_original_ability_v1.py --root "$root"
+          python3 research/run_blind_202505050812_original_ability_v1.py --root "$root"
           python3 - "$root" <<'PY'
           import json,sys,pathlib
           root=pathlib.Path(sys.argv[1])
@@ -244,7 +244,7 @@ jobs:
             --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
             --path data/odds/daily/2025-12-28.jsonl.gz \
             --dest "$root/2025-12-28-final-odds.jsonl.gz" --max-bytes 1000000
-          python3 research/run_fresh_202506050811_historical_final_l21_v3_v1.py \
+          python3 research/run_fresh_202505050812_historical_final_l21_v3_v1.py \
             --bridge "$root/BLIND-202506050811-L1-RISK-DOWNSTREAM-BLOCKED.json" \
             --historical-day-pack "$root/2025-12-28-day.jsonl.gz" \
             --historical-odds-pack "$root/2025-12-28-final-odds.jsonl.gz" \
@@ -279,7 +279,7 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/original-prior-state-2019-2025"
           file="$root/FRESH-202506050811-L1-L21-L3-MOBILE.json"
-          python3 scripts/publish_fresh_historical_202506050811_mobile_v1.py --input "$file" --dry-run
-          python3 scripts/publish_fresh_historical_202506050811_mobile_v1.py --input "$file"
+          python3 scripts/publish_fresh_historical_202505050812_mobile_v1.py --input "$file" --dry-run
+          python3 scripts/publish_fresh_historical_202505050812_mobile_v1.py --input "$file"
           echo "MOBILE_FRESH_17_HORSE_HISTORICAL_JSON historical-new/2025/202506050811.json"
           echo "FINAL_RESEARCH_ONLY_NO_LIVE_BET_OR_FABRICATED_P3"
