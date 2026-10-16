@@ -41,14 +41,14 @@
     "exact_research_name_matches": 22,
     "seven_king_name_drifts": 3,
     "outsider_matched": 18,
-    "ensemble_derived_registered": 6,
     "families": {
       "7KING": 7,
       "OUTSIDER_HORSE": 5,
       "OUTSIDER_NONHORSE": 6,
       "OUTSIDER_TRANSITION": 7,
-      "null": 6
-    }
+      "DERIVED_OR_DOWNSTREAM": 6
+    },
+    "downstream_or_meta_entries": 6
   },
   "caveats": [
     "Research feature_sets are broad groups, never the exact trained model column schema.",
@@ -56,7 +56,8 @@
     "PR7 is closed/unmerged and does not establish main production readiness.",
     "13 archived Outsider ballots and 18 research model candidates must not be conflated.",
     "No 2026 results/ROI used.",
-    "Training fold early stopping may have used target-year labels and requires time-aware eligibility audit."
+    "Training fold early stopping may have used target-year labels and requires time-aware eligibility audit.",
+    "Six registered non-7KING/non-Outsider entries are downstream/summary/model-stage names, not proven standalone trainable models."
   ],
   "models": [
     {
