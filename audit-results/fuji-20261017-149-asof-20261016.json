@@ -1,0 +1,2662 @@
+{
+  "contract": "FUJI_20261017_149_ASOF_AUDIT_V1",
+  "status": "COMPLETED_WITH_UNVERIFIED_ITEMS",
+  "race_id": "202605040611",
+  "date": "2026-10-17",
+  "observed_at_client_utc": "2026-10-16T03:18:21.218380+00:00",
+  "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611",
+  "source_sha256": "1047aebc22e7f24bc0d392197897abf445eb3a3db714d1fb3de6b03b1d5d2ff2",
+  "catalog_sha": "cd3c12a6971f4e56e62aeafd6a0e43b75b8bfa70",
+  "run_url": "https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/38844834132",
+  "warnings": [
+    "NOT_JRA_ODDS",
+    "NOT_FULL_BACKFILL_HISTORY_RECALC",
+    "LEGACY_DESIGNATION_REGEX_DIFFERENCE",
+    "NOT_PUBLISHER_SIGNED_TIMESTAMP"
+  ],
+  "status_counts": {
+    "OBSERVED_OR_DERIVED_FROM_PAGE": 23,
+    "NOT_YET_PUBLISHED_OR_NOT_VISIBLE": 2,
+    "NOT_YET_PUBLISHED": 7,
+    "OBSERVED_NETKEIBA_PAGE": 8,
+    "BACKFILL_HISTORY_REQUIRED": 93,
+    "HORSE_PROFILE_REQUIRED": 10,
+    "NOT_VISIBLE_OR_UNPROVEN": 3,
+    "POST_RACE_FINAL_ONLY": 3
+  },
+  "raw_page": {
+    "title": "富士ステークス(G2)出馬表|2026年10月17日東京11Rレース情報(JRA)-netkeiba",
+    "race_name": "富士S",
+    "raw_course": "15:45発走/芝1600m(左A)",
+    "raw_condition": "4回東京6日目サラ系3歳以上オープン(国際)(指)別定14頭本賞金:5900,2400,1500,890,590万円",
+    "table_headings": [
+      "枠",
+      "馬番",
+      "印",
+      "馬名",
+      "性齢",
+      "斤量",
+      "騎手",
+      "厩舎",
+      "馬体重(増減)",
+      "更新",
+      "人気",
+      "お気に入り馬",
+      "馬メモ切替",
+      "マスターレース別馬メモ切替",
+      "登録",
+      "グループ"
+    ],
+    "no_inner_outer_information_in_page": true,
+    "designation_legacy_regex_conflict": true
+  },
+  "runners": [
+    {
+      "horse_id": "2022105836",
+      "horse_name": "ファンダム",
+      "gate": 1,
+      "horse_number": 1,
+      "sex": "牡",
+      "age": 4,
+      "carried_weight": 57,
+      "jockey_id": "05386",
+      "trainer_id": "01182",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2022104053",
+      "horse_name": "ミトノオルフェ",
+      "gate": 2,
+      "horse_number": 2,
+      "sex": "牡",
+      "age": 4,
+      "carried_weight": 57,
+      "jockey_id": "01179",
+      "trainer_id": "01210",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2022110114",
+      "horse_name": "シンフォーエバー",
+      "gate": 3,
+      "horse_number": 3,
+      "sex": "牡",
+      "age": 4,
+      "carried_weight": 57,
+      "jockey_id": "05203",
+      "trainer_id": "00427",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021105557",
+      "horse_name": "トロヴァトーレ",
+      "gate": 3,
+      "horse_number": 4,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "05339",
+      "trainer_id": "01097",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2022105396",
+      "horse_name": "アドマイヤズーム",
+      "gate": 4,
+      "horse_number": 5,
+      "sex": "牡",
+      "age": 4,
+      "carried_weight": 58,
+      "jockey_id": "00666",
+      "trainer_id": "01061",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2019104878",
+      "horse_name": "デビットバローズ",
+      "gate": 4,
+      "horse_number": 6,
+      "sex": "セ",
+      "age": 7,
+      "carried_weight": 57,
+      "jockey_id": "01032",
+      "trainer_id": "01168",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021100953",
+      "horse_name": "ウォーターリヒト",
+      "gate": 5,
+      "horse_number": 7,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "00732",
+      "trainer_id": "01140",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2022104772",
+      "horse_name": "マジックサンズ",
+      "gate": 5,
+      "horse_number": 8,
+      "sex": "牡",
+      "age": 4,
+      "carried_weight": 57,
+      "jockey_id": "01140",
+      "trainer_id": "01105",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021105119",
+      "horse_name": "キープカルム",
+      "gate": 6,
+      "horse_number": 9,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "01160",
+      "trainer_id": "01039",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021110030",
+      "horse_name": "アンパドゥ",
+      "gate": 6,
+      "horse_number": 10,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "01174",
+      "trainer_id": "01126",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021104893",
+      "horse_name": "ファーヴェント",
+      "gate": 7,
+      "horse_number": 11,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "01122",
+      "trainer_id": "01055",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2022106691",
+      "horse_name": "エンペラーズソード",
+      "gate": 7,
+      "horse_number": 12,
+      "sex": "セ",
+      "age": 4,
+      "carried_weight": 57,
+      "jockey_id": "01162",
+      "trainer_id": "01088",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2021102224",
+      "horse_name": "シュガークン",
+      "gate": 8,
+      "horse_number": 13,
+      "sex": "牡",
+      "age": 5,
+      "carried_weight": 57,
+      "jockey_id": "01216",
+      "trainer_id": "01110",
+      "body_weight": null,
+      "body_weight_diff": null
+    },
+    {
+      "horse_id": "2023103184",
+      "horse_name": "エコロアルバ",
+      "gate": 8,
+      "horse_number": 14,
+      "sex": "牡",
+      "age": 3,
+      "carried_weight": 55,
+      "jockey_id": "01163",
+      "trainer_id": "01038",
+      "body_weight": null,
+      "body_weight_diff": null
+    }
+  ],
+  "feature_audit": [
+    {
+      "feature_id": "race.venue_code",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "05",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.venue_code",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.meeting_no",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 4,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.meeting_no",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.meeting_day",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 6,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.meeting_day",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.race_no",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 11,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.race_no",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.discipline",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "FLAT",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.discipline",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.surface",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "TURF",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.surface",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.distance_m",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 1600,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.distance_m",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.direction",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "LEFT",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.direction",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.weather",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "RACE_DAY",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_YET_PUBLISHED_OR_NOT_VISIBLE",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "No verified page value at observation time; check JRA current conditions separately.",
+      "source_field": "race.weather",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.track_condition",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "RACE_DAY",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_YET_PUBLISHED_OR_NOT_VISIBLE",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "No verified page value at observation time; check JRA current conditions separately.",
+      "source_field": "race.track_condition",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.actual_start_time",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "POST_RACE",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Actual start not known until race started; scheduled post time is not actual start.",
+      "source_field": "race.actual_start_time",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.gate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": 1
+        },
+        {
+          "horse_id": "2022104053",
+          "value": 2
+        },
+        {
+          "horse_id": "2022110114",
+          "value": 3
+        },
+        {
+          "horse_id": "2021105557",
+          "value": 3
+        },
+        {
+          "horse_id": "2022105396",
+          "value": 4
+        },
+        {
+          "horse_id": "2019104878",
+          "value": 4
+        },
+        {
+          "horse_id": "2021100953",
+          "value": 5
+        },
+        {
+          "horse_id": "2022104772",
+          "value": 5
+        },
+        {
+          "horse_id": "2021105119",
+          "value": 6
+        },
+        {
+          "horse_id": "2021110030",
+          "value": 6
+        },
+        {
+          "horse_id": "2021104893",
+          "value": 7
+        },
+        {
+          "horse_id": "2022106691",
+          "value": 7
+        },
+        {
+          "horse_id": "2021102224",
+          "value": 8
+        },
+        {
+          "horse_id": "2023103184",
+          "value": 8
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.gate",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.horse_number",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": 1
+        },
+        {
+          "horse_id": "2022104053",
+          "value": 2
+        },
+        {
+          "horse_id": "2022110114",
+          "value": 3
+        },
+        {
+          "horse_id": "2021105557",
+          "value": 4
+        },
+        {
+          "horse_id": "2022105396",
+          "value": 5
+        },
+        {
+          "horse_id": "2019104878",
+          "value": 6
+        },
+        {
+          "horse_id": "2021100953",
+          "value": 7
+        },
+        {
+          "horse_id": "2022104772",
+          "value": 8
+        },
+        {
+          "horse_id": "2021105119",
+          "value": 9
+        },
+        {
+          "horse_id": "2021110030",
+          "value": 10
+        },
+        {
+          "horse_id": "2021104893",
+          "value": 11
+        },
+        {
+          "horse_id": "2022106691",
+          "value": 12
+        },
+        {
+          "horse_id": "2021102224",
+          "value": 13
+        },
+        {
+          "horse_id": "2023103184",
+          "value": 14
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.horse_number",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.sex",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2022104053",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2022110114",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2021105557",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2022105396",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2019104878",
+          "value": "セ"
+        },
+        {
+          "horse_id": "2021100953",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2022104772",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2021105119",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2021110030",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2021104893",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2022106691",
+          "value": "セ"
+        },
+        {
+          "horse_id": "2021102224",
+          "value": "牡"
+        },
+        {
+          "horse_id": "2023103184",
+          "value": "牡"
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.sex",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.age",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": 4
+        },
+        {
+          "horse_id": "2022104053",
+          "value": 4
+        },
+        {
+          "horse_id": "2022110114",
+          "value": 4
+        },
+        {
+          "horse_id": "2021105557",
+          "value": 5
+        },
+        {
+          "horse_id": "2022105396",
+          "value": 4
+        },
+        {
+          "horse_id": "2019104878",
+          "value": 7
+        },
+        {
+          "horse_id": "2021100953",
+          "value": 5
+        },
+        {
+          "horse_id": "2022104772",
+          "value": 4
+        },
+        {
+          "horse_id": "2021105119",
+          "value": 5
+        },
+        {
+          "horse_id": "2021110030",
+          "value": 5
+        },
+        {
+          "horse_id": "2021104893",
+          "value": 5
+        },
+        {
+          "horse_id": "2022106691",
+          "value": 4
+        },
+        {
+          "horse_id": "2021102224",
+          "value": 5
+        },
+        {
+          "horse_id": "2023103184",
+          "value": 3
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.age",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.carried_weight",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": 57
+        },
+        {
+          "horse_id": "2022104053",
+          "value": 57
+        },
+        {
+          "horse_id": "2022110114",
+          "value": 57
+        },
+        {
+          "horse_id": "2021105557",
+          "value": 57
+        },
+        {
+          "horse_id": "2022105396",
+          "value": 58
+        },
+        {
+          "horse_id": "2019104878",
+          "value": 57
+        },
+        {
+          "horse_id": "2021100953",
+          "value": 57
+        },
+        {
+          "horse_id": "2022104772",
+          "value": 57
+        },
+        {
+          "horse_id": "2021105119",
+          "value": 57
+        },
+        {
+          "horse_id": "2021110030",
+          "value": 57
+        },
+        {
+          "horse_id": "2021104893",
+          "value": 57
+        },
+        {
+          "horse_id": "2022106691",
+          "value": 57
+        },
+        {
+          "horse_id": "2021102224",
+          "value": 57
+        },
+        {
+          "horse_id": "2023103184",
+          "value": 55
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.carried_weight",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.jockey_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": "05386"
+        },
+        {
+          "horse_id": "2022104053",
+          "value": "01179"
+        },
+        {
+          "horse_id": "2022110114",
+          "value": "05203"
+        },
+        {
+          "horse_id": "2021105557",
+          "value": "05339"
+        },
+        {
+          "horse_id": "2022105396",
+          "value": "00666"
+        },
+        {
+          "horse_id": "2019104878",
+          "value": "01032"
+        },
+        {
+          "horse_id": "2021100953",
+          "value": "00732"
+        },
+        {
+          "horse_id": "2022104772",
+          "value": "01140"
+        },
+        {
+          "horse_id": "2021105119",
+          "value": "01160"
+        },
+        {
+          "horse_id": "2021110030",
+          "value": "01174"
+        },
+        {
+          "horse_id": "2021104893",
+          "value": "01122"
+        },
+        {
+          "horse_id": "2022106691",
+          "value": "01162"
+        },
+        {
+          "horse_id": "2021102224",
+          "value": "01216"
+        },
+        {
+          "horse_id": "2023103184",
+          "value": "01163"
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.jockey_id",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.trainer_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": "01182"
+        },
+        {
+          "horse_id": "2022104053",
+          "value": "01210"
+        },
+        {
+          "horse_id": "2022110114",
+          "value": "00427"
+        },
+        {
+          "horse_id": "2021105557",
+          "value": "01097"
+        },
+        {
+          "horse_id": "2022105396",
+          "value": "01061"
+        },
+        {
+          "horse_id": "2019104878",
+          "value": "01168"
+        },
+        {
+          "horse_id": "2021100953",
+          "value": "01140"
+        },
+        {
+          "horse_id": "2022104772",
+          "value": "01105"
+        },
+        {
+          "horse_id": "2021105119",
+          "value": "01039"
+        },
+        {
+          "horse_id": "2021110030",
+          "value": "01126"
+        },
+        {
+          "horse_id": "2021104893",
+          "value": "01055"
+        },
+        {
+          "horse_id": "2022106691",
+          "value": "01088"
+        },
+        {
+          "horse_id": "2021102224",
+          "value": "01110"
+        },
+        {
+          "horse_id": "2023103184",
+          "value": "01038"
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.trainer_id",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.body_weight",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "BODY_WEIGHT_ANNOUNCED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": {
+        "present": 0,
+        "expected": 14
+      },
+      "reason": "Body weight not published in fetched pre-race page",
+      "source_field": "entries.body_weight",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.body_weight_diff",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "BODY_WEIGHT_ANNOUNCED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": {
+        "present": 0,
+        "expected": 14
+      },
+      "reason": "Body weight not published in fetched pre-race page",
+      "source_field": "entries.body_weight_diff",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.prior_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_window_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.days_since_last_start",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.previous_finish_position",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.previous_last_3f",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.previous_distance_m",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.distance_change_m",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.jockey_continues",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_avg_finish",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_win_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_avg_last_3f",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.recent_avg_speed_mps",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_surface_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_surface_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_distance_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_distance_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_venue_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.same_venue_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race/results",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.previous_known_count",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "previous field historical stats",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.previous_avg_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "previous field historical stats",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.previous_avg_win_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "previous field historical stats",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.previous_avg_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "previous field historical stats",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.previous_max_win_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "previous field historical stats",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_races_measured",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_avg_known_count",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_avg_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_avg_win_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_avg_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.recent_max_win_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "recent opponent histories",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.elo_rating",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "derived",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.elo_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "derived",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.field_known_count",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.field_avg_elo",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.field_max_elo",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.field_elo_spread",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.elo_vs_field_avg",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "network.expected_pairwise_score",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "current field + prior state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.previous_first3_avg",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.previous_last3_avg",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.previous_last1",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.previous_variance",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.previous_delta_last3_first3",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_races_measured",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_avg_first3",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_avg_last3",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_avg_last1",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_avg_variance",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "lap.recent_avg_delta_last3_first3",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race laps",
+      "domain": "LAP",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.previous_first_position",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.previous_last_position",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.previous_position_gain",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.previous_first_ratio",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.previous_last_ratio",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_races_measured",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_avg_first_position",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_avg_last_position",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_avg_position_gain",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_avg_first_ratio",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_avg_last_ratio",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_front_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_finish_front_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "style.recent_improve_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.corner_raw",
+      "domain": "STYLE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.recent_avg_distance_m",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.current_minus_recent_avg_m",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior + current distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.same_band_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.same_band_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results + distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.shorter_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.shorter_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results + distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.longer_starts",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior race distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "distance.longer_top3_rate",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results + distance",
+      "domain": "DISTANCE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.sire_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "pedigree generation=1 slot=0",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.dam_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "pedigree generation=1 slot=1",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.siresire_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "pedigree generation=2 slot=0",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.damsire_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "pedigree generation=2 slot=2",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.known_nodes",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "pedigree nodes",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.course_layout",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_VISIBLE_OR_UNPROVEN",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not observed in current HTML with a safe source mapping; not assumed false or zero.",
+      "source_field": "race.course_layout",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.course_laps",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_VISIBLE_OR_UNPROVEN",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not observed in current HTML with a safe source mapping; not assumed false or zero.",
+      "source_field": "race.course_laps",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.race_class_raw",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "オープン",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.race_class_raw",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.race_class_normalized",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "OPEN",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.race_class_normalized",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.grade",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "G2",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.grade",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.age_condition_raw",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "3歳以上",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.age_condition_raw",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.age_min",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 3,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.age_min",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.age_max",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "NOT_VISIBLE_OR_UNPROVEN",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not observed in current HTML with a safe source mapping; not assumed false or zero.",
+      "source_field": "race.age_max",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.sex_condition",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "ANY",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.sex_condition",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.weight_rule",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "SPECIAL_WEIGHT",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.weight_rule",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.mixed",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": false,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.mixed",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.international",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": true,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.international",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.special_designated",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": false,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.special_designated",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.designated",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": true,
+      "coverage": null,
+      "reason": "NOTICE: legacy BACKFILL normalizer only recognizes [指]; current netkeiba has (指). This is a normalization difference, not a page absence.",
+      "source_field": "race.designated",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.course_meta_raw",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "15:45発走/芝1600m(左A)",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.course_meta_raw",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.race_condition_raw",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "4回東京6日目サラ系3歳以上オープン(国際)(指)別定14頭本賞金:5900,2400,1500,890,590万円",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.race_condition_raw",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "jockey.win_rate",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by jockey",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "jockey.top3_rate",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by jockey",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "jockey.venue_score",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by jockey+venue",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "jockey.distance_score",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by jockey+distance",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "jockey.surface_score",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by jockey+surface",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse_jockey.starts",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior horse+jockey",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse_jockey.top3_rate",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior horse+jockey",
+      "domain": "JOCKEY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "trainer.win_rate",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by trainer",
+      "domain": "TRAINER",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "trainer.top3_rate",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior results by trainer",
+      "domain": "TRAINER",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "trainer.recent_form",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior recent trainer results",
+      "domain": "TRAINER",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.strong_opponent_performance",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior opponents + point-in-time strength",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.beaten_strength",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior opponents + point-in-time strength",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "auto.rolling_stats",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "approved numeric prior-history features",
+      "domain": "AUTO",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "auto.condition_splits",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "approved prior-history features + current condition",
+      "domain": "AUTO",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "auto.field_relative",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "approved horse features",
+      "domain": "AUTO",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "auto.safe_interactions",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "approved numeric feature pairs",
+      "domain": "AUTO",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "target.finish_position",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "POST_RACE",
+      "history_boundary": "CURRENT_RACE_RESULT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Result only after actual race. No pseudo-result.",
+      "source_field": "results.official_finish_position",
+      "domain": "TARGET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "target.finish_time_ms",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "POST_RACE",
+      "history_boundary": "CURRENT_RACE_RESULT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Result only after actual race. No pseudo-result.",
+      "source_field": "results.finish_time_ms",
+      "domain": "TARGET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "target.last_3f",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "POST_RACE",
+      "history_boundary": "CURRENT_RACE_RESULT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Result only after actual race. No pseudo-result.",
+      "source_field": "results.last_3f",
+      "domain": "TARGET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "target.prize_money",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "POST_RACE",
+      "history_boundary": "CURRENT_RACE_RESULT",
+      "status": "NOT_YET_PUBLISHED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Result only after actual race. No pseudo-result.",
+      "source_field": "results.prize_money",
+      "domain": "TARGET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "market.final_win_odds",
+      "catalog_status": "L2_ONLY",
+      "available_at_contract": "POST_MARKET_FINAL",
+      "history_boundary": "CURRENT_RACE_MARKET",
+      "status": "POST_RACE_FINAL_ONLY",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Final odds/popularity/payout unavailable before race; live odds source is JRA, not netkeiba.",
+      "source_field": "historical_odds/final result odds",
+      "domain": "MARKET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "market.final_popularity",
+      "catalog_status": "L2_ONLY",
+      "available_at_contract": "POST_MARKET_FINAL",
+      "history_boundary": "CURRENT_RACE_MARKET",
+      "status": "POST_RACE_FINAL_ONLY",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Final odds/popularity/payout unavailable before race; live odds source is JRA, not netkeiba.",
+      "source_field": "historical_odds/final result popularity",
+      "domain": "MARKET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "market.payout",
+      "catalog_status": "L2_ONLY",
+      "available_at_contract": "POST_MARKET_FINAL",
+      "history_boundary": "CURRENT_RACE_MARKET",
+      "status": "POST_RACE_FINAL_ONLY",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Final odds/popularity/payout unavailable before race; live odds source is JRA, not netkeiba.",
+      "source_field": "payouts",
+      "domain": "MARKET",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.margin_type",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.margin_type",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "history.margin_lengths",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "results.margin_lengths",
+      "domain": "HISTORY",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.field_size",
+      "catalog_status": "AVAILABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": 14,
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.field_size / active entries",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "race.race_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_OR_DERIVED_FROM_PAGE",
+      "observed_value": "202605040611",
+      "coverage": null,
+      "reason": null,
+      "source_field": "race.race_id",
+      "domain": "RACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "entry.horse_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "CURRENT_RACE_KNOWN_FACT",
+      "status": "OBSERVED_NETKEIBA_PAGE",
+      "observed_value": [
+        {
+          "horse_id": "2022105836",
+          "value": "2022105836"
+        },
+        {
+          "horse_id": "2022104053",
+          "value": "2022104053"
+        },
+        {
+          "horse_id": "2022110114",
+          "value": "2022110114"
+        },
+        {
+          "horse_id": "2021105557",
+          "value": "2021105557"
+        },
+        {
+          "horse_id": "2022105396",
+          "value": "2022105396"
+        },
+        {
+          "horse_id": "2019104878",
+          "value": "2019104878"
+        },
+        {
+          "horse_id": "2021100953",
+          "value": "2021100953"
+        },
+        {
+          "horse_id": "2022104772",
+          "value": "2022104772"
+        },
+        {
+          "horse_id": "2021105119",
+          "value": "2021105119"
+        },
+        {
+          "horse_id": "2021110030",
+          "value": "2021110030"
+        },
+        {
+          "horse_id": "2021104893",
+          "value": "2021104893"
+        },
+        {
+          "horse_id": "2022106691",
+          "value": "2022106691"
+        },
+        {
+          "horse_id": "2021102224",
+          "value": "2021102224"
+        },
+        {
+          "horse_id": "2023103184",
+          "value": "2023103184"
+        }
+      ],
+      "coverage": {
+        "present": 14,
+        "expected": 14
+      },
+      "reason": null,
+      "source_field": "entries.horse_id",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse.birth_date",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "horse profile.birth_date",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse.coat_color",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "horse profile.coat_color",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse.birthplace",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "horse profile.birthplace",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse.owner_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "horse profile.owner_id",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "horse.breeder_id",
+      "catalog_status": "PROHIBITED_L1",
+      "available_at_contract": "ALWAYS",
+      "history_boundary": "STATIC_FACT",
+      "status": "HORSE_PROFILE_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Horse or pedigree profile pack is a separate source, not the live race table. Presence for all 14 not yet checked.",
+      "source_field": "horse profile.breeder_id",
+      "domain": "HORSE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "pedigree.point_in_time_stats_v1",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "horse pedigree + prior race/results",
+      "domain": "PEDIGREE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "actor.point_in_time_stats_v1",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "entry actor identity + prior race/results",
+      "domain": "ACTOR",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "opponent.relationship_v2",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "FIELD_FIXED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior fields/results + point-in-time Elo/performance state",
+      "domain": "OPPONENT",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    },
+    {
+      "feature_id": "time_pace.normalized_v1",
+      "catalog_status": "DERIVABLE",
+      "available_at_contract": "ENTRY_PUBLISHED",
+      "history_boundary": "STRICT_PRIOR_DATE_ONLY",
+      "status": "BACKFILL_HISTORY_REQUIRED",
+      "observed_value": null,
+      "coverage": null,
+      "reason": "Not a raw feature on current card. Historical source/point-in-time feature computation not executed by page probe.",
+      "source_field": "prior result finish_time_ms/last_3f + race laps + normalized race conditions",
+      "domain": "TIME_PACE",
+      "source_url": "https://race.netkeiba.com/race/shutuba.html?race_id=202605040611"
+    }
+  ]
+}
