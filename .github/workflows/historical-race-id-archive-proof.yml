@@ -1,0 +1,59 @@
+name: Historical Race ID Archived AI Proof - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/l3-v3-official-github-producer-20261016
+    paths:
+      - research/replay-one-race-id.py
+      - research/replay-archived-council.py
+      - scripts/github-readonly-archive.py
+      - scripts/fetch-saved-council-github.sh
+      - .github/workflows/historical-race-id-archive-proof.yml
+  workflow_dispatch:
+    inputs:
+      race_id:
+        description: Canonical 2021-2025 historical race ID; 2026 sealed
+        required: true
+        default: '202507010212'
+        type: string
+
+permissions:
+  contents: read
+
+jobs:
+  archived-model-rank-proof:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify no forged L2 ranking and frozen contract
+        run: |
+          python scripts/verify_keiba_l2_1_freeze.py
+          python -m py_compile research/replay-one-race-id.py research/replay-archived-council.py scripts/github-readonly-archive.py
+      - name: Replay one actual saved historical race, no after-race labels
+        env:
+          RACE_ID: ${{ inputs.race_id || '202507010212' }}
+        run: |
+          set -euo pipefail
+          [[ "$RACE_ID" =~ ^202[1-5][0-9]{8}$ ]] || { echo "NO_HISTORICAL_2026_UNSEAL"; exit 2; }
+          python research/replay-one-race-id.py --race "$RACE_ID" --output-dir "${RUNNER_TEMP}/keiba-archive"
+          python - <<'PY'
+          import json,os,pathlib
+          p=pathlib.Path(os.environ['RUNNER_TEMP'])/'keiba-archive/race-id-archive-analysis.json'
+          x=json.loads(p.read_text())
+          assert x['status']=='HISTORICAL_OOF_REPLAY_ONLY'
+          assert x['not_live_prediction'] is True
+          assert x['original_l21_router_reconstructed'] is False
+          assert x['model_families']['seven_king']==7
+          assert x['model_families']['outsider_top3_ballot']==13
+          assert x['runners']==len(x['horses'])>=3
+          assert all(h['source_prediction_phase']=='FINAL_RESEARCH_ARCHIVED' for h in x['horses'])
+          assert not x['result_or_payout_used']
+          print('REAL_HISTORICAL_RACE_ID_20_MODEL_SAVED_REPLAY_PASS',
+                x['race_id'],'starters',x['runners'],
+                'no_L2_or_L3_fabrication',True)
+          PY
