@@ -1,0 +1,124 @@
+name: L2 RAW All 20 Fair Warmup 2023 Then OOS 2024-25
+
+on:
+  push:
+    branches:
+      - research/l2-raw-all20-fair-2023-warmup-20261016
+    paths:
+      - .github/workflows/l2-raw-20fair-warmup-v1.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-raw-20fair-warmup-v1
+  cancel-in-progress: false
+
+jobs:
+  raw-all20-common-window:
+    runs-on: ubuntu-latest
+    timeout-minutes: 70
+    steps:
+      - name: Check out isolated research branch
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Set up standard Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Guard free standard CPU and no billed storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          from pathlib import Path
+          p=Path(".github/workflows/l2-raw-20fair-warmup-v1.yml").read_text()
+          assert [x.strip() for x in p.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          uses=[x.strip() for x in p.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(("upload-artifact" in x or "actions/cache" in x) for x in uses)
+          print("FREE_STANDARD_CPU_ONLY_NO_PAID_ARTIFACTS_OR_CACHE")
+          PY
+          python -m py_compile research/run_l2_raw_20fair_warmup_v1.py
+      - name: Install required Pandas dependency only
+        run: python -m pip install --disable-pip-version-check numpy pandas
+      - name: Run isolated calculation regression tests
+        run: python -m unittest discover -s tests -p 'test_l2_raw_top_ticket_pruning_oos_v1.py' -v
+      - name: Pin real historical BACKFILL and resolve existing manifests
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - <<'PY'
+          import pandas as pd, json
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          main=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          source="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          dates=sorted(set(pd.read_csv(source,usecols=["year","_race_date"],
+                                  compression="infer")["_race_date"].astype(str).str[:10]))
+          assert 300 <= len(dates) <= 350, len(dates)
+          paths={"data/manifest.json","data/odds/manifest.json"}
+          for day in dates:
+              a=main["days"].get(day)
+              b=odds["days"].get(day)
+              assert a and a.get("status")=="SUCCESS",(day,"race pack missing",a)
+              assert b and b.get("status")=="SUCCESS",(day,"final odds missing",b)
+              x=a["file"];y=b["file"]
+              assert x.startswith("data/daily/") and x.endswith(".jsonl.gz")
+              assert y.startswith("data/odds/daily/") and y.endswith(".jsonl.gz")
+              paths.update((x,y))
+          Path("out/pinned-sparse-paths.txt").write_text(
+              "\n".join("/"+p for p in sorted(paths))+"\n")
+          print("PINNED_BACKFILL_DAY_COUNT",len(dates),"EXISTING_DATA_FILES",len(paths))
+          PY
+      - name: Fetch existing BACKFILL data once (2023 to 2025)
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-sparse-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+      - name: Fair 2023 January calibration, 2023 Feb-Dec, reuse exact OOS 2024-25
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-raw-20fair-warmup-v1/run-$GITHUB_RUN_ID"
+          python -u research/run_l2_raw_20fair_warmup_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --baseline research-results/l2-raw-top-3040-odds-border-v1/run-38863602506/phase1_all_3040_odds_bands_by_year.csv \
+            --pruned24-25 research-results/l2-raw-top-ticket-pruning-oos-v1/run-38866412885/pruning_2024_2025_all_3040_odds_bands_by_year.csv.gz \
+            --historical out/pinned-history --out-dir "$out"
+          for file in summary.json all_20_methods_ranked_fair.csv \
+                     all_black_lines_by_method_fair.csv.gz \
+                     2023_feb_dec_all3040_by21_policies.csv.gz; do
+            test -s "$out/$file"
+          done
+      - name: Erase transient BACKFILL data
+        if: always()
+        shell: bash
+        run: rm -rf out/pinned-history out/pinned-sparse-paths.txt
+      - name: Save only compact results on dedicated research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-raw-20fair-warmup-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: fair all 20 common 2023 calibration ROI rank $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
