@@ -233,7 +233,7 @@ def parse_live_jra_entries(html,names):
    raw_frame=clean(cells[0].get_text(" ",strip=True))
    frame_no=frame[0] if len(frame)==1 else int(raw_frame) if re.fullmatch(r"[1-8]",raw_frame) else None
    raw=clean(tr.get_text(" ",strip=True))
-   status="SCRATCHED" if "出走取消" in raw else "EXCLUDED" if "競走除外" in raw or "出走除外" in raw else "LISTED"
+   status="SCRATCHED" if num_text in ("取消","出走取消") or "出走取消" in raw else "EXCLUDED" if num_text in ("除外","競走除外","出走除外") or "競走除外" in raw or "出走除外" in raw else "LISTED"
    records.append({"horse_name":name,"horse_number":num,"gate":frame_no,"entry_status":status})
  if not records or len({x["horse_name"] for x in records})!=len(records):
   raise ValueError("JRA_HORSE_LIST_INCOMPLETE_OR_DUPLICATE")
@@ -369,7 +369,7 @@ def parse_official_odds(race,net,official):
      p.pop("status");quotes.append({**item,**p})
     else:no_votes.append({**item,**p})
  # Do not combine prices from mismatched publisher updates.
- if len(update_times)!=1:raise ValueError("MIXED_JRA_SOURCE_UPDATE_TIMES")
+ if len(update_times)!=1:raise ValueError("MIXED_JRA_SOURCE_UPDATE_TIMES:"+json.dumps({k:v["official_update_display"] for k,v in page_meta.items()},ensure_ascii=False,sort_keys=True))
  absent=[]
  if n<=8 and "BRACKET_QUINELLA" not in links:
   absent=["BRACKET_QUINELLA"]

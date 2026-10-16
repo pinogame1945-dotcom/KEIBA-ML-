@@ -55,6 +55,27 @@ class AllJraTests(unittest.TestCase):
  def test_no_votes_preserved(self):
   self.assertEqual(x.base_odds.parse_one_odd("票数なし")["odds"],None)
   self.assertEqual(x.base_odds.parse_one_odd("票数なし",True)["odds_min"],None)
+ def test_cancelled_official_number_cell(self):
+  html='''<table><tr><td><img alt="枠5黄"></td><td class="num"><span class="cap">取消</span></td><td class="horse">ジェットシェヴロン<strong>取消</strong></td></tr></table>'''
+  rows=x.parse_live_jra_entries(html,{"ジェットシェヴロン"})
+  self.assertEqual(len(rows),1)
+  self.assertEqual(rows[0]["entry_status"],"SCRATCHED")
+  self.assertIsNone(rows[0]["horse_number"])
+  self.assertEqual(rows[0]["gate"],5)
+ def test_cancelled_and_active_winplace_quotes(self):
+  names={i:f"馬{i}" for i in range(1,10)}
+  html='<table class="tanpuku">'+''.join('<tr><td class="num">'+str(i)+'</td><td class="horse">'+names[i]+'</td><td class="odds_tan">'+("取消" if i==5 else "10.2")+'</td><td class="odds_fuku">'+("取消" if i==5 else "2.1 - 3.4")+'</td></tr>' for i in range(1,10))+'</table>'
+  old_n,old_r=x.base_odds.N,x.base_odds.RUNNERS
+  try:
+   x.base_odds.N=9
+   x.base_odds.RUNNERS={i:{"horse_name":names[i]} for i in names}
+   pairs=x.parse_matrix(BeautifulSoup(html,"html.parser"),"WIN_PLACE",9,{i:min(i,8) for i in names})
+   self.assertEqual(len(pairs["WIN"]),9)
+   self.assertEqual(len(pairs["PLACE"]),9)
+   self.assertEqual(dict(pairs["WIN"])[(5,)],"取消")
+   self.assertEqual(x.base_odds.parse_one_odd(dict(pairs["WIN"])[(1,)])["odds"],10.2)
+  finally:
+   x.base_odds.N,x.base_odds.RUNNERS=old_n,old_r
  def test_wrong_row_blocked(self):
   n=7
   soup=self.build("TRIFECTA",n)
