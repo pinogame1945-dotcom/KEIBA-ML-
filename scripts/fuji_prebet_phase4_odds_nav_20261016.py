@@ -8,6 +8,7 @@ from urllib.request import Request,urlopen
 from urllib.parse import urljoin,urlparse,quote,parse_qs
 from bs4 import BeautifulSoup
 RID="202605040611"
+BASELINE=json.loads(Path("audit-results/fuji-20261017-149-asof-20261016.json").read_text("utf-8"))
 URL="https://www.jra.go.jp/JRADB/accessD.html?CNAME=pw01dde0105202604061120261017%2F22"
 def read(url):
  if urlparse(url).hostname!="www.jra.go.jp" or urlparse(url).scheme!="https":raise ValueError("JRA_HOST_ONLY")
@@ -35,6 +36,33 @@ def find_links(html):
   m=re.search(r"doAction\(\s*['\"]([^'\"]*accessO\.html)['\"]\s*,\s*['\"]([^'\"]+)['\"]",onclick)
   options.append({"label":label[:60],"onclick":onclick[:240],"cname":m.group(2) if m else None,"path":m.group(1) if m else None})
  return options
+def verify_official_jra_14(html):
+ soup=BeautifulSoup(html,"html.parser")
+ expected=BASELINE["runners"]
+ by_name={x["horse_name"]:x for x in expected}
+ out=[]
+ for table in soup.select("table"):
+  for tr in table.select("tr"):
+   cells=tr.find_all(["th","td"],recursive=False)
+   if len(cells)<3:continue
+   value=re.sub(r"\s+","",cells[2].get_text(" ",strip=True))
+   names=[name for name in by_name if name in value]
+   if len(names)!=1:continue
+   name=names[0];num_text=re.sub(r"\D+","",cells[1].get_text(" ",strip=True))
+   n=int(num_text) if num_text else None
+   gates=[]
+   for img in cells[0].select("img[alt]"):
+    m=re.search(r"枠([1-8])",img["alt"])
+    if m:gates.append(int(m.group(1)))
+   raw_gate=re.sub(r"\D+","",cells[0].get_text(" ",strip=True))
+   gate=gates[0] if len(gates)==1 else int(raw_gate) if raw_gate else None
+   out.append({"horse_name":name,"jra_number":n,"jra_gate":gate})
+ if len(out)!=14 or len(set(x["horse_name"] for x in out))!=14:raise ValueError("JRA_OFFICIAL_RUNNERS_NOT_14")
+ for x in out:
+  exp=by_name[x["horse_name"]]
+  if exp["horse_number"]!=x["jra_number"] or exp["gate"]!=x["jra_gate"]:
+   raise ValueError("JRA_OFFICIAL_NUMBER_OR_GATE_CONFLICT:"+x["horse_name"]+":"+str(x))
+ return out
 def odds_url(o):
  path=o.get("path");cname=o.get("cname")
  if not path or not cname or not path.endswith("accessO.html") or not re.fullmatch(r"[A-Za-z0-9/]+",cname):return None
@@ -46,7 +74,8 @@ def main():
  txt=re.sub(r"\s+","",BeautifulSoup(html,"html.parser").get_text(" ",strip=True))
  if "第29回富士" not in txt or "2026年10月17日" not in txt or "4回東京6日" not in txt:raise ValueError("WRONG_JRA_CARD")
  menus=find_links(html)
- out={"contract":"FUJI_PREBET_P4_JRA_ODDS_NAVIGATION_V1", "race_id":RID,"official_card":meta,"odds_links":menus,
+ numbered=verify_official_jra_14(html)
+ out={"contract":"FUJI_PREBET_P4_JRA_ODDS_NAVIGATION_V1", "race_id":RID,"official_card":meta,"odds_links":menus,"jra_14_runner_numbering_verified":len(numbered)==14,
       "odds_page":None,"on_sale_confirmed":False,"has_prices":False}
  valid=[odds_url(o) for o in menus if "オッズ" in o["label"]]
  valid=[v for v in valid if v]
@@ -59,7 +88,8 @@ def main():
    heads=[re.sub(r"\s+","",x.get_text(" ",strip=True))[:70] for x in soup.select("h1,h2,h3,h4,table th")[:50]]
    oddsMenu=find_links(data)
    anchors=[{"text":re.sub(r"\s+","",a.get_text(" ",strip=True))[:40],"href":a.get("href"),"onclick":a.get("onclick","")[:190]} for a in soup.select("a[onclick]") if any(k in (a.get_text(" ",strip=True)+a.get("onclick","")) for k in ("単勝","複勝","馬連","馬単","ワイド","三連","3連","枠連"))][:30]
-   out["odds_page"]={"status":"OFFICIAL_ODDS_NAV_REACHED","url":target,"metadata":md,
+   page_is_odds="パラメータエラー" not in norm and "エラー013" not in norm and ("富士" in norm and ("2026年10月17日" in norm or "10月17日" in norm))
+   out["odds_page"]={"status":"JRA_PARAMETER_ERROR_013" if not page_is_odds and ("パラメータエラー" in norm or "エラー013" in norm) else "OFFICIAL_ODDS_PAGE_REACHED" if page_is_odds else "ODDS_PAGE_UNVERIFIED", "url":target,"metadata":md,
      "race_in_content":("富士" in norm and ("2026年10月17日" in norm or "10月17日" in norm)),
      "body_excerpt":norm[-950:],
      "headings":heads,"bet_type_nav":anchors,"table_count":len(soup.select("table")),
@@ -68,5 +98,5 @@ def main():
   except Exception as e:out["odds_page"]={"status":"ODDS_LINK_FETCH_BLOCKED","reason":type(e).__name__+":"+str(e),"url":target}
  else:out["odds_page"]={"status":"ODDS_NAV_NOT_DETERMINED","valid_link_count":len(set(valid))}
  print("PHASE4_NAVIGATION "+json.dumps(out,ensure_ascii=False))
- return 0 if out["odds_page"]["status"]=="OFFICIAL_ODDS_NAV_REACHED" else 2
+ return 0 if out["jra_14_runner_numbering_verified"] and out["odds_page"]["status"] in ("JRA_PARAMETER_ERROR_013","OFFICIAL_ODDS_PAGE_REACHED") else 2
 if __name__=="__main__":sys.exit(main())
