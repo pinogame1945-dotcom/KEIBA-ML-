@@ -23,9 +23,14 @@ def export(source,year,dest):
     if digest!="eb3392b725560e77d46b28aef036b6188814125ed8f7a3bfde0c53522dbadf58":
         raise ValueError("ORIGINAL_CORE4_FEATURE_SHA_DRIFT")
     y,bias,coverage=_build_same_day_bias_year(year,source)
-    if y!=year or len(bias)!=len(base):raise ValueError("BIAS_ORIGINAL_ROW_COUNT_MISMATCH")
-    if set(map(tuple,bias[["_race_id","_horse_id"]].values))!=set(map(tuple,base[["_race_id","_horse_id"]].values)):
-        raise ValueError("BIAS_ORIGINAL_HORSE_POPULATION_DRIFT")
+    if y!=year or bias.duplicated(["_race_id","_horse_id"]).any():
+        raise ValueError("BIAS_ORIGINAL_KEY_OR_YEAR_DRIFT")
+    base_ids=set(map(tuple,base[["_race_id","_horse_id"]].values))
+    bias_ids=set(map(tuple,bias[["_race_id","_horse_id"]].values))
+    # Research bias reader preserves valid-finish rows from races without
+    # a winner; read_year() excludes those races. Left joins allow bias superset.
+    if not base_ids.issubset(bias_ids):
+        raise ValueError("BIAS_ORIGINAL_HORSE_MISSING_FOR_MODEL")
     if not len(bias_cols(bias,with_fit=True)):
         raise ValueError("ORIGINAL_DAYBIAS_MISSING")
     base_path=dest/f"original-{year}-core4-base.csv.gz"
