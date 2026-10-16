@@ -3,11 +3,13 @@
 from __future__ import annotations
 
 import gzip
+import hashlib
 import json
 from pathlib import Path
 import sys
 import tempfile
 import unittest
+from unittest.mock import patch
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "research"))
 from audit_2026_prediction_inputs_v1 import summarize_history, summarize_panel
@@ -102,6 +104,43 @@ class PhaseOneAuditTests(unittest.TestCase):
         doc["used_historical_oos_target_predictions"] = True
         result = summarize_panel(self.panel(doc), "202605040611", "2026-10-17")
         self.assertEqual(result["total_errors"], 2)
+
+    def test_original_union_schema_accepts_sparse_horse_rows(self):
+        doc = self.sample_panel()
+        columns = [f"f_{i:03d}" for i in range(649)]
+        expected_sha = hashlib.sha256(
+            json.dumps(columns, separators=(",", ":")).encode()
+        ).hexdigest()
+        row = doc["rows"][0]
+        row.pop("race_month")
+        row.update({k: i for i, k in enumerate(columns)})
+        sparse = dict(row)
+        sparse["_horse_id"] = "2021105000"
+        sparse.pop(columns[-1])
+        doc["rows"].append(sparse)
+        keys = self.base / "core4-reference.json"
+        keys.write_text(json.dumps(columns))
+        with patch("audit_2026_prediction_inputs_v1.CANONICAL_CORE4_649_SHA256", expected_sha):
+            result = summarize_panel(self.panel(doc), "202605040611", "2026-10-17", keys)
+        self.assertEqual(result["total_errors"], 0)
+        self.assertEqual(result["rows_with_sparsely_omitted_keys_filled_as_nan"], 1)
+        self.assertFalse(result["ai_prediction_ready"])
+
+    def test_incomplete_race_union_rejected(self):
+        doc = self.sample_panel()
+        columns = [f"f_{i:03d}" for i in range(649)]
+        expected_sha = hashlib.sha256(
+            json.dumps(columns, separators=(",", ":")).encode()
+        ).hexdigest()
+        row = doc["rows"][0]
+        row.pop("race_month")
+        row.update({k: i for i, k in enumerate(columns[:-1])})
+        keys = self.base / "core4-reference.json"
+        keys.write_text(json.dumps(columns))
+        with patch("audit_2026_prediction_inputs_v1.CANONICAL_CORE4_649_SHA256", expected_sha):
+            result = summarize_panel(self.panel(doc), "202605040611", "2026-10-17", keys)
+        self.assertTrue(any("SCHEMA_DRIFT" in e for e in result["errors"]))
+        self.assertFalse(result["raw_core4_schema_check_passed"])
 
     def test_fake_649_column_reference_rejected(self):
         doc = self.sample_panel()
