@@ -1,4 +1,4 @@
-name: Blind 202505050812 original 2019-25 state to fresh ability - Free CPU
+name: Blind 202505050812 original full ability and Correction Risk - Free CPU
 
 on:
   push:
@@ -10,6 +10,9 @@ on:
       - research/compute_blind_target_seq_regime_v1.py
       - research/export_blind_2025_original_ability_priors_v1.py
       - research/run_blind_202505050812_original_ability_v1.py
+      - research/export_original_2019_22_risk_teacher_priors_v1.py
+      - research/export_original_prior_oos_market_teacher_v1.py
+      - research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py
       - tests/test_blind_target_seq_regime_parity_v1.py
       - .github/workflows/probe-blind-original-prior-state-regime.yml
   workflow_dispatch:
@@ -38,7 +41,7 @@ jobs:
         run: |
           set -euo pipefail
           python3 scripts/verify_keiba_l2_1_freeze.py
-          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py research/export_blind_2025_original_ability_priors_v1.py research/run_blind_202505050812_original_ability_v1.py
+          python3 -m py_compile research/export_strict_prior_state_history_v1.py research/compute_blind_target_seq_regime_v1.py research/export_blind_2025_original_ability_priors_v1.py research/run_blind_202505050812_original_ability_v1.py research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py research/export_original_prior_oos_market_teacher_v1.py research/export_original_2019_22_risk_teacher_priors_v1.py
           node --check research/extract_unscored_race_from_snapshot.mjs
           bash -n scripts/fetch_original_state_history_snapshot.sh
           test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -ge 4000000
@@ -79,6 +82,16 @@ jobs:
             if [ "$year" = 2023 ] || [ "$year" = 2024 ]; then
               python3 research/export_blind_2025_original_ability_priors_v1.py \
                 --year "$year" --input "$source" --out "$root"
+            else
+              if [ "$year" -le 2022 ]; then
+                python3 research/export_original_2019_22_risk_teacher_priors_v1.py \
+                  --year "$year" --source "$source" --out "$root"
+              fi
+            fi
+            if [ "$year" -ge 2021 ] && [ "$year" -le 2024 ]; then
+              python3 research/export_original_prior_oos_market_teacher_v1.py \
+                --year "$year" --source "$source" \
+                --output "$root/original-$year-prior-market.csv.gz"
             fi
             if [ "$year" = 2025 ]; then
               python3 research/compute_blind_target_prior_day_bias_v1.py \
@@ -148,4 +161,30 @@ jobs:
           assert not r["risk_calculated"] and not r["l2_1_ready"] and not r["l3_v3_ready"]
           print("REAL_BLIND_ORIGINAL_ABILITY_NO_PRECOMPUTED_TARGET_PREDICTIONS_PASS",
                 len(r["horse_scores"]),flush=True)
+          PY
+
+      - name: Verify fresh 17-horse risk is from original 2021-24 OOS teachers only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-prior-state-2019-2025"
+          python3 - "$root" <<'PY'
+          import json,sys,pathlib
+          root=pathlib.Path(sys.argv[1])
+          r=json.loads((root/"BLIND-202505050812-original-risk-not-outcome-verified.json").read_text())
+          a=json.loads((root/"BLIND-202505050812-original-ability-not-outcome-verified.json").read_text())
+          assert r["contract"]=="KEIBA_BLIND_202505050812_FROZEN_CORRECTION_RISK_V1"
+          assert r["risk_prior_teacher_years"]==[2021,2022,2023,2024]
+          assert r["target_horse_count"]==17
+          assert r["selected_2025_outcome_or_final_odds_used"] is False
+          assert r["selected_2025_saved_prediction_used"] is False
+          assert r["l2_1_ready"] is False and r["l3_v3_ready"] is False
+          assert all(x["metric_reference_exact"] for x in r["original_oos_metric_reproduction"])
+          assert len(r["original_oos_metric_reproduction"])==4
+          assert {x["horse_id"] for x in r["horse_risk"]}=={x["horse_id"] for x in a["horse_scores"]}
+          print("REAL_BLIND_202505050812_ORIGINAL_OOS_RISK_CONFIRMED",
+                "horses",len(r["horse_risk"]),
+                "past_oos_folds",len(r["original_oos_metric_reproduction"]),
+                "risk_teacher_rows",r["risk_teacher_horse_rows"],
+                "2025_outcomes_used",False,"genuine_asof_certified",False,flush=True)
           PY
