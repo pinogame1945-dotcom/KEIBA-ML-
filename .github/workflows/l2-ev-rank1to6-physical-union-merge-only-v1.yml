@@ -36,7 +36,8 @@ jobs:
           path=Path(".github/workflows/l2-ev-rank1to6-physical-union-merge-only-v1.yml")
           lines=path.read_text().splitlines()
           assert [s.strip() for s in lines if s.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
-          assert not any(("upload-artifact" in x or "actions/cache" in x) for x in lines)
+          actions=[x for x in lines if x.strip().startswith("- uses:")]
+          assert not any(("upload-artifact" in x or "actions/cache" in x) for x in actions)
           base=Path("research-results/l2-ev-rank1to6-physical-union-v1/run-38922914983")
           for rank in range(1,7):
               for name in ("adopted_physical_tickets.csv.gz", "capture_summary.json"):
