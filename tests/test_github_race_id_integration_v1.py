@@ -87,9 +87,10 @@ def fixture(rid):
         "rows": [x for x in odds if x["betType"]!="WIN"],
         "win_odds_rows": [x for x in odds if x["betType"]=="WIN"],
     }
-    p3 = {"contract": "KEIBA_L175_HORSE_P3_ASOF_V1",
-          "race_id": rid, "source": "ORIGINAL_L175_PREBET_P3",
+    p3 = {"contract": "KEIBA_L17_KING_OUTSIDER_P3_ASOF_V1",
+          "race_id": rid, "source": "L17_KING_OUTSIDER_PAST_ONLY_WF_P3",
           "model_version": "SYNTHETIC_ONLY_NOT_REAL",
+          "coverage_scope": "TOP10_OTHER_UNKNOWN",
           "observed_before_bet": True,
           "source_independently_verified": False,
           "observed_at": TIME,
@@ -187,7 +188,7 @@ class GithubRaceIntegration(unittest.TestCase):
             p.write_text(json.dumps(value))
             result=orchestrator.run(list(IDS[:1]),manifest,tmp)
             self.assertEqual(result["races"][0]["status"],"BLOCKED_L3_V3")
-            self.assertIn("ORIGINAL_L175_P3_SOURCE_REQUIRED",
+            self.assertIn("FROZEN_L17_P3_SOURCE_REQUIRED",
                           result["races"][0]["blocked_reason"])
             self.assertEqual(result["races"][0]["l3_v3"],None)
 
