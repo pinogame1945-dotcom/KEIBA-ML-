@@ -13,6 +13,8 @@ import pandas as pd
 ROOT=Path(__file__).resolve().parents[1]
 sys.path.insert(0,str(ROOT/"research"))
 from run_original_l1_cold_inference_v1 import score_one, validate, CONTRACT
+import run_original_l1_cold_inference_v1 as original_cold
+from unittest import mock
 
 
 def original_ability_train():
@@ -91,6 +93,16 @@ class ColdInference(unittest.TestCase):
         self.assertEqual(len({r["horse_id"] for r in out["horse_scores"]}),10)
         self.assertTrue(all(np.isfinite(r["distill_score_z"]) for r in out["horse_scores"]))
         self.assertTrue(all(0<=r["correction_risk"]<=1 for r in out["horse_scores"]))
+
+    def test_exact_frozen_anchor_pipeline_risk_seed(self):
+        seeds=[]
+        original_fit=original_cold.fit_risk_full
+        def captured(train,valid,seed):
+            seeds.append(seed)
+            return original_fit(train,valid,seed)
+        with mock.patch.object(original_cold, "fit_risk_full",side_effect=captured):
+            score_one(target(),original_ability_train(),original_prior_teacher(),2025)
+        self.assertEqual(seeds,[8500000+2025*100])
 
     def test_target_never_contains_results_cached_predictions_or_final_prices(self):
         for name,value in (
