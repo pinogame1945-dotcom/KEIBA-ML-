@@ -1,0 +1,41 @@
+name: Audit 202505050812 REAL historical final combination odds - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - 'research/audit_202505050812_final_odds_coverage_v1.py'
+      - '.github/workflows/audit-202505050812-final-odds-coverage.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  real-final-odds:
+    runs-on: ubuntu-latest
+    timeout-minutes: 8
+    env:
+      GITHUB_TOKEN: ${{ github.token }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Original frozen L2.1 verified and no billed artifact or cache
+        run: |
+          python scripts/verify_keiba_l2_1_freeze.py
+          python -m py_compile research/audit_202505050812_final_odds_coverage_v1.py
+      - name: Download verified 2025-11-30 final odds from existing BACKFILL
+        run: |
+          set -euo pipefail
+          python scripts/github-readonly-archive.py \
+            --repo pinogame1945-dotcom/KEIBA-BACKFILL --ref main \
+            --path data/odds/daily/2025-11-30.jsonl.gz \
+            --dest "$RUNNER_TEMP/2025-11-30-final-odds.jsonl.gz" \
+            --max-bytes 1000000
+      - name: Verify user-selected race's REAL FINAL odds shape and ticket coverage
+        run: |
+          python research/audit_202505050812_final_odds_coverage_v1.py \
+            --source "$RUNNER_TEMP/2025-11-30-final-odds.jsonl.gz"
