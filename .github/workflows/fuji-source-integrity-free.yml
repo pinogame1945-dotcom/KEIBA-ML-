@@ -1,0 +1,27 @@
+name: Fuji Live Source Integrity - Free CPU
+on:
+  push:
+    branches: [audit/fuji-card-changes-source-integrity-20261016]
+    paths:
+      - scripts/fuji_integrity_guard_20261016.py
+      - tests/test_fuji_integrity_guard_20261016.py
+      - .github/workflows/fuji-source-integrity-free.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  cross_source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 7
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install --no-cache-dir beautifulsoup4==4.14.3
+      - name: Validate timestamps, blocked stale inputs and JRA cross-source mismatch
+        run: python -m unittest discover -s tests -p 'test_fuji_integrity_guard_20261016.py' -v
+      - name: Compare real netkeiba and JRA official live cards on the same race
+        run: |
+          python scripts/fuji_integrity_guard_20261016.py \
+            --max-age-seconds 180 --max-skew-seconds 120
