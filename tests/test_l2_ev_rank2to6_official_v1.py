@@ -19,6 +19,16 @@ class RankTests(unittest.TestCase):
             {"_horse_id":"05","P__ANCHOR_FULL":.04,"final_win_odds":4,"market_rank":4},
             {"_horse_id":"06","P__ANCHOR_FULL":.03,"final_win_odds":4,"market_rank":6}])
         self.assertEqual(study.order_ev(g),["02","10","04","03","05","06"])
+    def test_small_field_rank6_is_unavailable_not_failure(self):
+        # Rank 6 does not exist in five-horse races; ranks 2-5 remain valid.
+        g=pd.DataFrame([
+            {"_horse_id":str(n),"P__ANCHOR_FULL":1.0/n,
+             "final_win_odds":2.0,"market_rank":n}
+            for n in range(1,6)])
+        seq=study.order_ev(g)
+        self.assertEqual(seq,["1","2","3","4","5"])
+        self.assertEqual([rank for rank in study.RANKS if rank<=len(seq)],
+                         [2,3,4,5])
     def test_top_three_rewards_and_merging(self):
         a=study.counter();b=study.counter()
         for r in [0,100,800,1200]:official.update_counter(a,r)
