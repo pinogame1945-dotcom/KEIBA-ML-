@@ -13,7 +13,7 @@
 - `research/run_l1_objective_rebuild_v1.py` の `prepare()`, `model_common()`：特徴量の数値化・カテゴリ語彙・LightGBMハイパーパラメータを元研究のまま使用。
 - `research/run_l1_residual_regime_full_pairwise_v1.py` の `fit_direct_rank()`：純粋AIの正本LambdaRank。対象年Yの前2年で学習、`LGBMRanker(objective=lambdarank, metric=ndcg, label_gain=[0,1,3,7,15,31,63])`、seed `5100000+Y*100`。元の関数は未知年にも着順列を要求するので、その関数そのものの呼び出しはしない。**同じ演算・設定を、未知の着順列を使わない推論関数に移した**。これはAPI適合のための移設で、別モデル化ではない。
 - `research/run_l1_market_correction_distill_v1.py` の `add_ai_context()`：能力順位・馬群内z値・先頭との差を元の同点規則で計算。
-- `research/run_l1_market_correction_deepdive_v1.py` の `fit_risk_full()`：Correction Riskの `FULL_PRERACE` 分類器を**対象年より前の過去年OOS教師行**で学習。seed `8200000+Y*100`。FINAL人気順位は過去年の教師ラベルにのみ許容、対象レースでは**禁止**。
+- `research/run_l1_market_correction_deepdive_v1.py` の `fit_risk_full()`：Correction Riskの `FULL_PRERACE` 分類器を**対象年より前の過去年OOS教師行**で学習。seed `8500000+Y*100`。FINAL人気順位は過去年の教師ラベルにのみ許容、対象レースでは**禁止**。
 - `research/run_l1_ceiling_audit_v1.py` の `FULL_FORBIDDEN`：過去研究と同じ危険列リストで、未知レースへの結果/確定オッズ/賞金等の入力を拒否。
 
 `models/promoted/README.md` は、**元モデルが正式promoted配備されておらず**、研究foldの学習済みモデルは一時成果物扱いと明示している。新規レース推論は「保存済みモデルがすでにある」とは仮定しない。
@@ -58,3 +58,7 @@ python3 research/run_original_l1_cold_inference_v1.py \
 5. GitHubが取得する発走前オッズと元2025fold ANCHOR_FULL係数で期待値AIを算出。凍結L2.1 STANDARDの50条件をそのまま適用。保存済み7王＋Outsider L1.7 p3が適正な時点に得られるかを確認し、正式L3 V3の `REVERSE_P3_RACE_MAX300` を実行して完成JSONをGitHubに書き出す。
 
 この文書は方針・テスト範囲の記録であり、「未予測の実レースまで現在完成」とは認定しない。
+
+### 正本seedの監査（後日追加）
+
+厳密にL2.1が参照する `research/run_market_fixed_anchor_residual_v2.py` の `risk_fold`（凍結ブランチ）を再監査した結果、Risk教師のseedは**`8500000 + test_year*100`**。旧メモで使ったMarket Correction Deep Dive の `8200000 + test_year*100` とは異なるため、そのまま流用してはいけない。元の `fit_risk_full()` のLightGBM設定を保持したまま、L2.1正本と同じseedに修正した。
