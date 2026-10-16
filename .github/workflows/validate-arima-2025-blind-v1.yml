@@ -166,7 +166,7 @@ jobs:
           assert r["race_id"]=="202506050811"
           assert r["training_years"]==[2023,2024]
           assert r["target_horse_count"]==16
-          assert [x["ai_raw_rank"] for x in r["horse_scores"]]==list(range(1,18))
+          assert [x["ai_raw_rank"] for x in r["horse_scores"]]==list(range(1,17))
           assert len({x["horse_id"] for x in r["horse_scores"]})==16
           assert r["target_saved_historical_predictions_read"] is False
           assert r["selected_target_outcomes_or_final_odds_used"] is False
@@ -223,7 +223,7 @@ jobs:
           assert a["purchase_ready"] is False
           assert a["frozen_l21_ready"] is False and a["official_l3_v3_ready"] is False
           assert len(a["blocked_reasons"])==5
-          assert [x["ai_raw_rank"] for x in a["horses"]]==list(range(1,18))
+          assert [x["ai_raw_rank"] for x in a["horses"]]==list(range(1,17))
           print("REAL_BLIND_202506050811_L1_RISK_TO_FROZEN_L21_L3_INTERFACE_PASS",
                 "horses",a["horse_count"],
                 "blocked_reasons",",".join(a["blocked_reasons"]),
