@@ -215,6 +215,27 @@ def compare_speed(compacts, doc):
     inputs = {y: df.copy() for y, df in compacts.items()}
     inputs[2026] = pd.concat([inputs[2026], synthetic_target_compact(doc)],
                              ignore_index=True)
+    # The unchanged original reader read_compact_state_source() always
+    # supplies float-valued numeric columns (finite() returns float/NaN).
+    # A test-only synthetic target row and empty earlier-year DataFrames
+    # can upcast a full concatenation to object, making np.isfinite fail.
+    # Restore the original reader's numeric dtype contract BEFORE calling
+    # the original batch state builder. This does not fill or alter values.
+    numeric = (
+        "_finish", "_is_win", "_is_top3", "distance_m",
+        "body_weight", "carried_weight", "declared_field_size",
+        "margin_lengths", "network_expected_pairwise_score",
+        "finish_time_ms", "last_3f",
+    )
+    for year, frame in inputs.items():
+        for name in numeric:
+            verify(name in frame.columns, "ORIGINAL_COMPACT_NUMERIC_COLUMN_MISSING:" + name)
+            frame[name] = pd.to_numeric(frame[name], errors="coerce").astype("float64")
+        verify(all(pd.api.types.is_float_dtype(frame[name]) for name in numeric),
+               "ORIGINAL_COMPACT_NUMERIC_DTYPE_DRIFT:" + str(year))
+        if year != 2026:
+            verify(frame["_race_date"].astype(str).lt(DAY).all(),
+                   "PRE_2026_HISTORY_NOT_STRICTLY_PRIOR")
     # Only the audit's year scope/reading is substituted. Original batch
     # build_state_features and build_regime_features math stays untouched.
     with patch.object(state_module, "YEARS", tuple(YEARS)), \
