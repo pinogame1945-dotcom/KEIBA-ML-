@@ -31,8 +31,9 @@ def read_original(path):
 
 def csv_save(path,rows):
     assert_ok(rows,"empty results")
+    fields=list(dict.fromkeys(k for row in rows for k in row))
     with Path(path).open("w",encoding="utf-8",newline="") as handle:
-        w=csv.DictWriter(handle,fieldnames=list(rows[0]))
+        w=csv.DictWriter(handle,fieldnames=fields)
         w.writeheader();w.writerows(rows)
 
 def metrics(entry):
