@@ -1,0 +1,48 @@
+name: Original AI cold inference leak guard - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/original-ai-cold-inference-20261016
+    paths:
+      - 'research/run_original_l1_cold_inference_v1.py'
+      - 'tests/test_original_l1_cold_inference_v1.py'
+      - '.github/workflows/original-l1-cold-inference-ci.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  original-cold-score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      L1_THREADS: '2'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frozen purchase must remain untouched
+        run: python scripts/verify_keiba_l2_1_freeze.py
+      - name: Verify free CPU, no uploads and no paid persistence
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          s=Path('.github/workflows/original-l1-cold-inference-ci.yml').read_text()
+          lines=[x.strip() for x in s.splitlines()]
+          assert [x for x in lines if x.startswith('runs-on:')]==['runs-on: ubuntu-latest']
+          assert not any(x.startswith('- uses: actions/upload-artifact@') for x in lines)
+          assert not any(x.startswith('- uses: actions/cache@') for x in lines)
+          assert not any(x.startswith('cache:') for x in lines)
+          print('FREE_STANDARD_CPU_NO_CACHE_NO_ARTIFACT')
+          PY
+      - name: Install original source pinned CPU LightGBM environment
+        run: python -m pip install --disable-pip-version-check -r ml/requirements.txt
+      - name: Syntax and genuine cold original L1 score with no target outcome
+        run: |
+          python -m py_compile research/run_original_l1_cold_inference_v1.py
+          python -m unittest discover -s tests -p test_original_l1_cold_inference_v1.py -v
