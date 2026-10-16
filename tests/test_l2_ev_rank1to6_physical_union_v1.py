@@ -41,7 +41,7 @@ class ExactUnionTest(unittest.TestCase):
             individual=defaultdict(lambda:dict(n=0,hits=0,payout=0))
             unique={}
             study.merge_file(a,1,individual,unique)
-            with self.assertRaises(AssertionError):
+            with self.assertRaises(ValueError):
                 study.merge_file(b,2,individual,unique)
     def test_no_2026_data_in_replay(self):
         self.assertEqual(tuple(study.YEARS),(2023,2024,2025))
