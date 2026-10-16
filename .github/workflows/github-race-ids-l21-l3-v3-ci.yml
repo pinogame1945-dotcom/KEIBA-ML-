@@ -1,0 +1,35 @@
+name: GitHub Race IDs L2.1 to L3 V3 - Free CPU
+
+on:
+  push:
+    branches:
+      - feature/l3-v3-official-github-producer-20261016
+    paths:
+      - research/l21_github_frozen_prebet.py
+      - research/run_github_race_ids_v1.py
+      - research/l3_v3_operational.py
+      - tests/test_github_race_id_integration_v1.py
+      - .github/workflows/github-race-ids-l21-l3-v3-ci.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  github-race-batch-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 9
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify immutable L2.1 frozen contract
+        run: python scripts/verify_keiba_l2_1_freeze.py
+      - name: Python syntax checks
+        run: |
+          python -m py_compile research/l21_github_frozen_prebet.py research/run_github_race_ids_v1.py research/l3_v3_operational.py tests/test_github_race_id_integration_v1.py
+      - name: GitHub sourced multi-race original L2.1 to V3 regression
+        run: python -m unittest discover -s tests -p test_github_race_id_integration_v1.py -v
+      - name: V3 exact historic algorithm differential test
+        run: python -m unittest discover -s tests -p test_l3_v3_operational.py -v
