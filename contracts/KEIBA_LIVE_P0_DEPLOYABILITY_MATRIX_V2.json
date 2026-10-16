@@ -1,0 +1,883 @@
+{
+  "contract": "KEIBA_LIVE_P0_DEPLOYABILITY_MATRIX_V2",
+  "audit_date": "2026-10-16",
+  "repository": "pinogame1945-dotcom/KEIBA-ML-",
+  "branch": "audit/live-data-p0-20261016",
+  "provenance": {
+    "registry_sha": "cb1415a6cc63d505c33c884ed6c4d03d3fd8d6ae",
+    "candidate_configs": [
+      {
+        "path": "research/l1-final-walkforward-v1.json",
+        "ref": "audit/live-data-p0-20261016",
+        "blob_sha": "a08610f7c597419afc2e900a7ee49a969788255e",
+        "count": 9
+      },
+      {
+        "path": "research/l1-outsider-arena-v1.json",
+        "ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "blob_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "count": 5
+      },
+      {
+        "path": "research/l1-outsider-nonhorse-v1.json",
+        "ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "blob_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "count": 6
+      },
+      {
+        "path": "research/l1-outsider-transition-v1.json",
+        "ref": "research/l1-outsider-transition-v1-20260929",
+        "blob_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "count": 7
+      }
+    ],
+    "trained_bundle_audit_code": "PR7 research/audit-seven-king-bundles.py",
+    "live_scoring_code": "PR7 research/score-one-race.py"
+  },
+  "summary": {
+    "registered_models": 31,
+    "registration_unconfigured": 31,
+    "live_executable_verified": 0,
+    "exact_research_name_matches": 22,
+    "seven_king_name_drifts": 3,
+    "outsider_matched": 18,
+    "ensemble_derived_registered": 6,
+    "families": {
+      "7KING": 7,
+      "OUTSIDER_HORSE": 5,
+      "OUTSIDER_NONHORSE": 6,
+      "OUTSIDER_TRANSITION": 7,
+      "null": 6
+    }
+  },
+  "caveats": [
+    "Research feature_sets are broad groups, never the exact trained model column schema.",
+    "A Kaggle dataset reference does not confirm current remote metadata, available permissions, or live eligible artifacts.",
+    "PR7 is closed/unmerged and does not establish main production readiness.",
+    "13 archived Outsider ballots and 18 research model candidates must not be conflated.",
+    "No 2026 results/ROI used.",
+    "Training fold early stopping may have used target-year labels and requires time-aware eligibility audit."
+  ],
+  "models": [
+    {
+      "name": "KING:core4_no_pedigree",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-final-walkforward-v1.json",
+        "source_ref": "audit/live-data-p0-20261016",
+        "source_sha": "a08610f7c597419afc2e900a7ee49a969788255e",
+        "feature_sets": [
+          "BASE",
+          "OPPONENT",
+          "AUTO",
+          "ACTOR",
+          "TIME_PACE"
+        ],
+        "mode": null,
+        "actor_prefixes": [],
+        "auto_slices": []
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-core4-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_legacy",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-pedlegacy-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false,
+      "name_mismatch_note": {
+        "nearby_candidate": "no_auto_full_pedigree",
+        "note": "Nearby name is not proof of model identity. Verify candidate.json, model.json and SHA before mapping."
+      }
+    },
+    {
+      "name": "KING:jockey_trainer_condition",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-final-walkforward-v1.json",
+        "source_ref": "audit/live-data-p0-20261016",
+        "source_sha": "a08610f7c597419afc2e900a7ee49a969788255e",
+        "feature_sets": [
+          "BASE",
+          "OPPONENT",
+          "AUTO",
+          "ACTOR",
+          "TIME_PACE"
+        ],
+        "mode": null,
+        "actor_prefixes": [
+          "actor_jockey_",
+          "actor_trainer_"
+        ],
+        "auto_slices": [
+          "CONDITION"
+        ]
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-condition-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false
+    },
+    {
+      "name": "KING:no_auto_full",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-final-walkforward-v1.json",
+        "source_ref": "audit/live-data-p0-20261016",
+        "source_sha": "a08610f7c597419afc2e900a7ee49a969788255e",
+        "feature_sets": [
+          "BASE",
+          "OPPONENT",
+          "ACTOR",
+          "TIME_PACE"
+        ],
+        "mode": null,
+        "actor_prefixes": [],
+        "auto_slices": []
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-full-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false
+    },
+    {
+      "name": "KING:no_auto_jockey",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-final-walkforward-v1.json",
+        "source_ref": "audit/live-data-p0-20261016",
+        "source_sha": "a08610f7c597419afc2e900a7ee49a969788255e",
+        "feature_sets": [
+          "BASE",
+          "OPPONENT",
+          "ACTOR",
+          "TIME_PACE"
+        ],
+        "mode": null,
+        "actor_prefixes": [
+          "actor_jockey_"
+        ],
+        "auto_slices": []
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-light-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false
+    },
+    {
+      "name": "KING:no_auto_full_pedigree_v1",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-pedv1-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false,
+      "name_mismatch_note": {
+        "nearby_candidate": "no_auto_full_pedigree",
+        "note": "Nearby name is not proof of model identity. Verify candidate.json, model.json and SHA before mapping."
+      }
+    },
+    {
+      "name": "KING:jockey_trainer_condition_plus_raceclass",
+      "family": "7KING",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_KAGGLE_METADATA_AND_SHA",
+        "EXACT_TRAINED_SCHEMA_AND_FEATURE_ORDER",
+        "VALIDATED_MODEL_SELECTION_CUTOFF_BEFORE_TARGET",
+        "ORIGINAL_MODEL_FEATURES_PREBET_FOR_ALL_HORSES",
+        "DNF_INCLUSIVE_HONEST_EVALUATION"
+      ],
+      "historical_kaggle_candidate_ref": "pino1945/keiba-l15-7k-condrc-y2025-v1",
+      "historical_bundle_expected_names": [
+        "model.txt",
+        "model.json",
+        "schema.json",
+        "candidate.json"
+      ],
+      "bundle_remote_metadata_checked_in_this_pass": false,
+      "name_mismatch_note": "Research list does not contain this exact version. Verify candidate.json and model SHA."
+    },
+    {
+      "name": "OUTSIDER:outsider_style",
+      "family": "OUTSIDER_HORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-arena-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "feature_sets": [
+          "BASE",
+          "STYLE"
+        ],
+        "mode": null,
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_lap",
+      "family": "OUTSIDER_HORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-arena-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "feature_sets": [
+          "BASE",
+          "LAP"
+        ],
+        "mode": null,
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_network",
+      "family": "OUTSIDER_HORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-arena-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "feature_sets": [
+          "BASE",
+          "NETWORK"
+        ],
+        "mode": null,
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_distance",
+      "family": "OUTSIDER_HORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-arena-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "feature_sets": [
+          "BASE",
+          "DISTANCE"
+        ],
+        "mode": null,
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_backfill",
+      "family": "OUTSIDER_HORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-arena-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "d8043ed29a3c8f1d3dca77b76d0e5e1e7d09bbef",
+        "feature_sets": [
+          "BASE",
+          "BACKFILL"
+        ],
+        "mode": null,
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_daytrend",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "DAY_TREND",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE",
+        "SAME_DAY_PRIOR_RACES_OFFICIALLY_COMPLETED_BEFORE_TARGET"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_raceshape",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "RACE_SHAPE",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_gatecourse",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "GATE_COURSE",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_jockey",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "JOCKEY",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_field",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "FIELD_COMPOSITION",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_chimera",
+      "family": "OUTSIDER_NONHORSE",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-nonhorse-v1.json",
+        "source_ref": "research/l16-outsider-chimera-all-races-v1-20260929",
+        "source_sha": "dced7e9c0e66c3bce8cc8450964cfb87dadb26ff",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "CHIMERA",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_rotation",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "ROTATION",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_classmove",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "CLASS_MOVE",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_weightchange",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "WEIGHT_CHANGE",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_bodychange",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "BODY_CHANGE",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE",
+        "BODY_WEIGHT_OFFICIALLY_PUBLISHED"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_disttransition",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "DISTANCE_TRANSITION",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_coursetransition",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "COURSE_TRANSITION",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "OUTSIDER:outsider_opponentgap",
+      "family": "OUTSIDER_TRANSITION",
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": {
+        "source_path": "research/l1-outsider-transition-v1.json",
+        "source_ref": "research/l1-outsider-transition-v1-20260929",
+        "source_sha": "dc5b629b392925ba2c235313e0c107b0bd9b8626",
+        "feature_sets": [
+          "BASE"
+        ],
+        "mode": "OPPONENT_GAP",
+        "actor_prefixes": null,
+        "auto_slices": null
+      },
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "EXACT_ORIGINAL_TRAINED_MODEL_BUNDLE",
+        "TRAINED_COLUMN_SCHEMA_AND_HASH",
+        "ORIGINAL_PREBET_INPUT_COVERAGE",
+        "SCORES_MATCH_ORIGINAL_REFERENCE"
+      ]
+    },
+    {
+      "name": "L1_7KING_COUNCIL",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_ALL_SEVEN_LIVE_SCORE_VECTORS",
+        "ORIGINAL_ROUTER_AND_TIE_SAFE_RULE"
+      ]
+    },
+    {
+      "name": "L1_OUTSIDER",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_13_BALLOT_SELECTION_VS_18_CANDIDATES",
+        "TRAINED_COMPONENT_MODELS",
+        "COMPLETE_LIVE_BALLOTS"
+      ]
+    },
+    {
+      "name": "L1_7KING_FULLFIELD_L17",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_L17_CALIBRATOR_BUNDLE",
+        "PRIOR_YEAR_TRAINING_CUTOFF",
+        "PREBET_FULL_FIELD"
+      ]
+    },
+    {
+      "name": "L1_75_MARKET_CONTEXT",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_ANCHOR_FULL_19_FEATURES",
+        "ORIGINAL_ABILITY_AND_CORRECTION_RISK",
+        "JRA_LIVE_WIN_PRICE",
+        "BET_CUTOFF_SOURCE"
+      ]
+    },
+    {
+      "name": "L1_ABILITY_RAW",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_ABILITY_DISTILL_MODEL",
+        "ABILITY_SCORE_Z_AND_GAP",
+        "PREBET_FULL_FIELD_FEATURES"
+      ]
+    },
+    {
+      "name": "L1_CORRECTION_RISK",
+      "family": null,
+      "registry_kind": "unconfigured",
+      "status": "NOT_LIVE_VERIFIED",
+      "source_candidate_config": null,
+      "exact_trained_feature_order": "UNKNOWN_UNTIL_ORIGINAL_SCHEMA_VERIFIED",
+      "original_trained_model_verified_for_live": false,
+      "asof_full_field_verified": false,
+      "required_evidence": [
+        "ORIGINAL_FULL_CORRECTION_RISK_MODEL",
+        "FULL_FIELD_PREBET_FEATURES",
+        "CALIBRATION_TRAIN_CUTOFF"
+      ]
+    }
+  ],
+  "operating_constraints": {
+    "fetch": "manifest -> remote_metadata_real_filename -> one_download -> runner_session_reuse",
+    "http404": "STOP",
+    "transient_retry": "429/502/503/504/temporary network only",
+    "strict_prior_date_only": true,
+    "DNF_future_exclusion": false,
+    "l2_1": "FROZEN",
+    "l3_v3_stake_policy": "REVERSE_P3_RACE_MAX300",
+    "actual_bets": false
+  }
+}
