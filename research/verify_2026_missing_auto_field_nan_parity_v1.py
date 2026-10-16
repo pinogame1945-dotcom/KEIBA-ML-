@@ -77,9 +77,23 @@ def verify(reference_2025, snapshot_2026):
             healthy.append(rid)
     if len(missing) != 207:
         raise ValueError(f"EXPECTED_207_PREVIOUSLY_VERIFIED_MISSING_RACES_GOT_{len(missing)}")
-    if not all(len(keys) == 54 and all(k.startswith("auto_field_") for k in keys)
-               for keys in missing.values()):
-        raise ValueError("MISSING_FIELDS_DIFFER_FROM_FROZEN_54_AUTO_FIELD_DIAGNOSIS")
+    # Historical generator omits 45 auto_field_ relative features (5
+    # previous-form metrics x 9) and 9 auto_pair_ interactions (3 x 3),
+    # while field-relative network_elo_rating remains measurable.
+    breakdown = [
+        (rid,
+         sum(k.startswith("auto_field_") for k in keys),
+         sum(k.startswith("auto_pair_") for k in keys),
+         sorted(k for k in keys if not k.startswith(("auto_field_", "auto_pair_"))))
+        for rid, keys in missing.items()
+    ]
+    unexpected = [
+        (rid, n_field, n_pair, other, missing[rid])
+        for rid, n_field, n_pair, other in breakdown
+        if n_field != 45 or n_pair != 9 or other or len(missing[rid]) != 54
+    ]
+    if unexpected:
+        raise ValueError("MISSING_AUTO_FIELD_PAIR_BREAKDOWN_DRIFT:" + repr(unexpected[:2]))
 
     control = healthy[:VERIFY_CONTROL_MAX // 2] + healthy[-VERIFY_CONTROL_MAX // 2:]
     checked = sorted([*missing, *set(control)])
@@ -143,7 +157,10 @@ def verify(reference_2025, snapshot_2026):
         "2026_actual_races_matrix_compared": len(checked),
         "2026_actual_horses_matrix_compared": len(checked_records),
         "per_incomplete_race_missing_features": 54,
-        "only_missing_feature_family": "auto_field_",
+        "per_incomplete_race_field_relative_missing": 45,
+        "per_incomplete_race_pair_interaction_missing": 9,
+        "only_missing_feature_family": "auto_",
+        "all_207_races_have_exact_45_plus_9_breakdown": True,
         "nan_cells_materialized_by_649_schema": matrix_na_added,
         "matrix_features": baseline.shape[1],
         "matrix_numeric_and_category_values_equal": True,
