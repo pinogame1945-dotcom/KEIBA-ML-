@@ -68,11 +68,12 @@ def main():
   if re.sub(r"\s+","",a.get_text(" ",strip=True))=="オッズ":
    m=re.search(r"doAction\(\s*['\"](/JRADB/accessO\.html)['\"]\s*,\s*['\"]([^'\"]+)['\"]",a["onclick"])
    if m:hits.append(m.group(2))
- if len(set(hits))!=1:
+ specific=list(set(x for x in hits if "202604061120261017" in x))
+ if len(specific)!=1:
   print("JRA_CARD_ACTION_DIAG "+json.dumps({"hits":hits,"anchors":[{"text":a.get_text(" ",strip=True)[:50],"onclick":a.get("onclick","")[:140]} for a in so.select("a[onclick]") if "accessO.html" in a.get("onclick","")][:20],"card_title":so.title.get_text(" ",strip=True) if so.title else None},ensure_ascii=False))
-  raise ValueError("OFFICIAL_ODDS_LINK_UNVERIFIED")
- page,info=fetch(ODDS,hits[0])
+  raise ValueError("RACE_SPECIFIC_OFFICIAL_ODDS_LINK_NOT_UNIQUE")
+ page,info=fetch(ODDS,specific[0])
  report={"checked_utc":datetime.now(timezone.utc).isoformat(),"race_id":"202605040611",
-  "card":meta,"odds_index":info,"observed_cname":hits[0],"observations":inspect(page)}
+  "card":meta,"odds_index":info,"observed_cname":specific[0],"global_links":sorted(set(hits)),"observations":inspect(page)}
  print("JRA_ONSALE_DIAG "+json.dumps(report,ensure_ascii=False,separators=(",",":")))
 if __name__=="__main__":main()
