@@ -15,5 +15,5 @@ class Tests(unittest.TestCase):
   d=a.parse_jra_baba("<h2>第4回東京競馬第5日（2026年10月12日）</h2><p>馬場状態（10月9日正午現在）天候:晴 芝 良</p>")
   self.assertEqual(d["status"],"STALE_OR_UNDATED")
  def test_missing_runners_blocks(self):
-  with self.assertRaisesRegex(ValueError,"HORSES_14_MISMATCH"):a.parse_card(fixture().replace(f'/horse/{ids[0]}/','/horse/9999999999/'))
+  with self.assertRaisesRegex(ValueError,"UNKNOWN_HORSE"):a.parse_card(fixture().replace(f'/horse/{ids[0]}/','/horse/9999999999/'))
 if __name__=="__main__":unittest.main()
