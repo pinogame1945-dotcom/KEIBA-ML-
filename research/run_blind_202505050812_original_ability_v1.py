@@ -223,6 +223,19 @@ def main_pipeline(root):
       k:v for k,v in result.items() if k!="horse_scores"},sort_keys=True),flush=True)
     print("BLIND_REAL_202505050812_NEW_TOP5_HORSE_IDS",json.dumps(
         result["horse_scores"][:5],ensure_ascii=False),flush=True)
+    # Freeze fresh ability BEFORE opening any other sources for prior OOS Risk.
+    # These OOS teacher files contain only 2021-24 historical market labels,
+    # never the selected 2025 race outcome, price or saved prediction.
+    from rebuild_blind_original_2025_risk_from_prior_oos_v1 import train_and_score
+    require_risk_inputs=[root/f"original-{y}-core4-base.csv.gz" for y in range(2019,2025)]
+    require_risk_inputs += [root/f"original-{y}-daybias.csv.gz" for y in range(2019,2025)]
+    require_risk_inputs += [root/f"original-{y}-prior-market.csv.gz" for y in range(2021,2025)]
+    check(all(p.is_file() for p in require_risk_inputs),
+          "ORIGINAL_2021_2024_OOS_RISK_TRAIN_INPUTS_INCOMPLETE")
+    risk_result=train_and_score(root,regimes,regime_columns,valid,ctx)
+    check({h["horse_id"] for h in risk_result["horse_risk"]}==
+          {h["horse_id"] for h in result["horse_scores"]},
+          "NEW_ABILITY_VS_NEW_RISK_17_HORSE_SET_DRIFT")
     return result
 
 def main():
