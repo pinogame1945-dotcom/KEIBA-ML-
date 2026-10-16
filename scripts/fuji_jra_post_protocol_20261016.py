@@ -77,12 +77,13 @@ def main():
         page=snapshot(index,im,START_CNAME)
         out["steps"].append({"step":"odds_index_post",**page})
         if page["error013"]:out["status"]="JRA_POST_ERROR013"
-        elif page["links_total"]==0:out["status"]="JRA_POST_INDEX_NO_NAV"
+        elif not [x for x in page["links"] if x["cname"]!=START_CNAME]:
+            out["status"]="JRA_POST_INDEX_REACHED_NO_RACE_LINK"
         else:
-            out["status"]="JRA_POST_INDEX_NAV_SUCCESS"
+            out["status"]="JRA_POST_RACE_LIST_FOUND"
             # Limit to ONE subpage found from official POST response. Prefer Fuji
             # or Tokyo day, to identify actual routing while limiting requests.
-            candidate=next((x for x in page["links"] if "東京" in x["label"] or "10月17" in x["label"]),None)
+            candidate=next((x for x in page["links"] if x["cname"]!=START_CNAME and ("東京" in x["label"] or "10月17" in x["label"])),None)
             if candidate:
                 follow,meta=fetch(POST_URL,candidate["cname"])
                 step=snapshot(follow,meta,candidate["cname"])
@@ -93,5 +94,5 @@ def main():
                     "table_count":s["table_count"],"headings":s["header"],"excerpt":s["excerpt"][:120]} for s in out["steps"]]},ensure_ascii=False))
     except Exception as exc:out["status"]="BLOCKED";out["reason"]=type(exc).__name__+":"+str(exc)
     print("JRA_POST_JSON "+json.dumps(out,ensure_ascii=False))
-    return 0 if out["status"]=="JRA_POST_INDEX_NAV_SUCCESS" else 2
+    return 0 if out["status"] in ("JRA_POST_INDEX_REACHED_NO_RACE_LINK","JRA_POST_RACE_LIST_FOUND") else 2
 if __name__=="__main__":sys.exit(main())
