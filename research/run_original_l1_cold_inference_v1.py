@@ -117,11 +117,11 @@ def score_one(target, ability_train, past_oos_risk_teacher, target_year):
     valid=target.sort_values(["_race_id","_horse_id"]).reset_index(drop=True)
     train_features=_numeric_feature_columns(train)
     target_features=_numeric_feature_columns(valid)
-    require(train_features==target_features,
-            "ORIGINAL_ABILITY_FEATURE_SCHEMA_DRIFT")
     # Do not let target supply a future model's expected prior score as feature.
     require(not any(x.startswith(("distill_","risk_","market_")) for x in target_features),
             "TARGET_MODEL_OR_MARKET_FEATURE_LEAK")
+    require(train_features==target_features,
+            "ORIGINAL_ABILITY_FEATURE_SCHEMA_DRIFT")
     xtr,xva,cats=prepare(train,valid)
     relevance=np.select([
         train["_finish"].eq(1),train["_finish"].eq(2),
