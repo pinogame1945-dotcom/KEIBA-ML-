@@ -7,7 +7,8 @@ on:
       - ".github/workflows/original-anchor-2025-parity-github.yml"
       - "research/replay-original-anchor-coefficients-2025.py"
       - "research/anchor-original-feature-geometry.py"
-      - "research/score-original-anchor-asof.py"
+      - "research/score_github_original_anchor_asof.py"
+      - "scripts/build_original_anchor_2025_params_github.sh"
       - "scripts/original-anchor-real-feature-parity.py"
 permissions:
   contents: read
@@ -30,23 +31,8 @@ jobs:
           set -euo pipefail
           root="$RUNNER_TEMP/original-anchor"
           mkdir -p "$root"
-          get() {
-            python3 scripts/github-readonly-archive.py \
-              --repo pinogame1945-dotcom/KEIBA-ML- \
-              --ref freeze/l2.1-standard50-to-l3-20261015 \
-              --path "$1" --dest "$root/$2" --max-bytes "$3"
-          }
-          get research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz fair-base.csv.gz 19000000
-          get research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz saved-oos.csv.gz 11000000
-          get research-results/market-fixed-anchor-residual-v2/run-38659856085/residual-coefficients.csv coefficients.csv 20000
-          get research-results/market-fixed-anchor-residual-v2/run-38659856085/lambda-selection.csv lambda.csv 15000
-          python3 research/replay-original-anchor-coefficients-2025.py \
-            --cache "$root/fair-base.csv.gz" \
-            --coefficients "$root/coefficients.csv" \
-            --lambda-selection "$root/lambda.csv" \
-            --predictions "$root/saved-oos.csv.gz" \
-            --race 202507010212 --out "$root/proven.json" \
-            --export-parameters "$root/original-prior-anchor-asof-params.json"
+          bash scripts/build_original_anchor_2025_params_github.sh "$root"
+          cp "$root/original-prior-2025-parity.json" "$root/proven.json"
           python3 scripts/original-anchor-real-feature-parity.py \
             --cache "$root/fair-base.csv.gz" \
             --predictions "$root/saved-oos.csv.gz" \
