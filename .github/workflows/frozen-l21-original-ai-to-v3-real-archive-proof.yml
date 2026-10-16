@@ -64,7 +64,7 @@ jobs:
               x=next(r["race_id"] for r in csv.DictReader(f) if r["year"]=="2025")
           print(x)
           PY
-)"
+          )"
           args=(--race "$TARGET_RACE")
           if [ "$secondary" != "$TARGET_RACE" ]; then args+=(--race "$secondary"); fi
           python3 research/replay_frozen_l21_to_l3_v3_historical.py \
