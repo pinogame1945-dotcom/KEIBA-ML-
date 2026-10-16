@@ -226,7 +226,7 @@ def main():
     assert_ok(rank in ev.RANKS,"rank must be 2..6")
     meta,policy,black,expected=winners(Path(args.winner_root),rank)
     output=Path(args.out_dir);output.mkdir(parents=True,exist_ok=True)
-    data,picks=ev.ranklab.load_predictions(args.predictions,args.picks)
+    data,picks=lens.frame(args.predictions,args.picks)
     races=pd.read_csv(args.racewise,compression="infer",
                       dtype={"race_id":str,"VALUE_EV_horse":str,"AI_RAW_TOP_horse":str})
     races["year"]=pd.to_numeric(races.year,errors="raise").astype(int)
