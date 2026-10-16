@@ -1,0 +1,58 @@
+name: Read pinned historical snapshot manifest only (no dataset blobs)
+on:
+  push:
+    branches: [audit/690-historical-manifest-handoff-20261016]
+    paths:
+      - .github/workflows/690-historical-manifest-handoff-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  manifest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Free CPU, metadata-only size guard
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          test "$(df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}')" -ge 6000000
+          echo "KAGGLE_MANIFEST_ONLY_NO_SOURCE_BLOB_NO_ARTIFACT"
+      - name: Get Kaggle manifest and file names only
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          dst="$RUNNER_TEMP/690-manifest-metadata"
+          mkdir -p "$dst"
+          kaggle datasets files pino1945/keiba-ml-snapshot-bf811fa2eab73db0 --page-size 200 --format 'json(name,size)' > "$dst/files.json"
+          kaggle datasets download pino1945/keiba-ml-snapshot-bf811fa2eab73db0 -f manifest.json -p "$dst" --unzip --quiet
+          test -s "$dst/manifest.json"
+          python - "$dst/manifest.json" "$dst/files.json" <<'PY'
+          import json,sys,re
+          manifest=json.load(open(sys.argv[1],encoding="utf8"))
+          meta=json.load(open(sys.argv[2],encoding="utf8"))
+          g=(manifest.get("generation") or {}).get("generation_id")
+          assert g=="bf811fa2eab73db0", "WRONG_GENERATION_STOP"
+          files={x.get("name") for x in meta}
+          assert "manifest.json" in files
+          years={int(x["year"]):x for x in manifest.get("years",[])}
+          for y in range(2019,2026):
+              assert y in years, f"MISSING_YEAR_{y}"
+              row=years[y]
+              logical=str(row.get("file") or "")
+              sha=str(row.get("sha256") or "")
+              assert re.fullmatch(r"[0-9a-fA-F]{64}",sha),f"BAD_SHA_{y}"
+              remotes=[name for name in files if name and name.removesuffix(".gz")==logical.removesuffix(".gz")]
+              assert len(remotes)==1,f"FILE_MAPPING_DRIFT_{y}"
+              print("PINNED_ORIGINAL_PRIOR_MANIFEST "+json.dumps({
+                "year":y,"generation_id":g,"manifest_name":logical,
+                "remote_name":remotes[0],"manifest_sha256":sha,
+                "rows":row.get("rows"),"min_date":row.get("min_date"),
+                "max_date":row.get("max_date")},sort_keys=True),flush=True)
+          print("PINNED_PRIOR_MANIFEST_2019_2025_COMPLETE",flush=True)
+          PY
