@@ -4,6 +4,7 @@ on:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
     paths:
       - research/recover_2026_10_17_original_outsider_race_context_v1.mjs
+      - research/join_2026_10_17_original_outsider_backfill_13_to_cached_690_v1.py
       - .github/workflows/l1-2026-outsider-backfill-context-original-readonly-freecpu.yml
 permissions:
   contents: read
@@ -32,7 +33,7 @@ jobs:
           git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin "$BACKFILL_SHA"
           test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$BACKFILL_SHA"
           git -C "$root" sparse-checkout init --cone
-          git -C "$root" sparse-checkout set ml_features/src data/live/2026-10-17 ml_features/research
+          git -C "$root" sparse-checkout set ml_features/src data/live/2026-10-17 ml_features/research ml_features/delivery/690
           git -C "$root" checkout -q --detach FETCH_HEAD
           test -s "$root/ml_features/src/backfill-feature-adapter.mjs"
           test -s "$root/ml_features/research/live_json_to_daily_pack_v1.py"
@@ -67,6 +68,28 @@ jobs:
               and len([k for k in z['race_features'] if k.startswith('backfill_')])==13
               for z in rows)
           print('OUTSIDER_RACE_CONTEXT_36_471_CONFIRMED_ONLY_NO_STYLE_MODEL_APPROVAL')
+          PY
+      - name: Join saved 690 with original verified BACKFILL race context for 471 live horses
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/join_2026_10_17_original_outsider_backfill_13_to_cached_690_v1.py
+          python research/join_2026_10_17_original_outsider_backfill_13_to_cached_690_v1.py \
+            --backfill-root "$RUNNER_TEMP/backfill-pinned" \
+            --original-context "$RUNNER_TEMP/original-backfill-context-471.jsonl" \
+            --out "$RUNNER_TEMP/cached690-plus-original-backfill13-partial.jsonl"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'cached690-plus-original-backfill13-partial.jsonl'
+          rows=[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines() if x]
+          assert len(rows)==471 and len({x['race_id'] for x in rows})==36
+          assert all(len(x['features'])==703 and
+                     len([k for k in x['features'] if k.startswith('backfill_')])==13
+                     and x['ready_for_betting'] is False
+                     and x['outsider_style_history_recovered'] is False
+                     and x['outsider_all_13_ready'] is False for x in rows)
+          print('PARTIAL_690_PLUS_ORIGINAL_BACKFILL_13_SOURCE_471_PASS')
           PY
       - name: Fail-closed test for injected result or post-race capture timestamp
         shell: bash
@@ -106,5 +129,5 @@ jobs:
         run: |
           echo 'Free standard ubuntu-latest CPU; pinned public BACKFILL read-only.'
           echo 'Only JRA pre-race card observations. No current results/payouts/odds used.'
-          echo 'No training, 690/928 recompute, Kaggle or public model saving, artifact or cache.'
+          echo 'No training, original 690/928 recalculation, Kaggle or public model saving, artifact or cache.'
           echo 'STYLE history and formal 2026 model approval remain outstanding.'
