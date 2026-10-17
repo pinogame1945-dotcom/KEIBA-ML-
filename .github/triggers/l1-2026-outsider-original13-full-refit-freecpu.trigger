@@ -7,3 +7,4 @@ model_approval: false
 compute: GitHub public standard ubuntu-latest CPU
 storage: quota-preflight then Kaggle private only; public GitHub model writes forbidden
 trigger: initial-run-2026-10-17
+retry_missing_dataset_ref: 2026-10-17 verified frozen snapshot eb13d4096519167b; original workflow unchanged
