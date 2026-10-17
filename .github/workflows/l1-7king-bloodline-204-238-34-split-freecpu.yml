@@ -1,0 +1,81 @@
+name: Audit exact 7King pedigree builder v3 against frozen archived model schemas
+on:
+  push:
+    branches: [audit/l1-7king-outsider-2026-asset-preflight-20261017]
+    paths:
+      - .github/workflows/l1-7king-bloodline-204-238-34-split-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  audit:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch pinned existing BACKFILL pedigree source only
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$RUNNER_TEMP/real-backfill-code"
+          mkdir -p "$repo"
+          git -C "$repo" init -q
+          git -C "$repo" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$repo" fetch -q --no-tags --depth 1 --filter=blob:none origin feature/7king-pedigree-schema-recovery-20261017
+          test "$(git -C "$repo" rev-parse FETCH_HEAD)" = 88481f58f6f758d02e6684d9fbabce5a99b16dbf
+          git -C "$repo" sparse-checkout init --cone
+          git -C "$repo" sparse-checkout set ml_features/src ml_features/research
+          git -C "$repo" checkout -q --detach FETCH_HEAD
+          node "$repo/ml_features/research/audit_existing_pedigree_builder_v1.mjs" \
+            "$RUNNER_TEMP/real-pedigree-generator-keys.json"
+      - name: Read only three canonical 2025 model schemas with ML's existing Kaggle credential
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          for alias in pedlegacy pedv1 condrc; do
+            dir="$RUNNER_TEMP/king-schema/$alias"
+            mkdir -p "$dir"
+            kaggle datasets download "pino1945/keiba-l15-7k-$alias-y2025-v1" \
+              -f schema.json -p "$dir" --unzip --quiet --force
+            test -s "$dir/schema.json"
+            test "$(wc -c < "$dir/schema.json")" -lt 2000000
+          done
+      - name: Calculate exact existing pedigree coverage and missing raceclass fields
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          raw=json.loads((root/"real-pedigree-generator-keys.json").read_text())
+          existing=set(raw["names"])
+          assert raw["pedigree_key_count"]==204
+          expected={"pedlegacy":204,"pedv1":238,"condrc":34}
+          for alias,count in expected.items():
+              schema=json.loads((root/"king-schema"/alias/"schema.json").read_text())
+              required={x for x in schema["feature_order"] if x.startswith("ped_")}
+              assert len(required)==count,(alias,len(required),count)
+              common=required&existing
+              missing=required-existing
+              print("FROZEN_7KING_PEDIGREE_BUILDER_COVERAGE",json.dumps({
+                "alias":alias,"required":count,"builder_v3_produced":len(common),
+                "missing":len(missing),"missing_names":sorted(missing),
+                "2026_target_pedigree_values_calculated":False,
+              },ensure_ascii=False,sort_keys=True),flush=True)
+              if alias=="pedlegacy": assert len(common)==204 and not missing
+              if alias=="pedv1": assert len(common)==204 and len(missing)==34
+              if alias=="condrc": assert len(common)==0 and len(missing)==34
+          print("FROZEN_PEDIGREE_204_COMMON_PLUS_34_RACE_CLASS_FIELDS_CONFIRMED",flush=True)
+          print("NO_MODEL_RUN_NO_2026_RESULTS_NO_STORAGE_NO_SPEC_CHANGE",flush=True)
+          PY
