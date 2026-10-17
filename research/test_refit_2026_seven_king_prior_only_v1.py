@@ -90,7 +90,7 @@ class Frozen2026DeploymentRefitGateTest(unittest.TestCase):
                 "feature_schema_version":8,
                 "leakage_policy":"STRICT_PRIOR_DATE_ONLY",
                 "prediction_phase":"FINAL",
-                "feature_sets":trainer.DEFAULT_FEATURE_CONTRACT["feature_sets"].keys(),
+                "feature_sets":["BASE","OPPONENT","AUTO","ACTOR","TIME_PACE"],
                 "history_windows":history,
                 "small_sample_policy":small,
                 "race_id":str(year)+"05050101",
@@ -98,8 +98,6 @@ class Frozen2026DeploymentRefitGateTest(unittest.TestCase):
                 "features":{"race_date":str(2025 if (year==2024 and wrong_year) else year)+"-05-05"},
                 "target":{"is_win":True},
             }
-            # write lists for JSON serialization exactly as the archived contract does
-            row["feature_sets"]=list(row["feature_sets"])
             with gzip.open(root/f"snapshot-{year}.jsonl.gz","wt",encoding="utf-8") as out:
                 out.write(json.dumps(row)+"\n")
                 if year==2024 and duplicate:
