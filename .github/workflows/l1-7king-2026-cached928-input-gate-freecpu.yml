@@ -1,0 +1,102 @@
+name: Frozen 7King 2026 cached 928 input preflight (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_original_7king_2026_cached928_inputs_v1.py
+      - .github/workflows/l1-7king-2026-cached928-input-gate-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frozen-7king-2026-928-preflight
+  cancel-in-progress: false
+jobs:
+  schema-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_EXPECTED_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+      BACKFILL_REF: feature/7king-pedigree-schema-recovery-20261017
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify auditor syntax and frozen contracts
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_original_7king_2026_cached928_inputs_v1.py
+          python - <<'PY'
+          import json
+          x=json.load(open("research/l1-raceclass-absorption-walkforward-v1.json"))
+          assert x["snapshot_generation"]=="eb13d4096519167b"
+          assert x["training_window_years"]==2
+          assert x["locked_years"]==[2026]
+          assert x["prediction_phase"]=="FINAL" and x["feature_selection"]=="none"
+          assert len(x["candidates"])==7
+          print("ORIGINAL_FROZEN_SEVEN_KING_CONFIGURATION_UNCHANGED")
+          PY
+      - name: Checkout pinned BACKFILL input cache only (no recomputation)
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/backfill"
+          mkdir -p "$dir"
+          git -C "$dir" init -q
+          git -C "$dir" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$dir" fetch -q --no-tags --depth 1 --filter=blob:none origin "$BACKFILL_REF"
+          test "$(git -C "$dir" rev-parse FETCH_HEAD)" = "$BACKFILL_EXPECTED_SHA"
+          git -C "$dir" sparse-checkout init --cone
+          git -C "$dir" sparse-checkout set \
+            ml_features/delivery/690 \
+            ml_features/delivery/pedigree-v4 \
+            ml_features/research
+          git -C "$dir" checkout -q --detach FETCH_HEAD
+          python "$dir/ml_features/research/pedigree_v4_cache_v1.py" verify \
+            --root "$dir"
+          python "$dir/ml_features/research/join_690_original_pedigree_v4_238_v1.py" \
+            --root "$dir" --output "$RUNNER_TEMP/joined928"
+      - name: Download only seven original 2025 schema files (read only)
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            dir="$RUNNER_TEMP/schema2025/$alias"
+            mkdir -p "$dir"
+            kaggle datasets download "pino1945/keiba-l15-7k-$alias-y2025-v1" \
+              -f schema.json -p "$dir" --unzip --quiet --force
+            test -s "$dir/schema.json"
+            test "$(wc -c < "$dir/schema.json")" -lt 2000000
+          done
+      - name: Match all 60 races and all 786 target rows to 7 frozen original model schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_original_7king_2026_cached928_inputs_v1.py \
+            --joined "$RUNNER_TEMP/joined928" \
+            --schemas "$RUNNER_TEMP/schema2025" \
+            --report "$RUNNER_TEMP/2026-7king-input-gate.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"2026-7king-input-gate.json"
+          r=json.loads(p.read_text())
+          assert r["races"]==60 and r["rows"]==786
+          assert r["seven_king_input_columns_complete"] is True
+          assert len(r["king_schemas"])==7
+          assert all(k["missing_columns"]==0 for k in r["king_schemas"])
+          assert r["seven_king_2026_inference_performed"] is False
+          assert r["frozen_2026_evaluation_lock_kept"] is True
+          print("FROZEN_7KING_2026_ALL_60_RACES_INPUT_GATE_PASSED")
+          PY
+      - name: Cost and output guarantees
+        if: always()
+        run: |
+          echo "ubuntu-latest standard CPU only; no GPU"
+          echo "No Actions upload-artifact, cache, Kaggle publication, or model publication"
+          echo "2026 outcomes/evaluation locked; no historical feature regeneration"
