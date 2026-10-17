@@ -1,0 +1,35 @@
+name: Check 2025 seven-king archived file names (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-7king-2025-archive-filelist-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  file-list:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Identify exact score filenames in existing seven archived datasets
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          for king in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$king-y2025-v1"
+            echo "ARCHIVE_FILE_LIST_START $king"
+            kaggle datasets files "$ref" --page-size 200 -v
+            echo "ARCHIVE_FILE_LIST_END $king"
+          done
+      - name: Cost and data protections
+        if: always()
+        run: |
+          echo "Read-only filename listing. No downloads, uploads, cache, model scoring or paid resources."
