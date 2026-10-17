@@ -38,3 +38,9 @@
 ## 調査の変更範囲
 新規 `audit/l1-7king-outsider-2026-asset-preflight-20261017` ブランチのみ。
 元学習器・元7王・Council・Outsider・main・凍結モデルのロジック・データは無変更。標準無料CPUで読み取りのみ。モデル/大規模データのダウンロード・有料リソース利用・課金保存は実施していない。
+
+## BACKFILL側で復旧に再利用できる実装（追加確認）
+- BACKFILL `ml_features/src/pedigree-feature-builder.mjs` に、父・母父の履歴を持つ特徴量生成器 `createPedigreeFeatureState` が既存実装として存在する。
+- BACKFILL `ml_features/research/build-yearly-superset-snapshots.mjs` は `--feature-sets` に `PEDIGREE` を含めると既存生成器を使う構成。馬プロフィールの血統情報を参照する。
+- したがって `ped_` の不足列を**新規ロジックで作り直す前に、既存のBACKFILL生成経路を再利用する**のが正しい。ただし2026年の全出走馬に関する血統データの有無・34/204/238列の実際の生成可否・発走前の適格性は**未実行、未検証**。
+- 元の7王が使っていた snapshot生成ID `eb13d4096519167b` とBACKFILL受け渡し690特徴量の生成履歴の相違に注意。2025版schemaの列名一致は、年度横断の数値・カテゴリ整合性を保証しない。
