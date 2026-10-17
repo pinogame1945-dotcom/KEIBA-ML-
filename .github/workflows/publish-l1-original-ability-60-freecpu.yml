@@ -1,0 +1,225 @@
+name: Publish original L1 60-race ability scores (free CPU)
+
+on:
+  push:
+    branches: [handoff/l1-original-ability-60-20261017]
+    paths:
+      - .github/workflows/publish-l1-original-ability-60-freecpu.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: pure-original-l1-backfill-690-60-persist-freecpu
+  cancel-in-progress: false
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '1'
+      NODE_OPTIONS: '--max-old-space-size=4096'
+      BACKFILL_DELIVERY_SHA: 113d6ab73bf840c95a761cf1d8df2b4a0281adf5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Free CPU, source pin and disk/secret safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          test "$(df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}')" -gt 6000000
+          python -m py_compile research/score_backfill_690_pure_l1_v1.py
+          test "$(git rev-parse HEAD)" != "$BACKFILL_DELIVERY_SHA"
+          echo "ORIGINAL_L1_ONLY_2026_RESULTS_SEALED_STANDARD_FREE_CPU_NO_ARTIFACT_CACHE_MODEL_OR_PAID_STORAGE"
+      - name: Install frozen existing LightGBM dependencies plus Kaggle CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python -m unittest discover -s tests -p test_receive_backfill_690_v1.py -v
+          python -m unittest discover -s tests -p test_score_backfill_690_pure_l1_v1.py -v
+      - name: Fetch EXACT pinned BACKFILL published 690 to temporary disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$RUNNER_TEMP/backfill-delivery"
+          mkdir -p "$repo"
+          git -C "$repo" init --quiet
+          git -C "$repo" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$repo" fetch --no-tags --depth 1 --filter=blob:none origin handoff/690-feature-data-v1
+          test "$(git -C "$repo" rev-parse FETCH_HEAD)" = "$BACKFILL_DELIVERY_SHA"
+          git -C "$repo" sparse-checkout init --cone
+          git -C "$repo" sparse-checkout set ml_features/delivery/690
+          git -C "$repo" checkout -q --detach FETCH_HEAD
+          source="$repo/ml_features/delivery/690"
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-10" \
+            --output-dir "$RUNNER_TEMP/received-690/2026-10-10" \
+            --expected-races 24 --expected-horses 315
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-17" \
+            --output-dir "$RUNNER_TEMP/received-690/2026-10-17" \
+            --expected-races 36 --expected-horses 471
+          echo "BACKFILL_60_RACES_RECEIVED_FOR_ORIGINAL_L1"
+      - name: Build ORIGINAL full strictly-prior 2019-2025 labelled state and frozen 2024-25 train
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote="$RUNNER_TEMP/pinned-kaggle"
+          prior="$RUNNER_TEMP/pure-l1-historical"
+          mkdir -p "$remote" "$prior"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            echo "ORIGINAL_L1_PRIOR_YEAR_START year=$year"
+            bash scripts/fetch_original_state_history_snapshot.sh "$year" "$remote" \
+              | tee "$remote/fetch-$year.log"
+            source="$(tail -n 1 "$remote/fetch-$year.log")"
+            test -s "$source"
+            python research/phase3_20261010_original_l1_24_cold_v1.py \
+              --mode export --year "$year" --source "$source" --prior-dir "$prior"
+            rm -f "$source"
+            echo "ORIGINAL_L1_PRIOR_YEAR_EXPORTED year=$year"
+          done
+          test -s "$prior/original-core4-train-2024.csv.gz"
+          test -s "$prior/original-core4-train-2025.csv.gz"
+          test -s "$prior/original-daybias-2024.csv.gz"
+          test -s "$prior/original-daybias-2025.csv.gz"
+          echo "ORIGINAL_L1_PRE_2026_HISTORICAL_TRAIN_READY"
+      - name: Fit original 2024-25 LambdaRank once and score all 60 2026 races
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/score_backfill_690_pure_l1_v1.py \
+            --prior-dir "$RUNNER_TEMP/pure-l1-historical" \
+            --input-dir "$RUNNER_TEMP/received-690" \
+            --output-dir "$RUNNER_TEMP/real-pure-l1-60"
+          test "$(find "$RUNNER_TEMP/real-pure-l1-60" -maxdepth 1 -name '2026*.json' | wc -l)" -eq 60
+          echo "REAL_ORIGINAL_L1_60_RACE_INFERENCE_DONE_INPUT_ONLY_NO_PERFORMANCE_EVAL"
+      - name: Verify all 60 real rankings, preserve prior top3, build indexed publication
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+
+          import hashlib,json,os,shutil,math
+          from pathlib import Path
+          
+          temp=Path(os.environ["RUNNER_TEMP"])
+          b=temp/"backfill-delivery/ml_features/delivery/690"
+          p=temp/"real-pure-l1-60"
+          dst=Path("delivery/l1-original-690")
+          assert not dst.exists(),"REFUSE_OVERWRITE_SAVED_RANKING"
+          a=json.loads((b/"index.json").read_text())
+          m=json.loads((p/"manifest.json").read_text())
+          assert a["contract"]=="KEIBA_BACKFILL_TO_ML_690_INDEX_V1"
+          assert (a["total_races"],a["total_horses"],a["feature_count"])==(60,786,690)
+          assert a["readiness"]=="ASOF_UNVERIFIED_DO_NOT_BET"
+          assert a["original_ml_full_numerical_parity_verified"] is False
+          assert m["contract"]=="KEIBA_BACKFILL_60_ORIGINAL_L1_ABILITY_BATCH_V1"
+          assert (m["races"],m["horses"],m["model_features"])==(60,786,690)
+          assert (m["train_horses"],m["train_races"])==(94280,6912)
+          assert (m["model_seed"],m["historical_train_years"])==(5302600,[2024,2025])
+          assert m["2026_outcomes_not_used_or_evaluated"] is True
+          assert m["prestart_asof_not_independently_verified"] is True
+          assert m["original_690_numerical_parity_not_checked"] is True
+          assert m["seven_king_outsider_l175_l21_l3_not_executed"] is True
+          races=a["races"]
+          assert len(races)==60
+          assert {x.stem for x in p.glob("2026*.json")}==set(races)
+          expected={"2026-10-10":(24,315),"2026-10-17":(36,471)}
+          counts={k:{"races":0,"horses":0} for k in expected}
+          toplines=[]
+          items={}
+          h=0xcbf29ce484222325
+          for rid,ref in sorted(races.items()):
+              day=ref["date"]
+              assert day in expected and ref["path"]==f"ml_features/delivery/690/{day}/{rid}.json"
+              inp=b/day/(rid+".json")
+              output=p/(rid+".json")
+              assert inp.is_file() and output.is_file()
+              assert hashlib.sha256(inp.read_bytes()).hexdigest()==ref["sha256"],"SOURCE_SHA_MISMATCH"
+              t=json.loads(inp.read_text(encoding="utf8"))
+              z=json.loads(output.read_text(encoding="utf8"))
+              assert (t["race_id"],t["race_date"],t["feature_count"])==(rid,day,690)
+              assert t["used_target_results_or_final_odds"] is False
+              assert t["source_capture_asof_independently_verified"] is False
+              assert z["contract"]=="KEIBA_BACKFILL_690_REAL_ORIGINAL_L1_ABILITY_V1"
+              assert (z["race_id"],z["race_date"],z["model_feature_count"])==(rid,day,690)
+              assert z["model_seed"]==5302600 and z["historical_training_years"]==[2024,2025]
+              assert z["real_original_lambdarank_trained_once_for_60"] is True
+              for flag in ("2026_training_or_performance_evaluation",
+                           "target_result_or_final_odds_used",
+                           "source_prebet_asof_independently_verified",
+                           "numeric_original_690_parity_verified",
+                           "original_seven_king_outsider_ready","l175_p3_ready","l21_l3_ready"):
+                  assert z[flag] is False,flag
+              source_ids=[str(x["_horse_id"]) for x in t["rows"]]
+              output_rows=z["horse_scores"]
+              out_ids=[str(x["horse_id"]) for x in output_rows]
+              assert len(source_ids)==ref["starters"]==len(out_ids)
+              assert len(set(source_ids))==len(source_ids)
+              assert set(out_ids)==set(source_ids)
+              assert [x["ai_raw_rank"] for x in output_rows]==list(range(1,len(out_ids)+1))
+              for q in output_rows:
+                  for field in ("ability_score","ability_score_z","ability_gap_to_best"):
+                      assert isinstance(q[field],(float,int)) and math.isfinite(q[field])
+                  assert q["ability_gap_to_best"]>=0
+              for u,v in zip(output_rows,output_rows[1:]):
+                  assert u["ability_score"]+1e-10>=v["ability_score"]
+              entry=f"{rid}|{','.join(out_ids[:3])}\n"
+              for ch in entry.encode("utf8"):
+                  h=((h^ch)*0x100000001b3)&0xffffffffffffffff
+              counts[day]["races"]+=1
+              counts[day]["horses"]+=len(out_ids)
+              outpath=dst/day/(rid+".json")
+              outpath.parent.mkdir(parents=True,exist_ok=True)
+              shutil.copyfile(output,outpath)
+              sha=hashlib.sha256(outpath.read_bytes()).hexdigest()
+              items[rid]={"race_date":day,"starters":len(out_ids),
+                          "path":outpath.as_posix(),"sha256":sha}
+          assert all((counts[d]["races"],counts[d]["horses"])==v for d,v in expected.items())
+          assert format(h,"016x")=="2b539fdd96562293","TOP3_DRIFT_FROM_RUN_38996450588"
+          index={
+           "contract":"KEIBA_ML_ORIGINAL_L1_ABILITY_690_DELIVERY_INDEX_V1",
+           "status":"RESEARCH_ONLY_NOT_APPROVED_FOR_BETTING",
+           "backfill_repo":"pinogame1945-dotcom/KEIBA-BACKFILL",
+           "backfill_sha":"113d6ab73bf840c95a761cf1d8df2b4a0281adf5",
+           "prior_successful_run_id":38996450588,
+           "top3_previous_run_fnv64":format(h,"016x"),
+           "previous_top3_reproduced":True,
+           "original_lambda_rank_seed":5302600,
+           "training_years":[2024,2025],
+           "training_horses":94280,"training_races":6912,
+           "features":690,"races":60,"horses":786,"by_day":counts,
+           "source_asof_independently_verified":False,
+           "full_690_numerical_parity_verified":False,
+           "used_2026_results_for_training_or_evaluation":False,
+           "seven_king_outsider_l175_l21_l3_executed":False,
+           "approved_for_betting":False,
+           "race_files":items,
+          }
+          (dst/"index.json").write_text(json.dumps(index,ensure_ascii=False,
+                                                   sort_keys=True,indent=2)+"\n",encoding="utf8")
+          assert sum(1 for f in dst.rglob("2026*.json"))==60
+          assert len(items)==60
+          print("ORIGINAL_L1_60_ALL_SCORES_VERIFIED "+json.dumps(
+           {"races":60,"horses":786,"top3_previous_run_fnv64":format(h,"016x"),
+            "by_day":counts,"2026_outcomes_used":False,"asof_certified":False},sort_keys=True),flush=True)
+          PY
+          test "$(du -sk delivery/l1-original-690 | awk '{print $1}')" -lt 2048
+          test "$(git rev-parse --abbrev-ref HEAD)" = "handoff/l1-original-ability-60-20261017"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add delivery/l1-original-690
+          test "$(git diff --cached --name-only | wc -l)" -eq 61
+          git commit -m "data: save 60 pure L1 rankings, 786 horses, no 2026 results"
+          git push origin HEAD:refs/heads/handoff/l1-original-ability-60-20261017
+          echo "ORIGINAL_L1_60_PERSISTED_IN_GITHUB_WITH_INDEX"
