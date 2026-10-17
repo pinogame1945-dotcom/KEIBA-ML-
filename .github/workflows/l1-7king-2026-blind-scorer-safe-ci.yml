@@ -5,6 +5,7 @@ on:
     paths:
       - research/score_7king_2026_blind_from_approved_models_v1.py
       - research/test_7king_2026_blind_from_approved_models_v1.py
+      - research/test_7king_2026_blind_real_lightgbm_synthetic_v1.py
       - research/refit_2026_seven_king_prior_only_v1.py
       - research/test_refit_2026_seven_king_prior_only_v1.py
       - .github/workflows/l1-7king-2026-blind-scorer-safe-ci.yml
@@ -27,6 +28,7 @@ jobs:
           python -m py_compile \
             research/score_7king_2026_blind_from_approved_models_v1.py \
             research/test_7king_2026_blind_from_approved_models_v1.py \
+            research/test_7king_2026_blind_real_lightgbm_synthetic_v1.py \
             research/refit_2026_seven_king_prior_only_v1.py \
             research/test_refit_2026_seven_king_prior_only_v1.py \
             research/emit_l1_to_l2.py
@@ -50,7 +52,8 @@ jobs:
           set -euo pipefail
           PYTHONPATH=research python -m unittest -v \
             research/test_7king_2026_blind_from_approved_models_v1.py \
-            research/test_refit_2026_seven_king_prior_only_v1.py
+            research/test_refit_2026_seven_king_prior_only_v1.py \
+            research/test_7king_2026_blind_real_lightgbm_synthetic_v1.py
           echo "SEVEN_KING_2026_BLIND_INFERENCE_GATE_UNIT_PASS_NO_REAL_MODELS"
       - name: Cost, data use and frozen model safety
         if: always()
