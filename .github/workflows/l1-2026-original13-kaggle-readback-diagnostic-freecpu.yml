@@ -61,20 +61,21 @@ jobs:
               raise SystemExit('STOP_DATASET_NOT_OWNED_OR_NOT_VISIBLE_NO_OVERWRITE')
           with TemporaryDirectory() as t:
               dest=Path(t)
-              for attempt in range(3):
-                  code,out,err=call(['kaggle','datasets','download',ref,'-p',str(dest),'--unzip','--quiet','--force'])
-                  if code==0: break
-                  print('REMOTE_READBACK_FAILED attempt='+str(attempt+1)+' error='+err[-350:],flush=True)
-                  if attempt<2: time.sleep(15)
+              code,out,err=call(['kaggle','datasets','download',ref,'-f','index.json','-p',str(dest),'--unzip','--quiet','--force'])
+              print('INDEX_INDIVIDUAL_DOWNLOAD_STATUS='+str(code)+' detail='+err[-200:],flush=True)
               if code:
-                  raise SystemExit('STOP_PRIVATE_KAGGLE_DOWNLOAD_FORBIDDEN_NO_RETRAIN')
+                  raise SystemExit('STOP_PRIVATE_KAGGLE_SINGLE_FILE_DOWNLOAD_UNAVAILABLE')
               idx=json.loads((dest/'index.json').read_text(encoding='utf-8'))
               assert idx['outsider_candidate_count']==13 and idx['2026_candidate_approval_status']=='UNRELEASED_RESEARCH_ONLY'
               checks={n:v['sha256'] for candidate in idx['candidates'].values() for n,v in candidate['files'].items()}
               assert len(checks)==78
-              for name,expected in checks.items():
+              for i,(name,expected) in enumerate(checks.items(),1):
+                  code,out,err=call(['kaggle','datasets','download',ref,'-f',name,'-p',str(dest),'--unzip','--quiet','--force'])
+                  if code:
+                      raise SystemExit('REMOTE_SINGLE_FILE_DOWNLOAD_FAILED:'+name+':'+err[-200:])
                   p=dest/name
                   assert p.is_file(), 'MISSING_REMOTE_FILE:'+name
                   assert hashlib.sha256(p.read_bytes()).hexdigest()==expected, 'REMOTE_SHA_MISMATCH:'+name
+                  if i%13==0:print('VERIFIED_REMOTE_FILES '+str(i)+'/78',flush=True)
               print('EXISTING_PRIVATE_ORIGINAL13_REMOTE_READBACK_VERIFIED 13_MODELS 78_MODEL_FILES PLUS_INDEX',flush=True)
           PY
