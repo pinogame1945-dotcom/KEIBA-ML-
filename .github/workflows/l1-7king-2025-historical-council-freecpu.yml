@@ -32,21 +32,21 @@ jobs:
           set -euo pipefail
           for alias in core4 pedlegacy condition full light pedv1 condrc; do
             mkdir -p "$RUNNER_TEMP/king2025/$alias"
-            kaggle datasets download "pino1945/keiba-l15-7k-$alias-y2025-v1" -f score.jsonl.gz -p "$RUNNER_TEMP/king2025/$alias" --unzip --quiet --force
-            test -s "$RUNNER_TEMP/king2025/$alias/score.jsonl.gz"
+            kaggle datasets download "pino1945/keiba-l15-7k-$alias-y2025-v1" -f score.jsonl -p "$RUNNER_TEMP/king2025/$alias" --unzip --quiet --force
+            test -s "$RUNNER_TEMP/king2025/$alias/score.jsonl"
           done
       - name: Apply unchanged frozen L1.6 full-rank council to real 2025 scores
         shell: bash
         run: |
           set -euo pipefail
           python research/materialize_l16_full_rank_consensus_v1.py \
-            --expert "core4=$RUNNER_TEMP/king2025/core4/score.jsonl.gz" \
-            --expert "pedlegacy=$RUNNER_TEMP/king2025/pedlegacy/score.jsonl.gz" \
-            --expert "condition=$RUNNER_TEMP/king2025/condition/score.jsonl.gz" \
-            --expert "full=$RUNNER_TEMP/king2025/full/score.jsonl.gz" \
-            --expert "light=$RUNNER_TEMP/king2025/light/score.jsonl.gz" \
-            --expert "pedv1=$RUNNER_TEMP/king2025/pedv1/score.jsonl.gz" \
-            --expert "condrc=$RUNNER_TEMP/king2025/condrc/score.jsonl.gz" \
+            --expert "core4=$RUNNER_TEMP/king2025/core4/score.jsonl" \
+            --expert "pedlegacy=$RUNNER_TEMP/king2025/pedlegacy/score.jsonl" \
+            --expert "condition=$RUNNER_TEMP/king2025/condition/score.jsonl" \
+            --expert "full=$RUNNER_TEMP/king2025/full/score.jsonl" \
+            --expert "light=$RUNNER_TEMP/king2025/light/score.jsonl" \
+            --expert "pedv1=$RUNNER_TEMP/king2025/pedv1/score.jsonl" \
+            --expert "condrc=$RUNNER_TEMP/king2025/condrc/score.jsonl" \
             --output "$RUNNER_TEMP/council2025.jsonl.gz"
           python research/audit_historical_7king_2025_council_v1.py \
             --input "$RUNNER_TEMP/council2025.jsonl.gz"
