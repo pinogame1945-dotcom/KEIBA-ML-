@@ -32,6 +32,17 @@
 - 既存238血統キャッシュと690ファイルだけを参照。履歴再計算・2026着順利用・LightGBM重みロード・予測・学習・保存モデルの昇格は**全て未実施**。
 - これは推論入力の構築成功であり、2026年用モデルの完成や7王の予測値生成ではない。
 
+## 2024〜2025年の正本学習資産メタデータ検査（今回追加）
+
+- 新設監査: research/audit_7king_2026_blind_training_assets_v1.py
+- 新設無料標準CPU Actions: .github/workflows/l1-7king-2026-training-assets-gate-freecpu.yml
+- 起動Run: https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39005829126
+- 開始時点: in_progress。ユーザー指示により長時間監視は行わない。検証成功はまだ宣言しない。
+- 目的: Kaggleに**既にある**snapshot生成世代eb13d4096519167bの2024/25マニフェストとリモートファイル一覧だけを検査し、7王の2025保存済みmodel.json/schema.jsonから元のfold学習年・早期停止best_iteration・600ラウンド設定等を厳密照合する。
+- 巨大snapshot本体、model.txt、2026対象レース結果はダウンロードしない。学習・推論・新規Kaggle公開/保存は行わない。
+- **結果次第でも2025保存重みを2026に採用しない**。過去年のbest_iteration数値を、ユーザー承認なしに2026の再学習規則に転用しない。
+- 2026年結果封印、main、既存のモデル、Council/Outsider、L1.75/L2.1/L3の凍結は維持。
+
 ## 第4段階の学習器制約
 
 凍結正本: research/l1-raceclass-absorption-walkforward-v1.json、snapshot generation eb13d4096519167b。学習2年rolling。2026は評価封印。
