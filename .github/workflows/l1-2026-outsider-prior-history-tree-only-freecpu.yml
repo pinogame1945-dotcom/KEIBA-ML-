@@ -1,0 +1,72 @@
+name: Outsider 2026 prior history tree metadata only (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_2026_outsider_strict_prior_history_tree_only_v1.py
+      - .github/workflows/l1-2026-outsider-prior-history-tree-only-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  metadata-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    env:
+      PINNED_BACKFILL_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Pure synthetic date gate refuses target-date and future file metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_outsider_strict_prior_history_tree_only_v1.py
+          PYTHONPATH=research python - <<'PY'
+          from audit_2026_outsider_strict_prior_history_tree_only_v1 import select_prior
+          oid='a'*40
+          records=[f'100644 blob {oid}\tdata/daily/{d}.jsonl.gz' for d in
+                   ['2026-01-04','2026-10-16','2026-10-17','2026-10-18']]
+          got=select_prior(records,'2026-10-17')
+          assert [x['date'] for x in got]==['2026-01-04','2026-10-16']
+          try:
+              select_prior(records,'2026-10-18')
+          except ValueError as e:
+              assert str(e)=='TARGET_DATE_LOCK_DRIFT'
+          else:
+              raise SystemExit('WRONG_DAY_MUST_FAIL')
+          print('STRICT_PRIOR_DATE_ONLY_PATH_GATE_SYNTHETIC_PASS')
+          PY
+      - name: Fetch only pinned Git commit TREE without checking out race results
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/bf-git-tree-only"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$PINNED_BACKFILL_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_BACKFILL_SHA"
+          test ! -d "$root/data"
+          python research/audit_2026_outsider_strict_prior_history_tree_only_v1.py \
+            --repo "$root" --target-date 2026-10-17 \
+            --out "$RUNNER_TEMP/2026-prior-history-git-blob-names-only.json"
+          test ! -d "$root/data"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'2026-prior-history-git-blob-names-only.json'
+          r=json.loads(p.read_text())
+          assert r['source_race_blobs_opened']==0 and r['2026_outcome_fields_read'] is False
+          assert r['2026_target_results_read'] is False and r['ready_for_betting'] is False
+          assert r['2026_prior_results_use_authorized'] is False
+          assert r['files_strictly_before_target_date']==87
+          assert all(x['date']<'2026-10-17' for x in r['source_file_names_and_git_blob_ids'])
+          print('PINNED_PRIOR_2026_TREE_NAMES_ONLY_87_DAYS_VERIFIED_NO_BLOBS')
+          PY
+      - name: Strict cost and 2026 outcome sealing
+        if: always()
+        run: |
+          echo 'Public GitHub standard free CPU. No clone checkout of 2026 race result files.'
+          echo 'No uploads, cache, artifact, 2026 data content, models, L1.75 or betting.'
