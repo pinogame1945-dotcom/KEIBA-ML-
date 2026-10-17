@@ -1,5 +1,16 @@
 # 7王 2026・L3までの到達状況（2026-10-17）
 
+## 第5段階・Outsider元BACKFILL特徴量の一部復元（2026-10-17 19時JST）
+
+- **実データ検証成功：** GitHub Actions [#39023134846](https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39023134846) と [#39023317964](https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39023317964) は両方 success。無料標準CPUで再学習・2026年結果参照・元690再計算なし。
+- BACKFILL固定commit `9fe9f1742aa074a84c03a779e1ee949c04f78c0d` にある **元 `ml_features/src/backfill-feature-adapter.mjs` v2を変更せず動的import**。同じcommitの `live_json_to_daily_pack_v1.py` を使って、10/17の発走前ライブ36レースを厳格な日別packへ変換。
+- LIVE→元BACKFILL変換は **36レース、出走471頭、取消1頭除外**。13種類の元 `backfill_*` レース条件系を復旧し、各レース・馬ID/元690 SHAを照合。`research/recover_2026_10_17_original_outsider_race_context_v1.mjs` → `research/join_2026_10_17_original_outsider_backfill_13_to_cached_690_v1.py` で **471頭×（既存690+元BACKFILL13）＝703列の一時行列**を生成。
+- **ソースにない値を仮埋めしない**：`backfill_course_laps` 471/471 null、`backfill_course_layout` 368/471 null、`backfill_grade` 457/471 null、`backfill_age_max` 300/471 null。他の元レース条件値も元変換器の出力を無変更で保持。
+- 不正結果の注入・発走後の取得時刻を人工的に加えた入力は**必ず失敗**する安全テストを実施。
+- **残る問題：** 既存690には `style_*` が存在しない。元 `historical-extra-builder.mjs` の STYLE計算は過去走の通過順とその時点で既知の結果を元に行うため、既存の690＋今回の13列だけで正本STYLEを復元できない。元OUTSIDERの日次傾向には同日先行レースの勝ち馬データ依存もある。2026年の結果・払戻を後知恵で導入しない。10/10の過去FINAL投影もas-of独立監査未了。
+- **成果物はGitHub Actions一時領域で検証**。保存済み690・血統・7王モデルはそのまま再利用可能だが、今回の中間703列は永続保存していない。次回使う場合は安価なレース条件復元・結合のみ必要。モデルの再学習不要。
+- **L3進捗：3/8段階が運用完了。** 第5段階の元BACKFILL部分復旧まで進んだが、13 Outsider実学習・本物のTop3・L1.75・L2.1・L3 V3は未完。
+
 ## 第5段階・元13 Outsider 2026実予測の事前検証（2026-10-17）
 
 - **現状：13 Outsider実モデルの2026用学習・実推論は未実施。** 凍結7王合議は保存済みで再学習不要。
