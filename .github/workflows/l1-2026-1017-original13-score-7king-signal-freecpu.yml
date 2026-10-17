@@ -1,0 +1,339 @@
+name: Original 13 Outsider score and 7King support 2026-10-17 (free CPU research)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-original13-score-7king-signal-freecpu.yml
+permissions:
+  contents: read
+concurrency:
+  group: original-outsider-style-target-sealed-2026-prior
+  cancel-in-progress: false
+jobs:
+  read-historical-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    env:
+      PINNED_BF_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      OUTSIDER_REF: pino1945/keiba-ml-2026-original13-outsider-candidate-v1
+      KING_REF: pino1945/keiba-ml-2026-original-sevenking-candidate-v1
+      OUTPUT_REF: pino1945/keiba-ml-2026-1017-original13-7king-signal-research-v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify public free CPU, existing Kaggle quota and research-only models before execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",headers={"User-Agent":"keiba-freecpu"})
+          assert json.load(urllib.request.urlopen(req,timeout=30)).get("private") is False,"STOP_NONFREE_REPO"
+          print("FREE_STANDARD_PUBLIC_REPO_CONFIRMED")
+          PY
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
+          PYTHONPATH=research python -m py_compile research/score_2026_10_17_original13_and_join7king_research_v1.py
+          bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
+          python - <<'PY'
+          import json,os,subprocess
+          ref=os.environ["OUTPUT_REF"]
+          own=set()
+          for page in range(1,1001):
+              p=subprocess.run(["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref)"],capture_output=True,text=True)
+              if p.returncode:raise SystemExit("KAGGLE_OWNERSHIP_PREFLIGHT_FAILED")
+              try:rows=json.loads(p.stdout)
+              except json.JSONDecodeError:rows=[]
+              if not rows:break
+              own.update(str(r.get("ref") or "") for r in rows)
+          else:raise SystemExit("KAGGLE_OWNERSHIP_PAGINATION_UNVERIFIED")
+          assert ref not in own,"REFUSE_OVERWRITE_EXISTING_RESEARCH_SCORE_DATASET"
+          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          assert used+64*1024*1024<193273528320,"FREE_STORAGE_INSUFFICIENT"
+          print("PRIVATE_RESEARCH_OUTPUT_REF_NOT_EXISTS_AND_FREE_CAPACITY_VERIFIED")
+          PY
+      - name: Fetch pinned BACKFILL strict-prior history dates only; never 2026-10-17 target outcome
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check research/audit_2026_10_17_original_style_strict_prior_2026_v1.mjs
+          root="$RUNNER_TEMP/pinned-backfill"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch --quiet --no-tags --depth 1 --filter=blob:none origin "$PINNED_BF_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_BF_SHA"
+          # Non-cone sparse paths permit STRICTLY PRIOR history only; target-day results never materialize.
+          {
+            git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
+              awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,10) >= "2022-01-01" && substr($0,12,10) < "2026-10-17") print "/" $0}'
+            echo '/ml_features/src/historical-extra-builder.mjs'
+            echo '/ml_features/src/backfill-feature-adapter.mjs'
+            echo '/ml_features/contracts/l1-small-sample-contract-v1.json'
+            echo '/ml_features/contracts/l1-feature-set-contract-v1.json'
+            echo '/ml_features/research/live_json_to_daily_pack_v1.py'
+            echo '/ml_features/delivery/690/index.json'
+            echo '/ml_features/delivery/690/2026-10-17/*'
+            echo '/data/live/2026-10-17/*'
+          } > "$RUNNER_TEMP/sparse-list.txt"
+          test "$(grep -c '^/data/daily/' "$RUNNER_TEMP/sparse-list.txt")" -gt 300
+          ! grep -Eq '^/data/daily/2026-10-1[7-9]|^/data/daily/2026-10-[2-3][0-9]' "$RUNNER_TEMP/sparse-list.txt"
+          test "$(grep -Ec '^/data/daily/2026-' "$RUNNER_TEMP/sparse-list.txt")" -eq 87
+          git -C "$root" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/sparse-list.txt"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/src/historical-extra-builder.mjs"
+          test -s "$root/ml_features/contracts/l1-feature-set-contract-v1.json"
+          test -s "$root/data/daily/2026-10-10.jsonl.gz"
+          test -s "$root/data/daily/2026-10-11.jsonl.gz"
+          test ! -e "$root/data/daily/2026-10-17.jsonl.gz"
+          echo "TARGET_DATE_20261017_OUTCOMES_NOT_CHECKED_OUT_87_PRIOR_DAYS_ONLY"
+      - name: Use original pre-race JRA pack and unchanged historical extra generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          python "$root/ml_features/research/live_json_to_daily_pack_v1.py" \
+            --live-dir "$root/data/live/2026-10-17" \
+            --output "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz"
+          node research/audit_2026_10_17_original_style_strict_prior_2026_v1.mjs \
+            --pinned-backfill-root "$root" \
+            --pre-race-day-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
+            --out "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl"
+      - name: Confirm all 471 original STYLE target rows are historically complete
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'style-2026-10-17-471-evidence.jsonl'
+          rows=[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines() if x]
+          assert len(rows)==471 and len({x['race_id'] for x in rows})==36
+          assert len({(x['race_id'],x['horse_id']) for x in rows})==471
+          for r in rows:
+              complete=r['original_style_values_complete_from_strict_prior_dates']
+              assert (r['style_complete'] is not None) is complete
+              assert r['asof_full_features_verified'] is False
+              assert r['model_ready'] is False and r['ready_for_betting'] is False
+              if complete: assert len(r['style_complete'])==14
+              else: assert r['blocked_incomplete_prerace_history'] is True
+          print('STYLE_2026_10_17_STRICT_PRIOR_WITHOUT_TARGET_RESULTS_VERIFIED')
+          PY
+      - name: Create 27-column original Outsider delta with strict hash and horse alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          node --check research/recover_2026_10_17_original_outsider_race_context_v1.mjs
+          python -m py_compile research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py
+          node research/recover_2026_10_17_original_outsider_race_context_v1.mjs \
+            --daily-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
+            --original-backfill-adapter "$root/ml_features/src/backfill-feature-adapter.mjs" \
+            --output "$RUNNER_TEMP/outsider-original-backfill13.jsonl"
+          python research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py \
+            --cached-690-root "$root" \
+            --original-backfill-context "$RUNNER_TEMP/outsider-original-backfill13.jsonl" \
+            --original-style "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl" \
+            --output "$RUNNER_TEMP/outsider-original-style14-backfill13-delta-471.jsonl.gz"
+          python - <<'PY'
+          import gzip,json,os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'outsider-original-style14-backfill13-delta-471.jsonl.gz'
+          with gzip.open(path,'rt',encoding='utf8') as f:
+              r=[json.loads(x) for x in f if x.strip()]
+          assert len(r)==471 and len({x['race_id'] for x in r})==36
+          assert len({(x['race_id'],x['horse_id']) for x in r})==471
+          assert all(len(x['features_delta'])==27 and x['ready_for_betting'] is False
+              and x['target_2026_results_used'] is False
+              and x['full_928_asof_proven'] is False
+              and x['style_source_complete'] is True for x in r)
+          print('ORIGINAL_2026_OUTSIDER_DELTA_27_471_JOIN_VERIFIED_WITHOUT_REBUILDING_690')
+          PY
+      - name: Materialize all 13 original Outsider inputs using complete cached 690 and strict prior signatures
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          node --check research/prepare_2026_10_17_original_outsider_prior_signatures_from_pinned_history_v1.mjs
+          node research/prepare_2026_10_17_original_outsider_prior_signatures_from_pinned_history_v1.mjs \
+            --pinned-backfill-root "$root" \
+            --output "$RUNNER_TEMP/original-outside-five-prior-signatures-471.jsonl"
+          python -m py_compile research/materialize_2026_10_17_original_outsider_stateless8_from_cached_delta_v1.py
+          python research/materialize_2026_10_17_original_outsider_stateless8_from_cached_delta_v1.py \
+            --cached-backfill "$root" \
+            --delta27 "$RUNNER_TEMP/outsider-original-style14-backfill13-delta-471.jsonl.gz" \
+            --prior-signatures "$RUNNER_TEMP/original-outside-five-prior-signatures-471.jsonl" \
+            --feature-contract "$root/ml_features/contracts/l1-feature-set-contract-v1.json" \
+            --small-sample-contract "$root/ml_features/contracts/l1-small-sample-contract-v1.json" \
+            --output "$RUNNER_TEMP/original-outsider-eight-source-datasets"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ['RUNNER_TEMP'])/'original-outsider-eight-source-datasets'
+          m=json.loads((root/'manifest.json').read_text())
+          assert m['candidate_original_count']==13 and m['candidate_source_feature_datasets_ready']==13
+          assert m['candidate_source_feature_datasets_blocked']==0
+          assert len(m['ready_candidates'])==13 and len(m['blocked_candidates'])==0
+          assert len(list(root.glob('*.jsonl.gz')))==13
+          assert all(x['rows']==471 for x in m['ready_candidates'].values())
+          assert m['2026_target_results_used'] is False
+          assert m['2026_training_or_evaluation'] is False
+          assert m['actual_prediction_scores_produced'] is False
+          assert m['ready_for_betting'] is False
+          print('ALL_13_REAL_ORIGINAL_OUTSIDER_FEATURE_DATASETS_36R_471H_NO_SCORES_SAFE')
+          PY
+      - name: Restore exactly the saved original 13 unapproved candidate models without refitting
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/models13"
+          mkdir -p "$dir"
+          kaggle datasets download "$OUTSIDER_REF" -f index.json -p "$dir" --unzip --quiet --force
+          python - <<'PY' > "$RUNNER_TEMP/13-remote-filenames.txt"
+          import os,json
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"models13"
+          x=json.load(open(d/"index.json"))
+          assert x["outsider_candidate_count"]==13 and x["2026_candidate_approval_status"]=="UNRELEASED_RESEARCH_ONLY"
+          for name in sorted(x["candidates"]):
+              for suffix in ("model.txt","model.json","schema.json"):
+                  f=name+"__2026-candidate__"+suffix
+                  assert f in x["candidates"][name]["files"]
+                  print(f)
+          PY
+          while IFS= read -r file; do
+            kaggle datasets download "$OUTSIDER_REF" -f "$file" -p "$dir" --unzip --quiet --force
+            test -s "$dir/$file"
+          done < "$RUNNER_TEMP/13-remote-filenames.txt"
+          test "$(wc -l < "$RUNNER_TEMP/13-remote-filenames.txt")" -eq 39
+          echo "EXISTING_ORIGINAL13_MODEL_FILES_RESTORED_39_WITHOUT_TRAINING"
+      - name: Read existing 60 race seven king candidate consensus, never rebuild ranks
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="$RUNNER_TEMP/sevenking"
+          mkdir -p "$dest"
+          kaggle datasets download "$KING_REF" -p "$dest" --unzip --quiet --force
+          test "$(find "$dest" -name 'council2026.jsonl.gz' -type f | wc -l)" -eq 1
+          council="$(find "$dest" -name 'council2026.jsonl.gz' -type f)"
+          test -s "$council"
+          echo "FROZEN_SEVENKING_COUNCIL=$council" >> "$GITHUB_ENV"
+          PYTHONPATH=research python - <<'PY'
+          from pathlib import Path
+          import os
+          from prepare_2026_7king_13_outsider_research_signal_v1 import load_consensus
+          x=load_consensus(Path(os.environ["FROZEN_SEVENKING_COUNCIL"]))
+          assert len(x)==60 and sum(len(v["horses"]) for v in x.values())==786
+          print("EXISTING_SEVEN_KING_FROZEN_CONSENSUS_REUSED")
+          PY
+      - name: Score all 13 original Outsiders for 36R 471 horses and extract frozen Top3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/score_2026_10_17_original13_and_join7king_research_v1.py score \
+            --models "$RUNNER_TEMP/models13" \
+            --inputs "$RUNNER_TEMP/original-outsider-eight-source-datasets" \
+            --scores "$RUNNER_TEMP/original13-scores"
+          mkdir -p "$RUNNER_TEMP/original13-top3"
+          python - <<'PY' > "$RUNNER_TEMP/13-candidate-names.txt"
+          import sys
+          sys.path.insert(0,"research")
+          from prepare_2026_7king_13_outsider_research_signal_v1 import canonical_candidates
+          for n in canonical_candidates():print(n)
+          PY
+          while IFS= read -r name; do
+            python research/extract_safe_outsider_top3_v1.py \
+              --score "$RUNNER_TEMP/original13-scores/$name.jsonl.gz" \
+              --candidate "$name" \
+              --output "$RUNNER_TEMP/original13-top3/$name.csv"
+          done < "$RUNNER_TEMP/13-candidate-names.txt"
+          test "$(find "$RUNNER_TEMP/original13-top3" -name '*.csv' | wc -l)" -eq 13
+      - name: Join the 13 research Top3 ballots into unchanged existing 7King for exactly 10/17
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/score_2026_10_17_original13_and_join7king_research_v1.py join \
+            --council "$FROZEN_SEVENKING_COUNCIL" \
+            --ballots "$RUNNER_TEMP/original13-top3" \
+            --output "$RUNNER_TEMP/7king-13outsider-1017-signal.jsonl.gz"
+          python - <<'PY'
+          import os,json,gzip
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"7king-13outsider-1017-signal.jsonl.gz"
+          with gzip.open(p,"rt",encoding="utf8") as f:rows=[json.loads(s) for s in f if s.strip()]
+          assert len(rows)==36 and sum(len(x["horses"]) for x in rows)==471
+          assert all(x["ranking_policy"]=="SEVEN_KING_UNCHANGED" and
+                     x["outsider_policy"]=="SIGNAL_ONLY_NO_RERANK" and
+                     x["ready_for_betting"] is False and
+                     x["l175_l21_l3_invoked"] is False and
+                     x["2026_results_used"] is False for x in rows)
+          print("ORIGINAL13_REAL_VOTES_FROZEN_7KING_SUPPORT_36R_471H_PASS")
+          PY
+      - name: Save completed research-only scores and 7King support to private Kaggle within free quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          import json,hashlib,os,shutil
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"]);stage=root/"13-support-stage"
+          stage.mkdir(exist_ok=False)
+          for f in (root/"original13-scores").glob("*.jsonl.gz"):
+              shutil.copy2(f,stage/(f.name.replace(".jsonl.gz","__score.jsonl.gz")))
+          for f in (root/"original13-top3").glob("*.csv"):
+              shutil.copy2(f,stage/(f.stem+"__top3.csv"))
+          shutil.copy2(root/"7king-13outsider-1017-signal.jsonl.gz",stage/"7king-13outsider-1017-signal.jsonl.gz")
+          paths=sorted(stage.iterdir())
+          assert len(paths)==27
+          manifest={"contract":"ORIGINAL13_7KING_2026_1017_RESEARCH_PRIVATE_V1",
+              "races":36,"horses":471,"outsiders":13,"2026_results_used":False,
+              "ranking_policy":"SEVEN_KING_UNCHANGED","ready_for_betting":False,
+              "model_release_authorized":False,"l175_l21_l3_invoked":False,
+              "asof_independently_verified":False,
+              "files":{p.name:hashlib.sha256(p.read_bytes()).hexdigest() for p in paths}}
+          (stage/"index.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n")
+          n=sum(p.stat().st_size for p in stage.iterdir())
+          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          assert n<64*1024*1024 and used+n<193273528320,"FREE_QUOTA_PUBLISH_STOP"
+          (stage/"dataset-metadata.json").write_text(json.dumps({
+              "id":os.environ["OUTPUT_REF"],
+              "title":"KEIBA 2026-10-17 Original13 SevenKing Research Scores",
+              "licenses":[{"name":"other"}],
+              "description":"Private unapproved 2026 blind research only. No L1.75/L2/L3, no 2026 evaluation."},indent=2)+"\n")
+          print("KAGGLE_SCORE_STAGE_VERIFIED_FREE_BYTES "+str(n),flush=True)
+          PY
+          kaggle datasets create -p "$RUNNER_TEMP/13-support-stage" --quiet --keep-tabular --dir-mode skip
+          python - <<'PY'
+          import hashlib,json,os,subprocess,tempfile
+          from pathlib import Path
+          stage=Path(os.environ["RUNNER_TEMP"])/"13-support-stage"
+          ref=os.environ["OUTPUT_REF"]
+          record=json.loads((stage/"index.json").read_text())
+          expected={"index.json":hashlib.sha256((stage/"index.json").read_bytes()).hexdigest(),**record["files"]}
+          assert len(expected)==28
+          with tempfile.TemporaryDirectory() as d:
+              for name,sha in expected.items():
+                  result=subprocess.run(["kaggle","datasets","download",ref,"-f",name,"-p",d,"--unzip","--quiet","--force"],capture_output=True,text=True)
+                  if result.returncode:raise SystemExit("REMOTE_SINGLE_FILE_FAILED:"+name+":"+result.stderr[-300:])
+                  remote=Path(d)/name
+                  if not remote.is_file() or hashlib.sha256(remote.read_bytes()).hexdigest()!=sha:
+                      raise SystemExit("REMOTE_SHA256_UNVERIFIED:"+name)
+          print("ORIGINAL13_FROZEN7KING_RESEARCH_PRIVATE_REMOTE_VERIFIED_28_FILES",flush=True)
+          PY
+      - name: Free CPU and strict research-only guard
+        if: always()
+        run: |
+          echo "Public GitHub standard free CPU only. Never run GPU or paid resources."
+          echo "All 13 original models and 7King council were reused; no fit, no 690/928 rebuild."
+          echo "2026 target 10/17 results prohibited. Frozen king ranks unchanged, support signals only."
+          echo "Private Kaggle score save only after verified free quota; no Actions artifact or cache."
+          echo "No L1.75, frozen L2.1, L3 V3, betting or mobile model approval."
