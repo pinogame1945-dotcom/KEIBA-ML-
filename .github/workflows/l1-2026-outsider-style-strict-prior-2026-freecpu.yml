@@ -4,6 +4,8 @@ on:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
     paths:
       - research/audit_2026_10_17_original_style_strict_prior_2026_v1.mjs
+      - research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py
+      - research/recover_2026_10_17_original_outsider_race_context_v1.mjs
       - .github/workflows/l1-2026-outsider-style-strict-prior-2026-freecpu.yml
 permissions:
   contents: read
@@ -40,6 +42,7 @@ jobs:
             git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
               awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,10) >= "2022-01-01" && substr($0,12,10) < "2026-10-17") print "/" $0}'
             echo '/ml_features/src/historical-extra-builder.mjs'
+            echo '/ml_features/src/backfill-feature-adapter.mjs'
             echo '/ml_features/contracts/l1-feature-set-contract-v1.json'
             echo '/ml_features/research/live_json_to_daily_pack_v1.py'
             echo '/ml_features/delivery/690/index.json'
@@ -69,7 +72,7 @@ jobs:
             --pinned-backfill-root "$root" \
             --pre-race-day-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
             --out "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl"
-      - name: Confirm rows and only pre-2026 STYLE complete output allowed
+      - name: Confirm all 471 original STYLE target rows are historically complete
         shell: bash
         run: |
           set -euo pipefail
@@ -89,10 +92,40 @@ jobs:
               else: assert r['blocked_incomplete_prerace_history'] is True
           print('STYLE_2026_10_17_STRICT_PRIOR_WITHOUT_TARGET_RESULTS_VERIFIED')
           PY
+      - name: Create 27-column original Outsider delta with strict hash and horse alignment
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          node --check research/recover_2026_10_17_original_outsider_race_context_v1.mjs
+          python -m py_compile research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py
+          node research/recover_2026_10_17_original_outsider_race_context_v1.mjs \
+            --daily-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
+            --original-backfill-adapter "$root/ml_features/src/backfill-feature-adapter.mjs" \
+            --output "$RUNNER_TEMP/outsider-original-backfill13.jsonl"
+          python research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py \
+            --cached-690-root "$root" \
+            --original-backfill-context "$RUNNER_TEMP/outsider-original-backfill13.jsonl" \
+            --original-style "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl" \
+            --output "$RUNNER_TEMP/outsider-original-style14-backfill13-delta-471.jsonl.gz"
+          python - <<'PY'
+          import gzip,json,os
+          from pathlib import Path
+          path=Path(os.environ['RUNNER_TEMP'])/'outsider-original-style14-backfill13-delta-471.jsonl.gz'
+          with gzip.open(path,'rt',encoding='utf8') as f:
+              r=[json.loads(x) for x in f if x.strip()]
+          assert len(r)==471 and len({x['race_id'] for x in r})==36
+          assert len({(x['race_id'],x['horse_id']) for x in r})==471
+          assert all(len(x['features_delta'])==27 and x['ready_for_betting'] is False
+              and x['target_2026_results_used'] is False
+              and x['full_928_asof_proven'] is False
+              and x['style_source_complete'] is True for x in r)
+          print('ORIGINAL_2026_OUTSIDER_DELTA_27_471_JOIN_VERIFIED_WITHOUT_REBUILDING_690')
+          PY
       - name: Cost and no outcome leakage
         if: always()
         run: |
           echo 'Free standard GitHub CPU, strictly prior 2022 through 2026-10-16 history.'
           echo 'No 2026-10-17 results/labels checkout; prior 2026 results only historical feature state, never 2026 evaluation.'
-          echo 'Original BACKFILL STYLE formula unchanged, no 690 or model refit.'
+          echo 'Original BACKFILL STYLE and race-context formulas unchanged, 27-column small delta only; no 690 or model refit.'
           echo 'No paid artifacts/cache/Kaggle publish, model release or L3.'
