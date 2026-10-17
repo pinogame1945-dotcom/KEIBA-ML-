@@ -1,0 +1,32 @@
+name: 13 Outsider source bridge 690 to exact CORE4 649 synthetic safety
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/prepare_2026_original_13_outsider_649_cached_source_v1.py
+      - research/test_prepare_2026_original_13_outsider_649_cached_source_v1.py
+      - .github/workflows/l1-2026-13-outsider-649-bridge-safe-ci.yml
+permissions:
+  contents: read
+jobs:
+  source-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Synthetic 60 race 786 horse source format and sealed year tests
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/prepare_2026_original_13_outsider_649_cached_source_v1.py \
+            research/test_prepare_2026_original_13_outsider_649_cached_source_v1.py
+          PYTHONPATH=research python -m unittest -v \
+            research/test_prepare_2026_original_13_outsider_649_cached_source_v1.py
+      - name: Resource and release restrictions
+        if: always()
+        run: |
+          echo 'GitHub free standard CPU only; no download, training, scoring, actual 2026 result, persistence, cache or artifact.'
+          echo 'Prepared target has no outcomes and is ASOF_UNVERIFIED_DO_NOT_BET.'
