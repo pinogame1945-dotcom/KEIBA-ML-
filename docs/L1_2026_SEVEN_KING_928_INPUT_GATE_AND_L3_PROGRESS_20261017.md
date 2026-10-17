@@ -54,6 +54,19 @@
 - 既存の発走前as-of監査は未完了なので、将来実モデルで予測できたとしても本入口の出力ステータスは ready_for_betting=false 固定。
 - 新しい学習時の早期停止ルールは未承認・未実装。train-staged-lightgbm.py、run_feature_arena.py、emit_l1_to_l2.py の2026評価ロックを変更しない。
 
+
+## 2026年用・2025 OOS最適反復回数再利用の独立実装（最新）
+
+- 新規: research/refit_2026_seven_king_prior_only_v1.py
+- 新規安全テスト: research/test_refit_2026_seven_king_prior_only_v1.py
+- CPU合成安全テスト: GitHub Actions #39006892127 **success**。
+- 元 train-staged-lightgbm.py の flatten()/complete_races()/frames() とハイパーパラメータ辞書を直接再利用。独立した2026年向けrefitであり、元研究・凍結済みWalk-forward評価は変更していない。
+- 学習対象は2024/2025のみ。2026年の正解・払戻、2026年評価、早期停止用2026ラベルを渡す経路は持たない。
+- 2025年OOSモデルの各 best_iteration を2026年用運用refit候補の反復回数として転用する設計を実装。未取得・不一致・偽2026モデル・不正年の入力は拒否。
+- **現状: 正本2024/25の巨大snapshotを使った実学習は未実施。7王モデル本体・実予測値は未生成。**
+- 7王一括学習・推論・Kaggle保存のGitHub Workflow登録を試行したが安全チェックで拒否された。**Workflowは未登録・未起動。チェックを迂回する再試行はしない。**
+- ユーザー指定の無料標準CPU以外の実行、GPU、有料保存、main/凍結仕様の変更はない。
+
 ## 第4段階の学習器制約
 
 凍結正本: research/l1-raceclass-absorption-walkforward-v1.json、snapshot generation eb13d4096519167b。学習2年rolling。2026は評価封印。
@@ -68,7 +81,7 @@
 1. 完了: 690の取得・受け渡し
 2. 完了: 元血統V4 238列の実データ生成・保存
 3. 完了: 690+238の再利用結合
-4. 途中: 7王必要列照合・実入力行列7/7完成。2026専用の承認モデル限定推論入口を追加。2026用モデル本体と実予測値は未完
+4. 途中: 7王入力行列7/7完成、2026専用推論入口と2024/25学習refitコードを実装・合成テスト成功。ただし長時間学習Workflowは未登録・未実行、実モデル・実予測値は未完
 5. 未完: 13 Outsider・7王合議
 6. 未完: L1.75
 7. 未完: L2.1
