@@ -1,0 +1,76 @@
+name: L1 seven-king model metadata preflight free CPU
+on:
+  push:
+    branches: [audit/l1-7king-outsider-2026-asset-preflight-20261017]
+    paths:
+      - .github/workflows/l1-seven-king-model-metadata-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify frozen 7 King and Outsider configurations
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          p=Path("research/l1-raceclass-absorption-walkforward-v1.json")
+          kings=json.loads(p.read_text())
+          assert kings["snapshot_generation"]=="eb13d4096519167b"
+          assert kings["training_window_years"]==2
+          assert 2026 in kings["locked_years"]
+          assert len(kings["candidates"])==7
+          for row in kings["candidates"]:
+              print("SEVEN_KING_CONFIG",row["name"],"sets=",
+                    ",".join(row["feature_sets"]),"actor=",
+                    ",".join(row["actor_prefixes"]),"auto=",
+                    ",".join(row["auto_slices"]),"pedigree=",
+                    ",".join(row["pedigree_slices"]),flush=True)
+          for path in ("research/l1-outsider-nonhorse-v1.json",
+                       "research/l1-outsider-transition-v1.json",
+                       "research/l1-outsider-arena-v1.json"):
+              x=json.loads(Path(path).read_text())
+              assert x["snapshot_generation"]=="eb13d4096519167b"
+              assert 2026 in x["locked_years"]
+              print("OUTSIDER_SOURCE",path,
+                    ",".join(y["name"] for y in x["candidates"]),flush=True)
+          PY
+      - name: Verify saved 2025 King model schema metadata without downloading files
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python - <<'PY'
+          import json,subprocess
+          full=0
+          for alias in ("core4","pedlegacy","condition","full","light","pedv1","condrc"):
+              ref=f"pino1945/keiba-l15-7k-{alias}-y2025-v1"
+              p=subprocess.run(["kaggle","datasets","files",ref,
+                                "--page-size","200","--format","json(name,size)"],
+                               capture_output=True,text=True,timeout=75)
+              if p.returncode:
+                  raise SystemExit("ARCHIVED_2025_KING_METADATA_UNAVAILABLE:"+alias+
+                                   " rc="+str(p.returncode))
+              result=json.loads(p.stdout)
+              rows=result.get("files",[]) if isinstance(result,dict) else result
+              names={str(x["name"]) for x in rows}
+              score=bool({"score.jsonl","score.jsonl.gz"}&names)
+              model="model.txt" in names
+              schema="schema.json" in names
+              full+=int(score and model and schema)
+              print("ARCHIVED_2025_KING",alias,"score",score,
+                    "model",model,"schema",schema,flush=True)
+          print("ARCHIVED_2025_SEVEN_KING_FULL_ASSETS",str(full)+"/7",flush=True)
+          print("NO_MODEL_DOWNLOAD_NO_TRAINING_NO_2026_EVALUATION_NO_PAID_STORAGE",flush=True)
+          PY
