@@ -41,8 +41,8 @@ jobs:
           api=KaggleApi()
           api.authenticate()
           seen=set(); outsider=[]
-          for page in range(1,5):
-              items=list(api.dataset_list(user='pino1945',page=page,page_size=100))
+          for page in range(1,41):
+              items=list(api.dataset_list(user='pino1945',page=page))
               if not items: break
               for x in items:
                   ref=str(getattr(x,'ref','') or '')
@@ -50,7 +50,7 @@ jobs:
                   seen.add(ref)
                   if 'outsider' in ref.lower() or 'nonhorse' in ref.lower() or 'transition' in ref.lower():
                       outsider.append(ref)
-              if len(items)<100:break
+              if len(items)<20:break
           print('OWNED_KAGGLE_DATASETS_LISTED',len(seen))
           print('POSSIBLE_HISTORIC_OUTSIDER_ASSET_REFS',len(outsider))
           for ref in sorted(outsider):
