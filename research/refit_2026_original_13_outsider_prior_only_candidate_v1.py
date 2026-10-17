@@ -67,7 +67,11 @@ def prior_meta_gate(candidate, meta, schema):
           len(order)>10 and len(order)==len(set(order)) and
           old.get("feature_count")==len(order),
           "OUTSIDER_2025_OOS_ROUNDS_OR_SCHEMA_UNVERIFIED:"+candidate)
-    check(old.get("feature_selection","none")=="none" and
+    selection=old.get("feature_selection")
+    check(isinstance(selection,dict) and
+          selection.get("contract")=="L1_TRAIN_ONLY_FEATURE_SELECTION_V1" and
+          selection.get("mode")=="none" and
+          selection.get("selected_features")==order and
           old.get("prediction_phase")=="FINAL",
           "OUTSIDER_ORIGINAL_2025_MODEL_MODE_DRIFT:"+candidate)
     check(old_schema.get("prediction_phase","FINAL")=="FINAL",
