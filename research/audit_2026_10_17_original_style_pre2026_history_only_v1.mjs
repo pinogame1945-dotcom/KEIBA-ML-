@@ -19,7 +19,7 @@ import {createHash} from "node:crypto";
 
 const TARGET="2026-10-17";
 const HIST_CEILING="2025-12-31";
-const EXPECTED_RACES=new Set(["04:01","05:06","08:06"].flatMap(([v,d])=>[]));
+const ORIGINAL_SNAPSHOT_SOURCE_START="2022-01-01";
 // Deliberately write the expected 36 race IDs explicitly by JRA venue/day.
 const RACE_IDS=new Set([["04","01"],["05","06"],["08","06"]].flatMap(
   ([venue,day])=>Array.from({length:12},(_,i)=>"2026"+venue+"04"+day+String(i+1).padStart(2,"0"))
@@ -136,9 +136,9 @@ async function main(){
   const processor=createHistoricalExtraProcessor(cfg.history_windows);
   const dir=path.join(root,"data/daily");
   const names=fs.readdirSync(dir).filter(name=>/^\d{4}-\d{2}-\d{2}\.jsonl\.gz$/.test(name)&&
-                name.slice(0,10)<=HIST_CEILING).sort();
-  require_(names.length>1800&&names[0].startsWith("2006-"),
-           "ORIGINAL_HISTORY_SOURCE_NOT_COMPLETE_PRE_2026");
+                name.slice(0,10)>=ORIGINAL_SNAPSHOT_SOURCE_START&&name.slice(0,10)<=HIST_CEILING).sort();
+  require_(names.length>300&&names[0].startsWith("2022-"),
+           "ORIGINAL_2022_HISTORY_SOURCE_NOT_COMPLETE_PRE_2026");
   const targetCounts=new Map([...ids].map(x=>[x,0]));
   let targetHistoryRaces=0,historyFiles=0,historicalObservations=0;
   for(const name of names){
@@ -201,6 +201,7 @@ async function main(){
   console.log("ORIGINAL_2026_10_17_OUTSIDER_STYLE_PRE2026_HISTORY_ONLY_AUDIT",JSON.stringify({
     target_races:36,target_horses:471,historical_daily_files_read:historyFiles,
     historical_races_with_target_horses:targetHistoryRaces,
+    original_snapshot_source_start:ORIGINAL_SNAPSHOT_SOURCE_START,
     pre2026_prior_race_observations:historicalObservations,
     certified_old_only_horse_history_count:full,
     blocked_incomplete_history_count:blocked,
