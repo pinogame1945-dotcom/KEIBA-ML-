@@ -16,6 +16,7 @@ import hashlib
 import importlib.util
 import json
 from pathlib import Path
+import gzip
 import sys
 
 import lightgbm as lgb
@@ -41,6 +42,11 @@ def check(ok,msg):
 
 def read(path):
     return json.loads(Path(path).read_text(encoding="utf-8"))
+
+def open_snapshot(path):
+    """Match the existing Kaggle restore script's .jsonl/.jsonl.gz fallback."""
+    return gzip.open(path,"rt",encoding="utf-8") if str(path).endswith(".gz") else open(path,"rt",encoding="utf-8")
+
 
 def hash_file(path):
     h=hashlib.sha256()
@@ -80,8 +86,8 @@ def frozen_params(module):
 def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,approval_ref):
     check(king in CANDIDATES,"UNRECOGNIZED_ORIGINAL_KING")
     check(len(snapshot_paths)==2 and
-          {p.name for p in snapshot_paths}=={
-              "snapshot-2024.jsonl.gz","snapshot-2025.jsonl.gz"},
+          {p.name.removesuffix(".gz") for p in snapshot_paths}=={
+              "snapshot-2024.jsonl","snapshot-2025.jsonl"},
           "EXACTLY_2024_AND_2025_PRIOR_SNAPSHOTS_REQUIRED")
     check(all(p.is_file() and p.stat().st_size>0 for p in snapshot_paths),
           "PRIOR_TRAINING_SNAPSHOT_FILE_MISSING")
@@ -122,8 +128,7 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
     contract=trainer.load_feature_contract(trainer.DEFAULT_FEATURE_CONTRACT_PATH)
     sets=trainer.normalize_feature_sets(",".join(candidate["feature_sets"]),None,contract)
     check(sets==candidate["feature_sets"],"ORIGINAL_FEATURE_FAMILY_ORDER_DRIFT")
-    import gzip
-    with gzip.open(snapshot_paths[0],"rt",encoding="utf-8") as first_source:
+    with open_snapshot(snapshot_paths[0]) as first_source:
         first=json.loads(next(line for line in first_source if line.strip()))
     history=trainer.normalize_history_windows(
         json.dumps(first.get("history_windows")),contract)
@@ -143,7 +148,20 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
         seen=set()
         for path in snapshot_paths:
             expected_year=path.name.split("-")[1].split(".")[0]
-            for row in trainer.iter_dataset_rows(path):
+            if str(path).endswith(".gz"):
+                rows=trainer.iter_dataset_rows(path)
+            else:
+                def plain_rows():
+                    with open_snapshot(path) as source:
+                        for line in source:
+                            if line.strip():
+                                yield json.loads(line)
+                rows=plain_rows()
+            for row in rows:
+                check(row.get("ml_dataset_version")==3 and
+                      row.get("feature_schema_version")==8 and
+                      row.get("leakage_policy")=="STRICT_PRIOR_DATE_ONLY",
+                      "ORIGINAL_PRIOR_SOURCE_CONTRACT_DRIFT")
                 date=str((row.get("features") or {}).get("race_date") or "")
                 check(date[:4]==expected_year,
                       "TRAINING_ROW_YEAR_DOES_NOT_MATCH_SNAPSHOT:"+path.name)
