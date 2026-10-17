@@ -50,7 +50,7 @@ def load_backfill(path):
     require(obj.get("contract")==BACKFILL_CONTRACT, "BACKFILL_690_CONTRACT_DRIFT")
     rid=str(obj.get("race_id") or "")
     date=obj.get("race_date")
-    require(bool(re.fullmatch(r"2026\\d{8}",rid)) and
+    require(bool(re.fullmatch(r"2026\d{8}",rid)) and
             isinstance(date,str) and date.startswith("2026-"),
             "MUST_USE_2026_TARGET_RACE")
     require(obj.get("readiness")=="ASOF_UNVERIFIED_DO_NOT_BET",
@@ -176,7 +176,7 @@ def main():
     if args.output:
         dst=Path(args.output)
         dst.parent.mkdir(parents=True,exist_ok=True)
-        dst.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\\n",
+        dst.write_text(json.dumps(report,ensure_ascii=False,indent=2)+"\n",
                        encoding="utf-8")
     print("L1_7KING_OUTSIDER_READINESS "+json.dumps(
         report,ensure_ascii=False,sort_keys=True),flush=True)

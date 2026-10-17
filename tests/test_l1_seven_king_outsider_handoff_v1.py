@@ -32,7 +32,7 @@ def expert(root,alias,wrong_year=False):
     p.write_text("".join(json.dumps({
         "contract":r.EXPERT_CONTRACT,
         "race_id":("202505040301" if wrong_year else RID),
-        "horse_id":h,"predicted_rank":i+1},ensure_ascii=False)+"\\n"
+        "horse_id":h,"predicted_rank":i+1},ensure_ascii=False)+"\n"
         for i,h in enumerate(HORSES)))
     return p
 
