@@ -1,0 +1,24 @@
+name: BACKFILL 690 intake shape checks (free CPU)
+on:
+  push:
+    branches: [feature/backfill-690-receiver-20261017]
+    paths:
+      - research/receive_backfill_690_v1.py
+      - tests/test_receive_backfill_690_v1.py
+      - .github/workflows/backfill-690-intake-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Compile intake adapter
+        run: python -m py_compile research/receive_backfill_690_v1.py
+      - name: Test BACKFILL 690 input gate without model or dataset storage
+        run: python -m unittest discover -s tests -p 'test_receive_backfill_690_v1.py' -v
