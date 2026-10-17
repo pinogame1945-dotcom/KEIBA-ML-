@@ -4,6 +4,7 @@ on:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
     paths:
       - research/audit_original_7king_2026_cached928_inputs_v1.py
+      - research/check_7king_2026_real_model_matrices_v1.py
       - .github/workflows/l1-7king-2026-cached928-input-gate-freecpu.yml
   workflow_dispatch:
 permissions:
@@ -93,6 +94,31 @@ jobs:
           assert r["seven_king_2026_inference_performed"] is False
           assert r["frozen_2026_evaluation_lock_kept"] is True
           print("FROZEN_7KING_2026_ALL_60_RACES_INPUT_GATE_PASSED")
+          PY
+      - name: Install exact original inference frame dependencies only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+      - name: Build seven model-ready matrices using unmodified original emitter functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/check_7king_2026_real_model_matrices_v1.py \
+            --joined "$RUNNER_TEMP/joined928" \
+            --schemas "$RUNNER_TEMP/schema2025" \
+            --report "$RUNNER_TEMP/model-input-matrices.json"
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          r=json.loads((Path(os.environ["RUNNER_TEMP"])/"model-input-matrices.json").read_text())
+          assert r["races"]==60 and r["horse_rows"]==786
+          assert len(r["kings"])==7
+          assert all(x["matrix_rows"]==786 for x in r["kings"])
+          assert r["model_scored"] is False
+          assert r["2026_target_results_used"] is False
+          assert r["source_history_recalculated"] is False
+          print("FROZEN_2026_SEVEN_KING_MATRICES_7_OF_7_PASS")
           PY
       - name: Cost and output guarantees
         if: always()
