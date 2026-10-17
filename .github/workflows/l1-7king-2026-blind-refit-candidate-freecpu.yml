@@ -63,10 +63,14 @@ jobs:
         run: |
           set -euo pipefail
           bash scripts/kaggle-storage-preflight.sh
-          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
           python - <<'PY'
           import os
-          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          from pathlib import Path
+          # GitHub Actions does not expose GITHUB_ENV writes to the SAME shell step.
+          envlines=Path(os.environ["GITHUB_ENV"]).read_text(encoding="utf-8").splitlines()
+          values=dict(line.split("=",1) for line in envlines if "=" in line)
+          used=int(values["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
           limit=193273528320
           reserve=134217728
           if limit-used<reserve:
