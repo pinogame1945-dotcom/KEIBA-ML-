@@ -78,6 +78,37 @@ class ApprovedModelGateTest(unittest.TestCase):
                                         "NOT_AN_APPROVED"):
                 model_gate("core4",directory)
 
+    def test_explicit_unreleased_2026_candidate_research_only(self):
+        with TemporaryDirectory() as t:
+            folder=self.make_release(Path(t),status="CANDIDATE_2026_BLIND_UNRELEASED")
+            meta_path=folder/"model.json"
+            meta=json.loads(meta_path.read_text(encoding="utf-8"))
+            meta["training_rule_id"]="REUSE_2025_OOS_BEST_ITERATION_REFIT_2024_2025"
+            meta["training_rule_approval_ref"]=None
+            meta["refit_protocol_reference"]="2026_CANDIDATE_PROTOCOL_ONLY"
+            meta_path.write_text(json.dumps(meta),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"NOT_AN_APPROVED"):
+                model_gate("core4",folder)
+            files=model_gate("core4",folder,research_only=True)
+            self.assertEqual(files[3],1)
+
+    def test_research_mode_cannot_load_approved_model(self):
+        with TemporaryDirectory() as t:
+            folder=self.make_release(Path(t))
+            with self.assertRaisesRegex(ValueError,"RESEARCH_ONLY_REFIT_MODEL"):
+                model_gate("core4",folder,research_only=True)
+
+    def test_research_mode_requires_no_approval_ref(self):
+        with TemporaryDirectory() as t:
+            folder=self.make_release(Path(t),status="CANDIDATE_2026_BLIND_UNRELEASED")
+            meta_path=folder/"model.json"
+            meta=json.loads(meta_path.read_text(encoding="utf-8"))
+            meta["training_rule_id"]="REUSE_2025_OOS_BEST_ITERATION_REFIT_2024_2025"
+            meta["refit_protocol_reference"]="2026_CANDIDATE_PROTOCOL_ONLY"
+            meta_path.write_text(json.dumps(meta),encoding="utf-8")
+            with self.assertRaisesRegex(ValueError,"RESEARCH_ONLY_REFIT_MODEL"):
+                model_gate("core4",folder,research_only=True)
+
     def test_sha_mismatch_rejected(self):
         with TemporaryDirectory() as t:
             directory=self.make_release(Path(t),fake_model_hash=True)
