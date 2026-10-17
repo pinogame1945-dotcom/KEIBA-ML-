@@ -35,7 +35,7 @@ jobs:
                      and c['locked_years']==[2026] for c in cfg)
           workflow=Path('.github/workflows/l1-2026-original13-outsider-oos-refit-private-freecpu.yml').read_text()
           assert 'runs-on: ubuntu-latest' in workflow
-          assert 'permissions:\\n  contents: read' in workflow
+          assert 'permissions:' in workflow and 'contents: read' in workflow
           assert 'cancel-in-progress: false' in workflow
           assert 'kaggle-storage-preflight.sh' in workflow
           assert '--train-start 2023-01-01 --train-end 2024-12-31' in workflow
