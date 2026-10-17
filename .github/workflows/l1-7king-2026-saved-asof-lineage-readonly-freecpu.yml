@@ -1,0 +1,103 @@
+name: Seven King saved-model as-of lineage audit (free CPU read-only)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_2026_saved_7king_input_asof_v1.py
+      - .github/workflows/l1-7king-2026-saved-asof-lineage-readonly-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: keiba-2026-saved-asof-source-audit
+  cancel-in-progress: false
+jobs:
+  saved-2026-input-lineage:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      EXACT_BF_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+      RELEASE_REF: pino1945/keiba-ml-2026-original-sevenking-candidate-v1
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Confirm sealed 2026 evaluation and compile read-only auditor
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_saved_7king_input_asof_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open('research/l1-raceclass-absorption-walkforward-v1.json'))
+          assert c['locked_years']==[2026] and c['snapshot_generation']=='eb13d4096519167b'
+          assert c['training_window_years']==2 and len(c['candidates'])==7
+          print('ORIGINAL_RESEARCH_2026_OUTCOMES_STAY_SEALED')
+          PY
+          test -n "$KAGGLE_API_TOKEN"
+      - name: Read only exact pinned cached 690 and raw 2026-10-17 JRA acquisition evidence
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --depth 1 --filter=blob:none origin "$EXACT_BF_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$EXACT_BF_SHA"
+          git -C "$root" sparse-checkout init --cone
+          git -C "$root" sparse-checkout set ml_features/delivery/690 data/live/2026-10-17
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/delivery/690/index.json"
+          test -s "$root/data/live/2026-10-17/manifest.json"
+          echo 'RAW_LIVE_SOURCE_AND_CACHED_690_RESTORED_WITHOUT_RECOMPUTATION'
+      - name: Download only existing sealed-candidate model index, manifest and zipped handoff
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          stage="$RUNNER_TEMP/candidate"
+          mkdir -p "$stage"
+          for name in manifest.json index.json; do
+            kaggle datasets download "$RELEASE_REF" -f "$name" -p "$stage" --unzip --quiet --force
+            test -s "$stage/$name"
+          done
+          name="$(python - "$stage/index.json" <<'PY'
+          import json,sys
+          x=json.load(open(sys.argv[1]))
+          assert x['contract']=='KEIBA_2026_UNRELEASED_SEVENKING_MODEL_SCORE_HANDOFF_V1'
+          assert x['ready_for_betting'] is False and x['asof_audited'] is False
+          print(x['bundle'])
+          PY
+          )"
+          test "$name" = "2026-sevenking-unreleased-candidate.zip"
+          kaggle datasets download "$RELEASE_REF" -f "$name" -p "$stage" --quiet --force
+          test -s "$stage/$name"
+          echo 'KAGGLE_MODEL_AND_SCORES_READ_ONLY_NO_FIT'
+      - name: Audit all 60 cached 690 hashes and 36 raw live source timestamps, no model release
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_saved_7king_input_asof_v1.py \
+            --backfill-root "$RUNNER_TEMP/pinned-backfill" \
+            --saved-candidate "$RUNNER_TEMP/candidate" \
+            --report "$RUNNER_TEMP/2026-asof-lineage-audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.load(open(Path(os.environ['RUNNER_TEMP'])/'2026-asof-lineage-audit.json'))
+          assert a['day_2026_10_17_live_source_prestart_proven'] is True
+          assert a['historical_snapshot_date_2026_10_10_prestart_proven'] is False
+          assert a['feature_matrix_928_independent_asof_verified'] is False
+          assert a['ready_for_betting'] is False
+          assert a['formal_model_release_authorized'] is False
+          print('STRICT_ASOF_AUDIT_PARTIAL_ONLY_NO_DEPLOYMENT')
+          PY
+      - name: Safe cost and integrity policy
+        if: always()
+        run: |
+          echo 'Standard free ubuntu-latest CPU, read-only Git and existing Kaggle files.'
+          echo 'No training, no 690 or pedigree recompute, no model promotion, no paid artifact or cache.'
+          echo 'No 2026 result or payout read; prestart certification remains false until all 928 features proved.'
