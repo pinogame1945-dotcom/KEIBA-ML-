@@ -1,0 +1,55 @@
+name: Frozen 7King 2026 blind scorer safety CI (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/score_7king_2026_blind_from_approved_models_v1.py
+      - research/test_7king_2026_blind_from_approved_models_v1.py
+      - .github/workflows/l1-7king-2026-blind-scorer-safe-ci.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  blind-scorer-gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile and check frozen inference module
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/score_7king_2026_blind_from_approved_models_v1.py \
+            research/test_7king_2026_blind_from_approved_models_v1.py \
+            research/emit_l1_to_l2.py
+          python - <<'PY'
+          import json
+          config=json.load(open("research/l1-raceclass-absorption-walkforward-v1.json"))
+          assert config["locked_years"]==[2026]
+          assert config["training_window_years"]==2
+          assert config["snapshot_generation"]=="eb13d4096519167b"
+          assert len(config["candidates"])==7
+          print("FROZEN_7K_2026_LOCK_UNMODIFIED")
+          PY
+      - name: Install pinned original L1 inference dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+      - name: Check fail-closed gates using only synthetic test files
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=research python -m unittest -v \
+            research/test_7king_2026_blind_from_approved_models_v1.py
+          echo "SEVEN_KING_2026_BLIND_INFERENCE_GATE_UNIT_PASS_NO_REAL_MODELS"
+      - name: Cost, data use and frozen model safety
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU only. No GPU or paid artifacts/cache."
+          echo "No Kaggle downloads, snapshots, races, label data or model training."
+          echo "No model scoring, release or user betting operations."
