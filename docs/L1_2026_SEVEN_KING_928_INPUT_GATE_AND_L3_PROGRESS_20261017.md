@@ -1,5 +1,16 @@
 # 7王 2026・L3までの到達状況（2026-10-17）
 
+## 第5段階・元STYLE履歴生成器の2026結果封印下の実行検証（2026-10-17）
+
+- GitHub Actions Run [#39023979174](https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39023979174) **success**。先行Run #39023826352 は異なる履歴範囲で数が一致せず失敗。元BACKFILLの凍結入力Workflow `.github/workflows/690-24-36-feature-input-trial-free.yml` の `--source-start 2022-01-01` を確認して範囲を修正した（過去に誤った履歴範囲を安易に流用しない）。
+- 元BACKFILL `ml_features/src/historical-extra-builder.mjs` と `ml_features/contracts/l1-feature-set-contract-v1.json` を**一切変更せず**使用。`data/daily` の2022-01-01〜2025-12-31の430日分だけをGit sparse-checkout（2026年の結果ファイルはcheckoutせず）。10/17は結果・払戻・オッズなしの事前取得36Rデータを元の日別変換器で復元。
+- 実データ対象 **36R・471頭**、該当馬が出走した過去年の2,233レース・2,687出走履歴を調査。元のSTYLE14列を生成し、保存済み690の `prior_starts` を馬ごとに照合。
+- **67頭は2022〜2025年から観測した出走回数と一致。404頭は回数が不足したためSTYLE完全復元として採用しない。** 一致67頭のうち、元のcorner通過位置から計測済みSTYLE履歴があるのは2頭のみ。これは2026年のレース結果を使用しない制約下での結果。2026以前のデータが別の場所にある可能性を無断で補完しない。
+- 一致馬のみオリジナル生成STYLE値を研究用一時ファイルに含め、不一致馬は`style_complete=null`とし、全馬`model_ready=false`・`asof_full_features_verified=false`・`ready_for_betting=false`を保持。**現在のデータで13 Outsiderの本物のTop3はまだ算出できない**。
+- 実装 `research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs`、CI `.github/workflows/l1-2026-outsider-original-style-historic-safe-ci.yml`。元690と7王のモデル重み・ランキングは再計算も改変もせず、全て無料標準CPUで実行。出力はGitHub Actions一時領域のみで永続保存していない。
+- 未解決は、2026年に既に終了した過去走を履歴特徴量としてどこまで使うか（現在の2026結果封印とは別に承認が必要）、STYLE通過順の元データ実測率、独立as-of監査。凍結仕様・main・L2.1・L3は変更なし。
+- **L3までの現状3/8段階が運用完了。第5段階のSTYLE元生成器実データ動作確認まで成功、実13モデル予測は未完了。**
+
 ## 第5段階・Outsider元BACKFILL特徴量の一部復元（2026-10-17 19時JST）
 
 - **実データ検証成功：** GitHub Actions [#39023134846](https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39023134846) と [#39023317964](https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39023317964) は両方 success。無料標準CPUで再学習・2026年結果参照・元690再計算なし。
