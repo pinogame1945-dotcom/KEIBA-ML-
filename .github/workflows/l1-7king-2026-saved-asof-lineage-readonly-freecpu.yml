@@ -1,4 +1,4 @@
-name: Seven King saved-model as-of lineage audit (free CPU read-only)
+name: Seven King Kaggle candidate bundle file listing (free CPU read-only)
 on:
   push:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
@@ -73,28 +73,14 @@ jobs:
           PY
           )"
           test "$name" = "2026-sevenking-unreleased-candidate.zip"
-          kaggle datasets download "$RELEASE_REF" -f "$name" -p "$stage" --quiet --force
+          echo 'KAGGLE_SAVED_DATASET_REMOTE_FILES_START'
+          kaggle datasets files "$RELEASE_REF" --page-size 200 -v
+          echo 'KAGGLE_SAVED_DATASET_REMOTE_FILES_END'
+          printf '%s\n' "$name" > "$RUNNER_TEMP/kaggle-bundle-expected.txt"
+          echo 'Verified manifest/index and printed remote file listing. Bundle not downloaded during this diagnostic.'
+          exit 0
           test -s "$stage/$name"
           echo 'KAGGLE_MODEL_AND_SCORES_READ_ONLY_NO_FIT'
-      - name: Audit all 60 cached 690 hashes and 36 raw live source timestamps, no model release
-        shell: bash
-        run: |
-          set -euo pipefail
-          python research/audit_2026_saved_7king_input_asof_v1.py \
-            --backfill-root "$RUNNER_TEMP/pinned-backfill" \
-            --saved-candidate "$RUNNER_TEMP/candidate" \
-            --report "$RUNNER_TEMP/2026-asof-lineage-audit.json"
-          python - <<'PY'
-          import json,os
-          from pathlib import Path
-          a=json.load(open(Path(os.environ['RUNNER_TEMP'])/'2026-asof-lineage-audit.json'))
-          assert a['day_2026_10_17_live_source_prestart_proven'] is True
-          assert a['historical_snapshot_date_2026_10_10_prestart_proven'] is False
-          assert a['feature_matrix_928_independent_asof_verified'] is False
-          assert a['ready_for_betting'] is False
-          assert a['formal_model_release_authorized'] is False
-          print('STRICT_ASOF_AUDIT_PARTIAL_ONLY_NO_DEPLOYMENT')
-          PY
       - name: Safe cost and integrity policy
         if: always()
         run: |
