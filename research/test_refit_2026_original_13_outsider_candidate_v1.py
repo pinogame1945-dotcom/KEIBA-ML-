@@ -16,7 +16,10 @@ class ThirteenOutsiderRefitSafety(unittest.TestCase):
         schema=Path(d)/"old-schema.json"
         values={
           "feature_count":20,"best_iteration":iteration,
-          "prediction_phase":"FINAL","feature_selection":"none",
+          "prediction_phase":"FINAL","feature_selection":{
+              "contract":"L1_TRAIN_ONLY_FEATURE_SELECTION_V1",
+              "mode":"none",
+              "selected_features":[f"nh_test_{i}" for i in range(20)]},
           "split":{
             "train_start":"2023-01-01","train_end":"2024-12-31",
             "valid_start":"2025-01-01","valid_end":"2025-12-31",
@@ -40,6 +43,20 @@ class ThirteenOutsiderRefitSafety(unittest.TestCase):
             rounds,order,_,_=prior_meta_gate("outsider_daytrend",m,s)
             self.assertEqual(rounds,125)
             self.assertEqual(len(order),20)
+    def test_original_selection_report_must_be_none_and_exact(self):
+        with TemporaryDirectory() as tmp:
+            m,s=self.make(tmp)
+            obj=json.loads(m.read_text())
+            obj["feature_selection"]["mode"]="train_v1"
+            m.write_text(json.dumps(obj))
+            with self.assertRaisesRegex(ValueError,"ORIGINAL_2025_MODEL_MODE_DRIFT"):
+                prior_meta_gate("outsider_daytrend",m,s)
+            obj["feature_selection"]["mode"]="none"
+            obj["feature_selection"]["selected_features"]=["unknown"]
+            m.write_text(json.dumps(obj))
+            with self.assertRaisesRegex(ValueError,"ORIGINAL_2025_MODEL_MODE_DRIFT"):
+                prior_meta_gate("outsider_daytrend",m,s)
+
     def test_wrong_fold_rejected(self):
         with TemporaryDirectory() as tmp:
             m,s=self.make(tmp)
