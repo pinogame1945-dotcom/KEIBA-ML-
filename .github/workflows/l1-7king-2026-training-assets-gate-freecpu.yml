@@ -1,0 +1,86 @@
+name: Frozen 7King 2026 prior-year training assets gate (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_7king_2026_blind_training_assets_v1.py
+      - .github/workflows/l1-7king-2026-training-assets-gate-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: frozen-7king-2026-training-asset-gate
+  cancel-in-progress: false
+jobs:
+  read-only-metadata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Audit source and original frozen model config
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_7king_2026_blind_training_assets_v1.py
+          python - <<'PY'
+          import json
+          x=json.load(open("research/l1-raceclass-absorption-walkforward-v1.json"))
+          assert x["snapshot_generation"]=="eb13d4096519167b"
+          assert x["training_window_years"]==2
+          assert x["locked_years"]==[2026]
+          assert len(x["candidates"])==7
+          print("FROZEN_7KING_2026_TRAINING_METADATA_PREFLIGHT_READY")
+          PY
+      - name: Install existing Kaggle client
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+      - name: Read only 2024 and 2025 snapshot manifest and published filenames
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="$RUNNER_TEMP/snapshot-metadata"
+          mkdir -p "$dest"
+          ref="pino1945/keiba-ml-snapshot-eb13d4096519167b"
+          kaggle datasets download "$ref" -f manifest.json -p "$dest" --unzip --quiet --force
+          test -s "$dest/manifest.json"
+          kaggle datasets files "$ref" --page-size 200 -v > "$dest/files.csv"
+          test -s "$dest/files.csv"
+          echo "EXISTING_KAGGLE_YEAR_MANIFEST_READ_NO_SNAPSHOT_DOWNLOAD"
+      - name: Read only original 2025 model metadata and input schemas
+        shell: bash
+        run: |
+          set -euo pipefail
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            dir="$RUNNER_TEMP/king-meta/$alias"
+            mkdir -p "$dir"
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            kaggle datasets download "$ref" -f model.json -p "$dir" --unzip --quiet --force
+            kaggle datasets download "$ref" -f schema.json -p "$dir" --unzip --quiet --force
+            test -s "$dir/model.json" && test -s "$dir/schema.json"
+            test "$(wc -c < "$dir/model.json")" -lt 4000000
+            test "$(wc -c < "$dir/schema.json")" -lt 4000000
+          done
+          echo "FROZEN_7KING_2025_METADATA_DOWNLOADED_NO_BOOSTER_WEIGHTS"
+      - name: Verify 2024-25 model input provenance and historic early stopping
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_7king_2026_blind_training_assets_v1.py \
+            --models-metadata "$RUNNER_TEMP/king-meta" \
+            --snapshot-manifest "$RUNNER_TEMP/snapshot-metadata/manifest.json" \
+            --snapshot-files-list "$RUNNER_TEMP/snapshot-metadata/files.csv" \
+            --report "$RUNNER_TEMP/2026-7king-training-asset-readiness.json"
+      - name: Cost and 2026 evaluation isolation
+        if: always()
+        run: |
+          echo "Standard ubuntu-latest CPU runner only."
+          echo "Kaggle metadata reads only; zero model/snapshot data publication."
+          echo "No GPU, paid runner, Actions Artifact, Actions Cache or 2026 results."
