@@ -37,7 +37,8 @@ REQUIRES_HISTORY={
     "outsider_coursetransition":"COURSE_TRANSITION",
 }
 LIVE_DAY="2026-10-17"
-MARKET=("odds","popularity","payout","target","finish_position","is_win")
+MARKET=("odds","popularity","payout")
+TARGET_RESULT_KEYS={"target","finish_position","is_win","market_outcome","_finish","_is_win","_is_top3"}
 
 def require(x,why):
     if not x:raise ValueError(why)
@@ -134,6 +135,7 @@ def main():
                     "690_OR_ADDED_27_KEY_COLLISION")
             features.update(fields)
             require(len(features)==717 and
+                    not (set(features)&TARGET_RESULT_KEYS) and
                     not any(any(b in str(k).lower() for b in MARKET) for k in features),
                     "UNSAFE_RESULT_OR_MARKET_FEATURE")
             require(all(k in features for k in RACE_BASE_KEYS+STYLE_KEYS),
@@ -175,6 +177,7 @@ def main():
                 features=row["features"]
                 require(len(features)>0 and
                         all(k in features for k in RACE_BASE_KEYS) and
+                        not (set(features)&TARGET_RESULT_KEYS) and
                         not any(any(b in k.lower() for b in MARKET) for k in features),
                         "OUTSIDER_2026_RESULT_OR_MARKET_FEATURE:"+cand)
                 if cand in {"outsider_daytrend","outsider_chimera"}:
