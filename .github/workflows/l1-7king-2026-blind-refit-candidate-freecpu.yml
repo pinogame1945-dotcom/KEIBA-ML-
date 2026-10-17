@@ -1,0 +1,175 @@
+name: Seven King 2026 Blind Candidate Refit and L16 (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-7king-2026-blind-refit-candidate-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: write
+concurrency:
+  group: seven-king-2026-unreleased-prior-only-freecpu
+  cancel-in-progress: false
+jobs:
+  refit-score-council:
+    runs-on: ubuntu-latest
+    timeout-minutes: 300
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      BACKFILL_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+      RESEARCH_BRANCH: feature/l1-7king-2026-928-preflight-20261017
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify free public repository and pinned research contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/run_7king_2026_unreleased_refit_once_v1.py research/refit_2026_seven_king_prior_only_v1.py research/score_7king_2026_blind_from_approved_models_v1.py research/audit_2026_7king_unreleased_council_v1.py
+          node --check research/project-yearly-snapshots.mjs
+          bash -n scripts/kaggle-fetch-snapshot.sh
+          python - <<'PY'
+          import json,os,urllib.request
+          cfg=json.load(open('research/l1-raceclass-absorption-walkforward-v1.json'))
+          assert cfg['locked_years']==[2026] and cfg['training_window_years']==2
+          assert cfg['snapshot_generation']=='eb13d4096519167b' and len(cfg['candidates'])==7
+          req=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'KEIBA-free-only-check'})
+          j=json.load(urllib.request.urlopen(req,timeout=20))
+          if j.get('private') is not False or j.get('size',99999999)>750000:
+              raise SystemExit('STOP_FREE_GIT_REPO_CAPACITY_NOT_VERIFIED')
+          if os.environ.get('GITHUB_REF_NAME')!='feature/l1-7king-2026-928-preflight-20261017':
+              raise SystemExit('STOP_WRONG_BRANCH')
+          print('FREE_PUBLIC_GIT_STORAGE_AND_FROZEN_RESEARCH_CHECK_OK')
+          PY
+          test -n "$KAGGLE_API_TOKEN"
+          test "$(df -Pk . | tail -1 | awk '{print $4}')" -gt 6291456
+      - name: Install standard CPU dependencies and run safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
+          PYTHONPATH=research python -m unittest -v research/test_refit_2026_seven_king_prior_only_v1.py research/test_7king_2026_blind_from_approved_models_v1.py research/test_7king_2026_blind_real_lightgbm_synthetic_v1.py
+      - name: Restore 2024 and 2025 snapshots just once with original SHA and rows audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/prior"
+          bash scripts/kaggle-fetch-snapshot.sh eb13d4096519167b '2024,2025' "$RUNNER_TEMP/prior"
+          for year in 2024 2025; do
+            if [[ -s "$RUNNER_TEMP/prior/snapshot-$year.jsonl.gz" ]]; then
+              p="$RUNNER_TEMP/prior/snapshot-$year.jsonl.gz"
+            elif [[ -s "$RUNNER_TEMP/prior/snapshot-$year.jsonl" ]]; then
+              p="$RUNNER_TEMP/prior/snapshot-$year.jsonl"
+            else
+              echo "::error::Snapshot missing year=$year"; exit 1
+            fi
+            echo "PRIOR_SOURCE_$year=$p" >> "$GITHUB_ENV"
+          done
+      - name: Read original archived 2025 seven-model metadata, never old weights
+        shell: bash
+        run: |
+          set -euo pipefail
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            d="$RUNNER_TEMP/prior-model-meta/$alias"
+            mkdir -p "$d"
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            for f in model.json schema.json; do
+              kaggle datasets download "$ref" -f "$f" -p "$d" --unzip --quiet --force
+              test -s "$d/$f"
+            done
+          done
+      - name: Fit all seven original kings once on 2024 and 2025 ONLY
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/run_7king_2026_unreleased_refit_once_v1.py             --snapshot-2024 "$PRIOR_SOURCE_2024" --snapshot-2025 "$PRIOR_SOURCE_2025"             --prior-meta-root "$RUNNER_TEMP/prior-model-meta"             --models-out "$RUNNER_TEMP/models2026" --work-root "$RUNNER_TEMP/projections"             --protocol-reference "2026_USER_STEP4_CANDIDATE_REFIT_NOT_RELEASE"
+          test "$(find "$RUNNER_TEMP/models2026" -name model.txt -type f | wc -l)" -eq 7
+          echo "SEVEN_KINGS_2026_TRAINED_AS_UNRELEASED_CANDIDATES"
+      - name: Reuse pinned BACKFILL 690 and cached original V4 238 without regeneration
+        shell: bash
+        run: |
+          set -euo pipefail
+          d="$RUNNER_TEMP/backfill"
+          mkdir -p "$d"
+          git -C "$d" init -q
+          git -C "$d" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$d" fetch -q --no-tags --depth 1 --filter=blob:none origin "$BACKFILL_SHA"
+          test "$(git -C "$d" rev-parse FETCH_HEAD)" = "$BACKFILL_SHA"
+          git -C "$d" sparse-checkout init --cone
+          git -C "$d" sparse-checkout set ml_features/delivery/690 ml_features/delivery/pedigree-v4 ml_features/research
+          git -C "$d" checkout -q --detach FETCH_HEAD
+          python "$d/ml_features/research/pedigree_v4_cache_v1.py" verify --root "$d"
+          python "$d/ml_features/research/join_690_original_pedigree_v4_238_v1.py"             --root "$d" --output "$RUNNER_TEMP/joined928"
+      - name: Score 60 real prebet input races with candidate-only provenance
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/score_7king_2026_blind_from_approved_models_v1.py             --joined "$RUNNER_TEMP/joined928" --approved-models "$RUNNER_TEMP/models2026"             --output "$RUNNER_TEMP/scores2026" --research-only
+          python - <<'PY'
+          import json,os,pathlib
+          x=json.load(open(pathlib.Path(os.environ['RUNNER_TEMP'])/'scores2026/index.json'))
+          assert x['races']==60 and x['horse_rows']==786 and x['king_count']==7
+          assert x['research_only'] is True and x['model_release_id'] is None
+          assert x['ready_for_betting'] is False
+          assert x['source_input_asof_independently_verified'] is False
+          print('2026_REAL_SEVEN_KING_RESEARCH_SCORES_60_786_SAFE')
+          PY
+      - name: Original frozen L16 full-rank council and strict 2026 unapproved audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          args=()
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            args+=(--expert "$alias=$RUNNER_TEMP/scores2026/$alias.jsonl.gz")
+          done
+          python research/materialize_l16_full_rank_consensus_v1.py             "${args[@]}" --output "$RUNNER_TEMP/council2026.jsonl.gz"
+          python research/audit_2026_7king_unreleased_council_v1.py             --input "$RUNNER_TEMP/council2026.jsonl.gz"
+      - name: Commit only candidate models/scores to SAME experiment branch under free Git limits
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="handoff/2026-sevenking-unreleased-research-v1"
+          test ! -e "$dest"
+          mkdir -p "$dest"
+          cp -r "$RUNNER_TEMP/models2026" "$dest/models"
+          cp -r "$RUNNER_TEMP/scores2026" "$dest/scores"
+          cp "$RUNNER_TEMP/council2026.jsonl.gz" "$dest/council.jsonl.gz"
+          python - <<'PY'
+          import os,pathlib,urllib.request,json
+          p=pathlib.Path('handoff/2026-sevenking-unreleased-research-v1')
+          files=[x for x in p.rglob('*') if x.is_file()]
+          size=sum(x.stat().st_size for x in files)
+          if not files or size>50*1024**2 or any(x.stat().st_size>10*1024**2 for x in files):
+              raise SystemExit('STOP_CANDIDATE_GIT_SIZE_UNDER_FREE_LIMIT_UNVERIFIED')
+          req=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'KEIBA-free-only-check'})
+          info=json.load(urllib.request.urlopen(req,timeout=20))
+          if info.get('private') is not False or info.get('size',999999)>750000:
+              raise SystemExit('STOP_GIT_PUBLIC_FREE_STORAGE_UNVERIFIED')
+          meta=json.load(open(p/'scores/index.json'))
+          assert meta['ready_for_betting'] is False and meta['research_only'] is True
+          print('FREE_PUBLIC_GIT_CANDIDATE_PERSISTENCE_CAP_OK',size,len(files))
+          PY
+          test "$(git ls-remote origin "refs/heads/$RESEARCH_BRANCH" | cut -f1)" = "$GITHUB_SHA"
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add "$dest"
+          git diff --cached --quiet && { echo "::error::No handoff candidate data"; exit 1; }
+          git commit -m "research: handoff seven unreleased 2026 king models, 60 race scores, frozen L16 council"
+          git push origin "HEAD:refs/heads/$RESEARCH_BRANCH"
+          echo "SEVEN_KING_2026_UNRELEASED_HANDOFF_PERSISTED_SAME_BRANCH"
+      - name: Research-only and free-cost guarantees
+        if: always()
+        run: |
+          echo "GitHub public free standard CPU, no GPU or paid runner."
+          echo "No Actions upload-artifact, cache, Kaggle dataset publication, or paid cloud storage."
+          echo "Results only on experiment branch, not main."
+          echo "2026 actual outcomes and ROI sealed. Not approved for real-world bets."
