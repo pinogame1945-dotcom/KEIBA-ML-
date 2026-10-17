@@ -1,0 +1,107 @@
+name: Receive published BACKFILL 690 feature files (free CPU)
+on:
+  push:
+    branches: [feature/backfill-690-receiver-20261017]
+    paths:
+      - research/receive_backfill_690_v1.py
+      - tests/test_receive_backfill_690_v1.py
+      - .github/workflows/receive-backfill-690-real-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  receive:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Pin handoff source and keep download in ephemeral free CPU workspace
+        shell: bash
+        env:
+          BACKFILL_SHA: 113d6ab73bf840c95a761cf1d8df2b4a0281adf5
+        run: |
+          set -euo pipefail
+          test "$(df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}')" -gt 5000000
+          source="$RUNNER_TEMP/backfill-source"
+          mkdir -p "$source"
+          git -C "$source" init -q
+          git -C "$source" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$source" -c protocol.version=2 fetch --no-tags --depth 1 --filter=blob:none origin handoff/690-feature-data-v1
+          test "$(git -C "$source" rev-parse FETCH_HEAD)" = "$BACKFILL_SHA"
+          git -C "$source" sparse-checkout init --cone
+          git -C "$source" sparse-checkout set ml_features/delivery/690
+          git -C "$source" checkout -q --detach FETCH_HEAD
+          test -s "$source/ml_features/delivery/690/index.json"
+          echo "PINNED_BACKFILL_DELIVERY_BRANCH_SHA_OK $BACKFILL_SHA"
+          echo "EPHEMERAL_LOCAL_ONLY_NO_ARTIFACT_NO_CACHE_NO_UPLOAD"
+      - name: Verify index and SHA256 of all 60 real race files
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,re
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])/"backfill-source"
+          base=root/"ml_features/delivery/690"
+          index=json.loads((base/"index.json").read_text(encoding="utf8"))
+          assert index["contract"]=="KEIBA_BACKFILL_TO_ML_690_INDEX_V1"
+          assert index["repository"]=="pinogame1945-dotcom/KEIBA-BACKFILL"
+          assert index["branch"]=="handoff/690-feature-data-v1"
+          assert index["feature_count"]==690
+          assert index["total_races"]==60 and index["total_horses"]==786
+          assert index["original_ml_full_numerical_parity_verified"] is False
+          assert index["readiness"]=="ASOF_UNVERIFIED_DO_NOT_BET"
+          races=index["races"]
+          assert len(races)==60
+          dates={"2026-10-10":(24,315),"2026-10-17":(36,471)}
+          counts={day:{"races":0,"horses":0} for day in dates}
+          for rid,ref in sorted(races.items()):
+              assert re.fullmatch(r"2026\d{8}",rid)
+              day=ref["date"]
+              assert day in counts
+              rel=Path(ref["path"])
+              assert rel.as_posix()==f"ml_features/delivery/690/{day}/{rid}.json"
+              file=root/rel
+              assert file.is_file() and file.stat().st_size<16_000_000
+              digest=hashlib.sha256(file.read_bytes()).hexdigest()
+              assert digest==ref["sha256"],f"SHA256_DRIFT_{rid}"
+              counts[day]["races"]+=1
+              counts[day]["horses"]+=ref["starters"]
+          for day,expected in dates.items():
+              assert (counts[day]["races"],counts[day]["horses"])==expected
+          print("BACKFILL_690_INDEX_60_SHA256_VERIFIED",json.dumps(counts,sort_keys=True),flush=True)
+          PY
+      - name: Run existing ML receiver against all October 10 and October 17 race JSONs
+        shell: bash
+        run: |
+          set -euo pipefail
+          source="$RUNNER_TEMP/backfill-source/ml_features/delivery/690"
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-10" \
+            --output-dir "$RUNNER_TEMP/ml-input-20261010" \
+            --expected-races 24 --expected-horses 315
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-17" \
+            --output-dir "$RUNNER_TEMP/ml-input-20261017" \
+            --expected-races 36 --expected-horses 471
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          count=0
+          for day,races,horses in (("20261010",24,315),("20261017",36,471)):
+              d=root/("ml-input-"+day)
+              doc=json.loads((d/"receipt.json").read_text())
+              assert doc["races"]==races and doc["horses"]==horses
+              assert doc["features_per_horse"]==690
+              assert doc["numeric_original_parity_checked"] is False
+              assert doc["independent_prestart_timestamp_verified"] is False
+              assert doc["model_executed"] is False
+              count+=doc["horses"]
+          assert count==786
+          print("ML_BACKFILL_690_RECEIPT_COMPLETE races=60 horses=786 cells=542340",flush=True)
+          print("MODEL_NOT_EXECUTED_2026_RESULTS_SEALED_RESEARCH_ONLY",flush=True)
+          PY

@@ -38,6 +38,14 @@ class TestReceipt(unittest.TestCase):
         self.patcher.start()
         self.addCleanup(self.patcher.stop)
 
+    def test_published_delivery_contract_is_accepted(self):
+        self.fixture["contract"] = "KEIBA_BACKFILL_TO_ML_690_UNSCORED_V1"
+        rid, date, count, columns = receiver.check_document(
+            self.fixture, RID + ".json"
+        )
+        self.assertEqual((rid, date, count, len(columns)),
+                         (RID, "2026-10-10", 1, 690))
+
     def test_good_single_race_stays_research_only(self):
         with tempfile.TemporaryDirectory() as tmp:
             root = Path(tmp)
