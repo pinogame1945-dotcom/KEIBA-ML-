@@ -1,0 +1,107 @@
+name: Original pure L1 from BACKFILL delivered 690, 60 races (free CPU)
+
+on:
+  push:
+    branches: [feature/backfill-690-receiver-20261017]
+    paths:
+      - research/score_backfill_690_pure_l1_v1.py
+      - tests/test_score_backfill_690_pure_l1_v1.py
+      - .github/workflows/score-backfill-690-original-l1-freecpu.yml
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: pure-original-l1-backfill-690-60-freecpu
+  cancel-in-progress: false
+
+jobs:
+  score:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      OPENBLAS_NUM_THREADS: '1'
+      OMP_NUM_THREADS: '2'
+      MKL_NUM_THREADS: '1'
+      NODE_OPTIONS: '--max-old-space-size=4096'
+      BACKFILL_DELIVERY_SHA: 113d6ab73bf840c95a761cf1d8df2b4a0281adf5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Free CPU, source pin and disk/secret safety gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          test "$(df -Pk "$RUNNER_TEMP" | awk 'NR==2 {print $4}')" -gt 6000000
+          python -m py_compile research/score_backfill_690_pure_l1_v1.py
+          test "$(git rev-parse HEAD)" != "$BACKFILL_DELIVERY_SHA"
+          echo "ORIGINAL_L1_ONLY_2026_RESULTS_SEALED_STANDARD_FREE_CPU_NO_ARTIFACT_CACHE_MODEL_OR_PAID_STORAGE"
+      - name: Install frozen existing LightGBM dependencies plus Kaggle CLI
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python -m unittest discover -s tests -p test_receive_backfill_690_v1.py -v
+          python -m unittest discover -s tests -p test_score_backfill_690_pure_l1_v1.py -v
+      - name: Fetch EXACT pinned BACKFILL published 690 to temporary disk
+        shell: bash
+        run: |
+          set -euo pipefail
+          repo="$RUNNER_TEMP/backfill-delivery"
+          mkdir -p "$repo"
+          git -C "$repo" init --quiet
+          git -C "$repo" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$repo" fetch --no-tags --depth 1 --filter=blob:none origin handoff/690-feature-data-v1
+          test "$(git -C "$repo" rev-parse FETCH_HEAD)" = "$BACKFILL_DELIVERY_SHA"
+          git -C "$repo" sparse-checkout init --cone
+          git -C "$repo" sparse-checkout set ml_features/delivery/690
+          git -C "$repo" checkout -q --detach FETCH_HEAD
+          source="$repo/ml_features/delivery/690"
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-10" \
+            --output-dir "$RUNNER_TEMP/received-690/2026-10-10" \
+            --expected-races 24 --expected-horses 315
+          python research/receive_backfill_690_v1.py \
+            --input-dir "$source/2026-10-17" \
+            --output-dir "$RUNNER_TEMP/received-690/2026-10-17" \
+            --expected-races 36 --expected-horses 471
+          echo "BACKFILL_60_RACES_RECEIVED_FOR_ORIGINAL_L1"
+      - name: Build ORIGINAL full strictly-prior 2019-2025 labelled state and frozen 2024-25 train
+        shell: bash
+        run: |
+          set -euo pipefail
+          remote="$RUNNER_TEMP/pinned-kaggle"
+          prior="$RUNNER_TEMP/pure-l1-historical"
+          mkdir -p "$remote" "$prior"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            echo "ORIGINAL_L1_PRIOR_YEAR_START year=$year"
+            bash scripts/fetch_original_state_history_snapshot.sh "$year" "$remote" \
+              | tee "$remote/fetch-$year.log"
+            source="$(tail -n 1 "$remote/fetch-$year.log")"
+            test -s "$source"
+            python research/phase3_20261010_original_l1_24_cold_v1.py \
+              --mode export --year "$year" --source "$source" --prior-dir "$prior"
+            rm -f "$source"
+            echo "ORIGINAL_L1_PRIOR_YEAR_EXPORTED year=$year"
+          done
+          test -s "$prior/original-core4-train-2024.csv.gz"
+          test -s "$prior/original-core4-train-2025.csv.gz"
+          test -s "$prior/original-daybias-2024.csv.gz"
+          test -s "$prior/original-daybias-2025.csv.gz"
+          echo "ORIGINAL_L1_PRE_2026_HISTORICAL_TRAIN_READY"
+      - name: Fit original 2024-25 LambdaRank once and score all 60 2026 races
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/score_backfill_690_pure_l1_v1.py \
+            --prior-dir "$RUNNER_TEMP/pure-l1-historical" \
+            --input-dir "$RUNNER_TEMP/received-690" \
+            --output-dir "$RUNNER_TEMP/real-pure-l1-60"
+          test "$(find "$RUNNER_TEMP/real-pure-l1-60" -maxdepth 1 -name '2026*.json' | wc -l)" -eq 60
+          echo "REAL_ORIGINAL_L1_60_RACE_INFERENCE_DONE_INPUT_ONLY_NO_PERFORMANCE_EVAL"
