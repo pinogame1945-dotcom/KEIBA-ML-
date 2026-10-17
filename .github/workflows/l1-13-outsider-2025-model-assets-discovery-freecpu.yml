@@ -1,0 +1,72 @@
+name: 2025 original 13 Outsider model archive discovery free CPU
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-13-outsider-2025-model-assets-discovery-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  discover:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify frozen 13 named candidates and approved CPU, no 2026 outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python - <<'PY'
+          import json
+          p=['research/l1-outsider-nonhorse-v1.json','research/l1-outsider-transition-v1.json']
+          a=[json.load(open(x)) for x in p]
+          names=[x['name'] for cfg in a for x in cfg['candidates']]
+          assert len(names)==len(set(names))==13
+          assert all(cfg['locked_years']==[2026] and cfg['ability_uses_odds'] is False for cfg in a)
+          print('FROZEN_ORIGINAL_13_OUTSIDER_NAMES',','.join(names))
+          PY
+      - name: Read only all owned Kaggle dataset names and list any 2025 outsider model archives
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python - <<'PY'
+          from kaggle.api.kaggle_api_extended import KaggleApi
+          api=KaggleApi()
+          api.authenticate()
+          seen=set(); outsider=[]
+          for page in range(1,5):
+              items=list(api.dataset_list(user='pino1945',page=page,page_size=100))
+              if not items: break
+              for x in items:
+                  ref=str(getattr(x,'ref','') or '')
+                  if not ref or ref in seen:continue
+                  seen.add(ref)
+                  if 'outsider' in ref.lower() or 'nonhorse' in ref.lower() or 'transition' in ref.lower():
+                      outsider.append(ref)
+              if len(items)<100:break
+          print('OWNED_KAGGLE_DATASETS_LISTED',len(seen))
+          print('POSSIBLE_HISTORIC_OUTSIDER_ASSET_REFS',len(outsider))
+          for ref in sorted(outsider):
+              print('POSSIBLE_OUTSIDER_ARCHIVE_REF',ref)
+              try:
+                  files=api.dataset_list_files(ref)
+                  x=getattr(files,'files',[]) or []
+                  names=[getattr(f,'name','') for f in x]
+                  print('ARCHIVE_FILE_NAMES',ref,','.join(str(z) for z in names[:80]))
+                  if any(str(z).endswith(('model.txt','schema.json','model.json')) for z in names):
+                      print('POTENTIAL_BOOSTER_MODEL_ASSETS',ref)
+              except Exception as exc:
+                  print('ARCHIVE_FILES_UNAVAILABLE',ref,type(exc).__name__)
+          print('DISCOVERY_METADATA_ONLY_COMPLETED')
+          PY
+      - name: Free and sealed safeguard
+        if: always()
+        run: |
+          echo 'Free ubuntu-latest CPU only. No training, artifact, cache, dataset write, or 2026 label access.'
