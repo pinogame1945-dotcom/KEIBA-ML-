@@ -27,7 +27,7 @@ jobs:
           git -C "$tmp" init -q
           git -C "$tmp" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
           git -C "$tmp" fetch --no-tags --depth 1 --filter=blob:none origin handoff/690-feature-data-v1
-          test "$(git -C "$tmp" rev-parse FETCH_HEAD)" = 113d6ab73bf840c95a761cf1d8df2b4a0281adf5
+          test "$(git -C "$tmp" rev-parse FETCH_HEAD)" = db54e887bfa09e8dd473e85d79c96e1973a7b77a
           git -C "$tmp" sparse-checkout init --cone
           git -C "$tmp" sparse-checkout set ml_features/delivery/690
           git -C "$tmp" checkout -q --detach FETCH_HEAD
