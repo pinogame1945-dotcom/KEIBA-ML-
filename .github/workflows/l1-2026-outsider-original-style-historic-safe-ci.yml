@@ -1,4 +1,4 @@
-name: Original 2026 Outsider STYLE history evidence (free CPU, 2026 sealed)
+name: Original 2026 Outsider STYLE 2022-start history evidence (free CPU)
 on:
   push:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
@@ -38,7 +38,7 @@ jobs:
           # Non-cone sparse paths prevent even materializing ANY 2026 result pack.
           {
             git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
-              awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,4) < "2026") print "/" $0}'
+              awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,4) >= "2022" && substr($0,12,4) < "2026") print "/" $0}'
             echo '/ml_features/src/historical-extra-builder.mjs'
             echo '/ml_features/contracts/l1-feature-set-contract-v1.json'
             echo '/ml_features/research/live_json_to_daily_pack_v1.py'
@@ -46,7 +46,7 @@ jobs:
             echo '/ml_features/delivery/690/2026-10-17/*'
             echo '/data/live/2026-10-17/*'
           } > "$RUNNER_TEMP/sparse-list.txt"
-          test "$(grep -c '^/data/daily/' "$RUNNER_TEMP/sparse-list.txt")" -gt 1800
+          test "$(grep -c '^/data/daily/' "$RUNNER_TEMP/sparse-list.txt")" -gt 300
           ! grep -q '^/data/daily/2026-' "$RUNNER_TEMP/sparse-list.txt"
           git -C "$root" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/sparse-list.txt"
           git -C "$root" checkout -q --detach FETCH_HEAD
