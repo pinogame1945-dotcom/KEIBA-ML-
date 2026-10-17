@@ -1,0 +1,86 @@
+name: Seven frozen 2025 King feature schemas vs delivered 2026 690 (free CPU)
+on:
+  push:
+    branches: [audit/l1-7king-outsider-2026-asset-preflight-20261017]
+    paths:
+      - .github/workflows/l1-7king-schema-coverage-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Download one already-published BACKFILL 690 race file
+        shell: bash
+        run: |
+          set -euo pipefail
+          tmp="$RUNNER_TEMP/backfill"
+          git clone -q --depth 1 --filter=blob:none --no-checkout \
+            --branch handoff/690-feature-data-v1 \
+            https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git "$tmp"
+          test "$(git -C "$tmp" rev-parse HEAD)" = 113d6ab73bf840c95a761cf1d8df2b4a0281adf5
+          git -C "$tmp" sparse-checkout init --no-cone
+          git -C "$tmp" sparse-checkout set /ml_features/delivery/690/2026-10-10/202605040301.json
+          git -C "$tmp" checkout -q
+          test -s "$tmp/ml_features/delivery/690/2026-10-10/202605040301.json"
+      - name: Download only each archived 2025 King schema, not model or training data
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            dest="$RUNNER_TEMP/king-schemas/$alias"
+            mkdir -p "$dest"
+            kaggle datasets download "$ref" -f schema.json -p "$dest" --unzip --quiet --force
+            test -s "$dest/schema.json"
+            test "$(wc -c < "$dest/schema.json")" -lt 2000000
+          done
+      - name: Compare exact archived 2025 model input names to delivered 690 input names
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          source=root/"backfill/ml_features/delivery/690/2026-10-10/202605040301.json"
+          backfill=json.loads(source.read_text())
+          assert backfill["contract"]=="KEIBA_BACKFILL_TO_ML_690_UNSCORED_V1"
+          assert backfill["used_target_results_or_final_odds"] is False
+          cols=set(backfill["rows"][0])-{"_race_id","_horse_id","_race_date"}
+          assert len(cols)==690
+          cfg=json.loads(Path("research/l1-raceclass-absorption-walkforward-v1.json").read_text())
+          aliases=("core4","pedlegacy","condition","full","light","pedv1","condrc")
+          assert len(cfg["candidates"])==len(aliases)==7
+          for alias,king in zip(aliases,cfg["candidates"]):
+              schema=json.loads((root/"king-schemas"/alias/"schema.json").read_text())
+              expected=schema.get("feature_order")
+              if not isinstance(expected,list) or not expected:
+                  raise SystemExit("ARCHIVED_2025_KING_SCHEMA_FORMAT_UNKNOWN:"+alias)
+              assert len(set(expected))==len(expected)
+              missing=sorted(set(expected)-cols)
+              extra=sorted(cols-set(expected))
+              pedigree_missing=sum(k.startswith("ped_") for k in missing)
+              print("SEVEN_KING_SCHEMA_COVERAGE",json.dumps({
+                  "alias":alias,"king":king["name"],
+                  "archived_2025_required_columns":len(expected),
+                  "present_in_2026_delivered_690":len(expected)-len(missing),
+                  "missing_from_2026_delivered_690":len(missing),
+                  "missing_pedigree_columns":pedigree_missing,
+                  "extra_delivered_columns_not_in_2025_model":len(extra),
+                  "example_missing":missing[:8],
+                  "can_use_2025_model_with_690_only":len(missing)==0,
+                  "model_trained_for_2026":False,
+              },ensure_ascii=False,sort_keys=True),flush=True)
+          print("EXACT_2025_MODEL_SCHEMA_VS_690_KEYS_DONE_NO_2026_SCORE_OR_RESULTS",flush=True)
+          PY
