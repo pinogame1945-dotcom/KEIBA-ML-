@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """No real prior or 2026 races. Pure local fail-closed 2026 refit checks."""
+import gzip
 import json
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -74,6 +75,65 @@ class Frozen2026DeploymentRefitGateTest(unittest.TestCase):
                           [root/"snapshot-2024.jsonl.gz",
                            root/"snapshot-2025.jsonl.gz"],
                           root/"output","user-proceed-2026")
+
+
+    def make_prior_test_fixtures(self, root, *, wrong_year=False, duplicate=False):
+        from refit_2026_seven_king_prior_only_v1 import frozen_trainer
+        trainer=frozen_trainer()
+        history=trainer.DEFAULT_FEATURE_CONTRACT["history_windows"]
+        small=trainer.normalize_small_sample_policy(
+            None, json.loads(trainer.DEFAULT_SMALL_SAMPLE_CONTRACT_PATH.read_text()),
+            history)
+        for year in (2024,2025):
+            row={
+                "ml_dataset_version":3,
+                "feature_schema_version":8,
+                "leakage_policy":"STRICT_PRIOR_DATE_ONLY",
+                "prediction_phase":"FINAL",
+                "feature_sets":trainer.DEFAULT_FEATURE_CONTRACT["feature_sets"].keys(),
+                "history_windows":history,
+                "small_sample_policy":small,
+                "race_id":str(year)+"05050101",
+                "horse_id":"2019010001",
+                "features":{"race_date":str(2025 if (year==2024 and wrong_year) else year)+"-05-05"},
+                "target":{"is_win":True},
+            }
+            # write lists for JSON serialization exactly as the archived contract does
+            row["feature_sets"]=list(row["feature_sets"])
+            with gzip.open(root/f"snapshot-{year}.jsonl.gz","wt",encoding="utf-8") as out:
+                out.write(json.dumps(row)+"\n")
+                if year==2024 and duplicate:
+                    out.write(json.dumps(row)+"\n")
+        meta={"split":{"train_start":"2023-01-01",
+                       "train_end":"2024-12-31",
+                       "valid_start":"2025-01-01",
+                       "valid_end":"2025-12-31"},
+              "feature_count":649,"best_iteration":399}
+        (root/"meta.json").write_text(json.dumps(meta))
+        (root/"schema.json").write_text(json.dumps(
+            {"feature_order":[f"x{i}" for i in range(649)]}))
+        return [root/"snapshot-2024.jsonl.gz",
+                root/"snapshot-2025.jsonl.gz"]
+
+    def test_rejects_2025_rows_masquerading_as_2024_snapshot(self):
+        with TemporaryDirectory() as t:
+            root=Path(t)
+            files=self.make_prior_test_fixtures(root,wrong_year=True)
+            with self.assertRaisesRegex(ValueError,
+                "TRAINING_ROW_YEAR_DOES_NOT_MATCH_SNAPSHOT"):
+                train_one("core4",root/"meta.json",root/"schema.json",
+                          files,root/"output","candidate-protocol-2026")
+            self.assertFalse((root/"output").exists())
+
+    def test_rejects_duplicate_horses_within_historical_snapshots(self):
+        with TemporaryDirectory() as t:
+            root=Path(t)
+            files=self.make_prior_test_fixtures(root,duplicate=True)
+            with self.assertRaisesRegex(ValueError,
+                "PRIOR_TRAINING_HORSE_DUPLICATED"):
+                train_one("core4",root/"meta.json",root/"schema.json",
+                          files,root/"output","candidate-protocol-2026")
+            self.assertFalse((root/"output").exists())
 
     def test_refit_does_not_relax_research_2026_lock(self):
         c=json.loads(Path("research/l1-raceclass-absorption-walkforward-v1.json").read_text())
