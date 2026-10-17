@@ -167,6 +167,7 @@ def main():
         require(output_rows==471,"ORIGINAL_13_OUTSIDER_8_MODE_ROW_COUNT_DRIFT:"+cand)
         seen=set()
         feature_sets=set()
+        feature_union=set()
         with gzip.open(dest,"rt",encoding="utf-8") as reader:
             for line in reader:
                 if not line.strip():continue
@@ -188,12 +189,24 @@ def main():
                             features["nh_day_has_prior"]==0,
                             "OUTSIDER_PRE_DAY_CAPTURE_INTRADAY_RESULTS_NOT_PERMITTED")
                 feature_sets.add(tuple(sorted(features)))
+                feature_union.update(features)
                 seen.add(key)
-        require(seen==matched and len(feature_sets)==1,
-                "OUTSIDER_STATeless_8_POPULATION_OR_FEATURE_SCHEMA_DRIFT:"+cand)
+        require(seen==matched and len(feature_union)>0,
+                "OUTSIDER_STATELESS_8_POPULATION_OR_FEATURE_SCHEMA_DRIFT:"+cand)
+        # Original OPPONENT_GAP adds dynamic keys only for usable opponent
+        # observations. Frozen downstream projector performs union/NaN align.
+        if cand!="outsider_opponentgap":
+            require(len(feature_sets)==1,
+                    "OUTSIDER_STATIC_7_FEATURE_SCHEMA_DRIFT:"+cand)
+        else:
+            require(all(set(fs)<=feature_union for fs in feature_sets) and
+                    all(k in RACE_BASE_KEYS or k.startswith("nh_")
+                        for k in feature_union),
+                    "OUTSIDER_DYNAMIC_OPPONENT_FEATURES_DRIFT")
         result[cand]={
             "mode":mode,"rows":471,
-            "feature_count":len(next(iter(feature_sets))),
+            "feature_count_union":len(feature_union),
+            "distinct_feature_schemas":len(feature_sets),
             "output_sha256":digest(dest),
             "size_bytes":dest.stat().st_size,
             "source_target_before_day":True,
@@ -202,7 +215,7 @@ def main():
         }
         print("ORIGINAL_OUTSIDER_ONE_OF_EIGHT_TARGET_DATASET_READY "+
               json.dumps({"candidate":cand,"mode":mode,
-                          "rows":471,"features":result[cand]["feature_count"],
+                          "rows":471,"features_union":result[cand]["feature_count_union"],
                           "ready_for_betting":False},sort_keys=True),flush=True)
     manifest={
         "contract":"KEIBA_2026_10_17_ORIGINAL_OUTSIDER_8_STATIC_FEATURE_DATASETS_V1",
