@@ -7,6 +7,7 @@ on:
       - research/join_2026_10_17_outsider_original_style14_backfill13_delta_v1.py
       - research/recover_2026_10_17_original_outsider_race_context_v1.mjs
       - research/materialize_2026_10_17_original_outsider_stateless8_from_cached_delta_v1.py
+      - research/prepare_2026_10_17_original_outsider_prior_signatures_from_pinned_history_v1.mjs
       - .github/workflows/l1-2026-outsider-style-strict-prior-2026-freecpu.yml
 permissions:
   contents: read
@@ -124,15 +125,20 @@ jobs:
               and x['style_source_complete'] is True for x in r)
           print('ORIGINAL_2026_OUTSIDER_DELTA_27_471_JOIN_VERIFIED_WITHOUT_REBUILDING_690')
           PY
-      - name: Materialize eight original stateless Outsider source datasets and block five history modes
+      - name: Materialize all 13 original Outsider inputs using complete cached 690 and strict prior signatures
         shell: bash
         run: |
           set -euo pipefail
           root="$RUNNER_TEMP/pinned-backfill"
+          node --check research/prepare_2026_10_17_original_outsider_prior_signatures_from_pinned_history_v1.mjs
+          node research/prepare_2026_10_17_original_outsider_prior_signatures_from_pinned_history_v1.mjs \
+            --pinned-backfill-root "$root" \
+            --output "$RUNNER_TEMP/original-outside-five-prior-signatures-471.jsonl"
           python -m py_compile research/materialize_2026_10_17_original_outsider_stateless8_from_cached_delta_v1.py
           python research/materialize_2026_10_17_original_outsider_stateless8_from_cached_delta_v1.py \
             --cached-backfill "$root" \
             --delta27 "$RUNNER_TEMP/outsider-original-style14-backfill13-delta-471.jsonl.gz" \
+            --prior-signatures "$RUNNER_TEMP/original-outside-five-prior-signatures-471.jsonl" \
             --feature-contract "$root/ml_features/contracts/l1-feature-set-contract-v1.json" \
             --small-sample-contract "$root/ml_features/contracts/l1-small-sample-contract-v1.json" \
             --output "$RUNNER_TEMP/original-outsider-eight-source-datasets"
@@ -141,16 +147,16 @@ jobs:
           from pathlib import Path
           root=Path(os.environ['RUNNER_TEMP'])/'original-outsider-eight-source-datasets'
           m=json.loads((root/'manifest.json').read_text())
-          assert m['candidate_original_count']==13 and m['candidate_source_feature_datasets_ready']==8
-          assert m['candidate_source_feature_datasets_blocked']==5
-          assert len(m['ready_candidates'])==8 and len(m['blocked_candidates'])==5
-          assert len(list(root.glob('*.jsonl.gz')))==8
+          assert m['candidate_original_count']==13 and m['candidate_source_feature_datasets_ready']==13
+          assert m['candidate_source_feature_datasets_blocked']==0
+          assert len(m['ready_candidates'])==13 and len(m['blocked_candidates'])==0
+          assert len(list(root.glob('*.jsonl.gz')))==13
           assert all(x['rows']==471 for x in m['ready_candidates'].values())
           assert m['2026_target_results_used'] is False
           assert m['2026_training_or_evaluation'] is False
           assert m['actual_prediction_scores_produced'] is False
           assert m['ready_for_betting'] is False
-          print('EIGHT_REAL_ORIGINAL_OUTSIDER_FEATURE_DATASETS_36R_471H_NO_SCORES_SAFE')
+          print('ALL_13_REAL_ORIGINAL_OUTSIDER_FEATURE_DATASETS_36R_471H_NO_SCORES_SAFE')
           PY
       - name: Cost and no outcome leakage
         if: always()
