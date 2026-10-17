@@ -1,5 +1,9 @@
 name: Seven King 2026 Blind Candidate Refit and L16 (free CPU)
 on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-7king-2026-blind-refit-candidate-freecpu.yml
   workflow_dispatch:
 permissions:
   contents: read
@@ -54,6 +58,21 @@ jobs:
           python -m pip install --no-cache-dir --disable-pip-version-check kaggle
           python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
           PYTHONPATH=research python -m unittest -v research/test_refit_2026_seven_king_prior_only_v1.py research/test_7king_2026_blind_from_approved_models_v1.py research/test_7king_2026_blind_real_lightgbm_synthetic_v1.py
+      - name: Verify Kaggle private free-tier storage before any large snapshot download or training
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-storage-preflight.sh
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          import os
+          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          limit=193273528320
+          reserve=134217728
+          if limit-used<reserve:
+              raise SystemExit("STOP_PRIVATE_KAGGLE_FREE_STORAGE_RESERVE_INSUFFICIENT")
+          print("FREE_KAGGLE_SAVE_PREFLIGHT_PASS",used,limit,reserve)
+          PY
       - name: Restore 2024 and 2025 snapshots just once with original SHA and rows audit
         shell: bash
         run: |
@@ -129,17 +148,61 @@ jobs:
           done
           python research/materialize_l16_full_rank_consensus_v1.py             "${args[@]}" --output "$RUNNER_TEMP/council2026.jsonl.gz"
           python research/audit_2026_7king_unreleased_council_v1.py             --input "$RUNNER_TEMP/council2026.jsonl.gz"
-      - name: Do not publish unreleased trained model weights to public GitHub
+      - name: Package only unapproved model candidate and predictions under verified free storage cap
         shell: bash
         run: |
           set -euo pipefail
-          echo "PUBLIC_MODEL_WEIGHTS_PUBLICATION_DISABLED"
-          echo "Only run logs record candidate model checks; model weights remain on ephemeral runner."
-          echo "Existing archived model storage policy remains unchanged."
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          mkdir -p "$RUNNER_TEMP/kaggle-stage"
+          python - <<'PY'
+          import json,os,zipfile
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          out=root/"kaggle-stage"
+          archive=out/"2026-sevenking-unreleased-candidate.zip"
+          source_dirs=[(root/"models2026","models"),(root/"scores2026","scores")]
+          with zipfile.ZipFile(archive,"w",compression=zipfile.ZIP_DEFLATED,compresslevel=6) as z:
+              for src,label in source_dirs:
+                  for path in sorted(src.rglob("*")):
+                      if path.is_file():
+                          z.write(path,str(Path(label)/path.relative_to(src)))
+              z.write(root/"council2026.jsonl.gz","council2026.jsonl.gz")
+          scores=json.load(open(root/"scores2026/index.json",encoding="utf-8"))
+          trained=json.load(open(root/"models2026/refit-index.json",encoding="utf-8"))
+          if scores.get("research_only") is not True or scores.get("ready_for_betting") is not False or len(trained["kings"])!=7 or trained.get("released") is not False:
+              raise SystemExit("STOP_NOT_AN_UNRELEASED_RESEARCH_MODEL")
+          manifest={
+              "contract":"KEIBA_2026_UNRELEASED_SEVENKING_MODEL_SCORE_HANDOFF_V1",
+              "snapshot_generation":"eb13d4096519167b",
+              "training_years":[2024,2025],
+              "prediction_year":2026,"kings":7,"races":60,"horse_rows":786,
+              "model_status":"CANDIDATE_2026_BLIND_UNRELEASED",
+              "2026_target_results_used":False,"asof_audited":False,
+              "ready_for_betting":False,"l175_l21_l3_invoked":False,
+              "bundle":archive.name,"bundle_bytes":archive.stat().st_size
+          }
+          (out/"index.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
+          package_size=sum(p.stat().st_size for p in out.iterdir())
+          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          limit=193273528320
+          if package_size>64*1024**2 or used+package_size>limit:
+              raise SystemExit("STOP_PERSISTENCE_NOT_VERIFIED_WITHIN_KAGGLE_FREE_LIMIT")
+          print("KAGGLE_UNRELEASED_PRIVATE_SAVE_WITHIN_VERIFIED_FREE_CAPACITY",package_size,flush=True)
+          PY
+      - name: Save once to existing Kaggle private dataset storage approach and verify exact remote manifest
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python research/persist_exact_kaggle_dataset.py \
+            --ref "pino1945/keiba-ml-2026-original-sevenking-candidate-v1" \
+            --title "KEIBA 2026 Original Seven King Unreleased Candidate V1" \
+            --source-dir "$RUNNER_TEMP/kaggle-stage"
+          echo "KAGGLE_PRIVATE_2026_UNRELEASED_SEVEN_KING_MODELS_SCORES_SAVED"
       - name: Research-only and free-cost guarantees
         if: always()
         run: |
           echo "GitHub public free standard CPU, no GPU or paid runner."
-          echo "No Actions upload-artifact, cache, Kaggle dataset publication, or paid cloud storage."
-          echo "Results only on experiment branch, not main."
+          echo "No Actions upload-artifact or cache; Kaggle private dataset only after strict free quota check."
+          echo "Models and scores never published to GitHub. Kaggle dataset remains private by default."
           echo "2026 actual outcomes and ROI sealed. Not approved for real-world bets."
