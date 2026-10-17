@@ -17,6 +17,7 @@ jobs:
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       SNAPSHOT_GEN: eb13d4096519167b
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
       PRIV_DATASET: pino1945/keiba-ml-2026-original13-outsider-candidate-v1
     steps:
       - uses: actions/checkout@v4
@@ -33,6 +34,7 @@ jobs:
         run: |
           set -euo pipefail
           test -n "$KAGGLE_API_TOKEN"
+          test "$KAGGLE_DATASET_REF" = "pino1945/keiba-ml-snapshot-$SNAPSHOT_GEN"
           python -m py_compile \
             research/materialize_13_original_outsider_2023_25_single_pass_v1.py \
             research/refit_2026_original_13_outsider_prior_only_candidate_v1.py \
