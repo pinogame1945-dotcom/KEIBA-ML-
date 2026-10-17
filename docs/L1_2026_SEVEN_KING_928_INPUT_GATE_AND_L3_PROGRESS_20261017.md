@@ -37,11 +37,22 @@
 - 新設監査: research/audit_7king_2026_blind_training_assets_v1.py
 - 新設無料標準CPU Actions: .github/workflows/l1-7king-2026-training-assets-gate-freecpu.yml
 - 起動Run: https://github.com/pinogame1945-dotcom/KEIBA-ML-/actions/runs/39005829126
-- 開始時点: in_progress。ユーザー指示により長時間監視は行わない。検証成功はまだ宣言しない。
+- 完了: 2026-10-17 GitHub Actions 成功。2024/2025スナップショット掲載と7王の元モデル設定を確認。
 - 目的: Kaggleに**既にある**snapshot生成世代eb13d4096519167bの2024/25マニフェストとリモートファイル一覧だけを検査し、7王の2025保存済みmodel.json/schema.jsonから元のfold学習年・早期停止best_iteration・600ラウンド設定等を厳密照合する。
 - 巨大snapshot本体、model.txt、2026対象レース結果はダウンロードしない。学習・推論・新規Kaggle公開/保存は行わない。
 - **結果次第でも2025保存重みを2026に採用しない**。過去年のbest_iteration数値を、ユーザー承認なしに2026の再学習規則に転用しない。
 - 2026年結果封印、main、既存のモデル、Council/Outsider、L1.75/L2.1/L3の凍結は維持。
+
+## 2026年ブラインド推論入口（今回追加）
+
+- 追加: research/score_7king_2026_blind_from_approved_models_v1.py
+- 追加テスト: research/test_7king_2026_blind_from_approved_models_v1.py
+- 無料標準CPUの合成データ専用CI: .github/workflows/l1-7king-2026-blind-scorer-safe-ci.yml
+- 元の emit_l1_to_l2.py から load_validation_frame(), family_for_feature(), sigmoid(), sha256_json() をそのまま使用。7王ごとにモデル特徴量順・2026全頭集合・LightGBM出力・TreeSHAPのロジット復元を検査してL1_TO_L2_OUTPUT_CONTRACT_V1に従う行を生成する。
+- **モデルが未完成でも2025年版にフォールバックしない**。2026年用の全7モデルの2024/25訓練年・保存したschema/model SHA256・承認済みtraining_rule_id・approval_ref・元snapshot生成世代を検査し、どれか不在なら対象レースJSONに触れる前に停止。
+- 元の928列を再利用。今回のCIでは履歴計算・Kaggleからのモデルやsnapshot取得・2026レース結果利用・実際の推論を実施しない。
+- 既存の発走前as-of監査は未完了なので、将来実モデルで予測できたとしても本入口の出力ステータスは ready_for_betting=false 固定。
+- 新しい学習時の早期停止ルールは未承認・未実装。train-staged-lightgbm.py、run_feature_arena.py、emit_l1_to_l2.py の2026評価ロックを変更しない。
 
 ## 第4段階の学習器制約
 
@@ -57,7 +68,7 @@
 1. 完了: 690の取得・受け渡し
 2. 完了: 元血統V4 238列の実データ生成・保存
 3. 完了: 690+238の再利用結合
-4. 途中: 7王必要列照合・実際の推論用データ行列7/7完成。2026用モデル本体・予測値は未完
+4. 途中: 7王必要列照合・実入力行列7/7完成。2026専用の承認モデル限定推論入口を追加。2026用モデル本体と実予測値は未完
 5. 未完: 13 Outsider・7王合議
 6. 未完: L1.75
 7. 未完: L2.1
