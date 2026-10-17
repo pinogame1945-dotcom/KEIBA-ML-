@@ -1,12 +1,8 @@
 name: Seven King 2026 Blind Candidate Refit and L16 (free CPU)
 on:
-  push:
-    branches: [feature/l1-7king-2026-928-preflight-20261017]
-    paths:
-      - .github/workflows/l1-7king-2026-blind-refit-candidate-freecpu.yml
   workflow_dispatch:
 permissions:
-  contents: write
+  contents: read
 concurrency:
   group: seven-king-2026-unreleased-prior-only-freecpu
   cancel-in-progress: false
@@ -133,39 +129,13 @@ jobs:
           done
           python research/materialize_l16_full_rank_consensus_v1.py             "${args[@]}" --output "$RUNNER_TEMP/council2026.jsonl.gz"
           python research/audit_2026_7king_unreleased_council_v1.py             --input "$RUNNER_TEMP/council2026.jsonl.gz"
-      - name: Commit only candidate models/scores to SAME experiment branch under free Git limits
+      - name: Do not publish unreleased trained model weights to public GitHub
         shell: bash
         run: |
           set -euo pipefail
-          dest="handoff/2026-sevenking-unreleased-research-v1"
-          test ! -e "$dest"
-          mkdir -p "$dest"
-          cp -r "$RUNNER_TEMP/models2026" "$dest/models"
-          cp -r "$RUNNER_TEMP/scores2026" "$dest/scores"
-          cp "$RUNNER_TEMP/council2026.jsonl.gz" "$dest/council.jsonl.gz"
-          python - <<'PY'
-          import os,pathlib,urllib.request,json
-          p=pathlib.Path('handoff/2026-sevenking-unreleased-research-v1')
-          files=[x for x in p.rglob('*') if x.is_file()]
-          size=sum(x.stat().st_size for x in files)
-          if not files or size>50*1024**2 or any(x.stat().st_size>10*1024**2 for x in files):
-              raise SystemExit('STOP_CANDIDATE_GIT_SIZE_UNDER_FREE_LIMIT_UNVERIFIED')
-          req=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'KEIBA-free-only-check'})
-          info=json.load(urllib.request.urlopen(req,timeout=20))
-          if info.get('private') is not False or info.get('size',999999)>750000:
-              raise SystemExit('STOP_GIT_PUBLIC_FREE_STORAGE_UNVERIFIED')
-          meta=json.load(open(p/'scores/index.json'))
-          assert meta['ready_for_betting'] is False and meta['research_only'] is True
-          print('FREE_PUBLIC_GIT_CANDIDATE_PERSISTENCE_CAP_OK',size,len(files))
-          PY
-          test "$(git ls-remote origin "refs/heads/$RESEARCH_BRANCH" | cut -f1)" = "$GITHUB_SHA"
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add "$dest"
-          git diff --cached --quiet && { echo "::error::No handoff candidate data"; exit 1; }
-          git commit -m "research: handoff seven unreleased 2026 king models, 60 race scores, frozen L16 council"
-          git push origin "HEAD:refs/heads/$RESEARCH_BRANCH"
-          echo "SEVEN_KING_2026_UNRELEASED_HANDOFF_PERSISTED_SAME_BRANCH"
+          echo "PUBLIC_MODEL_WEIGHTS_PUBLICATION_DISABLED"
+          echo "Only run logs record candidate model checks; model weights remain on ephemeral runner."
+          echo "Existing archived model storage policy remains unchanged."
       - name: Research-only and free-cost guarantees
         if: always()
         run: |
