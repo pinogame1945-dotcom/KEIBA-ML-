@@ -87,7 +87,7 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
           "PRIOR_TRAINING_SNAPSHOT_FILE_MISSING")
     check(not destination.exists(),"REFUSE_OVERWRITE_TRAINED_KING")
     check(approval_ref.strip() and "2026" in approval_ref,
-          "DEPLOYMENT_REFIT_APPROVAL_REFERENCE_MISSING")
+          "REFIT_PROTOCOL_REFERENCE_MISSING")
     frozen=read(CONFIG)
     check(frozen["contract"]=="L1_RACECLASS_ABSORPTION_WALKFORWARD_V1"
           and frozen["snapshot_generation"]==GEN and
@@ -136,16 +136,22 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
           "PRIOR_2024_SOURCE_SNAPSHOT_CONTRACT_DRIFT")
     blocked=trainer.load_forbidden_model_keys(
         Path("contracts/l1-feature-catalog-v1.json"))
-    # Projected files were built with the UNMODIFIED original Node projection
-    # and carry the two historic years only.
+    # A copied/renamed or duplicated snapshot must never silently change
+    # the two-year training population. Input names and row years must match.
     def prior_rows():
         years=set()
+        seen=set()
         for path in snapshot_paths:
+            expected_year=path.name.split("-")[1].split(".")[0]
             for row in trainer.iter_dataset_rows(path):
                 date=str((row.get("features") or {}).get("race_date") or "")
-                check(date[:4] in ("2024","2025"),
-                      "FUTURE_OR_UNEXPECTED_TRAINING_DATE:"+date)
+                check(date[:4]==expected_year,
+                      "TRAINING_ROW_YEAR_DOES_NOT_MATCH_SNAPSHOT:"+path.name)
                 years.add(date[:4])
+                identity=(str(row.get("race_id") or ""),str(row.get("horse_id") or ""))
+                check(all(identity) and identity not in seen,
+                      "PRIOR_TRAINING_HORSE_DUPLICATED_OR_UNIDENTIFIED")
+                seen.add(identity)
                 check((row.get("prediction_phase") or "FINAL")=="FINAL",
                       "NOT_THE_ORIGINAL_FINAL_PHASE")
                 yield row
@@ -212,7 +218,7 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
                            encoding="utf-8")
     meta={
         "contract":MODEL_RELEASE,
-        "deployment_status":"APPROVED_2026_BLIND",
+        "deployment_status":"CANDIDATE_2026_BLIND_UNRELEASED",
         "candidate_name":candidate_name,
         "prediction_year":2026,
         "training_years":[2024,2025],
@@ -225,7 +231,8 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
         "feature_selection":"none",
         "prediction_phase":"FINAL",
         "training_rule_id":"REUSE_2025_OOS_BEST_ITERATION_REFIT_2024_2025",
-        "training_rule_approval_ref":approval_ref,
+        "training_rule_approval_ref":None,
+        "refit_protocol_reference":approval_ref,
         "best_iteration":rounds,
         MODEL_PARAMS_KEY:rounds,
         "training_rows":train_rows,
@@ -245,7 +252,7 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
     }
     meta_file.write_text(json.dumps(meta,ensure_ascii=False,indent=2)+"\n",
                          encoding="utf-8")
-    print("FROZEN_2026_7KING_PRIOR_ONLY_REFIT_COMPLETED "+
+    print("FROZEN_2026_7KING_PRIOR_ONLY_REFIT_CANDIDATE_COMPLETED "+
           json.dumps({"king":king,"training_rows":train_rows,
                       "training_races":int(train_races),"rounds":rounds,
                       "model_sha256":model_sha,
