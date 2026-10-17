@@ -162,13 +162,14 @@ jobs:
               --candidates-json "$work/candidates.json" \
               --source-ref research/l1-outsider-tie-audit-v1-20260929 \
               --ml-source-sha "$GITHUB_SHA"
-            test -s "$work/arena/models/$alias.txt"
-            test -s "$work/arena/models/$alias.json"
-            test -s "$work/arena/schemas/$alias-schema.json"
+            slug="${alias//_/-}"
+            test -s "$work/arena/models/$slug.txt"
+            test -s "$work/arena/models/$slug.json"
+            test -s "$work/arena/schemas/$slug-schema.json"
             mkdir -p "$original/$alias"
-            cp "$work/arena/models/$alias.txt" "$original/$alias/model.txt"
-            cp "$work/arena/models/$alias.json" "$original/$alias/model.json"
-            cp "$work/arena/schemas/$alias-schema.json" "$original/$alias/schema.json"
+            cp "$work/arena/models/$slug.txt" "$original/$alias/model.txt"
+            cp "$work/arena/models/$slug.json" "$original/$alias/model.json"
+            cp "$work/arena/schemas/$slug-schema.json" "$original/$alias/schema.json"
             PYTHONPATH=research python research/refit_2026_original_13_outsider_prior_only_candidate_v1.py \
               --candidate "$alias" \
               --prior-oos-meta "$original/$alias/model.json" \
