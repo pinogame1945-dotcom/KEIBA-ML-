@@ -54,8 +54,8 @@ def check_document(doc, filename):
     evidence = [doc.get(k) for k in (
         "used_target_labels", "used_result_payout_or_final_odds",
         "used_target_results_or_final_odds", "target_outcomes_used")]
-    need(any(x is False for x in evidence), "MISSING_NO_OUTCOME_ATTESTATION")
     need(not any(x is True for x in evidence), "OUTCOME_LEAK_FLAG")
+    need(any(x is False for x in evidence), "MISSING_NO_OUTCOME_ATTESTATION")
     need(doc.get("l1_scored") is not True, "SCORED_RESULT_NOT_FEATURE_INPUT")
     rows = doc.get("rows")
     need(isinstance(rows, list) and 1 <= len(rows) <= 24, "INVALID_STARTER_ROWS")
