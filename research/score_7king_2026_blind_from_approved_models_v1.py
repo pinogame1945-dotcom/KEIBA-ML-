@@ -60,7 +60,7 @@ def digest(path: Path) -> str:
     return h.hexdigest()
 
 
-def model_gate(king: str, folder: Path):
+def model_gate(king: str, folder: Path, research_only: bool = False):
     name, expected_count = CANDIDATES[king]
     model_file = folder/"model.txt"
     meta_file = folder/"model.json"
@@ -70,9 +70,18 @@ def model_gate(king: str, folder: Path):
                 "APPROVED_2026_RELEASE_FILE_MISSING:"+king+":"+f.name)
     meta = json.loads(meta_file.read_text(encoding="utf-8"))
     schema = json.loads(schema_file.read_text(encoding="utf-8"))
-    require(meta.get("contract")==RELEASE_CONTRACT and
-            meta.get("deployment_status")==RELEASE_STATUS,
-            "NOT_AN_APPROVED_2026_BLIND_MODEL:"+king)
+    require(meta.get("contract")==RELEASE_CONTRACT,
+            "NOT_A_2026_BLIND_MODEL:"+king)
+    if research_only:
+        require(meta.get("deployment_status")=="CANDIDATE_2026_BLIND_UNRELEASED" and
+                meta.get("training_rule_approval_ref") is None and
+                meta.get("training_rule_id")=="REUSE_2025_OOS_BEST_ITERATION_REFIT_2024_2025" and
+                isinstance(meta.get("refit_protocol_reference"),str) and
+                bool(meta["refit_protocol_reference"].strip()),
+                "RESEARCH_ONLY_REFIT_MODEL_PROVENANCE_MISMATCH:"+king)
+    else:
+        require(meta.get("deployment_status")==RELEASE_STATUS,
+                "NOT_AN_APPROVED_2026_BLIND_MODEL:"+king)
     require(meta.get("candidate_name")==name and
             meta.get("prediction_year")==2026 and
             meta.get("training_years")==[2024,2025] and
@@ -85,11 +94,12 @@ def model_gate(king: str, folder: Path):
             meta.get("feature_selection")=="none" and
             meta.get("prediction_phase")=="FINAL",
             "2026_RESULTS_OR_MODEL_SPEC_VIOLATION:"+king)
-    require(isinstance(meta.get("training_rule_id"),str) and
-            bool(meta["training_rule_id"].strip()) and
-            isinstance(meta.get("training_rule_approval_ref"),str) and
-            bool(meta["training_rule_approval_ref"].strip()),
-            "2026_MODEL_TRAINING_RULE_NOT_APPROVED:"+king)
+    if not research_only:
+        require(isinstance(meta.get("training_rule_id"),str) and
+                bool(meta["training_rule_id"].strip()) and
+                isinstance(meta.get("training_rule_approval_ref"),str) and
+                bool(meta["training_rule_approval_ref"].strip()),
+                "2026_MODEL_TRAINING_RULE_NOT_APPROVED:"+king)
     require(schema.get("contract")=="L1_FEATURE_SCHEMA_V1",
             "FROZEN_L1_FEATURE_SCHEMA_CHANGED:"+king)
     order=schema.get("feature_order")
@@ -274,13 +284,18 @@ def score_king(king: str, files, target_file: Path, expected_ids, output:Path):
             "best_iteration":iterations}
 
 
-def run(joined:Path,models:Path,output:Path):
-    # Fail closed: check ALL seven released 2026 models BEFORE opening target data.
-    preflight={alias:model_gate(alias,models/alias) for alias in CANDIDATES}
+def run(joined:Path,models:Path,output:Path,research_only:bool=False):
+    # Fail closed: check ALL seven candidate or approved 2026 models before target data.
+    preflight={alias:model_gate(alias,models/alias,research_only=research_only) for alias in CANDIDATES}
     require(len(set(v[1]["training_rule_id"] for v in preflight.values()))==1,
             "SEVEN_KING_TRAINING_RULE_RELEASE_INCONSISTENT")
     require(len(set(v[1]["training_rule_approval_ref"] for v in preflight.values()))==1,
             "SEVEN_KING_APPROVAL_REF_INCONSISTENT")
+    if research_only:
+        require(all(v[1]["training_rule_approval_ref"] is None for v in preflight.values()),
+                "RESEARCH_ONLY_MODE_MUST_HAVE_NO_RELEASE_APPROVAL")
+        require(len(set(v[1]["refit_protocol_reference"] for v in preflight.values()))==1,
+                "RESEARCH_ONLY_REFIT_PROTOCOL_INCONSISTENT")
     require(not output.exists(),"REFUSE_OVERWRITE_EXISTING_SCORE_DIRECTORY")
     with tempfile.TemporaryDirectory(prefix="keiba-blind-7king-") as temp:
         source=Path(temp)/"target.jsonl"
@@ -295,7 +310,9 @@ def run(joined:Path,models:Path,output:Path):
             print("2026_FROZEN_KING_INFERENCE "+json.dumps(record,sort_keys=True),flush=True)
         summary={
             "contract":"KEIBA_2026_SEVEN_KING_BLIND_INFERENCE_V1",
-            "model_release_id":preflight["core4"][1]["training_rule_approval_ref"],
+            "model_release_id":preflight["core4"][1]["training_rule_approval_ref"] if not research_only else None,
+            "deployment_status":"CANDIDATE_2026_BLIND_UNRELEASED" if research_only else RELEASE_STATUS,
+            "research_only":bool(research_only),
             "models_trained_on_years":[2024,2025],
             "prediction_year":2026,
             "races":60,"horse_rows":786,"king_count":7,
@@ -319,8 +336,9 @@ def main():
     p.add_argument("--joined",type=Path,required=True)
     p.add_argument("--approved-models",type=Path,required=True)
     p.add_argument("--output",type=Path,required=True)
+    p.add_argument("--research-only",action="store_true",help="Produce unapproved diagnostic predictions, NEVER release to betting/mobile")
     a=p.parse_args()
-    run(a.joined,a.approved_models,a.output)
+    run(a.joined,a.approved_models,a.output,research_only=a.research_only)
 
 
 if __name__=="__main__":
