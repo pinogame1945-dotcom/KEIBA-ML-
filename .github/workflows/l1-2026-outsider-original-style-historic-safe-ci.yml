@@ -1,0 +1,96 @@
+name: Original 2026 Outsider STYLE history evidence (free CPU, 2026 sealed)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs
+      - .github/workflows/l1-2026-outsider-original-style-historic-safe-ci.yml
+permissions:
+  contents: read
+concurrency:
+  group: original-outsider-style-pre2026-source-readonly
+  cancel-in-progress: false
+jobs:
+  read-historical-source-only:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PINNED_BF_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Fetch exactly pinned BACKFILL original source with no 2026 result files
+        shell: bash
+        run: |
+          set -euo pipefail
+          node --check research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs
+          root="$RUNNER_TEMP/pinned-backfill"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch --quiet --no-tags --depth 1 --filter=blob:none origin "$PINNED_BF_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_BF_SHA"
+          # Non-cone sparse paths prevent even materializing ANY 2026 result pack.
+          {
+            git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
+              awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,4) < "2026") print "/" $0}'
+            echo '/ml_features/src/historical-extra-builder.mjs'
+            echo '/ml_features/contracts/l1-feature-set-contract-v1.json'
+            echo '/ml_features/research/live_json_to_daily_pack_v1.py'
+            echo '/ml_features/delivery/690/index.json'
+            echo '/ml_features/delivery/690/2026-10-17/*'
+            echo '/data/live/2026-10-17/*'
+          } > "$RUNNER_TEMP/sparse-list.txt"
+          test "$(grep -c '^/data/daily/' "$RUNNER_TEMP/sparse-list.txt")" -gt 1800
+          ! grep -q '^/data/daily/2026-' "$RUNNER_TEMP/sparse-list.txt"
+          git -C "$root" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/sparse-list.txt"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/src/historical-extra-builder.mjs"
+          test -s "$root/ml_features/contracts/l1-feature-set-contract-v1.json"
+          test ! -e "$root/data/daily/2026-10-10.jsonl.gz"
+          test ! -e "$root/data/daily/2026-10-11.jsonl.gz"
+          echo "SEALED_2026_OUTCOMES_NOT_CHECKED_OUT_PRE2026_HISTORY_READY"
+      - name: Use original pre-race JRA pack and unchanged historical extra generator
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill"
+          python "$root/ml_features/research/live_json_to_daily_pack_v1.py" \
+            --live-dir "$root/data/live/2026-10-17" \
+            --output "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz"
+          node research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs \
+            --pinned-backfill-root "$root" \
+            --pre-race-day-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
+            --out "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl"
+      - name: Confirm rows and only pre-2026 STYLE complete output allowed
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,json
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'style-2026-10-17-471-evidence.jsonl'
+          rows=[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines() if x]
+          assert len(rows)==471 and len({x['race_id'] for x in rows})==36
+          assert len({(x['race_id'],x['horse_id']) for x in rows})==471
+          for r in rows:
+              complete=r['original_style_values_complete_without_2026_outcomes']
+              assert (r['style_complete'] is not None) is complete
+              assert r['asof_full_features_verified'] is False
+              assert r['model_ready'] is False and r['ready_for_betting'] is False
+              if complete: assert len(r['style_complete'])==14
+              else: assert r['excluded_2026_history_if_present'] is True
+          print('STYLE_2026_10_17_NO_2026_OUTCOME_HORSEWISE_COMPLETENESS_VERIFIED')
+          PY
+      - name: Cost and no outcome leakage
+        if: always()
+        run: |
+          echo 'Free standard GitHub CPU, pinned historical daily files <2026 only.'
+          echo 'No target/post-target result file checkout; no 2026 results/payout evaluation.'
+          echo 'Original BACKFILL STYLE formula unchanged, no 690 or model refit.'
+          echo 'No paid artifacts/cache/Kaggle publish, model release or L3.'
