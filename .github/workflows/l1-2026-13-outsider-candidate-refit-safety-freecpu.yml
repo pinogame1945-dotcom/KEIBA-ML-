@@ -1,0 +1,53 @@
+name: Original 13 Outsider 2026 candidate refit safety-only (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/refit_2026_original_13_outsider_prior_only_candidate_v1.py
+      - research/test_refit_2026_original_13_outsider_candidate_v1.py
+      - .github/workflows/l1-2026-13-outsider-candidate-refit-safety-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  no-training-contract-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Compile only source, check frozen model candidate configs
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/refit_2026_original_13_outsider_prior_only_candidate_v1.py \
+            research/test_refit_2026_original_13_outsider_candidate_v1.py
+          python - <<'PY'
+          import json
+          configs=[json.load(open(f)) for f in
+            ('research/l1-outsider-nonhorse-v1.json','research/l1-outsider-transition-v1.json')]
+          assert sum(len(x['candidates']) for x in configs)==13
+          assert all(x['locked_years']==[2026] and x['training_window_years']==2
+                 and x['ability_uses_odds'] is False for x in configs)
+          print('ORIGINAL_13_OUTSIDER_CONFIG_FROZEN_AND_2026_EVALUATION_SEALED')
+          PY
+      - name: Install free CPU model-library dependency
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+      - name: Verify candidate-only prior OOS fold guard and unchanged trainer parameters
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=research python -m unittest -v \
+            research/test_refit_2026_original_13_outsider_candidate_v1.py
+          echo 'THIRTEEN_OUTSIDER_2026_CANDIDATE_ONLY_REFIT_SAFETY_PASS'
+      - name: Cost and release safety
+        if: always()
+        run: |
+          echo 'Free GitHub-hosted ubuntu-latest CPU only.'
+          echo 'No model training, no 2026 result fetch, no Kaggle create or upload, no cache/artifact.'
+          echo '2026 candidate refit protocol not automatically approved.'
