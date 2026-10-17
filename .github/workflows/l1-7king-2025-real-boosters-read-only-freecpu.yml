@@ -1,0 +1,70 @@
+name: Archived 2025 seven real boosters read-only smoke (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/smoke_original_7king_2025_booster_weights_v1.py
+      - .github/workflows/l1-7king-2025-real-boosters-read-only-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: archived-seven-king-2025-real-weights-smoke
+  cancel-in-progress: false
+jobs:
+  read-only-weights:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate safety and install pinned original inference dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/smoke_original_7king_2025_booster_weights_v1.py
+          python - <<'PY'
+          import json
+          c=json.load(open("research/l1-raceclass-absorption-walkforward-v1.json"))
+          assert c['snapshot_generation']=='eb13d4096519167b'
+          assert c['locked_years']==[2026]
+          assert c['training_window_years']==2
+          assert len(c['candidates'])==7
+          print("FROZEN_2026_LOCK_UNCHANGED")
+          PY
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python -m pip install --disable-pip-version-check --no-cache-dir -r ml/requirements.txt
+      - name: Read only original 2025 archived weights, schemas and metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          for alias in core4 pedlegacy condition full light pedv1 condrc; do
+            dir="$RUNNER_TEMP/archived2025/$alias"
+            mkdir -p "$dir"
+            ref="pino1945/keiba-l15-7k-$alias-y2025-v1"
+            for file in model.txt model.json schema.json; do
+              kaggle datasets download "$ref" -f "$file" -p "$dir" --unzip --quiet --force
+              test -s "$dir/$file"
+            done
+          done
+          echo "ARCHIVED_BOOSTER_WEIGHTS_DOWNLOADED_READ_ONLY_2025"
+      - name: Validate exact archived SHA256 and actual LightGBM predictions without race data
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/smoke_original_7king_2025_booster_weights_v1.py \
+            --models "$RUNNER_TEMP/archived2025" \
+            --report "$RUNNER_TEMP/archived-seven-kings-smoke-report.json"
+      - name: Free-only guard and no model promotion
+        if: always()
+        shell: bash
+        run: |
+          echo "GitHub-hosted standard ubuntu-latest CPU, read-only remote artifacts."
+          echo "No GPU, paid runner, Actions artifact/cache, or Kaggle publication."
+          echo "No 2026 race or outcome download or model training."
+          echo "Seven historical 2025 boosters are NEVER promoted to 2026."
