@@ -122,9 +122,18 @@ def train_one(king,prior_meta_file,prior_schema_file,snapshot_paths,destination,
     contract=trainer.load_feature_contract(trainer.DEFAULT_FEATURE_CONTRACT_PATH)
     sets=trainer.normalize_feature_sets(",".join(candidate["feature_sets"]),None,contract)
     check(sets==candidate["feature_sets"],"ORIGINAL_FEATURE_FAMILY_ORDER_DRIFT")
-    history=trainer.DEFAULT_FEATURE_CONTRACT["history_windows"]
+    import gzip
+    with gzip.open(snapshot_paths[0],"rt",encoding="utf-8") as first_source:
+        first=json.loads(next(line for line in first_source if line.strip()))
+    history=trainer.normalize_history_windows(
+        json.dumps(first.get("history_windows")),contract)
     small=trainer.normalize_small_sample_policy(
-        None,read(trainer.DEFAULT_SMALL_SAMPLE_CONTRACT_PATH),history)
+        json.dumps(first.get("small_sample_policy")),
+        read(trainer.DEFAULT_SMALL_SAMPLE_CONTRACT_PATH),history)
+    check(first.get("ml_dataset_version")==3 and
+          first.get("feature_schema_version")==8 and
+          first.get("leakage_policy")=="STRICT_PRIOR_DATE_ONLY",
+          "PRIOR_2024_SOURCE_SNAPSHOT_CONTRACT_DRIFT")
     blocked=trainer.load_forbidden_model_keys(
         Path("contracts/l1-feature-catalog-v1.json"))
     # Projected files were built with the UNMODIFIED original Node projection
