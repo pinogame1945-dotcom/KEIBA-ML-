@@ -1,0 +1,110 @@
+name: Restore original 2026 Outsider BACKFILL race context from pinned live (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/recover_2026_10_17_original_outsider_race_context_v1.mjs
+      - .github/workflows/l1-2026-outsider-backfill-context-original-readonly-freecpu.yml
+permissions:
+  contents: read
+jobs:
+  original-backfill-context-20261017:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      BACKFILL_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Restore only frozen BACKFILL original source and its JRA pre-race live data
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/backfill-pinned"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin "$BACKFILL_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$BACKFILL_SHA"
+          git -C "$root" sparse-checkout init --cone
+          git -C "$root" sparse-checkout set ml_features/src data/live/2026-10-17 ml_features/research
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/src/backfill-feature-adapter.mjs"
+          test -s "$root/ml_features/research/live_json_to_daily_pack_v1.py"
+          test -s "$root/data/live/2026-10-17/manifest.json"
+          echo "PINNED_UNMODIFIED_BACKFILL_V2_AND_PRE_RACE_SOURCE_READY"
+      - name: Recover original metadata using unchanged conversion from verified pre-race live source
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/backfill-pinned"
+          node --check research/recover_2026_10_17_original_outsider_race_context_v1.mjs
+          python "$root/ml_features/research/live_json_to_daily_pack_v1.py" \
+            --live-dir "$root/data/live/2026-10-17" \
+            --output "$RUNNER_TEMP/pre-race-36-daypack.jsonl.gz"
+          node research/recover_2026_10_17_original_outsider_race_context_v1.mjs \
+            --daily-pack "$RUNNER_TEMP/pre-race-36-daypack.jsonl.gz" \
+            --original-backfill-adapter "$root/ml_features/src/backfill-feature-adapter.mjs" \
+            --output "$RUNNER_TEMP/original-backfill-context-471.jsonl"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'original-backfill-context-471.jsonl'
+          rows=[json.loads(x) for x in p.read_text(encoding='utf-8').splitlines()]
+          assert len(rows)==471
+          assert len({(z['race_id'],z['horse_id']) for z in rows})==471
+          assert len({z['race_id'] for z in rows})==36
+          assert all(z['ready_for_betting'] is False
+              and z['derived_style_history_available'] is False
+              and z['derived_13_outsider_all_features_ready'] is False
+              and z['independent_full_input_asof_verified'] is False
+              and z['race_features']['race_date']=='2026-10-17'
+              and len([k for k in z['race_features'] if k.startswith('backfill_')])==13
+              for z in rows)
+          print('OUTSIDER_RACE_CONTEXT_36_471_CONFIRMED_ONLY_NO_STYLE_MODEL_APPROVAL')
+          PY
+      - name: Fail-closed test for injected result or post-race capture timestamp
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/backfill-pinned"
+          python - <<'PY'
+          import gzip,json,os
+          from pathlib import Path
+          p=Path(os.environ['RUNNER_TEMP'])/'pre-race-36-daypack.jsonl.gz'
+          with gzip.open(p,'rt',encoding='utf-8') as f:
+              rows=[json.loads(x) for x in f if x.strip()]
+          assert len(rows)==36
+          bad=rows.copy()
+          bad[0]=dict(bad[0])
+          bad[0]['results']=[{'horse_id':'00000000','result_status':'FINISHED'}]
+          with gzip.open(Path(os.environ['RUNNER_TEMP'])/'with-results.jsonl.gz','wt',encoding='utf-8') as f:
+              for row in bad:f.write(json.dumps(row)+'\n')
+          future=rows.copy()
+          future[0]=dict(future[0])
+          future[0]['live_source_observed_at']='2026-10-17T08:00:00+00:00'
+          with gzip.open(Path(os.environ['RUNNER_TEMP'])/'post-start.jsonl.gz','wt',encoding='utf-8') as f:
+              for row in future:f.write(json.dumps(row)+'\n')
+          PY
+          for fixture in with-results post-start; do
+            if node research/recover_2026_10_17_original_outsider_race_context_v1.mjs \
+              --daily-pack "$RUNNER_TEMP/$fixture.jsonl.gz" \
+              --original-backfill-adapter "$root/ml_features/src/backfill-feature-adapter.mjs" \
+              --output "$RUNNER_TEMP/$fixture-output.jsonl" > "$RUNNER_TEMP/$fixture.log" 2>&1; then
+              echo "::error::Source leak $fixture incorrectly accepted"; exit 1
+            fi
+            test ! -e "$RUNNER_TEMP/$fixture-output.jsonl"
+            echo "OUTSIDER_BACKFILL_SOURCE_REJECTION_PASS scenario=$fixture"
+          done
+      - name: Safety and expense policy
+        if: always()
+        run: |
+          echo 'Free standard ubuntu-latest CPU; pinned public BACKFILL read-only.'
+          echo 'Only JRA pre-race card observations. No current results/payouts/odds used.'
+          echo 'No training, 690/928 recompute, Kaggle or public model saving, artifact or cache.'
+          echo 'STYLE history and formal 2026 model approval remain outstanding.'
