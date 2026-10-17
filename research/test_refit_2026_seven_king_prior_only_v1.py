@@ -50,7 +50,7 @@ class Frozen2026DeploymentRefitGateTest(unittest.TestCase):
             for y in (2024,2025):
                 (root/f"snapshot-{y}.jsonl.gz").write_bytes(b"test")
             with self.assertRaisesRegex(ValueError,
-                "DEPLOYMENT_REFIT_APPROVAL_REFERENCE_MISSING"):
+                "REFIT_PROTOCOL_REFERENCE_MISSING"):
                 train_one("core4",root/"meta",root/"schema",
                           [root/"snapshot-2024.jsonl.gz",
                            root/"snapshot-2025.jsonl.gz"],
