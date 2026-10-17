@@ -1,4 +1,4 @@
-name: Seven King Kaggle candidate bundle file listing (free CPU read-only)
+name: Seven King saved-model as-of lineage audit (free CPU read-only)
 on:
   push:
     branches: [feature/l1-7king-2026-928-preflight-20261017]
@@ -53,34 +53,39 @@ jobs:
           test -s "$root/ml_features/delivery/690/index.json"
           test -s "$root/data/live/2026-10-17/manifest.json"
           echo 'RAW_LIVE_SOURCE_AND_CACHED_690_RESTORED_WITHOUT_RECOMPUTATION'
-      - name: Download only existing sealed-candidate model index, manifest and zipped handoff
+      - name: Read existing Kaggle expanded candidate files without fit or rewrite
         shell: bash
         run: |
           set -euo pipefail
           python -m pip install --disable-pip-version-check --no-cache-dir kaggle
           stage="$RUNNER_TEMP/candidate"
           mkdir -p "$stage"
-          for name in manifest.json index.json; do
-            kaggle datasets download "$RELEASE_REF" -f "$name" -p "$stage" --unzip --quiet --force
-            test -s "$stage/$name"
-          done
-          name="$(python - "$stage/index.json" <<'PY'
-          import json,sys
-          x=json.load(open(sys.argv[1]))
-          assert x['contract']=='KEIBA_2026_UNRELEASED_SEVENKING_MODEL_SCORE_HANDOFF_V1'
-          assert x['ready_for_betting'] is False and x['asof_audited'] is False
-          print(x['bundle'])
+          kaggle datasets download "$RELEASE_REF" -p "$stage" --unzip --quiet --force
+          test -s "$stage/manifest.json"
+          test -s "$stage/index.json"
+          test -s "$stage/2026-sevenking-unreleased-candidate/models/core4/model.txt"
+          test -s "$stage/2026-sevenking-unreleased-candidate/scores/core4.jsonl"
+          echo "EXISTING_KAGGLE_SEVENKING_EXPANDED_MODELS_RESTORED_READONLY"
+      - name: Strict independent source-time lineage audit - no model readiness promotion
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_saved_7king_input_asof_v1.py \
+            --backfill-root "$RUNNER_TEMP/pinned-backfill" \
+            --saved-candidate "$RUNNER_TEMP/candidate" \
+            --report "$RUNNER_TEMP/2026-asof-lineage-audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          a=json.load(open(Path(os.environ['RUNNER_TEMP'])/'2026-asof-lineage-audit.json'))
+          assert a['day_2026_10_17_live_source_prestart_proven'] is True
+          assert a['historical_snapshot_date_2026_10_10_prestart_proven'] is False
+          assert a['feature_matrix_928_independent_asof_verified'] is False
+          assert a['persisted_models']['expanded_seven_model_weight_hashes_checked']==7
+          assert a['ready_for_betting'] is False
+          assert a['formal_model_release_authorized'] is False
+          print('STRICT_ASOF_AUDIT_PARTIAL_ONLY_NO_DEPLOYMENT')
           PY
-          )"
-          test "$name" = "2026-sevenking-unreleased-candidate.zip"
-          echo 'KAGGLE_SAVED_DATASET_REMOTE_FILES_START'
-          kaggle datasets files "$RELEASE_REF" --page-size 200 -v
-          echo 'KAGGLE_SAVED_DATASET_REMOTE_FILES_END'
-          printf '%s\n' "$name" > "$RUNNER_TEMP/kaggle-bundle-expected.txt"
-          echo 'Verified manifest/index and printed remote file listing. Bundle not downloaded during this diagnostic.'
-          exit 0
-          test -s "$stage/$name"
-          echo 'KAGGLE_MODEL_AND_SCORES_READ_ONLY_NO_FIT'
       - name: Safe cost and integrity policy
         if: always()
         run: |
