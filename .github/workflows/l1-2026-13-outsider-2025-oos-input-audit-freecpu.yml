@@ -1,0 +1,87 @@
+name: Original 13 Outsider 2025 OOS source audit (free CPU no refit)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/audit_original_13_outsider_2025_oos_source_v1.py
+      - .github/workflows/l1-2026-13-outsider-2025-oos-input-audit-freecpu.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: keiba-13-outsider-2025-oos-input-readonly
+  cancel-in-progress: false
+jobs:
+  validate-historical-candidate-source:
+    runs-on: ubuntu-latest
+    timeout-minutes: 85
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      KAGGLE_DATASET_REF: pino1945/keiba-ml-snapshot-eb13d4096519167b
+      GENERATION: eb13d4096519167b
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify only frozen models and dates without 2026 outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/audit_original_13_outsider_2025_oos_source_v1.py research/build_l1_nonhorse_dataset_v1.py
+          bash -n scripts/kaggle-snapshot-session.sh
+          python - <<'PY'
+          import json
+          a=[json.load(open(f)) for f in ('research/l1-outsider-nonhorse-v1.json','research/l1-outsider-transition-v1.json')]
+          candidates=[c['name'] for x in a for c in x['candidates']]
+          assert len(set(candidates))==len(candidates)==13
+          assert all(x['training_window_years']==2 and x['locked_years']==[2026] and x['snapshot_generation']=='eb13d4096519167b' for x in a)
+          print('FROZEN_13_OUTSIDER_2025_OOS_2023_24_TRAIN_2025_VALID_INPUT_ONLY')
+          PY
+      - name: Read previously stored 2023 2024 2025 original superset just once
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          source="$RUNNER_TEMP/original-prior-three-years"
+          mkdir -p "$source"
+          bash scripts/kaggle-snapshot-session.sh init "$GENERATION" "$source"
+          bash scripts/kaggle-snapshot-session.sh fetch "$GENERATION" "$source" 2023 2024 2025
+          for year in 2023 2024 2025; do
+            if [[ -s "$source/snapshot-$year.jsonl.gz" ]]; then
+              file="$source/snapshot-$year.jsonl.gz"
+            else
+              file="$source/snapshot-$year.jsonl"
+            fi
+            test -s "$file"
+            echo "ORIGINAL_SOURCE_$year=$file" >> "$GITHUB_ENV"
+          done
+      - name: Audit all thirteen frozen feature families with one pass no model fitting
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_original_13_outsider_2025_oos_source_v1.py \
+            --snapshot-2023 "$ORIGINAL_SOURCE_2023" \
+            --snapshot-2024 "$ORIGINAL_SOURCE_2024" \
+            --snapshot-2025 "$ORIGINAL_SOURCE_2025" \
+            --out "$RUNNER_TEMP/13-outsider-2025-OOS-original-input-audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          doc=json.load(open(Path(os.environ['RUNNER_TEMP'])/'13-outsider-2025-OOS-original-input-audit.json'))
+          assert doc['source_years']==[2023,2024,2025]
+          assert doc['original_2025_oos_train_years']==[2023,2024]
+          assert doc['original_2025_oos_validation_year']==2025
+          assert len(doc['candidates'])==13
+          assert doc['model_training_invoked'] is False
+          assert doc['2026_result_rows_read']==0
+          assert doc['ready_for_betting'] is False
+          print('ORIGINAL_2025_OUTSIDER_13_SOURCE_PARITY_ONLY_CANDIDATE_MODE')
+          PY
+      - name: Cost and data seals
+        if: always()
+        run: |
+          echo 'Standard GitHub ubuntu-latest free CPU only.'
+          echo 'Kaggle existing source read-only, temporary runner output; no new dataset/archive/artifact/cache.'
+          echo 'No 2026 result or payout reads, no model training, no model release, no L3.'
