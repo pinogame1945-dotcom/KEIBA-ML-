@@ -152,6 +152,8 @@ def check_live(root):
     }
 
 def check_saved(saved):
+    """Kaggle unpacks the original .zip and .jsonl.gz on ingest. Audit REAL
+    remote files rather than claiming the archived ZIP itself exists remotely."""
     manifest=read(saved/"manifest.json")
     handoff=read(saved/"index.json")
     require(manifest.get("contract")=="KEIBA_L15_7KING_STAGE_V1"
@@ -166,54 +168,97 @@ def check_saved(saved):
             and handoff.get("ready_for_betting") is False
             and handoff.get("asof_audited") is False
             and handoff.get("model_status")=="CANDIDATE_2026_BLIND_UNRELEASED",
-            "SAVED_2026_MODEL_HANDoFF_NOT_UNRELEASED")
-    bundle=saved/handoff["bundle"]
-    require(bundle.exists() and bundle.stat().st_size==handoff.get("bundle_bytes"),
-            "SAVED_MODEL_BUNDLE_BYTES_MISMATCH")
+            "SAVED_2026_MODEL_HANDOFF_NOT_UNRELEASED")
     listed=manifest.get("files") or []
     require({p.get("name") for p in listed}=={handoff["bundle"],"index.json"},
-            "SAVED_KAGGLE_MANIFEST_FILE_SET_MISMATCH")
-    for item in listed:
-        path=saved/item["name"]
-        require(path.is_file() and path.stat().st_size==item.get("bytes")
-                and digest(path)==item.get("sha256"),
-                "SAVED_KAGGLE_FILE_SHA256_MISMATCH:"+str(item.get("name")))
-    with zipfile.ZipFile(bundle) as z:
-        names=set(z.namelist())
-        for name in ("models/refit-index.json","scores/index.json",
-                     "council2026.jsonl.gz"):
-            require(name in names,"SAVED_MODEL_BUNDLE_MISSING:"+name)
-        refit=json.loads(z.read("models/refit-index.json"))
-        summary=json.loads(z.read("scores/index.json"))
-        require(refit.get("models")==7 and refit.get("released") is False
-                and refit.get("training_years")==[2024,2025]
-                and summary.get("research_only") is True
-                and summary.get("ready_for_betting") is False
-                and summary.get("source_input_asof_independently_verified") is False
-                and summary.get("races")==60 and summary.get("horse_rows")==786
-                and summary.get("king_count")==7,
-                "SAVED_2026_CANDIDATE_INTERNAL_SCOPE_DRIFT")
-        for alias in KINGS:
-            for name in (f"models/{alias}/model.txt",
-                         f"models/{alias}/model.json",
-                         f"models/{alias}/schema.json",
-                         f"scores/{alias}.jsonl.gz"):
-                require(name in names,"SAVED_SEVEN_KING_BUNDLE_MISSING:"+name)
-            metadata=json.loads(z.read(f"models/{alias}/model.json"))
-            require(metadata.get("deployment_status")=="CANDIDATE_2026_BLIND_UNRELEASED"
-                    and metadata.get("training_years")==[2024,2025]
-                    and metadata.get("2026_outcomes_used") is False
-                    and metadata.get("training_rule_approval_ref") is None,
-                    "SAVED_2026_CANDIDATE_SELF_APPROVAL:"+alias)
-            require(hashlib.sha256(z.read(f"models/{alias}/model.txt")).hexdigest()==metadata.get("model_sha256"),
-                    "SAVED_MODEL_WEIGHT_HASH_MISMATCH:"+alias)
-    return {"remote_manifest_local_hashes_ok":True,
-            "model_weights_sha256_verified":7,
-            "model_release_status":"CANDIDATE_2026_BLIND_UNRELEASED",
-            "training_years":[2024,2025],
-            "target_outcomes_used":False,
-            "scores_races":60,"scores_horse_rows":786,
-            "asof_independently_verified":False}
+            "SAVED_KAGGLE_MANIFEST_EXPECTED_ORIGINAL_BUNDLE_MISMATCH")
+    meta_index=next(item for item in listed if item["name"]=="index.json")
+    require((saved/"index.json").stat().st_size==meta_index.get("bytes")
+            and digest(saved/"index.json")==meta_index.get("sha256"),
+            "SAVED_KAGGLE_REMOTE_INDEX_HASH_MISMATCH")
+    # The Kaggle storage layer expands both ZIP and GZIP. The saved archive
+    # SHA256 cannot be rehashed from the expanded entries and must NOT be
+    # reported as verified. Check the actual inner files and row contracts.
+    expanded=saved/"2026-sevenking-unreleased-candidate"
+    require(expanded.is_dir(),"SAVED_KAGGLE_EXPANDED_BUNDLE_NOT_PRESENT")
+    refit=read(expanded/"models/refit-index.json")
+    summary=read(expanded/"scores/index.json")
+    require(refit.get("models")==7 and refit.get("released") is False
+            and refit.get("training_years")==[2024,2025]
+            and summary.get("research_only") is True
+            and summary.get("ready_for_betting") is False
+            and summary.get("source_input_asof_independently_verified") is False
+            and summary.get("races")==60 and summary.get("horse_rows")==786
+            and summary.get("king_count")==7,
+            "SAVED_2026_CANDIDATE_INTERNAL_SCOPE_DRIFT")
+    for alias in KINGS:
+        folder=expanded/"models"/alias
+        model=folder/"model.txt"
+        schema=folder/"schema.json"
+        meta=read(folder/"model.json")
+        require(meta.get("deployment_status")=="CANDIDATE_2026_BLIND_UNRELEASED"
+                and meta.get("training_years")==[2024,2025]
+                and meta.get("2026_outcomes_used") is False
+                and meta.get("training_rule_approval_ref") is None,
+                "SAVED_2026_CANDIDATE_SELF_APPROVAL:"+alias)
+        require(model.is_file() and digest(model)==meta.get("model_sha256"),
+                "SAVED_MODEL_WEIGHT_HASH_MISMATCH:"+alias)
+        require(schema.is_file() and digest(schema)==meta.get("schema_sha256"),
+                "SAVED_MODEL_SCHEMA_HASH_MISMATCH:"+alias)
+        score=expanded/"scores"/(alias+".jsonl")
+        require(score.is_file(),"SAVED_CANDIDATE_SCORE_MISSING:"+alias)
+        rows=0
+        race_horses={}
+        with score.open(encoding="utf-8") as source:
+            for line in source:
+                if not line.strip():continue
+                record=json.loads(line)
+                require(record.get("contract")=="L1_TO_L2_OUTPUT_CONTRACT_V1"
+                        and str(record.get("race_id") or "").startswith("2026")
+                        and record.get("model_sha256")==meta.get("model_sha256"),
+                        "SAVED_CANDIDATE_SCORE_PROVENANCE_MISMATCH:"+alias)
+                rid=record["race_id"]
+                race_horses.setdefault(rid,set())
+                hid=str(record.get("horse_id") or "")
+                require(hid.isdigit() and hid not in race_horses[rid],
+                        "SAVED_CANDIDATE_SCORE_DUPLICATED_HORSE:"+alias)
+                race_horses[rid].add(hid)
+                rows+=1
+        require(rows==786 and len(race_horses)==60,
+                "SAVED_CANDIDATE_SCORE_60_786_DRIFT:"+alias)
+    council=expanded/"council2026.jsonl"
+    require(council.is_file(),"SAVED_CANDIDATE_L16_COUNCIL_MISSING")
+    rows=0
+    races=set()
+    with council.open(encoding="utf-8") as source:
+        for line in source:
+            if not line.strip():continue
+            record=json.loads(line)
+            rid=str(record.get("race_id") or "")
+            require(record.get("contract")=="L16_FULL_RANK_CONSENSUS_V1"
+                    and rid.startswith("2026") and rid not in races
+                    and record.get("expert_count")==7,
+                    "SAVED_CANDIDATE_CONSENSUS_DRIFT")
+            races.add(rid)
+            horses=record.get("horses") or []
+            require(record.get("field_size")==len(horses)
+                    and [int(h["consensus_rank"]) for h in horses]==list(range(1,len(horses)+1)),
+                    "SAVED_CANDIDATE_CONSENSUS_RANKS_DRIFT")
+            rows+=len(horses)
+    require(len(races)==60 and rows==786,"SAVED_CANDIDATE_COUNCIL_60_786_DRIFT")
+    return {
+      "remote_index_manifest_sha256_checked":True,
+      "original_zip_remote_bytes_checked":False,
+      "zip_auto_extracted_on_Kaggle_ingest":True,
+      "expanded_seven_model_weight_hashes_checked":7,
+      "expanded_seven_model_schema_hashes_checked":7,
+      "expanded_score_files_with_786_rows_checked":7,
+      "expanded_council_races":60,"expanded_council_horse_rows":786,
+      "model_release_status":"CANDIDATE_2026_BLIND_UNRELEASED",
+      "training_years":[2024,2025],
+      "target_outcomes_used":False,
+      "asof_independently_verified":False,
+    }
 
 def audit(backfill,saved,report):
     raw=check_live(backfill)
