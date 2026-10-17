@@ -134,7 +134,10 @@ def main():
             require(len(features)==690 and not(set(features)&set(fields)),
                     "690_OR_ADDED_27_KEY_COLLISION")
             features.update(fields)
-            require(len(features)==717 and
+            # race_date is _race_date identity in cached 690, not a model column.
+            # The original Outsider builder expects this date inside features.
+            features["race_date"]=LIVE_DAY
+            require(len(features)==718 and
                     not (set(features)&TARGET_RESULT_KEYS) and
                     not any(any(b in str(k).lower() for b in MARKET) for k in features),
                     "UNSAFE_RESULT_OR_MARKET_FEATURE")
