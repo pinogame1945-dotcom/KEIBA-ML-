@@ -224,7 +224,7 @@ async function main(){
     report.push({
       race_id:key.split("|")[0],horse_id:src.horse_id,
       source_690_sha256:src.source_race_sha256,
-      prior_starts_690:expectedCount,pre_2026_prior_races_observed:actualCount,
+      prior_starts_690:expectedCount,strictly_prior_races_observed:actualCount,
       original_style_values_complete_from_strict_prior_dates:complete,
       style_complete:complete?Object.fromEntries(STYLE_KEYS.map(k=>[k,style[k]])):null,
       blocked_incomplete_prerace_history:!complete,
