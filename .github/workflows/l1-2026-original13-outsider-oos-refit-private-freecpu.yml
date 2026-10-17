@@ -1,0 +1,203 @@
+name: Original 13 Outsider 2025 OOS to 2026 candidate once (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/triggers/l1-2026-outsider-original13-full-refit-freecpu.trigger
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: original-13-outsider-2026-prior-only-full-refit-freecpu
+  cancel-in-progress: false
+jobs:
+  originals-2025-and-unreleased-2026:
+    runs-on: ubuntu-latest
+    timeout-minutes: 360
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SNAPSHOT_GEN: eb13d4096519167b
+      PRIV_DATASET: pino1945/keiba-ml-2026-original13-outsider-candidate-v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Freeze and public/free-runner guard before any model training or large upload
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile \
+            research/materialize_13_original_outsider_2023_25_single_pass_v1.py \
+            research/refit_2026_original_13_outsider_prior_only_candidate_v1.py \
+            research/persist_2026_original13_outsider_private_candidate_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          x=json.load(urllib.request.urlopen(urllib.request.Request(
+            'https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',
+            headers={'User-Agent':'keiba-free-cpu-check'}),timeout=30))
+          if x.get('private') is not False:
+              raise SystemExit('STOP_NOT_PUBLIC_GITHUB_STANDARD_CPU_FREE_CONFIRMED')
+          a=[json.load(open(z)) for z in
+             ('research/l1-outsider-nonhorse-v1.json',
+              'research/l1-outsider-transition-v1.json')]
+          names=[c['name'] for z in a for c in z['candidates']]
+          assert len(names)==len(set(names))==13
+          assert all(z['locked_years']==[2026] and
+            z['snapshot_generation']=='eb13d4096519167b'
+            and z['feature_selection']=='none' and
+            z['training_window_years']==2 and
+            z['ability_uses_odds'] is False for z in a)
+          print('PUBLIC_FREE_STANDARD_CPU_AND_FROZEN_13_RESEARCH_CONTRACT_OK')
+          PY
+      - name: Install original CPU-only trainer dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
+          PYTHONPATH=research python -m unittest -v \
+            research/test_refit_2026_original_13_outsider_candidate_v1.py
+      - name: Verify Kaggle free storage and refuse overwriting any prior private model bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          lines=Path(os.environ['GITHUB_ENV']).read_text().splitlines()
+          values=dict(x.split('=',1) for x in lines if '=' in x)
+          used=int(values['KAGGLE_STORAGE_PREFLIGHT_BYTES'])
+          if used+128*1024*1024>=193273528320:
+              raise SystemExit('STOP_NOT_ENOUGH_VERIFIED_FREE_KAGGLE_SPACE')
+          print('KAGGLE_FREE_PRIVATE_STORAGE_RESERVE_OK')
+          PY
+          if kaggle datasets status "$PRIV_DATASET" >/dev/null 2>&1; then
+            echo "::error::Do not overwrite an existing private outsider candidate bundle"
+            exit 1
+          fi
+      - name: Restore frozen 2023, 2024, 2025 historical snapshot source ONCE
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-historical-source"
+          mkdir -p "$root"
+          bash scripts/kaggle-snapshot-session.sh init "$SNAPSHOT_GEN" "$root"
+          bash scripts/kaggle-snapshot-session.sh fetch "$SNAPSHOT_GEN" "$root" 2023 2024 2025
+          for yr in 2023 2024 2025; do
+            if test -s "$root/snapshot-$yr.jsonl.gz"; then
+              src="$root/snapshot-$yr.jsonl.gz"
+            else
+              src="$root/snapshot-$yr.jsonl"
+            fi
+            test -s "$src"
+            echo "HISTORICAL_ORIGINAL_$yr=$src" >> "$GITHUB_ENV"
+          done
+          echo '2023_2024_2025_RESTORED_ONCE_NO_2026_SOURCE'
+      - name: Build all original thirteen 2023-25 mode datasets in ONE stream
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/materialize_13_original_outsider_2023_25_single_pass_v1.py \
+            --source-2023 "$HISTORICAL_ORIGINAL_2023" \
+            --source-2024 "$HISTORICAL_ORIGINAL_2024" \
+            --source-2025 "$HISTORICAL_ORIGINAL_2025" \
+            --out "$RUNNER_TEMP/all13mode-inputs"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=Path(os.environ['RUNNER_TEMP'])/'all13mode-inputs'
+          j=json.loads((d/'index.json').read_text())
+          assert len(j['candidate_modes'])==13
+          assert j['original_2025_oos_validation_year']==2025
+          assert j['rows_by_year']=={'2023':47493,'2024':47009,'2025':47731}
+          assert len(list(d.glob('outsider_*.jsonl.gz')))==13
+          assert j['2026_target_or_prior_result_rows_read']==0
+          assert j['models_trained']==0
+          print('ONE_SINGLE_PASS_13_FROZEN_OUTSIDER_DATASETS_142233_ROWS_PER_MODEL_OK')
+          PY
+      - name: Original 2025 OOS thirteen train + fixed-round 2024-25 prior-only candidates
+        shell: bash
+        run: |
+          set -euo pipefail
+          original="$RUNNER_TEMP/original-2025-oos"
+          candidate="$RUNNER_TEMP/2026-unreleased-13-models"
+          work="$RUNNER_TEMP/arena-work"
+          mkdir -p "$original" "$candidate"
+          python - <<'PY' > "$RUNNER_TEMP/13-experts.tsv"
+          import json
+          for p in ('research/l1-outsider-nonhorse-v1.json','research/l1-outsider-transition-v1.json'):
+              for c in json.load(open(p))['candidates']:
+                  print(c['name']+'\t'+c['mode'])
+          PY
+          count=0
+          while IFS="$(printf '\t')" read -r alias mode; do
+            test -n "$alias" && test -n "$mode"
+            mode_file="$RUNNER_TEMP/all13mode-inputs/$alias.jsonl.gz"
+            test -s "$mode_file"
+            mkdir -p "$work"
+            python - "$alias" "$work/candidates.json" <<'PY'
+          import json,sys
+          a=sys.argv[1]
+          with open(sys.argv[2],'w') as f:json.dump([{'name':a,'feature_sets':['BASE']}],f)
+          PY
+            # EXACT original 2025 OOS training, 2023-24 train / 2025 validation.
+            python research/run_feature_arena.py \
+              --inputs "$mode_file" \
+              --out-dir "$work/arena" \
+              --train-start 2023-01-01 --train-end 2024-12-31 \
+              --valid-start 2025-01-01 --valid-end 2025-12-31 \
+              --feature-selection none \
+              --prediction-phase FINAL \
+              --candidates-json "$work/candidates.json" \
+              --source-ref research/l1-outsider-tie-audit-v1-20260929 \
+              --ml-source-sha "$GITHUB_SHA"
+            test -s "$work/arena/models/$alias.txt"
+            test -s "$work/arena/models/$alias.json"
+            test -s "$work/arena/schemas/$alias-schema.json"
+            mkdir -p "$original/$alias"
+            cp "$work/arena/models/$alias.txt" "$original/$alias/model.txt"
+            cp "$work/arena/models/$alias.json" "$original/$alias/model.json"
+            cp "$work/arena/schemas/$alias-schema.json" "$original/$alias/schema.json"
+            PYTHONPATH=research python research/refit_2026_original_13_outsider_prior_only_candidate_v1.py \
+              --candidate "$alias" \
+              --prior-oos-meta "$original/$alias/model.json" \
+              --prior-oos-schema "$original/$alias/schema.json" \
+              --original-mode-dataset "$mode_file" \
+              --out "$candidate/$alias" \
+              --protocol-reference "2026_ORIGINAL_2025_OOS_FIXED_ROUND_PRIOR_ONLY_UNRELEASED"
+            test -s "$candidate/$alias/model.txt"
+            rm -rf "$work/arena"
+            rm -f "$mode_file"
+            count=$((count+1))
+            echo "FROZEN_OUTSIDER_2025_OOS_AND_2026_REFIT_FINISHED $count/13 alias=$alias"
+          done < "$RUNNER_TEMP/13-experts.tsv"
+          test "$count" -eq 13
+          test "$(find "$candidate" -name 'model.txt' -type f | wc -l)" -eq 13
+          test "$(find "$original" -name 'model.txt' -type f | wc -l)" -eq 13
+          echo 'ALL_13_ORIGINAL_2025_OOS_AND_2026_CANDIDATE_REFITS_COMPLETE_NO_TARGET_OUTCOMES'
+      - name: Publish verified candidate-only ORIGINAL 13 model weights to private Kaggle
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python research/persist_2026_original13_outsider_private_candidate_v1.py \
+            --original-oos-root "$RUNNER_TEMP/original-2025-oos" \
+            --2026-candidate-root "$RUNNER_TEMP/2026-unreleased-13-models" \
+            --stage "$RUNNER_TEMP/original13-private-stage"
+          echo 'ORIGINAL_13_MODEL_PRIVATE_KAGGLE_VERIFIED_NOT_RELEASED'
+      - name: Guarantee no paid infrastructure or 2026 outcome evaluation
+        if: always()
+        run: |
+          echo 'Public repository standard ubuntu-latest free CPU runner only, no GPU.'
+          echo 'No Actions cache or artifact. Kaggle storage preflight required before fitting.'
+          echo '2025 OOS reproduction is historical; 2026 target outcomes never accessed or used.'
+          echo 'All 13 refits CANDIDATE_2026_BLIND_UNRELEASED; no L1.75/L2.1/L3.'
