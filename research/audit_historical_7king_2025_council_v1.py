@@ -15,7 +15,8 @@ def verify(path: Path):
     races=set()
     count=0
     first=None
-    with gzip.open(path, "rt", encoding="utf-8") as fh:
+    opener = gzip.open if str(path).endswith(".gz") else open
+    with opener(path, "rt", encoding="utf-8") as fh:
         for line in fh:
             if not line.strip():
                 continue
@@ -57,7 +58,7 @@ def verify(path: Path):
       "contract":"KEIBA_2025_ORIGINAL_7KING_L16_COUNCIL_VALIDATION_V1",
       "year":2025,"race_count":len(races),"horse_rows":count,
       "experts":7,"first_race_id":first,
-      "consensus_gzip_sha256":digest.hexdigest(),
+      "consensus_file_sha256":digest.hexdigest(),
       "source_2025_out_of_sample_real_scores":True,
       "original_l16_logic_reused_without_modifications":True,
       "2026_races_or_outcomes_read":False,
