@@ -7,14 +7,14 @@ from pathlib import Path
 from tempfile import TemporaryDirectory
 import unittest
 
-from prepare_2026_original_13_outsider_649_cached_source_v1 import prepare,source
+from prepare_2026_original_13_outsider_649_cached_source_v1 import prepare,source,ORIGINAL_OUTSIDER_MIN_SOURCE
 
 class OriginalOutsider2026SourceSafety(unittest.TestCase):
     def fixtures(self,root,inject_target=False):
         backfill=root/"bf"
         folder=backfill/"ml_features/delivery/690"
         folder.mkdir(parents=True)
-        feature_keys=[f"f{i:03d}" for i in range(690)]
+        feature_keys=list(ORIGINAL_OUTSIDER_MIN_SOURCE)+[f"f{i:03d}" for i in range(690-len(ORIGINAL_OUTSIDER_MIN_SOURCE))]
         schema=root/"schema.json"
         schema.write_text(json.dumps({"feature_order":feature_keys[:649]}))
         old=root/"2025.jsonl"
@@ -79,6 +79,19 @@ class OriginalOutsider2026SourceSafety(unittest.TestCase):
                         r["target"]=={} and r["features"]["race_date"]==day
                         and r["prediction_phase"]=="FINAL"
                         for r in rows))
+
+    def test_core4_missing_original_style_or_backfill_is_rejected(self):
+        with TemporaryDirectory() as t:
+            root=Path(t)
+            bf,schema,old=self.fixtures(root)
+            data=json.loads(schema.read_text())
+            data["feature_order"]=[f"onlycore4_{i}" for i in range(649)]
+            schema.write_text(json.dumps(data))
+            dest=root/"result"
+            with self.assertRaisesRegex(ValueError,
+                    "ORIGINAL_13_OUTSIDER_NEEDS_FEATURES_NOT_IN_SEVEN_KING_649"):
+                prepare(bf,schema,old,dest)
+            self.assertFalse(dest.exists())
 
     def test_tampered_690_sha_is_hard_stop_before_writing(self):
         with TemporaryDirectory() as t:
