@@ -1,0 +1,50 @@
+name: Original 13 Outsider 2026 full refit preflight free CPU
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-original13-outsider-preflight-safe-ci.yml
+permissions:
+  contents: read
+jobs:
+  synthetic:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax and original 13 structural metadata checks only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/materialize_13_original_outsider_2023_25_single_pass_v1.py
+          python -m py_compile research/refit_2026_original_13_outsider_prior_only_candidate_v1.py
+          python -m py_compile research/persist_2026_original13_outsider_private_candidate_v1.py
+          python -m py_compile research/audit_original_13_outsider_2025_oos_source_v1.py
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          cfg=[json.load(open(p)) for p in
+               ('research/l1-outsider-nonhorse-v1.json',
+                'research/l1-outsider-transition-v1.json')]
+          names=[x['name'] for z in cfg for x in z['candidates']]
+          assert len(names)==len(set(names))==13
+          assert all(c['snapshot_generation']=='eb13d4096519167b'
+                     and c['locked_years']==[2026] for c in cfg)
+          workflow=Path('.github/workflows/l1-2026-original13-outsider-oos-refit-private-freecpu.yml').read_text()
+          assert 'runs-on: ubuntu-latest' in workflow
+          assert 'permissions:\\n  contents: read' in workflow
+          assert 'cancel-in-progress: false' in workflow
+          assert 'kaggle-storage-preflight.sh' in workflow
+          assert '--train-start 2023-01-01 --train-end 2024-12-31' in workflow
+          assert '--valid-start 2025-01-01 --valid-end 2025-12-31' in workflow
+          assert '--2026-candidate-root' in workflow
+          assert '2026_ORIGINAL_2025_OOS_FIXED_ROUND_PRIOR_ONLY_UNRELEASED' in workflow
+          print('ORIGINAL_13_OUTSIDER_FREECPU_NO_2026_OOS_REFIT_STATIC_GUARDS_PASS')
+          PY
+      - name: Cost statement
+        if: always()
+        run: |
+          echo 'Free standard public runner only. This job performs NO training, model writes, datasets or artifacts.'
