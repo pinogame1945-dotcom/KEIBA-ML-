@@ -141,6 +141,15 @@ async function main(){
            "ORIGINAL_2022_HISTORY_SOURCE_NOT_COMPLETE_PRE_2026");
   const targetCounts=new Map([...ids].map(x=>[x,0]));
   let targetHistoryRaces=0,historyFiles=0,historicalObservations=0;
+  const rawQuality={
+    target_historic_finished_results:0,
+    target_historic_result_corner_raw_nonempty:0,
+    target_historic_result_corner_raw_numeric:0,
+    target_historic_race_corners_array_nonempty:0,
+    target_historic_race_laps_array_nonempty:0,
+    target_historic_corner_raw_presence_by_year:{},
+    target_historic_observations_by_year:{},
+  };
   for(const name of names){
     const date=name.slice(0,10);
     require_(date<TARGET&&date<="2025-12-31","SEALED_2026_RESULT_ACCESS_FORBIDDEN");
@@ -157,6 +166,20 @@ async function main(){
         if(ids.has(hid)&&historicEligible(row,hid)){
           targetCounts.set(hid,targetCounts.get(hid)+1);
           historicalObservations++;
+          const year=date.slice(0,4);
+          rawQuality.target_historic_observations_by_year[year]=(rawQuality.target_historic_observations_by_year[year]||0)+1;
+          const result=(row.results||[]).find(x=>String(x.horse_id??"")===hid);
+          if(String(result?.result_status??"").toUpperCase()==="FINISHED"){
+            rawQuality.target_historic_finished_results++;
+            const corner=String(result.corner_raw??"").trim();
+            if(corner){
+              rawQuality.target_historic_result_corner_raw_nonempty++;
+              if(/\d/.test(corner))rawQuality.target_historic_result_corner_raw_numeric++;
+              rawQuality.target_historic_corner_raw_presence_by_year[year]=(rawQuality.target_historic_corner_raw_presence_by_year[year]||0)+1;
+            }
+            if(Array.isArray(row.corners)&&row.corners.length>0)rawQuality.target_historic_race_corners_array_nonempty++;
+            if(Array.isArray(row.laps)&&row.laps.length>0)rawQuality.target_historic_race_laps_array_nonempty++;
+          }
         }
       }
     }
@@ -169,6 +192,9 @@ async function main(){
   require_(generated.size===471,"ORIGINAL_STYLE_BUILDER_NOT_471");
   const expectedStyle=new Set(STYLE_KEYS);
   let full=0,blocked=0,coveredWithStyle=0,measured=0,disagreements=0;
+  const missingCounts={};
+  const oldOnlyEqualCounts={};
+  const oldOnlyHasCornersCounts={none:0,measured:0};
   const report=[];
   for(const [key,src] of [...sources.entries()].sort(([a],[b])=>a.localeCompare(b))){
     const actualCount=targetCounts.get(src.horse_id)||0;
@@ -182,9 +208,16 @@ async function main(){
     // that horse's STYLE values (not replaced with zero/null as if measured).
     const complete=actualCount===expectedCount;
     if(actualCount>expectedCount)disagreements++;
-    if(complete){full++;coveredWithStyle+=Object.values(style).filter(v=>v!==null).length;
-                if(style.style_recent_races_measured>0)measured++;}
-    else blocked++;
+    const deficit=expectedCount-actualCount;
+    if(deficit>0)missingCounts[String(deficit)]=(missingCounts[String(deficit)]||0)+1;
+    if(complete){
+      oldOnlyEqualCounts[String(expectedCount)]=(oldOnlyEqualCounts[String(expectedCount)]||0)+1;
+      if(style.style_recent_races_measured>0)oldOnlyHasCornersCounts.measured++;
+      else oldOnlyHasCornersCounts.none++;
+      full++;
+      coveredWithStyle+=Object.values(style).filter(v=>v!==null).length;
+      if(style.style_recent_races_measured>0)measured++;
+    } else blocked++;
     report.push({
       race_id:key.split("|")[0],horse_id:src.horse_id,
       source_690_sha256:src.source_race_sha256,
@@ -208,6 +241,10 @@ async function main(){
     complete_horses_with_measured_corner_history:measured,
     original_style_feature_count:14,
     total_non_null_style_cells_on_complete_horses:coveredWithStyle,
+    source_corner_coverage:rawQuality,
+    observed_prior_count_deficit_distribution:missingCounts,
+    complete_horses_prior_starts_distribution:oldOnlyEqualCounts,
+    complete_horses_corner_measurement_distribution:oldOnlyHasCornersCounts,
     any_2026_outcomes_accessed:false,
     original_style_generator_unchanged:true,
     target_model_input_ready:false,
