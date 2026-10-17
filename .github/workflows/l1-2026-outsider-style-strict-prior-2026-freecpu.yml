@@ -28,14 +28,14 @@ jobs:
         shell: bash
         run: |
           set -euo pipefail
-          node --check research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs
+          node --check research/audit_2026_10_17_original_style_strict_prior_2026_v1.mjs
           root="$RUNNER_TEMP/pinned-backfill"
           mkdir -p "$root"
           git -C "$root" init -q
           git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
           git -C "$root" fetch --quiet --no-tags --depth 1 --filter=blob:none origin "$PINNED_BF_SHA"
           test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_BF_SHA"
-          # Non-cone sparse paths prevent even materializing ANY 2026 result pack.
+          # Non-cone sparse paths permit STRICTLY PRIOR history only; target-day results never materialize.
           {
             git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
               awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,10) >= "2022-01-01" && substr($0,12,10) < "2026-10-17") print "/" $0}'
@@ -65,7 +65,7 @@ jobs:
           python "$root/ml_features/research/live_json_to_daily_pack_v1.py" \
             --live-dir "$root/data/live/2026-10-17" \
             --output "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz"
-          node research/audit_2026_10_17_original_style_pre2026_history_only_v1.mjs \
+          node research/audit_2026_10_17_original_style_strict_prior_2026_v1.mjs \
             --pinned-backfill-root "$root" \
             --pre-race-day-pack "$RUNNER_TEMP/verified-2026-10-17-pre-race.jsonl.gz" \
             --out "$RUNNER_TEMP/style-2026-10-17-471-evidence.jsonl"
