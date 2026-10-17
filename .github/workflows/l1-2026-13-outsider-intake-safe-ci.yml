@@ -1,0 +1,47 @@
+name: Original 13 Outsider 2026 research-only intake safety CI
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - research/prepare_2026_7king_13_outsider_research_signal_v1.py
+      - research/test_prepare_2026_7king_13_outsider_signal_v1.py
+      - .github/workflows/l1-2026-13-outsider-intake-safe-ci.yml
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  original-13-research-intake:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify original frozen 13 outsider names and refusal to evaluate 2026
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/prepare_2026_7king_13_outsider_research_signal_v1.py \
+            research/test_prepare_2026_7king_13_outsider_signal_v1.py
+          python - <<'PY'
+          import json
+          files=('research/l1-outsider-nonhorse-v1.json','research/l1-outsider-transition-v1.json')
+          a=[json.load(open(f)) for f in files]
+          assert len(a[0]['candidates'])==6 and len(a[1]['candidates'])==7
+          assert all(x['locked_years']==[2026] and x['ability_uses_odds'] is False for x in a)
+          print('ORIGINAL_13_OUTSIDERS_FROZEN_NOT_TRAINED_OR_APPROVED')
+          PY
+      - name: Verify 60 race 786 synthetic runner signal exactness, no model or payout
+        shell: bash
+        run: |
+          set -euo pipefail
+          PYTHONPATH=research python -m unittest -v \
+            research/test_prepare_2026_7king_13_outsider_signal_v1.py
+          echo 'ORIGINAL_13_OUTSIDER_VOTE_RESEARCH_ONLY_CONNECTOR_SYNTHETIC_PASS'
+      - name: Free-only/no scope expansion policy
+        if: always()
+        run: |
+          echo 'Free standard ubuntu-latest CPU. No Kaggle download, data storage, artifact or cache.'
+          echo 'No 2026 results, model training, modified ranks, frozen L1.75/L2.1/L3 or betting.'
