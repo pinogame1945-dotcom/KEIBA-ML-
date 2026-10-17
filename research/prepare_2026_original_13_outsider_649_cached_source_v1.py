@@ -7,7 +7,8 @@ target-day inputs so unknown 10/10 finishes never become 10/17 history.
 
 The CORE4 649 keys come from the already saved unapproved seven-king schema,
 NOT an independently invented features list. Historical metadata comes
-read-only from the original 2025 snapshot first row.
+read-only from the original 2025 snapshot first row. This refuses to prepare
+ALL-13 input if original STYLE/BACKFILL dependencies are omitted by CORE4.
 """
 from __future__ import annotations
 import argparse
@@ -20,6 +21,26 @@ DAYS={"2026-10-10":(24,315),"2026-10-17":(36,471)}
 DAY_CONTRACT="KEIBA_BACKFILL_TO_ML_690_UNSCORED_V1"
 INDEX_CONTRACT="KEIBA_BACKFILL_TO_ML_690_INDEX_V1"
 UNSAFE={"target","payout","results","finish_position","final_win_odds","final_popularity"}
+# The ORIGINAL build_l1_nonhorse_dataset_v1.py derives outsider models from
+# STYLE and BACKFILL features not necessarily selected by seven-king CORE4.
+# This is a minimum schema guard, NOT a claim that remaining values/as-of agree.
+ORIGINAL_OUTSIDER_MIN_SOURCE=(
+    "style_recent_avg_first_ratio",
+    "style_recent_avg_last_ratio",
+    "style_recent_avg_position_gain",
+    "style_recent_front_rate",
+    "style_recent_finish_front_rate",
+    "style_recent_improve_rate",
+    "style_previous_first_ratio",
+    "style_previous_last_ratio",
+    "style_previous_position_gain",
+    "backfill_field_size",
+    "backfill_race_class_normalized",
+    "backfill_grade",
+    "backfill_course_layout",
+    "backfill_weight_rule",
+)
+
 
 def check(ok,msg):
     if not ok:raise ValueError(msg)
@@ -58,6 +79,11 @@ def prepare(root,schema_file,meta_snapshot,out):
           and isinstance(first.get("small_sample_policy"),dict)
           and first.get("small_sample_policy"),
           "2025_ORIGINAL_HISTORY_METADATA_NOT_VERIFIED")
+    missing=sorted(set(ORIGINAL_OUTSIDER_MIN_SOURCE)-set(keys))
+    check(not missing,
+          "ORIGINAL_13_OUTSIDER_NEEDS_FEATURES_NOT_IN_SEVEN_KING_649:"+",".join(missing))
+    # A successful check cannot be promoted to as-of/prod by itself:
+    # the existing builder's history and same-day dependencies still matter.
     races=index.get("races") or {}
     check(len(races)==60,"2026_UNSCORED_RACE_SET_NOT_60")
     groups={day:[] for day in DAYS}
