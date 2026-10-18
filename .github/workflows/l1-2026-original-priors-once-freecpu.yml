@@ -85,7 +85,7 @@ jobs:
           for year in 2019 2020 2021 2022 2023 2024 2025; do
             test "$year" -le 2025
             echo "ORIGINAL_2026_PAST_YEAR_BEGIN $year"
-            bash "$code/scripts/fetch_original_state_history_snapshot.sh" "$year" "$dest" > "$dest/year-$year-fetch.log"
+            (cd "$code" && bash scripts/fetch_original_state_history_snapshot.sh "$year" "$dest") > "$dest/year-$year-fetch.log"
             source="$(tail -n 1 "$dest/year-$year-fetch.log")"
             test -s "$source"
             IFS="$(printf '\t')" read -r manifest_year logical remote mode manifest_sha manifest_rows first last < "$dest/resolved-$year.tsv"
