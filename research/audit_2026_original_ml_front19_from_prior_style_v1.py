@@ -104,6 +104,10 @@ def run(original,style_path,delivery,out):
                 doc.get("readiness")=="ASOF_UNVERIFIED_DO_NOT_BET",
                 "SAVED_ORIGINAL_690_SOURCE_INVALID:"+rid)
         inputs=[];targets=[]
+        # Original BACKFILL's unchanged bias19() uses len(current) only when
+        # the entire target frame lacks a field_size column. Preserve any
+        # observed nullable column instead of inventing missing values.
+        has_field_size=any("field_size" in x for x in doc["rows"])
         for row in doc["rows"]:
             hid=str(row["_horse_id"])
             key=(rid,hid)
@@ -113,17 +117,16 @@ def run(original,style_path,delivery,out):
                     s["prior_starts_690"]==row["prior_starts"] and
                     row["_race_id"]==rid and row["_race_date"]==DAY,
                     "ORIGINAL_STYLE_PRIOR_COUNT_OR_SOURCE_SHA_MISMATCH:"+rid+":"+hid)
-            size=row.get("field_size")
-            # The original ML formula handles missing target field_size via
-            # its ratio-first path; never replace an original null with a
-            # guessed number. Its original pandas reader coerces null to NaN.
-            require("field_size" in row and
-                    (size is None or
-                     (type(size) in (int,float) and
-                      math.isfinite(size) and 2<=size<=18)),
+            size=row.get("field_size") if has_field_size else len(doc["rows"])
+            # Exact original bias19() fallback: when its target frame has NO
+            # field_size column, create current["field_size"]=len(current).
+            # This is a frozen code rule, NOT a made-up current field size.
+            require(size is None or
+                    (type(size) in (int,float) and
+                     math.isfinite(size) and 2<=size<=18),
                     "FROZEN_ML_FRONT_FIELD_SIZE_INVALID:"+rid+":"+hid)
             inputs.append({**{k:s["style_complete"][k] for k in STYLE_NAMES},
-                           "field_size":row["field_size"]})
+                           "field_size":size})
             targets.append(row)
         # Exact 2025 ML function, no copied formula, no weight/model inference.
         predicted=infer_front_score(pd.DataFrame.from_records(inputs))
