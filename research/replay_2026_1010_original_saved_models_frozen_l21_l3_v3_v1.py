@@ -534,7 +534,9 @@ def main():
         "fixed_l21_rules":50,"l21_original_model_weights_reused":True,
         "l3_original_reverse_p3_engine_used":True,
         "l3_max_race_budget_yen":300,
-        "total_paper_stake_yen":sum_yen,\n        "total_official_observed_payout_yen":settled["payout_yen"],\n        "total_paper_profit_yen":settled["payout_yen"]-sum_yen,
+        "total_paper_stake_yen":sum_yen,
+        "total_official_observed_payout_yen":settled["payout_yen"],
+        "total_paper_profit_yen":settled["payout_yen"]-sum_yen,
         "tickets_by_type":dict(counts),"blocked_original_favorite_ties":blocked,
         "races_with_tickets":with_tickets,
         "market_source":"NETKEIBA_FINAL",
@@ -551,7 +553,9 @@ def main():
     a.output.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf8")
     print("ORIGINAL_2026_1010_L3_V3_OBSERVATION_SUMMARY "+
       json.dumps({"races":24,"horses":315,"tickets":n,"hits":settled["hits"],
-       "stake_yen":sum_yen,"payout_yen":settled["payout_yen"],\n       "profit_yen":settled["payout_yen"]-sum_yen,\n       "races_with_tickets":with_tickets,"model_refit":False,
+       "stake_yen":sum_yen,"payout_yen":settled["payout_yen"],
+       "profit_yen":settled["payout_yen"]-sum_yen,
+       "races_with_tickets":with_tickets,"model_refit":False,
        "quote":"POST_RACE_FINAL_NOT_PREBET","p3_missing":True,
        "actual_bets":False},ensure_ascii=False,sort_keys=True),flush=True)
 
