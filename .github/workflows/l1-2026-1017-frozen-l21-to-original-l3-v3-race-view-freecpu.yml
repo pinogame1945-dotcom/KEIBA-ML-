@@ -1,0 +1,218 @@
+name: Frozen original L2.1 38 tickets to exact V3 race cards no 2026 outcomes (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-frozen-l21-to-original-l3-v3-race-view-freecpu.yml
+      - research/replay_2026_1017_original_frozen_l21_ticket_candidates_v1.py
+      - research/preview_2026_1017_l21_to_frozen_l3_v3_race_cards_readonly.py
+permissions:
+  contents: read
+concurrency:
+  group: keiba-2026-1017-frozen-l21-l3-v3-view-readonly
+  cancel-in-progress: false
+jobs:
+  l21-frozen-cards-l3-v3-view-no-payout:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      ORIGINAL_REF: pino1945/keiba-2026-original-pure-risk-anchor-v1
+      L175_REF: pino1945/keiba-2026-1017-l175-market-v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify only public free standard CPU and unmodified original frozen contract
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/replay_2026_1017_original_frozen_l21_ticket_candidates_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'keiba-2026-original-frozen-l21-no-bet'})
+          assert json.load(urllib.request.urlopen(u,timeout=30))['private'] is False, 'STOP_IF_NONFREE'
+          print('PUBLIC_STANDARD_FREE_GITHUB_CPU_ONLY')
+          PY
+          python -m pip install --disable-pip-version-check --no-cache-dir pandas==3.0.6 numpy==2.3.5 kaggle
+      - name: Load exact original frozen L2.1 50/26 gate contract and research ticket functions
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l21"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin 9655c717333636b5cc931f672e12dbc377e396bc
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = 9655c717333636b5cc931f672e12dbc377e396bc
+          for spec in 'contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json contract.json 600fa764565545c4898c79d65187b8843e51a5e1' 'research/run_l2_fixed_ticket_pruning_3040_v1.py original-create-cards.py 9845ef5c11e74d4e668b463674e3eef15c344702' 'research/run_l2_all_fixed_odds_band_lenses_v1.py original-gates.py 2a36c0411835db7a29359894a9bc8eb2ab715e2f' 'research/run_l2_all_bet_types_ticket_odds_gate_v1.py original-lab.py -' 'research/run_l2_value_anchor_bet_frontier_v1.py original-pair-templates.py -'; do
+            read -r src dest expected <<< "$spec"
+            git -C "$root" show "FETCH_HEAD:$src" > "$root/$dest"
+            test -s "$root/$dest"
+            if [ "$expected" != '-' ]; then
+              test "$(git hash-object "$root/$dest")" = "$expected"
+            fi
+          done
+          old="$RUNNER_TEMP/frozen-2025-geometry"
+          mkdir -p "$old"
+          git -C "$old" init -q
+          git -C "$old" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$old" fetch -q --depth 1 --no-tags --filter=blob:none origin 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+          test "$(git -C "$old" rev-parse FETCH_HEAD)" = 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+          git -C "$old" show FETCH_HEAD:research/anchor-original-feature-geometry.py > "$old/original-geometry.py"
+          echo 'FROZEN_L21_REAL_50_STANDARD_26_STRICT_AND_TRUE_SOURCE_GENERATOR_VERIFIED'
+      - name: Retrieve saved 2026 original AI/Risk/ANCHOR and matching L1.75 source only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/pure" "$RUNNER_TEMP/market"
+          for spec in "pure|$ORIGINAL_REF|index.json" \
+                      "pure|$ORIGINAL_REF|original-2026-1017-36r-471h-ability-risk-anchor.jsonl" \
+                      "market|$L175_REF|index.json" \
+                      "market|$L175_REF|l175-real-market-research-1017.jsonl"; do
+            IFS='|' read -r folder ref filename <<< "$spec"
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$ref" -f "$filename" -p "$RUNNER_TEMP/$folder" --unzip --quiet --force 2>&1)"; then
+                test -s "$RUNNER_TEMP/$folder/$filename"
+                break
+              fi
+              if [[ "$attempt" -eq 5 ]] || [[ "$result" != *'429'* && "$result" != *'Too Many Requests'* && "$result" != *'502'* && "$result" != *'503'* ]]; then
+                echo "::error::Exact original source not retrievable: $filename: $result"
+                exit 1
+              fi
+              sleep $((8*attempt))
+            done
+          done
+          echo 'SAVED_ORIGINAL_MODEL_SCORES_AND_JRA_MARKET_REUSED_NO_REFIT'
+      - name: Load pinned official pre-race JRA 8-bet quote tables without target results
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/backfill-quotes"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$root" sparse-checkout init --no-cone
+          printf '/ml_features/delivery/odds/index.json\n/ml_features/delivery/odds/2026-10-17/*\n' > "$root/.git/info/sparse-checkout"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test "$(find "$root/ml_features/delivery/odds/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          echo 'EXISTING_OFFICIAL_EIGHT_ODDS_36R_NO_PAYOFFS_REUSED'
+      - name: Execute genuine original frozen ticket generator with payout sealed and STANDARD 50 line-gates
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/replay_2026_1017_original_frozen_l21_ticket_candidates_v1.py \
+            --pure-index "$RUNNER_TEMP/pure/index.json" \
+            --pure-scores "$RUNNER_TEMP/pure/original-2026-1017-36r-471h-ability-risk-anchor.jsonl" \
+            --market-index "$RUNNER_TEMP/market/index.json" \
+            --market-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \
+            --frozen-contract "$RUNNER_TEMP/frozen-l21/contract.json" \
+            --backfill "$RUNNER_TEMP/backfill-quotes" \
+            --original-create-cards "$RUNNER_TEMP/frozen-l21/original-create-cards.py" \
+            --original-gates "$RUNNER_TEMP/frozen-l21/original-gates.py" \
+            --original-odds-lab "$RUNNER_TEMP/frozen-l21/original-lab.py" \
+            --original-templates "$RUNNER_TEMP/frozen-l21/original-pair-templates.py" \
+            --original-geometry "$RUNNER_TEMP/frozen-2025-geometry/original-geometry.py" \
+            --output "$RUNNER_TEMP/original-l21-36r-research-tickets.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          j=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-l21-36r-research-tickets.json").read_text())
+          assert j["races"]==36 and j["horses"]==471
+          assert j["frozen_standard_rule_count"]==50 and j["frozen_strict_subset_rule_count"]==26
+          assert j["frozen_create_cards_invoked"] and j["frozen_gate_flags_invoked"]
+          assert j["original_template_generator_invoked"] and j["original_geometry_invoked"]
+          assert j["payout_source_sealed_empty"] and j["target_2026_results_or_payouts_read"] is False
+          assert j["model_release_approved"] is False and j["ready_for_betting"] is False
+          assert j["l3_v3_invoked"] is False and j["at_bet_cutoff_quote_verified"] is False
+          assert len(j["research_race_outputs"])==36
+          assert sum(r["standard_physical_ticket_count"] for r in j["research_race_outputs"])==j["total_standard_unique_physical_tickets"]
+          for r in j["research_race_outputs"]:
+            seen=set()
+            for ticket in r["tickets"]:
+              k=(ticket["bet_type"],tuple(ticket["selection"]))
+              assert k not in seen;seen.add(k)
+              assert ticket["baseline_yen"]==100 and ticket["ready_for_betting"] is False
+          print("FROZEN_L21_REAL_36R_PHYSICAL_TICKETS_DEDUP_50_RULES_NO_PAYOUT")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("### Frozen original L2.1 STANDARD 50 actual research-only replay\n")
+            f.write(f"36 races / 471 horses; physical unique tickets **{j['total_standard_unique_physical_tickets']}**; races with tickets **{j['races_with_tickets']}**.\n")
+            f.write(f"Families: {j['bet_types']}. 300-yen L3 minimum-unit overflow races: **{j['races_exceeding_300_yen_if_all_tickets_min100']}**.\n")
+            f.write("FROZEN create_cards + gate_flags directly executed on saved original AI/Risk/ANCHOR + original official JRA odds. 2026 payouts/results masked. Source as-of/cutoff and model release not approved; do not bet.\n")
+            f.write("| race_id | anchor | L2.1 physical tickets | strict diagnostic | L3 min yen |\n|---|---:|---:|---:|---:|\n")
+            for r in j["research_race_outputs"]:
+              f.write(f"| {r['race_id']} | {r['original_anchor_horse_number']} | {r['standard_physical_ticket_count']} | {r['strict_subset_diagnostic_ticket_count']} | {r['l3_minimum_100_yen_baseline_total']} |\n")
+          PY
+      - name: Restore exact approved L3 V3 source; do not run historical 2026 through live PREBET validator
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l3"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin 73cd7a3b671edf1f3869c4d730cbb701753f599a
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = 73cd7a3b671edf1f3869c4d730cbb701753f599a
+          git -C "$root" show FETCH_HEAD:research/l3_v3_operational.py > "$root/official-l3-v3.py"
+          test "$(git hash-object "$root/official-l3-v3.py")" = 71ea06e8a4d1a9694fc3a113c3c376a6b0bb4289
+          echo 'EXACT_ORIGINAL_L3_V3_REVERSE_P3_STAKES_CODE_VERIFIED'
+      - name: Apply exact adopted V3 reverse_p3_stakes to 38 original L2.1 tickets with actual saved 347 P3
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/preview_2026_1017_l21_to_frozen_l3_v3_race_cards_readonly.py
+          python research/preview_2026_1017_l21_to_frozen_l3_v3_race_cards_readonly.py \
+            --l21-replay "$RUNNER_TEMP/original-l21-36r-research-tickets.json" \
+            --l175-index "$RUNNER_TEMP/market/index.json" \
+            --l175-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \
+            --frozen-v3-source "$RUNNER_TEMP/frozen-l3/official-l3-v3.py" \
+            --output "$RUNNER_TEMP/2026-1017-original-l21-38-precise-v3-race-cards.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          j=json.loads((Path(os.environ["RUNNER_TEMP"])/"2026-1017-original-l21-38-precise-v3-race-cards.json").read_text(encoding="utf8"))
+          assert j["races"]==36 and j["horses"]==471 and j["tickets"]==38
+          assert j["frozen_l21_buy_set_unchanged"] and j["frozen_l21_standard_rules"]==50
+          assert j["l3_frozen_policy"]=="REVERSE_P3_RACE_MAX300"
+          assert j["official_v3_reverse_p3_stakes_function_directly_invoked"]
+          assert j["official_v3_run_invoked"] is False
+          assert j["total_provisional_stake_yen"]==7600
+          assert j["bankroll_pre_funding_v3_applied"] is False
+          assert j["hit_or_roi_evaluated"] is False and j["2026_target_outcomes_used"] is False
+          assert not j["ready_for_betting"] and not j["actual_bets_placed"]
+          assert len(j["per_race"])==36
+          assert sum(len(x["tickets"]) for x in j["per_race"])==38
+          for r in j["per_race"]:
+            assert r["L3_preview_stake_total_yen"]==200*r["L21_tickets"]
+            assert r["bankroll_assessment"]=="NOT_CHECKED_AVAILABLE_CASH_NOT_GIVEN"
+            for t in r["tickets"]:
+              assert t["stake_yen"] in (100,200,300)
+              assert t["hit"] is None and t["payout_yen"] is None
+          print("OFFICIAL_FROZEN_L3_V3_REVERSE_P3_STAKES_38_REAL_L21_TICKETS_READONLY_PREVIEW")
+          print("2026_UNKNOWN_YEAR_TARGET_RESULT_EVALUATION_SEALED")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("\n### L3 V3 original REVERSE_P3_RACE_MAX300: racewise ticket and stake details\n")
+            f.write(f"L2.1 original 50 rules unchanged; 38 original tickets; provisional V3 stakes **¥{j['total_provisional_stake_yen']:,}** (200 yen / ticket average, each 100-300 yen). Original V3 reverse_p3_stakes invoked, official run() not invoked: historic 2026 cannot be falsely marked pre-bet verified.\n\n")
+            f.write("**NOT BETTABLE, NOT FUNDED:** bankroll not specified; bet-cutoff odds/as-of unverified; 2026 held-out outcome and payout are intentionally not evaluated. Missing P3 remains missing.\n\n")
+            f.write("| Race ID | Axis | Ticket | Selection | Original odds | Frozen L3 preview yen | min P3 | Hit (2026 sealed) |\n|---|---:|---|---|---:|---:|---:|---|\n")
+            for r in j["per_race"]:
+              if not r["tickets"]:
+                f.write(f"| {r['race_id']} | {r['original_anchor_horse_number']} | — | — | — | 0 | — | Not evaluated |\n")
+              for t in r["tickets"]:
+                ty={"TRIO":"三連複","TRIFECTA":"三連単","QUINELLA":"馬連"}[t["bet_type"]]
+                selection="-".join(map(str,t["selection"]))
+                p3="—" if t["p3_min"] is None else f"{t['p3_min']:.4f}"
+                f.write(f"| {r['race_id']} | {r['original_anchor_horse_number']} | {ty} | {selection} | {t['decimal_odds']:.1f} | {t['stake_yen']} | {p3} | 未判定（2026封印） |\n")
+          PY
+      - name: Source and cost audit
+        if: always()
+        run: |
+          echo 'Public standard free CPU, no GPU/paid runners/paid Cache, Artifact, cloud resources.'
+          echo 'No 2026 outcome, win dividends or payout / no Kaggle write / no model training.'
+          echo 'No betting release, funds movement, live purchase, official V3 run invocation or frozen-policy mutations.'
