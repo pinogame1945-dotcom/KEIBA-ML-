@@ -232,8 +232,8 @@ def run(args):
                   type(h["distill_ai_rank"])is int,
                   "MODEL_AND_JRA_ODDS_MISMATCH_OR_MISSING:"+rid+":"+hid)
             companions[no]={k:h[k] for k in (
-                "P__ANCHOR_FULL","risk","distill_score_z","distill_ai_rank",
-                "market_rank")}
+                "P__ANCHOR_FULL","risk","distill_score_z","distill_score_gap_to_best",
+                "distill_ai_rank","market_rank")}
             companions[no]["horse_id"]=hid
             win[no]=float(official_win[no])
             horses.append({"_horse_id":hid,"P__ANCHOR_FULL":float(h["P__ANCHOR_FULL"]),
