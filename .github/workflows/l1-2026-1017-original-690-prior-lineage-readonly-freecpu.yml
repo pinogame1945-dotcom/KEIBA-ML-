@@ -1,0 +1,102 @@
+name: Original 2026 690 strict-prior lineage and SHA evidence (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-original-690-prior-lineage-readonly-freecpu.yml
+      - research/audit_2026_1017_original_690_history_lineage_readonly_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: keiba-2026-1017-690-prior-only-lineage-readonly
+  cancel-in-progress: false
+jobs:
+  verify-saved-original-690:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Public free standard CPU; Python standard library and immutable sources
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_original_690_history_lineage_readonly_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request(
+            'https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',
+            headers={'User-Agent':'keiba-original-690-freecpu'})
+          assert json.load(urllib.request.urlopen(u,timeout=30))['private'] is False
+          print('NO_PAID_RUNNER_PUBLIC_FREE_STANDARD_CPU')
+          PY
+      - name: Restore original frozen source code and 36 verified live race-source files
+        shell: bash
+        run: |
+          set -euo pipefail
+          p="$RUNNER_TEMP/original-backfill-source"
+          mkdir -p "$p"
+          git -C "$p" init -q
+          git -C "$p" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$p" sparse-checkout init --no-cone
+          printf '/ml_features/research/auto_new_day_handoff_2026_v1.py\n/ml_features/research/export_690_delivery_dynamic_v1.py\n/ml_features/research/build_690_any_race_v1.py\n/ml_features/research/build-yearly-superset-snapshots.mjs\n/ml_features/research/live_json_to_daily_pack_dynamic_v1.py\n/data/live/2026-10-17/*\n' > "$p/.git/info/sparse-checkout"
+          git -C "$p" fetch -q --depth 1 --filter=blob:none origin 10a500619f4061d6c2b20cfbfa0ac01093720807
+          test "$(git -C "$p" rev-parse FETCH_HEAD)" = 10a500619f4061d6c2b20cfbfa0ac01093720807
+          git -C "$p" checkout --detach -q FETCH_HEAD
+          test "$(find "$p/data/live/2026-10-17" -name '*.json' ! -name manifest.json | wc -l)" -eq 36
+          echo "PINNED_ORIGINAL_SOURCE_AND_36_LIVE_CAPTURE_FILES_REUSED"
+      - name: Restore pinned published original 690 data, no models or training
+        shell: bash
+        run: |
+          set -euo pipefail
+          p="$RUNNER_TEMP/original-690-delivery"
+          mkdir -p "$p"
+          git -C "$p" init -q
+          git -C "$p" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$p" sparse-checkout init --no-cone
+          printf '/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-17/*\n' > "$p/.git/info/sparse-checkout"
+          git -C "$p" fetch -q --depth 1 --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$p" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$p" checkout --detach -q FETCH_HEAD
+          test "$(find "$p/ml_features/delivery/690/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          echo "PINNED_ORIGINAL_690_SAVED_HORSE_FEATURES_REUSED_NO_RECALC"
+      - name: Verify 471 horses full schema, strict prior source and original 649 names digest
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_1017_original_690_history_lineage_readonly_v1.py \
+            --source "$RUNNER_TEMP/original-backfill-source" \
+            --delivery "$RUNNER_TEMP/original-690-delivery" \
+            --output "$RUNNER_TEMP/690-prior-only-lineage-audit.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          r=json.loads((Path(os.environ['RUNNER_TEMP'])/'690-prior-only-lineage-audit.json').read_text())
+          assert r['races']==36 and r['horses']==471 and r['sealed_feature_cells']==324990
+          assert r['original_core4_columns']==649 and r['original_daybias_columns']==19
+          assert r['original_speed_regime_columns']==22
+          assert r['feature_files_sha256_verified']==36
+          assert r['source_dates']['source_daily_latest'] < '2026-10-17'
+          assert r['same_day_result_bias_nonzero_horses']==0
+          assert r['history_input_source_date_strictly_prior']
+          assert not r['source_target_result_or_final_odds_used']
+          assert not r['independent_numeric_690_parity_verified']
+          assert not r['frozen_l21_engine_invoked'] and not r['l3_v3_invoked']
+          assert not r['ready_for_betting']
+          print('SAVED_ORIGINAL_690_36R_471H_324990_CELLS_PRIOR_HISTORY_LINEAGE_VERIFIED')
+          print('NO_INDEPENDENT_FULL_NUMERICAL_PARITY_OR_RELEASE_ASSERTED')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as s:
+              s.write('### Frozen original 690 source-lineage and saved SHA\n')
+              s.write(f"36 actual races, 471 active horses, 324,990 preserved values; original 649 CORE4 + 19 day-bias + 22 speed. Latest source history {r['source_dates']['source_daily_latest']}. 36 files hash verified.\n")
+              s.write('No target-day results/final market, no training, no refit and no new dataset. Original full numerical 690 parity and entire historical timing remain UNCERTIFIED; no L2.1 tickets/L3.\n')
+          PY
+      - name: No paid compute, cache, Actions artifacts, model deployment or bets
+        if: always()
+        run: |
+          echo 'Public free standard CPU only, no Kaggle storage, no new assets, no Actions artifacts or cache.'
+          echo 'No modification of 690 generator, L1/L1.75, frozen L2.1 or L3.'
+          echo 'No 2026 outcomes, hindsight payout analysis, model fit or real betting.'
