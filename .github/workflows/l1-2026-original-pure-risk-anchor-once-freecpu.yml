@@ -1,0 +1,256 @@
+name: 2026 original pure LambdaRank Risk ANCHOR prior-only run (free CPU)
+on:
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: original-2026-pure-risk-anchor-once
+  cancel-in-progress: false
+jobs:
+  original-2026-blind-lambdarank-risk-anchor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 110
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      ORIGINAL_CODE_SHA: 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+      BACKFILL_INPUT_SHA: d6607946292efe79fc5eef8eaf143e689c41f6a9
+      ORIGINAL_PRIOR_REF: pino1945/keiba-2026-original-l1-priors-once-v1
+      EXISTING_L175_REF: pino1945/keiba-2026-1017-l175-market-v1
+      OUTPUT_REF: pino1945/keiba-2026-original-pure-risk-anchor-v1
+      L1_THREADS: "2"
+      OMP_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free public CPU and frozen original model code, no paid storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/fit_score_2026_original_core4_risk_anchor_once_v1.py
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 6000000
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",headers={"User-Agent":"keiba-freecpu-original"})
+          assert json.load(urllib.request.urlopen(req,timeout=30))["private"] is False,"STOP_NONFREE_STANDARD_CPU"
+          print("PUBLIC_GITHUB_STANDARD_CPU_NO_GPU_NO_PAID_RUNNER")
+          PY
+          orig="$RUNNER_TEMP/old"
+          mkdir -p "$orig"
+          git -C "$orig" init -q
+          git -C "$orig" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$orig" fetch -q --no-tags --depth 1 --filter=blob:none origin "$ORIGINAL_CODE_SHA"
+          test "$(git -C "$orig" rev-parse FETCH_HEAD)" = "$ORIGINAL_CODE_SHA"
+          printf "/research/*\n/scripts/*\n/ml/requirements.txt\n" > "$RUNNER_TEMP/old-sparse.txt"
+          git -C "$orig" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/old-sparse.txt"
+          git -C "$orig" checkout -q --detach FETCH_HEAD
+          test -s "$orig/research/run_l1_state_transition_v1.py"
+          test -s "$orig/research/rebuild_blind_original_2025_risk_from_prior_oos_v1.py"
+          test -s "$orig/research/anchor-original-feature-geometry.py"
+          test -s "$orig/scripts/build_original_anchor_2025_params_github.sh"
+          python -m pip install --disable-pip-version-check --no-cache-dir -r "$orig/ml/requirements.txt"
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          echo "FROZEN_ORIGINAL_2025_LAMBDARANK_RISK_ANCHOR_ALGEBRA_PINNED"
+      - name: Validate private Kaggle free storage and refuse overwrite before any training
+        shell: bash
+        run: |
+          set -euo pipefail
+          KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF="$OUTPUT_REF" bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          k=dict(x.split("=",1) for x in Path(os.environ["GITHUB_ENV"]).read_text().splitlines() if "=" in x)
+          assert k["KAGGLE_STORAGE_PREFLIGHT_OK"]=="1"
+          assert int(k["KAGGLE_STORAGE_PREFLIGHT_BYTES"])+512*1024**2<193273528320,"FREE_STORAGE_NOT_VERIFIED"
+          print("PRIVATE_ORIGINAL_MODEL_512MIB_RESERVED_WITHIN_KAGGLE_FREE_QUOTA")
+          PY
+      - name: Recover previously projected originals from private Kaggle; never regenerate historical projections
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="$RUNNER_TEMP/priors"
+          mkdir -p "$dest"
+          for attempt in 1 2 3 4 5; do
+            if result="$(kaggle datasets download "$ORIGINAL_PRIOR_REF" -f index.json -p "$dest" --unzip --quiet --force 2>&1)"; then break; fi
+            if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+              echo "::error::Verified prior source index missing: $result"; exit 1
+            fi
+            sleep $((25*attempt))
+          done
+          test -s "$dest/index.json"
+          python - <<'PY' > "$RUNNER_TEMP/prior-filenames.txt"
+          import json,os
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"priors"
+          x=json.loads((d/"index.json").read_text())
+          assert x["contract"]=="KEIBA_ORIGINAL_2026_PRIOR_2019_2025_ONCE_V1"
+          assert x["2026_target_outcomes_used"] is False and x["model_fit_performed"] is False
+          assert len(x["files"])==23
+          for name in sorted(x["files"]):print(name)
+          PY
+          while IFS= read -r filename; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$ORIGINAL_PRIOR_REF" -f "$filename" -p "$dest" --unzip --quiet --force 2>&1)"; then
+                test -s "$dest/$filename"; break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::Archived prior unavailable $filename: $result"; exit 1
+              fi
+              sleep $((25*attempt))
+            done
+            sleep 2
+          done < "$RUNNER_TEMP/prior-filenames.txt"
+          python - <<'PY'
+          import os,hashlib,json,shutil
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"priors"
+          x=json.loads((d/"index.json").read_text())
+          assert len(x["files"])==23
+          for name,spec in x["files"].items():
+              src=d/name
+              assert name.endswith(".csv.gz.bin")
+              assert src.stat().st_size==spec["bytes"] and hashlib.sha256(src.read_bytes()).hexdigest()==spec["sha256"]
+              dst=d/name[:-4]
+              assert not dst.exists()
+              shutil.copy2(src,dst)
+          print("FROZEN_PRIOR_2019_2025_REUSED_ALL_23_FILES_SHA256_OK_NO_RECOMPUTE")
+          PY
+      - name: Obtain identical pinned 36 cached 2026 690 packets, no new source calculations
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/target-backfill"
+          mkdir -p "$dir"
+          git -C "$dir" init -q
+          git -C "$dir" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$dir" fetch -q --no-tags --depth 1 --filter=blob:none origin "$BACKFILL_INPUT_SHA"
+          test "$(git -C "$dir" rev-parse FETCH_HEAD)" = "$BACKFILL_INPUT_SHA"
+          printf "/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-17/*\n" > "$RUNNER_TEMP/690-sparse.txt"
+          git -C "$dir" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/690-sparse.txt"
+          git -C "$dir" checkout -q --detach FETCH_HEAD
+          test "$(find "$dir/ml_features/delivery/690/2026-10-17" -maxdepth 1 -name '*.json' | wc -l)" -eq 36
+          echo "PINNED_690_36_RACES_HORSE_ID_MATCH_REQUIRED_NO_GENERATION"
+      - name: Recover frozen 2021-25 p3 plus 10/17 genuine WIN prices from previously saved L1.75
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/l175-market"
+          mkdir -p "$dir"
+          for name in index.json l175-real-market-research-1017.jsonl; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$EXISTING_L175_REF" -f "$name" -p "$dir" --unzip --quiet --force 2>&1)"; then
+                test -s "$dir/$name"; break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::L175 WIN source missing $name: $result"; exit 1
+              fi
+              sleep $((25*attempt))
+            done
+            sleep 2
+          done
+          echo "REUSED_PRIOR_L175_WIN_QUOTES_471_NOT_2026_FINAL_ODDS"
+      - name: Restore actual frozen 2025 ANCHOR_FULL prior coefficients/normalizer by verified parity
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/old"
+          (cd "$dir" && bash scripts/build_original_anchor_2025_params_github.sh "$RUNNER_TEMP/anchor-params")
+          test -s "$RUNNER_TEMP/anchor-params/original-prior-anchor-asof-params.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"anchor-params/original-prior-anchor-asof-params.json"
+          m=json.loads(p.read_text())
+          assert m["trained_only_on_years"]==[2022,2023,2024] and m["variant"]=="ANCHOR_FULL"
+          assert len(m["coefficients"])==19 and m["not_promoted_or_authenticated_for_live_betting"] is True
+          print("REAL_ORIGINAL_ANCHOR_2025_PAST_PARAMS_REUSED_NOT_2026_REFIT")
+          PY
+      - name: One 2024-25 original LambdaRank plus 2022-25 OOS Correction Risk and real 2026 ANCHOR research scoring
+        shell: bash
+        run: |
+          set -euo pipefail
+          export PYTHONPATH="$RUNNER_TEMP/old/research"
+          python research/fit_score_2026_original_core4_risk_anchor_once_v1.py \
+            --saved-priors "$RUNNER_TEMP/priors" \
+            --backfill "$RUNNER_TEMP/target-backfill" \
+            --l175-market-index "$RUNNER_TEMP/l175-market/index.json" \
+            --l175-market-file "$RUNNER_TEMP/l175-market/l175-real-market-research-1017.jsonl" \
+            --anchor-2025-params "$RUNNER_TEMP/anchor-params/original-prior-anchor-asof-params.json" \
+            --original-anchor-code "$RUNNER_TEMP/old/research/replay-original-anchor-coefficients-2025.py" \
+            --output "$RUNNER_TEMP/2026-original-saved-model-candidate"
+          python - <<'PY'
+          import json,os,hashlib
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"2026-original-saved-model-candidate"
+          idx=json.loads((d/"index.json").read_text())
+          assert idx["contract"]=="KEIBA_2026_ORIGINAL_PURE_AI_RISK_ANCHOR_RESEARCH_CANDIDATE_V1"
+          assert idx["races"]==36 and idx["horses"]==471
+          assert idx["original_ability_fit_years"]==[2024,2025]
+          assert idx["original_risk_oos_teacher_years"]==[2022,2023,2024,2025]
+          assert idx["2026_target_outcomes_used"] is False
+          assert idx["ready_for_betting"] is False and idx["original_model_release_approved"] is False
+          for name,meta in idx["files"].items():
+              p=d/name
+              assert hashlib.sha256(p.read_bytes()).hexdigest()==meta["sha256"]
+          print("NEW_GENUINE_2026_ORIGINAL_LAMBDARANK_RISK_ANCHOR_CANDIDATES_CREATED_SHA_VALID")
+          PY
+      - name: Save original model files and per-race scores privately within verified free storage
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          from pathlib import Path
+          import json,os,hashlib,shutil
+          d=Path(os.environ["RUNNER_TEMP"])/"2026-original-saved-model-candidate"
+          stage=Path(os.environ["RUNNER_TEMP"])/"2026-original-private-save"
+          stage.mkdir(exist_ok=False)
+          src=list(d.iterdir())
+          assert len(src)==4
+          for f in src:shutil.copy2(f,stage/f.name)
+          meta={"id":os.environ["OUTPUT_REF"],"title":"KEIBA 2026 Original AI Risk Anchor Candidate",
+            "licenses":[{"name":"other"}],
+            "description":"2026 unseen outcomes. 2024-25 LambdaRank 2022-25 past OOS Risk, original 2025 ANCHOR parameters. Research only."}
+          assert 6<=len(meta["title"])<=50 and 6<=len(meta["id"].split("/")[-1])<=50
+          (stage/"dataset-metadata.json").write_text(json.dumps(meta,indent=2)+"\n")
+          size=sum(p.stat().st_size for p in stage.iterdir())
+          assert size<512*1024**2 and int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])+size<193273528320
+          print("ORIGINAL_RESEARCH_MODEL_PRIVATE_STAGE_FREE_QUOTA",size,flush=True)
+          PY
+          kaggle datasets create -p "$RUNNER_TEMP/2026-original-private-save" --quiet --keep-tabular --dir-mode skip
+          python - <<'PY'
+          import hashlib,json,os,subprocess,tempfile,time
+          from pathlib import Path
+          stage=Path(os.environ["RUNNER_TEMP"])/"2026-original-private-save"
+          idx=json.loads((stage/"index.json").read_text())
+          expected={"index.json":hashlib.sha256((stage/"index.json").read_bytes()).hexdigest(),
+                    **{name:v["sha256"] for name,v in idx["files"].items()}}
+          assert len(expected)==4
+          with tempfile.TemporaryDirectory() as t:
+              for name,checksum in expected.items():
+                  for i in range(1,7):
+                      p=subprocess.run(["kaggle","datasets","download",os.environ["OUTPUT_REF"],"-f",name,"-p",t,"--unzip","--quiet","--force"],capture_output=True,text=True)
+                      if p.returncode==0:break
+                      err=p.stderr or p.stdout
+                      if i==6 or not any(x in err for x in ("429","403","404","Too Many Requests","Forbidden","Not Found")):
+                          raise SystemExit("REMOTE_ORIGINAL_2026_MODEL_READBACK_FAILED:"+name+":"+err[-240:])
+                      time.sleep(min(120,20*i))
+                  f=Path(t)/name
+                  if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest()!=checksum:
+                      raise SystemExit("REMOTE_ORIGINAL_2026_MODEL_SHA256_MISMATCH:"+name)
+                  time.sleep(2)
+          print("ORIGINAL_PURE_AI_CORRECTION_RISK_ANCHOR_2026_REMOTE_4_OF_4_SHA_VERIFIED")
+          PY
+      - name: No release, no bet, no 2026 labels, no paid storage
+        if: always()
+        run: |
+          echo "Only 2019-25 historical labels. 2026 target results/payout/final odds prohibited."
+          echo "Exact 2025 original code pinned for LambdaRank, Risk, ANCHOR_FULL; 2026 as-of not independently certified."
+          echo "Public free standard CPU, no paid GPU/runner, Actions artifact/cache, or deployment."
+          echo "No frozen L2.1/L3 V3 engine or purchase. Model remains research candidate."
