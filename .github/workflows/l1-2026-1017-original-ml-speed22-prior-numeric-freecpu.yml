@@ -1,0 +1,117 @@
+name: 2026 original ML speed regime 22 independent numerical parity (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-original-ml-speed22-prior-numeric-freecpu.yml
+      - research/audit_2026_1017_original_ml_speed22_from_prior_daily_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: keiba-2026-1017-original-speed22-prior-only
+  cancel-in-progress: false
+jobs:
+  original-speed22-real-history:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      PINNED_BACKFILL_SHA: 9fe9f1742aa074a84c03a779e1ee949c04f78c0d
+      PINNED_ORIGINAL_ML_SHA: c782a7e0c6e2f09b2d0603b23336eab31ad5bc77
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify public free CPU, no paid storage, no outcomes of target date
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_original_ml_speed22_from_prior_daily_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request(
+            "https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",
+            headers={"User-Agent":"keiba-original-ml-speed22-free-cpu"})
+          assert json.load(urllib.request.urlopen(req,timeout=30))["private"] is False
+          print("GITHUB_PUBLIC_FREE_STANDARD_CPU_ONLY")
+          PY
+          python -m pip install --disable-pip-version-check --no-cache-dir pandas==3.0.6 numpy==2.3.5
+      - name: Restore exact frozen original ML formulas (never edited)
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/original-ml"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$PINNED_ORIGINAL_ML_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_ORIGINAL_ML_SHA"
+          git -C "$root" show FETCH_HEAD:research/compute_blind_target_seq_regime_v1.py > "$root/ml-horse-features.py"
+          git -C "$root" show FETCH_HEAD:research/run_l1_state_transition_v1.py > "$root/ml-state.py"
+          git -C "$root" show FETCH_HEAD:research/run_l1_residual_regime_full_pairwise_v1.py > "$root/ml-regime.py"
+          test "$(git hash-object "$root/ml-horse-features.py")" = e048b4af2a64b2ddc2f99a3fff3b1e7354090482
+          test "$(git hash-object "$root/ml-state.py")" = f02cfa39bd378445a69ca11e588abf1010b9acb1
+          test "$(git hash-object "$root/ml-regime.py")" = 1d236a07dcf0ca1722b8448a269f28c7232f3d0f
+          echo "UNMODIFIED_FROZEN_ML_22_SPEED_FORMULAS_PINNED"
+      - name: Restore strictly-prior 2022 to October 16 history and cached 36 original 690 (no result day)
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/strict-prior-backfill"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$PINNED_BACKFILL_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$PINNED_BACKFILL_SHA"
+          {
+            git -C "$root" ls-tree -r --name-only FETCH_HEAD data/daily |
+              awk '/^data\/daily\/20[0-9][0-9]-[0-9][0-9]-[0-9][0-9]\.jsonl\.gz$/ {if(substr($0,12,10)>="2022-01-01" && substr($0,12,10)<"2026-10-17") print "/" $0}'
+            echo '/ml_features/delivery/690/index.json'
+            echo '/ml_features/delivery/690/2026-10-17/*'
+          } > "$RUNNER_TEMP/speed22-sparse-list.txt"
+          test "$(grep -c '^/data/daily/' "$RUNNER_TEMP/speed22-sparse-list.txt")" -eq 517
+          test "$(grep -c '^/data/daily/2026-' "$RUNNER_TEMP/speed22-sparse-list.txt")" -eq 87
+          ! grep -q '^/data/daily/2026-10-17' "$RUNNER_TEMP/speed22-sparse-list.txt"
+          git -C "$root" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/speed22-sparse-list.txt"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test ! -e "$root/data/daily/2026-10-17.jsonl.gz"
+          test "$(find "$root/ml_features/delivery/690/2026-10-17/" -name '*.json' | wc -l)" -eq 36
+          echo "PINNED_517_STRICT_PRIOR_DAYS_AND_CACHED_690_READY"
+      - name: Validate all 471 x 22 speed-regime values from frozen ML formula and prior finished peer races
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_1017_original_ml_speed22_from_prior_daily_v1.py \
+            --daily-source "$RUNNER_TEMP/strict-prior-backfill/data/daily" \
+            --saved-690 "$RUNNER_TEMP/strict-prior-backfill" \
+            --original-ml-seq "$RUNNER_TEMP/original-ml/ml-horse-features.py" \
+            --original-ml-state "$RUNNER_TEMP/original-ml/ml-state.py" \
+            --original-ml-regime "$RUNNER_TEMP/original-ml/ml-regime.py" \
+            --output "$RUNNER_TEMP/original-ml-speed22-prior-numeric-report.json"
+          python - <<'PY'
+          from pathlib import Path
+          import os,json
+          j=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-ml-speed22-prior-numeric-report.json").read_text())
+          assert j["races"]==36 and j["horses"]==471 and j["columns"]==22 and j["cells"]==10362
+          assert j["original_frozen_ml_formula_directly_invoked"]
+          assert j["prior_starts_all_471_equal_cached_690"]
+          assert j["all_22_original_ml_numerical_exact"]
+          assert j["categories"].get("approx_only",0)==0 and j["categories"].get("mismatch",0)==0
+          assert not j["entire_690_numeric_parity_certified"]
+          assert not j["l21_tickets_generated"] and not j["l3_money_generated"]
+          assert not j["ready_for_betting"]
+          print("FROZEN_ORIGINAL_ML_22_OF22_SPEED_REGIME_REAL_NUMERIC_PARITY_10362_CELLS")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+            f.write("### Genuine original speed regime 22 numerics\n")
+            f.write("2026-10-17 pre-race 36 races / 471 horses / 10362 values vs frozen original ML source; strictly prior 517 historical days, all historic peer race speeds retained.\n")
+            f.write("Source 690 unchanged. Independent CORE4 649 numeric parity not yet certified. No 2026 target result, no L2/L3 or actual betting.\n")
+          PY
+      - name: Free CPU, temporary local data only, no paid artifacts or models
+        if: always()
+        run: |
+          echo "Standard free CPU, no GPU or paid runner, cache, artifact upload or new datasets."
+          echo "No retraining, no feature 690 regeneration, no 2026 target result/ROI, no L2.1/L3 changes."
