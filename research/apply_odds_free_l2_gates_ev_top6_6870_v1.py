@@ -69,8 +69,9 @@ def flags_per_horse(g, no):
     psort=sorted(p,key=lambda h:(-p[h],h))
     pr={h:i for i,h in enumerate(psort,1)}
     result={}
-    for h,n in no.items():
-        assert_ok(h in raw and h in ability and h in pr,"missing AI predictor")
+    for h in raw:
+        assert_ok(h in no and h in ability and h in pr,"missing AI predictor")
+        n=no[h]
         result[n]=np.asarray((
             True,
             raw[h]<=6,
@@ -115,7 +116,7 @@ def run_year(yi, data, root, counts, wins, returns, metrics):
             horse_flags=flags_per_horse(g,no)
             pay=payouts(pack,rid) # settlement is used ONLY in wins/returns, not gates
             for er,axis in enumerate(eids[:6],1):
-                ai=num_axis= no[axis]
+                num_axis=no[axis]
                 er_idx=er-1
                 gate_vector=np.zeros((len(GATES),MAX_AI_RANK+1),dtype=np.bool_)
                 for i,n in enumerate(numbers,1):
@@ -142,8 +143,7 @@ def run_year(yi, data, root, counts, wins, returns, metrics):
                     fam,j,k=tpl
                     fi=FAMILY_INDEX.get(fam)
                     assert_ok(fi is not None,f"unknown paid family {fam}")
-                    partner_numbers=([combo[0]] if fam in FAMILY_DOUBLES else
-                        [n for n in combo if n!=num_axis])
+                    partner_numbers=[n for n in combo if n!=num_axis]
                     for gi in range(len(GATES)):
                         ok=bool(axis_vector[gi]) if fam in ("WIN","PLACE") else all(
                             horse_flags[n][gi] for n in partner_numbers)
