@@ -1,0 +1,110 @@
+name: L2 EV Top6 x Pure AI All Bet Families V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-top6-raw-ai-allbets-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-top6-raw-ai-allbets-v1-20261018
+  cancel-in-progress: false
+
+jobs:
+  evaluate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check free standard CPU and static syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile \
+            research/run_l2_ev_top6_raw_ai_allbets_v1.py \
+            research/run_l2_ai_market_rank_betfrontier_v1.py \
+            research/run_l2_value_anchor_bet_frontier_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          text=Path(".github/workflows/l2-ev-top6-raw-ai-allbets-v1.yml").read_text()
+          runners=[line.strip() for line in text.splitlines() if line.strip().startswith("runs-on:")]
+          uses=[line.strip() for line in text.splitlines() if line.strip().startswith("- uses:")]
+          assert runners==["runs-on: ubuntu-latest"], runners
+          assert not any("actions/cache" in s or "upload-artifact" in s for s in uses), uses
+          print("FREE_STANDARD_CPU_NO_PAID_ARTIFACT_CACHE_OK")
+          PY
+      - name: Install Pandas and NumPy only
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Self-test fast payout prefix against canonical ticket generator
+        shell: bash
+        run: |
+          python research/run_l2_ev_top6_raw_ai_allbets_v1.py --self-test
+      - name: Fetch pinned historical BACKFILL once with sparse checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$pred" out/backfill/.git/info/sparse-checkout <<'PY'
+          import pandas as pd,sys
+          dat=pd.read_csv(sys.argv[1],compression="infer",
+                          usecols=["year","_race_date","_race_id"])
+          assert set(dat["year"].astype(int))=={2023,2024,2025}, "2026 sealed"
+          dates=sorted(set(dat["_race_date"].astype(str).str[:10]))
+          assert 200 <= len(dates) <= 500, len(dates)
+          with open(sys.argv[2],"w") as fh:
+              for day in dates: fh.write("/data/daily/"+day+".jsonl.gz\n")
+          print("SPARSE_DAYS",len(dates))
+          PY
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+          echo "EXACT_PAYOUT_BACKFILL_PINNED_OK"
+      - name: EV top6 axis x pure AI full historical all-bets exact settlement
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          picks="research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz"
+          out="research-results/l2-ev-top6-raw-ai-allbets-v1/run-$GITHUB_RUN_ID"
+          python research/run_l2_ev_top6_raw_ai_allbets_v1.py \
+            --predictions "$pred" --picks "$picks" \
+            --backfill-root out/backfill --out-dir "$out"
+          test -s "$out/all-ev-top6-raw-ai-templates.csv"
+          test -s "$out/ev-axis-rank-hit-and-market-buckets.csv"
+          test -s "$out/summary.json"
+      - name: Remove temporary BACKFILL data
+        if: always()
+        shell: bash
+        run: |
+          rm -rf out/backfill
+          echo "2026 sealed, no paid resources, no artifact/cache."
+      - name: Save small summary CSV and JSON into research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-top6-raw-ai-allbets-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: archive EV rank1-6 vs pure AI full-bet results $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
