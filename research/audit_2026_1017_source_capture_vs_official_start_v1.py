@@ -209,7 +209,7 @@ def audit(source_root,delivery_root,output):
         "live_bet_cutoff_ticket_odds_verified":False,
         "frozen_l21_engine_invoked":False,"l3_v3_invoked":False,
         "ready_for_betting":False,
-        "races":records}
+        "race_records":records}
     output.parent.mkdir(parents=True,exist_ok=True)
     output.write_text(json.dumps(summary,ensure_ascii=False,sort_keys=True,indent=2)+"\n",encoding="utf8")
     print("RAW_2026_OFFICIAL_PRESTART_CAPTURE_SOURCE_EVIDENCE "+
