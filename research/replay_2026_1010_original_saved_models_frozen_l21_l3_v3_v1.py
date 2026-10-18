@@ -209,9 +209,14 @@ def real_original_model_score(frame,sources,idx,ability,risk,params,geometry,a_c
     src=frame.merge(context[required],on=["_race_id","_horse_id"],
                     how="left",validate="one_to_one")
     src=src[[c for c in src.columns if not c.startswith("neg_")]].copy()
-    if not set(r_cols).issubset(src.columns):
-        print("ORIGINAL_RISK_SAVED_REQUIRED_FEATURE_NAMES_MISSING",sorted(set(r_cols)-set(src.columns)),flush=True)
-    need(set(r_cols).issubset(src.columns),"ORIGINAL_RISK_SAVED_COLUMN_MISSING")
+    # Reproduce the frozen 10/17 scorer's EXACT prepare(train,valid):
+    # the historical risk teacher retains "_target_over3" as a training
+    # feature, while original 2026 inference reindexes it to missing/NaN.
+    # Absolutely never fill from 2026 true outcomes.
+    missing=set(r_cols)-set(src.columns)
+    need(missing=={"_target_over3"},
+         "ORIGINAL_SAVED_RISK_REQUIRED_FEATURE_DRIFT:"+str(sorted(missing)))
+    src["_target_over3"]=float("nan")
     rx=category_x(src,r_cols,idx["original_risk_categorical_levels"])
     probs=np.asarray(risk.predict(rx),dtype=float)
     need(len(probs)==315 and np.isfinite(probs).all() and
