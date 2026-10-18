@@ -113,9 +113,15 @@ def run(original,style_path,delivery,out):
                     s["prior_starts_690"]==row["prior_starts"] and
                     row["_race_id"]==rid and row["_race_date"]==DAY,
                     "ORIGINAL_STYLE_PRIOR_COUNT_OR_SOURCE_SHA_MISMATCH:"+rid+":"+hid)
-            require(type(row.get("field_size"))in (int,float) and
-                    3<=row["field_size"]<=18,
-                    "FROZEN_ML_FRONT_FIELD_SIZE_ABSENT:"+rid+":"+hid)
+            size=row.get("field_size")
+            # The original ML formula handles missing target field_size via
+            # its ratio-first path; never replace an original null with a
+            # guessed number. Its original pandas reader coerces null to NaN.
+            require("field_size" in row and
+                    (size is None or
+                     (type(size) in (int,float) and
+                      math.isfinite(size) and 2<=size<=18)),
+                    "FROZEN_ML_FRONT_FIELD_SIZE_INVALID:"+rid+":"+hid)
             inputs.append({**{k:s["style_complete"][k] for k in STYLE_NAMES},
                            "field_size":row["field_size"]})
             targets.append(row)
