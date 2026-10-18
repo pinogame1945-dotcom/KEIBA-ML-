@@ -86,7 +86,8 @@ def audit(root,original,out):
                  "ORIGINAL_690_KEY_FIELDS_OR_ORDER_DRIFT:"+rid)
             observed=keys[3:]
             if first_keys is None: first_keys=observed
-            need(observed==first_keys,"CACHED_690_SCHEMA_DIFFERS_BY_HORSE:"+rid)
+            need(set(observed)==set(first_keys),"CACHED_690_SCHEMA_FEATURE_NAME_DIFFERS_BY_HORSE:"+rid)
+            if observed!=first_keys:zero["_column_order_differs_but_names_identical"]+=1
             hid=str(item["_horse_id"])
             no=item.get("horse_number")
             need(item["_race_id"]==rid and item["_race_date"]==DAY and
@@ -132,6 +133,7 @@ def audit(root,original,out):
       "2026_results_read":False,
       "remaining_original_l21_inputs":list(MISSING),
       "race_sources":race_digest,
+      "rows_with_column_order_permutation_same_name_set":zero["_column_order_differs_but_names_identical"],
     }
     out.parent.mkdir(parents=True,exist_ok=True)
     out.write_text(json.dumps(analysis,ensure_ascii=False,indent=2)+"\n",encoding="utf-8")
