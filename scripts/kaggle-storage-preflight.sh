@@ -43,6 +43,14 @@ for page in range(1,1001):
 else:
     raise SystemExit("Kaggle dataset pagination safety stop")
 
+# Optional target-absence guard reuses this same verified ownership listing.
+# Existing callers without a target retain identical behavior.
+refuse_existing=os.environ.get("KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF","").strip()
+if refuse_existing:
+    if refuse_existing in set(refs):
+        raise SystemExit("REFUSE_OVERWRITE_EXISTING_RESEARCH_SCORE_DATASET")
+    print("KAGGLE_TARGET_DATASET_ABSENCE_VERIFIED",flush=True)
+
 grand=0
 for ref in sorted(set(refs)):
     raw=run(["kaggle","datasets","files",ref,"--page-size","1000","--format","json(name,size)"],f"files-{ref}")
