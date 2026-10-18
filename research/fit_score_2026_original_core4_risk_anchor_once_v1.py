@@ -356,6 +356,11 @@ def run(prior,backfill,market_index,market_file,anchor_params,
     scored=model_dest/"original-2026-1017-36r-471h-ability-risk-anchor.jsonl"
     scored.write_text("".join(json.dumps(x,ensure_ascii=False,allow_nan=False,separators=(",",":"))+"\n" for x in full),
                       encoding="utf8")
+    # Persist the verified original 2025 prior-only ANCHOR parameters once,
+    # so later inference does NOT rebuild them or redownload old 2025 OOS.
+    anchor_copy=model_dest/"original-anchor-full-2025-prior-params.json"
+    anchor_copy.write_bytes(anchor_params.read_bytes())
+    need(sha(anchor_copy)==sha(anchor_params),"ORIGINAL_ANCHOR_PRIOR_PARAMS_SAVE_DRIFT")
     saved={
       "contract":"KEIBA_2026_ORIGINAL_PURE_AI_RISK_ANCHOR_RESEARCH_CANDIDATE_V1",
       "2026_prediction_date":RACE_DAY,
@@ -381,7 +386,7 @@ def run(prior,backfill,market_index,market_file,anchor_params,
       "original_model_release_approved":False,
       "frozen_l21_l3_invoked":False,
       "ready_for_betting":False,
-      "files":{p.name:{"sha256":sha(p),"bytes":p.stat().st_size} for p in (ability_path,risk_path,scored)}
+      "files":{p.name:{"sha256":sha(p),"bytes":p.stat().st_size} for p in (ability_path,risk_path,anchor_copy,scored)}
     }
     (model_dest/"index.json").write_text(json.dumps(saved,ensure_ascii=False,sort_keys=True,indent=2)+"\n")
     print("ORIGINAL_2026_REAL_LAMBDARANK_RISK_AND_ANCHOR_ONCE "+
