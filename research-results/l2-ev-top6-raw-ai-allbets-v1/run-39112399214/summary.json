@@ -1,0 +1,304 @@
+{
+  "contract": "L2_EV_TOP6_RAW_AI_NO_TICKET_ODDS_V1",
+  "source": "frozen ANCHOR_FULL predicted win probability x final single-win odds",
+  "value_rank_tiebreak": [
+    "EV descending",
+    "p descending",
+    "market_rank ascending",
+    "horse_id ascending"
+  ],
+  "partner_ranking": "distill_ai_rank (pure AI) ascending, excluding selected axis",
+  "years": [
+    2023,
+    2024,
+    2025
+  ],
+  "races": 10368,
+  "axis_ranks": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6
+  ],
+  "partner_k": [
+    1,
+    2,
+    3,
+    4,
+    5,
+    6,
+    7,
+    8,
+    9,
+    10,
+    11,
+    12,
+    13,
+    14,
+    15,
+    16,
+    17
+  ],
+  "families": [
+    "WIN",
+    "PLACE",
+    "QUINELLA",
+    "WIDE",
+    "EXACTA_FIRST",
+    "EXACTA_SECOND",
+    "EXACTA_BOTH",
+    "TRIO",
+    "TRIFECTA_FIRST",
+    "TRIFECTA_SECOND",
+    "TRIFECTA_THIRD",
+    "TRIFECTA_ANY"
+  ],
+  "stake_yen_per_ticket": 100,
+  "rule": "All races, fixed EV axis ranking, no ticket odds threshold, no ex-post skip",
+  "market_rank_bucket_only": [
+    "1",
+    "2",
+    "3",
+    "4-6",
+    "7-10",
+    "11+"
+  ],
+  "historical_odds_warning": "EV selection uses retrospective final SINGLE WIN odds, not bet-cutoff win odds. Payouts for settlement only.",
+  "model_refit": false,
+  "new_selection_training": false,
+  "zero_combination_tickets_at_k1": [
+    "TRIO",
+    "TRIFECTA_FIRST",
+    "TRIFECTA_SECOND",
+    "TRIFECTA_THIRD",
+    "TRIFECTA_ANY"
+  ],
+  "saturated_k_note": "When field is smaller than k+1, the partner set saturates and same tickets recur across larger k templates.",
+  "historical_source_backfill_sha": "0d4af461b77f0060dd9c789dd2da646026fada47",
+  "price_gate": "NONE (no exotic ticket price in selection)",
+  "payout_settlement": "actual historical BACKFILL dividends, dead-heat aware",
+  "ev1_trio_raw2_reproduced": {
+    "tickets": 10368,
+    "return_yen": 724820,
+    "hit_races": 684
+  },
+  "templates_per_rank_all_bucket": 172,
+  "profitable_templates_count_in_sample": 0,
+  "profitable_templates_count_by_ev_rank_in_sample": {
+    "1": 0,
+    "2": 0,
+    "3": 0,
+    "4": 0,
+    "5": 0,
+    "6": 0
+  },
+  "highest_roi_observed_NOT_FORWARD_VALIDATED": [
+    {
+      "ev_axis_rank": 3,
+      "family": "TRIFECTA_SECOND",
+      "other_horses_k": 2,
+      "races": 10368,
+      "tickets": 20736,
+      "hit_races": 231,
+      "profit_yen": -178380.0,
+      "roi_pct": 91.397569
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "WIN",
+      "other_horses_k": 0,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 1917,
+      "profit_yen": -135840.0,
+      "roi_pct": 86.898148
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "EXACTA_FIRST",
+      "other_horses_k": 2,
+      "races": 10368,
+      "tickets": 20736,
+      "hit_races": 905,
+      "profit_yen": -292770.0,
+      "roi_pct": 85.881076
+    },
+    {
+      "ev_axis_rank": 4,
+      "family": "EXACTA_SECOND",
+      "other_horses_k": 2,
+      "races": 10368,
+      "tickets": 20736,
+      "hit_races": 698,
+      "profit_yen": -295690.0,
+      "roi_pct": 85.740258
+    },
+    {
+      "ev_axis_rank": 2,
+      "family": "EXACTA_FIRST",
+      "other_horses_k": 10,
+      "races": 10368,
+      "tickets": 99608,
+      "hit_races": 1549,
+      "profit_yen": -1433200.0,
+      "roi_pct": 85.611597
+    },
+    {
+      "ev_axis_rank": 3,
+      "family": "TRIO",
+      "other_horses_k": 2,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 677,
+      "profit_yen": -152650.0,
+      "roi_pct": 85.276813
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "EXACTA_FIRST",
+      "other_horses_k": 1,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 536,
+      "profit_yen": -158420.0,
+      "roi_pct": 84.720293
+    },
+    {
+      "ev_axis_rank": 6,
+      "family": "EXACTA_SECOND",
+      "other_horses_k": 2,
+      "races": 10329,
+      "tickets": 20658,
+      "hit_races": 514,
+      "profit_yen": -315720.0,
+      "roi_pct": 84.716817
+    },
+    {
+      "ev_axis_rank": 2,
+      "family": "TRIFECTA_SECOND",
+      "other_horses_k": 2,
+      "races": 10368,
+      "tickets": 20736,
+      "hit_races": 226,
+      "profit_yen": -324230.0,
+      "roi_pct": 84.363908
+    },
+    {
+      "ev_axis_rank": 2,
+      "family": "TRIFECTA_THIRD",
+      "other_horses_k": 9,
+      "races": 10368,
+      "tickets": 713588,
+      "hit_races": 1160,
+      "profit_yen": -11172320.0,
+      "roi_pct": 84.343459
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "WIDE",
+      "other_horses_k": 1,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 2361,
+      "profit_yen": -163030.0,
+      "roi_pct": 84.275656
+    },
+    {
+      "ev_axis_rank": 4,
+      "family": "EXACTA_SECOND",
+      "other_horses_k": 3,
+      "races": 10368,
+      "tickets": 31104,
+      "hit_races": 879,
+      "profit_yen": -489200.0,
+      "roi_pct": 84.272119
+    },
+    {
+      "ev_axis_rank": 6,
+      "family": "TRIFECTA_SECOND",
+      "other_horses_k": 2,
+      "races": 10329,
+      "tickets": 20658,
+      "hit_races": 112,
+      "profit_yen": -324980.0,
+      "roi_pct": 84.268564
+    },
+    {
+      "ev_axis_rank": 2,
+      "family": "PLACE",
+      "other_horses_k": 0,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 4296,
+      "profit_yen": -170960.0,
+      "roi_pct": 83.510802
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "PLACE",
+      "other_horses_k": 0,
+      "races": 10368,
+      "tickets": 10368,
+      "hit_races": 4467,
+      "profit_yen": -171170.0,
+      "roi_pct": 83.490548
+    },
+    {
+      "ev_axis_rank": 6,
+      "family": "EXACTA_SECOND",
+      "other_horses_k": 4,
+      "races": 10329,
+      "tickets": 41316,
+      "hit_races": 724,
+      "profit_yen": -688020.0,
+      "roi_pct": 83.347371
+    },
+    {
+      "ev_axis_rank": 6,
+      "family": "EXACTA_SECOND",
+      "other_horses_k": 3,
+      "races": 10329,
+      "tickets": 30987,
+      "hit_races": 637,
+      "profit_yen": -521090.0,
+      "roi_pct": 83.183593
+    },
+    {
+      "ev_axis_rank": 6,
+      "family": "TRIO",
+      "other_horses_k": 2,
+      "races": 10329,
+      "tickets": 10329,
+      "hit_races": 380,
+      "profit_yen": -175400.0,
+      "roi_pct": 83.018685
+    },
+    {
+      "ev_axis_rank": 2,
+      "family": "QUINELLA",
+      "other_horses_k": 10,
+      "races": 10368,
+      "tickets": 99608,
+      "hit_races": 3002,
+      "profit_yen": -1699920.0,
+      "roi_pct": 82.933901
+    },
+    {
+      "ev_axis_rank": 1,
+      "family": "EXACTA_FIRST",
+      "other_horses_k": 3,
+      "races": 10368,
+      "tickets": 31104,
+      "hit_races": 1180,
+      "profit_yen": -536290.0,
+      "roi_pct": 82.758166
+    }
+  ],
+  "yearly_not_oos_warning": "Selection of best strategies from these same years would be in-sample; this file does not declare a deployable strategy.",
+  "sealed_years": [
+    2026
+  ],
+  "cost": "free GitHub Actions standard CPU only"
+}
