@@ -1,0 +1,117 @@
+name: 2026 saved original AI Risk ANCHOR to frozen L2.1 source read-only (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-original-ai-risk-anchor-to-frozen-l21-readonly-freecpu.yml
+permissions:
+  contents: read
+concurrency:
+  group: l21-2026-saved-original-source-readonly
+  cancel-in-progress: false
+jobs:
+  audit-saved-original-frozen-l21:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      ORIGINAL_REF: pino1945/keiba-2026-original-pure-risk-anchor-v1
+      L175_REF: pino1945/keiba-2026-1017-l175-market-v1
+      L21_FREEZE_SHA: 9655c717333636b5cc931f672e12dbc377e396bc
+      L21_FROZEN_BLOB: 600fa764565545c4898c79d65187b8843e51a5e1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Free standard public CPU and script integrity gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/audit_2026_1017_saved_original_l21_source_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request(
+            'https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',
+            headers={'User-Agent':'keiba-standard-freecpu-audit'})
+          assert json.load(urllib.request.urlopen(u,timeout=30)).get('private') is False, "REFUSE_PAID_RUNNER"
+          print("PUBLIC_REPOSITORY_FREE_STANDARD_CPU_CONFIRMED")
+          PY
+      - name: Restore exact original frozen 50-rule contract without modification
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l21"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$L21_FREEZE_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$L21_FREEZE_SHA"
+          git -C "$root" show FETCH_HEAD:contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json > "$root/contract.json"
+          test "$(git hash-object "$root/contract.json")" = "$L21_FROZEN_BLOB"
+          echo "FROZEN_L21_BLOB_BYTES_VERIFIED"
+      - name: Restore saved models score and saved research WIN odds only, never recompute
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          mkdir -p "$RUNNER_TEMP/score" "$RUNNER_TEMP/market"
+          for spec in "score|$ORIGINAL_REF|index.json" \
+                      "score|$ORIGINAL_REF|original-2026-1017-36r-471h-ability-risk-anchor.jsonl" \
+                      "market|$L175_REF|index.json" \
+                      "market|$L175_REF|l175-real-market-research-1017.jsonl"; do
+            IFS='|' read -r dir ref name <<< "$spec"
+            target="$RUNNER_TEMP/$dir"
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$ref" -f "$name" -p "$target" --unzip --quiet --force 2>&1)"; then
+                test -s "$target/$name"
+                break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* && "$result" != *"503"* && "$result" != *"502"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::Exact saved private source retrieval failed: $name: $result"
+                exit 1
+              fi
+              sleep $((8 * attempt))
+            done
+            sleep 2
+          done
+          echo "SAVED_PRIVATE_ORIGINAL_SCORES_AND_MARKET_RESTORED_NO_REFIT"
+      - name: Verify 36 real races 471 horses original axis against exact frozen L2.1 input boundary
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_1017_saved_original_l21_source_v1.py \
+            --original-index "$RUNNER_TEMP/score/index.json" \
+            --original-scores "$RUNNER_TEMP/score/original-2026-1017-36r-471h-ability-risk-anchor.jsonl" \
+            --l175-index "$RUNNER_TEMP/market/index.json" \
+            --l175-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \
+            --frozen-l21-contract "$RUNNER_TEMP/frozen-l21/contract.json" \
+            --output "$RUNNER_TEMP/saved-original-to-frozen-l21-readonly.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ["RUNNER_TEMP"])/"saved-original-to-frozen-l21-readonly.json").read_text())
+          assert x["real_races_joined"]==36 and x["real_horses_joined"]==471
+          assert x["original_ai_rank_horses"]==471 and x["original_correction_risk_horses"]==471
+          assert x["original_anchor_full_probability_horses"]==471 and x["original_anchor_full_axis_races"]==36
+          assert x["frozen_standard_rules"]==50 and x["frozen_strict_subset_rules"]==26
+          assert not x["ready_for_betting"] and not x["frozen_l21_engine_invoked"] and not x["l3_v3_invoked"]
+          assert all(r["tickets"] is None and not r["ready_for_betting"] for r in x["races"])
+          print("ORIGINAL_SAVED_L21_RESEARCH_HORSE_AXIS_JOIN_PASS_BETTING_BLOCKED")
+          PY
+          {
+            echo '### Authentic saved original 2026 source -> frozen L2.1 read-only'
+            echo '- 36 races, 471 actual runners: original AI ranks / Correction Risk / ANCHOR_FULL probabilities matched.'
+            echo '- Original ANCHOR_FULL axes: 36/36. Frozen STANDARD=50, STRICT=26, unchanged.'
+            echo '- Source dates and bet-cutoff multi-ticket odds have no independent pre-start proof.'
+            echo '- Research candidates remain unapproved. No L2.1 ticket engine, L3 V3, bets, model fit, or save.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: No paid compute, storage, action artifacts, or 2026 target outcomes
+        if: always()
+        run: |
+          echo "Read-only free public standard CPU. No GPU or paid runner."
+          echo "No Kaggle creation, Actions cache/artifact, model recomputation, L2.1 engine or L3."
+          echo "No target 2026 outcomes, payouts, or FINAL odds."
