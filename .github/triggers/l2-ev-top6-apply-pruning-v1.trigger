@@ -1,0 +1,1 @@
+2026-10-18: Apply all original L2 ticket pruning PROB/MARKET/LEARNED/HYBRID x keep90/75/50/25/10 to all EV axes1-6 x raw AI rank atomic tickets, compare 2024/25 red black; reuse frozen predictions and pinned historical odds; sealed 2026.
