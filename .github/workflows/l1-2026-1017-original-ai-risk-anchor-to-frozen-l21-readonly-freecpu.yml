@@ -5,6 +5,7 @@ on:
     paths:
       - .github/workflows/l1-2026-1017-original-ai-risk-anchor-to-frozen-l21-readonly-freecpu.yml
       - research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py
+      - research/audit_2026_1017_original_l21_gate_feature_panel_v1.py
 permissions:
   contents: read
 concurrency:
@@ -153,6 +154,54 @@ jobs:
               f.write(f"\nBACKFILL original 2026-10-17 eight odds: 36 races / 471 horses, L2.1 relevant ticket quotes: {v['frozen_l21_combinations_with_quotes']}.\n")
               f.write(f"\nL1.75 WIN exact market price matches: {v['same_market_snapshot_races']}/36 races; incompatible price horses: {v['different_market_win_quote_horses']}.\n")
               f.write("\nFrozen L2.1 STANDARD 50, STRICT 26 unchanged. Research source only, no ticket engine or L3.\n")
+          PY
+      - name: Restore pinned original 2025 ANCHOR geometry and exact frozen L2.1 gate function
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l21"
+          git -C "$root" show 9655c717333636b5cc931f672e12dbc377e396bc:research/run_l2_all_fixed_odds_band_lenses_v1.py > "$root/original-gate-function.py"
+          test -s "$root/original-gate-function.py"
+          old="$RUNNER_TEMP/original-2025-geometry"
+          mkdir -p "$old"
+          git -C "$old" init -q
+          git -C "$old" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$old" fetch -q --no-tags --depth 1 --filter=blob:none origin 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+          test "$(git -C "$old" rev-parse FETCH_HEAD)" = 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+          git -C "$old" show FETCH_HEAD:research/anchor-original-feature-geometry.py > "$old/geometry.py"
+          test -s "$old/geometry.py"
+          echo "ORIGINAL_UNMODIFIED_GATE_FLAGS_AND_ANCHOR_GEOMETRY_PINNED"
+      - name: Audit 471 real frozen gate operand panels against unchanged original flags
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_original_l21_gate_feature_panel_v1.py
+          python research/audit_2026_1017_original_l21_gate_feature_panel_v1.py \
+            --pure-index "$RUNNER_TEMP/score/index.json" \
+            --pure-scores "$RUNNER_TEMP/score/original-2026-1017-36r-471h-ability-risk-anchor.jsonl" \
+            --market-index "$RUNNER_TEMP/market/index.json" \
+            --market-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \
+            --frozen-contract "$RUNNER_TEMP/frozen-l21/contract.json" \
+            --original-gate-code "$RUNNER_TEMP/frozen-l21/original-gate-function.py" \
+            --original-geometry-code "$RUNNER_TEMP/original-2025-geometry/geometry.py" \
+            --output "$RUNNER_TEMP/l21-frozen-50-gate-panel-readonly.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          x=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-frozen-50-gate-panel-readonly.json").read_text())
+          assert x["races"]==36 and x["horses"]==471
+          assert x["frozen_standard_rules"]==50 and x["frozen_gate_names_covered"]==14
+          assert x["original_gate_feature_values_verified"]==3297
+          assert x["original_gate_probe_pairs_no_bets"]==435
+          assert x["missing_gate_fields"]==[]
+          assert not x["independent_original_asof_certification"]
+          assert not x["frozen_l21_ticket_engine_invoked"] and not x["l3_v3_invoked"]
+          assert not x["ready_for_betting"]
+          print("FROZEN_L21_ALL_14_GATE_NAMES_SOURCE_COMPLETE_36R_471H_NO_BETS")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as out:
+              out.write("### Frozen L2.1 source feature panel\n")
+              out.write("Original unmodified gate_flags + original ANCHOR market geometry: 36 races / 471 horses, 7 fields x 471 = 3297 values, frozen 14 gate names, 435 safe schema probe pairs.\n")
+              out.write("No ticket selection, L3, release, or source cutoff certification.\n")
           PY
       - name: No paid compute, storage, action artifacts, or 2026 target outcomes
         if: always()
