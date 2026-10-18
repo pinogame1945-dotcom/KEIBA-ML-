@@ -109,6 +109,50 @@ jobs:
             echo '- Source dates and bet-cutoff multi-ticket odds have no independent pre-start proof.'
             echo '- Research candidates remain unapproved. No L2.1 ticket engine, L3 V3, bets, model fit, or save.'
           } >> "$GITHUB_STEP_SUMMARY"
+      - name: Restore pinned BACKFILL 690 + original eight odds index and exact 36 race blobs
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/odds-backfill"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" sparse-checkout init --no-cone
+          printf "/ml_features/delivery/690/index.json\\n/ml_features/delivery/odds/index.json\\n/ml_features/delivery/odds/2026-10-17/*\\n" > "$root/.git/info/sparse-checkout"
+          git -C "$root" fetch -q --depth 1 --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/delivery/odds/index.json"
+          test "$(find "$root/ml_features/delivery/odds/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          echo "PINNED_BACKFILL_JRA_EIGHT_ODDS_36_REAL_RACES_REUSED"
+      - name: Join source original L1 prices to BACKFILL eight ticket odds without changing frozen L2.1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py
+          python research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py \\
+            --backfill "$RUNNER_TEMP/odds-backfill" \\
+            --upstream-audit "$RUNNER_TEMP/saved-original-to-frozen-l21-readonly.json" \\
+            --l175-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \\
+            --output "$RUNNER_TEMP/backfill-eight-odds-frozen-l21-audit.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          v=json.loads((Path(os.environ["RUNNER_TEMP"])/"backfill-eight-odds-frozen-l21-audit.json").read_text())
+          assert v["real_races_verified"]==36 and v["real_horses_verified"]==471
+          assert v["complete_stored_eight_bet_races"]==36
+          assert set(v["l21_bet_types"])=={"QUINELLA","TRIO","TRIFECTA"}
+          assert v["frozen_standard_rules"]==50 and v["frozen_strict_subset_rules"]==26
+          assert v["frozen_l21_ticket_engine_invoked"] is False and v["l3_v3_invoked"] is False
+          assert v["ready_for_betting"] is False and v["2026_target_results_used"] is False
+          print("EXISTING_BACKFILL_THREE_L21_TICKET_PRICE_GROUPS_SOURCE_VERIFIED",v["frozen_l21_combinations_with_quotes"])
+          print("DIFFERENT_WIN_SNAPSHOT_RACES",36-v["same_market_snapshot_races"])
+          print("SOURCE_AUDIT_BLOCKERS",v["remaining_blockers"])
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write(f"\\nBACKFILL original 2026-10-17 eight odds: 36 races / 471 horses, L2.1 relevant ticket quotes: {v['frozen_l21_combinations_with_quotes']}.\\n")
+              f.write(f"\\nL1.75 WIN exact market price matches: {v['same_market_snapshot_races']}/36 races; incompatible price horses: {v['different_market_win_quote_horses']}.\\n")
+              f.write("\\nFrozen L2.1 STANDARD 50, STRICT 26 unchanged. Research source only, no ticket engine or L3.\\n")
+          PY
       - name: No paid compute, storage, action artifacts, or 2026 target outcomes
         if: always()
         run: |
