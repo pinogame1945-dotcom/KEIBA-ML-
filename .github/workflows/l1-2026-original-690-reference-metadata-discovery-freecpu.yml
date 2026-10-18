@@ -1,0 +1,81 @@
+name: Original 2026 690 independent ML reference metadata discovery (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-original-690-reference-metadata-discovery-freecpu.yml
+permissions:
+  contents: read
+concurrency:
+  group: original-2026-690-reference-metadata-only
+  cancel-in-progress: false
+jobs:
+  discover-independent-original-690-reference:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Public free standard CPU read-only gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'keiba-original-690-reference-metadata'})
+          assert json.load(urllib.request.urlopen(req,timeout=30)).get('private') is False
+          print('PUBLIC_REPO_STANDARD_FREE_CPU_ONLY')
+          PY
+      - name: Enumerate ONLY file metadata for existing owned Kaggle independent 2026 references
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          python - <<'PY'
+          from kaggle.api.kaggle_api_extended import KaggleApi
+          api=KaggleApi();api.authenticate()
+          seen=set();possible=[]
+          for page in range(1,41):
+              items=list(api.dataset_list(user='pino1945',page=page))
+              if not items:break
+              for item in items:
+                  ref=str(getattr(item,'ref','') or '')
+                  if ref and ref not in seen:seen.add(ref)
+              if len(items)<20:break
+          print('OWNED_DATASET_METADATA_SCANNED',len(seen))
+          primary=[]
+          for ref in sorted(seen):
+              s=ref.lower()
+              if any(k in s for k in ('2026','690','phase3','feature','snapshot','handoff')):
+                  primary.append(ref)
+          print('POTENTIAL_INPUT_SOURCE_DATASETS',len(primary))
+          exact_690=[]
+          for ref in primary:
+              try:
+                  files=api.dataset_list_files(ref)
+                  names=[str(getattr(f,'name','') or '') for f in (getattr(files,'files',[]) or [])]
+                  print('SOURCE_FILE_NAMES',ref,'|'.join(names[:80]))
+                  for name in names:
+                      lower=name.lower()
+                      if (any(k in lower for k in ('690','20261017','2026-10-17','original')) and
+                          any(k in lower for k in ('.json','.jsonl','.csv','.parquet'))):
+                          exact_690.append((ref,name))
+              except Exception as error:
+                  print('SOURCE_FILE_METADATA_UNAVAILABLE',ref,type(error).__name__)
+          print('POSSIBLE_ORIGINAL_2026_NUMERIC_PANEL_FILES',len(exact_690))
+          for ref,name in exact_690:
+              print('POSSIBLE_ORIGINAL_2026_NUMERIC_PANEL',ref,name)
+          print('THIS_IS_METADATA_ONLY_NOT_A_NUMERICAL_EQUALITY_CLAIM')
+          PY
+      - name: Confirm non-persistence, no model changes, no 2026 labels
+        if: always()
+        run: |
+          echo 'No Kaggle dataset writes, Git commits, Actions artifacts/cache, or files downloaded.'
+          echo 'No model refits, no 2026 payouts, no frozen L2.1/L3 invocation.'
