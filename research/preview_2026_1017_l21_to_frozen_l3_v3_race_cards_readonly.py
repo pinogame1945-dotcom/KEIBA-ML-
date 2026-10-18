@@ -64,7 +64,7 @@ def saved_2026_market(index_path,scores_path):
         rid=str(r.get("race_id") or "")
         horses=r.get("horses") or []
         require(rid not in result and r.get("contract")==MARKET_RACE and
-                r.get("race_date")==DAY and r.get("horse_count")==len(horses) and
+                r.get("race_date",DAY)==DAY and r.get("horse_count")==len(horses) and
                 r.get("ready_for_betting") is False and
                 r.get("market_asof_independently_verified") is False and
                 r.get("2026_target_results_used") is False,
@@ -191,7 +191,7 @@ def perform(replay,market_index,market_scores,v3_source,out):
         "official_v3_run_invoked":False,
         "v3_budget_formula":"200YEN_PER_L21_TICKET",
         "total_provisional_stake_yen":sum_stake,
-        "per_race_max_exposure_yen":MAX_LIMIT,
+        "per_ticket_max_stake_yen":MAX_LIMIT,
         "funding_check":"UNVERIFIED_USER_AVAILABLE_CASH_NOT_PROVIDED",
         "bankroll_pre_funding_v3_applied":False,
         "2026_target_outcomes_used":False,"hit_or_roi_evaluated":False,
