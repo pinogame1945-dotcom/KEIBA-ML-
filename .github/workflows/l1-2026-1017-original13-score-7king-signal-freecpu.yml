@@ -216,8 +216,9 @@ jobs:
           dest="$RUNNER_TEMP/sevenking"
           mkdir -p "$dest"
           kaggle datasets download "$KING_REF" -p "$dest" --unzip --quiet --force
-          test "$(find "$dest" -name 'council2026.jsonl.gz' -type f | wc -l)" -eq 1
-          council="$(find "$dest" -name 'council2026.jsonl.gz' -type f)"
+          # Kaggle expands both the seven-king ZIP and its .jsonl.gz during ingest.
+          # Use the exact expanded path validated by the prior saved-asof lineage audit.
+          council="$dest/2026-sevenking-unreleased-candidate/council2026.jsonl"
           test -s "$council"
           echo "FROZEN_SEVENKING_COUNCIL=$council" >> "$GITHUB_ENV"
           PYTHONPATH=research python - <<'PY'
