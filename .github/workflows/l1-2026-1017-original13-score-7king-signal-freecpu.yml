@@ -334,9 +334,12 @@ jobs:
           assert n<64*1024*1024 and used+n<193273528320,"FREE_QUOTA_PUBLISH_STOP"
           (stage/"dataset-metadata.json").write_text(json.dumps({
               "id":os.environ["OUTPUT_REF"],
-              "title":"KEIBA 2026-10-17 Original13 SevenKing Research Scores",
+              "title":"KEIBA 2026-10-17 Original13 7King Signals",
               "licenses":[{"name":"other"}],
               "description":"Private unapproved 2026 blind research only. No L1.75/L2/L3, no 2026 evaluation."},indent=2)+"\n")
+          kaggle_meta=json.loads((stage/"dataset-metadata.json").read_text())
+          slug=os.environ["OUTPUT_REF"].split("/")[-1]
+          assert 6<=len(slug)<=50 and 6<=len(kaggle_meta["title"])<=50,"KAGGLE_TITLE_OR_SLUG_NOT_6_TO_50_CHARS"
           print("KAGGLE_SCORE_STAGE_VERIFIED_FREE_BYTES "+str(n),flush=True)
           PY
           kaggle datasets create -p "$RUNNER_TEMP/13-support-stage" --quiet --keep-tabular --dir-mode skip
