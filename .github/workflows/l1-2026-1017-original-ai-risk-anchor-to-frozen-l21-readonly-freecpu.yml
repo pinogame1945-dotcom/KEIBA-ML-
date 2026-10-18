@@ -118,7 +118,7 @@ jobs:
           git -C "$root" init -q
           git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
           git -C "$root" sparse-checkout init --no-cone
-          printf "/ml_features/delivery/690/index.json\\n/ml_features/delivery/odds/index.json\\n/ml_features/delivery/odds/2026-10-17/*\\n" > "$root/.git/info/sparse-checkout"
+          printf "/ml_features/delivery/690/index.json\n/ml_features/delivery/odds/index.json\n/ml_features/delivery/odds/2026-10-17/*\n" > "$root/.git/info/sparse-checkout"
           git -C "$root" fetch -q --depth 1 --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
           test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
           git -C "$root" checkout -q --detach FETCH_HEAD
@@ -130,10 +130,10 @@ jobs:
         run: |
           set -euo pipefail
           python -m py_compile research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py
-          python research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py \\
-            --backfill "$RUNNER_TEMP/odds-backfill" \\
-            --upstream-audit "$RUNNER_TEMP/saved-original-to-frozen-l21-readonly.json" \\
-            --l175-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \\
+          python research/audit_2026_1017_backfill_eight_odds_to_frozen_l21_v1.py \
+            --backfill "$RUNNER_TEMP/odds-backfill" \
+            --upstream-audit "$RUNNER_TEMP/saved-original-to-frozen-l21-readonly.json" \
+            --l175-scores "$RUNNER_TEMP/market/l175-real-market-research-1017.jsonl" \
             --output "$RUNNER_TEMP/backfill-eight-odds-frozen-l21-audit.json"
           python - <<'PY'
           import json,os
@@ -149,9 +149,9 @@ jobs:
           print("DIFFERENT_WIN_SNAPSHOT_RACES",36-v["same_market_snapshot_races"])
           print("SOURCE_AUDIT_BLOCKERS",v["remaining_blockers"])
           with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
-              f.write(f"\\nBACKFILL original 2026-10-17 eight odds: 36 races / 471 horses, L2.1 relevant ticket quotes: {v['frozen_l21_combinations_with_quotes']}.\\n")
-              f.write(f"\\nL1.75 WIN exact market price matches: {v['same_market_snapshot_races']}/36 races; incompatible price horses: {v['different_market_win_quote_horses']}.\\n")
-              f.write("\\nFrozen L2.1 STANDARD 50, STRICT 26 unchanged. Research source only, no ticket engine or L3.\\n")
+              f.write(f"\nBACKFILL original 2026-10-17 eight odds: 36 races / 471 horses, L2.1 relevant ticket quotes: {v['frozen_l21_combinations_with_quotes']}.\n")
+              f.write(f"\nL1.75 WIN exact market price matches: {v['same_market_snapshot_races']}/36 races; incompatible price horses: {v['different_market_win_quote_horses']}.\n")
+              f.write("\nFrozen L2.1 STANDARD 50, STRICT 26 unchanged. Research source only, no ticket engine or L3.\n")
           PY
       - name: No paid compute, storage, action artifacts, or 2026 target outcomes
         if: always()
