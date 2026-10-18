@@ -1,0 +1,193 @@
+name: 2026-10-17 BACKFILL WIN to frozen L1.75 research market (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-backfill-win-to-l175-frozen-market-freecpu.yml
+      - research/join_2026_1017_backfill_win_into_l175_research_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: sealed-2026-1017-backfill-win-l175-read-only-research
+  cancel-in-progress: false
+jobs:
+  backfill-official-win-frozen-l175:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      BACKFILL_HANDOFF_SHA: d6607946292efe79fc5eef8eaf143e689c41f6a9
+      EXISTING_L175_REF: pino1945/keiba-2026-1017-l175-safe-bridge-v1
+      RESEARCH_OUTPUT_REF: pino1945/keiba-2026-1017-l175-market-v1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify public standard free CPU, research-only guards and Python syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/join_2026_1017_backfill_win_into_l175_research_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'keiba-ml-freecpu-safety'})
+          assert json.load(urllib.request.urlopen(req,timeout=30)).get('private') is False,'NONFREE_PUBLIC_REPO'
+          print('PUBLIC_STANDARD_GITHUB_FREE_CPU_CONFIRMED')
+          PY
+      - name: Check private Kaggle research storage free-quota and no overwrite
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --disable-pip-version-check --no-cache-dir kaggle
+          KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF="$RESEARCH_OUTPUT_REF" bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          x=dict(s.split('=',1) for s in Path(os.environ['GITHUB_ENV']).read_text().splitlines() if '=' in s)
+          assert x['KAGGLE_STORAGE_PREFLIGHT_OK']=='1'
+          assert int(x['KAGGLE_STORAGE_PREFLIGHT_BYTES'])+16*1024*1024 < 193273528320
+          print('FREE_PRIVATE_KAGGLE_CAPACITY_NO_OVERWRITE_CONFIRMED')
+          PY
+      - name: Restore only 2026-10-17 official JRA odds and existing 690 identity maps from pinned BACKFILL
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/pinned-backfill-handoff"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$BACKFILL_HANDOFF_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$BACKFILL_HANDOFF_SHA"
+          cat > "$RUNNER_TEMP/pinned-backfill-1017-sparse.txt" <<'EOF'
+          /ml_features/delivery/odds/index.json
+          /ml_features/delivery/odds/2026-10-17/*
+          /ml_features/delivery/690/index.json
+          /ml_features/delivery/690/2026-10-17/*
+          EOF
+          git -C "$root" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/pinned-backfill-1017-sparse.txt"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/ml_features/delivery/odds/index.json"
+          test -s "$root/ml_features/delivery/690/index.json"
+          test "$(find "$root/ml_features/delivery/odds/2026-10-17" -maxdepth 1 -name '*.json' | wc -l)" -eq 36
+          test "$(find "$root/ml_features/delivery/690/2026-10-17" -maxdepth 1 -name '*.json' | wc -l)" -eq 36
+          test ! -e "$root/ml_features/delivery/odds/2026-10-10"
+          echo 'PINNED_BACKFILL_36_PRE_RACE_WIN_AND_690_IDENTITY_FILES_READY'
+      - name: Read previously verified frozen L1.75 original podium p3 (do not recompute models)
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/l175-p3-source"
+          mkdir -p "$root"
+          for file in index.json l175-research-input-20261017.jsonl; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$EXISTING_L175_REF" -f "$file" -p "$root" --unzip --quiet --force 2>&1)"; then
+                test -s "$root/$file"
+                break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::Original sealed L175 source unavailable: $file $result"
+                exit 1
+              fi
+              sleep $((25*attempt))
+            done
+            sleep 2
+          done
+          echo 'EXISTING_RESEARCH_L175_FROZEN_P3_SOURCE_RESTORED_NO_REFIT'
+      - name: Join authentic BACKFILL official WIN quotes and competition market ranks, retain unverified as-of gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/join_2026_1017_backfill_win_into_l175_research_v1.py \
+            --input-index "$RUNNER_TEMP/l175-p3-source/index.json" \
+            --input-file "$RUNNER_TEMP/l175-p3-source/l175-research-input-20261017.jsonl" \
+            --backfill-handoff "$RUNNER_TEMP/pinned-backfill-handoff" \
+            --output "$RUNNER_TEMP/l175-real-market-research-1017.jsonl"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          f=Path(os.environ['RUNNER_TEMP'])/'l175-real-market-research-1017.jsonl'
+          rows=[json.loads(x) for x in f.read_text(encoding='utf-8').splitlines() if x.strip()]
+          assert len(rows)==36 and sum(r['horse_count'] for r in rows)==471
+          assert all(r['contract']=='KEIBA_2026_1017_L175_MARKET_JOIN_RESEARCH_V1' and
+            r['ranking_policy']=='SEVEN_KING_UNCHANGED' and r['ready_for_betting'] is False and
+            r['market_asof_independently_verified'] is False and
+            r['market_readiness']=='RESEARCH_ONLY_INDEPENDENT_ASOF_NOT_VERIFIED' and
+            r['2026_target_results_used'] is False and r['2026_model_fit_or_evaluation'] is False and
+            r['l21_l3_invoked'] is False for r in rows)
+          n=sum(h['market_win_odds'] is not None for r in rows for h in r['horses'])
+          calibrated=sum(h['p3_calibrated'] is not None for r in rows for h in r['horses'])
+          assert calibrated==347 and n>0
+          assert all(h['outsider_alignment'] in ('AGREE','OPPOSE','NEUTRAL','NA') and
+            'reranked_rank' not in h and 'blended_rank' not in h for r in rows for h in r['horses'])
+          print('FROZEN_L175_ACTUAL_BACKFILL_ODDS_MARKET_JOIN_36R_471H_P3_347_PASS',n)
+          PY
+      - name: Store only sealed L1.75 descriptive market research in private Kaggle free quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          from pathlib import Path
+          import hashlib,json,os,shutil
+          root=Path(os.environ['RUNNER_TEMP']);stage=root/'l175-market-private'
+          stage.mkdir(exist_ok=False)
+          src=root/'l175-real-market-research-1017.jsonl'
+          shutil.copy2(src,stage/src.name)
+          items=[json.loads(s) for s in src.read_text(encoding='utf-8').splitlines() if s]
+          index={'contract':'KEIBA_L175_BACKFILL_2026_1017_RESEARCH_PRIVATE_V1',
+            'races':36,'horses':471,'p3_model_training_years':[2021,2022,2023,2024,2025],
+            'odds_source':'BACKFILL_HANDOFF_JRA_OFFICIAL_POST',
+            'backfill_commit':os.environ['BACKFILL_HANDOFF_SHA'],
+            'ranking_policy':'SEVEN_KING_UNCHANGED',
+            'market_asof_independently_verified':False,'ready_for_betting':False,
+            '2026_target_results_used':False,'l21_l3_invoked':False,
+            'races_with_full_win_market':sum(r['market_field_complete'] for r in items),
+            'horses_with_win_market':sum(h['market_win_odds'] is not None for r in items for h in r['horses']),
+            'files':{src.name:hashlib.sha256(src.read_bytes()).hexdigest()}}
+          (stage/'index.json').write_text(json.dumps(index,ensure_ascii=False,indent=2)+'\n')
+          metadata={'id':os.environ['RESEARCH_OUTPUT_REF'],
+            'title':'KEIBA 2026 L175 BACKFILL Market Research',
+            'licenses':[{'name':'other'}],
+            'description':'Sealed 2026 original 7King and Outsider p3 joined to official pre-race WIN odds; independent as-of unverified. No betting.'}
+          assert 6<=len(metadata['id'].split('/')[-1])<=50 and 6<=len(metadata['title'])<=50
+          (stage/'dataset-metadata.json').write_text(json.dumps(metadata,indent=2)+'\n')
+          used=int(os.environ['KAGGLE_STORAGE_PREFLIGHT_BYTES'])
+          n=sum(f.stat().st_size for f in stage.iterdir())
+          assert n<16*1024*1024 and used+n<193273528320,'FREE_KAGGLE_STORAGE_QUOTA_STOP'
+          print('PRIVATE_L175_BACKFILL_RESEARCH_STAGE_FREE_CAPACITY_OK bytes='+str(n),flush=True)
+          PY
+          kaggle datasets create -p "$RUNNER_TEMP/l175-market-private" --quiet --keep-tabular --dir-mode skip
+          python - <<'PY'
+          import hashlib,json,os,subprocess,tempfile,time
+          from pathlib import Path
+          source=Path(os.environ['RUNNER_TEMP'])/'l175-market-private'
+          m=json.loads((source/'index.json').read_text())
+          expected={'index.json':hashlib.sha256((source/'index.json').read_bytes()).hexdigest(),**m['files']}
+          assert len(expected)==2
+          with tempfile.TemporaryDirectory() as tmp:
+              for name,expected_sha in expected.items():
+                  for i in range(1,7):
+                      p=subprocess.run(['kaggle','datasets','download',os.environ['RESEARCH_OUTPUT_REF'],'-f',name,'-p',tmp,'--unzip','--quiet','--force'],capture_output=True,text=True)
+                      if p.returncode==0:break
+                      err=p.stderr or p.stdout
+                      if i==6 or not any(c in err for c in ('429','403','404','Too Many Requests','Forbidden','Not Found')):
+                          raise SystemExit('REMOTE_PRIVATE_L175_MARKET_READBACK_FAILED:'+name+':'+err[-280:])
+                      time.sleep(min(120,20*i))
+                  remote=Path(tmp)/name
+                  assert remote.is_file() and hashlib.sha256(remote.read_bytes()).hexdigest()==expected_sha,'RESEARCH_MARKET_SHA_MISMATCH'
+                  time.sleep(2)
+          print('PRIVATE_BACKFILL_L175_MARKET_REMOTE_SHA256_PASS 2_OF_2_FILES',flush=True)
+          PY
+      - name: Cost and frozen-system guard
+        if: always()
+        run: |
+          echo 'Standard free GitHub ubuntu-latest CPU only. No GPU or paid runner.'
+          echo 'BACKFILL exact pinned 2026-10-17 690 and official JRA WIN quotes read-only, no recomputation.'
+          echo '2026 result and payout never read. Market as-of independent certification remains false.'
+          echo 'Original seven king order, Outsider support, 2021-25 podium calibrator, frozen L1.75 contract unchanged.'
+          echo 'No L2.1, L3 V3, model release, betting, artifact or cache. Private Kaggle free quota checked.'
