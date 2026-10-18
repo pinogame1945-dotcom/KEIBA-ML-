@@ -43,7 +43,7 @@ def key(e):
     require(typ in BETS and type(nums) is list and
             len(nums)==(1 if typ in ("WIN","PLACE") else 3 if typ in ("TRIO","TRIFECTA") else 2) and
             all(type(n) is int and 1<=n<=18 for n in nums) and
-            len(nums)==len(set(nums)), "UNEXPECTED_JRA_TICKET_COMBINATION_FORMAT")
+            (typ=="BRACKET_QUINELLA" or len(nums)==len(set(nums))), "UNEXPECTED_JRA_TICKET_COMBINATION_FORMAT")
     # Parentheses never silently re-sort ordered trifectas.
     if typ in ("QUINELLA","TRIO","WIDE","BRACKET_QUINELLA"):
         require(nums==sorted(nums),"JRA_UNORDERED_TICKET_NOT_CANONICAL")
@@ -121,9 +121,16 @@ def audit(backfill, upstream_file, market_file, report):
                 require(kk not in keys,"ODDS_DUPLICATE_STATE_OR_COMBINATION:"+rid)
                 keys.add(kk);typed[e["bet_type"]][category]+=1
                 if category=="quoted":
-                    require(type(e.get("odds")) in (float,int) and
-                            math.isfinite(e["odds"]) and e["odds"]>=1,
-                            "BAD_MARKET_QUOTATION:"+rid)
+                    if e["bet_type"] in ("PLACE","WIDE"):
+                        require("odds" not in e and
+                                all(type(e.get(k)) in (float,int) and math.isfinite(e[k])
+                                    for k in ("odds_min","odds_max")) and
+                                1<=e["odds_min"]<=e["odds_max"],
+                                "BAD_RANGE_MARKET_QUOTATION:"+rid)
+                    else:
+                        require(type(e.get("odds")) in (float,int) and
+                                math.isfinite(e["odds"]) and e["odds"]>=1,
+                                "BAD_MARKET_QUOTATION:"+rid)
                     if e["bet_type"]=="WIN": win[kk[1][0]]=float(e["odds"])
                 else:
                     require(e.get("odds") is None,
