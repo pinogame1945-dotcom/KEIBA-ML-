@@ -1,0 +1,122 @@
+name: 2026-10-17 REAL L1.75 to frozen L2.1 original-input safety gate (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-frozen-l21-real-input-gate-freecpu.yml
+      - research/gate_2026_1017_frozen_l21_from_l175_market_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: l175-real-to-original-l21-2026-safe-gate
+  cancel-in-progress: false
+jobs:
+  check-original-50-line-gate-data:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      L175_PRIVATE_REF: pino1945/keiba-2026-1017-l175-market-v1
+      L21_FREEZE_SHA: 9655c717333636b5cc931f672e12dbc377e396bc
+      L21_FROZEN_BLOB: 600fa764565545c4898c79d65187b8843e51a5e1
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Public free CPU, no frozen policy changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/gate_2026_1017_frozen_l21_from_l175_market_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'keiba-research-standard-freecpu'})
+          assert json.load(urllib.request.urlopen(u,timeout=30)).get("private") is False,"STOP_PAID_RUNNER_RISK"
+          print('FROZEN_L21_GATE_PUBLIC_FREE_STANDARD_CPU')
+          PY
+      - name: Verify original L2.1 50-rule frozen contract by exact saved Git blob and commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-l21"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$L21_FREEZE_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$L21_FREEZE_SHA"
+          git -C "$root" show FETCH_HEAD:contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json > "$root/contract.json"
+          test "$(git hash-object "$root/contract.json")" = "$L21_FROZEN_BLOB"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          p=Path(os.environ["RUNNER_TEMP"])/"frozen-l21/contract.json"
+          r=json.loads(p.read_text())
+          assert r['contract']=='KEIBA_L2_1_FIXED_PURCHASE_V1'
+          assert r['version']=='2.1.0' and r['primary_policy']=='STANDARD'
+          assert len(r['frozen_rules']['STANDARD'])==50
+          assert len(r['frozen_rules']['STRICT_SUBSET'])==26
+          print('EXACT_FROZEN_L21_STANDARD_50_AND_STRICT_26_SHA_MATCH')
+          PY
+      - name: Read original private L1.75 JRA WIN market and index only (no model inference)
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          root="$RUNNER_TEMP/l175"
+          mkdir -p "$root"
+          for f in index.json l175-real-market-research-1017.jsonl; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$L175_PRIVATE_REF" -f "$f" -p "$root" --unzip --quiet --force 2>&1)"; then
+                test -s "$root/$f"
+                break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::L175 private source unavailable: $f $result"
+                exit 1
+              fi
+              sleep $((25*attempt))
+            done
+            sleep 2
+          done
+          echo 'REAL_FROZEN_L175_MARKET_SOURCE_RESTORED_NO_RECALC'
+      - name: Safely verify connection and explicitly block unfounded L2.1 tickets
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/gate_2026_1017_frozen_l21_from_l175_market_v1.py \
+            --l175-index "$RUNNER_TEMP/l175/index.json" \
+            --l175-races "$RUNNER_TEMP/l175/l175-real-market-research-1017.jsonl" \
+            --frozen-l21-contract "$RUNNER_TEMP/frozen-l21/contract.json" \
+            --output "$RUNNER_TEMP/l21-real-2026-gate.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          x=json.loads((Path(os.environ["RUNNER_TEMP"])/"l21-real-2026-gate.json").read_text())
+          assert x["contract"]=="KEIBA_2026_1017_FROZEN_L21_REAL_INPUT_GATE_V1"
+          assert x["race_count"]==36 and x["horse_count"]==471
+          assert x["win_market_horse_count"]==471 and x["available_original_p3_horse_count"]==347
+          assert x["standard_line_gate_count"]==50 and x["strict_diagnostic_count"]==26
+          assert x["original_l21_axis_available"] is False and x["frozen_l21_engine_invoked"] is False
+          assert x["l3_v3_invoked"] is False and x["actual_bets_placed"] is False
+          assert all(r["status"]=="BLOCKED_ORIGINAL_FROZEN_L21_INPUTS_INCOMPLETE" and
+              r["ticket_count"] is None and not r["ready_for_betting"] for r in x["races"])
+          print('FROZEN_L21_36R_471H_REAL_SOURCE_INPUT_GATE_COMPLETE_BETTING_BLOCKED')
+          PY
+          {
+            echo '### Actual frozen L2.1 source check'
+            echo '- 2026-10-17: 36 races / 471 real runners; JRA official WIN odds: 471/471.'
+            echo '- Saved original p3: 347. Frozen STANDARD 50 line-gates: exactly unchanged.'
+            echo '- Original ANCHOR_FULL probabilities, original distill AI raw ranks and Correction Risk: not provided.'
+            echo '- Historical 2026 runner source timestamp independent verification: absent.'
+            echo '- All 36 races: BLOCKED for true frozen L2.1 / L3 V3; no zero-ticket buy or fabricated model.'
+          } >> "$GITHUB_STEP_SUMMARY"
+      - name: No extra compute or storage policy
+        if: always()
+        run: |
+          echo 'Free standard GitHub CPU only, no GPUs or paid runner, no Actions artifacts/caches.'
+          echo 'No Kaggle new dataset, no model training/690/928 regeneration, no 2026 results/labels.'
+          echo 'No 7King proxy as ANCHOR_FULL, no original frozen 50-rule modifications, no L3/betting.'
