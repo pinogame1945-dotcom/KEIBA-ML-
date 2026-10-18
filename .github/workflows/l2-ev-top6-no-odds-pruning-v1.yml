@@ -26,6 +26,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
+      - name: Python dependencies
+        shell: bash
+        run: python -m pip install --disable-pip-version-check pandas numpy
       - name: Safety, source integrity, non-price-gate checks
         shell: bash
         run: |
@@ -51,9 +54,6 @@ jobs:
           PY
           test -s research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz
           test -s research-results/l2-ev-top6-raw-ai-rank-tickets-v1/run-39113910151/atomic-exact-rank-yearly-returns.csv
-      - name: Python dependencies
-        shell: bash
-        run: python -m pip install --disable-pip-version-check pandas numpy
       - name: Fetch only the frozen 2023-2025 race settlement packs
         shell: bash
         run: |
