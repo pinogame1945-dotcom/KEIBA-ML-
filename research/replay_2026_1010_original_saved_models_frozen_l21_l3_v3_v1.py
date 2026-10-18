@@ -382,15 +382,17 @@ def select_and_stake(sources,scored,l21_math,l3_alloc):
     return output,n_tickets,counts
 
 def official_results_for_display(hist_source):
-    # Explicitly invoked ONLY after L1,L2 and V3 amounts have all been fixed.
+    # This file is opened ONLY AFTER full original L1->frozen L2.1->V3 lock.
+    # Actual payout rows are the source of truth when dead heats are present.
+    import re
     target=hist_source/"data/daily/2026-10-10.jsonl.gz"
     need(target.is_file(),"MISSING_SEPARATE_HISTORIC_RESULT_PACK")
     rows={}
+    arity={"QUINELLA":2,"TRIO":3,"TRIFECTA":3}
     with gzip.open(target,"rt",encoding="utf8") as f:
         for line in f:
             if not line.strip():continue
-            x=json.loads(line)
-            race=x.get("race",{})
+            x=json.loads(line);race=x.get("race",{})
             rid=str(race.get("race_id") or "")
             need(rid not in rows and str(race.get("actual_date") or
                     race.get("scheduled_date") or "")[:10]==DAY,
@@ -398,50 +400,90 @@ def official_results_for_display(hist_source):
             starters={str(e["horse_id"]):int(e["horse_number"])
                       for e in x.get("entries",[])
                       if e.get("horse_id") and e.get("horse_number")}
-            pos={}
+            placements={}
             for r in x.get("results",[]):
-                h=str(r.get("horse_id") or "")
+                hid=str(r.get("horse_id") or "")
                 value=r.get("official_finish_position")
-                if h and h in starters and value is not None:
-                    try:n=int(value)
-                    except (ValueError,TypeError):continue
-                    if n>=1:
-                        need(n not in pos,"DUPLICATE_OFFICIAL_PLACING:"+rid)
-                        pos[n]=starters[h]
-            rows[rid]={"top3":[pos.get(z) for z in (1,2,3)],
-                       "payouts":x.get("payouts") or []}
+                if hid not in starters or value is None:continue
+                try:rank=int(value)
+                except (ValueError,TypeError):continue
+                if rank>=1:placements.setdefault(rank,[]).append(starters[hid])
+            need(len(placements)>=3 or
+                 (len(placements)>=2 and any(len(v)>1 for v in placements.values())),
+                 "OFFICIAL_FINISH_RANKS_INCOMPLETE:"+rid)
+            placement_view={str(p):sorted(v) for p,v in sorted(placements.items())
+                            if p<=3}
+            # In a dead heat, ranks may skip a value (e.g. 2,2,4).
+            # NEVER break ties or fabricate unique top3.
+            paid={};paid_types=set()
+            for p in x.get("payouts") or []:
+                bet=str(p.get("bet_type") or "")
+                if bet not in arity:continue
+                paid_types.add(bet)
+                ns=tuple(int(s) for s in re.findall(r"\\d+",str(p.get("combination") or "")))
+                if len(ns)!=arity[bet] or len(set(ns))!=len(ns):continue
+                if bet!="TRIFECTA":ns=tuple(sorted(ns))
+                try:yen=float(str(p.get("payout_yen") or "").replace(",",""))
+                except (ValueError,TypeError):continue
+                if not math.isfinite(yen) or yen<=0:continue
+                need((bet,ns) not in paid,"DUPLICATE_ACTUAL_OFFICIAL_PAID_COMBINATION:"+rid)
+                paid[(bet,ns)]=round(yen)
+            rows[rid]={"actual_placements":placement_view,
+                       "payouts_per100":paid,
+                       "available_payout_categories":paid_types,
+                       "dead_heat":any(len(z)>1 for z in placements.values())}
     need(len(rows)==24,"NOT_ALL_24_RESULT_PACKS_AVAILABLE")
     return rows
 
 def settle_only_after_lock(records,hist_source):
-    # NOT used to select L1 rank, L2 line, L3 budget, P3 or cash.
+    # Original L2.1/V3 choices are already fixed; no results feed back into
+    # score, anchor, gates, prices, P3 ordering or stake selection.
     result=official_results_for_display(hist_source)
-    total=Counter();detailed=0
+    total=Counter();races_with_tickets=0;dead_heats=0
     for race in records:
-        rid=race["race_id"];win=result[rid]["top3"]
-        race["actual_1_2_3"]=win
+        rid=race["race_id"];truth=result[rid]
+        race["actual_1_2_3"]=truth["actual_placements"]
+        race["race_has_dead_heat"]=truth["dead_heat"]
+        dead_heats+=truth["dead_heat"]
+        race_paid=0
         for t in race["tickets"]:
-            typ=t["bet_type"];ns=t["selection"]
-            if any(z is None for z in win):
-                t["hit"]=None;t["result_reason"]="OFFICIAL_1_2_3_MISSING"
-            else:
-                t["hit"]=(ns==win if typ=="TRIFECTA" else
-                          sorted(ns)==sorted(win) if typ=="TRIO" else
-                          set(ns).issubset(win[:2]))
-            t["payout_yen"]=None # paid dividend source not yet independently confirmed
-            if t["hit"] is True:total["hits"]+=1
-            total["stake_yen"]+=t["stake_yen"];total["tickets"]+=1
+            typ=t["bet_type"]
+            need(typ in truth["available_payout_categories"],
+                 "OFFICIAL_REAL_PAYOUT_FAMILY_NOT_AVAILABLE:"+rid+":"+typ)
+            ns=tuple(t["selection"])
+            if typ!="TRIFECTA":ns=tuple(sorted(ns))
+            paid=int(truth["payouts_per100"].get((typ,ns),0))
+            t["hit"]=paid>0
+            t["payout_yen"]=paid*t["stake_yen"]//100
+            t["payout_per100_yen"]=paid
+            if t["hit"]:total["hits"]+=1
+            total["stake_yen"]+=t["stake_yen"]
+            total["payout_yen"]+=t["payout_yen"]
+            total["tickets"]+=1
+            race_paid+=t["payout_yen"]
         race["matched_tickets"]=sum(x["hit"] is True for x in race["tickets"])
+        race["payout_yen"]=race_paid
+        race["profit_yen"]=race_paid-race["stake_total_yen"]
         if race["tickets"]:
-            detailed+=1
+            races_with_tickets+=1
             print("L3_1010_RESULT_OBSERVATION "+json.dumps({"race_id":rid,
-                  "result":win,"hits":race["matched_tickets"],
+                  "placements":truth["actual_placements"],
+                  "dead_heat":truth["dead_heat"],
+                  "hits":race["matched_tickets"],
+                  "stake_yen":race["stake_total_yen"],
+                  "payout_yen":race_paid,
                   "tickets":[{"kind":t["bet_type"],"nums":t["selection"],
-                  "yen":t["stake_yen"],"hit":t["hit"]} for t in race["tickets"]]},
+                  "yen":t["stake_yen"],"hit":t["hit"],
+                  "payout_yen":t["payout_yen"]} for t in race["tickets"]]},
                   ensure_ascii=False,sort_keys=True),flush=True)
     need(total["tickets"]==sum(len(r["tickets"]) for r in records),
          "RESULT_OBSERVATION_CHANGED_L21_L3_TICKET_COUNT")
-    return total,detailed
+    print("RESULT_SETTLEMENT_OFFICIAL_PAID_TICKET_COMBINATIONS "+
+          json.dumps({"tickets":total["tickets"],"hits":total["hits"],
+           "stake_yen":total["stake_yen"],
+           "payout_yen":total["payout_yen"],
+           "dead_heat_races":dead_heats},sort_keys=True),flush=True)
+    return total,races_with_tickets
 
 def main():
     global FROZEN_RULES,FROZEN_STRICT
@@ -492,7 +534,7 @@ def main():
         "fixed_l21_rules":50,"l21_original_model_weights_reused":True,
         "l3_original_reverse_p3_engine_used":True,
         "l3_max_race_budget_yen":300,
-        "total_paper_stake_yen":sum_yen,
+        "total_paper_stake_yen":sum_yen,\n        "total_official_observed_payout_yen":settled["payout_yen"],\n        "total_paper_profit_yen":settled["payout_yen"]-sum_yen,
         "tickets_by_type":dict(counts),"blocked_original_favorite_ties":blocked,
         "races_with_tickets":with_tickets,
         "market_source":"NETKEIBA_FINAL",
@@ -501,7 +543,7 @@ def main():
         "missing_p3_alternative":"OFFICIAL_V3_MISSING_P3_SORT_NO_PROXY",
         "result_observation_performed_after_ticket_lock":True,
         "results_not_used_for_training_or_reselection":True,
-        "payout_yen_verified":False,
+        "payout_yen_verified":True,
         "real_prebet_provenance_verified":False,
         "actual_betting_not_performed":True,"ready_for_betting":False,
         "per_race":records}
@@ -509,7 +551,7 @@ def main():
     a.output.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf8")
     print("ORIGINAL_2026_1010_L3_V3_OBSERVATION_SUMMARY "+
       json.dumps({"races":24,"horses":315,"tickets":n,"hits":settled["hits"],
-       "stake_yen":sum_yen,"races_with_tickets":with_tickets,"model_refit":False,
+       "stake_yen":sum_yen,"payout_yen":settled["payout_yen"],\n       "profit_yen":settled["payout_yen"]-sum_yen,\n       "races_with_tickets":with_tickets,"model_refit":False,
        "quote":"POST_RACE_FINAL_NOT_PREBET","p3_missing":True,
        "actual_bets":False},ensure_ascii=False,sort_keys=True),flush=True)
 
