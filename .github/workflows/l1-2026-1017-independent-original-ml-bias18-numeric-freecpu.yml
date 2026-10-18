@@ -1,0 +1,98 @@
+name: 2026 original ML independent 18 of 19 bias numerical parity (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-independent-original-ml-bias18-numeric-freecpu.yml
+      - research/audit_2026_original_ml_bias19_18of19_numeric_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: original-2026-1017-18-bias-parity-readonly
+  cancel-in-progress: false
+jobs:
+  compare-original-ml-bias18:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Confirm public free CPU and pinned original source integrity
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_original_ml_bias19_18of19_numeric_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          q=urllib.request.Request('https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-',headers={'User-Agent':'keiba-original-ml-18-bias-audit'})
+          assert json.load(urllib.request.urlopen(q,timeout=30))['private'] is False
+          print('PUBLIC_FREE_STANDARD_CPU_ONLY')
+          PY
+          python -m pip install --disable-pip-version-check --no-cache-dir numpy==2.3.5
+      - name: Pin true untouched ML historical bias model and verify copied originals all Git blobs identical
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-original-ml"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin c782a7e0c6e2f09b2d0603b23336eab31ad5bc77
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = c782a7e0c6e2f09b2d0603b23336eab31ad5bc77
+          git -C "$root" show FETCH_HEAD:research/run_l1_sameday_track_bias_v1.py > "$root/frozen-original-ml-bias.py"
+          test "$(git hash-object "$root/frozen-original-ml-bias.py")" = 6b2124558790b317063c1d48e5c3b0ce9b6952e6
+          for item in 'compute_blind_target_seq_regime_v1.py e048b4af2a64b2ddc2f99a3fff3b1e7354090482' 'run_l1_state_transition_v1.py f02cfa39bd378445a69ca11e588abf1010b9acb1' 'run_l1_residual_regime_full_pairwise_v1.py 1d236a07dcf0ca1722b8448a269f28c7232f3d0f' 'audit_2026_generated_core4_v1.py ee551f58a4ffe96e4bcf70b0cd88353cb881fd4e'; do
+            set -- $item
+            test "$(git -C "$root" rev-parse "FETCH_HEAD:research/$1")" = "$2"
+          done
+          echo 'REAL_FROZEN_ML_DAYBIAS_AND_4_ORIGINAL_SOURCE_BLOBS_PINNED'
+      - name: Reuse exact 36 original prestart 690 source files, no new calculation of 649 or 22
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/690-source"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" sparse-checkout init --no-cone
+          printf '/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-17/*\n' > "$root/.git/info/sparse-checkout"
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test "$(find "$root/ml_features/delivery/690/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          echo 'SAVED_ORIGINAL_690_NO_RECOMPUTATION'
+      - name: Re-execute untouched frozen ML BiasState for independent 18 by 471 real numeric cells
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_original_ml_bias19_18of19_numeric_v1.py \
+            --original-ml-bias "$RUNNER_TEMP/frozen-original-ml/frozen-original-ml-bias.py" \
+            --backfill-690 "$RUNNER_TEMP/690-source" \
+            --output "$RUNNER_TEMP/original-ml-independent-bias18-parity.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          d=json.loads((Path(os.environ['RUNNER_TEMP'])/'original-ml-independent-bias18-parity.json').read_text())
+          assert d['races']==36 and d['horses']==471
+          assert d['independently_recomputed_original_ml_bias_cells']==8478
+          assert d['original_ml_recomputed_bias_columns_per_horse']==18
+          assert d['horse_front_values_validated_range_only']==471
+          assert d['original_ml_style_source_missing_bias_column']=='horse_front_score'
+          assert not d['all_690_independent_numeric_parity_certified']
+          assert not d['frozen_l21_invoked'] and not d['l3_v3_invoked']
+          assert not d['ready_for_betting']
+          print('ORIGINAL_ML_2026_REAL_471x18_NUMERICAL_BIAS_PARITY_VERIFIED_NO_BETS')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as out:
+              out.write('### Original ML immutable source vs saved BACKFILL original daybias\n')
+              out.write('Original 2025 frozen ML source BiasState executed on 36 real prestart races / 471 horses; exactly 8478 values across 18/19 bias columns independently verified.\n')
+              out.write('19th front score requires target STYLE source not in stored CORE4 649; 649 and 22 numerical parity to independent ML original remains unproven. No model promotion, no L2/L3, no 2026 outcomes.\n')
+          PY
+      - name: No paid runner, new Kaggle dataset, paid artifacts, model change or outcome access
+        if: always()
+        run: |
+          echo 'Public free standard CPU, read-only dataset and code SHA. No GPU, paid storage, cache or Actions artifact.'
+          echo 'No re-fit, 2026 result labels, frozen policy modifications, L2.1 tickets or L3.'
