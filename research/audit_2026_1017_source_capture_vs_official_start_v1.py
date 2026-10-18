@@ -142,11 +142,17 @@ def audit(source_root,delivery_root,output):
         ours={int(h["horse_number"]):str(h["horse_id"]) for h in src["netkeiba"]["runners"]}
         names={int(h["horse_number"]):h["horse_name"] for h in src["netkeiba"]["runners"]}
         official=src["jra_card"]["official_horse_set"]
-        need(len(ours)==len(names)==len(official) and
-             all(int(h["horse_number"]) in names and
-                 h["horse_name"]==names[int(h["horse_number"])] for h in official),
+        name_to_number={name:num for num,name in names.items()}
+        need(len(name_to_number)==len(names)==len(official) and
+             all(h["horse_name"] in name_to_number and
+                 (h["horse_number"]==name_to_number[h["horse_name"]]
+                  if h["horse_number"] is not None
+                  else h["entry_status"] in ("SCRATCHED","EXCLUDED"))
+                 for h in official),
              "OFFICIAL_NETKEIBA_HORSE_ID_OR_NAME_NOT_SAME:"+rid)
-        starters={ours[int(h["horse_number"])] for h in official
+        # JRA omits horse number for a scratched starter; preserve the source
+        # name->original number linkage rather than fabricate a JRA number.
+        starters={ours[name_to_number[h["horse_name"]]] for h in official
                   if h["entry_status"]=="LISTED"}
         rows=fd.get("rows") or []
         need(len(rows)==len(starters)==info["starters"] and
