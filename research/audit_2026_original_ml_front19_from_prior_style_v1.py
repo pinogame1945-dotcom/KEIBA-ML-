@@ -32,7 +32,7 @@ def sha256(path):
 
 def gitblob(path):
     b=Path(path).read_bytes()
-    return hashlib.sha1(b"blob "+str(len(b)).encode()+b"\\x00"+b).hexdigest()
+    return hashlib.sha1(b"blob "+str(len(b)).encode()+b"\x00"+b).hexdigest()
 
 def original_front(source):
     require(gitblob(source)==ML_STYLE_SOURCE_GIT_BLOB,
@@ -149,7 +149,7 @@ def run(original,style_path,delivery,out):
         "l21_tickets_generated":False,"l3_money_generated":False,
         "ready_for_betting":False,"per_race":rows_by_race}
     out.parent.mkdir(parents=True,exist_ok=True)
-    out.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\\n",encoding="utf8")
+    out.write_text(json.dumps(report,ensure_ascii=False,indent=2,sort_keys=True)+"\n",encoding="utf8")
     print("ORIGINAL_ML_FRONT19_STRICT_PRIOR_REAL_PARITY "
           +json.dumps({"races":36,"horses":verified,"nonnull_front":nonnull,
                        "original_ml_formula":True,"full_690_verified":False,
