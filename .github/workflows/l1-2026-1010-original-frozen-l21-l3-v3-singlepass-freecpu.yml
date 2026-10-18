@@ -149,7 +149,7 @@ jobs:
           assert j['result_observation_performed_after_ticket_lock'] and j['results_not_used_for_training_or_reselection']
           assert j['market_snapshot_type']=='POST_RACE_FINAL'
           assert not j['genuine_1010_L175_p3_available'] and not j['real_prebet_provenance_verified']
-          assert not j['payout_yen_verified'] and j['actual_betting_not_performed']
+          assert j['payout_yen_verified'] and j['actual_betting_not_performed']
           assert not j['ready_for_betting']
           assert len(j['per_race'])==24
           assert sum(len(r['tickets']) for r in j['per_race'])==j['tickets']
@@ -157,8 +157,8 @@ jobs:
           print('ORIGINAL_1010_24_RACES_L21_L3_V3_HISTORIC_RESULT_OBSERVATION_VERIFIED')
           with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as s:
             s.write('## Oct 10 frozen original AI → L2.1 STANDARD 50 → L3 V3 race cards (historical observation)\n')
-            s.write(f"24 races/315 horses; selected {j['tickets']} tickets, historical result observation hits **{j['matched_tickets']}**, stake sum **¥{j['total_paper_stake_yen']:,}**.\n\n")
-            s.write('**Not live/released:** prices are NETKEIBA_FINAL after the race, not pre-race. True Oct 10 original per-horse P3 unavailable and intentionally left missing (official V3 missing-P3 priority); no bankroll available, no real purchase, no ROI claim. Outcome comparison is observational ONLY, performed after L1/L2/L3 decisions.\n\n')
+            s.write(f"24 races/315 horses; selected {j['tickets']} tickets, historical result observation hits **{j['matched_tickets']}**, stake sum **¥{j['total_paper_stake_yen']:,}**, actual payout **¥{j['total_official_observed_payout_yen']:,}**, net **¥{j['total_paper_profit_yen']:,}**.\n\n")
+            s.write('**Not live/released:** prices are NETKEIBA_FINAL after the race, not pre-race. True Oct 10 original per-horse P3 unavailable and intentionally left missing (official V3 missing-P3 priority); no bankroll available, no real purchase, no pre-bet ROI claim. Outcome comparison is observational ONLY, performed after L1/L2/L3 decisions.\n\n')
             s.write('| Race | Actual 1–2–3 | Tickets | L3 paper yen | Hits |\n|---|---|---:|---:|---:|\n')
             for r in j['per_race']:
               s.write(f"| {r['race_id']} | {r['actual_1_2_3']} | {len(r['tickets'])} | {r['stake_total_yen']} | {r['matched_tickets']} |\n")
