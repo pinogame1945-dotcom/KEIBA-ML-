@@ -337,7 +337,8 @@ def export(records, baseline, peryear, unpriced, meta):
 
 def write_csv(path,rows):
     assert rows
-    with open(path,"w",newline="",encoding="utf-8") as fd:
+    with (gzip.open(path,"wt",newline="",encoding="utf-8") if str(path).endswith(".gz")
+          else open(path,"w",newline="",encoding="utf-8")) as fd:
         writer=csv.DictWriter(fd,fieldnames=list(rows[0]))
         writer.writeheader()
         writer.writerows(rows)
@@ -378,8 +379,8 @@ def main():
     report,pooled,by_policy=export(None,baseline,peryear,unpriced,metas)
     dest=Path(a.out_dir)
     dest.mkdir(parents=True,exist_ok=True)
-    write_csv(dest/"pruning-all-exact-rank-lines-2024-25.csv",report)
-    write_csv(dest/"pruning-all-exact-rank-lines-pooled-2024-25.csv",pooled)
+    write_csv(dest/"pruning-all-exact-rank-lines-2024-25.csv.gz",report)
+    write_csv(dest/"pruning-all-exact-rank-lines-pooled-2024-25.csv.gz",pooled)
     write_csv(dest/"red-black-transition-per-policy-and-year.csv",by_policy)
     summary={
         "contract":"L2_EV_TOP6_RAW_AI_EXACT_RANK_L2_PRUNING_APPLY_V1",
