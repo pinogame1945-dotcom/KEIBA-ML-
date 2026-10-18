@@ -158,7 +158,8 @@ def source_inputs(bf_root):
              and market["odds"]["readiness"]=="FINAL_ODDS_NOT_PRE_RACE_ASOF"
              and q[rid]["source"]=="NETKEIBA_FINAL" and
              q[rid]["snapshot_type"]=="POST_RACE_FINAL"
-             and market["odds"]["all_eight_bet_types_present"] is True
+             and set(("WIN","QUINELLA","TRIO","TRIFECTA")).issubset(
+                 set(market["odds"]["present_bet_types"]))
              and market["feature_sha256"]==meta["sha256"],
              "NO_VALID_HISTORICAL_FINAL_REPLAY_INPUT:"+rid)
         quotes=market["odds"]["raw_group_odds"]
