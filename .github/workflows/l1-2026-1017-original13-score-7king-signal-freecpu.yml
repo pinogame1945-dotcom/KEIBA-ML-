@@ -18,7 +18,7 @@ jobs:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       OUTSIDER_REF: pino1945/keiba-ml-2026-original13-outsider-candidate-v1
       KING_REF: pino1945/keiba-ml-2026-original-sevenking-candidate-v1
-      OUTPUT_REF: pino1945/keiba-ml-2026-1017-original13-7king-signal-research-v1
+      OUTPUT_REF: pino1945/keiba-2026-1017-out13-7k-research-v1
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
