@@ -102,7 +102,7 @@ def audit(backfill, upstream_file, market_file, report):
                 d["readiness"]=="PRE_RACE_OBSERVED_ASOF_UNVERIFIED" and
                 valid_time(d["source_captured_at_utc"]) and
                 set(d["by_bet_type"])==set(BETS) and
-                not d.get("not_offered_bet_types") and
+                not set(d.get("not_offered_bet_types") or []).intersection(L21_BETS) and
                 d["expected_combination_count"]==
                 d["quoted_combination_count"]+d["no_votes_combination_count"]+
                 d["scratched_combination_count"],
@@ -137,11 +137,15 @@ def audit(backfill, upstream_file, market_file, report):
                             "NO_VOTE_OR_SCRATCHED_HAS_IMAGINARY_ODDS:"+rid)
         for typ in BETS:
             t=d["by_bet_type"][typ]
-            require(t["status"]=="COLLECTED" and
-                    t["expected"]==t["listed"]==
-                    typed[typ]["quoted"]+typed[typ]["no_votes"]+typed[typ]["scratched"] and
-                    all(t[k]==typed[typ][k] for k in ("quoted","no_votes","scratched")),
-                    "EIGHT_BET_GROUP_COMBINATION_LOSS:"+rid+":"+typ)
+            counted=typed[typ]["quoted"]+typed[typ]["no_votes"]+typed[typ]["scratched"]
+            if typ in set(d.get("not_offered_bet_types") or []):
+                require(t["status"]=="NOT_OFFERED" and t["listed"]==counted==0,
+                        "NOT_OFFERED_GROUP_MUST_HAVE_NO_STORED_QUOTES:"+rid+":"+typ)
+            else:
+                require(t["status"]=="COLLECTED" and
+                        t["expected"]==t["listed"]==counted and
+                        all(t[k]==typed[typ][k] for k in ("quoted","no_votes","scratched")),
+                        "EIGHT_BET_GROUP_COMBINATION_LOSS:"+rid+":"+typ)
         require(set(win)==set(market[rid]),"SAVED_L175_WIN_HORSE_SET_VS_FULL8_MISMATCH:"+rid)
         changed=[n for n in win if not math.isclose(win[n],market[rid][n],rel_tol=0,abs_tol=1e-9)]
         sumq+=sum(typed[t]["quoted"] for t in L21_BETS)
