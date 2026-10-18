@@ -138,9 +138,12 @@ def compute(input_index,input_file,handoff,out):
              captured>=datetime.datetime(2026,10,16,tzinfo=datetime.timezone.utc),
              "OUTSIDE_ALLOWED_RACE_DAY_CAPTURE_WINDOW:"+rid)
         summary=odds["by_bet_type"]["WIN"]
+        # JRA includes scratched horses in the full WIN table, whereas
+        # frozen 690/7King correctly exclude them. Preserve that distinction.
         need(summary.get("status")=="COLLECTED" and
-             summary.get("expected")==len(horses) and
-             summary.get("listed")==len(horses),"OFFICIAL_JRA_WIN_FIELD_INCOMPLETE:"+rid)
+             type(summary.get("expected")) is int and
+             summary.get("expected")==summary.get("listed") and
+             summary.get("expected")>=len(horses),"OFFICIAL_JRA_WIN_FIELD_INCOMPLETE:"+rid)
         win={}
         for quote in odds.get("quotes") or []:
             if quote.get("bet_type")!="WIN":continue
@@ -153,12 +156,19 @@ def compute(input_index,input_file,handoff,out):
             win[nums[0]]=float(v)
         other_win=[x for key in ("no_votes","scratched_combinations")
                    for x in (odds.get(key) or []) if x.get("bet_type")=="WIN"]
+        no_vote_set={int(x["combination"][0]) for x in (odds.get("no_votes") or []) if x.get("bet_type")=="WIN"}
+        scratched_set={int(x["combination"][0]) for x in (odds.get("scratched_combinations") or []) if x.get("bet_type")=="WIN"}
+        active=set(identities.values())
         need(len(win)==summary.get("quoted") and
              len(other_win)==summary.get("no_votes",0)+summary.get("scratched",0) and
-             len(win)+len(other_win)==len(horses) and
-             {int(x["combination"][0]) for x in other_win}.isdisjoint(win),
+             len(win)+len(other_win)==summary["expected"] and
+             not (set(win)&(no_vote_set|scratched_set)) and
+             not (no_vote_set&scratched_set) and
+             not (active&scratched_set) and
+             active.issubset(set(win)|no_vote_set) and
+             len(set(win)|no_vote_set|scratched_set)==summary["expected"],
              "WIN_QUOTE_OR_NO_VOTE_POPULATION_MISMATCH:"+rid)
-        full=len(win)==len(horses)
+        full=set(win)==active
         ranks=competition_rank(win) if full else {}
         updated=[]
         for h in horses:
@@ -200,6 +210,7 @@ def compute(input_index,input_file,handoff,out):
         metrics["races"]+=1;metrics["horses"]+=len(horses)
         metrics["complete_win_races"]+=int(full)
         metrics["missing_win_quote_horses"]+=len(horses)-len(win)
+        metrics["scratched_jra_win_horses_not_in_frozen_active_field"]+=len(scratched_set)
     need(metrics["races"]==36 and metrics["horses"]==471 and
          all(x["ranking_policy"]=="SEVEN_KING_UNCHANGED" and
              x["ready_for_betting"] is False and
