@@ -1,0 +1,97 @@
+name: 2026-10-17 original CORE4 cached 690 read-only source audit (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-original-core4-cached-source-audit-freecpu.yml
+      - research/audit_2026_1017_original_core4_from_cached690_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: original-core4-2026-1017-cached690-src-audit
+  cancel-in-progress: false
+jobs:
+  audit-preexisting-original-core4:
+    runs-on: ubuntu-latest
+    timeout-minutes: 18
+    env:
+      BF_SHA: d6607946292efe79fc5eef8eaf143e689c41f6a9
+      ORIGINAL_2025_SHA: 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check original source verifier and standard public free CPU
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_original_core4_from_cached690_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",headers={"User-Agent":"keiba-standard-freecpu-check"})
+          assert json.load(urllib.request.urlopen(u,timeout=30)).get("private") is False,"STOP_NONPUBLIC_UNVERIFIED_FREE_CPU"
+          print("ORIGINAL_CORE4_PUBLIC_GITHUB_FREE_STANDARD_CPU_ONLY")
+          PY
+      - name: Read frozen 2025 real original CORE4 model schema source, no 2026 model reuse
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/original-2025-source"
+          mkdir -p "$dir"
+          git -C "$dir" init -q
+          git -C "$dir" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$dir" fetch -q --no-tags --depth 1 --filter=blob:none origin "$ORIGINAL_2025_SHA"
+          test "$(git -C "$dir" rev-parse FETCH_HEAD)" = "$ORIGINAL_2025_SHA"
+          git -C "$dir" show FETCH_HEAD:research/run_blind_202505050812_original_ability_v1.py > "$dir/original-2025-ability.py"
+          test -s "$dir/original-2025-ability.py"
+          echo 'ORIGINAL_2025_CODE_BASE_SHA_READONLY_VERIFIED'
+      - name: Use existing 36 690 target packets only, no feature/model recompute
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/pinned-backfill"
+          mkdir -p "$dir"
+          git -C "$dir" init -q
+          git -C "$dir" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$dir" fetch -q --no-tags --depth 1 --filter=blob:none origin "$BF_SHA"
+          test "$(git -C "$dir" rev-parse FETCH_HEAD)" = "$BF_SHA"
+          printf '/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-17/*\n' > "$RUNNER_TEMP/original-690-sparse.txt"
+          git -C "$dir" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/original-690-sparse.txt"
+          git -C "$dir" checkout -q --detach FETCH_HEAD
+          test "$(find "$dir/ml_features/delivery/690/2026-10-17" -maxdepth 1 -name '*.json' | wc -l)" -eq 36
+          test ! -d "$dir/ml_features/delivery/690/2026-10-10"
+          python research/audit_2026_1017_original_core4_from_cached690_v1.py \
+            --backfill-handoff "$dir" \
+            --original-2025-source "$RUNNER_TEMP/original-2025-source/original-2025-ability.py" \
+            --output "$RUNNER_TEMP/original-2026-core4-source-audit.json"
+      - name: Assert rigorous 36R 471H source identity and report exact model blockers
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          d=json.loads((Path(os.environ["RUNNER_TEMP"])/"original-2026-core4-source-audit.json").read_text())
+          assert d["contract"]=="KEIBA_ORIGINAL_CORE4_2026_1017_CACHED690_READONLY_SOURCE_AUDIT_V1"
+          assert d["races"]==36 and d["horses"]==471 and d["feature_total"]==690
+          assert (d["base649"],d["daybias19"],d["speed22"])==(649,19,22)
+          assert d["2026_results_read"] is False and d["ready_for_betting"] is False
+          assert d["original_core4_2026_trained_model_run"] is False
+          print("SOURCE_PARITY_GATE_36R_471H "+str(d["base649_original_core4_name_set_exact_match"]),flush=True)
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as out:
+              out.write("### Original 2026 CORE4 source gate\n")
+              out.write("- Exact original 2025 CORE4 649 feature-name SHA matched: **"+str(d["base649_original_core4_name_set_exact_match"])+"**\n")
+              out.write("- 2026 cached BACKFILL: **36R / 471H / 649 base + 19 daybias + 22 speed**. No recomputation.\n")
+              out.write("- 2026 original trained model and Risk teacher: **not verified or executed**.\n")
+              out.write("- L2.1 original ANCHOR_FULL: **not present, blocked**; no bets, L3, ROI, or 2026 outcomes.\n")
+              out.write("- Required originals: "+", ".join(d["remaining_original_l21_inputs"])+".\n")
+          PY
+      - name: Ephemeral free CPU only
+        if: always()
+        run: |
+          echo 'Standard GitHub ubuntu-latest CPU only. No GPU, paid runner, Kaggle storage, Actions artifacts/cache.'
+          echo 'No 2019-2025 snapshot re-read, no 2026 target results, no model training.'
+          echo 'No changes to original 2025 model or frozen original L2.1 and L3 V3.'
