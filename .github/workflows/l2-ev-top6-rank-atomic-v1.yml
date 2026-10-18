@@ -1,0 +1,102 @@
+name: L2 EV Top6 x Exact Pure AI Rank Ticket Statistics V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-top6-rank-atomic-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-top6-rank-atomic-v1
+  cancel-in-progress: false
+
+jobs:
+  stats:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Syntax and free standard runner policy
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/aggregate_ev_top6_pure_ai_rank_tickets_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          lines=Path(".github/workflows/l2-ev-top6-rank-atomic-v1.yml").read_text().splitlines()
+          assert [s.strip() for s in lines if s.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          forbidden=("actions/cache@", "actions/upload-artifact@", "self-hosted", "gpu")
+          uses=[s.strip() for s in lines if s.strip().startswith("- uses:")]
+          assert not any(any(word in row.lower() for word in forbidden) for row in uses)
+          print("STANDARD_CPU_NO_ARTIFACT_NO_CACHE_OK")
+          PY
+      - name: Install only existing research dependencies
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check numpy pandas
+      - name: Read only required historical BACKFILL days, pinned snapshot
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          test -s "$pred"
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$pred" out/backfill/.git/info/sparse-checkout <<'PY'
+          import pandas as pd,sys
+          dat=pd.read_csv(sys.argv[1],compression="infer",
+                          usecols=["year","_race_date","_race_id"])
+          assert set(dat.year.astype(int))=={2023,2024,2025}, "2026 SEALED"
+          dates=sorted(set(dat["_race_date"].astype(str).str[:10]))
+          assert 200<=len(dates)<=500, len(dates)
+          with open(sys.argv[2],"w") as fh:
+              for day in dates:fh.write("/data/daily/"+day+".jsonl.gz\n")
+          print("SPARSE_DATE_PACKS",len(dates))
+          PY
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+      - name: Aggregate named pure AI ranks, not top K; verify historical baselines
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          picks="research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz"
+          previous="research-results/l2-ev-top6-raw-ai-allbets-v1/run-39112399214/all-ev-top6-raw-ai-templates.csv"
+          dest="research-results/l2-ev-top6-raw-ai-rank-tickets-v1/run-$GITHUB_RUN_ID"
+          python research/aggregate_ev_top6_pure_ai_rank_tickets_v1.py \
+            --predictions "$pred" \
+            --picks "$picks" \
+            --prior-full-result "$previous" \
+            --backfill-root out/backfill \
+            --out-dir "$dest"
+          test -s "$dest/summary.json"
+          test -s "$dest/atomic-exact-rank-yearly-returns.csv"
+      - name: Remove temporary historical payout checkout
+        if: always()
+        run: rm -rf out/backfill
+      - name: Persist only aggregate statistics to research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-top6-raw-ai-rank-tickets-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: save exact EV1-6 x raw AI rank combination statistics $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
