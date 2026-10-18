@@ -212,7 +212,7 @@ jobs:
           stage=Path(os.environ["RUNNER_TEMP"])/"2026-original-private-save"
           stage.mkdir(exist_ok=False)
           src=list(d.iterdir())
-          assert len(src)==4
+          assert len(src)==5
           for f in src:shutil.copy2(f,stage/f.name)
           meta={"id":os.environ["OUTPUT_REF"],"title":"KEIBA 2026 Original AI Risk Anchor Candidate",
             "licenses":[{"name":"other"}],
@@ -231,7 +231,7 @@ jobs:
           idx=json.loads((stage/"index.json").read_text())
           expected={"index.json":hashlib.sha256((stage/"index.json").read_bytes()).hexdigest(),
                     **{name:v["sha256"] for name,v in idx["files"].items()}}
-          assert len(expected)==4
+          assert len(expected)==5
           with tempfile.TemporaryDirectory() as t:
               for name,checksum in expected.items():
                   for i in range(1,7):
@@ -245,7 +245,7 @@ jobs:
                   if not f.is_file() or hashlib.sha256(f.read_bytes()).hexdigest()!=checksum:
                       raise SystemExit("REMOTE_ORIGINAL_2026_MODEL_SHA256_MISMATCH:"+name)
                   time.sleep(2)
-          print("ORIGINAL_PURE_AI_CORRECTION_RISK_ANCHOR_2026_REMOTE_4_OF_4_SHA_VERIFIED")
+          print("ORIGINAL_PURE_AI_CORRECTION_RISK_ANCHOR_2026_REMOTE_5_OF_5_SHA_VERIFIED")
           PY
       - name: No release, no bet, no 2026 labels, no paid storage
         if: always()
