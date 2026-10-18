@@ -91,7 +91,7 @@ def run(reference,delivery,output):
             hid=str(horse.get("_horse_id") or "")
             hno=horse.get("horse_number")
             need(hid and hid not in seen and
-                 type(hno)is int and 1<=hno<=n and
+                 type(hno)is int and 1<=hno<=18 and
                  horse.get("_race_date")==DAY and horse.get("_race_id")==rid,
                  "INVALID_HORSE_ID_OR_NUMBER:"+rid)
             seen.add(hid)
