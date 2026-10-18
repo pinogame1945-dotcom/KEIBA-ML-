@@ -220,6 +220,7 @@ jobs:
           # Use the exact expanded path validated by the prior saved-asof lineage audit.
           council="$dest/2026-sevenking-unreleased-candidate/council2026.jsonl"
           test -s "$council"
+          export FROZEN_SEVENKING_COUNCIL="$council"
           echo "FROZEN_SEVENKING_COUNCIL=$council" >> "$GITHUB_ENV"
           PYTHONPATH=research python - <<'PY'
           from pathlib import Path
@@ -278,15 +279,18 @@ jobs:
           set -euo pipefail
           test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
           python - <<'PY'
-          import json,hashlib,os,shutil
+          import json,gzip,hashlib,os,shutil
           from pathlib import Path
           root=Path(os.environ["RUNNER_TEMP"]);stage=root/"13-support-stage"
           stage.mkdir(exist_ok=False)
-          for f in (root/"original13-scores").glob("*.jsonl.gz"):
-              shutil.copy2(f,stage/(f.name.replace(".jsonl.gz","__score.jsonl.gz")))
-          for f in (root/"original13-top3").glob("*.csv"):
+          for f in sorted((root/"original13-scores").glob("*.jsonl.gz")):
+              # Kaggle auto-expands gzip at ingest. Stage plain JSONL to keep exact SHA readback.
+              with gzip.open(f,"rb") as source,(stage/(f.name.replace(".jsonl.gz","__score.jsonl"))).open("wb") as dest:
+                  shutil.copyfileobj(source,dest)
+          for f in sorted((root/"original13-top3").glob("*.csv")):
               shutil.copy2(f,stage/(f.stem+"__top3.csv"))
-          shutil.copy2(root/"7king-13outsider-1017-signal.jsonl.gz",stage/"7king-13outsider-1017-signal.jsonl.gz")
+          with gzip.open(root/"7king-13outsider-1017-signal.jsonl.gz","rb") as source,(stage/"7king-13outsider-1017-signal.jsonl").open("wb") as dest:
+              shutil.copyfileobj(source,dest)
           paths=sorted(stage.iterdir())
           assert len(paths)==27
           manifest={"contract":"ORIGINAL13_7KING_2026_1017_RESEARCH_PRIVATE_V1",
