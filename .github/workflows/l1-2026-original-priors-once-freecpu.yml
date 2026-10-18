@@ -1,0 +1,196 @@
+name: Original 2026 CORE4 and Risk past-year projection ONCE (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-original-priors-once-freecpu.yml
+permissions:
+  contents: read
+concurrency:
+  group: original-2026-historical-priors-once
+  cancel-in-progress: false
+jobs:
+  original-prior-year-inputs-once:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      ORIGINAL_CODE_SHA: 25540d01c2bca3f070311b2e1bd5f8d48feca71b
+      MODEL_PRIOR_REF: pino1945/keiba-2026-original-l1-priors-once-v1
+      L1_THREADS: "2"
+      OMP_NUM_THREADS: "2"
+      OPENBLAS_NUM_THREADS: "1"
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Before any work ensure only public free CPU and no unrelated code changes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/prepare_2026_original_past_year_once_v1.py
+          test "$(df -Pk "$RUNNER_TEMP" | tail -1 | awk '{print $4}')" -gt 6000000
+          python - <<'PY'
+          import urllib.request,json
+          req=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",headers={"User-Agent":"keiba-original-freecpu"})
+          assert json.load(urllib.request.urlopen(req,timeout=30))["private"] is False,"STOP_NONFREE_RUNNER_ENV"
+          print("PUBLIC_GITHUB_STANDARD_FREE_CPU_ONLY")
+          PY
+      - name: Confirm private Kaggle free storage, forbid dataset overwrite before any 7-year processing
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF="$MODEL_PRIOR_REF" bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq "KAGGLE_STORAGE_PREFLIGHT_OK=1" "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          env=dict(x.split("=",1) for x in Path(os.environ["GITHUB_ENV"]).read_text().splitlines() if "=" in x)
+          assert env.get("KAGGLE_STORAGE_PREFLIGHT_OK")=="1"
+          assert int(env["KAGGLE_STORAGE_PREFLIGHT_BYTES"])+2*1024**3<193273528320
+          print("PRIVATE_PRIOR_PROJECTION_2GIB_RESERVED_IN_KAGGLE_FREE_QUOTA")
+          PY
+      - name: Pin exact original 2025 research code and CPU dependencies
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/original-l1-2025"
+          mkdir -p "$dir"
+          git -C "$dir" init -q
+          git -C "$dir" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$dir" fetch -q --no-tags --depth 1 --filter=blob:none origin "$ORIGINAL_CODE_SHA"
+          test "$(git -C "$dir" rev-parse FETCH_HEAD)" = "$ORIGINAL_CODE_SHA"
+          printf "/research/*\n/ml/requirements.txt\n/scripts/fetch_original_state_history_snapshot.sh\n" > "$RUNNER_TEMP/original-source-sparse.txt"
+          git -C "$dir" sparse-checkout set --no-cone --stdin < "$RUNNER_TEMP/original-source-sparse.txt"
+          git -C "$dir" checkout -q --detach FETCH_HEAD
+          test -s "$dir/research/run_l1_objective_rebuild_v1.py"
+          test -s "$dir/research/run_l1_state_transition_v1.py"
+          test -s "$dir/research/run_l1_sameday_track_bias_v1.py"
+          test -s "$dir/scripts/fetch_original_state_history_snapshot.sh"
+          python -m pip install --disable-pip-version-check --no-cache-dir -r "$dir/ml/requirements.txt"
+          python -m py_compile "$dir/research/run_l1_objective_rebuild_v1.py" "$dir/research/run_l1_state_transition_v1.py"
+          echo "FROZEN_ORIGINAL_2025_RESEARCH_FORMULAS_PINNED_NO_SPEC_CHANGE"
+      - name: Project 2019-2025 originals ONCE, discard each large raw snapshot immediately
+        shell: bash
+        run: |
+          set -euo pipefail
+          code="$RUNNER_TEMP/original-l1-2025"
+          dest="$RUNNER_TEMP/prior-projections"
+          mkdir -p "$dest"
+          for year in 2019 2020 2021 2022 2023 2024 2025; do
+            test "$year" -le 2025
+            echo "ORIGINAL_2026_PAST_YEAR_BEGIN $year"
+            bash "$code/scripts/fetch_original_state_history_snapshot.sh" "$year" "$dest" > "$dest/year-$year-fetch.log"
+            source="$(tail -n 1 "$dest/year-$year-fetch.log")"
+            test -s "$source"
+            IFS="$(printf '\t')" read -r manifest_year logical remote mode manifest_sha manifest_rows first last < "$dest/resolved-$year.tsv"
+            test "$manifest_year" = "$year"
+            PYTHONPATH="$code/research" python research/prepare_2026_original_past_year_once_v1.py \
+              --year "$year" --source "$source" \
+              --manifest-year "$manifest_year" --manifest-rows "$manifest_rows" \
+              --manifest-first "$first" --manifest-last "$last" \
+              --out "$dest"
+            test -s "$dest/compact-strict-prior-$year.csv.gz"
+            test -s "$dest/original-$year-projection-proof.json"
+            if [ "$year" -ge 2020 ]; then
+              test -s "$dest/original-$year-core4-base.csv.gz"
+              test -s "$dest/original-$year-daybias.csv.gz"
+            fi
+            if [ "$year" -ge 2022 ]; then
+              test -s "$dest/original-$year-prior-market.csv.gz"
+            fi
+            rm -f "$source"
+            echo "PAST_YEAR_PROJECTED_RAW_REMOVED $year"
+          done
+          test "$(find "$dest" -maxdepth 1 -name 'compact-strict-prior-20??.csv.gz' | wc -l)" -eq 7
+          test "$(find "$dest" -maxdepth 1 -name 'original-20??-core4-base.csv.gz' | wc -l)" -eq 6
+          test "$(find "$dest" -maxdepth 1 -name 'original-20??-daybias.csv.gz' | wc -l)" -eq 6
+          test "$(find "$dest" -maxdepth 1 -name 'original-20??-prior-market.csv.gz' | wc -l)" -eq 4
+          echo "ORIGINAL_2026_REUSABLE_HISTORICAL_PRIORS_ONCE 7_STATE 6_BASE 6_DAYBIAS 4_MARKET"
+      - name: Commit no historical data to Git; stage 23 immutable compressed archives in private Kaggle free quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          import json,os,hashlib,shutil
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"])
+          previous=root/"prior-projections";stage=root/"original-2026-priors-private"
+          stage.mkdir(exist_ok=False)
+          sources=sorted(previous.glob("compact-strict-prior-20??.csv.gz"))
+          sources+=sorted(previous.glob("original-20??-core4-base.csv.gz"))
+          sources+=sorted(previous.glob("original-20??-daybias.csv.gz"))
+          sources+=sorted(previous.glob("original-20??-prior-market.csv.gz"))
+          assert len(sources)==23
+          # Keep compressed archives byte-identical as *.bin; Kaggle auto
+          # decompression of *.gz would invalidate the original snapshot SHA.
+          files={}
+          for f in sources:
+              dest=stage/(f.name+".bin")
+              shutil.copy2(f,dest)
+              files[dest.name]={"sha256":hashlib.sha256(dest.read_bytes()).hexdigest(),"bytes":dest.stat().st_size}
+          proofs=[json.loads(p.read_text()) for p in sorted(previous.glob("original-20??-projection-proof.json"))]
+          assert [x["year"] for x in proofs]==list(range(2019,2026))
+          assert all(x["2026_outcomes_used"] is False for x in proofs)
+          index={"contract":"KEIBA_ORIGINAL_2026_PRIOR_2019_2025_ONCE_V1",
+           "original_source_sha":os.environ["ORIGINAL_CODE_SHA"],
+           "source_snapshot_generation":"bf811fa2eab73db0",
+           "only_prior_years":list(range(2019,2026)),
+           "original_core4_fit_years":[2024,2025],
+           "risk_teacher_years":[2022,2023,2024,2025],
+           "files":files,"original_source_year_proofs":proofs,
+           "2026_target_outcomes_used":False,"model_fit_performed":False,
+           "ready_for_betting":False}
+          (stage/"index.json").write_text(json.dumps(index,ensure_ascii=False,indent=2)+"\n")
+          meta={"id":os.environ["MODEL_PRIOR_REF"],
+            "title":"KEIBA 2026 Original L1 Prior Sources",
+            "licenses":[{"name":"other"}],
+            "description":"Private compressed 2019-25 true-prior CORE4, historical bias, state, risk market teacher; research only."}
+          assert 6<=len(meta["title"])<=50 and 6<=len(meta["id"].split("/")[-1])<=50
+          (stage/"dataset-metadata.json").write_text(json.dumps(meta,indent=2)+"\n")
+          size=sum(p.stat().st_size for p in stage.iterdir())
+          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          assert 0<size<2*1024**3 and used+size<193273528320,"STOP_FREE_KAGGLE_PRIOR_QUOTA_OR_SIZE"
+          print("PRIVATE_HISTORICAL_PRIOR_STAGE_FREE_CAPACITY_VERIFIED bytes="+str(size),flush=True)
+          PY
+          kaggle datasets create -p "$RUNNER_TEMP/original-2026-priors-private" --quiet --keep-tabular --dir-mode skip
+      - name: Verify saved private original priors are retrievable before marking reusable
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import hashlib,json,os,subprocess,tempfile,time
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"original-2026-priors-private"
+          idx=json.loads((d/"index.json").read_text())
+          refs={**{f:meta["sha256"] for f,meta in idx["files"].items()},
+                "index.json":hashlib.sha256((d/"index.json").read_bytes()).hexdigest()}
+          with tempfile.TemporaryDirectory() as tmp:
+              for i,(filename,hash_value) in enumerate(refs.items(),1):
+                  for attempt in range(1,7):
+                      p=subprocess.run(["kaggle","datasets","download",os.environ["MODEL_PRIOR_REF"],"-f",filename,"-p",tmp,"--unzip","--quiet","--force"],capture_output=True,text=True)
+                      if p.returncode==0:break
+                      err=p.stderr or p.stdout
+                      if attempt==6 or not any(z in err for z in ("429","403","404","Too Many Requests","Forbidden","Not Found")):
+                          raise SystemExit("HISTORICAL_PRIOR_REMOTE_READBACK_FAILED:"+filename+":"+err[-250:])
+                      time.sleep(min(120,20*attempt))
+                  remote=Path(tmp)/filename
+                  if not remote.is_file() or hashlib.sha256(remote.read_bytes()).hexdigest()!=hash_value:
+                      raise SystemExit("HISTORICAL_PRIOR_REMOTE_HASH_DRIFT:"+filename)
+                  if i%6==0:print("HISTORICAL_PRIOR_REMOTE_SHA_VERIFIED "+str(i)+"/24",flush=True)
+                  time.sleep(2)
+          print("ORIGINAL_2026_ONCE_SAVED_PRIVATE_HISTORICAL_PRIORS_24_OF_24_SHA256_PASS",flush=True)
+          PY
+      - name: Original frozen specs and standard-free runner
+        if: always()
+        run: |
+          echo "2019-2025 source only. All 2026 target results sealed. No feature spec/learning rule changes."
+          echo "Public free standard GitHub CPU; no GPU, paid runner, Actions artifact, or cache."
+          echo "Any private Kaggle save required validated free storage first."
+          echo "No L2.1 L3 V3, 2026 model promotion or betting."
