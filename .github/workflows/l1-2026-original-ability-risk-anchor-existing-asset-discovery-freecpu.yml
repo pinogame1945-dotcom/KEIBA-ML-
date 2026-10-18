@@ -1,0 +1,70 @@
+name: 2026 original pure AI Risk ANCHOR existing weight discovery (read only free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths: [.github/workflows/l1-2026-original-ability-risk-anchor-existing-asset-discovery-freecpu.yml]
+permissions:
+  contents: read
+jobs:
+  inspect-no-training:
+    runs-on: ubuntu-latest
+    timeout-minutes: 13
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify public free standard CPU and Kaggle read-only credentials
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python - <<'PY'
+          import json,urllib.request
+          u=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",headers={"User-Agent":"keiba-free-standard-cpu"})
+          assert json.load(urllib.request.urlopen(u,timeout=30))["private"] is False
+          print("FREE_PUBLIC_STANDARD_CPU_ONLY")
+          PY
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+      - name: Discover existing original pure LambdaRank risk and ANCHOR weights without downloading anything
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,re,subprocess,time,os
+          refs=set()
+          # Kaggle mine listing is metadata-only, no paid dataset publishing,
+          # unknown assets are NEVER considered verified trained model weights.
+          for page in range(1,1001):
+              for attempt in range(1,5):
+                  p=subprocess.run(["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref)"],capture_output=True,text=True)
+                  if p.returncode==0:break
+                  if attempt==4 or not any(x in p.stderr for x in ("429","Too Many Requests","502","503","504")):
+                      raise SystemExit("KAGGLE_DATASET_OWNERSHIP_LIST_UNAVAILABLE_PAGE_"+str(page))
+                  time.sleep(8*attempt)
+              try: rows=json.loads(p.stdout)
+              except json.JSONDecodeError:rows=[]
+              if not rows:break
+              refs.update(str(x["ref"]) for x in rows if isinstance(x,dict) and x.get("ref"))
+          else:raise SystemExit("UNBOUNDED_KAGGLE_INVENTORY_STOP")
+          relevant=sorted(x for x in refs if re.search(r"original|anchor|ability|risk|core4|2026|sevenking|7king",x,re.I))
+          print("OWN_PRIVATE_DATASETS_LISTED",len(refs),flush=True)
+          print("ORIGINAL_MODEL_CANDIDATE_REFS",json.dumps(relevant,ensure_ascii=False),flush=True)
+          # 7King core4 candidate is a binary-logloss classifier, not the
+          # original separate LambdaRank+Correction Risk+ANCHOR_FULL trio.
+          print("PERSISTED_ORIGINAL_2026_FULL_MODEL_TRIO_VERIFIED",False,flush=True)
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a",encoding="utf-8") as f:
+              f.write("### 2026 original model assets (metadata-only)\n")
+              f.write("Kaggle private own refs: "+str(len(refs))+". Filtered candidate refs: "+str(len(relevant))+".\n")
+              for x in relevant:f.write("- \`"+x+"\`\n")
+              f.write("\nNote: name discovery is NOT trained-model/protocol/SHA verification. 7King core4 is not original LambdaRank; no substitution permitted.\n")
+          PY
+      - name: Free and frozen
+        if: always()
+        run: |
+          echo "Only read Kaggle dataset metadata. No model fitting/scoring, downloading, uploading, GPU or billable storage."
+          echo "No original model release, 2026 outcome read, frozen L2.1/L3 run, or cache/artifact."
