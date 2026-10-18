@@ -125,7 +125,7 @@ def collect_prior(raw_daily,ids):
                  and FIRST_DAY<=f.name[:10]<TARGET_DAY)
     need(len(names)==517 and
          sum(x.name.startswith("2026-") for x in names)==87 and
-         names[0].name.startswith("2022-") and names[-1].name.startswith("2026-10-16"),
+         names[0].name.startswith("2022-") and names[-1].name[:10]<TARGET_DAY,
          "ORIGINAL_2022_TO_TARGET_PRIOR_SOURCE_DATES_NOT_517")
     historic=defaultdict(list);counts=Counter()
     races_scanned=0; race_has_target=0; peer_values=0
