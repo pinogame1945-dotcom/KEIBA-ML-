@@ -43,7 +43,7 @@ def main():
 
     def num(r, name):
         val = r[name]
-        return float(val) if val else float("nan")
+        return float(val) if val else float("-inf")
 
     def parsed(r):
         return {
@@ -54,7 +54,7 @@ def main():
         }
 
     pooled = sorted((r for r in source if r["year"] == "2023-2025" and
-                     r["market_rank_bucket"] == "ALL" and int(r["stake_yen"]) > 0),
+                     r["market_rank_bucket"] == "ALL"),
                     key=lambda r: (int(r["ev_axis_rank"]), r["family"],
                                    int(r["other_horses_k"])))
     assert len(pooled) == 6 * 172
