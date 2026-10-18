@@ -41,22 +41,16 @@ jobs:
           python -m pip install --no-cache-dir --disable-pip-version-check kaggle
           python -m pip install --no-cache-dir --disable-pip-version-check -r ml/requirements.txt
           PYTHONPATH=research python -m py_compile research/score_2026_10_17_original13_and_join7king_research_v1.py
-          bash scripts/kaggle-storage-preflight.sh
+          bash -n scripts/kaggle-storage-preflight.sh
+          KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF="$OUTPUT_REF" bash scripts/kaggle-storage-preflight.sh
           grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
           python - <<'PY'
-          import json,os,subprocess
-          ref=os.environ["OUTPUT_REF"]
-          own=set()
-          for page in range(1,1001):
-              p=subprocess.run(["kaggle","datasets","list","--mine","--page",str(page),"--format","json(ref)"],capture_output=True,text=True)
-              if p.returncode:raise SystemExit("KAGGLE_OWNERSHIP_PREFLIGHT_FAILED")
-              try:rows=json.loads(p.stdout)
-              except json.JSONDecodeError:rows=[]
-              if not rows:break
-              own.update(str(r.get("ref") or "") for r in rows)
-          else:raise SystemExit("KAGGLE_OWNERSHIP_PAGINATION_UNVERIFIED")
-          assert ref not in own,"REFUSE_OVERWRITE_EXISTING_RESEARCH_SCORE_DATASET"
-          used=int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
+          import os
+          from pathlib import Path
+          lines=Path(os.environ["GITHUB_ENV"]).read_text().splitlines()
+          vals=dict(line.split("=",1) for line in lines if "=" in line)
+          assert vals.get("KAGGLE_STORAGE_PREFLIGHT_OK")=="1","KAGGLE_PREFLIGHT_NOT_VERIFIED"
+          used=int(vals["KAGGLE_STORAGE_PREFLIGHT_BYTES"])
           assert used+64*1024*1024<193273528320,"FREE_STORAGE_INSUFFICIENT"
           print("PRIVATE_RESEARCH_OUTPUT_REF_NOT_EXISTS_AND_FREE_CAPACITY_VERIFIED")
           PY
