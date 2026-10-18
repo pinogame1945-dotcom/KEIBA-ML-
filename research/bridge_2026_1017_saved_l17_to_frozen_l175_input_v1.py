@@ -141,7 +141,8 @@ def build(source_index,source_signal,king_consensus,model_file,contract_file,out
                      "SEVENKING_UNCHANGED_SIGNAL_PROVENANCE_FAIL")
                 count=z["outsider_support_count"];score=z["outsider_score"]
                 votes=[z["outsider_top1_votes"],z["outsider_top2_votes"],z["outsider_top3_votes"]]
-                need(all(type(x) is int and 0<=x<=13 for x in votes+[count,score]) and
+                need(all(type(x) is int and 0<=x<=13 for x in votes+[count]) and
+                     type(score) is int and
                      count==sum(votes) and score==3*votes[0]+2*votes[1]+votes[2] and
                      0<=count<=13 and 0<=score<=39,"ORIGINAL13_OUTSIDER_VOTE_ARITHMETIC_DRIFT")
                 horse={"horse_id":hid,"king_rank":rank,
