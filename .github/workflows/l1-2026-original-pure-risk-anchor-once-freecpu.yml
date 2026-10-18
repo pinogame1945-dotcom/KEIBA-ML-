@@ -1,6 +1,9 @@
 name: 2026 original pure LambdaRank Risk ANCHOR prior-only run (free CPU)
 on:
-  workflow_dispatch:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-original-pure-risk-anchor-once-freecpu.yml
 permissions:
   contents: read
 concurrency:
@@ -9,7 +12,7 @@ concurrency:
 jobs:
   original-2026-blind-lambdarank-risk-anchor:
     runs-on: ubuntu-latest
-    timeout-minutes: 110
+    timeout-minutes: 260
     env:
       KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
       ORIGINAL_CODE_SHA: 25540d01c2bca3f070311b2e1bd5f8d48feca71b
@@ -24,6 +27,32 @@ jobs:
       - uses: actions/checkout@v4
         with:
           persist-credentials: false
+      - name: Require success of the one-time original 2019-25 prior projection before training
+        env:
+          GH_API_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json,os,time,urllib.request
+          run_id=39096754962
+          url="https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-/actions/runs/"+str(run_id)
+          for i in range(160):
+              req=urllib.request.Request(url,headers={
+                 "User-Agent":"keiba-original-prior-dependency","Authorization":"Bearer "+os.environ["GH_API_TOKEN"]})
+              d=json.load(urllib.request.urlopen(req,timeout=30))
+              assert d["id"]==run_id and d["head_sha"]=="103b10990039ef40cd6f07864c3a5dc9482cb9fd"
+              if d["status"]=="completed":
+                  if d["conclusion"]!="success":
+                      raise SystemExit("STOP_ORIGINAL_2019_2025_PRIOR_PROJECTION_FAILED:"+str(d["conclusion"]))
+                  print("ORIGINAL_PRIOR_PROJECTED_ONCE_SUCCESS_REUSE_ONLY",flush=True)
+                  break
+              if i%6==0:
+                  print("PREPARE_ORIGINAL_PRIOR_DEPENDENCY_WAIT no_pre_2026_retrain count="+str(i),flush=True)
+              time.sleep(45)
+          else:
+              raise SystemExit("STOP_ORIGINAL_PRIOR_NOT_COMPLETED_WITHIN_FREE_RUNNER_TIME_BUDGET")
+          PY
       - uses: actions/setup-python@v5
         with:
           python-version: "3.12"
