@@ -25,7 +25,7 @@ MARKET_RACE="KEIBA_2026_1017_L175_MARKET_JOIN_RESEARCH_V1"
 EXPECTED_ML_SOURCES={
  "fixed":"9845ef5c11e74d4e668b463674e3eef15c344702",
  "gates":"2a36c0411835db7a29359894a9bc8eb2ab715e2f"}
-TYPE_TO_GROUP={"QUINELLA":"4","TRIO":"7","TRIFECTA":"8","WIN":"1","PLACE":"2"}
+TYPE_TO_GROUP={"QUINELLA":"4","TRIO":"7","TRIFECTA":"8","WIN":"1"}
 REQUIRED_BETS={"QUINELLA","TRIO","TRIFECTA"}
 
 def guard(ok,why):
@@ -355,7 +355,7 @@ def run(args):
       "races":36,"horses":471,"standard_rules":50,"strict_rules":26,
       "races_with_tickets":final["races_with_tickets"],
       "physical_tickets":count["unique_tickets"],
-      "duplicates_eliminated":occurrences-count["unique_tickets"],
+      "duplicates_eliminated":count["pre_dedup_ticket_events"]-count["unique_tickets"],
       "types":dict(totals),
       "budget_over_300_yen_races":final["races_exceeding_300_yen_if_all_tickets_min100"],
       "payouts":False,"betting":False},sort_keys=True),flush=True)
