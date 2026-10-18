@@ -1,0 +1,144 @@
+name: L2 Ticket Pruning All EV1-6 x Pure AI Exact Rank Bets V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-top6-apply-pruning-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-top6-apply-pruning-v1
+  cancel-in-progress: false
+
+jobs:
+  prune-all:
+    runs-on: ubuntu-latest
+    timeout-minutes: 100
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check unchanged pruning import, 20 variants and free CPU rules
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/apply_l2_pruning_to_ev_top6_atomic_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-ev-top6-apply-pruning-v1.yml").read_text()
+          runners=[s.strip() for s in wf.splitlines() if s.strip().startswith("runs-on:")]
+          uses=[s.strip() for s in wf.splitlines() if s.strip().startswith("- uses:")]
+          assert runners == ["runs-on: ubuntu-latest"], runners
+          assert not any(x in s for s in uses for x in ("actions/cache@","actions/upload-artifact@"))
+          assert "self-hosted" not in " ".join(runners).lower()
+          print("FREE_STANDARD_CPU_NO_CACHE_ARTIFACT")
+          PY
+      - name: Install same research Python dependencies
+        shell: bash
+        run: |
+          python -m pip install --disable-pip-version-check pandas numpy
+      - name: Verify reference, code parity, and policy inventory
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import sys
+          sys.path.insert(0, "research")
+          import apply_l2_pruning_to_ev_top6_atomic_v1 as s
+          import run_l2_fixed_ticket_pruning_3040_v1 as p
+          assert len(p.POLICIES)==21 and len(p.MODES)==4 and len(p.KEEP)==5
+          a=list(s.generate(18,[1,2,18]))
+          assert len(a)==17 and len(set(key for key,_ in a))==17
+          b=list(s.generate(18,list(range(1,19))))
+          assert len(b)==1022 and len(set(key for key,_ in b))==1022
+          assert all(ticket[1].count(18)==1 for _,ticket in b)
+          print("ALL_21_POLICIES_AND_ATOMIC_FAMILIES_OK")
+          PY
+          test -s research-results/l2-ev-top6-raw-ai-rank-tickets-v1/run-39113910151/atomic-exact-rank-yearly-returns.csv
+      - name: Pinned BACKFILL manifest and exact historical odds day paths
+        shell: bash
+        run: |
+          set -euo pipefail
+          pred="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          mkdir -p out/pinned-history
+          git init -q out/pinned-history
+          git -C out/pinned-history remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/pinned-history sparse-checkout init --no-cone
+          git -C out/pinned-history sparse-checkout set --no-cone data/manifest.json data/odds/manifest.json
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          git -C out/pinned-history fetch --depth=1 --filter=blob:none origin "$SHA"
+          git -C out/pinned-history checkout -q --detach FETCH_HEAD
+          test "$(git -C out/pinned-history rev-parse HEAD)" = "$SHA"
+          python - "$pred" <<'PY'
+          import json,pandas as pd,sys
+          from pathlib import Path
+          root=Path("out/pinned-history")
+          data=json.loads((root/"data/manifest.json").read_text())
+          odds=json.loads((root/"data/odds/manifest.json").read_text())
+          df=pd.read_csv(sys.argv[1],compression="infer",
+                         usecols=["year","_race_date"])
+          assert set(df.year.astype(int))=={2023,2024,2025}
+          dates=sorted(set(df._race_date.astype(str).str[:10]))
+          assert 300<=len(dates)<=350,len(dates)
+          wanted={"data/manifest.json","data/odds/manifest.json"}
+          for date in dates:
+              pack=data["days"].get(date)
+              oh=odds["days"].get(date)
+              assert pack and pack["status"]=="SUCCESS",(date,pack)
+              assert oh and oh["status"]=="SUCCESS",(date,oh)
+              x=pack["file"];y=oh["file"]
+              assert x.startswith("data/daily/") and x.endswith(".jsonl.gz"),x
+              assert y.startswith("data/odds/daily/") and y.endswith(".jsonl.gz"),y
+              wanted.add(x);wanted.add(y)
+          Path("out/pinned-paths.txt").write_text(
+              "\n".join("/"+p for p in sorted(wanted))+"\n")
+          print("PINNED_DAYS",len(dates),"FILES",len(wanted))
+          PY
+      - name: Sparse checkout historical payoffs and ticket odds once
+        shell: bash
+        run: |
+          set -euo pipefail
+          git -C out/pinned-history sparse-checkout set --no-cone --stdin < out/pinned-paths.txt
+          test -s out/pinned-history/data/manifest.json
+          test -s out/pinned-history/data/odds/manifest.json
+          echo "ALL_PINNED_HISTORY_READY"
+      - name: Apply unchanged L2 pruning methods to every exact AI rank ticket
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-top6-raw-ai-pruning-v1/run-$GITHUB_RUN_ID"
+          python -u research/apply_l2_pruning_to_ev_top6_atomic_v1.py \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --picks research-results/all-race-one-pick-v1/run-38668174639/all-race-one-picks.csv.gz \
+            --racewise research-results/l2-ai-market-rank-betfrontier-v1/run-38681301385/racewise-anchor-comparison.csv.gz \
+            --atomic-reference research-results/l2-ev-top6-raw-ai-rank-tickets-v1/run-39113910151/atomic-exact-rank-yearly-returns.csv \
+            --backfill-root out/pinned-history \
+            --out-dir "$out"
+          for f in summary.json red-black-transition-per-policy-and-year.csv \
+                   pruning-all-exact-rank-lines-2024-25.csv.gz \
+                   pruning-all-exact-rank-lines-pooled-2024-25.csv.gz; do
+            test -s "$out/$f"
+          done
+      - name: Delete working payout/odds files
+        if: always()
+        run: rm -rf out/pinned-history out/pinned-paths.txt
+      - name: Save compressed aggregate tables to research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="research-results/l2-ev-top6-raw-ai-pruning-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$out"
+          git commit -m "research: store all 6870 rank tickets x 20 L2 pruning policies $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
