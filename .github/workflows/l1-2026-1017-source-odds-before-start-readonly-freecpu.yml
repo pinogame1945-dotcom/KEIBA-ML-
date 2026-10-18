@@ -1,0 +1,101 @@
+name: 2026 original 690 and JRA eight odds source before start audit (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-source-odds-before-start-readonly-freecpu.yml
+      - research/audit_2026_1017_source_capture_vs_official_start_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: original-2026-1017-source-asof-observation
+  cancel-in-progress: false
+jobs:
+  audit-capture:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Assert public free standard CPU and read-only audit
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_2026_1017_source_capture_vs_official_start_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          req=urllib.request.Request(
+            "https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",
+            headers={"User-Agent":"keiba-source-evidence-standard-freecpu"})
+          assert json.load(urllib.request.urlopen(req,timeout=30)).get("private") is False
+          print("PUBLIC_GITHUB_FREE_STANDARD_CPU_NO_PAID_RESOURCES")
+          PY
+      - name: Read exact immutable BACKFILL 690 and eight-odds paired delivery for 2026-10-17
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/backfill-delivery"
+          mkdir -p "$out"
+          git -C "$out" init -q
+          git -C "$out" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$out" sparse-checkout init --no-cone
+          printf '/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-17/*\n/ml_features/delivery/odds/index.json\n/ml_features/delivery/odds/2026-10-17/*\n' > "$out/.git/info/sparse-checkout"
+          git -C "$out" fetch -q --no-tags --depth 1 --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$out" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$out" checkout -q --detach FETCH_HEAD
+          test "$(find "$out/ml_features/delivery/690/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          test "$(find "$out/ml_features/delivery/odds/2026-10-17" -name '*.json' | wc -l)" -eq 36
+          echo "EXISTING_BACKFILL_690_AND_EIGHT_ODDS_36_RACES_REUSED"
+      - name: Read exact immutable original JRA and netkeiba source capture metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          out="$RUNNER_TEMP/backfill-source"
+          mkdir -p "$out"
+          git -C "$out" init -q
+          git -C "$out" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$out" sparse-checkout init --no-cone
+          printf '/data/live/2026-10-17/*\n' > "$out/.git/info/sparse-checkout"
+          git -C "$out" fetch -q --no-tags --depth 1 --filter=blob:none origin 10a500619f4061d6c2b20cfbfa0ac01093720807
+          test "$(git -C "$out" rev-parse FETCH_HEAD)" = 10a500619f4061d6c2b20cfbfa0ac01093720807
+          git -C "$out" checkout -q --detach FETCH_HEAD
+          test "$(find "$out/data/live/2026-10-17" -name '*.json' ! -name manifest.json | wc -l)" -eq 36
+          echo "SAVED_SOURCE_ORIGINAL_CAPTURE_36R_READ_ONLY"
+      - name: Validate actual captured page times versus each race official scheduled start
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/audit_2026_1017_source_capture_vs_official_start_v1.py \
+            --source-root "$RUNNER_TEMP/backfill-source" \
+            --delivery-root "$RUNNER_TEMP/backfill-delivery" \
+            --output "$RUNNER_TEMP/source-capture-start-audit.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          p=Path(os.environ["RUNNER_TEMP"])/"source-capture-start-audit.json"
+          r=json.loads(p.read_text())
+          assert r["races"]==36 and r["horses"]==471
+          assert r["all_36_races_raw_source_feature_and_quote_integrity_checked"]
+          assert set(r["l21_three_bet_types_quoted_combinations"])=={"QUINELLA","TRIO","TRIFECTA"}
+          assert not r["full_690_feature_level_asof_independently_certified"]
+          assert not r["original_2026_model_release_approved"]
+          assert not r["frozen_l21_engine_invoked"] and not r["l3_v3_invoked"]
+          assert not r["ready_for_betting"] and not r["2026_result_or_final_odds_used"]
+          print("EVIDENCE_BEFORE_CUTOFF",r["observational_capture_before_evidence_cutoff_races"])
+          print("UNCERTIFIED_SOURCE_RACES",r["observation_after_cutoff_or_unproven_races"])
+          print("FULL_690_NUMERICAL_PARITY_NOT_ASSERTED")
+          with open(os.environ["GITHUB_STEP_SUMMARY"],"a") as f:
+              f.write(f"Original 2026-10-17 BACKFILL source capture: {r['observational_capture_before_evidence_cutoff_races']}/36 races before evidence cutoff; {r['observation_after_cutoff_or_unproven_races']} not proven.\n")
+              f.write(f"Source page records checked: {r['raw_source_page_records_checked']}, horse identifiers: 471.\n")
+              f.write("Observation timestamp evidence is NOT proof of every 690 feature's independently certified as-of provenance, true at-cutoff prices, model promotion or L2.1/L3 readiness.\n")
+          PY
+      - name: No money, results, tickets or new storage
+        if: always()
+        run: |
+          echo "Public GitHub free standard CPU. No GPU, paid runners or paid storage."
+          echo "No Kaggle datasets, Actions cache/artifact, historical feature recalculation, frozen rule changes or bet engine."
+          echo "No 2026 results, final odds, labels, payouts, bankroll decisions or purchase orders."
