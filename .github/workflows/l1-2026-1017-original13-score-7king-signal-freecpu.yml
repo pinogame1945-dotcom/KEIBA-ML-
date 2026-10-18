@@ -190,7 +190,26 @@ jobs:
           set -euo pipefail
           dir="$RUNNER_TEMP/models13"
           mkdir -p "$dir"
-          kaggle datasets download "$OUTSIDER_REF" -f index.json -p "$dir" --unzip --quiet --force
+          download_one() {
+            local ref="$1" file="$2" folder="$3" attempt response
+            for attempt in 1 2 3 4 5; do
+              if response="$(kaggle datasets download "$ref" -f "$file" -p "$folder" --unzip --quiet --force 2>&1)"; then
+                test -s "$folder/$file" || { echo "::error::Kaggle returned success but file missing: $file"; return 1; }
+                return 0
+              fi
+              if [[ "$response" != *"429"* && "$response" != *"Too Many Requests"* ]]; then
+                echo "::error::Kaggle download failed ($file): $response"
+                return 1
+              fi
+              if [[ "$attempt" -eq 5 ]]; then
+                echo "::error::Kaggle download remained rate limited ($file): $response"
+                return 1
+              fi
+              echo "KAGGLE_READ_ONLY_RATE_LIMIT_RETRY file=$file attempt=$attempt"
+              sleep $((30 * attempt))
+            done
+          }
+          download_one "$OUTSIDER_REF" index.json "$dir"
           python - <<'PY' > "$RUNNER_TEMP/13-remote-filenames.txt"
           import os,json
           from pathlib import Path
@@ -204,8 +223,8 @@ jobs:
                   print(f)
           PY
           while IFS= read -r file; do
-            kaggle datasets download "$OUTSIDER_REF" -f "$file" -p "$dir" --unzip --quiet --force
-            test -s "$dir/$file"
+            download_one "$OUTSIDER_REF" "$file" "$dir"
+            sleep 2
           done < "$RUNNER_TEMP/13-remote-filenames.txt"
           test "$(wc -l < "$RUNNER_TEMP/13-remote-filenames.txt")" -eq 39
           echo "EXISTING_ORIGINAL13_MODEL_FILES_RESTORED_39_WITHOUT_TRAINING"
@@ -215,7 +234,17 @@ jobs:
           set -euo pipefail
           dest="$RUNNER_TEMP/sevenking"
           mkdir -p "$dest"
-          kaggle datasets download "$KING_REF" -p "$dest" --unzip --quiet --force
+          for attempt in 1 2 3 4 5; do
+            if output="$(kaggle datasets download "$KING_REF" -p "$dest" --unzip --quiet --force 2>&1)"; then
+              break
+            fi
+            if [[ "$output" != *"429"* && "$output" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+              echo "::error::SevenKing readback failed: $output"
+              exit 1
+            fi
+            echo "SEVEN_KING_KAGGLE_RATE_LIMIT_RETRY attempt=$attempt"
+            sleep $((30 * attempt))
+          done
           # Kaggle expands both the seven-king ZIP and its .jsonl.gz during ingest.
           # Use the exact expanded path validated by the prior saved-asof lineage audit.
           council="$dest/2026-sevenking-unreleased-candidate/council2026.jsonl"
@@ -312,7 +341,7 @@ jobs:
           PY
           kaggle datasets create -p "$RUNNER_TEMP/13-support-stage" --quiet --keep-tabular --dir-mode skip
           python - <<'PY'
-          import hashlib,json,os,subprocess,tempfile
+          import hashlib,json,os,subprocess,tempfile,time
           from pathlib import Path
           stage=Path(os.environ["RUNNER_TEMP"])/"13-support-stage"
           ref=os.environ["OUTPUT_REF"]
@@ -321,11 +350,20 @@ jobs:
           assert len(expected)==28
           with tempfile.TemporaryDirectory() as d:
               for name,sha in expected.items():
-                  result=subprocess.run(["kaggle","datasets","download",ref,"-f",name,"-p",d,"--unzip","--quiet","--force"],capture_output=True,text=True)
-                  if result.returncode:raise SystemExit("REMOTE_SINGLE_FILE_FAILED:"+name+":"+result.stderr[-300:])
+                  for attempt in range(1,7):
+                      result=subprocess.run(["kaggle","datasets","download",ref,"-f",name,"-p",d,"--unzip","--quiet","--force"],capture_output=True,text=True)
+                      if result.returncode==0:
+                          break
+                      err=result.stderr or result.stdout
+                      transient=any(code in err for code in ("429","Too Many Requests","403","404","Forbidden","Not Found"))
+                      if not transient or attempt==6:
+                          raise SystemExit("REMOTE_SINGLE_FILE_FAILED:"+name+":"+err[-300:])
+                      print("KAGGLE_REMOTE_VERIFY_RETRY file="+name+" attempt="+str(attempt),flush=True)
+                      time.sleep(min(120,20*attempt))
                   remote=Path(d)/name
                   if not remote.is_file() or hashlib.sha256(remote.read_bytes()).hexdigest()!=sha:
                       raise SystemExit("REMOTE_SHA256_UNVERIFIED:"+name)
+                  time.sleep(2)
           print("ORIGINAL13_FROZEN7KING_RESEARCH_PRIVATE_REMOTE_VERIFIED_28_FILES",flush=True)
           PY
       - name: Free CPU and strict research-only guard
