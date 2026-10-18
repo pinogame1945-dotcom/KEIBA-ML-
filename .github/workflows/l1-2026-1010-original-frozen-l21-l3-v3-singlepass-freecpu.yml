@@ -1,0 +1,175 @@
+name: 2026 Oct 10 original saved L1 to frozen L2.1 and V3 24 races read-only (free CPU)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1010-original-frozen-l21-l3-v3-singlepass-freecpu.yml
+      - research/replay_2026_1010_original_saved_models_frozen_l21_l3_v3_v1.py
+permissions:
+  contents: read
+concurrency:
+  group: 2026-1010-original-l21-l3-v3-final-odds-paper-only
+  cancel-in-progress: false
+jobs:
+  frozen-l21-then-v3-then-outcome-display:
+    runs-on: ubuntu-latest
+    timeout-minutes: 40
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      ORIGINAL_MODEL_DATASET: pino1945/keiba-2026-original-pure-risk-anchor-v1
+      FREECPU_ONLY: 'true'
+      OMP_NUM_THREADS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Free public standard CPU gate and syntax
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/replay_2026_1010_original_saved_models_frozen_l21_l3_v3_v1.py
+          python -m py_compile research/replay_2026_1017_original_frozen_l21_ticket_candidates_v1.py
+          python - <<'PY'
+          import json,urllib.request
+          q=urllib.request.Request("https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-",
+             headers={"User-Agent":"keiba-1010-original-l3-free-cpu"})
+          assert json.load(urllib.request.urlopen(q,timeout=30))["private"] is False
+          print("PUBLIC_STANDARD_FREE_CPU_ONLY_NO_COSTLY_ARTIFACTS")
+          PY
+          python -m pip install --disable-pip-version-check --no-cache-dir numpy==2.3.5 pandas==3.0.6 lightgbm kaggle
+      - name: Fetch pinned exact original trained 2026 models and ANCHOR coefficients only
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/original-model"
+          for name in index.json original-core4-2026-lambdarank-model.txt original-correction-risk-2026-model.txt original-anchor-full-2025-prior-params.json; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$ORIGINAL_MODEL_DATASET" -f "$name" -p "$RUNNER_TEMP/original-model" --unzip --quiet --force 2>&1)"; then
+                test -s "$RUNNER_TEMP/original-model/$name"
+                break
+              fi
+              if [[ "$attempt" -eq 5 ]] || [[ "$result" != *'429'* && "$result" != *'Too Many Requests'* && "$result" != *'502'* && "$result" != *'503'* ]]; then
+                echo "::error::Pinned model source download failed: $name: $result"
+                exit 1
+              fi
+              sleep $((8*attempt))
+            done
+          done
+          echo "SAVED_ORIGINAL_2026_MODEL_WEIGHTS_AND_ANCHOR_PARAMS_REUSED_ZERO_TRAINING"
+      - name: Verify frozen L2.1 source, true pair generation, true gate flags, original 2025 geometry, original adopted L3
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin 9655c717333636b5cc931f672e12dbc377e396bc
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = 9655c717333636b5cc931f672e12dbc377e396bc
+          for spec in 'contracts/KEIBA_L2_1_FIXED_PURCHASE_V1.json contract.json 600fa764565545c4898c79d65187b8843e51a5e1' 'research/run_l2_fixed_ticket_pruning_3040_v1.py original-create-cards.py 9845ef5c11e74d4e668b463674e3eef15c344702' 'research/run_l2_all_fixed_odds_band_lenses_v1.py original-gates.py 2a36c0411835db7a29359894a9bc8eb2ab715e2f' 'research/run_l2_all_bet_types_ticket_odds_gate_v1.py original-lab.py -' 'research/run_l2_value_anchor_bet_frontier_v1.py original-pair-templates.py -'; do
+            read -r source name digest <<< "$spec"
+            git -C "$root" show "FETCH_HEAD:$source" > "$root/$name"
+            if [[ "$digest" != "-" ]]; then
+              test "$(git hash-object "$root/$name")" = "$digest"
+            fi
+          done
+          for spec in '25540d01c2bca3f070311b2e1bd5f8d48feca71b research/anchor-original-feature-geometry.py original-geometry.py -' '73cd7a3b671edf1f3869c4d730cbb701753f599a research/l3_v3_operational.py original-v3.py 71ea06e8a4d1a9694fc3a113c3c376a6b0bb4289'; do
+            read -r rev source name digest <<< "$spec"
+            git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin "$rev"
+            test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$rev"
+            git -C "$root" show "FETCH_HEAD:$source" > "$root/$name"
+            if [[ "$digest" != "-" ]]; then
+              test "$(git hash-object "$root/$name")" = "$digest"
+            fi
+          done
+          echo "AUTHENTIC_FROZEN_L21_50_RULES_AND_V3_MONEY_POLICY_NOT_CHANGED"
+      - name: Restore pinned 24x315 original unscreened 690 and 8 historical FINAL odds, no target results
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/input"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$root" sparse-checkout init --no-cone
+          printf '/ml_features/delivery/690/index.json\n/ml_features/delivery/690/2026-10-10/*\n/ml_features/delivery/odds/index.json\n/ml_features/delivery/odds/2026-10-10/*\n' > "$root/.git/info/sparse-checkout"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test "$(find "$root/ml_features/delivery/690/2026-10-10" -name '*.json' | wc -l)" -eq 24
+          test "$(find "$root/ml_features/delivery/odds/2026-10-10" -name '*.json' | wc -l)" -eq 24
+          test ! -e "$root/data/daily/2026-10-10.jsonl.gz"
+          echo "ORIGINAL_24R315H_PRERACE_FEATURES_AND_HISTORICAL_POSTRACE_FINAL_ODDS_ONLY"
+      - name: Restore separate pinned historical outcome file for LAST phase observation only
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/outcomes"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C "$root" fetch -q --depth 1 --no-tags --filter=blob:none origin d6607946292efe79fc5eef8eaf143e689c41f6a9
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = d6607946292efe79fc5eef8eaf143e689c41f6a9
+          git -C "$root" sparse-checkout init --no-cone
+          printf '/data/daily/2026-10-10.jsonl.gz\n' > "$root/.git/info/sparse-checkout"
+          git -C "$root" checkout -q --detach FETCH_HEAD
+          test -s "$root/data/daily/2026-10-10.jsonl.gz"
+          echo "RESULTS_AVAILABLE_SEPARATE_ONLY_FOR_POST_LOCK_OBSERVATION"
+      - name: Execute single pass original model -> frozen L2.1 -> official frozen V3 stakes -> historical outcomes
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/replay_2026_1010_original_saved_models_frozen_l21_l3_v3_v1.py \
+            --backfill-root "$RUNNER_TEMP/input" \
+            --model-dir "$RUNNER_TEMP/original-model" \
+            --model-index "$RUNNER_TEMP/original-model/index.json" \
+            --original-geometry "$RUNNER_TEMP/frozen/original-geometry.py" \
+            --original-create-cards "$RUNNER_TEMP/frozen/original-create-cards.py" \
+            --original-gates "$RUNNER_TEMP/frozen/original-gates.py" \
+            --original-odds-lab "$RUNNER_TEMP/frozen/original-lab.py" \
+            --original-templates "$RUNNER_TEMP/frozen/original-pair-templates.py" \
+            --original-replay-helper "research/replay_2026_1017_original_frozen_l21_ticket_candidates_v1.py" \
+            --frozen-l21-contract "$RUNNER_TEMP/frozen/contract.json" \
+            --original-v3-source "$RUNNER_TEMP/frozen/original-v3.py" \
+            --historical-results-root "$RUNNER_TEMP/outcomes" \
+            --output "$RUNNER_TEMP/2026-1010-24r-original-model-frozen-l21-l3-v3-paper-results.json"
+          python - <<'PY'
+          from pathlib import Path
+          import json,os
+          p=Path(os.environ['RUNNER_TEMP'])/'2026-1010-24r-original-model-frozen-l21-l3-v3-paper-results.json'
+          j=json.loads(p.read_text(encoding='utf8'))
+          assert j['races']==24 and j['horses']==315
+          assert j['fixed_l21_rules']==50 and j['l21_original_model_weights_reused']
+          assert j['l3_original_reverse_p3_engine_used'] and j['l3_max_race_budget_yen']==300
+          assert j['result_observation_performed_after_ticket_lock'] and j['results_not_used_for_training_or_reselection']
+          assert j['market_snapshot_type']=='POST_RACE_FINAL'
+          assert not j['genuine_1010_L175_p3_available'] and not j['real_prebet_provenance_verified']
+          assert not j['payout_yen_verified'] and j['actual_betting_not_performed']
+          assert not j['ready_for_betting']
+          assert len(j['per_race'])==24
+          assert sum(len(r['tickets']) for r in j['per_race'])==j['tickets']
+          assert sum(r['stake_total_yen'] for r in j['per_race'])==j['total_paper_stake_yen']
+          print('ORIGINAL_1010_24_RACES_L21_L3_V3_HISTORIC_RESULT_OBSERVATION_VERIFIED')
+          with open(os.environ['GITHUB_STEP_SUMMARY'],'a') as s:
+            s.write('## Oct 10 frozen original AI → L2.1 STANDARD 50 → L3 V3 race cards (historical observation)\n')
+            s.write(f"24 races/315 horses; selected {j['tickets']} tickets, historical result observation hits **{j['matched_tickets']}**, stake sum **¥{j['total_paper_stake_yen']:,}**.\n\n")
+            s.write('**Not live/released:** prices are NETKEIBA_FINAL after the race, not pre-race. True Oct 10 original per-horse P3 unavailable and intentionally left missing (official V3 missing-P3 priority); no bankroll available, no real purchase, no ROI claim. Outcome comparison is observational ONLY, performed after L1/L2/L3 decisions.\n\n')
+            s.write('| Race | Actual 1–2–3 | Tickets | L3 paper yen | Hits |\n|---|---|---:|---:|---:|\n')
+            for r in j['per_race']:
+              s.write(f"| {r['race_id']} | {r['actual_1_2_3']} | {len(r['tickets'])} | {r['stake_total_yen']} | {r['matched_tickets']} |\n")
+            s.write('\n| Race | Type | Numbers | FINAL odds | L3 paper yen | Hit |\n|---|---|---|---:|---:|---|\n')
+            for r in j['per_race']:
+              for t in r['tickets']:
+                s.write(f"| {r['race_id']} | {t['bet_type']} | {'-'.join(map(str,t['selection']))} | {t['decimal_odds']} | {t['stake_yen']} | {'YES' if t['hit'] else 'NO' if t['hit'] is False else 'UNKNOWN'} |\n")
+          PY
+      - name: Cost/freeze boundary
+        if: always()
+        run: |
+          echo "GitHub PUBLIC free standard CPU only. No GPU, paid Actions artifact/cache, Kaggle write/upload."
+          echo "No modifications to original L1 weights, frozen L2.1 lines, true V3 function, or BACKFILL data."
+          echo "Postrace final odds never described as live prebet quote. Result never used to tune any model/policy."
