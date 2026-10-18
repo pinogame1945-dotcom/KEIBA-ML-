@@ -1,0 +1,216 @@
+name: L1.7 2026-10-17 frozen L1.75 bridge (free CPU research)
+on:
+  push:
+    branches: [feature/l1-7king-2026-928-preflight-20261017]
+    paths:
+      - .github/workflows/l1-2026-1017-l175-frozen-research-bridge-freecpu.yml
+permissions:
+  contents: read
+concurrency:
+  group: 2026-l175-original-frozen-model-read-only-bridge
+  cancel-in-progress: false
+jobs:
+  original-frozen-l175-safe-bridge:
+    runs-on: ubuntu-latest
+    timeout-minutes: 28
+    env:
+      KAGGLE_API_TOKEN: ${{ secrets.KEIBA_ML_SNAPSHOTS }}
+      SIGNAL_REF: pino1945/keiba-2026-1017-out13-7k-research-v1
+      KING_REF: pino1945/keiba-ml-2026-original-sevenking-candidate-v1
+      OUTPUT_REF: pino1945/keiba-2026-1017-l175-safe-bridge-v1
+      MARKET_CONTRACT_SHA: c61cdb62c45e635d1f44a0b3aab01ee798d1ead7
+      CALIBRATOR_BLOB: d67fab649deb525f0deb49ee8bcfcef3b148ead9
+      P3_PATH: research-results/l17-king-outsider-podium-calibrator-wf-v1/run-36747215581/deployment-model.json
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check frozen provenance, public standard CPU, exact 2026 seal and valid Kaggle metadata
+        shell: bash
+        run: |
+          set -euo pipefail
+          test -n "$KAGGLE_API_TOKEN"
+          python -m py_compile research/bridge_2026_1017_saved_l17_to_frozen_l175_input_v1.py
+          test "$(git hash-object "$P3_PATH")" = "$CALIBRATOR_BLOB"
+          python - <<'PY'
+          import json,os,urllib.request
+          url="https://api.github.com/repos/pinogame1945-dotcom/KEIBA-ML-"
+          request=urllib.request.Request(url,headers={"User-Agent":"keiba-freecpu-research"})
+          assert json.load(urllib.request.urlopen(request,timeout=30)).get("private") is False
+          model=json.load(open(os.environ["P3_PATH"]))
+          assert model["contract"]=="L17_KING_OUTSIDER_PODIUM_CALIBRATOR_MODEL_V1"
+          assert model["training_years"]==[2021,2022,2023,2024,2025] and model["2026_sealed"] is True
+          assert len(model["coef"])==31 and model["odds_used"] is False
+          for n in ("OUTPUT_REF",):
+              slug=os.environ[n].split("/")[-1]
+              assert 6<=len(slug)<=50,"INVALID_KAGGLE_SLUG"
+          print("ORIGINAL_FROZEN_2021_2025_P3_MODEL_PUBLIC_FREE_CPU_PASS")
+          PY
+      - name: Verify Kaggle free research storage and forbid duplicate output before any persistence
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --no-cache-dir --disable-pip-version-check kaggle
+          KAGGLE_PREFLIGHT_REFUSE_EXISTING_REF="$OUTPUT_REF" bash scripts/kaggle-storage-preflight.sh
+          grep -Fxq 'KAGGLE_STORAGE_PREFLIGHT_OK=1' "$GITHUB_ENV"
+          python - <<'PY'
+          import os
+          from pathlib import Path
+          env=dict(line.split("=",1) for line in Path(os.environ["GITHUB_ENV"]).read_text().splitlines() if "=" in line)
+          assert env["KAGGLE_STORAGE_PREFLIGHT_OK"]=="1"
+          assert int(env["KAGGLE_STORAGE_PREFLIGHT_BYTES"])+16*1024*1024<193273528320
+          print("KAGGLE_PRIVATE_FREE_STORAGE_AND_NO_OVERWRITE_VERIFIED")
+          PY
+      - name: Fetch only pinned frozen L1.75 market contract, without altering its specification
+        shell: bash
+        run: |
+          set -euo pipefail
+          root="$RUNNER_TEMP/frozen-market"
+          mkdir -p "$root"
+          git -C "$root" init -q
+          git -C "$root" remote add origin https://github.com/pinogame1945-dotcom/KEIBA-ML-.git
+          git -C "$root" fetch -q --no-tags --depth 1 --filter=blob:none origin "$MARKET_CONTRACT_SHA"
+          test "$(git -C "$root" rev-parse FETCH_HEAD)" = "$MARKET_CONTRACT_SHA"
+          git -C "$root" show FETCH_HEAD:research/l175-market-context-v1.json > "$RUNNER_TEMP/frozen-l175-market-context-v1.json"
+          python - <<'PY'
+          import json,os
+          from pathlib import Path
+          v=json.loads((Path(os.environ["RUNNER_TEMP"])/"frozen-l175-market-context-v1.json").read_text())
+          assert v["contract"]=="L175_MARKET_CONTEXT_V1" and v["status"]=="FIXED_BRIDGE_CONTRACT"
+          assert v["market_policy"]=="JOIN_AFTER_L17_FREEZE" and v["2026_locked"] is True
+          print("FROZEN_L175_MARKET_CONTRACT_SOURCE_COMMIT_PINNED")
+          PY
+      - name: Restore private actual 13-Outsider plus 7King saved signal and verify source hash
+        shell: bash
+        run: |
+          set -euo pipefail
+          source_dir="$RUNNER_TEMP/real-source"
+          mkdir -p "$source_dir"
+          for file in index.json 7king-13outsider-1017-signal.jsonl; do
+            for attempt in 1 2 3 4 5; do
+              if result="$(kaggle datasets download "$SIGNAL_REF" -f "$file" -p "$source_dir" --unzip --quiet --force 2>&1)"; then
+                test -s "$source_dir/$file"
+                break
+              fi
+              if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+                echo "::error::Existing private signal unavailable: $file $result"
+                exit 1
+              fi
+              sleep $((25*attempt))
+            done
+            sleep 2
+          done
+          python - <<'PY'
+          import hashlib,json,os
+          from pathlib import Path
+          d=Path(os.environ["RUNNER_TEMP"])/"real-source"
+          index=json.loads((d/"index.json").read_text())
+          file=d/"7king-13outsider-1017-signal.jsonl"
+          assert index["contract"]=="ORIGINAL13_7KING_2026_1017_RESEARCH_PRIVATE_V1"
+          assert index["files"][file.name]==hashlib.sha256(file.read_bytes()).hexdigest()
+          assert index["ready_for_betting"] is False and index["2026_results_used"] is False
+          print("PRIVATE_REAL_13_OUTSIDER_SIGNAL_SHA256_MATCH")
+          PY
+      - name: Reuse only saved frozen 7King council, no new fit or 928 rebuild
+        shell: bash
+        run: |
+          set -euo pipefail
+          dir="$RUNNER_TEMP/old-7king"
+          mkdir -p "$dir"
+          for attempt in 1 2 3 4 5; do
+            if result="$(kaggle datasets download "$KING_REF" -p "$dir" --unzip --quiet --force 2>&1)"; then break; fi
+            if [[ "$result" != *"429"* && "$result" != *"Too Many Requests"* ]] || [[ "$attempt" -eq 5 ]]; then
+              echo "::error::Frozen 7King council unavailable $result"
+              exit 1
+            fi
+            sleep $((25*attempt))
+          done
+          test -s "$dir/2026-sevenking-unreleased-candidate/council2026.jsonl"
+          echo "RESTORED_FROZEN_7KING_COUNCIL_60R_786H"
+      - name: Connect sealed 2026 13-Outsider real signal to frozen 2021-25 L1.7 p3 without market/2026 labels
+        shell: bash
+        run: |
+          set -euo pipefail
+          python research/bridge_2026_1017_saved_l17_to_frozen_l175_input_v1.py \
+            --source-index "$RUNNER_TEMP/real-source/index.json" \
+            --source-signal "$RUNNER_TEMP/real-source/7king-13outsider-1017-signal.jsonl" \
+            --king-consensus "$RUNNER_TEMP/old-7king/2026-sevenking-unreleased-candidate/council2026.jsonl" \
+            --deployment-model "$P3_PATH" \
+            --frozen-market-contract "$RUNNER_TEMP/frozen-l175-market-context-v1.json" \
+            --output "$RUNNER_TEMP/l175-research-input-20261017.jsonl"
+          python - <<'PY'
+          import json,os,math
+          from pathlib import Path
+          rows=[json.loads(x) for x in (Path(os.environ["RUNNER_TEMP"])/"l175-research-input-20261017.jsonl").read_text().splitlines() if x]
+          assert len(rows)==36 and sum(x["horse_count"] for x in rows)==471
+          assert sum(h["p3_calibrated"] is not None for r in rows for h in r["horses"])==sum(min(r["horse_count"],10) for r in rows)
+          assert all(r["market_readiness"]=="BLOCKED_NO_AUTHENTIC_PRE_RACE_WIN_ODDS" and
+             r["l175_frozen_market_contract"]=="L175_MARKET_CONTEXT_V1" and
+             r["ready_for_betting"] is False and r["2026_target_results_used"] is False and
+             r["2026_asof_independently_verified"] is False and not r["l21_l3_invoked"] for r in rows)
+          assert all(h["market_win_odds"] is None and h["market_rank"] is None and
+             h["signed_rank_gap"] is None and h["outsider_alignment_score"] is None and
+             h["outsider_alignment"]=="NA" for r in rows for h in r["horses"])
+          print("REAL_2026_L175_P3_RESEARCH_BRIDGE_36R_471H_SHA_VALIDATED_NO_BET")
+          PY
+      - name: Persist only safe research L1.75 precursor privately after verified free quota
+        shell: bash
+        run: |
+          set -euo pipefail
+          test "$KAGGLE_STORAGE_PREFLIGHT_OK" = 1
+          python - <<'PY'
+          import hashlib,json,os,shutil
+          from pathlib import Path
+          root=Path(os.environ["RUNNER_TEMP"]);stage=root/"l175-bridge-publish"
+          stage.mkdir(exist_ok=False)
+          source=root/"l175-research-input-20261017.jsonl"
+          dest=stage/source.name
+          shutil.copy2(source,dest)
+          index={"contract":"KEIBA_2026_1017_FROZEN_L175_RESEARCH_PRECURSOR_SAVE_V1",
+            "races":36,"horses":471,"model_training_years":[2021,2022,2023,2024,2025],
+            "market_readiness":"BLOCKED_NO_AUTHENTIC_PRE_RACE_WIN_ODDS",
+            "ranking_policy":"SEVEN_KING_UNCHANGED",
+            "2026_target_results_used":False,"asof_independently_verified":False,
+            "ready_for_betting":False,"l21_l3_invoked":False,
+            "files":{dest.name:hashlib.sha256(dest.read_bytes()).hexdigest()}}
+          (stage/"index.json").write_text(json.dumps(index,ensure_ascii=False,indent=2)+"\n")
+          metadata={"id":os.environ["OUTPUT_REF"],"title":"KEIBA 2026 L175 Research Bridge",
+                    "licenses":[{"name":"other"}],
+                    "description":"Private frozen p3 research input only. Original market missing; no 2026 evaluation or betting."}
+          assert 6<=len(metadata["title"])<=50 and 6<=len(metadata["id"].split("/")[-1])<=50
+          (stage/"dataset-metadata.json").write_text(json.dumps(metadata,indent=2)+"\n")
+          n=sum(p.stat().st_size for p in stage.iterdir())
+          assert n<16*1024*1024 and int(os.environ["KAGGLE_STORAGE_PREFLIGHT_BYTES"])+n<193273528320
+          print("PRIVATE_FROZEN_L175_SAVE_WITHIN_FREE_QUOTA",n)
+          PY
+          kaggle datasets create -p "$RUNNER_TEMP/l175-bridge-publish" --quiet --keep-tabular --dir-mode skip
+          python - <<'PY'
+          import hashlib,json,os,subprocess,tempfile,time
+          from pathlib import Path
+          stage=Path(os.environ["RUNNER_TEMP"])/"l175-bridge-publish"
+          m=json.loads((stage/"index.json").read_text())
+          expected={"index.json":hashlib.sha256((stage/"index.json").read_bytes()).hexdigest(),**m["files"]}
+          assert len(expected)==2
+          with tempfile.TemporaryDirectory() as td:
+              for name,sh in expected.items():
+                  for i in range(1,7):
+                      p=subprocess.run(["kaggle","datasets","download",os.environ["OUTPUT_REF"],"-f",name,"-p",td,"--unzip","--quiet","--force"],capture_output=True,text=True)
+                      if p.returncode==0:break
+                      err=p.stderr or p.stdout
+                      if not any(code in err for code in ("429","403","404","Too Many Requests","Forbidden","Not Found")) or i==6:
+                          raise SystemExit("KAGGLE_REMOTE_FROZEN_BRIDGE_READBACK_FAIL:"+name+":"+err[-260:])
+                      time.sleep(min(120,20*i))
+                  remote=Path(td)/name
+                  assert remote.is_file() and hashlib.sha256(remote.read_bytes()).hexdigest()==sh,"REMOTE_FROZEN_RESEARCH_BRIDGE_SHA256_FAIL"
+          print("KAGGLE_PRIVATE_FROZEN_L175_RESEARCH_BRIDGE_2_OF_2_SHA256_PASS")
+          PY
+      - name: Cost, leakage, 2026 readiness and preserved original ranking policy
+        if: always()
+        run: |
+          echo 'Free standard GitHub CPU only; private Kaggle storage only after verified free-capacity and absence check.'
+          echo 'Existing original 7King, original 13 Outsider, original L1.7 p3 coefficients: read-only. 2026 labels sealed.'
+          echo 'L1.75 fixed contract not modified. Real 2026 pre-race WIN quotes absent; market L1.75 incomplete.'
+          echo 'No 690/928 regeneration, no model training, no L2.1, L3 V3, bets, artifacts or caches.'
