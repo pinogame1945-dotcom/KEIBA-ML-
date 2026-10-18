@@ -209,6 +209,8 @@ def real_original_model_score(frame,sources,idx,ability,risk,params,geometry,a_c
     src=frame.merge(context[required],on=["_race_id","_horse_id"],
                     how="left",validate="one_to_one")
     src=src[[c for c in src.columns if not c.startswith("neg_")]].copy()
+    if not set(r_cols).issubset(src.columns):
+        print("ORIGINAL_RISK_SAVED_REQUIRED_FEATURE_NAMES_MISSING",sorted(set(r_cols)-set(src.columns)),flush=True)
     need(set(r_cols).issubset(src.columns),"ORIGINAL_RISK_SAVED_COLUMN_MISSING")
     rx=category_x(src,r_cols,idx["original_risk_categorical_levels"])
     probs=np.asarray(risk.predict(rx),dtype=float)
