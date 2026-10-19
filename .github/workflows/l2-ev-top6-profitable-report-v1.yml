@@ -1,0 +1,69 @@
+name: L2 EV1-6 No-Odds Profitable Ticket Ranked Report V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-top6-profitable-report-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-top6-profitable-report-v1
+  cancel-in-progress: false
+
+jobs:
+  report:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Check report-only source and free CPU
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/report_l2_ev_top6_odds_free_profitable_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-ev-top6-profitable-report-v1.yml").read_text()
+          assert [x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")] == ["runs-on: ubuntu-latest"]
+          uses=[x.strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert not any(bad in use for use in uses for bad in ("upload-artifact","actions/cache","self-hosted"))
+          print("CPU_REPORT_ONLY_NO_PAID_STORAGE_OK")
+          PY
+      - name: Summarize saved three-year positive results, no recalculation
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898"
+          out="research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-$GITHUB_RUN_ID"
+          test -s "$input/all-6870-odds-free-gates-pooled.csv.gz"
+          test -s "$input/all-6870-odds-free-gates-yearly.csv.gz"
+          python -u research/report_l2_ev_top6_odds_free_profitable_v1.py \
+            --pooled "$input/all-6870-odds-free-gates-pooled.csv.gz" \
+            --yearly "$input/all-6870-odds-free-gates-yearly.csv.gz" \
+            --out "$out"
+          test -s "$out/summary.json"
+          test -s "$out/all-post-prune-three-year-profitable-detailed.csv"
+          for kind in hit_rate volume profit roi hit_count; do
+            test -s "$out/top-100-by-$kind.csv"
+          done
+      - name: Commit just the ranked report files
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: EV axes1-6 odds-free profitable ticket ranked report $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
