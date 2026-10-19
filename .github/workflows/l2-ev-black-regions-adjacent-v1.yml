@@ -1,0 +1,72 @@
+name: L2 Black Regions EV/AI Neighbor Study V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-black-regions-adjacent-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-black-regions-adjacent-v1
+  cancel-in-progress: false
+
+jobs:
+  rank-neighbor-study:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Validate source, frozen selection, free CPU only
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/audit_l2_black_regions_ev_ai_adjacent_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-ev-black-regions-adjacent-v1.yml").read_text()
+          runners=[x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          uses=[x.strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert runners==["runs-on: ubuntu-latest"],runners
+          assert not any(x in u for u in uses for x in
+              ("actions/cache@","actions/upload-artifact@","self-hosted","gpu"))
+          import csv
+          with open("research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-39229430682/all-three-individual-years-profitable.csv",encoding="utf-8-sig",newline="") as f:
+              assert len(list(csv.DictReader(f)))==134
+          PY
+      - name: Evaluate 134 black settings' neighboring rank regions from existing statistics ONLY
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898"
+          out="research-results/l2-ev-134-black-areas-adjacent-v1/run-$GITHUB_RUN_ID"
+          python -u research/audit_l2_black_regions_ev_ai_adjacent_v1.py \
+            --selected-134 research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-39229430682/all-three-individual-years-profitable.csv \
+            --pruned-yearly "$input/all-6870-odds-free-gates-yearly.csv.gz" \
+            --pruned-pooled "$input/all-6870-odds-free-gates-pooled.csv.gz" \
+            --out-dir "$out"
+          for f in summary.json all-134-black-area-neighbor-metrics.csv \
+                   all-134-adjacent-rank-comparisons.csv \
+                   black-area-connected-components.csv black-area-component-members.csv;do
+            test -s "$out/$f"
+          done
+      - name: Store only summarized region and adjacency metrics
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-134-black-areas-adjacent-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: 134 stable black settings neighborhood and connected regions $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
