@@ -1,0 +1,66 @@
+name: L2 EV1-6 Consistently Losing High-Volume Betting Patterns V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-high-volume-3year-red-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-high-volume-3year-red-v1
+  cancel-in-progress: false
+
+jobs:
+  report-loss-patterns:
+    runs-on: ubuntu-latest
+    timeout-minutes: 12
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Verify report only, standard free CPU, pinned source exists
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/report_l2_consistent_high_volume_red_ev_rank_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          s=Path(".github/workflows/l2-ev-high-volume-3year-red-v1.yml").read_text()
+          assert [x.strip() for x in s.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
+          assert not any(x in s for x in ("actions/upload-artifact", "actions/cache@", "self-hosted"))
+          input=Path("research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898")
+          assert (input/"all-6870-odds-free-gates-yearly.csv.gz").is_file()
+          assert (input/"all-6870-odds-free-gates-pooled.csv.gz").is_file()
+          PY
+      - name: Aggregate existing results, do not rerun horses or odds
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898"
+          out="research-results/l2-ev-three-year-consistent-red-v1/run-$GITHUB_RUN_ID"
+          python -u research/report_l2_consistent_high_volume_red_ev_rank_v1.py \
+            --source-yearly "$input/all-6870-odds-free-gates-yearly.csv.gz" \
+            --source-pooled "$input/all-6870-odds-free-gates-pooled.csv.gz" \
+            --out-dir "$out"
+          for f in summary.json all-consistent-low-roi-losses-3yr.csv counts-by-gate-and-roi-ceiling.csv top-100-all-by-volume.csv top-100-ALL-by-3yr-roi.csv;do
+            test -s "$out/$f"
+          done
+      - name: Commit only grouped descriptions and row statistics
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-three-year-consistent-red-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: report stable 3-year loss configurations $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
