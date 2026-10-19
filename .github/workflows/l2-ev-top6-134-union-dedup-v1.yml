@@ -1,0 +1,105 @@
+name: L2 EV1-6 134 Annual-Black Settings Union Dedup V1
+
+on:
+  push:
+    branches:
+      - research/l2-ev-top6-raw-ai-allbets-20261018
+    paths:
+      - .github/triggers/l2-ev-top6-134-union-dedup-v1.trigger
+
+permissions:
+  contents: write
+
+concurrency:
+  group: l2-ev-top6-134-union-dedup-v1
+  cancel-in-progress: false
+
+jobs:
+  combine-134:
+    runs-on: ubuntu-latest
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Install existing lightweight research dependencies
+        shell: bash
+        run: python -m pip install --disable-pip-version-check pandas numpy
+      - name: Verify no paid runner, no stored archive, exact selection input
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m py_compile research/merge_134_3yr_black_odd_free_dedup_v1.py
+          python - <<'PY'
+          from pathlib import Path
+          wf=Path(".github/workflows/l2-ev-top6-134-union-dedup-v1.yml").read_text()
+          runners=[x.strip() for x in wf.splitlines() if x.strip().startswith("runs-on:")]
+          uses=[x.strip() for x in wf.splitlines() if x.strip().startswith("- uses:")]
+          assert runners==["runs-on: ubuntu-latest"],runners
+          assert not any(bad in x for x in uses
+              for bad in ("upload-artifact","actions/cache","self-hosted","gpu"))
+          import csv
+          src="research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-39229430682/all-three-individual-years-profitable.csv"
+          with open(src,encoding="utf-8-sig",newline="") as f:
+              rows=list(csv.DictReader(f))
+          assert len(rows)==134 and all(int(x["削減後黒字年度数"])==3 for x in rows)
+          print("FREE_CPU_EXACT_134_SELECTED_SETTINGS")
+          PY
+      - name: Fetch pinned historical race outcome packs ONLY
+        shell: bash
+        run: |
+          set -euo pipefail
+          input="research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz"
+          SHA="0d4af461b77f0060dd9c789dd2da646026fada47"
+          mkdir -p out/backfill
+          git init -q out/backfill
+          git -C out/backfill remote add origin https://github.com/pinogame1945-dotcom/KEIBA-BACKFILL.git
+          git -C out/backfill sparse-checkout init --no-cone
+          python - "$input" out/backfill/.git/info/sparse-checkout <<'PY'
+          import pandas as pd,sys
+          df=pd.read_csv(sys.argv[1],compression="infer",usecols=["year","_race_date"])
+          assert set(df.year.astype(int))=={2023,2024,2025},"2026 SEALED"
+          dates=sorted(set(df["_race_date"].astype(str).str[:10]))
+          assert 200<=len(dates)<=500,len(dates)
+          with open(sys.argv[2],"w") as fh:
+              fh.writelines("/data/daily/"+d+".jsonl.gz\n" for d in dates)
+          print("PINNED_2023_2025_DAYS",len(dates))
+          PY
+          git -C out/backfill fetch --filter=blob:none --depth=1 origin "$SHA"
+          git -C out/backfill checkout -q --detach FETCH_HEAD
+          test "$(git -C out/backfill rev-parse HEAD)" = "$SHA"
+      - name: Combine all 134 qualifying strategies, dedup race physical tickets, verify prior exact statistics
+        shell: bash
+        run: |
+          set -euo pipefail
+          result="research-results/l2-ev-top6-134-stable-black-union-v1/run-$GITHUB_RUN_ID"
+          python -u research/merge_134_3yr_black_odd_free_dedup_v1.py \
+            --selected-134 research-results/l2-ev-top6-raw-ai-profitable-ranked-v1/run-39229430682/all-three-individual-years-profitable.csv \
+            --reference-yearly research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898/all-6870-odds-free-gates-yearly.csv.gz \
+            --predictions research-results/market-fixed-anchor-residual-v2/run-38659856085/oos-fair-value-predictions.csv.gz \
+            --ability-cache research-cache/market-fixed-anchor-residual-v2/fair-base-bf811fa2eab73db0.csv.gz \
+            --backfill-root out/backfill \
+            --out-dir "$result"
+          for f in summary.json deduped-134-annual-and-total.csv \
+                  deduped-134-by-bet-kind-3yr.csv deduped-134-by-race.csv;do
+            test -s "$result/$f"
+          done
+      - name: Clear temporary backfill input
+        if: always()
+        run: rm -rf out/backfill
+      - name: Commit compact deduped summary to research branch
+        if: success()
+        shell: bash
+        run: |
+          set -euo pipefail
+          dest="research-results/l2-ev-top6-134-stable-black-union-v1/run-$GITHUB_RUN_ID"
+          git config user.name "keiba-ml-research-bot"
+          git config user.email "actions@users.noreply.github.com"
+          git pull --rebase origin "$GITHUB_REF_NAME"
+          git add "$dest"
+          git commit -m "research: aggregate and exact-verify 134-yearly-black ticket union $GITHUB_RUN_ID"
+          git push origin "HEAD:$GITHUB_REF_NAME"
