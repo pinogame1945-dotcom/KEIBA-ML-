@@ -35,7 +35,7 @@ jobs:
           from pathlib import Path
           s=Path(".github/workflows/l2-ev-high-volume-3year-red-v1.yml").read_text()
           assert [x.strip() for x in s.splitlines() if x.strip().startswith("runs-on:")]==["runs-on: ubuntu-latest"]
-          assert not any(x in s for x in ("actions/upload-artifact", "actions/cache@", "self-hosted"))
+          uses=[x.strip() for x in s.splitlines() if x.strip().startswith("- uses:")]\n          assert not any(bad in item for item in uses for bad in ("actions/upload-artifact", "actions/cache@", "self-hosted"))
           input=Path("research-results/l2-ev-top6-raw-ai-odds-free-pruning-v1/run-39115499898")
           assert (input/"all-6870-odds-free-gates-yearly.csv.gz").is_file()
           assert (input/"all-6870-odds-free-gates-pooled.csv.gz").is_file()
