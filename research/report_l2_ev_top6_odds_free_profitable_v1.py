@@ -124,9 +124,9 @@ def main():
         group_by["期待値AI軸順位"][x["期待値AI軸順位"]]+=1
         group_by["黒字年度数"][x["削減後黒字年度数"]]+=1
         hits=x["的中点数_3年"]
-        key="1" if hits==1 else ("2-4" if hits<5 else
+        hit_bucket="1" if hits==1 else ("2-4" if hits<5 else
               ("5-9" if hits<10 else "10+"))
-        group_by["的中回数帯"][key]+=1
+        group_by["的中回数帯"][hit_bucket]+=1
     subset=[x for x in positive3 if x["購入点数_3年"]>=1000 and
             x["的中点数_3年"]>=10]
     summary={
