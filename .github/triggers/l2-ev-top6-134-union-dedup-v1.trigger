@@ -1,0 +1,1 @@
+Combine exactly 134 independently annual-profitable 2023-25 odds-free L2 gate strategies by physically deduplicated bets for 100yen per ticket. Verify all 402 single-strategy year exposures/hits/refunds exactly before reporting. No model recalculation or 2026. 20261019.
