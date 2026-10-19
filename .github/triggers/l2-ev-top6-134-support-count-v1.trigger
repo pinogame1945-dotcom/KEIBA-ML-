@@ -1,0 +1,1 @@
+Count the number of the previously selected 134 annual-positive EV1-6 / pure AI rank / odds-free L2 gate strategies supporting each real physical ticket across 2023-2025. Produce exact supporter histogram and per-ticket counts without imposing ticket caps. Verify 134 x 3 underlying yearly statistics and prior portfolio union. Free standard CPU only; 2026 sealed.
